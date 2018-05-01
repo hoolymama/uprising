@@ -1,0 +1,12 @@
+
+
+global proc uprising.init(string $moduleName) {
+
+    string $moduleMenu = module.menuName($moduleName);
+
+    setParent -m $moduleMenu;
+
+    menuItem -l "Convert objects" -c "python \"import uprising.util as uut; uut.convert_objects()\"";
+
+    setParent -m $moduleMenu;
+}

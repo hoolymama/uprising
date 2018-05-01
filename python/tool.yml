@@ -1,0 +1,9 @@
+---
+name: UprisingPackages
+python_script_copy_files:
+- site-packages/**/*.py
+- site-packages/**/*.pyc
+python_script_erb_files:
+- site-packages/**/*.py.erb
+python_script_relative: python
+templates: []

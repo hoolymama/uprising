@@ -1,0 +1,109 @@
+---
+title: Maya Dispatcher (Artist)
+description: Dispatch renders from Maya to Pixar's Tractor
+type: Tutorial
+---
+
+<% @figure_counter = 1 %>
+
+h3(#contents). Contents
+
+"Introduction":render_dispatcher_artist.html#introduction
+"Get Started":render_dispatcher_artist.html#get-started
+"Frame Specification":render_dispatcher_artist.html#frame-spec
+"Layers":render_dispatcher_artist.html#layers
+"Presets":render_dispatcher_artist.html#presets
+"Charts":render_dispatcher_artist.html#charts
+
+h3(#introduction). Introduction
+
+The Uprising plugin provides *renderDispatcher*, a Maya dependency graph node to submit jobs to tractor for farm rendering. It is designed to be flexible for TDs and intuitive for artists. 
+
+This tutorial deals with use of the dispatcher for artists using preset configurations. If instead you want to configure the dispatcher, please see the "Guide for TDs":render_dispatcher_td.html
+
+h3(#get-started). Get Started
+
+In this tutorial you will render a scene on the farm with Arnold. 
+
+h4. To prepare:
+
+* Load a scene or make some objects.
+* Set up 2 or more render layers.
+* Switch renderer to Arnold if it's not already set.
+* Test render a frame locally in the render view.
+* Make sure the Uprising plugin is loaded. If not see the "Activate" section "here":install_guide.html
+
+
+h4. To Submit a render job to Tractor.
+
+* Select Litter -> Uprising -> Render Dispatcher -> Load Central Preset.
+* Choose arnold.ma from the list.
+* Make sure arnoldRenderDispatcher is showing in the attribute editor.
+* Set Render Layers to active.
+* Click "Submit".
+
+You can now check tractor to see the progress of your job.
+
+<hr>
+<%= figure_tag('Attribute Editor', 'By default only artist attributes are visible','images/ae_artist.jpg','left') %>
+<hr>
+
+h3(#frame-spec). Frame Specification.
+
+The Frame Range section allows you to specify a single frame, the timeslider range, a custom range, or a custom list of frames.
+
+h4. Custom Frame List
+
+If Frame Range is set to Custom List you can enter a frame specification to render an irregular set of frames. The specification is a comma separated list of ranges of the form @<first>-<last>x<step>@. If the @<step>@ parameter is missing, a step of 1 will be assumed. If both the @<last>@ and @<step>@ parameter are missing, a single frame will be assumed. 
+
+Some examples:
+
+bc. 1,4,15
+4,11-56x3
+20,10-12
+1-3
+
+h4. Clumping
+
+Some renderers require are a two step process. 
+
+First, an export command is used to create intermediate files from a Maya scene file. For Arnold renders, these are *ass* files and the exporter is part of MTOA. Each ass file contains information to render 1 frame. 
+
+Then the renderer renders each of these these intermediate files. The Arnold render command is *kick*. 
+
+The Uprising render dispatcher allows you to specify how many intermediate files are generated in one process. This is called clumping. It is useful to clump the generation of intermediate files if time Maya takes to start up is large compared to the time it takes to export a frame. If your frame range is 1 to 200 for example and you set clump size to 10 you will use 20 Maya sessions on the farm. Each clump by default will export intermediate files for a linear range. Clump 1 will export frames 1 to 10 and so on. 
+
+You can however set the clumping strategy to cycle, in which case each clump will export a set of frames spread through the entire range. In the above example, clump 1 will export frames 1, 21, 41 ... 181. As the render order is dependent on the clump generation, In this way, you get to view early on a sampling of images throughout the range.
+
+bq..  *Overlap with Render Settings:*
+The Uprising Render Dispatcher, by design, does not modify the render settings window and it does not try to take control or be controlled by any attributes from Render Settings.
+
+The one exception is the frame range. This is because the frame range specification in Render Settings does not provide control over clumping of tasks on the farm, and therefore must be specified in the render dispatcher. The frame range settings in Render Settings will always be ignored when using the dispatcher.
+
+h3(#layers). Layers
+
+When generating render jobs, Uprising will switch Maya to each specified layer and submit a job from within that context, creating one job per layer. This means layer overrides are supported for attributes of the render dispatcher itself. So for example, you can create a layer override for attributes in the frame range section, and render layer_1 from 1-100X1 with clumpSize=10, layer_2 from 3-70x4 with clumpSize=4, and render just the current frame for layer_3. The same is true of priorities. 
+
+h3(#presets). Presets.
+
+The renderDispatcher node makes very few assumptions about the kind of jobs being submitted. It is fundamentally a UI that allows you to send stuff to tractor from Maya in a structure that lends itself to render jobs. It is up to the TD to create presets for different kinds of jobs. As a result, this documentation doesn't cover the details of any specific preset. 
+
+There are presets already installed in the uprising installation directory for Arnold Renders and Mental Ray renders. Others will follow. 
+
+If you make changes to the configuration you can save them as presets using the button in the attribute editor, and you can load in presets through the Uprising menu. Note: The standard Maya preset functionality won't work.
+
+h3(#charts). Charts
+
+The Arnold preset we used in this tutorial is configured to send an email on completion of each render job, and to extract information from the render logs into a single json file. In the email you'll find a path to a web page that displays the log information in visual charts. This is work in progress and at this time charts are only generated for Arnold renders and only render times, memory use, and ray counts are displayed.
+
+<hr>
+<%= figure_tag('Chart displaying Memory Usage for a 20 frame slice of an Arnold render', '','images/memchart.jpg','left') %>
+<hr>
+
+
+h3. Done
+
+A detailed description of RenderDispatcher attribites can be found in the "node documentation":renderDispatcher.html.
+
+
+Have Fun!

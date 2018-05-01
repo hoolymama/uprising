@@ -1,0 +1,23 @@
+---
+name: Uprising
+maya_script_copy_files:
+- script/**/*.mel
+maya_presets_copy_files:
+- presets/**/*.ma
+maya_python_script_copy_files:
+- script/**/*.py
+- script/**/*.pyc
+maya_scripted_plugin_erb_files:
+- scripted_plugin/**/*.py
+- scripted_plugin/**/*.pyc
+maya_python_script_erb_files:
+- script/**/*.py.erb
+maya_python_script_relative: maya/script
+maya_icon_copy_files:
+- icons/*.png
+- icons/*.xbm
+- icons/*.xpm
+maya_modules_erb_files:
+- ./*.mod.erb
+templates:
+- maya

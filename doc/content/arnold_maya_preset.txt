@@ -1,0 +1,174 @@
+---
+title: Arnold Maya Dispatcher
+description: Configuration for an Arnold Render Dispatcher
+type: Tutorial
+---
+
+h3(#contents). Contents
+
+"Introduction":arnold_maya_preset.html#introduction
+"Commands":arnold_maya_preset.html#commands
+"Prep Commands":arnold_maya_preset.html#prep-commands
+"Clump Commands":arnold_maya_preset.html#clump-commands
+"Frame Commands":arnold_maya_preset.html#frame-commands
+"Job Commands":arnold_maya_preset.html#job-commands
+"Charts":arnold_maya_preset.html#charts
+
+
+
+h3(#introduction). Introduction
+
+The purpose of this document is to provide examples for TDs looking to write new dispatcher presets. It examines the Arnold command configuration of the Maya Render Dispatcher. This configuration is saved as a preset which you can load by choosing Litter -> Uprising -> Render Dispatcher -> Load Central Preset. 
+
+If you are an artist looking to render with Arnold you should consult the "Guide for Artists":render_dispatcher_artist.html
+
+The configuration has commands to export Arnold's *ass* files and then render them. It is also set up to collate per-frame log files into one json file and send a "job-done" notification email the user. In the job-done email will be information about the render and a link to visual charts that display render statistics in an understandable form. The sections below explain how all this is achieved.
+
+h3(#commands). Commands
+
+Tractor job scripts are parsed with a TCL like parser, which has implications when trying to construct complex commands. You are encouraged to read through the section on "characters and escapes":https://renderman.pixar.com/resources/current/Tractor_1/scripting.html#special-characters-and-escapes-in-tractor-scripts in the Tractor documentation. 
+
+h3(#prep-commands). Prep Commands.
+
+There is one command in the prep task:
+
+bc. <uprisingpath>/bin/uprisingLatestDir.sh <projectpath>/renderData/<user>/<shortname>/<timestamp>
+
+It resolves to:
+
+bc. /usr/people/julian-m/tools/centos64_2015/uprising/2015.dev.999/bin/uprisingLatestDir.sh /jobs/mpc3dRnd_1800328/rnd/rnd_sequence/maya/renderData/julian-m/c4__tumbleDryer__003__008__chartDev/2014_08_17_22_48_00
+
+The script uprisingLatestDir.sh is a bash script that makes a timestamped directory, deletes any existing *latest* symbolic link, and then creates a new symbolic link to the new directory. 
+
+Many attempts were made to enter the mkdir, rm, and ln commands directly, but all of them failed. It seemed there were inconsistencies with the order of execution. In the end the solution was to write this simple script to handle the operation:
+
+bc. #! /bin/tcsh -f
+set dir = $argv[1]
+mkdir -p $dir
+pushd  ${dir}/..
+if ( -e ./latest) then
+	rm -f ./latest
+endif
+ln -s $dir:t latest
+popd
+
+Writing scripts to wrap up other commands helps to simplify working with the tractor job script, and will become a recurring theme as you'll see.
+
+h3(#clump-commands). Clump Commands.
+
+There is one command in the Clump Task Section. It makes a task for every clump and is responsible for writing out *ass* files. It is displayed here on multiple lines for readability.
+
+bc. env DISPLAY=:0 
+maya -batch -file <perishablepath>/<shortname>.ma 
+-script <uprisingpath>/maya/scripts/uprisingArnoldExportAss.mel 
+-command uprisingArnoldExportAss("<perishablepath>/<shortname>_<layername>;<layer>;<clumpregular>;<clumpcompact>")
+
+It resolves to:
+
+bc. env DISPLAY=:0 
+maya -batch 
+-file /jobs/mpc3dRnd_1800328/rnd/rnd_sequence/maya/renderData/julian-m/c4__tumbleDryer__003__008__chartDev/2014_08_17_22_48_00/c4__tumbleDryer__003__008__chartDev.ma 
+-script /usr/people/julian-m/tools/centos64_2015/uprising/2015.dev.999/maya/scripts/uprisingArnoldExportAss.mel 
+-command uprisingArnoldExportAss("/jobs/mpc3dRnd_1800328/rnd/rnd_sequence/maya/renderData/julian-m/c4__tumbleDryer__003__008__chartDev/2014_08_17_22_48_00/c4__tumbleDryer__003__008__chartDev_masterLayer;defaultRenderLayer;1;1200,1204,1")
+
+p. The strategy here is to use the maya batch command to open the file, source a MEL script and run a command from that script.
+
+* Due to a bug in Maya 2015, the DISPLAY variable had to be set.
+* -file is the renderScene specified in the System Files section in the attribute editor.
+* -script is the MEL script that was made specifically for exporting *ass* on the farm.
+* -command is the procedure in that script.
+
+Notice, all the arguments to uprisingArnoldExportAss are packed into a single string. This helps to keep things _relatively_ simple in the tractor job script. The responsibility is on the MEL script to parse that string and split up the various parts.
+
+You can see the source for "uprisingArnoldExportAss.mel":uprisingArnoldExportAss.html here
+
+bq.. The command passed to maya batch must be a MEL command. It would be an interesting exercise to implement a keyword argument parser for uprisingArnoldExportAss() so that only minor changes would need to be made to send different arguments to the ass export operation. Currently, if an artist wanted to turn on the expandProcedurals flag she would need to write a new script.
+
+
+h3(#frame-commands). Frame Commands.
+
+In order to render each ass file we call kick. Again a wrapper script was written to simplify the job script and to manage output. Notice that a python expression is used in order to pad the frame number.
+
+bc. `"%s/maya/scripts/uprising_arnold_render.py 
+kick -nstdin -i %s/%s_%s.%04d.ass -dw -dp -v 5 
+-logfile %s/%s_%s.%04d.log" 
+% (uprisingpath, perishablepath, shortname, layername, int(frame), perishablepath, shortname, layername, int(frame))`
+	
+resolves to:	
+
+bc. /usr/people/julian-m/tools/centos64_2015/uprising/2015.dev.999/maya/scripts/uprising_arnold_render.py kick -nstdin 
+-i /jobs/mpc3dRnd_1800328/rnd/rnd_sequence/maya/renderData/julian-m/c4__tumbleDryer__003__008__chartDev/2014_08_18_16_04_32/c4__tumbleDryer__003__008__chartDev_masterLayer.1001.ass 
+-dw -dp -v 5 
+-logfile /jobs/mpc3dRnd_1800328/rnd/rnd_sequence/maya/renderData/julian-m/c4__tumbleDryer__003__008__chartDev/2014_08_18_16_04_32/c4__tumbleDryer__003__008__chartDev_masterLayer.1001.log
+
+The purpose of the python script "uprising_arnold_render.py":uprising_arnold_render.html is to scan the output of kick for progress indicators and reformat them so that Tractor can update its task progress bars. 
+
+You can pass any set of arguments to kick and they will be handled in the wrapper script. 
+
+The @-nstdin@ flag is necessary because without it *kick* will hang while it waits for standard input.
+
+We also use the @-logfile@ option so that kick saves a log on disk. These logs are used to build charts to visualize the render statistics.
+
+h3(#job-commands). Job Commands.
+
+Job Postscript commands will be run when the job is finished. Finished means all tasks either completed or errored out. In the arnold preset we have two postscript commands:
+
+1. *log_to_json.py* - Create a JSON file containing information extracted from the log files that were created by kick.
+2. *uprising_job_completed_email.py* - Send an email to the user containing information about the render.
+
+h4. log_to_json.py 
+
+bc. log_to_json.py <perishablepath>/<shortname>_<layername> <renderpath>.json
+
+Resolves to:
+
+bc. /usr/people/julian-m/tools/centos64_2015/uprising/2015.dev.999/site-packages/chicken/log_to_json.py 
+/jobs/mpc3dRnd_1800328/rnd/rnd_sequence/maya/renderData/julian-m/c4__tumbleDryer__003__008__chartDev/2014_08_18_21_12_36/c4__tumbleDryer__003__008__chartDev_masterLayer 
+/jobs/mpc3dRnd_1800328/rnd/rnd_sequence/maya/renders/julian-m/c4__tumbleDryer__003__008__chartDev/masterLayer.json
+
+log_to_json.py takes 2 arguments. The basename of the log files, and the output json filename
+
+When the json file has been created, it can serve data to a web page that displays it in charts. The URL to that page, along with other information, is contained in a job-completed notification email. The script that composes that email is run from the second postscript command.
+
+h4. uprising_job_completed_email.py
+
+bc. <uprisingpath>/bin/uprising_job_completed_email.py 
+-t {<jobtitle>} 
+-s <shortname> 
+-d <renderpath> 
+-b <uprisingpath> 
+-j <perishablepath>/<shortname>_<layername>.json 
+julian-m@moving-picture.com <user>@moving-picture.com
+
+Resolves to:
+
+bc. /usr/people/julian-m/tools/centos64_2015/uprising/2015.dev.999/bin/uprising_job_completed_email.py 
+-t {[AR][defaultRenderLayer][c4__tumbleDryer__003__008__chartDev][F325(1001-1325x1)]} 
+-s c4__tumbleDryer__003__008__chartDev 
+-d /jobs/mpc3dRnd_1800328/rnd/rnd_sequence/maya/renders/julian-m/c4__tumbleDryer__003__008__chartDev/masterLayer 
+-b /usr/people/julian-m/tools/centos64_2015/uprising/2015.dev.999 
+-j /jobs/mpc3dRnd_1800328/rnd/rnd_sequence/maya/renderData/julian-m/c4__tumbleDryer__003__008__chartDev/2014_08_18_21_12_36/c4__tumbleDryer__003__008__chartDev_masterLayer.json julian-m@moving-picture.com julian-m@moving-picture.com
+
+Notice the curly braces around the title @{}@. TCL uses these to quote a string. If they are not used in this case, TCL sees the square braces @[]@ as special characters and the submission fails.
+
+The options to  uprising_job_completed_email.py are:
+
+* -h, --help            show this help message and exit
+* -t TITLE, --title=TITLE email subject
+* -s SCENE, --scene=SCENE scene file
+* -d DIRECTORY, --directory=DIRECTORY render directory
+* -f FRAMES, --frames=FRAMES frame count
+* -j JSON, --json=JSON  path to json log
+* -b UPRISINGPATH, --uprisingpath=UPRISINGPATH path to uprising install
+
+uprising_job_completed_email.py also requires one sender and at least one recipient. 
+
+The options are there to provide information to the user in the email body. If any options are missing, the relevant paragraph will be missing in the email. Both the --json and --uprisingpath options must be present to construct a link to the charts page.
+
+h3(#charts). Charts
+
+WIP
+
+
+
+

@@ -1,0 +1,53 @@
+---
+## author, email, creation time, and description will be set automatically at compile time. 
+## Uncomment the lines below only if you want to override these fields.
+# title: Alternative title
+# author: Someone Else
+# email: someone.else@example.com
+# created_at: 21 March 2012
+# description: Learn how to use this tool.
+type: Install Guide
+---
+
+
+<% productname_lower = item[:product_name].downcase %>
+h3. Install
+
+Move the <%= productname_lower %> directory into the place you keep your tools, for example:
+
+@/big/server/tools/<%= productname_lower %>/@ or @~/tools/<%= productname_lower %>/@
+
+If <%= productname_lower %> directory already exists, just move the <%= item[:product_revision]%> directory inside the <%= productname_lower %> directory.
+
+h3. Mac or Linux using bash or csh
+
+Run the install script found in:
+
+bc. <%= productname_lower %>/<%=item[:product_revision]%>/config/INSTALL.sh
+
+This will set up the files flak.sh and flak.csh in the above mentioned tools directory. These files set versions for this and related tools and source the package specific environment files (env.sh and env.csh respectively), which are contained within the package.
+
+All that's left to do is source flak.sh or flak.csh from a shell resource file. This may be setup already from a previous installation, in which case you can ignore the next steps. 
+
+Add to .bashrc:
+
+bc. source /path/to/tools/flak.sh
+
+Add to .cshrc or .tcshrc:
+
+bc. source /path/to/tools/flak.csh
+
+h3. Windows
+
+Windows instructions are not available at this time.
+
+h3. Activate in Maya.
+
+Load the <%= item[:product_name] %>.py plug-in from the plug-in manager.
+
+You should then see a Litter menu in the menu bar, which will contain a sub-menu for <%= item[:product_name] %>. Within that menu you'll find a Help menu containing an "About" sub-menu, and a "Documentation" sub-menu pointing to this documentation. If its not there, then something went wrong with the module path setup.
+
+h3. Done
+
+Have Fun!
+

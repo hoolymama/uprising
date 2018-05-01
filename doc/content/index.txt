@@ -1,0 +1,19 @@
+---
+## title, author, email, creation time, and description will be set automatically at compile time. 
+## Uncomment the lines below only if you want to override these fields.
+# title: Alternative title
+# author: Someone Else
+# email: someone.else@example.com
+# created_at: 30 April 2012
+# description: Learn how to use this tool.
+---
+
+h4. <%= item[:product_name] %> is a toolkit for submitting jobs to Pixar's tractor.
+
+<hr>
+<%= figure_tag('', '','images/hens.jpg','left') %>
+<hr>
+
+
+The word *<%= item[:product_name] %>* is a collective noun for chicks.
+

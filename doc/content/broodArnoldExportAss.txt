@@ -1,0 +1,105 @@
+---
+title: uprisingArnoldExportAss.mel
+description: Script to export ass through tractor
+type: Maya MEL Script
+---
+
+h3. Synopsis
+
+*uprisingArnoldExportAss()* parses the arg string and calls doUprisingArnoldExportAss()
+
+*doUprisingArnoldExportAss()* sets the correct layer, expands out the frame list, and calls exportAssVerbose() for each frame.
+
+*exportAssVerbose()* exports an ass file at the correct frame and sends progress information to Tractor.
+
+
+bc.. 
+proc exportAssVerbose(string $basename, int $frame, int $count, int $total) {
+    float $start = timerX();
+    currentTime $frame;
+    arnoldExportAss -sf $frame -ef $frame -fs 1 -f $basename;
+    int $percent = int(float($count * 100) / $total);
+    float $duration = timerX() - $start;
+    // Following line is recognized by tractor.
+    // It updates the little green progress bars.
+    print("TR_PROGRESS " +  $percent + "%\n");
+    print("Uprising Export Ass - Frame: " + $frame + " - Duration: " + $duration +" - Progress: " +  $percent + "%\n");
+}
+
+// Ensure that render paths are set to
+// go in a subdirectory with the user's name.
+proc setRenderFileRules() {
+    string $u = `getenv USER`;
+    workspace  -fr images ("renders/"+$u);
+    workspace  -fr renders ("renders/"+$u);
+    workspace  -fr image ("renders/"+$u);
+    workspace  -fr renderScenes ("renders/"+$u);
+}
+
+global proc doUprisingArnoldExportAss(
+    string $basename,
+	string $layerNode,
+	int $regular, 
+	int $frameRangeSpec[])
+{
+    setRenderFileRules();
+    // set only the render layer we are interested in
+    // and  go to start frame to make sure fluids update
+    for ($layer in `ls -type renderLayer`) {
+        setAttr ($layer +".renderable") false;
+    }
+    setAttr "time1.outTime" `playbackOptions -q -min`;
+    editRenderLayerGlobals  -currentRenderLayer $layerNode;
+    setAttr ($layerNode +".renderable") true;
+    string $layerName = ($layerNode == "defaultRenderLayer") ? "masterLayer" : $layerNode;
+    // figure out whether regular clump or irregular
+    // then export the ass files
+    int $framesToExport[];
+    if ($regular) {
+        for ($i = $frameRangeSpec[0]; $i <= $frameRangeSpec[1]; $i += $frameRangeSpec[2]) {
+            $framesToExport[`size $framesToExport`] = $i;
+        }
+    } else {
+        $framesToExport = $frameRangeSpec;
+    }
+    int $total = `size $framesToExport`;
+    for ($i = 0; $i < $total; $i++) {
+        int $count = $i+1;
+        exportAssVerbose($basename, $framesToExport[$i], $count, $total);
+    }
+    quit -abort -exitCode 0;
+}
+
+// use ";" to delimit args and "," 
+// to delimit array elements
+// For legacy purposes we have to accept either 4 or 5 args.
+// If 5 args, the 3rd is "plugins", which is not needed.
+global proc uprisingArnoldExportAss(string $args) {
+    string $buffer[];
+    int $numArgs = tokenize($args, ";", $buffer);
+    if (($numArgs < 4) || ($numArgs > 5)) {
+        error("doUprisingArnoldExportAss needs 4 or 5 args");
+    }
+    string $basename = $buffer[0];
+    string $layerNode = $buffer[1];
+    int $regular;
+    string $framesStr;
+    if ($numArgs == 4) {
+        $regular = int($buffer[2]);
+        $framesStr = $buffer[3];
+    } else {
+        $regular = int($buffer[3]);
+        $framesStr = $buffer[4];
+    }
+    string $framesBuffer[];
+    int $numFrames = tokenize($framesStr, ",", $framesBuffer);
+    int $frameRangeSpec[];
+    for ($i = 0; $i < $numFrames; $i++) {
+        $frameRangeSpec[$i] = int($framesBuffer[$i]);
+    }
+    doUprisingArnoldExportAss(
+        $basename, 
+        $layerNode, 
+        $regular, 
+        $frameRangeSpec);
+}

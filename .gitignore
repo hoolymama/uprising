@@ -1,0 +1,15 @@
+build
+doc/.sass*
+doc/output
+doc/tmp
+tmp/
+.DS_Store
+*.idb
+*.bak
+*.pyc
+*~
+*/examples/
+*.sublime-workspace
+*.sublime-project
+.nfs*
+__pycache__
