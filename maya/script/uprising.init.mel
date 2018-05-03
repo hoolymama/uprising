@@ -7,6 +7,8 @@ global proc uprising.init(string $moduleName) {
     setParent -m $moduleMenu;
 
     menuItem -l "Convert objects" -c "python \"import uprising.util as uut; uut.convert_objects()\"";
+    
+    menuItem -l "Insert Identity" -c "python \"import uprising.util as uut; uut.insert_identity()\"";
 
     setParent -m $moduleMenu;
 }
