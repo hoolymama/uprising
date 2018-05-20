@@ -1,0 +1,63 @@
+ global proc AEstrokeFactoryCurvesAddMultiWidget(string $plug, string $columnLayout, int $index) {
+
+ 	string $label = ("No curve: " + $index);
+ 	string $input[] = `listConnections -s 1 -d 0 ($plug+".curve")`;
+ 	if (`size $input`) {
+ 		 $label = ($input[0] + ": " + $index);
+ 	}
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+ 	string $cl = `frameLayout -bv 1 -cl 0 -cll 0 -label $label`;
+
+ 	attrControlGrp -attribute ($plug+".strokeLength");
+ 	attrControlGrp -attribute ($plug+".pointDensity");
+ 	attrControlGrp -attribute ($plug+".attack");
+ 	attrControlGrp -attribute ($plug+".lift");
+ 	attrControlGrp -attribute ($plug+".elevation");
+ 
+ 	string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
+ 	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
+
+
+ 	setParent ..;
+ }
+
+ global proc AEmultiStrokeFactoryCurvesReplace (string $nodeAttr) {
+
+ 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $col = "AEaddStrokeFactoryCurvesCol";
+
+ 	setParent ..;
+ 	int $numElements = `getAttr -size $nodeAttr`;
+
+ 	string $controls[] = `layout -q -ca $col`;
+ 	int $numExistingControls = size($controls);
+ 	for ($i = 0;$i<$numExistingControls;$i++) {
+ 		deleteUI $controls[$i];
+ 	}
+ 	int $indices[] = `getAttr -mi $nodeAttr`;
+ 	for ($i = 0;$i<$numElements;$i++) {
+ 		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
+ 		AEstrokeFactoryCurvesAddMultiWidget ($plug, $col, $i) ;
+ 	}
+ 	setParent ..;
+
+ 	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+ 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].pointDensity 1" ) "AEaddStrokeFactoryCurvesBtn";
+
+ }
+
+
+ global proc AEmultiStrokeFactoryCurvesNew (string $nodeAttr) {
+ 	setUITemplate -pst attributeEditorTemplate;
+
+ 	string $col = "AEaddStrokeFactoryCurvesCol";
+ 	button -l "Add" "AEaddStrokeFactoryCurvesBtn";
+ 	columnLayout -adj 1 $col ;	
+ 	setParent ..;
+ 	setUITemplate -ppt;
+
+ 	AEmultiStrokeFactoryCurvesReplace($nodeAttr);
+
+ }

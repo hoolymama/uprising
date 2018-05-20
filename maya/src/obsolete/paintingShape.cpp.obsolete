@@ -1,0 +1,1000 @@
+
+
+#include <maya/MPoint.h>
+#include <maya/MFnTypedAttribute.h>
+#include <maya/MFnNumericAttribute.h>
+#include <maya/MFnCompoundAttribute.h>
+
+#include <maya/MFnVectorArrayData.h>
+#include <maya/MFnDoubleArrayData.h>
+#include <maya/MIntArray.h>
+#include <maya/MFnMatrixAttribute.h>
+
+#include <maya/MGlobal.h>
+
+#include <maya/MStatus.h>
+#include <maya/MFnMatrixData.h>
+#include <maya/MFnMesh.h>
+#include <maya/MFnMeshData.h>
+#include <maya/MPointArray.h>
+#include <maya/MPlugArray.h>
+#include <maya/MRenderUtil.h>
+#include <maya/MFloatVectorArray.h>
+#include <maya/MFloatPointArray.h>
+#include <maya/MFloatMatrix.h>
+#include <maya/MFnIntArrayData.h>
+
+#include "errorMacros.h"
+#include "jMayaIds.h"
+
+#include "paintingShape.h"
+
+
+MObject paintingShape::aInMatrix;
+MObject paintingShape::aCurve;
+MObject paintingShape::aPointDensity;
+MObject paintingShape::aStrokeLength;
+MObject paintingShape::aAttack;
+MObject paintingShape::aLift;
+
+MObject paintingShape::aElevation;
+MObject paintingShape::aCurves;
+MObject paintingShape::aNormal;
+MObject paintingShape::aSpacing;
+
+//  brushes
+MObject paintingShape::aBrushWidth;
+MObject paintingShape::aBrushName;
+MObject paintingShape::aBrushTcp;
+MObject paintingShape::aBrushTip;
+MObject paintingShape::aBrushes;
+
+// paint
+MObject paintingShape::aPaintColorR;
+MObject paintingShape::aPaintColorG;
+MObject paintingShape::aPaintColorB;
+MObject paintingShape::aPaintColor;
+MObject paintingShape::aPaintName;
+MObject paintingShape::aPaintViscosity;
+MObject paintingShape::aPaints;
+
+MObject paintingShape::aOutCounts;
+MObject paintingShape::aOutPointsWorld;
+MObject paintingShape::aOutPointsLocal;
+MObject paintingShape::aOutNormalsWorld;
+MObject paintingShape::aOutNormalsLocal;
+
+MObject paintingShape::aDisplayPoints;
+MObject paintingShape::aDisplayNormals;
+MObject paintingShape::aDisplaySegments;
+MObject paintingShape::aDisplayStrokeGap;
+
+MObject paintingShape::aPointSize;
+MObject paintingShape::aNormalLength;
+MObject paintingShape::aNormalColor;
+
+MObject paintingShape::aColor;
+
+
+MTypeId paintingShape::id( k_paintingShape );
+
+paintingShape::paintingShape()
+{
+	m_geomData = new paintingData;
+}
+
+paintingShape::~paintingShape()
+{
+	delete m_geomData;
+}
+void paintingShape::postConstructor()
+{
+	MFnDependencyNode nodeFn(thisMObject());
+	nodeFn.setName("paintingShape#");
+	setExistWithoutInConnections(true);
+	setExistWithoutOutConnections(true);
+}
+
+
+
+
+bool paintingShape::isBounded() const {
+	//return false;
+	return true;
+}
+
+MBoundingBox paintingShape::boundingBox() const
+{
+
+	MStatus st;
+
+	MObject thisObj = thisMObject();
+
+	// get sample positions from output
+	MPlug positionPlug(thisObj, aOutPointsLocal);
+	MObject dPositions;
+	st = positionPlug.getValue(dPositions); er;
+	MFnVectorArrayData fnV(dPositions);
+	MVectorArray positions = fnV.array(&st); er;
+	unsigned pl = positions.length();
+	MBoundingBox bb;
+	if (pl > 0) {
+		bb = MBoundingBox(positions[0], positions[0]);
+	}
+	for (unsigned i = 1; i < pl; i++) {
+		bb.expand(positions[i]);
+	}
+
+	return bb;
+}
+
+void *paintingShape::creator()
+{
+	return new paintingShape();
+}
+
+
+
+
+
+MStatus paintingShape::initialize()
+{
+	MStatus	st = MS::kSuccess;
+	MFnNumericAttribute	nAttr;
+	MFnTypedAttribute	tAttr;
+	MFnMatrixAttribute	mAttr;
+
+	aInMesh = tAttr.create( "inMesh", "inm", MFnData::kMesh, &st ); er
+	tAttr.setReadable(false);
+	st = addAttribute(aInMesh);	er;
+
+	////////////////////////////////////////////////////////////////////
+	aVoxelMatrix = mAttr.create("voxelMatrix", "vm");
+	mAttr.setReadable( false );
+	mAttr.setStorable( true );
+	addAttribute( aVoxelMatrix );
+	///////////////////////////////////////////////////////////////////////
+
+
+
+	aScale =  nAttr.create( "cubeScale", "cscl",  MFnNumericData::kFloat);
+	nAttr.setStorable( true );
+	nAttr.setKeyable( true );
+	nAttr.setReadable( true );
+	nAttr.setWritable( true );
+	nAttr.setKeyable( true );
+	nAttr.setDefault(1.0);
+	st = addAttribute(aScale);	er;
+
+	aColor = nAttr.createColor( "cubeColor", "ccol");
+	nAttr.setStorable( true );
+	nAttr.setKeyable( true );
+	nAttr.setReadable( true );
+	nAttr.setWritable( true );
+	st = addAttribute( aColor); er;
+
+	aDiffuseWeight = nAttr.create( "diffuseWeight", "dfw", MFnNumericData::kFloat);
+	nAttr.setStorable( true );
+	nAttr.setKeyable( true );
+	nAttr.setReadable( true );
+	nAttr.setWritable( true );
+	nAttr.setMin(0.0f);
+	nAttr.setMax( 1.0f );
+	nAttr.setDefault( 1.0f );
+	st = addAttribute( aDiffuseWeight); er;
+
+	aIncandescentWeight = nAttr.create( "incandescentWeight", "icw", MFnNumericData::kFloat);
+	nAttr.setStorable( true );
+	nAttr.setKeyable( true );
+	nAttr.setReadable( true );
+	nAttr.setWritable( true );
+	nAttr.setMin(0.0f);
+	nAttr.setMax( 1.0f );
+	nAttr.setDefault( 0.0f );
+	st = addAttribute( aIncandescentWeight); er;
+
+	aDrawEdges = nAttr.create( "drawEdges", "dwe", MFnNumericData::kBoolean);
+	nAttr.setStorable( true );
+	nAttr.setKeyable( true );
+	nAttr.setReadable( true );
+	nAttr.setWritable( true );
+	nAttr.setDefault(false );
+	st = addAttribute( aDrawEdges); er;
+
+	aEdgeColor = nAttr.createColor( "edgeColor", "ecol");
+	nAttr.setStorable( true );
+	nAttr.setKeyable( true );
+	nAttr.setReadable( true );
+	nAttr.setWritable( true );
+	st = addAttribute( aEdgeColor); er;
+
+	aEdgeThickness = nAttr.create( "edgeThickness", "etk", MFnNumericData::kFloat);
+	nAttr.setStorable( true );
+	nAttr.setKeyable( true );
+	nAttr.setReadable( true );
+	nAttr.setWritable( true );
+	nAttr.setMin(0.0f);
+	nAttr.setMax( 10.0f );
+	nAttr.setDefault( 0.0f );
+	st = addAttribute( aEdgeThickness); er;
+
+	aRaySeed = nAttr.create( "raySeed", "rsd", MFnNumericData::kInt);
+	nAttr.setStorable( true );
+	nAttr.setKeyable( true );
+	nAttr.setReadable( true );
+	nAttr.setWritable( true );
+	nAttr.setDefault(1 );
+	st = addAttribute( aRaySeed); er;
+
+
+	aNumberOfRays = nAttr.create( "numberOfRays", "nrays", MFnNumericData::kInt);
+	nAttr.setStorable( true );
+	nAttr.setKeyable( true );
+	nAttr.setReadable( true );
+	nAttr.setWritable( true );
+	nAttr.setDefault(1 );
+	st = addAttribute( aNumberOfRays); er;
+
+
+	aOutPositions = tAttr.create("outPositions", "opos", MFnData::kVectorArray);
+	tAttr.setReadable(true);
+	tAttr.setStorable(false);
+	st = addAttribute(aOutPositions); er;
+
+	aOutNormals = tAttr.create("outNormals", "onrm", MFnData::kVectorArray);
+	tAttr.setReadable(true);
+	tAttr.setStorable(false);
+	st = addAttribute(aOutNormals); er;
+
+	aOutColors = tAttr.create("outColors", "ocol", MFnData::kVectorArray);
+	tAttr.setReadable(true);
+	tAttr.setStorable(false);
+	st = addAttribute(aOutColors); er;
+
+	aOutScales = tAttr.create("outScales", "oscl", MFnData::kDoubleArray);
+	tAttr.setReadable(true);
+	tAttr.setStorable(false);
+	st = addAttribute(aOutScales); er;
+
+	aOutEdges = tAttr.create("outEdges", "oedg", MFnData::kIntArray);
+	tAttr.setReadable(true);
+	tAttr.setStorable(false);
+	st = addAttribute(aOutEdges); er;
+
+	aOutBoundsMin = nAttr.create("outBoundsMin", "oibmn", MFnNumericData::k3Float);
+	nAttr.setReadable(true);
+	nAttr.setStorable(false);
+	st = addAttribute(aOutBoundsMin); er;
+
+	aOutBoundsMax = nAttr.create("outBoundsMax", "oibmx", MFnNumericData::k3Float);
+	nAttr.setReadable(true);
+	nAttr.setStorable(false);
+	st = addAttribute(aOutBoundsMax); er;
+
+
+
+	st = attributeAffects(aInMesh, aOutPositions );
+	st = attributeAffects(aVoxelMatrix, aOutPositions );
+	st = attributeAffects(aRaySeed, aOutPositions );
+	st = attributeAffects(aNumberOfRays, aOutPositions );
+
+	st = attributeAffects(aInMesh, aOutNormals );
+	st = attributeAffects(aVoxelMatrix, aOutNormals );
+	st = attributeAffects(aRaySeed, aOutNormals );
+	st = attributeAffects(aNumberOfRays, aOutNormals );
+
+	st = attributeAffects(aInMesh, aOutColors );
+	st = attributeAffects(aVoxelMatrix, aOutColors );
+	st = attributeAffects(aColor, aOutColors );
+	st = attributeAffects(aRaySeed, aOutColors );
+	st = attributeAffects(aNumberOfRays, aOutColors );
+
+	st = attributeAffects(aInMesh, aOutScales );
+	st = attributeAffects(aVoxelMatrix, aOutScales );
+	st = attributeAffects(aScale, aOutScales );
+	st = attributeAffects(aRaySeed, aOutScales );
+	st = attributeAffects(aNumberOfRays, aOutScales );
+
+	st = attributeAffects(aInMesh, aOutBoundsMin );
+	st = attributeAffects(aInMesh, aOutBoundsMax );
+
+	st = attributeAffects(aOutPositions, aOutColors );
+	st = attributeAffects(aOutNormals, aOutColors );
+
+	st = attributeAffects(aOutPositions, aOutScales );
+	st = attributeAffects(aOutNormals, aOutScales );
+
+	st = attributeAffects(aInMesh, aOutEdges );
+	st = attributeAffects(aVoxelMatrix, aOutEdges );
+	st = attributeAffects(aRaySeed, aOutEdges );
+	st = attributeAffects(aNumberOfRays, aOutEdges );
+	//st = attributeAffects(aDrawEdges, aOutEdges );
+
+
+	return st;
+
+}
+
+
+MStatus paintingShape::compute( const MPlug &plug, MDataBlock &data  )
+{
+
+	MStatus st;
+
+	if (!(  ( plug == aOutPositions )
+	        || ( plug == aOutNormals )
+	        || ( plug == aOutEdges)
+	        || ( plug == aOutColors )
+	        || ( plug == aOutScales )
+	        || ( plug == aOutBoundsMin )
+	        || ( plug == aOutBoundsMax )
+	     )) { return MS::kUnknownParameter; }
+
+	MDataHandle hMat = data.inputValue( aVoxelMatrix, &st ); ert;
+	MMatrix mat(hMat.asMatrix());
+
+	if (
+	  (plug == aOutPositions) ||
+	  (plug == aOutNormals) ||
+	  (plug == aOutBoundsMin) ||
+	  (plug == aOutBoundsMax) ||
+	  (plug == aOutEdges)
+	) {
+
+		float scale = data.inputValue(aScale).asFloat();
+		unsigned seed = data.inputValue(aRaySeed).asInt();
+		srand48(seed);
+
+		// we fire an odd number of rays and use the majority result.
+		int nRays = data.inputValue(aNumberOfRays).asInt();
+		if (nRays < 1) { nRays = 1; }
+		if ((nRays % 2) == 0) { nRays ++; }
+		MObject dMesh =  data.inputValue(aInMesh).asMesh();
+		MFnMesh meshFn(dMesh, &st);
+		MPointArray verts;
+		MIntArray faceCounts;
+		MIntArray connectivity;
+		st = meshFn.getPoints(verts, MSpace::kWorld); er;
+		st = meshFn.getVertices(faceCounts, connectivity); er;
+		int numVerts = meshFn.numVertices();
+		int numFaces = faceCounts.length();
+		MBoundingBox meshBound;
+
+		// make new internal mesh in voxelGrid space
+		/////////////////////////////////////////////
+		for (int i = 0; i < numVerts; ++i)
+		{
+			verts[i] = verts[i] * mat.inverse();
+			meshBound.expand(verts[i]);
+		}
+		MPoint boundMin = meshBound.min();
+		MPoint boundMax = meshBound.max();
+
+		MFnMesh newMeshFn;
+		MFnMeshData dataCreator;
+		MObject newMeshData = dataCreator.create( &st ); er;
+		newMeshFn.create( numVerts,  numFaces,
+		                  verts, faceCounts, connectivity,
+		                  newMeshData, &st );  er;
+		/////////////////////////////////////////////
+
+		// The mesh bounding box is optimal for generating our points,
+		// meaning, we will have to iterate through all voxels in that BB.
+		// The index bounding box, on the other hand represents the full
+		// space that the object will ever move into, thereby providing
+		// consistent indices (akin to particleIds). We never have to visit
+		// all voxels in the IndexBB
+		// for now - the index bounding box is denoted by ibminx etc.
+
+		// The following values represent the planes
+		// passing through the centers of min and max XYZ
+		// voxels of the 'mesh' bounding box
+		/////////////////////////////////////////////
+		int minx = floor(boundMin.x) + 1.0;
+		int miny = floor(boundMin.y) + 1.0;
+		int minz = floor(boundMin.z) + 1.0;
+		int maxx = floor(boundMax.x);
+		int maxy = floor(boundMax.y);
+		int maxz = floor(boundMax.z);
+
+		int nx = (maxx - minx) + 1;
+		int ny = (maxy - miny) + 1;
+		int nz = (maxz - minz) + 1;
+		unsigned numBlock = nx * ny * nz;
+		/////////////////////////////////////////////
+
+		// We visit all voxels here, but we dont make meshes yet.
+		// This is because we will want to remove internal voxels.
+		// So we fill an array that represents containment. Making
+		// meshes is another pass.
+		/////////////////////////////////////////////
+		MMeshIsectAccelParams ap = newMeshFn.autoUniformGridParams();
+		MFloatPointArray hitPoints;
+		MFloatVector rayDirection(MFloatVector::yAxis);
+
+		int index = 0;
+		MIntArray containment(numBlock);
+		for (int z = minz; z <= maxz; ++z) {
+			for (int y = miny; y <= maxy; ++y) {
+				for (int x = minx; x <= maxx; ++x) {
+					MFloatPoint rayOrigin(float(x), float(y), float(z), 1);
+					int inside = 0;
+					for (int i = 0; i < nRays; ++i)
+					{
+
+						float rx = float(drand48());
+						float ry = float(drand48());
+						float rz = float(drand48());
+						MFloatVector rayDirection(rx, ry, rz);
+						bool hit = newMeshFn.allIntersections(
+						             rayOrigin, rayDirection,
+						             0, 0, false, MSpace::kObject, 99999999.0f, false,
+						             &ap, false, hitPoints, 0, 0, 0, 0, 0, 1e-6
+						           );
+						if (hit) {
+							if (hitPoints.length() % 2 == 1 ) { inside ++; }
+						}
+					}
+					if (inside > (nRays / 2)) {
+						containment.set(1, index);
+					}
+					index++;
+				}
+			}
+		}
+		/////////////////////////////////////////////
+
+		MVectorArray outPositions;
+		MVectorArray outNormals;
+		MIntArray outEdges;
+
+
+		// Here we make cubes and append centroids to outPositions.
+		/////////////////////////////////////////////
+		index = 0;
+		for (int z = minz; z <= maxz; ++z) {
+			for (int y = miny; y <= maxy; ++y) {
+				for (int x = minx; x <= maxx; ++x) {
+					if (containment[index] == 1) {
+						MVector n;
+						if (! cellSurrounded(index, containment, nx, ny, nz)) {
+							outPositions.append(MVector(double(x), double(y), double(z)));
+							MVector n = getNormal(index, containment, nx, ny, nz);
+							outNormals.append(n);
+							unsigned edgeMask = getEdgeMask(index, containment, nx, ny, nz);
+							outEdges.append(edgeMask);
+						}
+					}
+					index++;
+				}
+			}
+		}
+
+		MDataHandle hOutPos = data.outputValue(aOutPositions);
+		MFnVectorArrayData fnOutPos;
+		MObject dOutPos = fnOutPos.create(outPositions);
+		hOutPos.set(dOutPos);
+		data.setClean(aOutPositions);
+
+		MDataHandle hOutEdges = data.outputValue(aOutEdges);
+		MFnIntArrayData fnOutEdges;
+		MObject dOutEdges = fnOutEdges.create(outEdges);
+		hOutEdges.set(dOutEdges);
+		data.setClean(aOutEdges);
+
+		MDataHandle hOutNormals = data.outputValue(aOutNormals);
+		MFnVectorArrayData fnOutNormals;
+		MObject dOutNormals = fnOutNormals.create(outNormals);
+		hOutNormals.set(dOutNormals);
+		data.setClean(aOutNormals);
+
+		MDataHandle hOutMin = data.outputValue(aOutBoundsMin);
+		float3 &outMin = hOutMin.asFloat3 ();
+		outMin[0] = float(boundMin.x);
+		outMin[1] = float(boundMin.y);
+		outMin[2] = float(boundMin.z);
+		hOutMin.setClean();
+
+		MDataHandle hOutMax = data.outputValue(aOutBoundsMax);
+		float3 &outMax = hOutMax.asFloat3 ();
+		outMax[0] = float(boundMax.x);
+		outMax[1] = float(boundMax.y);
+		outMax[2] = float(boundMax.z);
+		hOutMax.setClean();
+	}
+
+	// calculate colors and scales using values
+	// on pos and normals output plugs
+	if ( ( plug == aOutColors ) || ( plug == aOutScales )) {
+
+		MFnVectorArrayData fnV;
+		MDataHandle h;
+		MObject d;
+		unsigned pl = 0;
+		h = data.inputValue(aOutPositions, &st); ert;
+		d = h.data();
+		st = fnV.setObject(d); ert;
+		pl = fnV.length();
+		const MVectorArray &pos = fnV.array();
+
+		h = data.inputValue(aOutNormals, &st); ert;
+		d = h.data();
+		st = fnV.setObject(d); ert;
+		unsigned nl = fnV.length();
+		const MVectorArray &nrm = fnV.array();
+
+		/////////////////////////////////////////////
+		MVectorArray outColors(pl);
+		MDoubleArray outScales(pl);
+
+
+		MFloatVector defaultColorTmp = data.inputValue(aColor).asFloatVector();
+		MVector defaultColor(defaultColorTmp.x, defaultColorTmp.y, defaultColorTmp.z);
+		MString colorname = "";
+		st = getTextureName(aColor, colorname);
+
+		float defaultScale = data.inputValue(aScale).asFloat();
+		MString scalename = "";
+		st = getTextureName(aScale, scalename);
+		bool scalesFilled = false;
+
+		if (!((colorname == "") && (scalename == ""))) {
+			MFloatPointArray fpPos(pl);
+			MFloatVectorArray fpNorm(pl);
+
+			MFloatVectorArray transparencies;
+			MFloatVectorArray colors;
+			MFloatMatrix fmat(mat.matrix);
+			for (int i = 0; i < pl; ++i)
+			{
+				fpPos.set(  (MFloatPoint(pos[i].x, pos[i].y, pos[i].z)  * fmat), i);
+				fpNorm.set( MFloatVector(nrm[i]).transformAsNormal(fmat), i);
+			}
+
+			st = sampleTexture(colorname, fpPos, fpNorm, colors, transparencies);
+			if (! st.error()) {
+				unsigned i = 0;
+				for (unsigned i = 0; i < pl; ++i)
+				{
+					outColors.set(MVector(colors[i].x, colors[i].y, colors[i].z ), i);
+				}
+			}
+
+			st = sampleTexture(scalename, fpPos, fpNorm, colors, transparencies);
+			if (! st.error()) {
+				unsigned i = 0;
+				for (unsigned i = 0; i < pl; ++i)
+				{
+					outScales.set(colors[i].x, i);
+				}
+			}
+		}
+		if (colorname == "")  {
+			for (unsigned i = 0; i < pl; ++i)
+			{
+				outColors.set(defaultColor, i);
+			}
+		}
+		if (scalename == "") {
+			for (unsigned i = 0; i < pl; ++i)
+			{
+				outScales.set(double(defaultScale), i);
+			}
+		}
+
+		MDataHandle hOutColors = data.outputValue(aOutColors);
+		MFnVectorArrayData fnOutColors;
+		MObject dOutColors = fnOutColors.create(outColors);
+		hOutColors.set(dOutColors);
+		data.setClean(aOutColors);
+
+		MDataHandle hOutScales = data.outputValue(aOutScales);
+		MFnDoubleArrayData fnOutScales;
+		MObject dOutScales = fnOutScales.create(outScales);
+		hOutScales.set(dOutScales);
+		data.setClean(aOutScales);
+
+	}
+
+
+
+	return MS::kSuccess;
+
+}
+
+
+
+
+MStatus paintingShape::getTextureName(const MObject &attribute, MString &name) const {
+	name = "";
+	MStatus st;
+	MPlugArray plugArray;
+	MPlug plug(thisMObject(), attribute);
+	bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st); ert;
+	if (! hasConnection) { return MS::kUnknownParameter; }
+	name = plugArray[0].name(&st);
+	return MS::kSuccess;
+}
+
+MStatus paintingShape::sampleTexture(
+  const MString &sourceName,
+  MFloatPointArray &fpPos,
+  MFloatVectorArray &fpNorm,
+  MFloatVectorArray &colors,
+  MFloatVectorArray &transparencies
+) const {
+	MStatus st;
+	unsigned n = fpPos.length();
+	MFloatMatrix cameraMat;
+	cameraMat.setToIdentity();
+	st =  MRenderUtil::sampleShadingNetwork (
+	        sourceName, n, false, false,
+	        cameraMat, &fpPos, 0, 0, &fpNorm, &fpPos,
+	        0, 0, 0, colors, transparencies
+	      );
+	return st;
+}
+
+
+unsigned paintingShape::cellIndex(unsigned nx, unsigned ny, unsigned nz, unsigned x,
+                                  unsigned y, unsigned z) {
+	return x + (nx * y) + (nx * ny * z) ;
+}
+MStatus paintingShape::cellIndices(unsigned nx, unsigned ny, unsigned nz, unsigned i,
+                                   unsigned &x, unsigned &y, unsigned &z) {
+	x =   i % nx;
+	y =  (i / nx) % ny;
+	z = ((i / nx) / ny) % nz;
+	return MS::kSuccess;
+}
+
+// bool paintingShape::cellSurrounded(
+// 	unsigned i, const MIntArray &containment,
+// 	unsigned nx, unsigned ny, unsigned nz)
+// {
+// 	unsigned cellx,celly,cellz;
+// 	MStatus st = cellIndices(nx,ny,nz,i,cellx,celly,cellz);
+// 	if (cellx == 0 || cellx == (nx-1)) return false;
+// 	if (celly == 0 || celly == (ny-1)) return false;
+// 	if (cellz == 0 || cellz == (nz-1)) return false;
+
+// 	// negx
+// 	unsigned neighbor;
+
+// 	neighbor = cellIndex( nx, ny, nz, (cellx-1),celly,cellz);
+// 	if (containment[neighbor] != 1) return false;
+
+// 	neighbor = cellIndex( nx, ny, nz, (cellx+1),celly,cellz);
+// 	if (containment[neighbor] != 1) return false;
+
+// 	neighbor = cellIndex( nx, ny, nz, cellx,(celly-1),cellz);
+// 	if (containment[neighbor] != 1) return false;
+
+// 	neighbor = cellIndex( nx, ny, nz, cellx,(celly+1),cellz);
+// 	if (containment[neighbor] != 1) return false;
+
+// 	neighbor = cellIndex( nx, ny, nz, cellx,celly,(cellz-1));
+// 	if (containment[neighbor] != 1) return false;
+
+// 	neighbor = cellIndex( nx, ny, nz, cellx,celly,(cellz+1));
+// 	if (containment[neighbor] != 1) return false;
+
+// 	return true;
+// }
+
+
+
+
+unsigned paintingShape::bitPack(const MIntArray &mask) {
+	unsigned result = 0;
+	for (unsigned i = 0; i < 12; i++) {
+		if (mask[i]) {
+			result += pow(2, i);
+		}
+	}
+	return result;
+}
+
+// MStatus paintingShape::bitUnpack(unsigned number, MIntArray & mask) {
+// 	mask = MIntArray(12);
+// 	for (unsigned i=0;i<12;i++){
+// 		if ((number % 2) == 1) mask.set(1,i);
+// 		number = number / 2;
+// 	}
+// }
+
+
+// we want to determine the presence of neighbors who are adjacent to the cube's edges
+// there are 18 of these neighbors for a fully surrounded cube.
+// we dont need to know about neigbors that touch the corner vertices - only the full edges.
+// Ultimately, we want to draw the edges that are exposed - i.e. edges that have no
+// other neighbour cubes sharing an edge.
+// As there are 12 edges, we need an on/off flag for each. So we store the on/off state in an
+// integer whose max value is 2^12 - and we use bitPack() and butUnpack() routines to encode
+// and decode the flags
+unsigned paintingShape::getEdgeMask(unsigned i, const MIntArray &containment,
+                                    unsigned nx, unsigned ny, unsigned nz)
+{
+	unsigned cellx, celly, cellz;
+	MStatus st = cellIndices(nx, ny, nz, i, cellx, celly, cellz);
+	unsigned neighbor;
+
+	bool n_lx = true;
+	bool n_lx_ly = true;
+	bool n_lx_hy = true;
+	bool n_lx_lz = true;
+	bool n_lx_hz = true;
+	bool n_hx = true;
+	bool n_hx_ly = true;
+	bool n_hx_hy = true;
+	bool n_hx_lz = true;
+	bool n_hx_hz = true;
+	bool n_ly_lz = true;
+	bool n_ly_hz = true;
+	bool n_hy_lz = true;
+	bool n_hy_hz = true;
+	bool n_ly = true;
+	bool n_hy = true;
+	bool n_lz = true;
+	bool n_hz = true;
+
+
+	// we will cull by setting falsehood - first the extents:
+	if (cellx == 0) 		{ n_lx = n_lx_ly = n_lx_hy = n_lx_lz = n_lx_hz = false; }
+	if (cellx == (nx - 1)) 	{ n_hx = n_hx_ly = n_hx_hy = n_hx_lz = n_hx_hz = false; }
+
+	if (celly == 0) 		{ n_ly = n_lx_ly = n_hx_ly = n_ly_lz = n_ly_hz = false; }
+	if (celly == (ny - 1)) 	{ n_hy = n_lx_hy = n_hx_hy = n_hy_lz = n_hy_hz = false; }
+
+	if (cellz == 0) 		{ n_lz = n_lx_lz = n_hx_lz = n_ly_lz = n_hy_lz = false; }
+	if (cellz == (nz - 1)) 	{ n_hz = n_lx_hz = n_hx_hz = n_ly_hz = n_hy_hz = false; }
+
+	// now we have to test the 18 neighbors
+	// but only if their flags are still true.
+	// If they are false already, it means they
+	// were on the extent
+	if (n_lx)    	{ n_lx =    containment[cellIndex( nx, ny, nz, (cellx - 1), celly, cellz)]; }
+	if (n_lx_ly) 	{ n_lx_ly = containment[cellIndex( nx, ny, nz, (cellx - 1), (celly - 1), cellz)]; }
+	if (n_lx_hy) 	{ n_lx_hy = containment[cellIndex( nx, ny, nz, (cellx - 1), (celly + 1), cellz)]; }
+	if (n_lx_lz) 	{ n_lx_lz = containment[cellIndex( nx, ny, nz, (cellx - 1), celly, (cellz - 1))]; }
+	if (n_lx_hz) 	{ n_lx_hz = containment[cellIndex( nx, ny, nz, (cellx - 1), celly, (cellz + 1))]; }
+
+	if (n_hx)    	{ n_hx =    containment[cellIndex( nx, ny, nz, (cellx + 1), celly, cellz)]; }
+	if (n_hx_ly) 	{ n_hx_ly = containment[cellIndex( nx, ny, nz, (cellx + 1), (celly - 1), cellz)]; }
+	if (n_hx_hy) 	{ n_hx_hy = containment[cellIndex( nx, ny, nz, (cellx + 1), (celly + 1), cellz)]; }
+	if (n_hx_lz) 	{ n_hx_lz = containment[cellIndex( nx, ny, nz, (cellx + 1), celly, (cellz - 1))]; }
+	if (n_hx_hz) 	{ n_hx_hz = containment[cellIndex( nx, ny, nz, (cellx + 1), celly, (cellz + 1))]; }
+
+	if (n_ly_lz) 	{ n_ly_lz = containment[cellIndex( nx, ny, nz, cellx, (celly - 1), (cellz - 1))]; }
+	if (n_ly_hz) 	{ n_ly_hz = containment[cellIndex( nx, ny, nz, cellx, (celly - 1), (cellz + 1))]; }
+	if (n_hy_lz) 	{ n_hy_lz = containment[cellIndex( nx, ny, nz, cellx, (celly + 1), (cellz - 1))]; }
+	if (n_hy_hz) 	{ n_hy_hz = containment[cellIndex( nx, ny, nz, cellx, (celly + 1), (cellz + 1))]; }
+
+	if (n_ly) 		{ n_ly = 	containment[cellIndex( nx, ny, nz, cellx, (celly - 1), cellz)]; }
+	if (n_hy) 		{ n_hy = 	containment[cellIndex( nx, ny, nz, cellx, (celly + 1), cellz)]; }
+	if (n_lz) 		{ n_lz = 	containment[cellIndex( nx, ny, nz, cellx, celly, (cellz - 1))]; }
+	if (n_hz) 		{ n_hz = 	containment[cellIndex( nx, ny, nz, cellx, celly, (cellz + 1))]; }
+
+	// ok - now we know the neighbor state - set to true the edges
+	// that have no neighbors. As there are 12 edges, we set their
+	// flags in an MIntArray in the following order
+	bool e_lx_ly = (!( n_ly || n_lx_ly || n_lx ));
+	bool e_lx_hy = (!( n_hy || n_lx_hy || n_lx ));
+	bool e_hx_ly = (!( n_ly || n_hx_ly || n_hx ));
+	bool e_hx_hy = (!( n_hy || n_hx_hy || n_hx ));
+
+	bool e_ly_lz = (!( n_ly || n_ly_lz || n_lz ));
+	bool e_ly_hz = (!( n_ly || n_ly_hz || n_hz ));
+	bool e_hy_lz = (!( n_hy || n_hy_lz || n_lz ));
+	bool e_hy_hz = (!( n_hy || n_hy_hz || n_hz ));
+
+	bool e_lz_lx = (!( n_lx || n_lx_lz || n_lz ));
+	bool e_lz_hx = (!( n_hx || n_hx_lz || n_lz ));
+	bool e_hz_lx = (!( n_lx || n_lx_hz || n_hz ));
+	bool e_hz_hx = (!( n_hx || n_hx_hz || n_hz ));
+
+	MIntArray mask(12);
+
+	mask.set(e_lx_ly, 0);
+	mask.set(e_lx_hy, 1);
+	mask.set(e_hx_ly, 2);
+	mask.set(e_hx_hy, 3);
+	mask.set(e_ly_lz, 4);
+	mask.set(e_ly_hz, 5);
+	mask.set(e_hy_lz, 6);
+	mask.set(e_hy_hz, 7);
+	mask.set(e_lz_lx, 8);
+	mask.set(e_lz_hx, 9);
+	mask.set(e_hz_lx, 10);
+	mask.set(e_hz_hx, 11);
+
+	return bitPack(mask);
+}
+
+
+MVector paintingShape::getNormal(
+  unsigned i, const MIntArray &containment,
+  unsigned nx, unsigned ny, unsigned nz)
+{
+	unsigned cellx, celly, cellz;
+	MStatus st = cellIndices(nx, ny, nz, i, cellx, celly, cellz);
+
+	unsigned neighbor;
+	MVector normal = MVector::zero;
+	if (cellx == 0) {
+		normal += MVector::xNegAxis;
+	}
+	else {
+		neighbor = cellIndex( nx, ny, nz, (cellx - 1), celly, cellz);
+		if (containment[neighbor] != 1) {
+			normal += MVector::xNegAxis;
+		}
+	}
+
+
+	if (cellx == (nx - 1)) {
+		normal += MVector::xAxis;
+	}
+	else {
+		neighbor = cellIndex( nx, ny, nz, (cellx + 1), celly, cellz);
+		if (containment[neighbor] != 1) {
+			normal += MVector::xAxis;
+		}
+	}
+
+	// y
+	if (celly == 0) {
+		normal += MVector::yNegAxis;
+	}
+	else {
+		neighbor = cellIndex( nx, ny, nz, cellx, (celly - 1), cellz);
+		if (containment[neighbor] != 1) {
+			normal += MVector::yNegAxis;
+		}
+	}
+
+
+	if (celly == (ny - 1)) {
+		normal += MVector::yAxis;
+	}
+	else {
+		neighbor = cellIndex( nx, ny, nz, cellx, (celly + 1), cellz);
+		if (containment[neighbor] != 1) {
+			normal += MVector::yAxis;
+		}
+	}
+
+	// z
+	if (cellz == 0) {
+		normal += MVector::zNegAxis;
+	}
+	else {
+		neighbor = cellIndex( nx, ny, nz, cellx, celly, (cellz - 1));
+		if (containment[neighbor] != 1) {
+			normal += MVector::zNegAxis;
+		}
+	}
+
+
+	if (cellz == (nz - 1)) {
+		normal += MVector::zAxis;
+	}
+	else {
+		neighbor = cellIndex( nx, ny, nz, cellx, celly, (cellz + 1));
+		if (containment[neighbor] != 1) {
+			normal += MVector::zAxis;
+		}
+	}
+
+	if (! normal.isEquivalent(MVector::zero) ) {
+		normal.normalize();
+	}
+	return normal;
+}
+
+
+bool paintingShape::cellSurrounded(
+  unsigned i, const MIntArray &containment,
+  unsigned nx, unsigned ny, unsigned nz)
+{
+	unsigned cellx, celly, cellz;
+	MStatus st = cellIndices(nx, ny, nz, i, cellx, celly, cellz);
+
+	unsigned neighbor;
+
+	if ((cellx == 0) || (cellx == (nx - 1))) { return false; }
+	if ((celly == 0) || (celly == (ny - 1))) { return false; }
+	if ((cellz == 0) || (cellz == (nz - 1))) { return false; }
+
+	if (! containment[  cellIndex( nx, ny, nz, (cellx - 1), celly, cellz) ]   ) { return false; }
+	if (! containment[  cellIndex( nx, ny, nz, (cellx + 1), celly, cellz) ]   ) { return false; }
+	if (! containment[  cellIndex( nx, ny, nz, cellx, (celly - 1), cellz) ]   ) { return false; }
+	if (! containment[  cellIndex( nx, ny, nz, cellx, (celly + 1), cellz) ]   ) { return false; }
+	if (! containment[  cellIndex( nx, ny, nz, cellx, celly, (cellz - 1)) ]   ) { return false; }
+	if (! containment[  cellIndex( nx, ny, nz, cellx, celly, (cellz + 1)) ]   ) { return false; }
+
+	return true;
+}
+
+
+paintingData *paintingShape::geometry()
+{
+	MStatus st;
+
+	MObject thisObj = thisMObject();
+	MObject d;
+
+	MFnMatrixData fnX;
+	MFnVectorArrayData fnV;
+	MFnDoubleArrayData fnD;
+	MFnIntArrayData fnI;
+
+	m_geomData->m_isValid = false;
+	unsigned pl, cl, sl;
+
+	MPlug plug( thisObj, aVoxelMatrix );
+	st = plug.getValue(d);
+	if (st.error()) {
+		m_geomData->m_matrix.setToIdentity();
+	}
+	else {
+		fnX.setObject(d);
+		m_geomData->m_matrix = fnX.matrix(&st);
+		if (st.error()) {
+			m_geomData->m_matrix.setToIdentity();
+		}
+	}
+
+	plug.setAttribute( aOutPositions );
+	st = plug.getValue(d);
+	if (st.error()) {return m_geomData;}
+	fnV.setObject(d);
+	pl = fnV.length();
+	if (fnV.length() < 1)  {return m_geomData;}
+	m_geomData->m_positions.copy(fnV.array());
+
+	plug.setAttribute( aOutColors );
+	st = plug.getValue(d);
+	if (st.error()) {return m_geomData;}
+	fnV.setObject(d);
+	if (fnV.length()  != pl )  {return m_geomData;}
+	m_geomData->m_colors.copy(fnV.array());
+
+	plug.setAttribute( aOutScales );
+	st = plug.getValue(d);
+	if (st.error()) {return m_geomData;}
+	fnD.setObject(d);
+	if (fnD.length() != pl)  {return m_geomData;}
+	m_geomData->m_scales.copy(fnD.array());
+
+	// JPMDBG;
+	plug.setAttribute( aOutEdges );
+	st = plug.getValue(d);
+	if (st.error()) {return m_geomData;}
+	fnI.setObject(d);
+	if (fnI.length() != pl)  {return m_geomData;}
+	m_geomData->m_edges.copy(fnI.array());
+	// JPMDBG;
+	plug.setAttribute( aIncandescentWeight );
+	st = plug.getValue(m_geomData->m_incandescent);
+	plug.setAttribute( aDiffuseWeight );
+	st = plug.getValue(m_geomData->m_diffuse);
+
+	plug.setAttribute( aDrawEdges );
+	st = plug.getValue(m_geomData->m_drawEdges);
+
+	float r, g, b;
+	plug.setAttribute(aEdgeColor);
+	st = plug.child(0).getValue(r);
+	st = plug.child(1).getValue(g);
+	st = plug.child(2).getValue(b);
+	m_geomData->m_edgeColor = MColor(r, g, b);
+
+	plug.setAttribute(aEdgeThickness);
+	st = plug.getValue(m_geomData->m_edgeThickness);
+
+	m_geomData->m_isValid = true;
+	// JPMDBG;
+	return m_geomData;
+
+}

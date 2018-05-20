@@ -2,8 +2,6 @@
 name: Uprising
 maya_script_copy_files:
 - script/**/*.mel
-maya_presets_copy_files:
-- presets/**/*.ma
 maya_python_script_copy_files:
 - script/**/*.py
 - script/**/*.pyc
@@ -19,5 +17,16 @@ maya_icon_copy_files:
 - icons/*.xpm
 maya_modules_erb_files:
 - ./*.mod.erb
+include_paths:
+- ../../kettle/src
+- ../../kettle/src/maya
+libs:
+- OpenMayaUI
 templates:
+- cpp
 - maya
+- maya_plugin
+- gl
+source_files:
+- src/*.cpp
+- ../../kettle/src/maya/mayaMath.cpp

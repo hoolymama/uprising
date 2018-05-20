@@ -10,10 +10,17 @@ global proc uprising.init(string $moduleName) {
  
     menuItem -l "Send Objects" -c "python \"import uprising.io;reload(uprising.io);uprising.io.send_objects()\"";
      
-
+    menuItem -l "Curve project" -c "python \"import uprising.curve;reload(uprising.curve);uprising.curve.setup()\"";
+    
     menuItem -l "Convert objects" -c "python \"import uprising.util as uut; uut.convert_objects()\"";
     
     menuItem -l "Insert Identity" -c "python \"import uprising.util as uut; uut.insert_identity()\"";
+
+
+
+		module.subMenu($moduleMenu, "Stroke Factory");
+
+		menuItem -l "Create" -c "createStrokeFactory" -ann "Pick some curves";
 
     setParent -m $moduleMenu;
 }

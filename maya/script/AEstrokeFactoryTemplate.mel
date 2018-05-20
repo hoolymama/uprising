@@ -1,0 +1,203 @@
+
+
+
+
+ 
+/*
+ * AErelaxPointsTemplate.mel
+ * mel
+ * 
+ * Created by Julian Mann on 03/07/2010.
+ * 
+ * Copyright (c) 2009 Julian Mann
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 
+ * Neither the name of the project's author nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+ global proc AEstrokeFactoryAddAMultiWidget(string $plug, string $columnLayout) {
+
+ 	string $label = "No curve";
+ 	string $input[] = `listConnections -s 1 -d 0 ($plug+".curve")`;
+ 	if (`size $input`) {
+ 		 $label = $input[0];
+ 	}
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+ 	string $cl = `frameLayout -bv 1 -cl 0 -cll 0 -label $label`;
+
+ 	attrControlGrp -attribute ($plug+".strokeLength");
+ 	attrControlGrp -attribute ($plug+".pointDensity");
+ 	attrControlGrp -attribute ($plug+".attack");
+ 	attrControlGrp -attribute ($plug+".lift");
+
+ 	attrControlGrp -attribute ($plug+".elevation");
+  
+
+ 	string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
+ 	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
+
+
+ 	setParent ..;
+ }
+
+ global proc AEmultiStrokeFactoryReplace (string $nodeAttr) {
+
+ 	print("AEmultiStrokeFactoryReplace\n");
+ 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $col = "AEaddStrokeFactoryCol";
+
+ 	setParent ..;
+ 	int $numElements = `getAttr -size $nodeAttr`;
+
+
+ 	string $controls[] = `layout -q -ca $col`;
+ 	int $numExistingControls = size($controls);
+ 	for ($i = 0;$i<$numExistingControls;$i++) {
+ 		deleteUI $controls[$i];
+ 	}
+
+ 	// print("getAttr -mi $nodeAttr\n");
+ 	int $indices[] = `getAttr -mi $nodeAttr`;
+ 	// print("done\n");
+
+ 	for ($i = 0;$i<$numElements;$i++) {
+ 		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
+ 		AEstrokeFactoryAddAMultiWidget ($plug, $col) ;
+ 	}
+ 	// print("done for ($i = 0;$i<$numElements;$i++) {\n");
+ 	setParent ..;
+
+ 	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+ 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].pointDensity 1" ) "AEaddStrokeFactoryBtn";
+ 	// print("done AEmultiStrokeFactoryReplace\n");
+
+ }
+
+
+ global proc AEmultiStrokeFactoryNew (string $nodeAttr) {
+ 	print("AEmultiStrokeFactoryNew");
+ 	setUITemplate -pst attributeEditorTemplate;
+
+ 	string $col = "AEaddStrokeFactoryCol";
+ 	button -l "Add" "AEaddStrokeFactoryBtn";
+ 	columnLayout -adj 1 $col ;	
+ 	setParent ..;
+ 	setUITemplate -ppt;
+
+ 	AEmultiStrokeFactoryReplace($nodeAttr);
+
+ }
+
+
+ global proc     AEstrokeFactoryTemplate(string $nodeName)
+ {
+
+ 	editorTemplate -beginScrollLayout;
+
+	editorTemplate -cl 0 -beginLayout "General Attributes";
+	editorTemplate -addControl "normal"; 
+ 	editorTemplate -endLayout;
+
+ 
+	editorTemplate -cl 0 -beginLayout "Display Attributes";
+		
+
+ 	editorTemplate -addControl "displayPoints"; 
+ 	editorTemplate -addControl "displayNormals"; 
+ 	editorTemplate -addControl "displaySegments"; 
+ 	
+ 	 	editorTemplate -addControl "strokeGap"; 
+
+ 	editorTemplate -addControl "pointSize"; 
+ 	editorTemplate -addControl "normalLength"; 
+ 
+ 	editorTemplate -addControl "color"; 
+ 	editorTemplate -addControl "normalColor"; 
+ 	editorTemplate -endLayout;
+
+ 
+	editorTemplate -cl 0 -beginLayout "Brushes";
+ 	editorTemplate -callCustom "AEmultiStrokeFactoryBrushesNew" "AEmultiStrokeFactoryBrushesReplace" "brushes";
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Paints";
+ 	editorTemplate -callCustom "AEmultiStrokeFactoryPaintsNew" "AEmultiStrokeFactoryPaintsReplace" "paints";
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Curves";
+ 	editorTemplate -callCustom "AEmultiStrokeFactoryCurvesNew" "AEmultiStrokeFactoryCurvesReplace" "curves";
+ 	editorTemplate -endLayout;
+
+
+ 	editorTemplate -suppress "outPointsLocal";
+ 	editorTemplate -suppress "outPointsWorld";
+  editorTemplate -suppress "outNormalsLocal";
+ 	editorTemplate -suppress "outNormalsWorld";
+ 	editorTemplate -suppress "outCounts";
+
+ 	editorTemplate -suppress "inMatrix";
+
+	AElocatorInclude $nodeName;
+	
+	editorTemplate -suppress "values" ;
+	editorTemplate -suppress "useObjectColor" ;
+	editorTemplate -suppress "objectColor" ;
+	editorTemplate -suppress "nodeState"; 
+	editorTemplate -suppress "visibility"; 
+	editorTemplate -suppress "intermediateObject"; 
+	editorTemplate -suppress "lodVisibility"; 
+	editorTemplate -suppress "instObjGroups";  
+	editorTemplate -suppress "compInstObjGroups"; 
+	
+	editorTemplate -suppress "caching";
+	editorTemplate -suppress "template";
+	editorTemplate -suppress "drawOverride" ;
+	editorTemplate -suppress "renderInfo" ;
+	editorTemplate -suppress "motionBlur" ;
+	editorTemplate -suppress "visibleInReflections" ;
+	editorTemplate -suppress "visibleInRefractions" ; 
+	editorTemplate -suppress "castsShadows" ;
+	editorTemplate -suppress "maxVisibilitySamplesOverride";
+	editorTemplate -suppress "maxVisibilitySamples";
+	editorTemplate -suppress "geometryAntialiasingOverride";
+	editorTemplate -suppress "antialiasingLevel";
+	editorTemplate -suppress "shadingSamplesOverride";
+	editorTemplate -suppress "shadingSamples";
+	editorTemplate -suppress "maxShadingSamples";
+	editorTemplate -suppress "volumeSamplesOverride";
+	editorTemplate -suppress "volumeSamples";
+	editorTemplate -suppress "primaryVisibility";
+	
+	editorTemplate -suppress "localPosition";
+ 	editorTemplate -addExtraControls;
+
+ 	editorTemplate -endScrollLayout;
+ }

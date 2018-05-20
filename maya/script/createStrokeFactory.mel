@@ -1,0 +1,12 @@
+
+
+global proc string createStrokeFactory() {
+	string $curves[] = `ls -sl -dag -leaf -type "nurbsCurve"`;
+	int $n = `size $curves`;
+	string $sf = `createNode "strokeFactory"`;
+ 	for ($i=0;$i<$n;$i++ ) {
+     connectAttr -f ($curves[$i] +".worldSpace[0]") ($sf+".curves["+$i+"].curve");
+	}
+	select $sf;
+	return  $sf ;
+}

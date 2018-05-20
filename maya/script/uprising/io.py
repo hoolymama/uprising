@@ -91,3 +91,10 @@ def send_objects():
             s=True,
             pn=True)
         send_object(transform, targets_parent, 0, robot)
+
+
+
+
+
+
+

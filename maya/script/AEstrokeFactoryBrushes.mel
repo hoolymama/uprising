@@ -1,0 +1,55 @@
+ global proc AEstrokeFactoryBrushesAddMultiWidget(string $plug, string $columnLayout,  int $index) {
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+ 	string $cl = `frameLayout -bv 1 -cl 0 -cll 0 -label ("Brush: " + $index)`;
+
+ 	attrControlGrp -attribute ($plug+".brushWidth");
+ 	attrControlGrp -attribute ($plug+".brushName");
+ 	attrControlGrp -attribute ($plug+".brushTcp");
+ 	attrControlGrp -attribute ($plug+".brushTip");
+  string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
+ 	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
+
+
+ 	setParent ..;
+ }
+
+ global proc AEmultiStrokeFactoryBrushesReplace (string $nodeAttr) {
+
+ 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $col = "AEaddStrokeFactoryBrushesCol";
+
+ 	setParent ..;
+ 	int $numElements = `getAttr -size $nodeAttr`;
+
+ 	string $controls[] = `layout -q -ca $col`;
+ 	int $numExistingControls = size($controls);
+ 	for ($i = 0;$i<$numExistingControls;$i++) {
+ 		deleteUI $controls[$i];
+ 	}
+ 	int $indices[] = `getAttr -mi $nodeAttr`;
+ 	for ($i = 0;$i<$numElements;$i++) {
+ 		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
+ 		AEstrokeFactoryBrushesAddMultiWidget ($plug, $col, $i) ;
+ 	}
+ 	setParent ..;
+
+ 	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+ 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].brushTip 0.5" ) "AEaddStrokeFactoryBrushesBtn";
+
+ }
+
+
+ global proc AEmultiStrokeFactoryBrushesNew (string $nodeAttr) {
+ 	setUITemplate -pst attributeEditorTemplate;
+
+ 	string $col = "AEaddStrokeFactoryBrushesCol";
+ 	button -l "Add" "AEaddStrokeFactoryBrushesBtn";
+ 	columnLayout -adj 1 $col ;	
+ 	setParent ..;
+ 	setUITemplate -ppt;
+
+ 	AEmultiStrokeFactoryBrushesReplace($nodeAttr);
+
+ }
