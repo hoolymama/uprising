@@ -1,26 +1,29 @@
-#include <maya/MColor.h>
-#include <maya/MString.h>
+#include "paint.h"
 
-struct paint {
+Paint::Paint() :
+	id(-1),
+	color(1.0, 0.0, 1.0) ,
+	opacity(1),
+	name("unassigned")
+{}
+
+Paint::Paint(
+  short id,
+  MColor color,
+  double opacity,
+  MString name) :
+	id(id),
+	color(color) ,
+	opacity(opacity),
+	name(name)
+{
+}
 
 
-	paint() :
-		color() ,
-		viscosity(1),
-		name("paint")
-	{}
+Paint::~Paint() {}
 
-	paint(MColor color,
-	      double viscosity,
-	      MString name) :
-		color(color) ,
-		viscosity(viscosity),
-		name(name)
-	{}
 
-	~paint() {}
+// MVector Paint::colorAsVector() const {
+// 	return MVector(color.r, color.g, color.b);
+// }
 
-	MColor color;
-	double viscosity;
-	MString name;
-};

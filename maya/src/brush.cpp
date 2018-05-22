@@ -1,34 +1,25 @@
-#include <maya/MVector.h>
-#include <maya/MString.h>
 
-struct brush {
+#include "brush.h"
 
-	brush() :
-		width(1) ,
-		tip(0),
-		tcp(),
-		name("brush") {}
+Brush::Brush() :
+	id(-1),
+	width(1) ,
+	tip(0),
+	tcp(),
+	name("unassigned") {}
 
-	brush(
-	  double width,
-	  double tip,
-	  const MVector &tcp,
-	  const MString &name) :
-		width(width) ,
-		tip(tip),
-		tcp(tcp),
-		name(name)
-	{}
+Brush::Brush(
+  short id,
+  double width,
+  double tip,
+  const MVector &tcp,
+  const MString &name) :
+	id(id),
+	width(width) ,
+	tip(tip),
+	tcp(tcp),
+	name(name)
+{}
 
-	~brush() {}
+Brush::~Brush() {}
 
-	double distanceAtElevation(double elevation) const {
-		return 1;
-	}
-
-	double width;
-	double tip;
-	MVector tcp;
-	MString name;
-
-};

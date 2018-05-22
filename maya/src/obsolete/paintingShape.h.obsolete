@@ -49,7 +49,7 @@ public:
 	static MObject	aPaintColorB;
 	static MObject	aPaintColor;
 	static MObject	aPaintName;
-	static MObject	aPaintViscosity;
+	static MObject	aPaintOpacity;
 	static MObject	aPaints;
 
 	// normal of the plane

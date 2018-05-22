@@ -6,7 +6,7 @@
 
  	attrControlGrp -attribute ($plug+".paintColor");
  	attrControlGrp -attribute ($plug+".paintName");
- 	attrControlGrp -attribute ($plug+".paintViscosity");
+ 	attrControlGrp -attribute ($plug+".paintOpacity");
  
  	string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
@@ -36,10 +36,9 @@
  	setParent ..;
 
  	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
- 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].paintViscosity 0.5" ) "AEaddStrokeFactoryPaintsBtn";
+ 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].paintOpacity 0.5" ) "AEaddStrokeFactoryPaintsBtn";
 
  }
-
 
  global proc AEmultiStrokeFactoryPaintsNew (string $nodeAttr) {
  	setUITemplate -pst attributeEditorTemplate;

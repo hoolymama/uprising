@@ -11,10 +11,26 @@
  	string $cl = `frameLayout -bv 1 -cl 0 -cll 0 -label $label`;
 
  	attrControlGrp -attribute ($plug+".strokeLength");
+ 	attrControlGrp -attribute ($plug+".randomLengthFactor");
+
+ 	
  	attrControlGrp -attribute ($plug+".pointDensity");
+  attrControlGrp -attribute ($plug+".overlap");
+   	attrControlGrp -attribute ($plug+".randomOverlapFactor");
+
+ 	
  	attrControlGrp -attribute ($plug+".attack");
  	attrControlGrp -attribute ($plug+".lift");
  	attrControlGrp -attribute ($plug+".elevation");
+ 	
+ 	attrControlGrp -attribute ($plug+".pivotFraction");
+ 	attrControlGrp -attribute ($plug+".strokeRotation");
+ 	attrControlGrp -attribute ($plug+".strokeTranslation");
+  attrControlGrp -attribute ($plug+".brushId");
+  attrControlGrp -attribute ($plug+".paintId");
+  attrControlGrp -attribute ($plug+".active");
+
+  
  
  	string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;

@@ -1,21 +1,18 @@
 /***************************************************************************
 stroke.cpp  -  description
 -------------------
-    begin                : Wed Mar 29 2018
+    begin                :  2018
     copyright            : (C) 2018 by Julian Mann
     email                : julian.mann@gmail.com
-	This is just a position and id to be stored
-	id isn't really used at the moment -
-	however it will be useful in the future to have it qrapped up in our own data type
-	because then we can store say RGB values or other data
 
 	***************************************************************************/
 
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MQuaternion.h>
 #include <stroke.h>
+#include <brush.h>
+#include <paint.h>
 #include "errorMacros.h"
-
 
 
 
@@ -33,7 +30,7 @@ MStatus calcBoundaryPoints(const MVector &tangent, const MVector &planeNormal,
 	MVector flat = (planeNormal ^ (tangent ^ planeNormal)).normal();
 
 	result[0] = (flat * params[0]) + planeNormal * (params[1] + tipDist);
-	result[1]  - flat *params[2];
+	result[1] = -(flat * params[2]);
 
 	return MS::kSuccess;
 
@@ -59,15 +56,20 @@ stroke::stroke(
   const double3 &attack,
   const double3 &lift,
   double elevation,
-  double tipDist,
-  short brushId,
-  short paintId,
+  double rotation,
+  double translation,
+  double pivotFraction,
+  const Brush &brush,
+  const Paint &paint,
   const MObject &curveObject
 )	:
-	points(),
-	normals(),
-	m_brushId(brushId),
-	m_paintId(paintId)
+	m_points(),
+	m_normals(),
+	m_brush(brush),
+	m_paint(paint),
+	m_rotation(rotation),
+	m_translation(translation),
+	m_pivot()
 {
 	MStatus st;
 	double arcLength = endDist - startDist;
@@ -88,7 +90,6 @@ stroke::stroke(
 		params.set(param, i);
 	}
 
-
 	MPoint resultPoint;
 	for (unsigned i = 0; i < numPoints; i++) {
 		st = curveFn.getPointAtParam(params[i], resultPoint, MSpace::kObject);
@@ -98,38 +99,90 @@ stroke::stroke(
 
 		if (i == 0) {
 			MVectorArray boundaryPoints;
-			st = calcBoundaryPoints(-tangent, planeNormal, attack, tipDist, boundaryPoints); er;
-			points.append( MVector(resultPoint + boundaryPoints[0])  );
-			points.append( MVector(resultPoint + boundaryPoints[1])  );
-			normals.append(brushDirection);
+			st = calcBoundaryPoints(-tangent, planeNormal, attack, brush.tip, boundaryPoints); er;
+			m_points.append( MVector(resultPoint + boundaryPoints[0])  ); // up
+			m_points.append( MVector(resultPoint + boundaryPoints[1])  ); // bias
+			m_normals.append(brushDirection);
+			m_normals.append(brushDirection);
 		}
 		else if (i == (numPoints - 1))  {
 			MVectorArray boundaryPoints;
-			st = calcBoundaryPoints(tangent, planeNormal, lift, tipDist, boundaryPoints); er;
-			points.append( MVector(resultPoint + boundaryPoints[1])  );
-			points.append( MVector(resultPoint + boundaryPoints[0])  );
-			normals.append(brushDirection);
+			st = calcBoundaryPoints(tangent, planeNormal, lift, brush.tip, boundaryPoints); er;
+			m_points.append( MVector(resultPoint + boundaryPoints[1])  );
+			m_points.append( MVector(resultPoint + boundaryPoints[0])  );
+			m_normals.append(brushDirection);
+			m_normals.append(brushDirection);
 		}
 		else {
-			points.append( MVector(resultPoint)  );
-			normals.append(brushDirection);
+			m_points.append( MVector(resultPoint)  );
+			m_normals.append(brushDirection);
 		}
-
 	}
+
+	// For now, set pivot halfway along stroke.
+	double dist = startDist + (pivotFraction * arcLength);
+	double param = curveFn.findParamFromLength(dist, &st); er;
+	st = curveFn.getPointAtParam(param, m_pivot, MSpace::kObject);
+
 }
 
 stroke::~stroke() {}
 
-
-
-
-short stroke::brushId() const {
-	return m_brushId;
+const MVectorArray &stroke::points() const {
+	return m_points;
+}
+const MVectorArray &stroke::normals() const {
+	return m_normals;
+}
+const Brush &stroke::brush() const {
+	return m_brush;
+}
+const Paint &stroke::paint() const {
+	return m_paint;
 }
 
-short stroke::paintId() const {
-	return m_paintId;
+MPoint stroke::pivot() const {
+	return m_pivot;
 }
+
+void stroke::getPivotUVs(const MMatrix &inversePlaneMatrix, float &u, float &v) const {
+	MPoint p = ((m_pivot * inversePlaneMatrix) * 0.5) + MVector(0.5, 0.5, 0.0);
+	u = p.x;
+	v = p.y;
+}
+
+void stroke::rotate(float rotation, const MVector &axis) {
+	double  rotateAmount = rotation * m_rotation;
+	MMatrix mat = MQuaternion(rotateAmount, axis).asMatrix();
+	unsigned len = m_points.length();
+	for (int i = 0; i < len; ++i)
+	{
+		m_points[i]  = ((m_points[i] - m_pivot) * mat) + m_pivot ;
+		m_normals[i]  = m_normals[i] * mat;
+	}
+}
+
+
+void stroke::translate(const MFloatVector &translation, const MVector &planeNormal) {
+	MMatrix mat = MQuaternion(MVector::zAxis, planeNormal).asMatrix();
+	MVector trans = (MVector(translation) * m_translation) * mat;
+
+	unsigned len = m_points.length();
+	for (int i = 0; i < len; ++i)
+	{
+		m_points[i]  = m_points[i] + trans ;
+	}
+}
+
+
+
+// short stroke::brushId() const {
+// 	return m_brushId;
+// }
+
+// short stroke::paintId() const {
+// 	return m_paintId;
+// }
 
 
 

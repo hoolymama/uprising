@@ -1,6 +1,6 @@
 
-#ifndef _stroke
-#define _stroke
+#ifndef _stroke_
+#define _stroke_
 
 #include <vector>
 #include <maya/MDoubleArray.h>
@@ -9,14 +9,8 @@
 
 #include <mayaMath.h>
 
-// enum axis {xAxis, yAxis ,zAxis };
-// typedef mayaMath::axis axis;
-// class stroke ;
-
-// typedef std::vector<stroke*> STROKE_VECTOR;
-
-
-
+#include "brush.h"
+#include "paint.h"
 
 
 class stroke {
@@ -27,31 +21,40 @@ public:
 	  double startDist,
 	  double endDist,
 	  double density,
-	  const MVector &normal,
+	  const MVector &planeNormal,
 	  const double3 &attack,
 	  const double3 &lift,
 	  double elevation,
-	  double tipDist,
-	  short brushId,
-	  short paintId,
+	  double rotation,
+	  double translation,
+	  double pivotFraction,
+	  const Brush &brush,
+	  const Paint &paint,
 	  const MObject &curveObject
 	);
 
 	~stroke();
 
+	const MVectorArray &points() const;
+	const MVectorArray &normals() const;
+	const Brush &brush() const;
+	const Paint &paint() const;
+	MPoint pivot() const;
+	void getPivotUVs(const MMatrix &inversePlaneMatrix, float &u, float &v) const ;
 
-	short brushId() const;
-
-	short paintId() const;
-
-	MVectorArray points;
-	MVectorArray normals;
-	short m_brushId;
-	short m_paintId;
+	void rotate(float rotation, const MVector &axis);
+	void translate(const MFloatVector &translation, const MVector &planeNormal);
 
 
+private:
+	MVectorArray m_points;
+	MVectorArray m_normals;
+	Brush m_brush;
+	Paint m_paint;
+	MPoint m_pivot;
+	double m_rotation;
+	double m_translation;
 };
-
 
 // typedef std::vector<stroke> STROKE_VECTOR;
 

@@ -55,7 +55,7 @@ MObject paintingShape::aPaintColorG;
 MObject paintingShape::aPaintColorB;
 MObject paintingShape::aPaintColor;
 MObject paintingShape::aPaintName;
-MObject paintingShape::aPaintViscosity;
+MObject paintingShape::aPaintOpacity;
 MObject paintingShape::aPaints;
 
 MObject paintingShape::aOutCounts;
