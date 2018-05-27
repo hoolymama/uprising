@@ -71,8 +71,9 @@ private:
 
   MStatus getStrokes(MDataBlock &data,
                      const MVector &normal,
-                     const std::map<short, Brush> brushes,
-                     const std::map<short, Paint> paints,
+                     const MMatrix &inversePlaneMatrix,
+                     const   std::map<short, Brush> brushes,
+                     const   std::map<short, Paint> paints,
                      std::vector<stroke> &strokes ) const;
 
   MStatus getTextureName(const MObject &attribute,
@@ -103,6 +104,8 @@ private:
   static MObject aStrokeTranslation;
   static MObject aPivotFraction;
 
+
+
   static MObject aCurves;
 
   //  brushes
@@ -119,6 +122,7 @@ private:
   static MObject  aPaintColor;
   static MObject  aPaintName;
   static MObject  aPaintOpacity;
+  static MObject  aPaintMaxArcLength;
   static MObject  aPaints;
 
   // general
@@ -127,6 +131,7 @@ private:
   static MObject aStrokeRotationTexture;
   static MObject aStrokeTranslationTexture;
   static MObject aStrokeTranslationSampleDistance;
+  static MObject aStrokeCountFactor;
 
   // output
   static MObject  aOutCounts;
@@ -139,6 +144,7 @@ private:
   static MObject  aOutBrushWidths;
   static MObject  aOutPaintColors;
   static MObject  aOutPaintOpacities;
+  static MObject  aOutArcLengths;
 
 
   // display

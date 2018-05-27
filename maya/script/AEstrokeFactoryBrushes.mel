@@ -2,7 +2,7 @@
 
  	setParent $columnLayout;
  	global int $gTextColumnWidthIndex;
- 	string $cl = `frameLayout -bv 1 -cl 0 -cll 0 -label ("Brush: " + $index)`;
+ 	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label ("Brush: " + $index)`;
 
  	attrControlGrp -attribute ($plug+".brushWidth");
  	attrControlGrp -attribute ($plug+".brushName");

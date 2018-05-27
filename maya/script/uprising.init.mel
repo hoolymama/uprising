@@ -7,7 +7,8 @@ global proc uprising.init(string $moduleName) {
     setParent -m $moduleMenu;
 
     // menuItem -l "Send to RoboDK" -c "python \"import uprising.io;reload(uprising.io);uprising.io.send()\"";
- 
+    // menuItem -l "Robot tools UI" -c "python \"import uprising.win;reload(uprising.win);uprising.win.setup()\"";
+    
     menuItem -l "Send Objects" -c "python \"import uprising.io;reload(uprising.io);uprising.io.send_objects()\"";
      
     menuItem -l "Curve project" -c "python \"import uprising.curve;reload(uprising.curve);uprising.curve.setup()\"";

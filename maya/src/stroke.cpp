@@ -69,11 +69,12 @@ stroke::stroke(
 	m_paint(paint),
 	m_rotation(rotation),
 	m_translation(translation),
-	m_pivot()
+	m_pivot(),
+	m_arcLength()
 {
 	MStatus st;
-	double arcLength = endDist - startDist;
-	unsigned numPoints = unsigned(density * arcLength);
+	m_arcLength = endDist - startDist;
+	unsigned numPoints = unsigned(density * m_arcLength);
 
 	MFnNurbsCurve curveFn(curveObject, &st);
 
@@ -85,7 +86,7 @@ stroke::stroke(
 	MDoubleArray params(numPoints);
 	for (unsigned i = 0; i < numPoints; i++) {
 		double fraction =  (double(i) * recip);
-		double dist = startDist + (fraction * arcLength);
+		double dist = startDist + (fraction * m_arcLength);
 		double param = curveFn.findParamFromLength(dist, &st); er;
 		params.set(param, i);
 	}
@@ -120,7 +121,7 @@ stroke::stroke(
 	}
 
 	// For now, set pivot halfway along stroke.
-	double dist = startDist + (pivotFraction * arcLength);
+	double dist = startDist + (pivotFraction * m_arcLength);
 	double param = curveFn.findParamFromLength(dist, &st); er;
 	st = curveFn.getPointAtParam(param, m_pivot, MSpace::kObject);
 
@@ -145,10 +146,27 @@ MPoint stroke::pivot() const {
 	return m_pivot;
 }
 
+double stroke::arcLength() const {
+	return m_arcLength;
+}
+
 void stroke::getPivotUVs(const MMatrix &inversePlaneMatrix, float &u, float &v) const {
 	MPoint p = ((m_pivot * inversePlaneMatrix) * 0.5) + MVector(0.5, 0.5, 0.0);
 	u = p.x;
 	v = p.y;
+}
+
+
+bool stroke::overlapsPlane(const MMatrix &inversePlaneMatrix) const {
+	unsigned len = m_points.length();
+	for (int i = 0; i < len; ++i)
+	{
+		MPoint p = MPoint(m_points[i]) * inversePlaneMatrix;
+		if (p.x > -1 && p.x < 1 && p.y > -1 && p.y < 1) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void stroke::rotate(float rotation, const MVector &axis) {

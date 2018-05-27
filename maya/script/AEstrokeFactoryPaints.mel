@@ -2,11 +2,13 @@
 
  	setParent $columnLayout;
  	global int $gTextColumnWidthIndex;
- 	string $cl = `frameLayout -bv 1 -cl 0 -cll 0 -label ("Paint: " + $index)`;
+ 	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label ("Paint: " + $index)`;
 
  	attrControlGrp -attribute ($plug+".paintColor");
  	attrControlGrp -attribute ($plug+".paintName");
  	attrControlGrp -attribute ($plug+".paintOpacity");
+ 	attrControlGrp -attribute ($plug +".paintMaxArcLength");
+ 	
  
  	string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;

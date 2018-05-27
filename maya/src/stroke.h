@@ -39,10 +39,18 @@ public:
 	const MVectorArray &normals() const;
 	const Brush &brush() const;
 	const Paint &paint() const;
+
+	double arcLength() const;
+
 	MPoint pivot() const;
+
+	bool overlapsPlane(const MMatrix &inversePlaneMatrix) const;
+
+
 	void getPivotUVs(const MMatrix &inversePlaneMatrix, float &u, float &v) const ;
 
 	void rotate(float rotation, const MVector &axis);
+
 	void translate(const MFloatVector &translation, const MVector &planeNormal);
 
 
@@ -54,6 +62,7 @@ private:
 	MPoint m_pivot;
 	double m_rotation;
 	double m_translation;
+	double m_arcLength;
 };
 
 // typedef std::vector<stroke> STROKE_VECTOR;

@@ -8,7 +8,7 @@
 
  	setParent $columnLayout;
  	global int $gTextColumnWidthIndex;
- 	string $cl = `frameLayout -bv 1 -cl 0 -cll 0 -label $label`;
+ 	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label $label`;
 
  	attrControlGrp -attribute ($plug+".strokeLength");
  	attrControlGrp -attribute ($plug+".randomLengthFactor");
@@ -18,7 +18,8 @@
   attrControlGrp -attribute ($plug+".overlap");
    	attrControlGrp -attribute ($plug+".randomOverlapFactor");
 
- 	
+
+
  	attrControlGrp -attribute ($plug+".attack");
  	attrControlGrp -attribute ($plug+".lift");
  	attrControlGrp -attribute ($plug+".elevation");
@@ -34,10 +35,16 @@
  
  	string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
-
-
  	setParent ..;
+
  }
+global proc AEstrokeFactoryAddSelectedCurves(string $nodeAttr) {
+	string $curves[] = `ls -sl -dag -leaf -type "nurbsCurve"`;
+	for ($curve in $curves) {
+		int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+		connectAttr -f ($curve+".worldSpace[0]") ($nodeAttr+"["+$nextIndex+"].curve");
+	}
+}
 
  global proc AEmultiStrokeFactoryCurvesReplace (string $nodeAttr) {
 
@@ -59,8 +66,9 @@
  	}
  	setParent ..;
 
- 	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
- 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].pointDensity 1" ) "AEaddStrokeFactoryCurvesBtn";
+ 
+ 	button -e -c ( "AEstrokeFactoryAddSelectedCurves(\""+ $nodeAttr+"\")") "AEaddStrokeFactoryCurvesBtn";
+ 	// button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].pointDensity 1" ) "AEaddStrokeFactoryCurvesBtn";
 
  }
 
