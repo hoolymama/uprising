@@ -16,17 +16,23 @@
  	
  	attrControlGrp -attribute ($plug+".pointDensity");
   attrControlGrp -attribute ($plug+".overlap");
-   	attrControlGrp -attribute ($plug+".randomOverlapFactor");
+  attrControlGrp -attribute ($plug+".randomOverlapFactor");
 
 
-
- 	attrControlGrp -attribute ($plug+".attack");
- 	attrControlGrp -attribute ($plug+".lift");
- 	attrControlGrp -attribute ($plug+".elevation");
+ 	attrControlGrp -attribute ($plug+".repeats");
+ 	attrControlGrp -attribute ($plug+".repeatOffset");
+ 	attrControlGrp -attribute ($plug+".repeatMirror");
+ 	attrControlGrp -attribute ($plug+".repeatOscillate");
+ 
  	
  	attrControlGrp -attribute ($plug+".pivotFraction");
  	attrControlGrp -attribute ($plug+".strokeRotation");
  	attrControlGrp -attribute ($plug+".strokeTranslation");
+
+ 	attrControlGrp -attribute ($plug+".followStroke");
+ 	attrControlGrp -attribute ($plug+".brushRotate");
+
+ 	attrControlGrp -attribute ($plug+".forceDip");
   attrControlGrp -attribute ($plug+".brushId");
   attrControlGrp -attribute ($plug+".paintId");
   attrControlGrp -attribute ($plug+".active");

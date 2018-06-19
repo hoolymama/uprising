@@ -5,6 +5,8 @@
 #include <vector>
 #include <maya/MDoubleArray.h>
 #include <maya/MVectorArray.h>
+#include <maya/MMatrixArray.h>
+
 #include <maya/MObject.h>
 
 #include <mayaMath.h>
@@ -13,37 +15,56 @@
 #include "paint.h"
 
 
-class stroke {
+class Stroke {
 public:
 
-	///
-	stroke(
+	Stroke(
+	  unsigned curveId,
 	  double startDist,
 	  double endDist,
 	  double density,
 	  const MVector &planeNormal,
-	  const double3 &attack,
-	  const double3 &lift,
-	  double elevation,
 	  double rotation,
 	  double translation,
 	  double pivotFraction,
+	  const MVector &brushRotate,
+	  bool follow,
+	  bool forceDip,
 	  const Brush &brush,
 	  const Paint &paint,
 	  const MObject &curveObject
 	);
 
-	~stroke();
+	Stroke(
+	  const Stroke &mother,
+	  double offset,
+	  bool reverse,
+	  const MVector &planeNormal
+	);
 
-	const MVectorArray &points() const;
-	const MVectorArray &normals() const;
+	~Stroke();
+
+	const MMatrixArray &targets() const;
+
+	// flat normalized tangents.
+	// flat means, projected onto the construction plane.
+	const MVectorArray &tangents() const;
+
 	const Brush &brush() const;
 	const Paint &paint() const;
 
 	double arcLength() const;
 
-	MPoint pivot() const;
+	bool  follow() const;
+	bool  forceDip() const;
 
+	unsigned curveId() const;
+
+	double rotation() const;
+	double translation() const;
+
+	const MPoint &pivot() const;
+	const MVector &brushRotate() const;
 	bool overlapsPlane(const MMatrix &inversePlaneMatrix) const;
 
 
@@ -54,15 +75,24 @@ public:
 	void translate(const MFloatVector &translation, const MVector &planeNormal);
 
 
+
 private:
-	MVectorArray m_points;
-	MVectorArray m_normals;
+	unsigned m_curveId;
+	MMatrixArray m_targets;
+	MVectorArray m_tangents;
+	// MVectorArray m_normals;
 	Brush m_brush;
 	Paint m_paint;
 	MPoint m_pivot;
+	MVector m_brushRotate;
+	double m_bank;
+	double m_twist;
 	double m_rotation;
 	double m_translation;
 	double m_arcLength;
+	bool m_isBackstroke;
+	bool m_follow;
+	bool m_forceDip;
 };
 
 // typedef std::vector<stroke> STROKE_VECTOR;

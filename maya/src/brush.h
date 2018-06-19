@@ -4,6 +4,8 @@
 
 #include <maya/MVector.h>
 #include <maya/MString.h>
+#include "mayaMath.h"
+
 
 class Brush {
 public:
@@ -12,16 +14,26 @@ public:
 	Brush(
 	  short id,
 	  double width,
-	  double tip,
-	  const MVector &tcp,
-	  const MString &name);
+	  double retention,
+	  double liftLength,
+	  double liftHeight,
+	  double liftBias,
+	  const MString &name
+	);
 
 	~Brush();
-	double width;
-	double tip;
-	MVector tcp;
-	MString name;
+
 	short id;
+	double width;
+	double retention;
+	double tilt;
+	double bank;
+	double twist;
+	double liftLength;
+	double liftHeight;
+	double liftBias;
+	MString name;
 
 };
 #endif
+

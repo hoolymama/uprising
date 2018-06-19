@@ -19,11 +19,4 @@ Paint::Paint(
 {
 }
 
-
 Paint::~Paint() {}
-
-
-// MVector Paint::colorAsVector() const {
-// 	return MVector(color.r, color.g, color.b);
-// }
-

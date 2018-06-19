@@ -18,8 +18,6 @@ public:
 
 	~Paint();
 
-	// MVector colorAsVector() const;
-
 	short id;
 	MColor color;
 	double opacity;

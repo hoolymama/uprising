@@ -48,28 +48,39 @@
 
  	editorTemplate -beginScrollLayout;
 
+
 	editorTemplate -cl 0 -beginLayout "General Attributes";
+	editorTemplate -addControl "strokeCountFactor"; 
+ 	editorTemplate -addControl "rotateOrder"; 
+ 	editorTemplate -addControl "outAngularUnit"; 
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Texture Attributes";
 	editorTemplate -addControl "strokeRotationTexture"; 
 	editorTemplate -addControl "strokeTranslationTexture"; 
 	editorTemplate -addControl "strokeTranslationSampleDistance"; 
-		editorTemplate -addControl "strokeCountFactor"; 
+	editorTemplate -endLayout;
 
-
+	editorTemplate -cl 0 -beginLayout "Approach Attributes";
+ 	editorTemplate -addControl "strokeApproachDistance"; 
+ 	editorTemplate -addControl "insertApproachMinSpan";
+ 	editorTemplate -addControl "insertApproachMaxSpan";
+ 	editorTemplate -addControl "insertApproachMaxDistance";
  	editorTemplate -endLayout;
 
  
 	editorTemplate -cl 0 -beginLayout "Display Attributes";
  	editorTemplate -addControl "displayPoints"; 
- 	editorTemplate -addControl "displayNormals"; 
+ 	editorTemplate -addControl "displayBrush"; 
  	editorTemplate -addControl "displayPaint"; 
-  editorTemplate -addControl "displayAttackLift"; 
+  editorTemplate -addControl "displayBrushLift"; 
  	editorTemplate -addControl "displayPaintOutlines"; 
   editorTemplate -addControl "paintOutlineThickness"; 
  	editorTemplate -addControl "pointSize"; 
  	editorTemplate -addControl "normalLength"; 
+ 	editorTemplate -addControl "displayApproach"; 
  	editorTemplate -addControl "lineColor"; 
  	editorTemplate -addControl "stackGap"; 
- 	
  	editorTemplate -endLayout;
 
 
@@ -88,10 +99,10 @@
 
 
 
- 	editorTemplate -suppress "outPointsLocal";
- 	editorTemplate -suppress "outPointsWorld";
-  editorTemplate -suppress "outNormalsLocal";
- 	editorTemplate -suppress "outNormalsWorld";
+ 	editorTemplate -suppress "outTargets";
+ 	// editorTemplate -suppress "outTargetsWorld";
+  // editorTemplate -suppress "outNormalsLocal";
+ 	// editorTemplate -suppress "outNormalsWorld";
  	editorTemplate -suppress "outCounts";
 
  	editorTemplate -suppress "inMatrix";

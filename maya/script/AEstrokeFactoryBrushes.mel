@@ -6,8 +6,11 @@
 
  	attrControlGrp -attribute ($plug+".brushWidth");
  	attrControlGrp -attribute ($plug+".brushName");
+ 	attrControlGrp -attribute ($plug+".brushLift");
  	attrControlGrp -attribute ($plug+".brushTcp");
- 	attrControlGrp -attribute ($plug+".brushTip");
+
+ 	attrControlGrp -attribute ($plug+".brushRetention");
+
   string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
 
@@ -36,7 +39,7 @@
  	setParent ..;
 
  	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
- 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].brushTip 0.5" ) "AEaddStrokeFactoryBrushesBtn";
+ 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].brushRetention 1.0" ) "AEaddStrokeFactoryBrushesBtn";
 
  }
 

@@ -4,7 +4,6 @@ import pymel.core as pm
 import json
 
 
-
 def save_stl(node, filename):
     p = node.getParent()
     grp = pm.group(em=True)
@@ -42,7 +41,6 @@ def shape_color(shape):
     except BaseException:
         color = tuple((1.0, 1.0, 1.0))
     return color
-
 
 
 def obj_color(node):
@@ -144,5 +142,3 @@ def insert_identity():
         pm.makeIdentity(tf, apply=True, t=False, r=False, s=True, pn=True)
 
     pm.select(transforms)
-
-

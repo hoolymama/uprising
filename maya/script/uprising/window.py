@@ -23,6 +23,7 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.painting_tab = painting_tab.PaintingTab()
         self.tabs.setTabLabel((self.painting_tab, "Painting"))
+         
         pm.setParent(self.tabs)
         self.props_tab = props_tab.PropsTab()
         self.tabs.setTabLabel((self.props_tab, "Props"))
