@@ -63,6 +63,12 @@ class PaintingTab(gui.FormLayout):
             label='Create dip subroutines',
             command=pm.Callback(self.on_create_dip_only))
 
+
+        pm.button(
+            label='Create painting and dips',
+            command=pm.Callback(self.on_create_painting_and_dips))
+
+
         pm.button(
             label='Show painting',
             command=pm.Callback(self.on_show_painting))
@@ -113,37 +119,28 @@ class PaintingTab(gui.FormLayout):
     #     dip = pnt.Painting(node)
     #     dip.create_program_permutations()
 
+
+
+
+
+    def on_create_painting_and_dips(self):
+        self.on_create_dip_only()
+        self.on_create_painting()
+
     def on_create_painting(self):
         RL.Render(False)
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        dip_factory = pm.PyNode("dipStrokeFactoryShape")
-
-        # main_program_name = "painting_program"
-        # main_program = RL.AddProgram(main_program_name)
-
         painting = pnt.Painting(painting_factory)
-        dip = pnt.Painting(dip_factory, True)
-        
         painting.create_painting_program()
-
- 
+        RL.Render(True)
 
     def on_create_dip_only(self):
- 
+        RL.Render(False)
         dip_factory = pm.PyNode("dipStrokeFactoryShape")
         dip = pnt.Painting(dip_factory, True)
         dip.create_dip_subroutines()
-
- 
-
-
-
-
-        # dip = pnt.Painting(dip_node)
-
-        # dip_programs = dip.create_program_permutations()
         RL.Render(True)
-
+ 
     def on_delete_curve_instances(self):
         nodes = pm.ls(
             selection=True,

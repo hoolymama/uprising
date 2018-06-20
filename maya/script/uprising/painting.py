@@ -15,6 +15,7 @@ from paint import Paint
 from brush import Brush
 from stroke import Stroke
 from cluster import Cluster
+# , PaintingCluster, DipCluster
 
 RL = Robolink()
 PI = 3.14159265359
@@ -22,6 +23,7 @@ PI = 3.14159265359
 
 def rad2deg(rad):
     return rad * (180 / PI)
+
 
 def deg2rad(deg):
     return deg / (180 / PI)
@@ -66,16 +68,21 @@ class Painting(object):
         self.paints = Paint.paints(factory_node)
 
         approach_dist = self.node.attr("strokeApproachDistance").get()
-        approach_max_distance = self.node.attr("insertApproachMaxDistance").get()
+        approach_max_distance = self.node.attr(
+            "insertApproachMaxDistance").get()
 
         planeMat = self.node.attr("outPlaneMatrixWorld").get()
 
-        self.approach = (pm.dt.Vector(0, 0, 1) * planeMat).normal() * approach_dist
-        self.max_approach = (pm.dt.Vector(0, 0, 1) * planeMat).normal() * approach_max_distance
+        self.approach = (pm.dt.Vector(0, 0, 1) *
+                         planeMat).normal() * approach_dist
+        self.max_approach = (
+            pm.dt.Vector(
+                0,
+                0,
+                1) * planeMat).normal() * approach_max_distance
 
         self.min_span = self.node.attr("insertApproachMinSpan").get()
         self.max_span = self.node.attr("insertApproachMaxSpan").get()
-
 
         indices = factory_node.attr("curves").getArrayIndices()
         for index in indices:
@@ -107,11 +114,10 @@ class Painting(object):
         progressStart("Generate stroke configurations", num_strokes)
 
         self.clusters = []
+        cluster_id = 0
         start = 0
-        cluster = Cluster("tool")
-
-
-
+        cluster = Cluster.create(is_dip, cluster_id, "tool")
+        cluster_id +=1
         curve_stroke_id = 0
         last_curve_id = -1
         for i, count in enumerate(counts):
@@ -121,18 +127,16 @@ class Painting(object):
 
             if curve_ids[i] is not last_curve_id:
                 curve_stroke_id = 0
+                last_curve_id = curve_ids[i]
 
 
-            change_reason = self.should_change_cluster(
-                cluster,
-                new_brush,
-                new_paint,
-                force_dips[i])
+            change_reason = cluster.should_change(
+                new_brush, new_paint, force_dips[i])
 
             if change_reason:
                 self.clusters.append(cluster)
-                cluster = Cluster(change_reason)
-
+                cluster = Cluster.create(is_dip, cluster_id, change_reason)
+                cluster_id +=1
 
             end = start + count
 
@@ -144,20 +148,11 @@ class Painting(object):
                             curve_stroke_id
                             )
 
-
-
-
-
-
             if cluster.empty():
-        
-                cluster.set_tools(
-                    robot,
-                    new_brush,
-                    new_paint
-                    )
+                cluster.set_tools(robot, new_brush, new_paint)
 
-            curve_stroke_id +=1
+            curve_stroke_id += 1
+
 
             cluster.build_stroke(stroke)
             start = end
@@ -167,18 +162,7 @@ class Painting(object):
 
         self.clusters.append(cluster)
         progressEnd()
-
-    def should_change_cluster(self, cluster, brush, paint, force):
-        if cluster.empty():
-            return None
-        if brush is not cluster.brush:
-            return "tool"
-        if paint is not cluster.paint:
-            return "tool"
-        if (cluster.arc_length > cluster.max_paint_length) and not self.is_dip:
-            return "dip"
-        return "dip" if force else None
-
+ 
     def _create_program(self, name):
         # print "Creating Program"
         program = RL.Item(name)
@@ -209,31 +193,13 @@ class Painting(object):
         # last_cluster = None
         for i, cluster in enumerate(self.clusters):
 
-
-            # if cluster.curve_name != last_curve_name:
-            #     main_program.RunInstruction(
-            #         "Curve %s" %
-            #         cluster.curve_name,
-            #         INSTRUCTION_SHOW_MESSAGE)
-            # last_curve_name = cluster.curve_name
-
-
-
-            # cluster.write_transition_comands(
-            #     robot, main_program, main_frame, last_cluster, 
-            #     self.min_span, self.max_span, self.approach, self.max_approach)
-
-            cluster.write_program_comands(robot, main_program, main_frame, 
-                self.min_span, self.max_span, self.approach, self.max_approach)
+            cluster.write_program_comands(robot, main_program, main_frame)
             completed_clusters += 1
             progressUpdate(completed_clusters, num_clusters)
 
             # last_cluster = cluster
 
         progressEnd()
-
-
-
 
     def create_dip_subroutines(self):
         print "Creating subroutines"
@@ -245,12 +211,15 @@ class Painting(object):
 
         dip_frame = self._create_frame("dx_frame")
         for i, cluster in enumerate(self.clusters):
-            print "cluster %d" % i
-            program = self._create_program(cluster.curve_name)
+            program = self._create_program(cluster.name())
             cluster.write_program_comands(robot, program, dip_frame)
             completed_clusters += 1
             progressUpdate(completed_clusters, num_clusters)
         progressEnd()
+
+
+
+
 
     def show(self):
         robot = RL.Item('', ITEM_TYPE_ROBOT)
