@@ -63,12 +63,16 @@
 
 	editorTemplate -cl 0 -beginLayout "Approach Attributes";
  	editorTemplate -addControl "strokeApproachDistance"; 
- 	editorTemplate -addControl "insertApproachMinSpan";
- 	editorTemplate -addControl "insertApproachMaxSpan";
- 	editorTemplate -addControl "insertApproachMaxDistance";
+ 	// editorTemplate -addControl "insertApproachMinSpan";
+ 	// editorTemplate -addControl "insertApproachMaxSpan";
+ 	// editorTemplate -addControl "insertApproachMaxDistance";
  	editorTemplate -endLayout;
 
- 
+ 	editorTemplate -cl 0 -beginLayout "Speed Attributes";
+  	editorTemplate -addControl "linearSpeed";
+ 	editorTemplate -addControl "angularSpeed";
+ 	editorTemplate -endLayout;
+
 	editorTemplate -cl 0 -beginLayout "Display Attributes";
  	editorTemplate -addControl "displayPoints"; 
  	editorTemplate -addControl "displayBrush"; 

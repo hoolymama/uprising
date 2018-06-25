@@ -10,8 +10,7 @@ RL = Robolink()
 
 import pymel.core as pm
 
-CANVAS_HOME_JOINTS = [-90.000000, -90.000000,
-                      120.000000, 0.000000, -30.000000, 0.000000]
+CANVAS_HOME_JOINTS = [-90.000000, -90.000000,  120.000000, 0.000000, -30.000000, 0.000000]
 
 TRAY_HOME_JOINTS = [-60.000000, -60.000000,
                     110.000000, 0.000000, 20.000000, 50.000000]
@@ -26,111 +25,14 @@ def rad2deg(rad):
 def deg2rad(deg):
     return deg / (180 / PI)
 
-
-# class Cluster(object):
-
-#     def __init__(self, reason):
-#         self.reason = reason
-#         self.strokes = []
-#         self.arc_length = 0
-#         self.brush = None
-#         self.paint = None
-#         self.last_valid_joint_pose = CANVAS_HOME_JOINTS
-
-#     def set_tools(self, robot, brush, paint):
-#         self.robot = robot
-#         self.brush = brush
-#         self.paint = paint
-#         self.max_paint_length = paint.max_length * brush.retention
-
-
-#     def build_stroke(self, stroke):
-#         self.arc_length += stroke.arc_length
-#         # stroke.cluster = self
-#         try:
-#             stroke.configure(
-#                 self.robot,
-#                 self.brush,
-#                 self.last_valid_joint_pose
-#             )
-#             self.strokes.append(stroke)
-#             self.last_valid_joint_pose = stroke.targets[-1]["valid_joint_pose"]
-
-#         except StrokeError as e:
-#             print("CANNOT ADD STROKE %s" % stroke.curve_name)
-#             print(e.message)
-
-#     def empty(self):
-#         return not self.strokes
-
-
-#     def write_program_comands(self, robot, parent_program, parent_frame,
-#                               min_span=None,
-#                               max_span=None,
-#                               min_approach=None,
-#                               max_approach=None):
-
-
-#         tool_change_target = RL.Item('tool_change')
-
-
-#         prefix = parent_program.Name()
-
-#         # if self.reason is "tool":
-#         #     tool = RL.Item(self.brush.name)
-#         #     parent_program.addMoveJ(tool_change_target)
-
-#         # prog = self.create_milling_program(
-#         #     new_stroke_settings,
-#         #     curve,
-#         #     "C_%d_stroke_prog" %
-#         #     i,
-#         #     tool)
-
-#         # if cluster.reason is "tool":
-#         #     brush_id = brush.id
-#         #     paint_id = paint.id
-#         #     # go to tool change
-#         #     main_program.addMoveJ(tool_change_target)
-#         #     main_program.RunInstruction(
-#         #         "Change Tool: %scm brush ID:(%d) - paint ID:(%d)" %
-#         #         (cluster.brush.width, brush_id, paint_id), INSTRUCTION_SHOW_MESSAGE)
-#         #     main_program.Pause()
-
-#         # # dip in the paint
-#         # slosh_prog_name = "%s_prog" % paint_and_brush_name(paint, brush)
-#         # main_program.addMoveJ(tray_approach_target)
-#         # main_program.RunInstruction(
-#         #     slosh_prog_name, INSTRUCTION_CALL_PROGRAM)
-
-
-#         # last_target_data = None
-#         for i, stroke in enumerate(self.strokes):
-#             parent_program.RunInstruction(stroke.identifier(), INSTRUCTION_COMMENT)
-#             # num_targets = len(stroke.targets)
-#             for j, target_data in enumerate(stroke.targets):
-#                 # print target_data["valid_joint_pose"]
-#                 joints = target_data["valid_joint_pose"]
-#                 pose = target_data["tool_pose"]
-
-#                 tname = "%s_s_%s_t_%s" % (prefix, i, j)
-#                 target = RL.AddTarget(tname, parent_frame, robot)
-#                 target.setPose(pose)
-#                 target.setJoints(joints)
-
-#                 if j == 0:
-#                     parent_program.addMoveJ(target)
-#                 else:
-#                     parent_program.addMoveL(target)
-
-
 class Cluster(object):
 
     def __init__(self, cluster_id):
         self.strokes = []
         self.brush = None
         self.paint = None
-        self.id = cluster_id
+        self.id = cluster_id 
+        # print "CLUSTER CTOR"
 
     @staticmethod
     def create(is_dip, cluster_id, reason=None):
@@ -138,10 +40,16 @@ class Cluster(object):
             return DipCluster(cluster_id)
         return PaintingCluster(cluster_id, reason)
 
-    def set_tools(self, robot, brush, paint):
+    def set_tools(self, robot, brush, paint, linearSpeed, angularSpeed):
         self.robot = robot
         self.brush = brush
         self.paint = paint
+        self.linearSpeed = linearSpeed
+        self.angularSpeed = angularSpeed
+        # print "CLUSTER SET_TOOLS"
+        # print "BRUSH %s" % brush
+        # print "PAINT %s" % paint
+       
 
     def empty(self):
         return not self.strokes
@@ -157,7 +65,8 @@ class Cluster(object):
 
     def write_program_comands(self, robot, parent_program, parent_frame):
         prefix = parent_program.Name()
-
+        parent_program.setSpeed(self.linearSpeed, self.angularSpeed)
+ 
         for i, stroke in enumerate(self.strokes):
             parent_program.RunInstruction(
                 stroke.identifier(), INSTRUCTION_COMMENT)
@@ -169,10 +78,10 @@ class Cluster(object):
                 target = RL.AddTarget(tname, parent_frame, robot)
                 target.setPose(pose)
                 target.setJoints(joints)
-                if j == 0:
-                    parent_program.addMoveJ(target)
-                else:
+                if target_data["linear"]:
                     parent_program.addMoveL(target)
+                else:
+                    parent_program.addMoveJ(target)
 
 
 class PaintingCluster(Cluster):
@@ -183,8 +92,8 @@ class PaintingCluster(Cluster):
         self.arc_length = 0
         self.last_valid_joint_pose = CANVAS_HOME_JOINTS
 
-    def set_tools(self, robot, brush, paint):
-        super(PaintingCluster, self).set_tools(robot, brush, paint)
+    def set_tools(self, robot, brush, paint, linearSpeed, angularSpeed):
+        super(PaintingCluster, self).set_tools(robot, brush, paint, linearSpeed, angularSpeed)
         self.max_paint_length = paint.max_length * brush.retention
 
     def name(self):
@@ -206,7 +115,7 @@ class PaintingCluster(Cluster):
     def write_program_comands(self, robot, parent_program, parent_frame):
 
         tool_change_target = RL.Item('tool_change')
-
+        tray_approach_target = RL.Item("tray_approach")
         prefix = parent_program.Name()
 
         if self.reason is "tool":
@@ -218,6 +127,8 @@ class PaintingCluster(Cluster):
             parent_program.Pause()
             parent_program.setPoseTool(tool)
 
+
+        parent_program.addMoveJ(tray_approach_target)
         dip_program_name =  DipCluster.generate_name(self.paint.id, self.brush.id)
         # print "DIP_PROGRAM_NAME %s" % dip_program_name
         parent_program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
@@ -250,8 +161,8 @@ class DipCluster(Cluster):
         super(DipCluster, self).__init__(cluster_id)
         self.last_valid_joint_pose = TRAY_HOME_JOINTS
 
-    def set_tools(self, robot, brush, paint):
-        super(DipCluster, self).set_tools(robot, brush, paint)
+    # def set_tools(self, robot, brush, paint, linearSpeed, angularSpeed):
+    #     super(DipCluster, self).set_tools(robot, brush, paint, linearSpeed, angularSpeed)
 
     @staticmethod
     def generate_name(paint_id, brush_id):
@@ -393,3 +304,104 @@ class DipCluster(Cluster):
 
     #     parent_program.RunInstruction(
     #         "Finished cluster", INSTRUCTION_SHOW_MESSAGE)
+
+
+
+
+
+# class Cluster(object):
+
+#     def __init__(self, reason):
+#         self.reason = reason
+#         self.strokes = []
+#         self.arc_length = 0
+#         self.brush = None
+#         self.paint = None
+#         self.last_valid_joint_pose = CANVAS_HOME_JOINTS
+
+#     def set_tools(self, robot, brush, paint):
+#         self.robot = robot
+#         self.brush = brush
+#         self.paint = paint
+#         self.max_paint_length = paint.max_length * brush.retention
+
+
+#     def build_stroke(self, stroke):
+#         self.arc_length += stroke.arc_length
+#         # stroke.cluster = self
+#         try:
+#             stroke.configure(
+#                 self.robot,
+#                 self.brush,
+#                 self.last_valid_joint_pose
+#             )
+#             self.strokes.append(stroke)
+#             self.last_valid_joint_pose = stroke.targets[-1]["valid_joint_pose"]
+
+#         except StrokeError as e:
+#             print("CANNOT ADD STROKE %s" % stroke.curve_name)
+#             print(e.message)
+
+#     def empty(self):
+#         return not self.strokes
+
+
+#     def write_program_comands(self, robot, parent_program, parent_frame,
+#                               min_span=None,
+#                               max_span=None,
+#                               min_approach=None,
+#                               max_approach=None):
+
+
+#         tool_change_target = RL.Item('tool_change')
+
+
+#         prefix = parent_program.Name()
+
+#         # if self.reason is "tool":
+#         #     tool = RL.Item(self.brush.name)
+#         #     parent_program.addMoveJ(tool_change_target)
+
+#         # prog = self.create_milling_program(
+#         #     new_stroke_settings,
+#         #     curve,
+#         #     "C_%d_stroke_prog" %
+#         #     i,
+#         #     tool)
+
+#         # if cluster.reason is "tool":
+#         #     brush_id = brush.id
+#         #     paint_id = paint.id
+#         #     # go to tool change
+#         #     main_program.addMoveJ(tool_change_target)
+#         #     main_program.RunInstruction(
+#         #         "Change Tool: %scm brush ID:(%d) - paint ID:(%d)" %
+#         #         (cluster.brush.width, brush_id, paint_id), INSTRUCTION_SHOW_MESSAGE)
+#         #     main_program.Pause()
+
+#         # # dip in the paint
+#         # slosh_prog_name = "%s_prog" % paint_and_brush_name(paint, brush)
+#         # main_program.addMoveJ(tray_approach_target)
+#         # main_program.RunInstruction(
+#         #     slosh_prog_name, INSTRUCTION_CALL_PROGRAM)
+
+
+#         # last_target_data = None
+#         for i, stroke in enumerate(self.strokes):
+#             parent_program.RunInstruction(stroke.identifier(), INSTRUCTION_COMMENT)
+#             # num_targets = len(stroke.targets)
+#             for j, target_data in enumerate(stroke.targets):
+#                 # print target_data["valid_joint_pose"]
+#                 joints = target_data["valid_joint_pose"]
+#                 pose = target_data["tool_pose"]
+
+#                 tname = "%s_s_%s_t_%s" % (prefix, i, j)
+#                 target = RL.AddTarget(tname, parent_frame, robot)
+#                 target.setPose(pose)
+#                 target.setJoints(joints)
+
+#                 if j == 0:
+#                     parent_program.addMoveJ(target)
+#                 else:
+#                     parent_program.addMoveL(target)
+

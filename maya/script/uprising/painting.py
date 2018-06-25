@@ -20,6 +20,7 @@ from cluster import Cluster
 RL = Robolink()
 PI = 3.14159265359
 
+RL.setCollisionActive(0)
 
 def rad2deg(rad):
     return rad * (180 / PI)
@@ -58,6 +59,7 @@ def paint_and_brush_name(paint, brush):
 class Painting(object):
 
     def __init__(self, factory_node, is_dip=False):
+        RL.setCollisionActive(0)
         self.brushes = {}
         self.paints = {}
         self.curve_names = {}
@@ -68,22 +70,14 @@ class Painting(object):
         self.paints = Paint.paints(factory_node)
 
         approach_dist = self.node.attr("strokeApproachDistance").get()
-        approach_max_distance = self.node.attr(
-            "insertApproachMaxDistance").get()
-
+ 
         planeMat = self.node.attr("outPlaneMatrixWorld").get()
 
         self.approach = (pm.dt.Vector(0, 0, 1) *
                          planeMat).normal() * approach_dist
-        self.max_approach = (
-            pm.dt.Vector(
-                0,
-                0,
-                1) * planeMat).normal() * approach_max_distance
 
-        self.min_span = self.node.attr("insertApproachMinSpan").get()
-        self.max_span = self.node.attr("insertApproachMaxSpan").get()
 
+ 
         indices = factory_node.attr("curves").getArrayIndices()
         for index in indices:
             nodes = pm.listConnections(
@@ -109,6 +103,10 @@ class Painting(object):
         force_dips = self.node.attr("outForceDips").get()
         arcL_lengths = self.node.attr("outArcLengths").get()
 
+        linearSpeed = self.node.attr("linearSpeed").get() * 10
+        angularSpeed = self.node.attr("angularSpeed").get()
+        
+
         num_strokes = len(counts)
         completed_strokes = 0
         progressStart("Generate stroke configurations", num_strokes)
@@ -125,9 +123,9 @@ class Painting(object):
             new_paint = self.paints.get(paint_ids[i])
             curve_name = self.curve_names.get(curve_ids[i])
 
-            if curve_ids[i] is not last_curve_id:
-                curve_stroke_id = 0
+            if curve_ids[i] != last_curve_id:
                 last_curve_id = curve_ids[i]
+                curve_stroke_id = 0
 
 
             change_reason = cluster.should_change(
@@ -140,6 +138,7 @@ class Painting(object):
 
             end = start + count
 
+
             stroke = Stroke(positions[start:end],
                             rotations[start:end],
                             arcL_lengths[i],
@@ -148,8 +147,11 @@ class Painting(object):
                             curve_stroke_id
                             )
 
+
+            print "curve_stroke_id is %d" % stroke.curve_stroke_id
+
             if cluster.empty():
-                cluster.set_tools(robot, new_brush, new_paint)
+                cluster.set_tools(robot, new_brush, new_paint, linearSpeed, angularSpeed)
 
             curve_stroke_id += 1
 
@@ -190,19 +192,18 @@ class Painting(object):
         main_frame = self._create_frame("gx_frame")
 
         last_curve_name = None
-        # last_cluster = None
+ 
         for i, cluster in enumerate(self.clusters):
-
             cluster.write_program_comands(robot, main_program, main_frame)
             completed_clusters += 1
             progressUpdate(completed_clusters, num_clusters)
 
             # last_cluster = cluster
-
+        main_program.addMoveJ(RL.Item('tool_change'))
         progressEnd()
 
     def create_dip_subroutines(self):
-        print "Creating subroutines"
+        # print "Creating subroutines"
         num_clusters = len(self.clusters)
         completed_clusters = 0
         progressStart("Create RoboDK Dips", num_clusters)
@@ -212,6 +213,8 @@ class Painting(object):
         dip_frame = self._create_frame("dx_frame")
         for i, cluster in enumerate(self.clusters):
             program = self._create_program(cluster.name())
+            # program.setSpeed(self.linearSpeed, self.angularSpeed)
+ 
             cluster.write_program_comands(robot, program, dip_frame)
             completed_clusters += 1
             progressUpdate(completed_clusters, num_clusters)

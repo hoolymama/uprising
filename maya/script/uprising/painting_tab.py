@@ -22,10 +22,13 @@ import paint
 import brush
 import stroke
 import cluster
+import target
 reload(paint)
 reload(brush)
 reload(stroke)
 reload(cluster)
+reload(target)
+
 
 
 reload(pnt)

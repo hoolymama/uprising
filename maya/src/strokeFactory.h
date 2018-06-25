@@ -180,9 +180,11 @@ private:
   static MObject aStrokeTranslationSampleDistance;
   static MObject aStrokeCountFactor;
   static MObject aStrokeApproachDistance;
-  static MObject aInsertApproachMinSpan;
-  static MObject aInsertApproachMaxSpan;
-  static MObject aInsertApproachMaxDistance;
+  /*  static MObject aInsertApproachMinSpan;
+    static MObject aInsertApproachMaxSpan;
+    static MObject aInsertApproachMaxDistance;*/
+  static MObject aLinearSpeed; // cm/sec
+  static MObject aAngularSpeed; // per sec
 
   // safe approach
   // static MObject aSpanMin;

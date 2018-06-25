@@ -97,9 +97,12 @@ MObject strokeFactory::aStrokeCountFactor;
 MObject strokeFactory::aRotateOrder;
 MObject strokeFactory::aOutputUnit;
 MObject strokeFactory::aStrokeApproachDistance;
-MObject strokeFactory::aInsertApproachMinSpan;
-MObject strokeFactory::aInsertApproachMaxSpan;
-MObject strokeFactory::aInsertApproachMaxDistance;
+// MObject strokeFactory::aInsertApproachMinSpan;
+// MObject strokeFactory::aInsertApproachMaxSpan;
+// MObject strokeFactory::aInsertApproachMaxDistance;
+
+MObject strokeFactory::aLinearSpeed; // cm/sec
+MObject strokeFactory::aAngularSpeed; // per sec
 
 MObject strokeFactory::aInMatrix;
 
@@ -274,30 +277,58 @@ MStatus strokeFactory::initialize()
   nAttr.setDefault(5.0);
   addAttribute(aStrokeApproachDistance);
 
-  aInsertApproachMinSpan = nAttr.create( "insertApproachMinSpan",
-                                         "iamns", MFnNumericData::kDouble);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setMin(0.00);
-  nAttr.setDefault(10.0);
-  addAttribute(aInsertApproachMinSpan);
 
-  aInsertApproachMaxSpan = nAttr.create( "insertApproachMaxSpan",
-                                         "iamxs", MFnNumericData::kDouble);
+  aLinearSpeed =  nAttr.create( "linearSpeed",
+                                "lnsp", MFnNumericData::kDouble);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setMin(0.00);
-  nAttr.setDefault(100.0);
-  addAttribute(aInsertApproachMaxSpan);
+  nAttr.setSoftMax(100);
+  nAttr.setDefault(50);
+  addAttribute(aLinearSpeed);
 
-  aInsertApproachMaxDistance =
-    nAttr.create( "insertApproachMaxDistance",
-                  "iamxd", MFnNumericData::kDouble);
+  aLinearSpeed =  nAttr.create( "linearSpeed",
+                                "lnsp", MFnNumericData::kDouble);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setMin(0.00);
-  nAttr.setDefault(30.0);
-  addAttribute(aInsertApproachMaxDistance);
+  nAttr.setSoftMax(100);
+  nAttr.setDefault(50);
+  addAttribute(aLinearSpeed);
+
+
+  aAngularSpeed = uAttr.create( "angularSpeed", "agsp", MFnUnitAttribute::kAngle );
+  uAttr.setStorable(true);
+  uAttr.setReadable(true);
+  uAttr.setMin((mayaMath::single_pi / 900.00));
+  uAttr.setMax((mayaMath::single_pi));
+  addAttribute(aAngularSpeed);
+
+
+  // aInsertApproachMinSpan = nAttr.create( "insertApproachMinSpan",
+  //                                        "iamns", MFnNumericData::kDouble);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // nAttr.setMin(0.00);
+  // nAttr.setDefault(10.0);
+  // addAttribute(aInsertApproachMinSpan);
+
+  // aInsertApproachMaxSpan = nAttr.create( "insertApproachMaxSpan",
+  //                                        "iamxs", MFnNumericData::kDouble);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // nAttr.setMin(0.00);
+  // nAttr.setDefault(100.0);
+  // addAttribute(aInsertApproachMaxSpan);
+
+  // aInsertApproachMaxDistance =
+  //   nAttr.create( "insertApproachMaxDistance",
+  //                 "iamxd", MFnNumericData::kDouble);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // nAttr.setMin(0.00);
+  // nAttr.setDefault(30.0);
+  // addAttribute(aInsertApproachMaxDistance);
 
 
 
