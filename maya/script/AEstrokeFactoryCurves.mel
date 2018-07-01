@@ -3,7 +3,7 @@
  	string $label = ("No curve: " + $index);
  	string $input[] = `listConnections -s 1 -d 0 ($plug+".curve")`;
  	if (`size $input`) {
- 		 $label = ($input[0] + ": " + $index);
+ 		 $label = ($index +": " + $input[0]);
  	}
 
  	setParent $columnLayout;
@@ -23,7 +23,7 @@
  	attrControlGrp -attribute ($plug+".repeatOffset");
  	attrControlGrp -attribute ($plug+".repeatMirror");
  	attrControlGrp -attribute ($plug+".repeatOscillate");
- 
+  attrControlGrp -attribute ($plug+".repeatAdvance");
  	
  	attrControlGrp -attribute ($plug+".pivotFraction");
  	attrControlGrp -attribute ($plug+".strokeRotation");
@@ -68,7 +68,7 @@ global proc AEstrokeFactoryAddSelectedCurves(string $nodeAttr) {
  	int $indices[] = `getAttr -mi $nodeAttr`;
  	for ($i = 0;$i<$numElements;$i++) {
  		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
- 		AEstrokeFactoryCurvesAddMultiWidget ($plug, $col, $i) ;
+ 		AEstrokeFactoryCurvesAddMultiWidget ($plug, $col, $indices[$i] ) ;
  	}
  	setParent ..;
 

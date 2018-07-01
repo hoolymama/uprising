@@ -95,7 +95,6 @@ MStatus calcBrushMatrix(const MVector &position, const MVector &tangent,
                         bool follow, bool isBackstroke = false) {
 
 	if (follow) {
-
 		return calcBrushMatrixStroke(position, tangent, planeNormal, brushRotate,
 		                             result, isBackstroke);
 	}
@@ -228,6 +227,79 @@ Stroke::Stroke(
 
 }
 
+
+
+Stroke::Stroke(
+  const Stroke &mother,
+  double offset,
+  double advance,
+  bool reverse,
+  const MVector &planeNormal
+)	:
+	m_curveId(mother.curveId()),
+	m_targets(),
+	m_tangents(),
+	m_brush(mother.brush()),
+	m_paint(mother.paint()),
+	m_rotation(mother.rotation()),
+	m_translation(mother.translation()),
+	m_pivot(mother.pivot()),
+	m_brushRotate(mother.brushRotate()),
+	m_follow(mother.follow()),
+	m_forceDip(false),
+	m_arcLength(),
+	m_isBackstroke(reverse)
+{
+	MStatus st;
+	// m_arcLength = endDist - startDist;
+	unsigned numPoints = mother.targets().length();
+	MPoint lastPoint;
+	m_arcLength = 0.0;
+	MPoint thisPoint;
+	MMatrix brushMatrix;
+
+	for (int i = 0; i < numPoints; ++i)
+	{
+		int j = reverse ? numPoints - (i + 1) : i;
+
+
+		const MMatrix &mm = mother.targets()[j];
+		const MVector &tangent = mother.tangents()[j];
+
+
+		MVector advance_vec = MVector::zero;
+		if (i < 2) {
+			advance_vec = tangent * advance;
+			if (reverse) {
+				advance_vec = advance_vec * -1;
+			}
+		}
+
+
+		MVector offsetVec = ((tangent ^ planeNormal) * offset) - advance_vec;
+		thisPoint = MPoint(mm[3][0], mm[3][1], mm[3][2]) + offsetVec;
+
+		st = calcBrushMatrix(thisPoint, tangent, planeNormal, m_brushRotate,
+		                     brushMatrix, m_follow, reverse);
+
+		m_targets.append(brushMatrix);
+		if (reverse) {
+			m_tangents.append(-tangent);
+		}
+		else {
+			m_tangents.append(tangent);
+		}
+
+
+		if (i > 1 && i < numPoints - 1) {
+			m_arcLength += lastPoint.distanceTo(thisPoint);
+		}
+		lastPoint = thisPoint;
+	}
+}
+
+
+
 Stroke::~Stroke() {}
 
 const MMatrixArray &Stroke::targets() const {
@@ -323,62 +395,5 @@ void Stroke::translate(const MFloatVector &translation, const MVector &planeNorm
 	for (int i = 0; i < len; ++i)
 	{
 		m_targets[i]  = m_targets[i] + transMat ;
-	}
-}
-
-Stroke::Stroke(
-  const Stroke &mother,
-  double offset,
-  bool reverse,
-  const MVector &planeNormal
-)	:
-	m_curveId(mother.curveId()),
-	m_targets(),
-	m_tangents(),
-	m_brush(mother.brush()),
-	m_paint(mother.paint()),
-	m_rotation(mother.rotation()),
-	m_translation(mother.translation()),
-	m_pivot(mother.pivot()),
-	m_brushRotate(mother.brushRotate()),
-	m_follow(mother.follow()),
-	m_forceDip(false),
-	m_arcLength(),
-	m_isBackstroke(reverse)
-{
-	MStatus st;
-	// m_arcLength = endDist - startDist;
-	unsigned numPoints = mother.targets().length();
-	MPoint lastPoint;
-	m_arcLength = 0.0;
-	MPoint thisPoint;
-	MMatrix brushMatrix;
-
-	for (int i = 0; i < numPoints; ++i)
-	{
-		int j = reverse ? numPoints - (i + 1) : i;
-
-		const MMatrix &mm = mother.targets()[j];
-		const MVector &tangent = mother.tangents()[j];
-
-		MVector offsetVec = (tangent ^ planeNormal) * offset;
-		thisPoint = MPoint(mm[3][0], mm[3][1], mm[3][2]) + offsetVec;
-
-		st = calcBrushMatrix(thisPoint, tangent, planeNormal, m_brushRotate,
-		                     brushMatrix, m_follow, reverse);
-
-		m_targets.append(brushMatrix);
-		if (reverse) {
-			m_tangents.append(-tangent);
-		}
-		else {
-			m_tangents.append(tangent);
-		}
-
-
-		if (i > 1 && i < numPoints - 1) {
-			m_arcLength += lastPoint.distanceTo(thisPoint);
-		}
-		lastPoint = thisPoint;
 	}
 }

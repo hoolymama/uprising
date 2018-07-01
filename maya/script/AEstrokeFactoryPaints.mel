@@ -33,7 +33,7 @@
  	int $indices[] = `getAttr -mi $nodeAttr`;
  	for ($i = 0;$i<$numElements;$i++) {
  		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
- 		AEstrokeFactoryPaintsAddMultiWidget ($plug, $col, $i) ;
+ 		AEstrokeFactoryPaintsAddMultiWidget ($plug, $col, $indices[$i]) ;
  	}
  	setParent ..;
 

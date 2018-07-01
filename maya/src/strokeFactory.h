@@ -57,8 +57,6 @@ public:
   enum OutlineDisplay { kOutlinesNone, kOutlinesBorders, kOutlinesArrows, kOutlinesBoth };
 
 
-
-
 private:
 
   // unsigned int getStrokeBoundaries(
@@ -117,7 +115,10 @@ private:
   static MObject aRepeats;
   static MObject aRepeatOffset;
   static MObject aRepeatMirror;
+
   static MObject aRepeatOscillate;
+  static MObject aRepeatAdvance;
+
 
 
   static MObject  aRotateOrder;
@@ -152,14 +153,17 @@ private:
   static MObject  aBrushLiftBias;
   static MObject  aBrushLift;
 
-  static MObject  aBrushTcpX;
-  static MObject  aBrushTcpY;
-  static MObject  aBrushTcpZ;
-  static MObject  aBrushTcp;
+
+
+
+  // static MObject  aBrushTcpX;
+  // static MObject  aBrushTcpY;
+  // static MObject  aBrushTcpZ;
+  static MObject  aBrushMatrix;
 
   static MObject  aBrushRetention;
   static MObject  aBrushWidth;
-  static MObject  aBrushName;
+  // static MObject  aBrushName;
   static MObject  aBrushes;
 
   // paint
@@ -180,19 +184,12 @@ private:
   static MObject aStrokeTranslationSampleDistance;
   static MObject aStrokeCountFactor;
   static MObject aStrokeApproachDistance;
-  /*  static MObject aInsertApproachMinSpan;
-    static MObject aInsertApproachMaxSpan;
-    static MObject aInsertApproachMaxDistance;*/
+  static MObject aClusterApproachObject;
+  static MObject aToolChangeApproachObject;
+  static MObject aHomeApproachObject;
   static MObject aLinearSpeed; // cm/sec
   static MObject aAngularSpeed; // per sec
-
-  // safe approach
-  // static MObject aSpanMin;
-  // static MObject aSpanMax;
-  // static MObject aSafeDistanceMin;
-  // static MObject aSafeDistanceMax;
-  // static MObject aRamp;
-
+  static MObject aApproximationDistance; // cm
 
 
 
@@ -221,6 +218,7 @@ private:
   static MObject aDisplayPoints;
   static MObject aDisplayBrush;
   static MObject aDisplayApproach;
+  static MObject aDisplayIds;
 
   static MObject aDisplayBrushLift;
   static MObject aDisplaySegmentOutlines;

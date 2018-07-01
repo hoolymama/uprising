@@ -3,7 +3,7 @@
  * strokeFactory.cpp
  * src
  *
- * Created by Julian Mann on 29/06/2010.
+ * Created by Julian Mann on 29/04/2018.
  *
  * Copyright (c) 2018 Julian Mann
  * All rights reserved.
@@ -53,6 +53,10 @@
 #include <maya/MString.h>
 #include <maya/MFloatMatrix.h>
 #include <maya/MFnTypedAttribute.h>
+
+#include <maya/MFnMessageAttribute.h>
+
+
 #include <maya/MArrayDataHandle.h>
 #include <maya/MAngle.h>
 
@@ -97,13 +101,13 @@ MObject strokeFactory::aStrokeCountFactor;
 MObject strokeFactory::aRotateOrder;
 MObject strokeFactory::aOutputUnit;
 MObject strokeFactory::aStrokeApproachDistance;
-// MObject strokeFactory::aInsertApproachMinSpan;
-// MObject strokeFactory::aInsertApproachMaxSpan;
-// MObject strokeFactory::aInsertApproachMaxDistance;
+MObject strokeFactory::aClusterApproachObject;
+MObject strokeFactory::aToolChangeApproachObject;
+MObject strokeFactory::aHomeApproachObject;
 
 MObject strokeFactory::aLinearSpeed; // cm/sec
 MObject strokeFactory::aAngularSpeed; // per sec
-
+MObject strokeFactory::aApproximationDistance;
 MObject strokeFactory::aInMatrix;
 
 MObject strokeFactory::aCurve;
@@ -116,6 +120,8 @@ MObject strokeFactory::aRepeats;
 MObject strokeFactory::aRepeatOffset;
 MObject strokeFactory::aRepeatMirror;
 MObject strokeFactory::aRepeatOscillate;
+
+MObject strokeFactory::aRepeatAdvance;
 
 MObject strokeFactory::aBrushId;
 MObject strokeFactory::aPaintId;
@@ -145,17 +151,11 @@ MObject strokeFactory::aBrushLiftBias;
 MObject strokeFactory::aBrushLift;
 
 
-MObject strokeFactory::aBrushTcpX;
-MObject strokeFactory::aBrushTcpY;
-MObject strokeFactory::aBrushTcpZ;
-MObject strokeFactory::aBrushTcp;
+MObject strokeFactory::aBrushMatrix;
 
 
 MObject strokeFactory::aBrushRetention;
 MObject strokeFactory::aBrushWidth;
-MObject strokeFactory::aBrushName;
-// MObject strokeFactory::aBrushTcp;
-// MObject strokeFactory::aBrushTip;
 MObject strokeFactory::aBrushes;
 
 // paint
@@ -190,6 +190,7 @@ MObject strokeFactory::aOutArcLengths;
 
 MObject strokeFactory::aOutPlaneMatrixWorld;
 MObject strokeFactory::aDisplayPoints;
+MObject strokeFactory::aDisplayIds;
 MObject strokeFactory::aDisplayBrush;
 
 MObject strokeFactory::aDisplayApproach;
@@ -228,6 +229,7 @@ MStatus strokeFactory::initialize()
   MFnCompoundAttribute cAttr;
   MFnMatrixAttribute mAttr;
   MFnEnumAttribute eAttr;
+  MFnMessageAttribute msgAttr;
 
   MMatrix identity;
   identity.setToIdentity();
@@ -242,16 +244,19 @@ MStatus strokeFactory::initialize()
                                          MFnNumericData::kDouble);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
+  nAttr.setKeyable(true);
   addAttribute(aStrokeRotationTexture);
 
   aStrokeTranslationTexture = nAttr.create( "strokeTranslationTexture", "strx",
                               MFnNumericData::kDouble);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
+  nAttr.setKeyable(true);
   addAttribute(aStrokeTranslationTexture);
 
   aStrokeTranslationSampleDistance = nAttr.create( "strokeTranslationSampleDistance",
                                      "stsd", MFnNumericData::kDouble);
+  nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setMin(0.00);
@@ -263,6 +268,7 @@ MStatus strokeFactory::initialize()
                                      "stcf", MFnNumericData::kDouble);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
+  nAttr.setKeyable(true);
   nAttr.setMin(0.00);
   nAttr.setMax(1.0);
   nAttr.setDefault(1.0);
@@ -270,6 +276,7 @@ MStatus strokeFactory::initialize()
 
   aStrokeApproachDistance = nAttr.create( "strokeApproachDistance",
                                           "sapd", MFnNumericData::kDouble);
+  nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setMin(0.00);
@@ -278,14 +285,15 @@ MStatus strokeFactory::initialize()
   addAttribute(aStrokeApproachDistance);
 
 
-  aLinearSpeed =  nAttr.create( "linearSpeed",
-                                "lnsp", MFnNumericData::kDouble);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setMin(0.00);
-  nAttr.setSoftMax(100);
-  nAttr.setDefault(50);
-  addAttribute(aLinearSpeed);
+  aClusterApproachObject =  msgAttr.create("clusterApproachObject", "clao");
+  addAttribute(aClusterApproachObject);
+
+  aToolChangeApproachObject =  msgAttr.create("toolChangeApproachObject", "tcao");
+  addAttribute(aToolChangeApproachObject);
+
+  aHomeApproachObject =  msgAttr.create("homeApproachObject", "hmao");
+  addAttribute(aHomeApproachObject);
+
 
   aLinearSpeed =  nAttr.create( "linearSpeed",
                                 "lnsp", MFnNumericData::kDouble);
@@ -294,43 +302,29 @@ MStatus strokeFactory::initialize()
   nAttr.setMin(0.00);
   nAttr.setSoftMax(100);
   nAttr.setDefault(50);
+  nAttr.setKeyable(true);
   addAttribute(aLinearSpeed);
 
+
+  const double minAngSpeed = mayaMath::single_pi / 900.00;
 
   aAngularSpeed = uAttr.create( "angularSpeed", "agsp", MFnUnitAttribute::kAngle );
   uAttr.setStorable(true);
   uAttr.setReadable(true);
-  uAttr.setMin((mayaMath::single_pi / 900.00));
+  uAttr.setMin(minAngSpeed);
   uAttr.setMax((mayaMath::single_pi));
   addAttribute(aAngularSpeed);
 
 
-  // aInsertApproachMinSpan = nAttr.create( "insertApproachMinSpan",
-  //                                        "iamns", MFnNumericData::kDouble);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setDefault(10.0);
-  // addAttribute(aInsertApproachMinSpan);
-
-  // aInsertApproachMaxSpan = nAttr.create( "insertApproachMaxSpan",
-  //                                        "iamxs", MFnNumericData::kDouble);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setDefault(100.0);
-  // addAttribute(aInsertApproachMaxSpan);
-
-  // aInsertApproachMaxDistance =
-  //   nAttr.create( "insertApproachMaxDistance",
-  //                 "iamxd", MFnNumericData::kDouble);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setDefault(30.0);
-  // addAttribute(aInsertApproachMaxDistance);
-
-
+  aApproximationDistance =  nAttr.create( "approximationDistance",
+                                          "apxd", MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setMin(0.00);
+  nAttr.setSoftMax(100);
+  nAttr.setDefault(10);
+  nAttr.setKeyable(true);
+  addAttribute(aApproximationDistance);
 
   aRotateOrder = eAttr.create( "rotateOrder", "ro", MTransformationMatrix::kZYX);
   eAttr.addField("xyz", MTransformationMatrix::kXYZ);
@@ -424,6 +418,13 @@ MStatus strokeFactory::initialize()
   nAttr.setReadable(true);
   nAttr.setDefault(true);
 
+  aRepeatAdvance = nAttr.create("repeatAdvance", "rpav", MFnNumericData::kDouble);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  nAttr.setDefault( 0.0 );
+  nAttr.setStorable(true);
+
+
 
   aStrokeRotation = uAttr.create( "strokeRotation", "srot", MFnUnitAttribute::kAngle );
   uAttr.setStorable(true);
@@ -483,15 +484,11 @@ MStatus strokeFactory::initialize()
   nAttr.setReadable(true);
   nAttr.setDefault(true);
 
-
   aForceDip = nAttr.create( "forceDip", "fcdp", MFnNumericData::kBoolean);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
-
-
-
 
   aCurves = cAttr.create("curves", "crvs");
   cAttr.addChild(aCurve);
@@ -505,6 +502,7 @@ MStatus strokeFactory::initialize()
   cAttr.addChild(aRepeatOffset);
   cAttr.addChild(aRepeatMirror);
   cAttr.addChild(aRepeatOscillate);
+  cAttr.addChild(aRepeatAdvance);
   cAttr.addChild(aStrokeRotation);
   cAttr.addChild(aStrokeTranslation);
   cAttr.addChild(aPivotFraction);
@@ -536,17 +534,10 @@ MStatus strokeFactory::initialize()
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
 
-  aBrushTcpX = nAttr.create( "brushTcpX", "btcpx", MFnNumericData::kDouble );
-  aBrushTcpY = nAttr.create( "brushTcpY", "btcpy", MFnNumericData::kDouble );
-  aBrushTcpZ = nAttr.create( "brushTcpZ", "btcpz", MFnNumericData::kDouble);
-  aBrushTcp = nAttr.create(  "brushTcp", "btcp", aBrushTcpX, aBrushTcpY,
-                             aBrushTcpZ );
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setHidden( false );
-  nAttr.setKeyable( true );
-
-
+  aBrushMatrix = mAttr.create( "brushMatrix", "bmat",  MFnMatrixAttribute::kDouble );
+  mAttr.setStorable( false );
+  mAttr.setHidden( true );
+  mAttr.setDefault(identity);
 
   aBrushRetention  = nAttr.create("brushRetention", "brrt", MFnNumericData::kDouble);
   nAttr.setHidden( false );
@@ -554,18 +545,11 @@ MStatus strokeFactory::initialize()
   nAttr.setDefault( 1.0 );
 
 
-  aBrushName = tAttr.create( "brushName", "brnm", MFnData::kString );
-  tAttr.setStorable(true);
-
-
   aBrushes = cAttr.create("brushes", "bsh");
   cAttr.addChild(aBrushWidth);
-  cAttr.addChild(aBrushName);
   cAttr.addChild(aBrushLift);
-  cAttr.addChild(aBrushTcp);
   cAttr.addChild(aBrushRetention);
-  // cAttr.addChild(aBrushFrontAxis);
-  // cAttr.addChild(aBrushUpAxis);
+  cAttr.addChild(aBrushMatrix);
   cAttr.setArray( true );
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   cAttr.setReadable(false);
@@ -585,8 +569,6 @@ MStatus strokeFactory::initialize()
 
   aPaintName = tAttr.create( "paintName", "pnm", MFnData::kString );
   tAttr.setStorable(true);
-
-
 
   aPaintOpacity = nAttr.create("paintOpacity", "pvis", MFnNumericData::kDouble);
   nAttr.setHidden( false );
@@ -618,6 +600,13 @@ MStatus strokeFactory::initialize()
   nAttr.setReadable(true);
   nAttr.setDefault(true);
   addAttribute(aDisplayPoints );
+
+  aDisplayIds = nAttr.create( "displayIds", "dids", MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayIds );
 
 
 
@@ -653,9 +642,6 @@ MStatus strokeFactory::initialize()
   nAttr.setReadable(true);
   nAttr.setDefault(true);
   addAttribute(aDisplayApproach );
-
-
-
 
   aDisplaySegmentOutlines = eAttr.create( "displayPaintOutlines", "dpo",
                                           MFnNumericData::kBoolean);
@@ -705,15 +691,11 @@ MStatus strokeFactory::initialize()
   nAttr.setDefault(5.0);
   addAttribute(aNormalLength);
 
-
-
   aWireColor = nAttr.createColor( "lineColor", "lcl");
   nAttr.setStorable(true);
   nAttr.setKeyable(false);
   nAttr.setConnectable(false);
   addAttribute(aWireColor);
-
-
 
   aOutBrushIds  = tAttr.create("outBrushIds", "obids", MFnData::kIntArray, &st); er;
   tAttr.setStorable(false);
@@ -762,8 +744,6 @@ MStatus strokeFactory::initialize()
   tAttr.setStorable(false);
   tAttr.setReadable(true);
   st = addAttribute(aOutRotation ); er;
-
-
 
   aOutBrushWidths = tAttr.create("outBrushWidths", "obrw", MFnData::kDoubleArray, &st); er;
   tAttr.setStorable(false);
@@ -819,6 +799,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aBrushRotate, aOutTargets);
   st = attributeAffects(aRepeats, aOutTargets);
   st = attributeAffects(aRepeatOffset, aOutTargets);
+  st = attributeAffects(aRepeatAdvance, aOutTargets);
   st = attributeAffects(aRepeatMirror, aOutTargets);
   st = attributeAffects(aRepeatOscillate, aOutTargets);
   // st = attributeAffects(aBrushFrontAxis, aOutTargets);
@@ -844,6 +825,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aBrushLift, aOutTangents);
   st = attributeAffects(aRepeats, aOutTangents);
   st = attributeAffects(aRepeatOffset, aOutTangents);
+  st = attributeAffects(aRepeatAdvance, aOutTangents);
   st = attributeAffects(aRepeatMirror, aOutTangents);
   st = attributeAffects(aRepeatOscillate, aOutTangents);
 
@@ -871,6 +853,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aBrushRotate, aOutPosition);
   st = attributeAffects(aRepeats, aOutPosition);
   st = attributeAffects(aRepeatOffset, aOutPosition);
+  st = attributeAffects(aRepeatAdvance, aOutPosition);
   st = attributeAffects(aRepeatMirror, aOutPosition);
   st = attributeAffects(aRepeatOscillate, aOutPosition);
 
@@ -899,10 +882,9 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aOutputUnit, aOutRotation);
   st = attributeAffects(aRepeats, aOutRotation);
   st = attributeAffects(aRepeatOffset, aOutRotation);
+  st = attributeAffects(aRepeatAdvance, aOutRotation);
   st = attributeAffects(aRepeatMirror, aOutRotation);
   st = attributeAffects(aRepeatOscillate, aOutRotation);
-  // st = attributeAffects(aBrushFrontAxis, aOutRotation);
-  // st = attributeAffects(aBrushUpAxis, aOutRotation);
   st = attributeAffects(aBrushFollowStroke, aOutRotation);
 
   st = attributeAffects(aCurve, aOutCounts);
@@ -916,11 +898,10 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aActive, aOutCounts);
   st = attributeAffects(aRepeats, aOutCounts);
   st = attributeAffects(aRepeatOffset, aOutCounts);
+  st = attributeAffects(aRepeatAdvance, aOutCounts);
   st = attributeAffects(aRepeatMirror, aOutCounts);
   st = attributeAffects(aRepeatOscillate, aOutCounts);
   st = attributeAffects(aPlaneMatrix, aOutCounts);
-
-
 
   st = attributeAffects(aCurve, aOutBrushIds);
   st = attributeAffects(aPointDensity, aOutBrushIds);
@@ -933,10 +914,10 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aActive, aOutBrushIds);
   st = attributeAffects(aRepeats, aOutBrushIds);
   st = attributeAffects(aRepeatOffset, aOutBrushIds);
+  st = attributeAffects(aRepeatAdvance, aOutBrushIds);
   st = attributeAffects(aRepeatMirror, aOutBrushIds);
   st = attributeAffects(aRepeatOscillate, aOutBrushIds);
   st = attributeAffects(aPlaneMatrix, aOutBrushIds);
-
 
   st = attributeAffects(aCurve, aOutPaintIds);
   st = attributeAffects(aPointDensity, aOutPaintIds);
@@ -949,6 +930,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aActive, aOutPaintIds);
   st = attributeAffects(aRepeats, aOutPaintIds);
   st = attributeAffects(aRepeatOffset, aOutPaintIds);
+  st = attributeAffects(aRepeatAdvance, aOutPaintIds);
   st = attributeAffects(aRepeatMirror, aOutPaintIds);
   st = attributeAffects(aRepeatOscillate, aOutPaintIds);
   st = attributeAffects(aPlaneMatrix, aOutPaintIds);
@@ -964,10 +946,10 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aActive, aOutCurveIds);
   st = attributeAffects(aRepeats, aOutCurveIds);
   st = attributeAffects(aRepeatOffset, aOutCurveIds);
+  st = attributeAffects(aRepeatAdvance, aOutCurveIds);
   st = attributeAffects(aRepeatMirror, aOutCurveIds);
   st = attributeAffects(aRepeatOscillate, aOutCurveIds);
   st = attributeAffects(aPlaneMatrix, aOutCurveIds);
-
 
   st = attributeAffects(aCurve, aOutBrushWidths);
   st = attributeAffects(aPointDensity, aOutBrushWidths);
@@ -981,10 +963,10 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aActive, aOutBrushWidths);
   st = attributeAffects(aRepeats, aOutBrushWidths);
   st = attributeAffects(aRepeatOffset, aOutBrushWidths);
+  st = attributeAffects(aRepeatAdvance, aOutBrushWidths);
   st = attributeAffects(aRepeatMirror, aOutBrushWidths);
   st = attributeAffects(aRepeatOscillate, aOutBrushWidths);
   st = attributeAffects(aPlaneMatrix, aOutBrushWidths);
-
 
   st = attributeAffects(aCurve, aOutPaintColors);
   st = attributeAffects(aPointDensity, aOutPaintColors);
@@ -998,10 +980,10 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aActive, aOutPaintColors);
   st = attributeAffects(aRepeats, aOutPaintColors);
   st = attributeAffects(aRepeatOffset, aOutPaintColors);
+  st = attributeAffects(aRepeatAdvance, aOutPaintColors);
   st = attributeAffects(aRepeatMirror, aOutPaintColors);
   st = attributeAffects(aRepeatOscillate, aOutPaintColors);
   st = attributeAffects(aPlaneMatrix, aOutPaintColors);
-
 
   st = attributeAffects(aCurve, aOutPaintOpacities);
   st = attributeAffects(aPointDensity, aOutPaintOpacities);
@@ -1015,12 +997,10 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aActive, aOutPaintOpacities);
   st = attributeAffects(aRepeats, aOutPaintOpacities);
   st = attributeAffects(aRepeatOffset, aOutPaintOpacities);
+  st = attributeAffects(aRepeatAdvance, aOutPaintOpacities);
   st = attributeAffects(aRepeatMirror, aOutPaintOpacities);
   st = attributeAffects(aRepeatOscillate, aOutPaintOpacities);
   st = attributeAffects(aPlaneMatrix, aOutPaintOpacities);
-
-
-
 
   st = attributeAffects(aInMatrix, aOutArcLengths);
   st = attributeAffects(aCurve, aOutArcLengths);
@@ -1035,10 +1015,10 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aPivotFraction, aOutArcLengths);
   st = attributeAffects(aRepeats, aOutArcLengths);
   st = attributeAffects(aRepeatOffset, aOutArcLengths);
+  st = attributeAffects(aRepeatAdvance, aOutArcLengths);
   st = attributeAffects(aRepeatMirror, aOutArcLengths);
   st = attributeAffects(aRepeatOscillate, aOutArcLengths);
   st = attributeAffects(aPlaneMatrix, aOutArcLengths);
-
 
   st = attributeAffects(aInMatrix, aOutForceDips);
   st = attributeAffects(aCurve, aOutForceDips);
@@ -1053,10 +1033,11 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aPivotFraction, aOutForceDips);
   st = attributeAffects(aRepeats, aOutForceDips);
   st = attributeAffects(aRepeatOffset, aOutForceDips);
+  st = attributeAffects(aRepeatAdvance, aOutForceDips);
   st = attributeAffects(aRepeatMirror, aOutForceDips);
   st = attributeAffects(aRepeatOscillate, aOutForceDips);
-  st = attributeAffects(aPlaneMatrix, aPlaneMatrix);
 
+  st = attributeAffects(aPlaneMatrix, aPlaneMatrix);
   st = attributeAffects(aInMatrix, aOutPlaneMatrixWorld);
   st = attributeAffects(aPlaneMatrix, aOutPlaneMatrixWorld);
 
@@ -1183,13 +1164,8 @@ MStatus strokeFactory::getBrushes(MDataBlock &data,
     double liftBias = hLift.child( aBrushLiftBias).asDouble();
 
     mayaMath::axis frontAxis, upAxis;
-    // frontAxis = mayaMath::axis(hComp.child( aBrushFrontAxis).asShort());
-    // upAxis = mayaMath::axis(hComp.child( aBrushUpAxis).asShort());
 
-    MString name = hComp.child(strokeFactory::aBrushName).asString();
-
-    brushes[index] = Brush(index, width, retention, liftLength ,
-                           liftHeight , liftBias, name);
+    brushes[index] = Brush(index, width, retention, liftLength , liftHeight , liftBias);
   }
   return MS::kSuccess;
 }
@@ -1199,7 +1175,7 @@ MStatus strokeFactory::getPaints(MDataBlock &data,
   MStatus st;
   MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); ert;
   unsigned nPlugs = hPaints.elementCount();
-  // paints[-1] = Paint();
+
   for (unsigned i = 0; i < nPlugs; i++, hPaints.next()) {
 
     short index = short(hPaints.elementIndex(&st));
@@ -1232,7 +1208,7 @@ MStatus strokeFactory::getStrokes(MDataBlock &data,
 
 
 
-  // JPMDBG;
+  // // JPMDBG;
   // cerr << "planeNormal: " << planeNormal << endl;
   MStatus st;
   MArrayDataHandle hCurves = data.inputArrayValue(aCurves, &st ); ert;
@@ -1274,7 +1250,9 @@ MStatus strokeFactory::getStrokes(MDataBlock &data,
 
     short repeats = hComp.child(aRepeats).asShort();
     double repeatOffset = hComp.child(aRepeatOffset).asDouble();
-    bool repeatMirror = hComp.child(aRepeatMirror).asBool();
+    double repeatAdvance = hComp.child(aRepeatAdvance).asDouble();
+
+    bool repeatMirror = hComp.child(aRepeatMirror).asShort();
     bool repeatOscillate = hComp.child(aRepeatOscillate).asBool();
 
     short brushId =  hComp.child( aBrushId).asShort();
@@ -1295,20 +1273,20 @@ MStatus strokeFactory::getStrokes(MDataBlock &data,
     if (! numStrokePacks) {
       continue;
     }
-
+    // JPMDBG;
     std::map<short, Brush>::const_iterator brushIter = brushes.find(brushId);
     Brush brush;
-
+    // JPMDBG;
     if (brushIter !=  brushes.end()) {
       brush = brushIter->second;
     }
-
+    // JPMDBG;
     std::map<short, Paint>::const_iterator paintIter = paints.find(paintId);
     Paint paint;
     if (paintIter !=  paints.end()) {
       paint = paintIter->second;
     }
-
+    // JPMDBG;
 
     bool first = true;
     for (int i = 0; i < numStrokePacks; ++i) {
@@ -1339,12 +1317,13 @@ MStatus strokeFactory::getStrokes(MDataBlock &data,
         {
           bool reverse = repeatOscillate &&  (j % 2 == 0);
           double offset = repeatOffset * (j + 1);
-          Stroke offsetStroke = Stroke(motherStroke, offset, reverse, planeNormal);
+          Stroke offsetStroke = Stroke(motherStroke, offset, repeatAdvance, reverse, planeNormal);
           if (offsetStroke.overlapsPlane(inversePlaneMatrix)) {
             strokes.push_back(offsetStroke);
           }
           if (repeatMirror) {
-            Stroke mirrorOffsetStroke = Stroke(motherStroke, -offset, reverse, planeNormal);
+            Stroke mirrorOffsetStroke = Stroke(motherStroke, -offset, repeatAdvance, reverse,
+                                               planeNormal);
             if (mirrorOffsetStroke.overlapsPlane(inversePlaneMatrix)) {
               strokes.push_back(mirrorOffsetStroke);
             }
@@ -1353,7 +1332,6 @@ MStatus strokeFactory::getStrokes(MDataBlock &data,
       }
     }
   }
-
   return MS::kSuccess;
 }
 
@@ -1407,13 +1385,15 @@ MStatus strokeFactory::compute( const MPlug &plug, MDataBlock &data )
 
   MMatrix outPlaneMatrixWorld = planeMatrix * wm;
 
-
+  // JPMDBG;
   std::map<short, Brush> brushes;
   st = getBrushes(data, brushes) ;
 
+  // JPMDBG;
   std::map<short, Paint> paints;
   st = getPaints(data, paints) ;
 
+  // JPMDBG;
   std::vector<Stroke>  strokes;
   st = getStrokes(data, planeNormal, inversePlaneMatrix, brushes, paints, strokes) ;
   // JPMDBG;
@@ -1427,12 +1407,12 @@ MStatus strokeFactory::compute( const MPlug &plug, MDataBlock &data )
 
   std::vector<Stroke>::const_iterator citer;
   std::vector<Stroke>::iterator iter;
-  // JPMDBG;
+  // // JPMDBG;
 
   unsigned nStrokes = strokes.size();
   MFloatArray uVals(nStrokes);
   MFloatArray vVals(nStrokes);
-  // JPMDBG;
+  // // JPMDBG;
 
   citer = strokes.begin();
   for (unsigned i = 0; citer != strokes.end(); citer++, i++) {
@@ -1442,7 +1422,7 @@ MStatus strokeFactory::compute( const MPlug &plug, MDataBlock &data )
   }
   MFloatArray rotations;
   MFloatVectorArray translations;
-  // JPMDBG;
+  // // JPMDBG;
 
 
   st = sampleUVTexture(strokeFactory::aStrokeRotationTexture, uVals, vVals, rotations);
@@ -1452,7 +1432,7 @@ MStatus strokeFactory::compute( const MPlug &plug, MDataBlock &data )
       iter->rotate(rotations[i], planeNormal);
     }
   }
-  // JPMDBG;
+  // // JPMDBG;
 
   st = sampleUVGradient(strokeFactory::aStrokeTranslationTexture, sampleDistance, uVals,
                         vVals,
@@ -1489,7 +1469,7 @@ MStatus strokeFactory::compute( const MPlug &plug, MDataBlock &data )
     }
   }
 
-  // JPMDBG;
+  // // JPMDBG;
 
   unsigned len = outTargets.length();
   // cerr << "len: " << len << endl;
@@ -1661,11 +1641,14 @@ void strokeFactory::draw( M3dView &view,
   }
 
   bool doDisplayPoints;
+  bool doDisplayIds;
   bool doDisplaySegments;
   bool doDisplayBrushLift;
   bool doDisplayApproach;
 
   MPlug(thisObj, aDisplayPoints).getValue(doDisplayPoints);
+  MPlug(thisObj, aDisplayIds).getValue(doDisplayIds);
+
   MPlug(thisObj, aDisplaySegments).getValue(doDisplaySegments);
   MPlug(thisObj, aDisplayBrushLift).getValue(doDisplayBrushLift);
   MPlug(thisObj, aDisplayApproach).getValue(doDisplayApproach);
@@ -1989,14 +1972,29 @@ void strokeFactory::draw( M3dView &view,
     glPopAttrib();
   }
 
+  // IDs
+  if (doDisplayIds)
+  {
+    glPushAttrib(GL_CURRENT_BIT);
 
+    view.setDrawColor(wireColor );
+    unsigned i = 0;
+    for (int j = 0; j < numStrokes; ++j)
+    {
+      int k = i + 1;
+      MString txt  = "";
+      txt += j;
+      MPoint textPos =  MPoint( targets[k][3][0], targets[k][3][1], targets[k][3][2]);
+      view.drawText( txt , textPos,  M3dView::kRight);
+      i +=  counts[j];
+    }
+    glPopAttrib();
 
+  }
 
   view.endGL();
 
 }
-
-
 
 MStatus strokeFactory::getTextureName(const MObject &attribute,
                                       MString &name) const {

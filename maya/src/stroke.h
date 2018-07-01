@@ -38,6 +38,7 @@ public:
 	Stroke(
 	  const Stroke &mother,
 	  double offset,
+	  double advance,
 	  bool reverse,
 	  const MVector &planeNormal
 	);

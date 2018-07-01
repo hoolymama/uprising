@@ -2,13 +2,22 @@
 
  	setParent $columnLayout;
  	global int $gTextColumnWidthIndex;
- 	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label ("Brush: " + $index)`;
+
+
+ 	string $label = ("No brush matrix: " + $index);
+ 	string $input[] = `listConnections -s 1 -d 0 -p 1 ($plug+".brushMatrix")`;
+ 	if (`size $input`) {
+ 		 $label = ($index +": " + $input[0]);
+ 	}
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+ 	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label $label`;
+
 
  	attrControlGrp -attribute ($plug+".brushWidth");
- 	attrControlGrp -attribute ($plug+".brushName");
  	attrControlGrp -attribute ($plug+".brushLift");
- 	attrControlGrp -attribute ($plug+".brushTcp");
-
+ 
  	attrControlGrp -attribute ($plug+".brushRetention");
 
   string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
@@ -34,7 +43,7 @@
  	int $indices[] = `getAttr -mi $nodeAttr`;
  	for ($i = 0;$i<$numElements;$i++) {
  		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
- 		AEstrokeFactoryBrushesAddMultiWidget ($plug, $col, $i) ;
+ 		AEstrokeFactoryBrushesAddMultiWidget ($plug, $col,  $indices[$i]) ;
  	}
  	setParent ..;
 

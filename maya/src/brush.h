@@ -3,7 +3,6 @@
 #define _brush_
 
 #include <maya/MVector.h>
-#include <maya/MString.h>
 #include "mayaMath.h"
 
 
@@ -17,8 +16,7 @@ public:
 	  double retention,
 	  double liftLength,
 	  double liftHeight,
-	  double liftBias,
-	  const MString &name
+	  double liftBias
 	);
 
 	~Brush();
@@ -26,14 +24,9 @@ public:
 	short id;
 	double width;
 	double retention;
-	double tilt;
-	double bank;
-	double twist;
 	double liftLength;
 	double liftHeight;
 	double liftBias;
-	MString name;
-
 };
 #endif
 

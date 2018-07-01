@@ -4,7 +4,10 @@ from robolink import (
     INSTRUCTION_COMMENT,
     INSTRUCTION_CALL_PROGRAM)
 import robodk as rdk
-from stroke import StrokeError
+
+from uprising_util import StrokeError, ClusterError
+
+
 RL = Robolink()
 
 
@@ -14,16 +17,6 @@ CANVAS_HOME_JOINTS = [-90.000000, -90.000000,  120.000000, 0.000000, -30.000000,
 
 TRAY_HOME_JOINTS = [-60.000000, -60.000000,
                     110.000000, 0.000000, 20.000000, 50.000000]
-
-PI = 3.14159265359
-
-
-def rad2deg(rad):
-    return rad * (180 / PI)
-
-
-def deg2rad(deg):
-    return deg / (180 / PI)
 
 class Cluster(object):
 
@@ -40,12 +33,19 @@ class Cluster(object):
             return DipCluster(cluster_id)
         return PaintingCluster(cluster_id, reason)
 
-    def set_tools(self, robot, brush, paint, linearSpeed, angularSpeed):
+    def set_tools(self, robot, brush, paint, linearSpeed, angularSpeed, rounding):
+        brush_item = RL.Item(brush.name)
+        if not brush_item.Valid():
+            print "brush_item not valid!!! "
+
+        robot.setPoseTool(brush_item)
+
         self.robot = robot
         self.brush = brush
         self.paint = paint
         self.linearSpeed = linearSpeed
         self.angularSpeed = angularSpeed
+        self.rounding = rounding
         # print "CLUSTER SET_TOOLS"
         # print "BRUSH %s" % brush
         # print "PAINT %s" % paint
@@ -56,9 +56,18 @@ class Cluster(object):
 
     def name(self):
         raise NotImplementedError
-
+ 
     def build_stroke(self, stroke):
-        raise NotImplementedError
+
+        # configure may raise a stroke error if it can't be configured
+        stroke.configure(
+            self.robot,
+            self.brush,
+            self.last_valid_joint_pose
+        )
+        self.strokes.append(stroke)
+        self.last_valid_joint_pose = stroke.targets[-1].joint_pose
+
 
     def should_change(self):
         raise NotImplementedError
@@ -66,19 +75,18 @@ class Cluster(object):
     def write_program_comands(self, robot, parent_program, parent_frame):
         prefix = parent_program.Name()
         parent_program.setSpeed(self.linearSpeed, self.angularSpeed)
+        parent_program.setRounding(self.rounding)
  
         for i, stroke in enumerate(self.strokes):
             parent_program.RunInstruction(
                 stroke.identifier(), INSTRUCTION_COMMENT)
-            for j, target_data in enumerate(stroke.targets):
-                joints = target_data["valid_joint_pose"]
-                pose = target_data["tool_pose"]
-
-                tname = "%s_s_%s_t_%s" % (prefix, i, j)
+            for t in stroke.targets:
+   
+                tname = "%s_s_%s_t_%s" % (prefix, i, t.id)
                 target = RL.AddTarget(tname, parent_frame, robot)
-                target.setPose(pose)
-                target.setJoints(joints)
-                if target_data["linear"]:
+                target.setPose(t.tool_pose)
+                target.setJoints(t.joint_pose)
+                if t.linear:
                     parent_program.addMoveL(target)
                 else:
                     parent_program.addMoveJ(target)
@@ -92,8 +100,8 @@ class PaintingCluster(Cluster):
         self.arc_length = 0
         self.last_valid_joint_pose = CANVAS_HOME_JOINTS
 
-    def set_tools(self, robot, brush, paint, linearSpeed, angularSpeed):
-        super(PaintingCluster, self).set_tools(robot, brush, paint, linearSpeed, angularSpeed)
+    def set_tools(self, robot, brush, paint, linearSpeed, angularSpeed, rounding):
+        super(PaintingCluster, self).set_tools(robot, brush, paint, linearSpeed, angularSpeed, rounding)
         self.max_paint_length = paint.max_length * brush.retention
 
     def name(self):
@@ -128,9 +136,8 @@ class PaintingCluster(Cluster):
             parent_program.setPoseTool(tool)
 
 
-        parent_program.addMoveJ(tray_approach_target)
+        # parent_program.addMoveJ(tray_approach_target)
         dip_program_name =  DipCluster.generate_name(self.paint.id, self.brush.id)
-        # print "DIP_PROGRAM_NAME %s" % dip_program_name
         parent_program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
 
         super(
@@ -142,17 +149,10 @@ class PaintingCluster(Cluster):
 
     def build_stroke(self, stroke):
         try:
-            stroke.configure(
-                self.robot,
-                self.brush,
-                self.last_valid_joint_pose
-            )
-            self.strokes.append(stroke)
-            self.last_valid_joint_pose = stroke.targets[-1]["valid_joint_pose"]
+            super(PaintingCluster, self).build_stroke(stroke)
             self.arc_length += stroke.arc_length
-
         except StrokeError as e:
-            print("CANNOT ADD PAINTING STROKE %s" % stroke.identifier())
+            print("Cannot configure stroke %s of %s" % (stroke.identifier() , self.__class__.__name__))
             print(e.message)
 
 
@@ -167,21 +167,7 @@ class DipCluster(Cluster):
     @staticmethod
     def generate_name(paint_id, brush_id):
         return "dip_p%02d_b%02d" % ( paint_id, brush_id)
-
-    def build_stroke(self, stroke):
-        try:
-            stroke.configure(
-                self.robot,
-                self.brush,
-                self.last_valid_joint_pose
-            )
-            self.strokes.append(stroke)
-            self.last_valid_joint_pose = stroke.targets[-1]["valid_joint_pose"]
-
-        except StrokeError as e:
-            print("CANNOT ADD DIP STROKE %s" % stroke.identifier())
-            print(e.message)
-
+ 
     def name(self):
         return DipCluster.generate_name(self.paint.id, self.brush.id)
         
@@ -193,9 +179,34 @@ class DipCluster(Cluster):
             return True
         if paint is not self.paint:
             return True
-        # if force:
-        #     return True
         return False
+
+
+    def write_program_comands(self, robot, parent_program, parent_frame):
+
+        tool_change_target = RL.Item('tool_change')
+        tray_approach_target = RL.Item("tray_approach")
+        prefix = parent_program.Name()
+
+
+        # we have to set the tool in each subroutine
+        tool = RL.Item(self.brush.name)
+        if not tool.Valid():
+            raise ClusterError("Serious risk of damage! Can't find valid tool.")
+        parent_program.setPoseTool(tool)
+        super(
+            DipCluster,
+            self).write_program_comands(
+            robot,
+            parent_program,
+            parent_frame)
+
+    def build_stroke(self, stroke):
+        try:
+            super(DipCluster, self).build_stroke(stroke)
+        except StrokeError as e:
+            print("Cannot configure stroke %s of %s" % (stroke.identifier() , self.__class__.__name__))
+            print(e.message)
 
     # def write_program_comands(self, robot, parent_program, parent_frame):
 
