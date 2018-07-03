@@ -19,6 +19,7 @@ import brush
 import stroke
 import cluster
 import target
+import write
 import uprising_util
 
 reload(uprising_util)
@@ -27,6 +28,7 @@ reload(brush)
 reload(stroke)
 reload(cluster)
 reload(target)
+reload(write)
 reload(setup_dip)
 
 reload(cutl)
@@ -90,6 +92,11 @@ class PaintingTab(gui.FormLayout):
         pm.button(
             label='Set up dip stroke factory',
             command=pm.Callback(self.on_setup_dip))
+
+        pm.button(
+            label='Write program, station, simulation',
+            command=pm.Callback(write.write_program))
+
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -160,7 +167,10 @@ class PaintingTab(gui.FormLayout):
     def on_setup_dip(self):
         painting = pm.PyNode("paintingStrokeFactoryShape")
         dip = pm.PyNode("dipStrokeFactoryShape")
-        setup_dip_factory(painting, dip)
+        curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve")
+        if not curves:
+            raise TypeError("Need dip curves")
+        setup_dip_factory(painting, dip, curves)
 
     def on_test_strokes(self):
         node = pm.PyNode("paintingStrokeFactoryShape")

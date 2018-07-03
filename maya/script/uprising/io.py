@@ -4,9 +4,7 @@ from robolink import Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TARGET
 import robodk as rdk
 import uprising.maya_util as uut
 
-
 RL = Robolink()
-
 
 def get_robot():
     """Get the robot item and make sure its in the right place.
@@ -91,10 +89,4 @@ def send_objects():
             s=True,
             pn=True)
         send_object(transform, targets_parent, 0, robot)
-
-
-
-
-
-
-
+ 

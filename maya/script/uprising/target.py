@@ -3,6 +3,7 @@ import robodk as rdk
 from uprising_util import StrokeError
 from robolink import (Robolink, COLLISION_ON, COLLISION_OFF, ITEM_TYPE_ROBOT)
 
+CONFIG_MASK = "00"
 
 class Target(object):
 
@@ -11,13 +12,16 @@ class Target(object):
         if config:
             return "%d%d%d" % tuple(config.list2()[0][0:3])
 
-    def __init__(self, id_, position, rotation, robot, brush, mask="00"):
+    def __init__(self, id_, position, rotation, tangent, robot, brush, planeNormal):
         self.id = id_
         self.linear = False
         self.position = position
         self.rotation = rotation
+        self.tangent = tangent
+        
         self.joint_pose = None
         self.configs = {}
+        self.vertices = []
 
         self.tool_pose = rdk.TxyzRxyz_2_Pose(list(position) + list(rotation))
         self.flange_pose = self.tool_pose * brush.matrix.invH()
@@ -29,10 +33,19 @@ class Target(object):
         joint_poses = [el[0:6] for el in ik.list2()]
         for pose in joint_poses:
             key = Target.config_key(robot.JointsConfig(pose))
-            if key.startswith(mask):
+            if key.startswith(CONFIG_MASK):
                 self.configs.setdefault(key, []).append(pose)
         if not self.configs:
-            raise StrokeError("Cant initialize target: %d, no ik solutions in mask %s " % (self.id, mask))
+            raise StrokeError("Cant initialize target: %d, no ik solutions in mask %s " % (self.id, CONFIG_MASK))
+
+        self.setVertices(planeNormal, brush.width)
+
+    def setVertices(self, normal, width):
+        side = (self.tangent^normal).normal() * width * 0.5
+        self.vertices.append(self.position + side)
+        self.vertices.append(self.position - side)
+
+
 
 
     def configure(self, robot, last_mat, ref_joint_pose, allow_flip):
@@ -42,6 +55,10 @@ class Target(object):
         if len(ik.list()) < 6:
             raise StrokeError("Can't configure. No IK solution")
         self.joint_pose = ik.list2()[0]
+
+        cfg = Target.config_key(robot.JointsConfig(self.joint_pose))
+        if not cfg.startswith(CONFIG_MASK):
+            raise StrokeError("Can't create stroke with elbow down %d" %  self.id) 
 
         # if stroke started, test to see if we can easily get to this pose
         if self.id > 0:
@@ -64,6 +81,70 @@ class Target(object):
                 return
  
             self.linear = False
+ 
+
+    # ALTERNATIVE      
+    def configure(self, robot, last_mat, ref_joint_pose, config):
+
+
+
+
+
+        # cfg = Target.config_key(robot.JointsConfig(ref_joint_pose))
+
+
+        # self.linear = False
+        # ik = robot.SolveIK(self.flange_pose, ref_joint_pose)
+        # if len(ik.list()) < 6:
+        #     raise StrokeError("Can't configure. No IK solution")
+        # self.joint_pose = ik.list2()[0]
+
+
+
+
+        # cfg = Target.config_key(robot.JointsConfig(self.joint_pose))
+        # if not cfg.startswith("00"):
+        #     raise StrokeError("Can't create stroke with elbow down %d" %  self.id) 
+
+        # if stroke started, test to see if we can easily get to this pose
+
+        # for joint_pose in self.configs[config]:
+
+        
+        # if self.id == 0:
+        self.joint_pose =  self.configs[config][0]
+        # else
+        # if self.id > 0:
+
+
+
+
+        self.linear = bool(last_mat)  
+        # check the two joint poses to see if it flips
+        # if not allow_flip:
+        #     this_cfg = Target.config_key(
+        #         robot.JointsConfig(self.joint_pose))
+        #     ref_cfg = Target.config_key(robot.JointsConfig(ref_joint_pose))
+        #     if this_cfg != ref_cfg:
+        #         raise StrokeError(
+        #             "Can't create stroke %d when flips not allowed" %
+        #             self.id)
+        # if last_mat:
+        #     can_move_lin = robot.MoveL_Test(self.joint_pose, last_mat)
+        #     if can_move_lin == 0:
+        #         return
+
+        #     # if robot.MoveJ_Test(self.joint_pose, ref_joint_pose) == 0:
+        #     self.linear = False
+        #     return
+
+            # self.linear = False
+
+
+
+
+
+
 
 
     # def configure(self, robot, last_mat, ref_joint_pose, allow_flip):

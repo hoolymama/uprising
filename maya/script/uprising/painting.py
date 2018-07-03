@@ -67,13 +67,6 @@ class Painting(object):
         self.brushes = Brush.brushes(factory_node)
         self.paints = Paint.paints(factory_node)
 
-        approach_dist = self.node.attr("strokeApproachDistance").get()
-
-        planeMat = self.node.attr("outPlaneMatrixWorld").get()
-
-        self.approach = (pm.dt.Vector(0, 0, 1) *
-                         planeMat).normal() * approach_dist
-
         indices = factory_node.attr("curves").getArrayIndices()
         for index in indices:
             nodes = pm.listConnections(
@@ -91,6 +84,10 @@ class Painting(object):
 
         robot = RL.Item('', ITEM_TYPE_ROBOT)
         positions = self.node.attr("outPosition").get()
+
+        if not positions:
+            return
+
         rotations = self.node.attr("outRotation").get()
         counts = self.node.attr("outCounts").get()
         brush_ids = self.node.attr("outBrushIds").get()
@@ -98,16 +95,24 @@ class Painting(object):
         curve_ids = self.node.attr("outCurveIds").get()
         force_dips = self.node.attr("outForceDips").get()
         arc_lengths = self.node.attr("outArcLengths").get()
-
-        linearSpeed = self.node.attr("linearSpeed").get() * 10
-        angularSpeed = self.node.attr("angularSpeed").get()
+        linear_speed = self.node.attr("linearSpeed").get() * 10
+        angular_speed = self.node.attr("angularSpeed").get()
         rounding = self.node.attr("approximationDistance").get() * 10
 
-        clusterApproachMat = uutl.mat_from_connected(self.node.attr("clusterApproachObject") , "world")
-        toolChangeApproachMat = uutl.mat_from_connected(self.node.attr("toolChangeApproachObject") , "world")
-        homeApproachMat = uutl.mat_from_connected(self.node.attr("homeApproachObject") , "world")
+        planeMat = self.node.attr("outPlaneMatrixWorld").get()
+        approach_dist = self.node.attr("strokeApproachDistance").get()
+        planeNormal = (pm.dt.Vector(0, 0, 1) * planeMat).normal()
+        approach = planeNormal * approach_dist
 
+        tangents = [(t * planeMat).normal()
+                    for t in self.node.attr("outTangents").get()]
 
+        # clusterApproachMat = uutl.mat_from_connected(
+        #     self.node.attr("clusterApproachObject"), "world")
+        # toolChangeApproachMat = uutl.mat_from_connected(
+        #     self.node.attr("toolChangeApproachObject"), "world")
+        # homeApproachMat = uutl.mat_from_connected(
+        #     self.node.attr("homeApproachObject"), "world")
 
         num_strokes = len(counts)
         completed_strokes = 0
@@ -116,10 +121,10 @@ class Painting(object):
         self.clusters = []
         cluster_id = 0
         start = 0
-        cluster = Cluster.create(is_dip, cluster_id, "tool")
-        cluster_id += 1
-        curve_stroke_id = 0
+
+        cluster = None
         last_curve_id = -1
+
         for i, count in enumerate(counts):
             new_brush = self.brushes.get(brush_ids[i])
             new_paint = self.paints.get(paint_ids[i])
@@ -129,22 +134,27 @@ class Painting(object):
                 last_curve_id = curve_ids[i]
                 curve_stroke_id = 0
 
-            change_reason = cluster.should_change(
-                new_brush, new_paint, force_dips[i])
+            if cluster:
+                change_reason = cluster.should_change(
+                    new_brush, new_paint, force_dips[i])
+            else:
+                change_reason = "tool"
 
             if change_reason:
-                self.clusters.append(cluster)
-                cluster = Cluster.create(is_dip, cluster_id, change_reason)
-                cluster_id += 1
+                if cluster:
+                    self.clusters.append(cluster)
 
-            if cluster.empty():
-                cluster.set_tools(
-                    robot,
-                    new_brush,
-                    new_paint,
-                    linearSpeed,
-                    angularSpeed,
-                    rounding)
+                cluster = Cluster.create(
+                    is_dip=is_dip,
+                    cluster_id=cluster_id,
+                    robot=robot,
+                    brush=new_brush,
+                    paint=new_paint,
+                    linear_speed=linear_speed,
+                    angular_speed=angular_speed,
+                    rounding=rounding,
+                    reason=change_reason)
+                cluster_id += 1
 
             end = start + count
 
@@ -152,10 +162,12 @@ class Painting(object):
                 stroke = Stroke(robot,
                                 positions[start:end],
                                 rotations[start:end],
+                                tangents[start:end],
                                 new_brush,
                                 new_paint,
                                 arc_lengths[i],
-                                self.approach,
+                                planeNormal,
+                                approach,
                                 curve_name,
                                 curve_stroke_id
                                 )
@@ -166,6 +178,7 @@ class Painting(object):
                     curve_name, curve_stroke_id)
                 print e.message
 
+            # we update the stroke id even if a stroke failed to build
             curve_stroke_id += 1
             start = end
             completed_strokes += 1
@@ -175,87 +188,6 @@ class Painting(object):
         self.clusters.append(cluster)
         progressEnd()
 
-
-
-
-    # def _create_clusters(self, is_dip):
-
-    #     robot = RL.Item('', ITEM_TYPE_ROBOT)
-    #     positions = self.node.attr("outPosition").get()
-    #     rotations = self.node.attr("outRotation").get()
-    #     counts = self.node.attr("outCounts").get()
-    #     brush_ids = self.node.attr("outBrushIds").get()
-    #     paint_ids = self.node.attr("outPaintIds").get()
-    #     curve_ids = self.node.attr("outCurveIds").get()
-    #     force_dips = self.node.attr("outForceDips").get()
-    #     arc_lengths = self.node.attr("outArcLengths").get()
-
-    #     linearSpeed = self.node.attr("linearSpeed").get() * 10
-    #     angularSpeed = self.node.attr("angularSpeed").get()
-    #     rounding = self.node.attr("approximationDistance").get() * 10
-
-    #     self.clusters = []
-    #     cluster_id = 0
-    #     start = 0
-    #     cluster = Cluster.create(is_dip, cluster_id, "tool")
-    #     cluster_id += 1
-    #     curve_stroke_id = 0
-    #     last_curve_id = -1
-    #     for i, count in enumerate(counts):
-    #         new_brush = self.brushes.get(brush_ids[i])
-    #         new_paint = self.paints.get(paint_ids[i])
-    #         curve_name = self.curve_names.get(curve_ids[i])
-
-    #         if curve_ids[i] != last_curve_id:
-    #             last_curve_id = curve_ids[i]
-    #             curve_stroke_id = 0
-
-    #         change_reason = cluster.should_change(
-    #             new_brush, new_paint, force_dips[i])
-
-    #         if change_reason:
-    #             self.clusters.append(cluster)
-    #             cluster = Cluster.create(is_dip, cluster_id, change_reason)
-    #             cluster_id += 1
-
-    #         if cluster.empty():
-    #             cluster.set_tools(
-    #                 robot,
-    #                 new_brush,
-    #                 new_paint,
-    #                 linearSpeed,
-    #                 angularSpeed,
-    #                 rounding)
-
-    #         end = start + count
-
-    #         try:
-    #             stroke = Stroke(robot,
-    #                             positions[start:end],
-    #                             rotations[start:end],
-    #                             new_brush,
-    #                             new_paint,
-    #                             arc_lengths[i],
-    #                             self.approach,
-    #                             curve_name,
-    #                             curve_stroke_id
-    #                             )
-    #             cluster.build_stroke(stroke)
-
-    #         except StrokeError as e:
-    #             print "Can't build stroke %s : %d" % (
-    #                 curve_name, curve_stroke_id)
-    #             print e.message
-
-    #         curve_stroke_id += 1
-    #         start = end
-       
-
-           
-    #     self.clusters.append(cluster)
-    #     progressEnd()
- 
- 
     def create_painting_program(self):
         num_clusters = len(self.clusters)
         completed_clusters = 0
@@ -263,8 +195,8 @@ class Painting(object):
 
         robot = RL.Item('', ITEM_TYPE_ROBOT)
 
-        main_program = uutl.create_program("gx")
-        main_frame = uutl.create_frame("gx_frame")
+        main_program = uutl.create_program("px")
+        main_frame = uutl.create_frame("px_frame")
 
         for cluster in self.clusters:
             cluster.write_program_comands(robot, main_program, main_frame)
