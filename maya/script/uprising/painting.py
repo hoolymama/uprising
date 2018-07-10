@@ -95,14 +95,18 @@ class Painting(object):
         curve_ids = self.node.attr("outCurveIds").get()
         force_dips = self.node.attr("outForceDips").get()
         arc_lengths = self.node.attr("outArcLengths").get()
+
+        start_approach_dists = self.node.attr("outApproachStarts").get()
+        end_approach_dists = self.node.attr("outApproachEnds").get()
+
         linear_speed = self.node.attr("linearSpeed").get() * 10
         angular_speed = self.node.attr("angularSpeed").get()
         rounding = self.node.attr("approximationDistance").get() * 10
 
         planeMat = self.node.attr("outPlaneMatrixWorld").get()
-        approach_dist = self.node.attr("strokeApproachDistance").get()
+        # approach_dist = self.node.attr("strokeApproachDistance").get()
         planeNormal = (pm.dt.Vector(0, 0, 1) * planeMat).normal()
-        approach = planeNormal * approach_dist
+        # approach = planeNormal * approach_dist
 
         tangents = [(t * planeMat).normal()
                     for t in self.node.attr("outTangents").get()]
@@ -129,6 +133,9 @@ class Painting(object):
             new_brush = self.brushes.get(brush_ids[i])
             new_paint = self.paints.get(paint_ids[i])
             curve_name = self.curve_names.get(curve_ids[i])
+
+            start_approach_dist = start_approach_dists[i] 
+            end_approach_dist = end_approach_dists[i] 
 
             if curve_ids[i] != last_curve_id:
                 last_curve_id = curve_ids[i]
@@ -167,7 +174,8 @@ class Painting(object):
                                 new_paint,
                                 arc_lengths[i],
                                 planeNormal,
-                                approach,
+                                start_approach_dist,
+                                end_approach_dist,
                                 curve_name,
                                 curve_stroke_id
                                 )
@@ -189,6 +197,7 @@ class Painting(object):
         progressEnd()
 
     def create_painting_program(self):
+        RL.Render(False)
         num_clusters = len(self.clusters)
         completed_clusters = 0
         progressStart("Create RoboDK Painting", num_clusters)
@@ -204,9 +213,13 @@ class Painting(object):
             progressUpdate(completed_clusters, num_clusters)
 
         main_program.addMoveJ(RL.Item('tool_change'))
+
+        # main_program.ShowInstructions(False)
         progressEnd()
+        RL.Render(True)
 
     def create_dip_subroutines(self):
+        RL.Render(False)
         # print "Creating dip subroutines"
         num_clusters = len(self.clusters)
         completed_clusters = 0
@@ -220,8 +233,10 @@ class Painting(object):
             cluster.write_program_comands(robot, program, dip_frame)
             completed_clusters += 1
             progressUpdate(completed_clusters, num_clusters)
-        progressEnd()
 
+            # program.ShowInstructions(False)
+        progressEnd()
+        RL.Render(True)
     # def show(self):
     #     robot = RL.Item('', ITEM_TYPE_ROBOT)
     #     cluster_id = 0

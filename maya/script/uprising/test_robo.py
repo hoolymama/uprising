@@ -16,10 +16,34 @@ import robodk as rdk
 
 RL = Robolink()
 
+robot = RL.Item('', ITEM_TYPE_ROBOT)
+
+
+# WINDOWSTATE_HIDDEN      = -1        # Hidden
+# WINDOWSTATE_SHOW        = 0         # Visible
+# WINDOWSTATE_MINIMIZED   = 1         # Minimize window
+# WINDOWSTATE_NORMAL      = 2         # Show normal window (last known state)
+# WINDOWSTATE_MAXIMIZED   = 3         # Show maximized window
+# WINDOWSTATE_FULLSCREEN  = 4         # Show fulscreen window
+# WINDOWSTATE_CINEMA      = 5         # Show maximized window without the toolbar and without the menu
+# WINDOWSTATE_FULLSCREEN_CINEMA= 6    # Show fulscreen window without the
+# toolbar and without the menu
+
+
+RL.Render(False)
+# RL.setWindowState(-1)
+
+RL.setWindowState(2)
+
+# robot.Childs()
+# for c in robot.Childs():
+#     print c.Name()
+#     c.setVisible(False)
+
 
 def draw_seg(verts, color, name):
     # print "color %s %s %s" % color
-    print "name %s" % name
+    # print "name %s" % name
 
     triangles = [
         list(verts[0]), list(verts[1]), list(verts[2]),
@@ -39,41 +63,41 @@ def draw_seg(verts, color, name):
 # robot = RL.Item('', ITEM_TYPE_ROBOT)
 
 
-RL.Item("geox_0000").Delete()
+# RL.Item("geox_0000").Delete()
 
-draw_seg([(155.29114253597766,
-           1765.774396773453,
-           1521.7159430626668),
-          (155.32392910181824,
-           1765.8563631880545,
-           1501.7161378999165),
-          (130.4024290692281,
-           1764.9430504232703,
-           1519.8304555151044),
-          (134.21949217830098,
-           1765.151090370014,
-           1500.1991858515826)],
-         (1.0,
-          0.3822000026702881,
-          0.0),
-         "geox_0000")
+# draw_seg([(155.29114253597766,
+#            1765.774396773453,
+#            1521.7159430626668),
+#           (155.32392910181824,
+#            1765.8563631880545,
+#            1501.7161378999165),
+#           (130.4024290692281,
+#            1764.9430504232703,
+#            1519.8304555151044),
+#           (134.21949217830098,
+#            1765.151090370014,
+#            1500.1991858515826)],
+#          (1.0,
+#           0.3822000026702881,
+#           0.0),
+#          "geox_0000")
 
-draw_seg([(130.4024290692281,
-           1764.9430504232703,
-           1519.8304555151044),
-          (134.21949217830098,
-           1765.151090370014,
-           1500.1991858515826),
-          (106.11409766970165,
-           1764.1465010657394,
-           1514.3440649659312),
-          (113.4702483894046,
-           1764.4696507293734,
-           1495.748833833087)],
-         (1.0,
-          0.3822000026702881,
-          0.0),
-         "geox_0000")
+# draw_seg([(130.4024290692281,
+#            1764.9430504232703,
+#            1519.8304555151044),
+#           (134.21949217830098,
+#            1765.151090370014,
+#            1500.1991858515826),
+#           (106.11409766970165,
+#            1764.1465010657394,
+#            1514.3440649659312),
+#           (113.4702483894046,
+#            1764.4696507293734,
+#            1495.748833833087)],
+#          (1.0,
+#           0.3822000026702881,
+#           0.0),
+#          "geox_0000")
 
 
 # def construct_command(m1, m2, w, c):

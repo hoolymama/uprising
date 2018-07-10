@@ -4,6 +4,8 @@ import pymel.core as pm
 import setup_dip
 import curve_utils as cutl
 import brush_utils as butl
+import paint_utils as putl
+
 from setup_dip import setup_dip_factory
 
 import stroke_factory_utils as sfu
@@ -33,6 +35,7 @@ reload(setup_dip)
 
 reload(cutl)
 reload(butl)
+reload(putl)
 reload(pnt)
 reload(sfu)
 
@@ -86,6 +89,18 @@ class PaintingTab(gui.FormLayout):
             command=pm.Callback(butl.add_brush_to_sf))
 
         pm.button(
+            label='Add all paint trays to factory',
+            command=pm.Callback(putl.add_all_trays_to_sf))
+
+
+
+        pm.button(
+            label='Send paint trays',
+            command=pm.Callback(self.on_send_paint_trays))
+
+
+
+        pm.button(
             label='Delete curve instances',
             command=pm.Callback(self.on_delete_curve_instances))
 
@@ -96,6 +111,14 @@ class PaintingTab(gui.FormLayout):
         pm.button(
             label='Write program, station, simulation',
             command=pm.Callback(write.write_program))
+
+        pm.button(
+            label='Randomize paints assignments',
+            command=pm.Callback(self.on_random_paints))
+
+        pm.button(
+            label='Randomize brush assignments',
+            command=pm.Callback(self.on_random_brushes))
 
 
     def create_action_buttons(self):
@@ -119,14 +142,25 @@ class PaintingTab(gui.FormLayout):
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
- 
 
+    def on_send_paint_trays(self):
+        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
+        putl.send_paints(painting_factory)
+
+    def on_random_paints(self):
+        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
+        cutl.assign_random_paints(painting_factory)
+        
+    def on_random_brushes(self):
+        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
+        cutl.assign_random_brushes(painting_factory)
 
     def on_send_brushes(self):
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
         butl.send_brushes(painting_factory)
 
     def on_create_all(self):
+        RL.setWindowState(-1)
         RL.Render(False)
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
         dip_factory = pm.PyNode("dipStrokeFactoryShape")
@@ -138,22 +172,26 @@ class PaintingTab(gui.FormLayout):
 
         painting = pnt.Painting(painting_factory)
         painting.create_painting_program()
-
         RL.Render(True)
+        RL.setWindowState(2)
  
     def on_create_painting(self):
+        RL.setWindowState(-1)
         RL.Render(False)
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
         painting = pnt.Painting(painting_factory)
         painting.create_painting_program()
         RL.Render(True)
+        RL.setWindowState(2)
 
     def on_create_dip_only(self):
+        RL.setWindowState(-1)
         RL.Render(False)
         dip_factory = pm.PyNode("dipStrokeFactoryShape")
         dip = pnt.Painting(dip_factory, True)
         dip.create_dip_subroutines()
         RL.Render(True)
+        RL.setWindowState(2)
  
     def on_delete_curve_instances(self):
         nodes = pm.ls(

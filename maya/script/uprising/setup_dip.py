@@ -95,17 +95,13 @@ def setup_dip_factory(painting_factory, dip_factory, curves):
         duplicate_and_connect_curves(source_curves, dip_factory, paint_id, brush_id)
     
     source_parents = pm.listRelatives(source_curves, parent=True)
-    print "SOURCE PARENTS"
-    print source_parents
+    # print "SOURCE PARENTS"
+    # print source_parents
     pm.delete(source_parents)
     connect_brushes(painting_factory, dip_factory)
     connect_paints(painting_factory, dip_factory)
 
 
-
-def input_connection(attribute):
-    conns = attribute.connections(source=True, destination=False, plugs=True)
-    return conns and conns[0]
 
 
 def connect_brushes(src, dest):
@@ -121,7 +117,7 @@ def connect_brushes(src, dest):
         for att in atts:
             src_attribute = src.attr("brushes[%d].%s" % (index, att))
             dest_attribute = dest.attr("brushes[%d].%s" % (index, att))
-            src_conn = input_connection(src_attribute)
+            src_conn = sfu.input_connection(src_attribute)
             if src_conn:
                 src_conn >> dest_attribute
             else:

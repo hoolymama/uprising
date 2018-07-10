@@ -75,7 +75,11 @@ public:
 
 	void translate(const MFloatVector &translation, const MVector &planeNormal);
 
+	void setApproach(double start, double end)  ;
 
+	double approachStart() const;
+
+	double approachEnd() const ;
 
 private:
 	unsigned m_curveId;
@@ -94,6 +98,9 @@ private:
 	bool m_isBackstroke;
 	bool m_follow;
 	bool m_forceDip;
+	double m_approachDistStart;
+	double m_approachDistEnd;
+
 };
 
 // typedef std::vector<stroke> STROKE_VECTOR;

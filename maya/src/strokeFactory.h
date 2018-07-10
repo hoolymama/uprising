@@ -80,11 +80,23 @@ private:
   MStatus setData(MDataBlock &block, MObject &attribute,
                   const MMatrix &data);
 
+  MStatus getData( MObject &attribute,  MIntArray &array);
+
+  MStatus getData( MObject &attribute,  MDoubleArray &array);
+
+  MStatus getData( MObject &attribute,  MVectorArray &array);
+
 
   unsigned int getStrokeBoundaries(
-    const MObject &curve, double strokeLength, double randomLengthFactor, double overlap,
-    double randomOverlapFactor, MVectorArray &result
-  ) const ;
+    const MObject &curve,
+    double strokeLength,
+    double randomLengthFactor,
+    double overlap,
+    double randomOverlapFactor,
+    double subcurveMin,
+    double subcurveMax,
+    MVectorArray &result
+  ) const;
 
   MStatus getBrushes(MDataBlock &data, std::map<short, Brush> &brushes ) const;
 
@@ -107,6 +119,9 @@ private:
                            MFloatArray &vVals, MFloatVectorArray &result) const;
   // curves
   static MObject aCurve;
+  static MObject aSubcurveMin;
+  static MObject aSubcurveMax;
+  static MObject aSubcurve;
   static MObject aPointDensity;
   static MObject aStrokeLength;
   static MObject aRandomLengthFactor;
@@ -119,20 +134,18 @@ private:
   static MObject aRepeatOscillate;
   static MObject aRepeatAdvance;
 
-
-
-  static MObject  aRotateOrder;
-  static MObject  aOutputUnit;
+  static MObject aRotateOrder;
+  static MObject aOutputUnit;
   static MObject aBrushId;
   static MObject aPaintId;
-
 
   static MObject aActive;
   static MObject aOverlap;
   static MObject aStrokeRotation;
   static MObject aStrokeTranslation;
   static MObject aPivotFraction;
-  static MObject aBrushAlignment;
+  // static MObject aBrushAlignment;
+
 
   static MObject  aBrushRotateTilt;
   static MObject  aBrushRotateBank;
@@ -140,6 +153,11 @@ private:
   static MObject  aBrushRotate;
   static MObject  aBrushFollowStroke;
   static MObject  aForceDip;
+
+  static MObject  aApproachDistanceStart;
+  static MObject  aApproachDistanceMid;
+  static MObject  aApproachDistanceEnd;
+  static MObject  aApproachDistance;
 
   // static MObject  aBrushFrontAxis;
   // static MObject  aBrushUpAxis;
@@ -183,7 +201,7 @@ private:
   static MObject aStrokeTranslationTexture;
   static MObject aStrokeTranslationSampleDistance;
   static MObject aStrokeCountFactor;
-  static MObject aStrokeApproachDistance;
+  // static MObject aStrokeApproachDistance;
   static MObject aClusterApproachObject;
   static MObject aToolChangeApproachObject;
   static MObject aHomeApproachObject;
@@ -211,6 +229,10 @@ private:
   static MObject  aOutForceDips;
 
   static MObject  aOutArcLengths;
+
+  static MObject  aOutApproachStarts;
+  static MObject  aOutApproachEnds;
+
   static MObject  aOutPlaneMatrixWorld;
 
 

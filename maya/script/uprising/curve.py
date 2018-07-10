@@ -4,9 +4,7 @@ from robolink import Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TARGET
 import robodk as rdk
 import uprising.maya_util as uut
 
-
 RL = Robolink()
-
 
 def setup():
     cp = pm.ls(sl=True, dag=True, leaf=True, type="curvePoints")[0]
@@ -32,4 +30,4 @@ def setup():
             object_curve.setName(name)
             path_settings = RL.AddMillingProject("%s settings" % name)
             prog, status = path_settings.setMillingParameters(part=object_curve)
-    # prog.RunProgram()
+ 

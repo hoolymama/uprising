@@ -62,7 +62,7 @@
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Approach Attributes";
- 	editorTemplate -addControl "strokeApproachDistance"; 
+ 	// editorTemplate -addControl "strokeApproachDistance"; 
 	editorTemplate -addControl "clusterApproachObject";
 	editorTemplate -addControl "toolChangeApproachObject";
 	editorTemplate -addControl "homeApproachObject";

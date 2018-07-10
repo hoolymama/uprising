@@ -3,6 +3,12 @@ import pymel.core as pm
 from paint import Paint
 from brush import Brush
 
+
+def input_connection(attribute):
+    conns = attribute.connections(source=True, destination=False, plugs=True)
+    return conns and conns[0]
+
+
  
 def get_index(node, att, connect_to):
     

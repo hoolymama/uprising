@@ -136,7 +136,9 @@ Stroke::Stroke(
 	m_follow(follow),
 	m_forceDip(forceDip),
 	m_arcLength(),
-	m_isBackstroke(false)
+	m_isBackstroke(false),
+	m_approachDistStart(1),
+	m_approachDistEnd(1)
 {
 	MStatus st;
 	double curveArcLength = endDist - startDist;
@@ -248,7 +250,9 @@ Stroke::Stroke(
 	m_follow(mother.follow()),
 	m_forceDip(false),
 	m_arcLength(),
-	m_isBackstroke(reverse)
+	m_isBackstroke(reverse),
+	m_approachDistStart(1),
+	m_approachDistEnd(1)
 {
 	MStatus st;
 	// m_arcLength = endDist - startDist;
@@ -344,6 +348,19 @@ bool  Stroke::forceDip() const {
 
 unsigned  Stroke::curveId() const {
 	return m_curveId;
+}
+
+void Stroke::setApproach(double start, double end)  {
+	m_approachDistStart = start;
+	m_approachDistEnd = end;
+}
+
+double Stroke::approachStart() const {
+	return m_approachDistStart;
+}
+
+double Stroke::approachEnd() const {
+	return m_approachDistEnd;
 }
 
 void Stroke::getPivotUVs(const MMatrix &inversePlaneMatrix, float &u, float &v) const {

@@ -22,7 +22,8 @@ class Stroke(object):
             paint,
             arc_length,
             planeNormal,
-            approach,
+            start_approach_dist,
+            end_approach_dist,
             curve_name,
             curve_stroke_id):
         self.arc_length = arc_length
@@ -32,8 +33,11 @@ class Stroke(object):
         self.curve_name = curve_name
         self.curve_stroke_id = curve_stroke_id
 
-        ps = [(positions[0] + approach)] + \
-            positions + [(positions[-1] + approach)]
+        start_approach = planeNormal * start_approach_dist
+        end_approach = planeNormal * end_approach_dist
+ 
+        ps = [(positions[0] + start_approach)] + \
+            positions + [(positions[-1] + end_approach)]
         rs = [rotations[0]] + \
             rotations + [rotations[-1]]
         ts = [tangents[0]] + \

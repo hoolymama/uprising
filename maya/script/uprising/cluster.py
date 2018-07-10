@@ -73,17 +73,18 @@ class Cluster(object):
                 target = RL.AddTarget(tname, parent_frame, robot)
                 target.setPose(t.tool_pose)
                 target.setJoints(t.joint_pose)
-                # target.setAsJointTarget()
+ 
                 if t.linear:
                     parent_program.addMoveL(target)
                 else:
                     parent_program.addMoveJ(target)
-                if i > 1 and i < (num_targets - 3):
-                    seg_draw = self.drawing_instruction(
-                        t, stroke.targets[i + 1])
-                    if seg_draw:
-                        parent_program.RunInstruction(
-                            seg_draw, INSTRUCTION_CALL_PROGRAM)
+                    
+                # if i > 1 and i < (num_targets - 3):
+                #     seg_draw = self.drawing_instruction(
+                #         t, stroke.targets[i + 1])
+                #     if seg_draw:
+                #         parent_program.RunInstruction(
+                #             seg_draw, INSTRUCTION_CALL_PROGRAM)
 
 
 class PaintingCluster(Cluster):
@@ -140,13 +141,17 @@ class PaintingCluster(Cluster):
             tool = RL.Item(self.brush.name)
             parent_program.addMoveJ(tool_change_target)
             parent_program.RunInstruction(
-                "Change Tool: %scm brush ID:(%d) - paint ID:(%d)" %
-                (self.brush.width,
+                "Change Tool: %s ID:(%d) - paint ID:(%d)" %
+                (self.brush.name,
                  self.brush.id,
                  self.paint.id),
                 INSTRUCTION_SHOW_MESSAGE)
             parent_program.Pause()
             parent_program.setPoseTool(tool)
+            # parent_program.RunInstruction(
+            #                 "show_brush(%s)"% self.brush.name, 
+            #                 INSTRUCTION_CALL_PROGRAM)
+
 
         dip_program_name = DipCluster.generate_name(
             self.paint.id, self.brush.id)

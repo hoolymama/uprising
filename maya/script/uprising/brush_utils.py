@@ -51,7 +51,7 @@ def send_brush(robot, brush, base):
     """
 
     geo = pm.PyNode(brush.name).getShapes() + base.getShapes()
-    print brush.name
+    # print brush.name
     triangles = []
     for g in geo:
         points = g.getPoints(space='world')
