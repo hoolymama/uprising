@@ -119,6 +119,7 @@ MObject strokeFactory::aStrokeLength;
 MObject strokeFactory::aRandomLengthFactor;
 MObject strokeFactory::aRandomOverlapFactor;
 
+MObject strokeFactory::aBackstroke;
 MObject strokeFactory::aRepeats;
 MObject strokeFactory::aRepeatOffset;
 MObject strokeFactory::aRepeatMirror;
@@ -408,6 +409,14 @@ MStatus strokeFactory::initialize()
   nAttr.setDefault( 0.1 );
 
 
+  aBackstroke = nAttr.create( "reverseDirection", "revd", MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(false);
+
+
+
   aRepeats = nAttr.create("repeats", "rpts", MFnNumericData::kShort);
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
@@ -548,6 +557,7 @@ MStatus strokeFactory::initialize()
   cAttr.addChild(aRandomLengthFactor);
   cAttr.addChild(aRandomOverlapFactor);
   cAttr.addChild(aForceDip);
+  cAttr.addChild(aBackstroke);
   cAttr.addChild(aRepeats);
   cAttr.addChild(aRepeatOffset);
   cAttr.addChild(aRepeatMirror);
@@ -869,6 +879,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aBrushLift, aOutTargets);
   st = attributeAffects(aBrushRotate, aOutTargets);
   st = attributeAffects(aRepeats, aOutTargets);
+  st = attributeAffects(aBackstroke, aOutTargets);
   st = attributeAffects(aRepeatOffset, aOutTargets);
   st = attributeAffects(aRepeatAdvance, aOutTargets);
   st = attributeAffects(aRepeatMirror, aOutTargets);
@@ -899,6 +910,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aPivotFraction, aOutTangents);
   st = attributeAffects(aBrushLift, aOutTangents);
   st = attributeAffects(aRepeats, aOutTangents);
+  st = attributeAffects(aBackstroke, aOutTangents);
   st = attributeAffects(aRepeatOffset, aOutTangents);
   st = attributeAffects(aRepeatAdvance, aOutTangents);
   st = attributeAffects(aRepeatMirror, aOutTangents);
@@ -930,6 +942,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aBrushLift, aOutPosition);
   st = attributeAffects(aBrushRotate, aOutPosition);
   st = attributeAffects(aRepeats, aOutPosition);
+  st = attributeAffects(aBackstroke, aOutPosition);
   st = attributeAffects(aRepeatOffset, aOutPosition);
   st = attributeAffects(aRepeatAdvance, aOutPosition);
   st = attributeAffects(aRepeatMirror, aOutPosition);
@@ -962,6 +975,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aRotateOrder, aOutRotation);
   st = attributeAffects(aOutputUnit, aOutRotation);
   st = attributeAffects(aRepeats, aOutRotation);
+  st = attributeAffects(aBackstroke, aOutRotation);
   st = attributeAffects(aRepeatOffset, aOutRotation);
   st = attributeAffects(aRepeatAdvance, aOutRotation);
   st = attributeAffects(aRepeatMirror, aOutRotation);
@@ -981,6 +995,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aCurves, aOutCounts);
   st = attributeAffects(aActive, aOutCounts);
   st = attributeAffects(aRepeats, aOutCounts);
+  st = attributeAffects(aBackstroke, aOutCounts);
   st = attributeAffects(aRepeatOffset, aOutCounts);
   st = attributeAffects(aRepeatAdvance, aOutCounts);
   st = attributeAffects(aRepeatMirror, aOutCounts);
@@ -1000,6 +1015,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aCurves, aOutBrushIds);
   st = attributeAffects(aActive, aOutBrushIds);
   st = attributeAffects(aRepeats, aOutBrushIds);
+  st = attributeAffects(aBackstroke, aOutBrushIds);
   st = attributeAffects(aRepeatOffset, aOutBrushIds);
   st = attributeAffects(aRepeatAdvance, aOutBrushIds);
   st = attributeAffects(aRepeatMirror, aOutBrushIds);
@@ -1019,6 +1035,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aCurves, aOutPaintIds);
   st = attributeAffects(aActive, aOutPaintIds);
   st = attributeAffects(aRepeats, aOutPaintIds);
+  st = attributeAffects(aBackstroke, aOutPaintIds);
   st = attributeAffects(aRepeatOffset, aOutPaintIds);
   st = attributeAffects(aRepeatAdvance, aOutPaintIds);
   st = attributeAffects(aRepeatMirror, aOutPaintIds);
@@ -1038,6 +1055,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aCurves, aOutCurveIds);
   st = attributeAffects(aActive, aOutCurveIds);
   st = attributeAffects(aRepeats, aOutCurveIds);
+  st = attributeAffects(aBackstroke, aOutCurveIds);
   st = attributeAffects(aRepeatOffset, aOutCurveIds);
   st = attributeAffects(aRepeatAdvance, aOutCurveIds);
   st = attributeAffects(aRepeatMirror, aOutCurveIds);
@@ -1058,6 +1076,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aBrushWidth, aOutBrushWidths);
   st = attributeAffects(aActive, aOutBrushWidths);
   st = attributeAffects(aRepeats, aOutBrushWidths);
+  st = attributeAffects(aBackstroke, aOutBrushWidths);
   st = attributeAffects(aRepeatOffset, aOutBrushWidths);
   st = attributeAffects(aRepeatAdvance, aOutBrushWidths);
   st = attributeAffects(aRepeatMirror, aOutBrushWidths);
@@ -1078,6 +1097,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aPaintColor, aOutPaintColors);
   st = attributeAffects(aActive, aOutPaintColors);
   st = attributeAffects(aRepeats, aOutPaintColors);
+  st = attributeAffects(aBackstroke, aOutPaintColors);
   st = attributeAffects(aRepeatOffset, aOutPaintColors);
   st = attributeAffects(aRepeatAdvance, aOutPaintColors);
   st = attributeAffects(aRepeatMirror, aOutPaintColors);
@@ -1098,6 +1118,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aPaintOpacity, aOutPaintOpacities);
   st = attributeAffects(aActive, aOutPaintOpacities);
   st = attributeAffects(aRepeats, aOutPaintOpacities);
+  st = attributeAffects(aBackstroke, aOutPaintOpacities);
   st = attributeAffects(aRepeatOffset, aOutPaintOpacities);
   st = attributeAffects(aRepeatAdvance, aOutPaintOpacities);
   st = attributeAffects(aRepeatMirror, aOutPaintOpacities);
@@ -1119,6 +1140,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aPlaneMatrix, aOutArcLengths);
   st = attributeAffects(aPivotFraction, aOutArcLengths);
   st = attributeAffects(aRepeats, aOutArcLengths);
+  st = attributeAffects(aBackstroke, aOutArcLengths);
   st = attributeAffects(aRepeatOffset, aOutArcLengths);
   st = attributeAffects(aRepeatAdvance, aOutArcLengths);
   st = attributeAffects(aRepeatMirror, aOutArcLengths);
@@ -1140,6 +1162,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aPlaneMatrix, aOutForceDips);
   st = attributeAffects(aPivotFraction, aOutForceDips);
   st = attributeAffects(aRepeats, aOutForceDips);
+  st = attributeAffects(aBackstroke, aOutForceDips);
   st = attributeAffects(aRepeatOffset, aOutForceDips);
   st = attributeAffects(aRepeatAdvance, aOutForceDips);
   st = attributeAffects(aRepeatMirror, aOutForceDips);
@@ -1165,6 +1188,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aStrokeTranslationSampleDistance, aOutApproachStarts);
   st = attributeAffects(aPivotFraction, aOutApproachStarts);
   st = attributeAffects(aRepeats, aOutApproachStarts);
+  st = attributeAffects(aBackstroke, aOutApproachStarts);
   st = attributeAffects(aRepeatOffset, aOutApproachStarts);
   st = attributeAffects(aRepeatAdvance, aOutApproachStarts);
   st = attributeAffects(aRepeatMirror, aOutApproachStarts);
@@ -1191,6 +1215,7 @@ MStatus strokeFactory::initialize()
   st = attributeAffects(aStrokeTranslationSampleDistance, aOutApproachEnds);
   st = attributeAffects(aPivotFraction, aOutApproachEnds);
   st = attributeAffects(aRepeats, aOutApproachEnds);
+  st = attributeAffects(aBackstroke, aOutApproachEnds);
   st = attributeAffects(aRepeatOffset, aOutApproachEnds);
   st = attributeAffects(aRepeatAdvance, aOutApproachEnds);
   st = attributeAffects(aRepeatMirror, aOutApproachEnds);
@@ -1338,7 +1363,9 @@ unsigned int strokeFactory::getStrokeBoundaries(
     if (thisLength < 0.1) { thisLength =  0.1; }
     endDist = fmin((startDist + thisLength), curveMaxDist);
 
+
     result.append(MVector(startDist, endDist));
+
 
     if (endDist >= curveMaxDist) { break; }
 
@@ -1480,12 +1507,13 @@ MStatus strokeFactory::getStrokes(MDataBlock &data,
     MVector approachDistance(apStart, apMid, apEnd);
 
 
+    bool backstroke = hComp.child(aBackstroke).asBool();
 
     short repeats = hComp.child(aRepeats).asShort();
     double repeatOffset = hComp.child(aRepeatOffset).asDouble();
     double repeatAdvance = hComp.child(aRepeatAdvance).asDouble();
 
-    bool repeatMirror = hComp.child(aRepeatMirror).asShort();
+    bool repeatMirror = hComp.child(aRepeatMirror).asBool();
     bool repeatOscillate = hComp.child(aRepeatOscillate).asBool();
 
     short brushId =  hComp.child( aBrushId).asShort();
@@ -1550,7 +1578,8 @@ MStatus strokeFactory::getStrokes(MDataBlock &data,
                                 forceDipFirst,
                                 brush,
                                 paint,
-                                dCurve);
+                                dCurve,
+                                backstroke);
 
         if (motherStroke.overlapsPlane(inversePlaneMatrix)) {
           curveStrokes.push_back(motherStroke);
@@ -1558,13 +1587,15 @@ MStatus strokeFactory::getStrokes(MDataBlock &data,
 
         for (int j = 0; j < repeats; ++j)
         {
-          bool reverse = repeatOscillate &&  (j % 2 == 0);
+          bool reverse = repeatOscillate &&  ((j % 2) == 0);
+
           double offset = repeatOffset * (j + 1);
           Stroke offsetStroke = Stroke(motherStroke, offset, repeatAdvance, reverse, planeNormal);
           if (offsetStroke.overlapsPlane(inversePlaneMatrix)) {
             curveStrokes.push_back(offsetStroke);
           }
           if (repeatMirror) {
+            // cerr << "mirror: " << repeatMirror << endl;
             Stroke mirrorOffsetStroke = Stroke(motherStroke, -offset, repeatAdvance, reverse,
                                                planeNormal);
             if (mirrorOffsetStroke.overlapsPlane(inversePlaneMatrix)) {

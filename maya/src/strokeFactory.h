@@ -96,7 +96,7 @@ private:
     double subcurveMin,
     double subcurveMax,
     MVectorArray &result
-  ) const;
+  ) const ;
 
   MStatus getBrushes(MDataBlock &data, std::map<short, Brush> &brushes ) const;
 
@@ -105,8 +105,8 @@ private:
   MStatus getStrokes(MDataBlock &data,
                      const MVector &normal,
                      const MMatrix &inversePlaneMatrix,
-                     const   std::map<short, Brush> brushes,
-                     const   std::map<short, Paint> paints,
+                     const std::map<short, Brush> brushes,
+                     const std::map<short, Paint> paints,
                      std::vector<Stroke> &strokes ) const;
 
   MStatus getTextureName(const MObject &attribute,
@@ -126,6 +126,9 @@ private:
   static MObject aStrokeLength;
   static MObject aRandomLengthFactor;
   static MObject aRandomOverlapFactor;
+
+
+  static MObject aBackstroke;
 
   static MObject aRepeats;
   static MObject aRepeatOffset;

@@ -122,7 +122,8 @@ Stroke::Stroke(
   bool forceDip,
   const Brush &brush,
   const Paint &paint,
-  const MObject &curveObject
+  const MObject &curveObject,
+  bool backstroke
 )	:
 	m_curveId(curveId),
 	m_targets(),
@@ -136,13 +137,21 @@ Stroke::Stroke(
 	m_follow(follow),
 	m_forceDip(forceDip),
 	m_arcLength(),
-	m_isBackstroke(false),
 	m_approachDistStart(1),
-	m_approachDistEnd(1)
+	m_approachDistEnd(1),
+	m_isBackstroke(backstroke)
 {
 	MStatus st;
-	double curveArcLength = endDist - startDist;
-	unsigned numPoints = unsigned(density * curveArcLength);
+	double absCurveDist = fabs(endDist - startDist);
+	unsigned numPoints = unsigned(density * absCurveDist);
+
+	if (backstroke) {
+		double tmp = startDist;
+		startDist = endDist;
+		endDist = tmp;
+	}
+
+	double curveSpan = endDist - startDist;
 
 	MFnNurbsCurve curveFn(curveObject, &st);
 
@@ -154,7 +163,7 @@ Stroke::Stroke(
 	MDoubleArray params(numPoints);
 	for (unsigned i = 0; i < numPoints; i++) {
 		double fraction =  (double(i) * recip);
-		double dist = startDist + (fraction * curveArcLength);
+		double dist = startDist + (fraction * curveSpan);
 		double param = curveFn.findParamFromLength(dist, &st); er;
 		params.set(param, i);
 	}
@@ -170,25 +179,31 @@ Stroke::Stroke(
 		st = curveFn.getPointAtParam(params[i], curvePoint, MSpace::kObject);
 
 		// get the flat tangent
-		MVector tangent = curveFn.tangent(params[i]).normal();
-		tangent = (planeNormal ^ (tangent ^ planeNormal)).normal();
+		MVector curveTangent = curveFn.tangent(params[i]).normal();
+
+		MVector tangent = (planeNormal ^ (curveTangent ^ planeNormal)).normal();
+		if (backstroke) {
+			tangent = -tangent;
+		}
 
 		if (i == 0) {
 
 			MVectorArray boundaryPositions;
-			st = calcBoundaryPositions(curvePoint, -tangent, planeNormal, brush , boundaryPositions);
+			// MVector boundaryTangent = backstroke ? tangent : -tangent;
+			st = calcBoundaryPositions(curvePoint, -tangent, planeNormal, brush ,
+			                           boundaryPositions);
 			er;
 
 
 
-			st = calcBrushMatrix(boundaryPositions[0] , tangent, planeNormal, brushRotate,
-			                     brushMatrix, follow);
+			st = calcBrushMatrix(boundaryPositions[0] , curveTangent, planeNormal, brushRotate,
+			                     brushMatrix, follow, backstroke);
 
 
 
 			m_targets.append(brushMatrix);
-			st = calcBrushMatrix(boundaryPositions[1], tangent, planeNormal, brushRotate,
-			                     brushMatrix, follow);
+			st = calcBrushMatrix(boundaryPositions[1], curveTangent, planeNormal, brushRotate,
+			                     brushMatrix, follow, backstroke);
 
 			m_targets.append(brushMatrix);
 			m_tangents.append(tangent);
@@ -197,21 +212,25 @@ Stroke::Stroke(
 		}
 		else if (i == (numPoints - 1))  {
 			MVectorArray boundaryPositions;
-			st = calcBoundaryPositions(curvePoint, tangent, planeNormal, brush, boundaryPositions);
+			// MVector boundaryTangent = backstroke ? -tangent : tangent;
+			st = calcBoundaryPositions(curvePoint, tangent, planeNormal, brush,
+			                           boundaryPositions);
 			er;
 
-			st = calcBrushMatrix(boundaryPositions[1], tangent, planeNormal, brushRotate,
-			                     brushMatrix, follow);
+			st = calcBrushMatrix(boundaryPositions[1], curveTangent, planeNormal, brushRotate,
+			                     brushMatrix, follow, backstroke);
 			m_targets.append(brushMatrix);
 
-			st = calcBrushMatrix(boundaryPositions[0], tangent, planeNormal, brushRotate,
-			                     brushMatrix, follow);
+			st = calcBrushMatrix(boundaryPositions[0], curveTangent, planeNormal, brushRotate,
+			                     brushMatrix, follow, backstroke);
 			m_targets.append(brushMatrix);
 			m_tangents.append(tangent);
 			m_tangents.append(tangent);
 		}
 		else {
-			st = calcBrushMatrix(curvePoint, tangent, planeNormal, brushRotate,  brushMatrix, follow);
+			st = calcBrushMatrix(curvePoint, curveTangent, planeNormal, brushRotate,  brushMatrix,
+			                     follow,
+			                     backstroke);
 			m_targets.append(brushMatrix);
 			m_tangents.append(tangent);
 		}
@@ -223,7 +242,7 @@ Stroke::Stroke(
 	}
 
 	// For now, set pivot halfway along stroke.
-	double dist = startDist + (pivotFraction *  curveArcLength );
+	double dist = startDist + (pivotFraction *  curveSpan );
 	double param = curveFn.findParamFromLength(dist, &st); er;
 	st = curveFn.getPointAtParam(param, m_pivot, MSpace::kObject);
 
@@ -250,12 +269,21 @@ Stroke::Stroke(
 	m_follow(mother.follow()),
 	m_forceDip(false),
 	m_arcLength(),
-	m_isBackstroke(reverse),
 	m_approachDistStart(1),
-	m_approachDistEnd(1)
+	m_approachDistEnd(1),
+	m_isBackstroke(false)
 {
 	MStatus st;
 	// m_arcLength = endDist - startDist;
+
+	if (mother.isBackstroke()) {
+		m_isBackstroke = !reverse;
+	}
+	else {
+		m_isBackstroke = reverse;
+	}
+
+
 	unsigned numPoints = mother.targets().length();
 	MPoint lastPoint;
 	m_arcLength = 0.0;
@@ -268,31 +296,38 @@ Stroke::Stroke(
 
 
 		const MMatrix &mm = mother.targets()[j];
-		const MVector &tangent = mother.tangents()[j];
+
+		MVector curveTangent = mother.isBackstroke() ?  -mother.tangents()[j] :
+		                       mother.tangents()[j];
+		// const MVector &tangent = mother.tangents()[j];
+		MVector tangent = reverse ? -mother.tangents()[j]  : mother.tangents()[j];
 
 
 		MVector advance_vec = MVector::zero;
 		if (i < 2) {
 			advance_vec = tangent * advance;
-			if (reverse) {
-				advance_vec = advance_vec * -1;
-			}
+			// if (m_isBackstroke) {
+			// 	advance_vec = advance_vec * -1;
+			// }
 		}
 
 
-		MVector offsetVec = ((tangent ^ planeNormal) * offset) - advance_vec;
+		MVector offsetVec = ((curveTangent ^ planeNormal) * offset) - advance_vec;
 		thisPoint = MPoint(mm[3][0], mm[3][1], mm[3][2]) + offsetVec;
 
-		st = calcBrushMatrix(thisPoint, tangent, planeNormal, m_brushRotate,
-		                     brushMatrix, m_follow, reverse);
+		st = calcBrushMatrix(thisPoint, curveTangent, planeNormal, m_brushRotate,
+		                     brushMatrix, m_follow, m_isBackstroke);
 
 		m_targets.append(brushMatrix);
-		if (reverse) {
-			m_tangents.append(-tangent);
-		}
-		else {
-			m_tangents.append(tangent);
-		}
+
+
+
+		// if (m_isBackstroke) {
+		m_tangents.append(tangent);
+		// }
+		// else {
+		// 	m_tangents.append(tangent);
+		// }
 
 
 		if (i > 1 && i < numPoints - 1) {
@@ -344,6 +379,10 @@ bool Stroke::follow() const {
 
 bool  Stroke::forceDip() const {
 	return m_forceDip;
+}
+
+bool Stroke::isBackstroke() const {
+	return m_isBackstroke;
 }
 
 unsigned  Stroke::curveId() const {

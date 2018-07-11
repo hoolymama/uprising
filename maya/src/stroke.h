@@ -32,7 +32,8 @@ public:
 	  bool forceDip,
 	  const Brush &brush,
 	  const Paint &paint,
-	  const MObject &curveObject
+	  const MObject &curveObject,
+	  bool backstroke = false
 	);
 
 	Stroke(
@@ -80,6 +81,8 @@ public:
 	double approachStart() const;
 
 	double approachEnd() const ;
+
+	bool isBackstroke() const ;
 
 private:
 	unsigned m_curveId;
