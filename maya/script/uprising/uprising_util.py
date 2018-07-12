@@ -4,7 +4,7 @@ import pymel.core as pm
 PI = 3.14159265359
 
 
-from robolink import Robolink
+from robolink import (Robolink, ITEM_TYPE_ROBOT)
 
 RL = Robolink()
 

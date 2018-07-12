@@ -13,6 +13,9 @@ RL = Robolink()
 
 import pymel.core as pm
 
+import const as k
+
+
 CANVAS_HOME_JOINTS = [-90.000000, -90.000000,
                       120.000000, 0.000000, -30.000000, 0.000000]
 
@@ -135,8 +138,14 @@ class PaintingCluster(Cluster):
 
     def write_program_comands(self, robot, parent_program, parent_frame):
 
-        tool_change_target = RL.Item('tool_change')
-
+        cluster_approach_target = RL.Item(k.CLUSTER_APPROACH)
+        tool_change_target = RL.Item(k.TOOL_CHANGE_APPROACH)
+        
+        if not tool_change_target.Valid():
+            tool_change_target =  cluster_approach_target
+        if not tool_change_target.Valid():
+            raise ClusterError("You must provide an object where the tool will be changed")
+    
         if self.reason is "tool":
             tool = RL.Item(self.brush.name)
             parent_program.addMoveJ(tool_change_target)
@@ -148,6 +157,10 @@ class PaintingCluster(Cluster):
                 INSTRUCTION_SHOW_MESSAGE)
             parent_program.Pause()
             parent_program.setPoseTool(tool)
+        else:
+            if cluster_approach_target.Valid():
+                parent_program.addMoveJ(cluster_approach_target)
+
             # parent_program.RunInstruction(
             #                 "show_brush(%s)"% self.brush.name, 
             #                 INSTRUCTION_CALL_PROGRAM)
@@ -157,6 +170,9 @@ class PaintingCluster(Cluster):
             self.paint.id, self.brush.id)
         parent_program.RunInstruction(
             dip_program_name, INSTRUCTION_CALL_PROGRAM)
+
+        if cluster_approach_target.Valid():
+                parent_program.addMoveJ(cluster_approach_target)
 
         super(
             PaintingCluster,

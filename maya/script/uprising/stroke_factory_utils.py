@@ -3,7 +3,7 @@ import pymel.core as pm
 from paint import Paint
 from brush import Brush
 
-
+ 
 def input_connection(attribute):
     conns = attribute.connections(source=True, destination=False, plugs=True)
     return conns and conns[0]
@@ -69,4 +69,6 @@ def delete_curve_instances(node):
     indices = node.attr("curves").getArrayIndices()
     for i in indices:
         pm.removeMultiInstance(node.attr("curves[%d]" % i), b=True)
- 
+
+
+

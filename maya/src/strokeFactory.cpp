@@ -289,20 +289,6 @@ MStatus strokeFactory::initialize()
   nAttr.setDefault(1.0);
   addAttribute(aStrokeCountFactor);
 
-
-
-
-  // aStrokeApproachDistance = nAttr.create( "strokeApproachDistance",
-  //                                         "sapd", MFnNumericData::kDouble);
-  // nAttr.setKeyable(true);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setSoftMax(20.0);
-  // nAttr.setDefault(5.0);
-  // addAttribute(aStrokeApproachDistance);
-
-
   aClusterApproachObject =  msgAttr.create("clusterApproachObject", "clao");
   addAttribute(aClusterApproachObject);
 

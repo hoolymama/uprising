@@ -23,6 +23,7 @@ import cluster
 import target
 import write
 import uprising_util
+import const
 
 reload(uprising_util)
 reload(paint)
@@ -32,6 +33,7 @@ reload(cluster)
 reload(target)
 reload(write)
 reload(setup_dip)
+reload(const)
 
 reload(cutl)
 reload(butl)
@@ -92,13 +94,9 @@ class PaintingTab(gui.FormLayout):
             label='Add all paint trays to factory',
             command=pm.Callback(putl.add_all_trays_to_sf))
 
-
-
         pm.button(
             label='Send paint trays',
             command=pm.Callback(self.on_send_paint_trays))
-
-
 
         pm.button(
             label='Delete curve instances',
@@ -120,6 +118,9 @@ class PaintingTab(gui.FormLayout):
             label='Randomize brush assignments',
             command=pm.Callback(self.on_random_brushes))
 
+        pm.button(
+            label='Export approach objects',
+            command=pm.Callback(self.on_send_approach_targets))
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -158,6 +159,10 @@ class PaintingTab(gui.FormLayout):
     def on_send_brushes(self):
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
         butl.send_brushes(painting_factory)
+
+    def on_send_approach_targets(self):
+        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
+        sfu.send_aproach_objects(painting_factory)
 
     def on_create_all(self):
         RL.setWindowState(-1)

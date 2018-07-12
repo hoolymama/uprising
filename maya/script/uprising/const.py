@@ -1,4 +1,7 @@
-"""Constants used by uprising plugin and dispartcher scripts."""
 
-K_CURRENT_LAYER = 0
-K_ACTIVE_LAYER = 1
+
+CLUSTER_APPROACH =   "clusterApproachObject"
+TOOL_CHANGE_APPROACH =   "toolChangeApproachObject"
+HOME_APPROACH =      "homeApproachObject"
+
+HOME_JOINTS = [0, -90, 90, 0, 0, 0]

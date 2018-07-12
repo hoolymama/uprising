@@ -208,6 +208,8 @@ private:
   static MObject aClusterApproachObject;
   static MObject aToolChangeApproachObject;
   static MObject aHomeApproachObject;
+
+
   static MObject aLinearSpeed; // cm/sec
   static MObject aAngularSpeed; // per sec
   static MObject aApproximationDistance; // cm

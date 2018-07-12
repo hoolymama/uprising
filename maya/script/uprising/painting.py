@@ -21,11 +21,15 @@ from cluster import Cluster
 from uprising_util import StrokeError
 
 import uprising_util as uutl
+import const as k
+
 # , PaintingCluster, DipCluster
 
 RL = Robolink()
 
 RL.setCollisionActive(COLLISION_OFF)
+
+
 
 
 def progressStart(name, maxValue):
@@ -54,6 +58,7 @@ def paint_and_brush_name(paint, brush):
     return "%s_%d_%s_%d" % (paint.name, paint.id, brush.name, brush.id)
 
 
+
 class Painting(object):
 
     def __init__(self, factory_node, is_dip=False):
@@ -66,6 +71,9 @@ class Painting(object):
         self.name = pm.listRelatives(factory_node, parent=True)[0]
         self.brushes = Brush.brushes(factory_node)
         self.paints = Paint.paints(factory_node)
+        self.approach_objects = {}
+        self.set_approach_objects()
+
 
         indices = factory_node.attr("curves").getArrayIndices()
         for index in indices:
@@ -79,6 +87,19 @@ class Painting(object):
                 self.curve_names[index] = str(nodes[0])
 
         self._create_clusters(is_dip)
+
+    def set_approach_objects(self):
+        atts = [
+            k.CLUSTER_APPROACH,
+            k.TOOL_CHANGE_APPROACH,
+            k.HOME_APPROACH
+        ]
+
+        for att in atts:
+            mat = uutl.mat_from_connected(self.node.attr(att), "world")
+            if mat:
+                self.approach_objects[att] = mat
+ 
 
     def _create_clusters(self, is_dip):
 
@@ -196,6 +217,16 @@ class Painting(object):
         self.clusters.append(cluster)
         progressEnd()
 
+
+    def create_approaches(self):
+        robot = RL.Item('', ITEM_TYPE_ROBOT)
+        targets_frame = uutl.create_frame("ax_frame")
+
+        for approach_object in self.approach_objects:
+            mat = self.approach_objects[approach_object]
+            target = RL.AddTarget(approach_object, targets_frame, robot)
+            target.setPose(mat)
+
     def create_painting_program(self):
         RL.Render(False)
         num_clusters = len(self.clusters)
@@ -207,12 +238,20 @@ class Painting(object):
         main_program = uutl.create_program("px")
         main_frame = uutl.create_frame("px_frame")
 
+        self.create_approaches()
+
         for cluster in self.clusters:
             cluster.write_program_comands(robot, main_program, main_frame)
             completed_clusters += 1
             progressUpdate(completed_clusters, num_clusters)
 
-        main_program.addMoveJ(RL.Item('tool_change'))
+        home = RL.Item(k.HOME_APPROACH)
+        if not home.Valid():
+            home = RL.Item(k.TOOL_CHANGE_APPROACH)
+        if home.Valid():
+            main_program.addMoveJ(home)
+
+
 
         # main_program.ShowInstructions(False)
         progressEnd()
@@ -233,8 +272,7 @@ class Painting(object):
             cluster.write_program_comands(robot, program, dip_frame)
             completed_clusters += 1
             progressUpdate(completed_clusters, num_clusters)
-
-            # program.ShowInstructions(False)
+            program.ShowInstructions(False)
         progressEnd()
         RL.Render(True)
     # def show(self):
