@@ -24,6 +24,8 @@ import target
 import write
 import uprising_util
 import const
+import sheets
+
 
 reload(uprising_util)
 reload(paint)
@@ -40,6 +42,8 @@ reload(butl)
 reload(putl)
 reload(pnt)
 reload(sfu)
+reload(sheets)
+
 
 RL = Robolink()
 
@@ -122,6 +126,15 @@ class PaintingTab(gui.FormLayout):
             label='Export approach objects',
             command=pm.Callback(self.on_send_approach_targets))
 
+        pm.button(
+            label='Create brushes from spreadsheet',
+            command=pm.Callback(self.create_brush_geo_from_sheet))
+
+        pm.button(
+            label='Set board transform from spreadsheet',
+            command=pm.Callback(self.set_board_transform_from_sheet))
+
+
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
@@ -143,7 +156,18 @@ class PaintingTab(gui.FormLayout):
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
+    def set_board_transform_from_sheet(self):
+        
+        node = pm.PyNode("paintingStrokeFactoryShape")
+        sfu.set_board_from_sheet(node)
 
+
+
+
+    def create_brush_geo_from_sheet(self):
+        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
+        butl.create_brush_geo_from_sheet(painting_factory)
+        
     def on_send_paint_trays(self):
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
         putl.send_paints(painting_factory)
@@ -210,10 +234,12 @@ class PaintingTab(gui.FormLayout):
     def on_setup_dip(self):
         painting = pm.PyNode("paintingStrokeFactoryShape")
         dip = pm.PyNode("dipStrokeFactoryShape")
-        curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve")
-        if not curves:
-            raise TypeError("Need dip curves")
-        setup_dip_factory(painting, dip, curves)
+        dip_curves_grp = pm.PyNode("dipCurves")
+
+        # curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve")
+        # if not curves:
+        #     raise TypeError("Need dip curves")
+        setup_dip_factory(painting, dip, dip_curves_grp)
 
     def on_test_strokes(self):
         node = pm.PyNode("paintingStrokeFactoryShape")

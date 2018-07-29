@@ -62,17 +62,22 @@ class Cluster(object):
         raise NotImplementedError
 
     def write_program_comands(self, robot, parent_program, parent_frame):
-        prefix = parent_program.Name()
+        
+
+        prefix =  "px" if self.__class__.__name__ == "PaintingCluster" else "dx"
+
+
         parent_program.setSpeed(self.linear_speed, self.angular_speed)
         parent_program.setRounding(self.rounding)
 
         for i, stroke in enumerate(self.strokes):
-            parent_program.RunInstruction(
-                stroke.identifier(), INSTRUCTION_COMMENT)
+
+            stroke_id = stroke.identifier()
+            parent_program.RunInstruction(stroke_id, INSTRUCTION_COMMENT)
             num_targets = len(stroke.targets)
             for i, t in enumerate(stroke.targets):
 
-                tname = "%s_s_%s_t_%s" % (prefix, i, t.id)
+                tname = "%s_%s_t_%s" % (prefix, stroke_id, t.id)
                 target = RL.AddTarget(tname, parent_frame, robot)
                 target.setPose(t.tool_pose)
                 target.setJoints(t.joint_pose)
@@ -149,6 +154,11 @@ class PaintingCluster(Cluster):
         if self.reason is "tool":
             tool = RL.Item(self.brush.name)
             parent_program.addMoveJ(tool_change_target)
+
+            # parent_program.RunInstruction(
+            #     "show_brush(%s)"% self.brush.name, 
+            #     INSTRUCTION_CALL_PROGRAM)
+
             parent_program.RunInstruction(
                 "Change Tool: %s ID:(%d) - paint ID:(%d)" %
                 (self.brush.name,
@@ -161,9 +171,6 @@ class PaintingCluster(Cluster):
             if cluster_approach_target.Valid():
                 parent_program.addMoveJ(cluster_approach_target)
 
-            # parent_program.RunInstruction(
-            #                 "show_brush(%s)"% self.brush.name, 
-            #                 INSTRUCTION_CALL_PROGRAM)
 
 
         dip_program_name = DipCluster.generate_name(

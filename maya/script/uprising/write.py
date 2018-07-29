@@ -40,18 +40,27 @@ def write_program():
     RL.Save(station)
 
     # RL.Save(station)
-    print "WRITE PROGRAM"
     RL.setRunMode(RUNMODE_MAKE_ROBOTPROG)
-    print "setRunMode"
     RL.ProgramStart(prog_filename, ts_dir, "KUKA_KRC4_RN", robot)
-    print "ProgramStart %s" % ts_dir
     RL.Render(False)
-    print "Render False - now run"
     program = RL.Item("px")
     RL.RunProgram("px", False)
-    print "Render True"
     RL.Render(True)
-    print "DONE"
     RL.Finish()
+
+
+    # save maya scene
+    new_name = os.path.join(ts_dir, "%s.ma" % timestamp)
+    orig_sn = pm.sceneName()
+    pm.saveAs(new_name)
+    pm.renameFile(orig_sn)
+
+
+    info_file = os.path.join(ts_dir, "description.txt")
+    with open(info_file, 'w') as the_file:
+        the_file.write('Description\n')
+
+
+
 
     

@@ -55,9 +55,9 @@ def update_curve_connections(curve, node):
             print "%s not connected - "
 
 
-def _assign_random_resource(node, resource_attr, id_attr):
+def _assign_random_resource(node, resource_attr, id_attr, set_key):
     r_indices = node.attr(resource_attr).getArrayIndices()
-    last = len(r_indices) -1
+    last = len(r_indices) - 1
     c_indices = node.attr("curves").getArrayIndices()
     for c in c_indices:
         rand_int = random.randint(0, last)
@@ -67,12 +67,13 @@ def _assign_random_resource(node, resource_attr, id_attr):
         if src_conn:
             attribute = src_conn
         attribute.set(index)
+        if set_key:
+            attribute.setKey(value=index)
 
 
+def assign_random_paints(node, set_key=False):
+    _assign_random_resource(node, "paints", "paintId", set_key)
 
-def assign_random_paints(node):
-    _assign_random_resource(node, "paints", "paintId")
 
-
-def assign_random_brushes(node):
-    _assign_random_resource(node, "brushes", "brushId")
+def assign_random_brushes(node, set_key=False):
+    _assign_random_resource(node, "brushes", "brushId", set_key)

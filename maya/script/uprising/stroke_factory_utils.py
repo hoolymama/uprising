@@ -3,6 +3,10 @@ import pymel.core as pm
 from paint import Paint
 from brush import Brush
 
+import sheets
+
+import uprising.uprising_util as uput
+
  
 def input_connection(attribute):
     conns = attribute.connections(source=True, destination=False, plugs=True)
@@ -70,5 +74,48 @@ def delete_curve_instances(node):
     for i in indices:
         pm.removeMultiInstance(node.attr("curves[%d]" % i), b=True)
 
+
+def set_board_from_sheet(node):
+    #   get top node, then find corner locators
+    p = node.getParent()
+    while p:
+      node = p
+      p =  node.getParent()
+    
+    top_name =  node.name()
+    corners = {
+        "BL": {
+            "node": pm.PyNode("%s|BL" % top_name)
+        },
+        "TL": {
+            "node": pm.PyNode("%s|TL" % top_name)
+        },
+        "TR": {
+            "node": pm.PyNode("%s|TR" % top_name)
+        }
+    }
+
+    data = sheets.get_raw_board_data()
+    validate_board_data(data)
+
+
+    for row in data:
+        row = [uput.numeric(s) for s in row]
+        key = row[0]
+        if key in corners:
+            print "%s is in corners" % key
+            pos = [v*0.1 for v in row[1:4]]
+            corners[key]["pos"] = tuple(pos)
+
+    for k in corners:
+        corners[k]["node"].attr("translate").set(*corners[k]["pos"])
+
+
+def validate_board_data(data):
+    if not len(data):
+        raise ValueError("No board data from Google sheets")
+    for row in data:
+        if len(row) < 4:
+            raise ValueError("Invalid board data from Google sheets")
 
 

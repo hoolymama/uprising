@@ -1,0 +1,61 @@
+Stroke-2
+
+
+
+swathe is a collection of strokes of the same color and brush
+INPUTS
+- curve
+- pointDensity 
+- strokeLength 
+- overlap 
+- randomLengthFactor 
+- randomOverlapFactor 
+- forceDip 
+
+- repeats 
+- repeatOffset 
+- repeatMirror 
+- repeatOscillate 
+- repeatAdvance 
+
+- strokeRotationTexture  
+- strokeTranslationTexture 
+
+- pivotFraction 
+
+- brushRotateTilt (ramp)
+- brushRotateBank (ramp)
+- brushRotateTwist (ramp)
+- followStroke 
+
+- active 
+
+- subcurveMin 
+- subcurveMax 
+
+- approachDistanceStart 
+- approachDistanceMid 
+- approachDistanceEnd 
+- reverseDirection
+- brush 
+- paint
+
+OUTPUTS
+- outCounts;
+- outBrushIds;
+- outPaintIds;
+- outCurveIds;
+- outTargets; 
+- outTangents;
+
+
+
+
+Painting takes as input a multi of swathes
+
+
+
+
+
+
+

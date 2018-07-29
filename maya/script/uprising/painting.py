@@ -18,7 +18,7 @@ from brush import Brush
 from stroke import Stroke
 from cluster import Cluster
 
-from uprising_util import StrokeError
+from uprising_util import StrokeError 
 
 import uprising_util as uutl
 import const as k
@@ -224,10 +224,23 @@ class Painting(object):
 
         for approach_object in self.approach_objects:
             mat = self.approach_objects[approach_object]
+            configs = uutl.config_map(mat, "000")
+            if configs and "000" in configs:
+                joints = configs["000"][0]
+
             target = RL.AddTarget(approach_object, targets_frame, robot)
-            target.setPose(mat)
+                # Set the target as Cartesian (default)
+            target.setAsJointTarget()
+            target.setJoints(joints)
+
+
+
 
     def create_painting_program(self):
+
+        # make sure nothing is selected
+
+
         RL.Render(False)
         num_clusters = len(self.clusters)
         completed_clusters = 0
@@ -251,7 +264,9 @@ class Painting(object):
         if home.Valid():
             main_program.addMoveJ(home)
 
+        # make sure the robot is in a sensible place
 
+        robot.setJoints(k.HOME_JOINTS)
 
         # main_program.ShowInstructions(False)
         progressEnd()
