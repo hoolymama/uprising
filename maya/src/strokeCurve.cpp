@@ -198,6 +198,12 @@ MStatus strokeCurve::initialize()
   tAttr.setStorable(false);
   st = addAttribute(aCurve); er;
 
+  aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData::kDouble);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  nAttr.setStorable(true);
+  nAttr.setDefault( 0.1 );
+  st = addAttribute(aPointDensity); er;
 
   aStrokeLength = nAttr.create( "strokeLength", "stl", MFnNumericData::kDouble);
   nAttr.setStorable(true);
@@ -218,6 +224,13 @@ MStatus strokeCurve::initialize()
   nAttr.setDefault(0.2);
   st = addAttribute(aRandomLengthFactor); er;
 
+
+  aOverlap  = nAttr.create("overlap", "ovlp", MFnNumericData::kDouble);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  nAttr.setDefault( 0.1 );
+  st = addAttribute(aOverlap); er;
+
   aRandomOverlapFactor = nAttr.create( "randomOverlapFactor", "rofc",
                                        MFnNumericData::kDouble);
   nAttr.setStorable(true);
@@ -228,12 +241,6 @@ MStatus strokeCurve::initialize()
   nAttr.setDefault(0.2);
   st = addAttribute(aRandomOverlapFactor); er;
 
-  aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData::kDouble);
-  nAttr.setHidden( false );
-  nAttr.setKeyable( true );
-  nAttr.setStorable(true);
-  nAttr.setDefault( 0.1 );
-  st = addAttribute(aPointDensity); er;
 
 
   aBackstroke = nAttr.create( "reverseDirection", "revd", MFnNumericData::kBoolean);
@@ -322,11 +329,6 @@ MStatus strokeCurve::initialize()
   nAttr.setDefault(true);
   st = addAttribute(aActive); er;
 
-  aOverlap  = nAttr.create("overlap", "ovlp", MFnNumericData::kDouble);
-  nAttr.setHidden( false );
-  nAttr.setKeyable( true );
-  nAttr.setDefault( 0.1 );
-  st = addAttribute(aOverlap); er;
 
   aBrushFollowStroke = nAttr.create( "followStroke", "fst", MFnNumericData::kBoolean);
   nAttr.setHidden(false);
@@ -372,10 +374,10 @@ MStatus strokeCurve::initialize()
   nAttr.setReadable(true);
   st = addAttribute(aApproachDistance); er;
 
-  aLiftLength = nAttr.create( "LiftLength", "llg", MFnNumericData::kDouble );
-  aLiftHeight = nAttr.create( "LiftHeight", "lht", MFnNumericData::kDouble );
-  aLiftBias = nAttr.create( "LiftBias", "lbi", MFnNumericData::kDouble);
-  aLift = nAttr.create( "Lift", "lft", aLiftLength, aLiftHeight,
+  aLiftLength = nAttr.create( "liftLength", "llg", MFnNumericData::kDouble );
+  aLiftHeight = nAttr.create( "liftHeight", "lht", MFnNumericData::kDouble );
+  aLiftBias = nAttr.create( "liftBias", "lbi", MFnNumericData::kDouble);
+  aLift = nAttr.create( "lift", "lft", aLiftLength, aLiftHeight,
                         aLiftBias );
   nAttr.setStorable(true);
   nAttr.setReadable(true);

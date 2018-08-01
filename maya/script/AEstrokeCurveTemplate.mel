@@ -3,22 +3,68 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
 
 	editorTemplate -beginScrollLayout;
 	
+	editorTemplate -cl 0  -beginLayout "Stroke generation";		
+ 	editorTemplate -addControl "active" ;
+ 	editorTemplate -addControl "pointDensity" ;
+	editorTemplate -addControl "strokeLength" ;
+ 	editorTemplate -addControl "randomLengthFactor" ;
+ 	editorTemplate -addControl "overlap" ;
+ 	editorTemplate -addControl "randomOverlapFactor" ;
+ 	editorTemplate -addControl "subcurve" ;
+ 	editorTemplate -addControl "reverseDirection" ;
+ 	editorTemplate -addControl "strokeCountFactor" ;
+ 	editorTemplate -addControl "seed" ;
+	editorTemplate -endLayout;
+
+
 	
-	editorTemplate -cl 0  -beginLayout "Stroke profile";		
+	editorTemplate -cl 0  -beginLayout "Stroke repeats";		
+ 	editorTemplate -addControl "repeats" ;
+	editorTemplate -addControl "repeatOffset" ;
+ 	editorTemplate -addControl "repeatMirror" ;
+ 	editorTemplate -addControl "repeatOscillate" ;
+	editorTemplate -endLayout;
+
+
+	
+	editorTemplate -cl 0  -beginLayout "Paint and brush";		
+ 	editorTemplate -addControl "forceDip" ;
+ 	editorTemplate -addControl "brushId" ;
+	editorTemplate -addControl "paintId" ;
+	editorTemplate -endLayout;
+
+
+
+
+	
+	editorTemplate -cl 0  -beginLayout "Height profile";		
+	editorTemplate -addControl "approachDistance" ;
+ 	editorTemplate -addControl "lift" ;
 	editorTemplate -addControl "strokeProfileScale" ;
 	AEaddRampControl ("strokeProfileRamp");	
 	editorTemplate -endLayout;
 
 
-	editorTemplate -cl 0  -beginLayout "Stroke target rotation";		
+
+	editorTemplate -cl 0  -beginLayout "Target rotation";		
 	editorTemplate -addControl "followStroke" ;
  	editorTemplate -addControl "brushRampScope" ;
- 
 	AEaddRampControl("brushTiltRamp");
 	AEaddRampControl("brushBankRamp");
 	AEaddRampControl("brushTwistRamp");
-
 	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Stroke transformation";		
+	// editorTemplate -addControl "planeMatrix" ;
+	editorTemplate -addControl "pivotFraction" ;
+ 	editorTemplate -addControl "strokeRotationTexture" ;
+ 	editorTemplate -addControl "strokeTranslationTexture" ;
+ 	editorTemplate -addControl "strokeTranslationSampleDistance" ;
+	editorTemplate -endLayout;
+
+
+
 
 
 	editorTemplate -addExtraControls;
