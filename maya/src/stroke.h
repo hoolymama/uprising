@@ -10,103 +10,163 @@
 #include <maya/MObject.h>
 
 #include <mayaMath.h>
+#include <attrUtils.h>
 
-#include "brush.h"
-#include "paint.h"
+
+// #include "brush.h"
+#include "target.h"
 
 
 class Stroke {
 public:
 
-	Stroke(
-	  unsigned curveId,
-	  double startDist,
-	  double endDist,
-	  double density,
-	  const MVector &planeNormal,
-	  double rotation,
-	  double translation,
-	  double pivotFraction,
-	  const MVector &brushRotate,
-	  bool follow,
-	  bool forceDip,
-	  const Brush &brush,
-	  const Paint &paint,
-	  const MObject &curveObject,
-	  bool backstroke = false
-	);
+	enum Scope { kStroke, kTravelStroke, kCurve };
 
-	Stroke(
-	  const Stroke &mother,
-	  double offset,
-	  double advance,
-	  bool reverse,
-	  const MVector &planeNormal
-	);
+	Stroke();
 
 	~Stroke();
 
-	const MMatrixArray &targets() const;
 
-	// flat normalized tangents.
-	// flat means, projected onto the construction plane.
-	const MVectorArray &tangents() const;
+	void initializeTargets(
+	  const MObject &curveObject ,
+	  double curveLength,
+	  double startDist,
+	  double endDist,
+	  double density,
+	  double liftLength,
+	  double liftBias);
 
-	const Brush &brush() const;
-	const Paint &paint() const;
+	void setHeights( const MObject &thisObj,
+	                 const MObject &profileRampAttribute,
+	                 double  strokeProfileScaleMin,
+	                 double strokeProfileScaleMax,
+	                 double liftHeight);
+
+	void setRotations(
+	  const MObject &thisObj,
+	  const MObject &tiltRamp,
+	  const MObject &bankRamp,
+	  const MObject &twistRamp,
+	  Stroke::Scope rampScope,
+	  bool follow
+	);
+
+	unsigned length() const;
 
 	double arcLength() const;
 
-	bool  follow() const;
-	bool  forceDip() const;
+	virtual void appendTargets(const MVector &planeNormal, MMatrixArray &result) const;
 
-	unsigned curveId() const;
+	virtual void  appendTangents(MVectorArray &result) const;
 
-	double rotation() const;
-	double translation() const;
+	virtual void  appendPoints(MVectorArray &result) const;
 
-	const MPoint &pivot() const;
-	const MVector &brushRotate() const;
-	bool overlapsPlane(const MMatrix &inversePlaneMatrix) const;
+	virtual void travelStrokeFractions(MDoubleArray &result) const;
+
+	void strokeFractions(MDoubleArray &result) const ;
+
+	void curveFractions(MDoubleArray &result) const ;
+	// virtual void initializeTargets(
+	//   const MObject &curveObject ,
+	//   double curveLength,
+	//   double startDist,
+	//   double endDist,
+	//   double density,
+	//   double liftLength,
+	//   double liftBias) = 0;
 
 
-	void getPivotUVs(const MMatrix &inversePlaneMatrix, float &u, float &v) const ;
 
-	void rotate(float rotation, const MVector &axis);
 
-	void translate(const MFloatVector &translation, const MVector &planeNormal);
 
-	void setApproach(double start, double end)  ;
 
-	double approachStart() const;
 
-	double approachEnd() const ;
+protected:
 
-	bool isBackstroke() const ;
 
-private:
-	unsigned m_curveId;
-	MMatrixArray m_targets;
-	MVectorArray m_tangents;
-	// MVectorArray m_normals;
-	Brush m_brush;
-	Paint m_paint;
+	std::vector<Target> m_targets;
 	MPoint m_pivot;
-	MVector m_brushRotate;
-	double m_bank;
-	double m_twist;
-	double m_rotation;
-	double m_translation;
 	double m_arcLength;
-	bool m_isBackstroke;
-	bool m_follow;
-	bool m_forceDip;
 	double m_approachDistStart;
 	double m_approachDistEnd;
-
+	bool m_follow;
 };
 
-// typedef std::vector<stroke> STROKE_VECTOR;
 
 #endif
+
+
+
+
+
+// const MObject &curveObject,
+// const MObject &node,
+// const MVector &startEndDist,
+// const MVector &planeNormal,
+// const MVector &lift,
+// const MObject &tiltRampAttr,
+// const MObject &bankRampAttr,
+// const MObject &twistRampAttr,
+// Stroke::Scope brushRampScope,
+// const MObject &profileRampAttr,
+// const double &curveLength,
+// double density,
+// double pivotFraction,
+// bool follow
+
+
+// void setHeights();
+
+
+
+// double m_startDist;
+// double m_endDist;
+// double m_liftLength;
+// double m_liftHeight;
+// double m_liftBias;
+// bool m_isBackstroke;
+// bool m_follow;
+
+
+// const MMatrixArray &targets() const;
+
+// const MVectorArray &tangents() const;
+
+// const Brush &brush() const;
+
+// const Paint &paint() const;
+
+// double arcLength() const;
+
+// bool follow() const;
+
+// bool forceDip() const;
+
+// unsigned curveId() const;
+
+// double rotation() const;
+
+// double translation() const;
+
+// const MPoint &pivot() const;
+
+// const MVector &brushRotate() const;
+
+// bool overlapsPlane(const MMatrix &inversePlaneMatrix) const;
+
+// void getPivotUVs(const MMatrix &inversePlaneMatrix, float &u, float &v) const ;
+
+// void rotate(float rotation, const MVector &axis);
+
+// void translate(const MFloatVector &translation, const MVector &planeNormal);
+
+// void setApproach(double start, double end)  ;
+
+// double approachStart() const;
+
+// double approachEnd() const ;
+
+// bool isBackstroke() const ;
+
+
 

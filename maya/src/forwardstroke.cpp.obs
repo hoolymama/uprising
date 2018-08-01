@@ -3,143 +3,45 @@
 #include <maya/MTransformationMatrix.h>
 #include <maya/MQuaternion.h>
 #include <stroke.h>
+#include <forwardstroke.h>
+#include <backstroke.h>
 
+#include <attrUtils.h>
 #include "errorMacros.h"
 
 #include "mayaMath.h"
 
 const double epsilon = 0.0001;
-const double rad_to_deg = (180 / 3.1415926535);
 
-const double pi = 3.1415926535;
-const double tau = 2.0 * pi;
-const double half_pi = 0.5 * pi;
+ForwardStroke::ForwardStroke()	{ }
 
-
-Stroke::Stroke()	:
-	m_targets(),
-	m_pivot(),
-	m_arcLength(),
-	m_approachDistStart(1),
-	m_approachDistEnd(1),
-	m_follow(true)
-{}
-
-Stroke::~Stroke() {}
+ForwardStroke::~ForwardStroke() {}
 
 
-void Stroke::initializeTargets(
-  const MObject &curveObject ,
-  double curveLength,
-  double startDist,
-  double endDist,
-  double density,
-  double liftLength,
-  double liftBias
-) {
-	// JPMDBG;
-	double liftOffset  = liftLength - liftBias;
-	double startLiftDist = startDist - liftOffset;
-	double startBiasDist = startDist + liftBias;
+// void ForwardStroke::getTravelStrokeFractions(MDoubleArray &result) const {
+// 	std::vector<Target>::const_iterator citer = m_targets.begin();
+// 	citer++;
+// 	for (; std::next(citer) != m_targets.end(); citer++) {
+// 		result.append(citer->strokeFraction());
+// 	}
+// }
 
-	double endLiftDist = endDist + liftOffset;
-	double endBiasDist = endDist - liftBias;
-
-	if (endBiasDist < startBiasDist) {
-		double centerDist = (endDist + startDist) * 0.5;
-		endBiasDist = centerDist + 0.1;
-		startBiasDist = centerDist - 0.1;
-	}
-
-	// JPMDBG;
-
-	Target startLiftTarget = Target(curveObject, curveLength, startDist, endDist,
-	                                startLiftDist );
-	m_targets.push_back(startLiftTarget);
-
-	double contactDist = endBiasDist - startBiasDist;
-
-	unsigned numPoints = unsigned(density * contactDist);
-	if (numPoints < 2) { numPoints = 2; }
-	double recip = 1.0 / (numPoints - 1);
-
-	for (unsigned i = 0; i < numPoints; i++) {
-		double fraction =  (double(i) * recip);
-		double dist = startBiasDist + (fraction * contactDist);
-		Target target = Target(curveObject, curveLength, startDist, endDist, dist );
-		m_targets.push_back(target);
-	}
-
-	Target endLiftTarget = Target(curveObject, curveLength, startDist, endDist,
-	                              endLiftDist );
-	m_targets.push_back(endLiftTarget);
-
-}
-
-
-void Stroke::setHeights( const MObject &thisObj,
-                         const MObject &profileRampAttribute,
-                         double  strokeProfileScaleMin,
-                         double strokeProfileScaleMax,
-                         double liftHeight) {
-
-	// heights are backwards in a backstroke
-	MDoubleArray vals;
-	travelStrokeFractions(vals);
-
-	unsigned nVals = vals.length();
-	MDoubleArray out(nVals);
-
-	doRampLookup(thisObj, profileRampAttribute, vals, out, 0.0, 1.0, strokeProfileScaleMin,
-	             strokeProfileScaleMax );
-
-	std::vector<Target>::iterator iter = m_targets.begin();
-	unsigned i = 0;
-	for (; iter  != m_targets.end(); iter++, i++) {
-		iter->setHeight(out[i]);
-	}
-	m_targets.front().setHeight(liftHeight);
-	m_targets.back().setHeight(liftHeight);
-
-}
-
-void Stroke::travelStrokeFractions(MDoubleArray &result) const {
-	std::vector<Target>::const_iterator citer = m_targets.begin();
-	for (; citer != m_targets.end(); citer++) {
-		result.append(citer->strokeFraction());
-	}
-}
-
-void Stroke::strokeFractions(MDoubleArray &result) const {
-	std::vector<Target>::const_iterator citer = m_targets.begin();
-	for (; citer != m_targets.end(); citer++) {
-		result.append(citer->strokeFraction());
-	}
-}
-
-void Stroke::curveFractions(MDoubleArray &result) const {
-	std::vector<Target>::const_iterator citer = m_targets.begin();
-	for (; citer != m_targets.end(); citer++) {
-		result.append(citer->curveFraction());
-	}
-}
-
-void Stroke::appendTargets(const MVector &planeNormal,
-                           MMatrixArray &result) const {
+void ForwardStroke::appendTargets(const MVector &planeNormal,
+                                  MMatrixArray &result) const {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
-		result.append(citer->matrix(planeNormal, false, m_follow));
+		result.append(citer->matrix(planeNormal));
 	}
 }
 
-void Stroke::appendTangents(MVectorArray &result) const {
+void ForwardStroke::appendTangents(MVectorArray &result) const {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
 		result.append(citer->tangent());
 	}
 }
 
-void Stroke::appendPoints(MVectorArray &result) const {
+void ForwardStroke::appendPoints(MVectorArray &result) const {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
 		result.append(MVector(citer->curvePoint()));
@@ -149,57 +51,54 @@ void Stroke::appendPoints(MVectorArray &result) const {
 
 
 
-void Stroke::setRotations(
-  const MObject &thisObj,
-  const MObject &tiltRamp,
-  const MObject &bankRamp,
-  const MObject &twistRamp,
-  Stroke::Scope rampScope,
-  bool follow
-) {
-	m_follow = follow;
+// void Stroke::setHeights(const MObject &profileRampAttr) {
 
-	MDoubleArray sampleVals;
-	if (rampScope ==  Stroke::kStroke) {
-		strokeFractions(sampleVals);
-	}
-	else if (rampScope ==  Stroke::kTravelStroke) {
-		travelStrokeFractions(sampleVals);
-	}
-	else {   // curve
-		curveFractions(sampleVals);
-	}
-	unsigned nVals = sampleVals.length();
-	MDoubleArray outTilt(nVals);
-	MDoubleArray outBank(nVals);
-	MDoubleArray outTwist(nVals);
+// }
+
+// unsigned Stroke::length() const {
+// 	return m_targets.size();
+// }
+
+// double Stroke::arcLength() const {
+// 	return m_arcLength;
+// }
 
 
+// void Stroke::appendTargets(MMatrixArray &result) const {
+// 	std::vector<Target>::const_iterator citer;
+// 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
+// 		result.append(citer->matrix());
+// 	}
+// }
 
-	doRampLookup(thisObj, tiltRamp, sampleVals, outTilt, 0.0, 1.0, -half_pi, half_pi );
-	doRampLookup(thisObj, bankRamp, sampleVals, outBank, 0.0, 1.0, -half_pi, half_pi );
-	doRampLookup(thisObj, twistRamp, sampleVals, outTwist, 0.0, 1.0, -pi, pi );
-
-	std::vector<Target>::iterator iter = m_targets.begin();
-	unsigned i = 0;
-	for (; iter  != m_targets.end(); iter++, i++) {
-		iter->setRotation(outTilt[i], outBank[i], outTwist[i]);
-	}
-}
+// void Stroke::appendTangents(MVectorArray &result) const {
+// 	std::vector<Target>::const_iterator citer;
+// 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
+// 		result.append(citer->tangent());
+// 	}
+// }
+// void Stroke::appendPoints(MVectorArray &result) const {
+// 	std::vector<Target>::const_iterator citer;
+// 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
+// 		result.append(MVector(citer->curvePoint()));
+// 	}
+// }
 
 
 
+/*
+The two points that describe entry and exit at the boundaries of the stroke
+*/
 
-
-
-unsigned Stroke::length() const {
-	return m_targets.size();
-}
-
-double Stroke::arcLength() const {
-	return m_arcLength;
-}
-
+// MStatus calcBoundaryPositions(const MPoint &curvePoint, const MVector &tangent,
+//                               const MVector &planeNormal,
+//                               const Brush &brush, MVectorArray &result) {
+// 	result = MVectorArray(2, MVector::zero);
+// 	result[0] = curvePoint + ((tangent * brush.liftLength) + (planeNormal *
+// 	                          brush.liftHeight));
+// 	result[1] = curvePoint - (tangent * brush.liftBias);
+// 	return MS::kSuccess;
+// }
 
 // MStatus calcBrushMatrixStroke(const MVector &position, const MVector &tangent,
 //                               const MVector &planeNormal,
@@ -227,6 +126,10 @@ double Stroke::arcLength() const {
 //                              MMatrix &result,
 //                              bool isBackstroke) {
 
+
+
+
+
 // 	MMatrix mat =  mayaMath::matFromAim(MVector::zero, MVector::xNegAxis, MVector::zAxis,
 // 	                                    mayaMath::yAxis ,
 // 	                                    mayaMath::zAxisNeg);
@@ -249,45 +152,6 @@ double Stroke::arcLength() const {
 // 	result[3][2] = position.z;
 
 
-// 	return MS::kSuccess;
-// }
-
-
-
-// void Stroke::appendTargets(MMatrixArray &result) const {
-// 	std::vector<Target>::const_iterator citer;
-// 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
-// 		result.append(citer->matrix());
-// 	}
-// }
-
-// void Stroke::appendTangents(MVectorArray &result) const {
-// 	std::vector<Target>::const_iterator citer;
-// 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
-// 		result.append(citer->tangent());
-// 	}
-// }
-
-// void Stroke::appendPoints(MVectorArray &result) const {
-// 	std::vector<Target>::const_iterator citer;
-// 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
-// 		result.append(MVector(citer->curvePoint()));
-// 	}
-// }
-
-
-
-/*
-The two points that describe entry and exit at the boundaries of the stroke
-*/
-
-// MStatus calcBoundaryPositions(const MPoint &curvePoint, const MVector &tangent,
-//                               const MVector &planeNormal,
-//                               const Brush &brush, MVectorArray &result) {
-// 	result = MVectorArray(2, MVector::zero);
-// 	result[0] = curvePoint + ((tangent * brush.liftLength) + (planeNormal *
-// 	                          brush.liftHeight));
-// 	result[1] = curvePoint - (tangent * brush.liftBias);
 // 	return MS::kSuccess;
 // }
 

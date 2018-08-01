@@ -2,8 +2,9 @@
 #include <maya/MFnPlugin.h>
 #include <maya/MGlobal.h>
 #include <errorMacros.h>
-#include "strokeFactory.h"
+// #include "strokeFactory.h"
 
+#include "strokeCurve.h"
 
 MStatus initializePlugin( MObject obj)
 {
@@ -14,10 +15,16 @@ MStatus initializePlugin( MObject obj)
 
 	MFnPlugin plugin( obj, PLUGIN_VENDOR, PLUGIN_VERSION , MAYA_VERSION);
 
-	st = plugin.registerNode( "strokeFactory", strokeFactory::id, strokeFactory::creator,
-	                          strokeFactory::initialize, MPxNode::kLocatorNode ); ert;
-	strokeFactoryCallback::id = MDGMessage::addNodeAddedCallback (
-	                              strokeFactoryCallback::makeDefaultConnections, "strokeFactory", NULL,  &st ); er;
+	// st = plugin.registerNode( "strokeFactory", strokeFactory::id, strokeFactory::creator,
+	//                           strokeFactory::initialize, MPxNode::kLocatorNode ); ert;
+
+
+	st = plugin.registerNode( "strokeCurve", strokeCurve::id, strokeCurve::creator,
+	                          strokeCurve::initialize); ert;
+
+
+	// strokeFactoryCallback::id = MDGMessage::addNodeAddedCallback (
+	//                               strokeFactoryCallback::makeDefaultConnections, "strokeFactory", NULL,  &st ); er;
 
 
 
@@ -36,8 +43,9 @@ MStatus uninitializePlugin( MObject obj)
 
 	MFnPlugin plugin( obj );
 
-	st = plugin.deregisterNode( strokeFactory::id ); er;
+	// st = plugin.deregisterNode( strokeFactory::id ); er;
 
+	st = plugin.deregisterNode( strokeCurve::id ); er;
 
 
 	return st;
