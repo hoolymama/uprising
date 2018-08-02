@@ -952,7 +952,7 @@ MStatus strokeCurve::generateStrokes(MDataBlock &data,
     else {
       strokes.push_back( std::make_unique<BackStroke>() );
     }
-
+    std::vector<std::unique_ptr<Stroke> > &stk =  strokes.back();
     strokes.back()->initializeTargets(
       dCurve,
       curveLength,
