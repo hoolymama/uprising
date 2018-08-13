@@ -27,22 +27,25 @@ public:
 
 
 
+	void followMatrix(const MVector &planeNormal, double height, bool backstroke ,
+	                  MMatrix &mat) const;
 
+	void flatMatrix(const MVector &planeNormal, double height, bool backstroke,
+	                MMatrix &mat) const  ;
 
-	void followMatrix(const MVector &planeNormal, bool backstroke , MMatrix &mat) const;
-
-	void flatMatrix(const MVector &planeNormal, bool backstroke, MMatrix &mat) const  ;
-
-	MMatrix matrix(const MVector &planeNormal, bool backstroke, bool follow) const ;
-
-
+	MMatrix matrix(const MVector &planeNormal, double height, bool backstroke,
+	               bool follow) const ;
 
 	MVector tangent() const ;
 	MPoint  curvePoint() const ;
+	void setCurvePoint(const MPoint &point);
+	void offsetBy(const MVector &offset);
+
+
 	double strokeFraction() const ;
 	double curveFraction() const;
 	double reverseStrokeFraction() const;
-	void setHeight(double height);
+	// void setHeight(double height);
 	void setRotation(double tilt, double bank, double twist);
 
 private:
@@ -52,7 +55,7 @@ private:
 	double m_strokeFraction; // 0-1
 	double m_dist;
 	MVector m_brushRotate;	// set from ramps
-	double m_height; // set from ramp
+	// double m_height; // set from ramp
 };
 
 #endif

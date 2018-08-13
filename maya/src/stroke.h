@@ -24,7 +24,56 @@ public:
 
 	Stroke();
 
+	Stroke(	const Stroke 	&other	)	;
+
 	~Stroke();
+
+
+
+	static unsigned factory(
+	  const MObject &thisObj,
+	  const MObject &dCurve,
+	  const MMatrix &inversePlaneMatrix,
+	  const MVector &planeNormal,
+	  double curveLength,
+	  double startDist,
+	  double endDist,
+	  double pointDensity,
+	  double liftLength,
+	  double liftHeight,
+	  double liftBias,
+	  const MObject &profileRampAttribute,
+	  double strokeProfileScaleMin,
+	  double strokeProfileScaleMax,
+	  const MObject &tiltRamp,
+	  const MObject &bankRamp,
+	  const MObject &twistRamp,
+	  Stroke::Scope brushRampScope,
+	  bool follow,
+	  bool backstroke,
+	  int repeats,
+	  double repeatOffset,
+	  bool repeatMirror,
+	  bool repeatOscillate,
+	  double pivotFraction,
+	  std::vector<std::unique_ptr<Stroke> > &strokes
+
+	) ;
+
+	unsigned  generateRepeats(
+	  unsigned repeats,
+	  double repeatOffset,
+	  bool repeatMirror,
+	  bool repeatOscillate,
+	  const MVector &planeNormal,
+	  const MMatrix &inversePlaneMatrix,
+	  std::vector<std::unique_ptr<Stroke> > &strokes) const ;
+
+
+	void offsetFrom(
+	  const Stroke &other,
+	  const MVector &planeNormal,
+	  double offset);
 
 
 	void initializeTargets(
@@ -53,7 +102,8 @@ public:
 
 	unsigned length() const;
 
-	double arcLength() const;
+
+	// virtual bool  shouldMakeBackstroke( bool oscillate,  int index ) const  ;
 
 	virtual void appendTargets(const MVector &planeNormal, MMatrixArray &result) const;
 
@@ -61,35 +111,54 @@ public:
 
 	virtual void  appendPoints(MVectorArray &result) const;
 
-	virtual void travelStrokeFractions(MDoubleArray &result) const;
+	virtual void getTravelStrokeFractions(MDoubleArray &result) const;
 
-	void strokeFractions(MDoubleArray &result) const ;
+	void getStrokeFractions(MDoubleArray &result) const ;
 
-	void curveFractions(MDoubleArray &result) const ;
-	// virtual void initializeTargets(
-	//   const MObject &curveObject ,
-	//   double curveLength,
-	//   double startDist,
-	//   double endDist,
-	//   double density,
-	//   double liftLength,
-	//   double liftBias) = 0;
+	void getCurveFractions(MDoubleArray &result) const ;
 
 
+	bool overlapsPlane(const MMatrix &inversePlaneMatrix) const;
 
 
+	const std::vector<Target> &targets() const {
+		return m_targets;
+	}
 
+	const MDoubleArray &profile() const {
+		return m_profile;
+	}
+
+	double arcLength() const;
+
+	const MPoint &pivot() const ;
+
+	void setApproach(double start, double end) ;
+
+	// double approachDistStart() const;
+
+	// double approachDistEnd() const ;
+
+	bool follow() const;
+
+	virtual short direction() const ;
+
+	virtual	void  getApproachTargets( const MVector &planeNormal, MMatrix &startApproach,
+	                                  MMatrix &endApproach) const;
 
 
 protected:
-
+	void setArcLength();
 
 	std::vector<Target> m_targets;
+	MDoubleArray m_profile;
 	MPoint m_pivot;
+	bool m_follow;
+
 	double m_arcLength;
+
 	double m_approachDistStart;
 	double m_approachDistEnd;
-	bool m_follow;
 };
 
 

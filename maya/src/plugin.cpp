@@ -2,9 +2,10 @@
 #include <maya/MFnPlugin.h>
 #include <maya/MGlobal.h>
 #include <errorMacros.h>
-// #include "strokeFactory.h"
-
-#include "strokeCurve.h"
+#include "strokeCurveData.h"
+#include "paintingData.h"
+#include "strokeCurveNode.h"
+#include "paintingNode.h"
 
 MStatus initializePlugin( MObject obj)
 {
@@ -15,13 +16,20 @@ MStatus initializePlugin( MObject obj)
 
 	MFnPlugin plugin( obj, PLUGIN_VENDOR, PLUGIN_VERSION , MAYA_VERSION);
 
-	// st = plugin.registerNode( "strokeFactory", strokeFactory::id, strokeFactory::creator,
-	//                           strokeFactory::initialize, MPxNode::kLocatorNode ); ert;
+
+	st = plugin.registerData( "strokeCurveData", strokeCurveData::id,
+	                          strokeCurveData::creator ); er;
+
+
+	st = plugin.registerData( "paintingData", paintingData::id,
+	                          paintingData::creator ); er;
 
 
 	st = plugin.registerNode( "strokeCurve", strokeCurve::id, strokeCurve::creator,
 	                          strokeCurve::initialize); ert;
 
+	st = plugin.registerNode( "painting", painting::id, painting::creator,
+	                          painting::initialize, MPxNode::kLocatorNode ); ert;
 
 	// strokeFactoryCallback::id = MDGMessage::addNodeAddedCallback (
 	//                               strokeFactoryCallback::makeDefaultConnections, "strokeFactory", NULL,  &st ); er;
@@ -43,9 +51,13 @@ MStatus uninitializePlugin( MObject obj)
 
 	MFnPlugin plugin( obj );
 
-	// st = plugin.deregisterNode( strokeFactory::id ); er;
+	st = plugin.deregisterNode( painting::id ); er;
 
 	st = plugin.deregisterNode( strokeCurve::id ); er;
+
+	st = plugin.deregisterData( strokeCurveData::id ); er;
+
+	st = plugin.deregisterData( paintingData::id ); er;
 
 
 	return st;

@@ -72,20 +72,16 @@ private:
 
 
   unsigned int  getStrokeBoundaries(
-    const MObject &curve,
-    double strokeLength,
-    double randomLengthFactor,
-    double overlap,
-    double randomOverlapFactor,
-    double subcurveMin,
-    double subcurveMax,
-    double countFactor,
+    MDataBlock &data,
     MVectorArray &result
   ) const  ;
 
   // MStatus getBrushes(MDataBlock &data, std::map<short, Brush> &brushes ) const;
 
   // MStatus getPaints(MDataBlock &data, std::map<short, Paint> &paints ) const ;
+
+  void setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
+                   double approachStart, double approachMid, double approachEnd) const;
 
   MStatus generateStrokes(MDataBlock &data,
                           std::vector<std::unique_ptr<Stroke> > &strokes  ) const;
@@ -161,6 +157,9 @@ private:
   // one per stroke
   static MObject  aOutCounts;
   static MObject  aOutArcLengths;
+
+
+  static MObject aOutput;
 };
 
 #endif

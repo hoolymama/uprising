@@ -5,6 +5,9 @@
 #include <map>
 
 
+
+
+#include <maya/MFnPluginData.h>
 #include <maya/MDoubleArray.h>
 #include <maya/MFloatVectorArray.h>
 #include <maya/MFloatArray.h>
@@ -45,9 +48,13 @@
 #include <maya/MFnEnumAttribute.h>
 
 #include <maya/MFnNurbsCurveData.h>
-#include "strokeCurve.h"
+#include "strokeCurveGeom.h"
+
+#include "strokeCurveData.h"
+#include "strokeCurveNode.h"
 #include "stroke.h"
 #include "backstroke.h"
+
 
 #include <jMayaIds.h>
 #include "mayaMath.h"
@@ -120,7 +127,7 @@ MObject strokeCurve::aOutPositions;
 MObject strokeCurve::aOutCounts;
 MObject strokeCurve::aOutArcLengths;
 
-
+MObject strokeCurve::aOutput;
 
 
 MTypeId strokeCurve::id( k_strokeCurve );
@@ -178,7 +185,6 @@ MStatus strokeCurve::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setMin(0.00);
-  nAttr.setSoftMax(20.0);
   nAttr.setDefault(5.0);
   st = addAttribute(aStrokeTranslationSampleDistance); er;
 
@@ -209,8 +215,8 @@ MStatus strokeCurve::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  nAttr.setMin(0.00);
-  nAttr.setSoftMax(20.0);
+  nAttr.setMin(0.01);
+
   nAttr.setDefault(5.0);
   st = addAttribute(aStrokeLength); er;
 
@@ -357,22 +363,39 @@ MStatus strokeCurve::initialize()
   st = addAttribute(aSubcurve); er;
 
 
-
-
-
-
   aApproachDistanceStart = nAttr.create( "approachDistanceStart",
                                          "apds", MFnNumericData::kDouble);
+
   aApproachDistanceMid = nAttr.create( "approachDistanceMid",
                                        "apdm", MFnNumericData::kDouble);
+
   aApproachDistanceEnd = nAttr.create( "approachDistanceEnd",
                                        "apde", MFnNumericData::kDouble);
+
   aApproachDistance = nAttr.create( "approachDistance",
                                     "apd", aApproachDistanceStart, aApproachDistanceMid, aApproachDistanceEnd);
+
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  st = addAttribute(aApproachDistance); er;
+  addAttribute(aApproachDistance);
+
+
+
+
+
+  // aApproachDistanceStart = nAttr.create( "approachDistanceStart",
+  //                                        "apds", MFnNumericData::kDouble);
+  // aApproachDistanceMid = nAttr.create( "approachDistanceMid",
+  //                                      "apdm", MFnNumericData::kDouble);
+  // aApproachDistanceEnd = nAttr.create( "approachDistanceEnd",
+  //                                      "apde", MFnNumericData::kDouble);
+  // aApproachDistance = nAttr.create( "approachDistance",
+  //                                   "apd", aApproachDistanceStart, aApproachDistanceMid, aApproachDistanceEnd);
+  // nAttr.setKeyable(true);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // st = addAttribute(aApproachDistance); er;
 
   aLiftLength = nAttr.create( "liftLength", "llg", MFnNumericData::kDouble );
   aLiftHeight = nAttr.create( "liftHeight", "lht", MFnNumericData::kDouble );
@@ -458,6 +481,49 @@ MStatus strokeCurve::initialize()
 
 
 
+  aOutput = tAttr.create("output", "out", strokeCurveData::id);
+  tAttr.setReadable(true);
+  tAttr.setStorable(false);
+  // tAttr.setCached(false);
+  addAttribute(aOutput);
+
+
+
+  st = attributeAffects(aCurve, aOutput);
+  st = attributeAffects(aSubcurve, aOutput);
+  st = attributeAffects(aPointDensity, aOutput);
+  st = attributeAffects(aStrokeLength, aOutput);
+  st = attributeAffects(aRandomLengthFactor, aOutput);
+  st = attributeAffects(aRandomOverlapFactor, aOutput);
+  st = attributeAffects(aBackstroke, aOutput);
+  st = attributeAffects(aRepeats, aOutput);
+  st = attributeAffects(aRepeatOffset, aOutput);
+  st = attributeAffects(aRepeatMirror, aOutput);
+  st = attributeAffects(aRepeatOscillate, aOutput);
+  st = attributeAffects(aSeed, aOutput);
+  st = attributeAffects(aLift, aOutput);
+  st = attributeAffects(aStrokeProfileRamp, aOutput);
+  st = attributeAffects(aStrokeProfileScale, aOutput);
+  st = attributeAffects(aActive, aOutput);
+  st = attributeAffects(aStrokeCountFactor, aOutput);
+  st = attributeAffects(aOverlap, aOutput);
+  st = attributeAffects(aPivotFraction, aOutput);
+  st = attributeAffects(aBrushRampScope, aOutput);
+  st = attributeAffects(aBrushTiltRamp, aOutput);
+  st = attributeAffects(aBrushBankRamp, aOutput);
+  st = attributeAffects(aBrushTwistRamp, aOutput);
+  st = attributeAffects(aBrushFollowStroke, aOutput);
+  st = attributeAffects(aPlaneMatrix, aOutput);
+  st = attributeAffects(aStrokeRotationTexture, aOutput);
+  st = attributeAffects(aStrokeTranslationTexture, aOutput);
+  st = attributeAffects(aStrokeTranslationSampleDistance, aOutput);
+
+  st = attributeAffects(aForceDip, aOutput);
+  st = attributeAffects(aBrushId, aOutput);
+  st = attributeAffects(aPaintId, aOutput);
+
+
+
   st = attributeAffects(aCurve, aOutTargets);
   st = attributeAffects(aSubcurve, aOutTargets);
   st = attributeAffects(aPointDensity, aOutTargets);
@@ -482,7 +548,7 @@ MStatus strokeCurve::initialize()
   st = attributeAffects(aBrushBankRamp, aOutTargets);
   st = attributeAffects(aBrushTwistRamp, aOutTargets);
   st = attributeAffects(aBrushFollowStroke, aOutTargets);
-  st = attributeAffects(aApproachDistance, aOutTargets);
+  // st = attributeAffects(aApproachDistance, aOutTargets);
   st = attributeAffects(aPlaneMatrix, aOutTargets);
   st = attributeAffects(aStrokeRotationTexture, aOutTargets);
   st = attributeAffects(aStrokeTranslationTexture, aOutTargets);
@@ -512,7 +578,7 @@ MStatus strokeCurve::initialize()
   st = attributeAffects(aBrushBankRamp, aOutTangents);
   st = attributeAffects(aBrushTwistRamp, aOutTangents);
   st = attributeAffects(aBrushFollowStroke, aOutTangents);
-  st = attributeAffects(aApproachDistance, aOutTangents);
+  // st = attributeAffects(aApproachDistance, aOutTangents);
   st = attributeAffects(aPlaneMatrix, aOutTangents);
   st = attributeAffects(aStrokeRotationTexture, aOutTangents);
   st = attributeAffects(aStrokeTranslationTexture, aOutTangents);
@@ -543,7 +609,7 @@ MStatus strokeCurve::initialize()
   st = attributeAffects(aBrushBankRamp, aOutPositions);
   st = attributeAffects(aBrushTwistRamp, aOutPositions);
   st = attributeAffects(aBrushFollowStroke, aOutPositions);
-  st = attributeAffects(aApproachDistance, aOutPositions);
+  // st = attributeAffects(aApproachDistance, aOutPositions);
   st = attributeAffects(aPlaneMatrix, aOutPositions);
   st = attributeAffects(aStrokeRotationTexture, aOutPositions);
   st = attributeAffects(aStrokeTranslationTexture, aOutPositions);
@@ -638,6 +704,8 @@ MStatus strokeCurve::setData(MDataBlock &block, MObject &attribute,
   return block.setClean( attribute );
 }
 
+
+
 MStatus strokeCurve::setData(MDataBlock &block, MObject &attribute,
                              const MIntArray &data) {
   MDataHandle h = block.outputValue(attribute);
@@ -646,6 +714,37 @@ MStatus strokeCurve::setData(MDataBlock &block, MObject &attribute,
   h.set(d);
   return block.setClean( attribute );
 }
+
+
+// MStatus strokeCurve::setData(MDataBlock &block, MObject &attribute,
+//                              const std::vector<std::unique_ptr<Stroke> > &strokes) {
+
+//   MDataHandle h = block.outputValue(attribute);
+//   MFnIntArrayData fn;
+//   MObject d = fn.create(data);
+//   h.set(d);
+//   return block.setClean( attribute );
+// }
+
+// MDataHandle hOutput = data.outputValue(aOutput);
+// MFnPluginData fnOut;
+// MTypeId kdid(strokeCurveData::id);
+// MObject dOut = fnOut.create(kdid , &st ); er;
+// strokeCurveData *newData = (strokeCurveData *)fnOut.data(&st); er;
+// strokeCurveGeom *geom = newData->fGeometry;
+
+
+// geom->create(strokes, planeNormal, force, brushId, paintId );
+
+
+// cerr << "data is copied here in preparation for the output " << endl;
+
+// do stuff with geomPtr
+
+
+// hOutput.set( newData );
+// data.setClean( plug );
+
 
 
 
@@ -712,15 +811,11 @@ double calculateStartDist( double startDist, double endDist, double overlap,
   return fmax(result, (startDist + clip));
 }
 
+
+
+
 unsigned int strokeCurve::getStrokeBoundaries(
-  const MObject &curve,
-  double strokeLength,
-  double randomLengthFactor,
-  double overlap,
-  double randomOverlapFactor,
-  double subcurveMin,
-  double subcurveMax,
-  double countFactor,
+  MDataBlock &data,
   MVectorArray &result
 ) const  {
 
@@ -728,16 +823,31 @@ unsigned int strokeCurve::getStrokeBoundaries(
     generate an array of start and end param for strokes
   */
 
+
   MStatus st = MS::kSuccess;
 
-  MFnNurbsCurve curveFn(curve, &st);
+
+
+  MDataHandle hCurve = data.inputValue(aCurve, &st ); ert;
+  MObject  dCurve =  data.inputValue(aCurve).asNurbsCurveTransformed();
+  double countFactor = data.inputValue(aStrokeCountFactor).asDouble();
+  int seed = data.inputValue(aSeed).asInt();
+  srand48(seed);
+
+  double strokeLength = data.inputValue( aStrokeLength).asDouble();
+  double randomLengthFactor = data.inputValue( aRandomLengthFactor).asDouble();
+  double randomOverlapFactor = data.inputValue( aRandomOverlapFactor).asDouble();
+  double overlap  =  data.inputValue( aOverlap).asDouble();
+
+  MDataHandle hSubcurve = data.inputValue(aSubcurve);
+  double subcurveMin = hSubcurve.child( aSubcurveMin).asDouble();
+  double subcurveMax = hSubcurve.child( aSubcurveMax).asDouble();
+
+  MFnNurbsCurve curveFn(dCurve, &st);
   if (st.error()) { return 0; }
   double curveLen = curveFn.length(epsilon);
 
   clampSubCurveValues(curveLen, subcurveMin, subcurveMax);
-
-  cerr << "subcurveMin: " << subcurveMin <<  " -  subcurveMax: " << subcurveMax << endl;
-  cerr << "strokeLength: " << strokeLength << endl;
 
   randomLengthFactor = clamp(randomLengthFactor);
   randomOverlapFactor = clamp(randomOverlapFactor);
@@ -747,7 +857,6 @@ unsigned int strokeCurve::getStrokeBoundaries(
 
   do {
     endDist = calculateEndDist(startDist, strokeLength, randomLengthFactor, subcurveMax);
-    cerr << "START -> END: "  << startDist << ", " << endDist << endl;
     if (drand48() < countFactor) {
       result.append(MVector(startDist, endDist));
     }
@@ -760,64 +869,24 @@ unsigned int strokeCurve::getStrokeBoundaries(
   return result.length();
 }
 
-// MStatus strokeCurve::getBrushes(MDataBlock &data,
-//                                 std::map<short, Brush> &brushes ) const {
+void strokeCurve::setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
+                              double approachStart, double approachMid, double approachEnd) const {
+  for (auto iter = strokes.begin(); iter != strokes.end(); iter++) {
+    if (iter == strokes.begin() && std::next(iter) == strokes.end()) {
+      (*iter)->setApproach(approachStart, approachEnd);
+    }
+    else if (iter == strokes.begin() ) {
+      (*iter)->setApproach(approachStart, approachMid);
+    }
+    else if (std::next(iter) == strokes.end()) {
+      (*iter)->setApproach(approachMid, approachEnd);
+    }
+    else {
+      (*iter)->setApproach(approachMid, approachMid);
+    }
+  }
+}
 
-//   /*
-//   Generate a std::map of Brushes
-//   */
-//   MStatus st;
-//   MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); ert;
-//   unsigned nPlugs = hBrushes.elementCount();
-//   for (unsigned i = 0; i < nPlugs; i++, hBrushes.next()) {
-//     short index = short(hBrushes.elementIndex(&st));
-//     if (st.error()) {
-//       continue;
-//     }
-//     MDataHandle hComp = hBrushes.inputValue(&st );
-
-//     double width =  hComp.child(strokeCurve::aBrushWidth).asDouble() ;
-//     double retention = hComp.child(strokeCurve::aBrushRetention).asDouble() ;
-
-
-//     MDataHandle hLift = hComp.child(aBrushLift);
-//     double liftLength = hLift.child( aBrushLiftLength).asDouble();
-//     double liftHeight = hLift.child( aBrushLiftHeight).asDouble();
-//     double liftBias = hLift.child( aBrushLiftBias).asDouble();
-
-//     mayaMath::axis frontAxis, upAxis;
-
-//     brushes[index] = Brush(index, width, retention, liftLength , liftHeight , liftBias);
-//   }
-//   return MS::kSuccess;
-// }
-
-// MStatus strokeCurve::getPaints(MDataBlock &data,
-//                                std::map<short, Paint> &paints ) const {
-//   MStatus st;
-//   MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); ert;
-//   unsigned nPlugs = hPaints.elementCount();
-
-//   for (unsigned i = 0; i < nPlugs; i++, hPaints.next()) {
-
-//     short index = short(hPaints.elementIndex(&st));
-//     if (st.error()) {
-//       continue;
-//     }
-
-//     MDataHandle hComp = hPaints.inputValue(&st );
-
-//     MFloatVector vc =  hComp.child(strokeCurve::aPaintColor).asFloatVector() ;
-//     MColor color(vc.x, vc.y, vc.z);
-
-//     double opacity = hComp.child(strokeCurve::aPaintOpacity).asDouble() ;
-//     MString name = hComp.child(strokeCurve::aPaintName).asString();
-
-//     paints[index] = Paint(index, color, opacity, name);
-
-//   }
-//   return MS::kSuccess;
-// }
 
 
 MStatus strokeCurve::generateStrokes(MDataBlock &data,
@@ -829,46 +898,38 @@ MStatus strokeCurve::generateStrokes(MDataBlock &data,
     return MS::kSuccess;
   }
 
+  MVectorArray boundaries;
+  unsigned numStrokeGroups =  getStrokeBoundaries( data, boundaries);
+
+  if (! numStrokeGroups) {
+    return MS::kSuccess;
+  }
+
+
   MDataHandle hCurve = data.inputValue(aCurve, &st ); ert;
-  double countFactor = data.inputValue(aStrokeCountFactor).asDouble();
+  MObject  dCurve =  data.inputValue(aCurve).asNurbsCurveTransformed();
+
   MMatrix planeMatrix = data.inputValue(strokeCurve::aPlaneMatrix).asMatrix();
   MMatrix inversePlaneMatrix = planeMatrix.inverse();
   MVector planeNormal = (MVector::zAxis * planeMatrix).normal();
-  int seed = data.inputValue(aSeed).asInt();
-  srand48(seed);
 
-  MObject  dCurve =  data.inputValue(aCurve).asNurbsCurveTransformed();
+
   MFnNurbsCurve curveFn(dCurve, &st) ; ert;
   double curveLength = curveFn.length(epsilon);
   double pointDensity =  data.inputValue(aPointDensity).asDouble() ;
   if (pointDensity < 0.001) { pointDensity = 0.001; }
 
-  double strokeLength = data.inputValue( aStrokeLength).asDouble();
-  double randomLengthFactor = data.inputValue( aRandomLengthFactor).asDouble();
-  double randomOverlapFactor = data.inputValue( aRandomOverlapFactor).asDouble();
-  double overlap  =  data.inputValue( aOverlap).asDouble();
 
   MDataHandle hLift = data.inputValue(aLift);
   double liftLength = hLift.child( aLiftLength).asDouble();
   double liftHeight = hLift.child( aLiftHeight).asDouble();
   double liftBias = hLift.child( aLiftBias).asDouble();
   MVector lift(liftLength, liftHeight, liftBias);
-  MDataHandle hSubcurve = data.inputValue(aSubcurve);
-  double subcurveMin = hSubcurve.child( aSubcurveMin).asDouble();
-  double subcurveMax = hSubcurve.child( aSubcurveMax).asDouble();
-
-  // MDataHandle hRotate = hComp.child(aBrush);
-
-  // double tilt = hRotate.child( aBrushTilt).asAngle().value();
-  // double bank = hRotate.child( aBrushBank).asAngle().value();
-  // double twist = hRotate.child( aBrushTwist).asAngle().value();
-  // MVector brush(tilt, bank, twist);
 
   MDataHandle hApproachDistance = data.inputValue(aApproachDistance);
-  double apStart = hApproachDistance.child( aApproachDistanceStart).asDouble();
-  double apMid = hApproachDistance.child( aApproachDistanceMid).asDouble();
-  double apEnd = hApproachDistance.child( aApproachDistanceEnd).asDouble();
-  MVector approachDistance(apStart, apMid, apEnd);
+  double approachStart = hApproachDistance.child( aApproachDistanceStart).asDouble();
+  double approachMid = hApproachDistance.child( aApproachDistanceMid).asDouble();
+  double approachEnd = hApproachDistance.child( aApproachDistanceEnd).asDouble();
 
   bool backstroke = data.inputValue(aBackstroke).asBool();
 
@@ -886,169 +947,51 @@ MStatus strokeCurve::generateStrokes(MDataBlock &data,
   bool repeatMirror = data.inputValue(aRepeatMirror).asBool();
   bool repeatOscillate = data.inputValue(aRepeatOscillate).asBool();
 
-  short brushId =  data.inputValue( aBrushId).asShort();
-  short paintId =  data.inputValue( aPaintId).asShort();
-
-  // double rotation = hComp.child(aStrokeRotation).asAngle().value();
-  // double translation = hComp.child(aStrokeTranslation).asDouble();
   double pivotFraction = data.inputValue(aPivotFraction).asDouble();
 
   bool follow =  data.inputValue( aBrushFollowStroke).asBool();
-  // bool forceDip =  hComp.child( aForceDip).asBool();
 
   Stroke::Scope brushRampScope =
     Stroke::Scope( data.inputValue(aBrushRampScope).asShort());
 
+  MObject thisObj = thisMObject();
 
-  MVectorArray boundaries;
-  unsigned count =  getStrokeBoundaries(
-                      dCurve,
-                      strokeLength,
-                      randomLengthFactor,
-                      overlap,
-                      randomOverlapFactor,
-                      subcurveMin,
-                      subcurveMax,
-                      countFactor,
-                      boundaries);
-
-  // cerr << "Count : " << count << endl;
-
-  if (! count) {
-    return MS::kSuccess;
-  }
-
-  // JPMDBG;
-  // std::vector<Stroke> curveStrokes;
-
-
-  // bool first = true;
-
-  cerr << "Stroke Count: " << count << endl;
-  // if (count > 20) {
-  //   count = 20;
-  // }
-  for (int i = 0; i < count; ++i) {
+  for (int i = 0; i < numStrokeGroups; ++i) {
     const double &startDist = boundaries[i].x;
     const double &endDist = boundaries[i].y;
 
-    // // cerr << "stroke : " << i << endl;
-    // std::unique_ptr<Stroke>  motherStroke = std::make_unique<ForwardStroke>();
-    // // ForwardStroke motherStroke = ForwardStroke();
+    unsigned strokeGroupSize = Stroke::factory(
+                                 thisObj,
+                                 dCurve,
+                                 inversePlaneMatrix,
+                                 planeNormal,
+                                 curveLength,
+                                 startDist,
+                                 endDist,
+                                 pointDensity,
+                                 liftLength,
+                                 liftHeight,
+                                 liftBias,
+                                 strokeCurve::aStrokeProfileRamp,
+                                 strokeProfileScaleMin,
+                                 strokeProfileScaleMax,
+                                 strokeCurve::aBrushTiltRamp,
+                                 strokeCurve::aBrushBankRamp,
+                                 strokeCurve::aBrushTwistRamp,
+                                 brushRampScope,
+                                 follow,
+                                 backstroke,
+                                 repeats,
+                                 repeatOffset,
+                                 repeatMirror,
+                                 repeatOscillate,
+                                 pivotFraction,
+                                 strokes);
 
-    // motherStroke->initializeTargets(
-    //   dCurve,
-    //   curveLength,
-    //   startDist,
-    //   endDist,
-    //   pointDensity,
-    //   liftLength,
-    //   liftBias
-    // );
-
-    if (i % 2 == 0) {
-      strokes.push_back( std::make_unique<Stroke>() );
-    }
-    else {
-      strokes.push_back( std::make_unique<BackStroke>() );
-    }
-    std::vector<std::unique_ptr<Stroke> > &stk =  strokes.back();
-    strokes.back()->initializeTargets(
-      dCurve,
-      curveLength,
-      startDist,
-      endDist,
-      pointDensity,
-      liftLength,
-      liftBias
-    );
-
-    strokes.back()->setHeights(
-      thisMObject(),
-      strokeCurve::aStrokeProfileRamp,
-      strokeProfileScaleMin,
-      strokeProfileScaleMax,
-      liftHeight
-    );
-
-    strokes.back()->setRotations(
-      thisMObject(),
-      strokeCurve::aBrushTiltRamp,
-      strokeCurve::aBrushBankRamp,
-      strokeCurve::aBrushTwistRamp,
-      brushRampScope,
-      follow
-    );
-
-
-
-    // Stroke motherStroke = Stroke(
-    //                         dCurve,
-    //                         thisMObject(),
-    //                         boundaries[i],
-    //                         planeNormal,
-    //                         lift,
-    //                         aBrushTiltRamp,
-    //                         aBrushBankRamp,
-    //                         aBrushTwistRamp,
-    //                         brushRampScope,
-    //                         aStrokeProfileRamp,
-    //                         curveLength,
-    //                         pointDensity,
-    //                         pivotFraction,
-    //                         follow,
-    //                         backstroke
-    //                       );
-
-    // cerr << "Stroke targets length: " << motherStroke.length() << endl;
-    // if (motherStroke.overlapsPlane(inversePlaneMatrix)) {
-    // strokes.push_back(motherStroke);
-    // }
   }
-  JPMDBG;
 
-  // brush,
-  // follow,
-  // backstroke
-  //     if (motherStroke.overlapsPlane(inversePlaneMatrix)) {
-  //       curveStrokes.push_back(motherStroke);
-  //     }
-
-  //     for (int j = 0; j < repeats; ++j)
-  //     {
-  //       bool reverse = repeatOscillate &&  ((j % 2) == 0);
-
-  //       double offset = repeatOffset * (j + 1);
-  //       Stroke offsetStroke = Stroke(motherStroke, offset, repeatAdvance, reverse, planeNormal);
-  //       if (offsetStroke.overlapsPlane(inversePlaneMatrix)) {
-  //         curveStrokes.push_back(offsetStroke);
-  //       }
-  //       if (repeatMirror) {
-  //         // cerr << "mirror: " << repeatMirror << endl;
-  //         Stroke mirrorOffsetStroke = Stroke(motherStroke, -offset, repeatAdvance, reverse,
-  //                                            planeNormal);
-  //         if (mirrorOffsetStroke.overlapsPlane(inversePlaneMatrix)) {
-  //           curveStrokes.push_back(mirrorOffsetStroke);
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-
-  // std::vector<Stroke>::iterator  iter = curveStrokes.begin();
-  // for (; iter != curveStrokes.end(); iter++) {
-  //   double strokeApproachStart = apMid, strokeApproachEnd = apMid;
-  //   if (iter == curveStrokes.begin()) {
-  //     strokeApproachStart = apStart;
-  //   }
-  //   if (std::next(iter) == curveStrokes.end()) {
-  //     strokeApproachEnd = apEnd;
-  //   }
-  //   iter->setApproach(strokeApproachStart, strokeApproachEnd);
-  // }
-
-
-  // strokes.insert(strokes.end(), curveStrokes.begin(), curveStrokes.end());
+  setApproach(
+    strokes, approachStart, approachMid, approachEnd);
 
   return MS::kSuccess;
 }
@@ -1062,7 +1005,8 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
         plug == aOutTangents ||
         plug == aOutPositions ||
         plug == aOutCounts ||
-        plug == aOutArcLengths
+        plug == aOutArcLengths ||
+        plug == aOutput
       )) { return ( MS::kUnknownParameter ); }
 
   MMatrixArray outTargets; // outTargets.clear();
@@ -1078,14 +1022,8 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
 
   std::vector<std::unique_ptr<Stroke> > strokes;
 
-  // std::vector<ForwardStroke>  strokes;
   st = generateStrokes(data, strokes) ;
-  // JPMDBG;
-  // std::vector<std::unique_ptr<Stroke> >::const_iterator citer;
-  // std::vector<ForwardStroke>::const_iterator citer;
-  // citer = strokes.begin();
-  JPMDBG;
-  // for (citer = strokes.begin() ; citer != strokes.end(); citer++) {
+
   for (auto &citer : strokes)  // ranged based for loop
   {
     citer->appendTargets(planeNormal, outTargets);
@@ -1094,78 +1032,8 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
     outCounts.append(citer->length());
     outArcLengths.append(citer->arcLength());
   }
-  JPMDBG;
-
-  // std::vector<Stroke>::const_iterator citer;
-  // std::vector<Stroke>::iterator iter;
-  // // // JPMDBG;
-
-  // unsigned nStrokes = strokes.size();
-  // MFloatArray uVals(nStrokes);
-  // MFloatArray vVals(nStrokes);
-  // // // JPMDBG;
-
-  // citer = strokes.begin();
-  // for (unsigned i = 0; citer != strokes.end(); citer++, i++) {
-  //   float &u = uVals[i];
-  //   float &v = vVals[i];
-  //   citer->getPivotUVs(inversePlaneMatrix, u, v);
-  // }
-  // MFloatArray rotations;
-  // MFloatVectorArray translations;
-  // // // JPMDBG;
-
-
-  // st = sampleUVTexture(strokeCurve::aStrokeRotationTexture, uVals, vVals, rotations);
-  // if (! st.error()) {
-  //   iter = strokes.begin();
-  //   for (unsigned i = 0; iter != strokes.end(); iter++, i++) {
-  //     iter->rotate(rotations[i], planeNormal);
-  //   }
-  // }
-  // // // JPMDBG;
-
-  // st = sampleUVGradient(strokeCurve::aStrokeTranslationTexture, sampleDistance, uVals,
-  //                       vVals,
-  //                       translations);
-  // if (! st.error()) {
-  //   iter = strokes.begin();
-  //   for (unsigned i = 0; iter != strokes.end(); iter++, i++) {
-  //     iter->translate(translations[i], planeNormal);
-  //   }
-  // }
-
-
-  // citer = strokes.begin();
-  // for (; citer != strokes.end(); citer++) {
-  //   const MMatrixArray &targets = citer->targets();
-  //   const MVectorArray &tangents = citer->tangents();
-  //   const unsigned len = targets.length();
-
-  //   outCounts.append(len);
-  //   outBrushIds.append(citer->brush().id);
-  //   outPaintIds.append(citer->paint().id);
-  //   outArcLengths.append(citer->arcLength());
-  //   outBrushWidths.append(citer->brush().width);
-  //   const MColor &c = citer->paint().color;
-  //   outPaintColors.append(MVector(c.r, c.g, c.b));
-  //   outPaintOpacities.append(citer->paint().opacity);
-  //   outForceDips.append(citer->forceDip());
-  //   outCurveIds.append(citer->curveId());
-  //   outApproachStarts.append(citer->approachStart());
-  //   outApproachEnds.append(citer->approachEnd());
-
-  //   for (int i = 0; i < len; ++i)
-  //   {
-  //     outTargets.append(targets[i]);
-  //     outTangents.append(tangents[i]);
-  //     // outNormals.append(nrm[i]);
-  //   }
-  // }
-
 
   unsigned len = outTargets.length();
-
 
   st = setData(data, strokeCurve::aOutTargets, outTargets); er;
   st = setData(data, strokeCurve::aOutTangents, outTangents); er;
@@ -1173,6 +1041,25 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
 
   st = setData(data, strokeCurve::aOutCounts, outCounts); er;
   st = setData(data, strokeCurve::aOutArcLengths, outArcLengths); er;
+
+  st = setData(data, strokeCurve::aOutArcLengths, outArcLengths); er;
+
+  bool force = data.inputValue(aForceDip).asBool();
+  short brushId = data.inputValue(aBrushId).asShort();
+  short paintId = data.inputValue(aPaintId).asShort();
+
+
+  MDataHandle hOutput = data.outputValue(aOutput);
+  MFnPluginData fnOut;
+  MTypeId kdid(strokeCurveData::id);
+
+  MObject dOut = fnOut.create(kdid , &st );
+  strokeCurveData *newData = (strokeCurveData *)fnOut.data(&st); er;
+  strokeCurveGeom *geom = newData->fGeometry;
+  geom->create(strokes, planeNormal, force, brushId, paintId );
+
+  hOutput.set( newData );
+  data.setClean( plug );
 
   return MS::kSuccess;
 
@@ -1277,10 +1164,7 @@ MStatus strokeCurve::sampleUVGradient(const MObject &attribute, float sampleDist
 
 void strokeCurve::postConstructor()
 {
-  // MFnDependencyNode nodeFn(thisMObject());
-  // nodeFn.setName("strokeCurveShape#");
-  // setExistWithoutInConnections(true);
-  // setExistWithoutOutConnections(true);
+
 }
 
 

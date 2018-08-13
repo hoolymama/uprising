@@ -56,11 +56,18 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
 
 
 	editorTemplate -cl 0  -beginLayout "Stroke transformation";		
-	// editorTemplate -addControl "planeMatrix" ;
 	editorTemplate -addControl "pivotFraction" ;
  	editorTemplate -addControl "strokeRotationTexture" ;
  	editorTemplate -addControl "strokeTranslationTexture" ;
  	editorTemplate -addControl "strokeTranslationSampleDistance" ;
+	editorTemplate -endLayout;
+
+
+
+	editorTemplate -cl 0  -beginLayout "Approach";		
+	editorTemplate -addControl "approachDistanceStart" ;
+ 	editorTemplate -addControl "approachDistanceMid" ;
+ 	editorTemplate -addControl "approachDistanceEnd" ;
 	editorTemplate -endLayout;
 
 

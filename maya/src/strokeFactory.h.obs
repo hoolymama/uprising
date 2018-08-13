@@ -71,14 +71,16 @@ private:
   MStatus setData(MDataBlock &block, MObject &attribute,
                   const MDoubleArray &data) ;
 
-  MStatus setData(MDataBlock &block, MObject &attribute,
-                  const MMatrixArray &data) ;
+
 
   MStatus setData(MDataBlock &block, MObject &attribute,
                   const MIntArray &data) ;
 
   MStatus setData(MDataBlock &block, MObject &attribute,
                   const MMatrix &data);
+
+  MStatus setData(MDataBlock &block, MObject &attribute,
+                  const MMatrixArray &data) ;
 
   MStatus getData( MObject &attribute,  MIntArray &array);
 

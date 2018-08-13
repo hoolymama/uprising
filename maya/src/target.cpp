@@ -14,8 +14,7 @@ Target::Target(
 	m_curvePoint(),
 	m_curveFraction(),
 	m_strokeFraction(),
-	m_brushRotate(),
-	m_height()
+	m_brushRotate()
 {
 	MStatus st;
 	MFnNurbsCurve curveFn(curveObject);
@@ -56,10 +55,10 @@ Target::Target(
 Target::~Target() {}
 
 
-void Target::followMatrix(const MVector &planeNormal, bool backstroke ,
+void Target::followMatrix(const MVector &planeNormal,  double height, bool backstroke ,
                           MMatrix &mat) const  {
 
-	MVector position = MVector(m_curvePoint + (planeNormal * m_height));
+	MVector position = MVector(m_curvePoint + (planeNormal * height));
 
 	mat = mayaMath::matFromAim(position, m_tangent, planeNormal, mayaMath::yAxis ,
 	                           mayaMath::zAxisNeg);
@@ -74,9 +73,9 @@ void Target::followMatrix(const MVector &planeNormal, bool backstroke ,
 }
 
 
-void Target::flatMatrix(const MVector &planeNormal, bool backstroke,
+void Target::flatMatrix(const MVector &planeNormal,  double height, bool backstroke,
                         MMatrix &mat) const  {
-	MVector position = MVector(m_curvePoint + (planeNormal * m_height));
+	MVector position = MVector(m_curvePoint + (planeNormal * height));
 
 	mat =  mayaMath::matFromAim(MVector::zero, MVector::xNegAxis, MVector::zAxis,
 	                            mayaMath::yAxis ,
@@ -102,15 +101,16 @@ void Target::flatMatrix(const MVector &planeNormal, bool backstroke,
 
 }
 
-MMatrix Target::matrix(const MVector &planeNormal, bool backstroke, bool follow ) const  {
+MMatrix Target::matrix(const MVector &planeNormal, double height, bool backstroke,
+                       bool follow ) const  {
 
 	// MVector position = MVector(m_curvePoint + (planeNormal * m_height));
 	MMatrix mat;
 	if (follow) {
-		followMatrix(planeNormal,  backstroke, mat );
+		followMatrix(planeNormal, height,  backstroke, mat );
 	}
 	else {
-		flatMatrix(planeNormal,  backstroke, mat );
+		flatMatrix(planeNormal, height, backstroke, mat );
 	}
 	return mat;
 }
@@ -124,6 +124,16 @@ MPoint Target::curvePoint() const {
 	return m_curvePoint;
 }
 
+void Target::setCurvePoint(const MPoint &point) {
+	m_curvePoint = point;
+}
+// void Target::setCurvePoint(const MVector &point) {
+// 	m_curvePoint = MPoint(point);
+// }
+void Target::offsetBy(const MVector &offset) {
+	m_curvePoint += offset;
+}
+
 double Target::strokeFraction() const {
 	return m_strokeFraction;
 }
@@ -135,9 +145,9 @@ double Target::reverseStrokeFraction() const {
 	return 1.0 - m_strokeFraction;
 }
 
-void Target::setHeight(double height) {
-	m_height = height;
-}
+// void Target::setHeight(double height) {
+// 	m_height = height;
+// }
 
 void Target::setRotation(double tilt, double bank, double twist) {
 	m_brushRotate = MVector(tilt,  bank,  twist);

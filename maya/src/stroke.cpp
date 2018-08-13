@@ -1,23 +1,157 @@
-
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MTransformationMatrix.h>
 #include <maya/MQuaternion.h>
 #include <stroke.h>
+#include <algorithm>
+#include <vector>
 
+#include <typeinfo>
 #include "errorMacros.h"
-
+#include "backstroke.h"
 #include "mayaMath.h"
 
 const double epsilon = 0.0001;
-const double rad_to_deg = (180 / 3.1415926535);
-
 const double pi = 3.1415926535;
+const double rad_to_deg = (180.0 / pi);
 const double tau = 2.0 * pi;
 const double half_pi = 0.5 * pi;
 
+bool shouldMakeBackstroke(bool motherBackstroke, bool oscillate, int index )  {
+	if ((index % 2) == 0) {
+		return motherBackstroke ? !oscillate : oscillate;
+	}
+	else {
+		return motherBackstroke;
+	}
+}
+
+unsigned Stroke::factory(
+  const MObject &thisObj,
+  const MObject &dCurve,
+  const MMatrix &inversePlaneMatrix,
+  const MVector &planeNormal,
+  double curveLength,
+  double startDist,
+  double endDist,
+  double pointDensity,
+  double liftLength,
+  double liftHeight,
+  double liftBias,
+  const MObject &profileRampAttribute,
+  double strokeProfileScaleMin,
+  double strokeProfileScaleMax,
+  const MObject &tiltRamp,
+  const MObject &bankRamp,
+  const MObject &twistRamp,
+  Stroke::Scope brushRampScope,
+  bool follow,
+  bool backstroke,
+  int repeats,
+  double repeatOffset,
+  bool repeatMirror,
+  bool repeatOscillate,
+  double pivotFraction,
+  std::vector<std::unique_ptr<Stroke> > &strokes
+
+) {
+	/*
+	This factory provides a stroke or a backstroke
+	*/
+
+	std::unique_ptr<Stroke> stk;
+	if (backstroke) {
+		stk = std::make_unique<BackStroke>();
+	}
+	else {
+		stk = std::make_unique<Stroke>();
+	}
+
+	stk->initializeTargets(
+	  dCurve,
+	  curveLength,
+	  startDist,
+	  endDist,
+	  pointDensity,
+	  liftLength,
+	  liftBias
+	);
+
+	stk->setHeights(
+	  thisObj,
+	  profileRampAttribute,
+	  strokeProfileScaleMin,
+	  strokeProfileScaleMax,
+	  liftHeight
+	);
+
+	stk->setRotations(
+	  thisObj,
+	  tiltRamp,
+	  bankRamp,
+	  twistRamp,
+	  brushRampScope,
+	  follow
+	);
+
+	/*
+	k will happen once (1) or twice (1 and -1) and its
+	value will help determine the offset.
+	*/
+	unsigned count = 0;
+	const Stroke &mother = *stk;
+	if (stk->overlapsPlane(inversePlaneMatrix)) {
+		strokes.push_back( std::move(stk) );
+		count++;
+	}
+
+	std::vector<int> mirrorLoop = repeatMirror ?  std::vector<int> { -1, 1} :
+	                              std::vector<int> { 1} ;
+
+	for (int j = 0; j < repeats; ++j) {
+		for (int k : mirrorLoop) {
+
+			double offset = repeatOffset * (j + 1) * k;
+			bool makeBackStroke = shouldMakeBackstroke(backstroke, repeatOscillate, j );
+
+			std::unique_ptr<Stroke> rstk;
+			if (makeBackStroke) {
+				rstk = std::make_unique<BackStroke>();
+			}
+			else {
+				rstk = std::make_unique<Stroke>();
+			}
+			rstk->offsetFrom(mother, planeNormal, offset);
+			if (rstk->overlapsPlane(inversePlaneMatrix)) {
+				strokes.push_back(std::move(rstk));
+				count++;
+			}
+		}
+	}
+	return count;
+}
+
+
+void Stroke::offsetFrom(
+  const Stroke &other,
+  const MVector &planeNormal,
+  double offset) {
+
+	m_targets = other.targets();
+	m_profile = other.profile();
+	m_pivot = other.pivot();
+	m_follow = other.follow();
+
+	std::vector<Target>::iterator iter;
+	for (iter = m_targets.begin(); iter != m_targets.end(); iter++) {
+		MVector offsetVec = (iter->tangent() ^ planeNormal) * offset;
+		iter->offsetBy(offsetVec);
+	}
+	setArcLength();
+}
 
 Stroke::Stroke()	:
 	m_targets(),
+	m_profile(),
 	m_pivot(),
 	m_arcLength(),
 	m_approachDistStart(1),
@@ -25,8 +159,23 @@ Stroke::Stroke()	:
 	m_follow(true)
 {}
 
-Stroke::~Stroke() {}
+const MPoint &Stroke::pivot() const {
+	return m_pivot;
+}
 
+// double Stroke::approachDistStart() const {
+// 	return m_approachDistStart;
+// }
+
+// double Stroke::approachDistEnd() const {
+// 	return m_approachDistEnd;
+// }
+
+bool Stroke::follow() const {
+	return m_follow;
+}
+
+Stroke::~Stroke() {}
 
 void Stroke::initializeTargets(
   const MObject &curveObject ,
@@ -74,6 +223,8 @@ void Stroke::initializeTargets(
 	                              endLiftDist );
 	m_targets.push_back(endLiftTarget);
 
+	setArcLength();
+
 }
 
 
@@ -85,39 +236,40 @@ void Stroke::setHeights( const MObject &thisObj,
 
 	// heights are backwards in a backstroke
 	MDoubleArray vals;
-	travelStrokeFractions(vals);
+	getStrokeFractions(vals);
 
 	unsigned nVals = vals.length();
-	MDoubleArray out(nVals);
+	m_profile.setLength(nVals);
 
-	doRampLookup(thisObj, profileRampAttribute, vals, out, 0.0, 1.0, strokeProfileScaleMin,
+	doRampLookup(thisObj, profileRampAttribute, vals, m_profile, 0.0, 1.0,
+	             strokeProfileScaleMin,
 	             strokeProfileScaleMax );
 
-	std::vector<Target>::iterator iter = m_targets.begin();
-	unsigned i = 0;
-	for (; iter  != m_targets.end(); iter++, i++) {
-		iter->setHeight(out[i]);
-	}
-	m_targets.front().setHeight(liftHeight);
-	m_targets.back().setHeight(liftHeight);
-
+	m_profile[0] = liftHeight;
+	m_profile[(nVals - 1)] = liftHeight;
 }
 
-void Stroke::travelStrokeFractions(MDoubleArray &result) const {
+
+void Stroke::setApproach(double start, double end)  {
+	m_approachDistStart = start;
+	m_approachDistEnd = end;
+}
+
+void Stroke::getTravelStrokeFractions(MDoubleArray &result) const {
 	std::vector<Target>::const_iterator citer = m_targets.begin();
 	for (; citer != m_targets.end(); citer++) {
 		result.append(citer->strokeFraction());
 	}
 }
 
-void Stroke::strokeFractions(MDoubleArray &result) const {
+void Stroke::getStrokeFractions(MDoubleArray &result) const {
 	std::vector<Target>::const_iterator citer = m_targets.begin();
 	for (; citer != m_targets.end(); citer++) {
 		result.append(citer->strokeFraction());
 	}
 }
 
-void Stroke::curveFractions(MDoubleArray &result) const {
+void Stroke::getCurveFractions(MDoubleArray &result) const {
 	std::vector<Target>::const_iterator citer = m_targets.begin();
 	for (; citer != m_targets.end(); citer++) {
 		result.append(citer->curveFraction());
@@ -127,8 +279,10 @@ void Stroke::curveFractions(MDoubleArray &result) const {
 void Stroke::appendTargets(const MVector &planeNormal,
                            MMatrixArray &result) const {
 	std::vector<Target>::const_iterator citer;
-	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
-		result.append(citer->matrix(planeNormal, false, m_follow));
+	// cerr << "m_follow: " << m_follow << endl;
+	unsigned i = 0;
+	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++, i++) {
+		result.append(citer->matrix(planeNormal, m_profile[i], false, m_follow));
 	}
 }
 
@@ -146,7 +300,21 @@ void Stroke::appendPoints(MVectorArray &result) const {
 	}
 }
 
+void Stroke::getApproachTargets(const MVector &planeNormal, MMatrix &startApproach,
+                                MMatrix &endApproach) const {
+	unsigned num = m_profile.length();
 
+
+	double startHeight =  m_profile[0] + m_approachDistStart;
+	double endHeight =  m_profile[(num - 1)] + m_approachDistEnd;
+	std::vector<Target>::const_iterator citer = m_targets.begin();
+	startApproach = citer->matrix(planeNormal, startHeight, false, m_follow);
+	endApproach = m_targets.back().matrix(planeNormal, endHeight, false, m_follow);
+}
+
+short Stroke::direction() const {
+	return 1;
+}
 
 
 void Stroke::setRotations(
@@ -161,13 +329,13 @@ void Stroke::setRotations(
 
 	MDoubleArray sampleVals;
 	if (rampScope ==  Stroke::kStroke) {
-		strokeFractions(sampleVals);
+		getStrokeFractions(sampleVals);
 	}
 	else if (rampScope ==  Stroke::kTravelStroke) {
-		travelStrokeFractions(sampleVals);
+		getTravelStrokeFractions(sampleVals);
 	}
 	else {   // curve
-		curveFractions(sampleVals);
+		getCurveFractions(sampleVals);
 	}
 	unsigned nVals = sampleVals.length();
 	MDoubleArray outTilt(nVals);
@@ -187,18 +355,39 @@ void Stroke::setRotations(
 	}
 }
 
-
-
-
-
+bool Stroke::overlapsPlane(const MMatrix &inversePlaneMatrix) const {
+	std::vector<Target>::const_iterator citer;
+	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
+		MPoint p = citer->curvePoint() * inversePlaneMatrix;
+		if (p.x > -1 && p.x < 1 && p.y > -1 && p.y < 1) {
+			return true;
+		}
+	}
+	return false;
+}
 
 unsigned Stroke::length() const {
 	return m_targets.size();
 }
 
+void Stroke::setArcLength() {
+	m_arcLength = 0;
+	std::vector<Target>::const_iterator previter = std::next(m_targets.begin());
+	std::vector<Target>::const_iterator iter = std::next(previter);
+	std::vector<Target>::const_iterator enditer = std::prev(m_targets.end());
+	unsigned i = 0;
+	for ( ; iter != enditer; iter++, previter++, i++) {
+		// cerr << "t i : " << i ;
+		m_arcLength += iter->curvePoint().distanceTo(previter->curvePoint());
+	}
+	// cerr << endl << endl;
+}
+
 double Stroke::arcLength() const {
 	return m_arcLength;
 }
+
+// void setApproach()
 
 
 // MStatus calcBrushMatrixStroke(const MVector &position, const MVector &tangent,

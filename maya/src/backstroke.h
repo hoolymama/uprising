@@ -12,6 +12,9 @@ public:
 	BackStroke ();
 	~BackStroke();
 
+
+	// bool  shouldMakeBackstroke( bool oscillate,  int index ) const  ;
+
 	void travelStrokeFractions(MDoubleArray &result) const;
 
 	void appendTargets(const MVector &planeNormal, MMatrixArray &result) const ;
@@ -19,6 +22,11 @@ public:
 	void appendTangents(MVectorArray &result) const ;
 
 	void appendPoints(MVectorArray &result) const ;
+
+	short  direction() const;
+
+	void  getApproachTargets(const MVector &planeNormal,  MMatrix &startApproach,
+	                         MMatrix &endApproach) const;
 
 private:
 
