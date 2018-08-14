@@ -7,6 +7,12 @@ import sheets
 
 import uprising.uprising_util as uput
 
+def selected_stroke_factories():
+    return pm.ls(
+        selection=True,
+        dag=True,
+        leaf=True,
+        type="strokeFactory")
  
 def input_connection(attribute):
     conns = attribute.connections(source=True, destination=False, plugs=True)
@@ -69,11 +75,13 @@ def create_stroke_factory():
     crvs_grp = pm.group(empty=True, name="curves")
     pm.group(plane_transform, pos_grp, crvs_grp, name="strokeFactoryGroup")
 
-def delete_curve_instances(node):
+def delete_curve_instances(node, unconnected_only=False):
+    deleteall = not unconnected_only
     indices = node.attr("curves").getArrayIndices()
     for i in indices:
-        pm.removeMultiInstance(node.attr("curves[%d]" % i), b=True)
-
+        if deleteall or not input_connection(node.attr("curves[%d].curve" % i)):
+            pm.removeMultiInstance(node.attr("curves[%d]" % i), b=True)
+ 
 
 def set_board_from_sheet(node):
     #   get top node, then find corner locators

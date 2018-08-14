@@ -24,14 +24,15 @@ def get_dip_combinations(painting_factory):
     paints =  Paint.paints(painting_factory)
     indices = painting_factory.attr("curves").getArrayIndices()
     for index in indices:
-        if painting_factory.attr("curves[%d].active" % index).get():
-            brush_id = painting_factory.attr("curves[%d].brushId" % index).get()
-            paint_id = painting_factory.attr("curves[%d].paintId" % index).get()
-            key = "p%02d_b%02d" % (paint_id, brush_id)
-            result[key] = {
-                "brush": brushes[brush_id],
-                "paint": paints[paint_id]
-            }
+        # if painting_factory.attr("curves[%d].active" % index).get():
+        brush_id = painting_factory.attr("curves[%d].brushId" % index).get()
+        paint_id = painting_factory.attr("curves[%d].paintId" % index).get()
+        key = "p%02d_b%02d" % (paint_id, brush_id)
+        result[key] = {
+            "brush": brushes[brush_id],
+            "paint": paints[paint_id]
+        }
+    print result.keys()
     return result
  
 def delete_if_exist(name):

@@ -109,6 +109,18 @@ def create_brush_geo(height, bristle_height, tip, width, name, profile):
     return geo
 
 
+def brush_name(idx, unsplay_width, xname, profile):
+    parts = [
+        "bx%s" % str(int(idx)),
+        "%smm" % str(int(unsplay_width * 10)),
+        profile.lower()
+    ]
+    if xname:
+        parts.append(xname.lower())
+
+    return "_".join(parts)
+
+
 def create_and_connect_brush_geo(
         node,
         idx,
@@ -117,22 +129,23 @@ def create_and_connect_brush_geo(
         bristle_height,
         tip,
         _2,
-        _3,
+        unsplay_width,
         width,
-        name,
+        xname,
         profile):
 
-    tf = create_brush_geo(height, bristle_height, tip, width, name, profile)
+    gname = brush_name(idx, unsplay_width, xname, profile)
+
+    tf = create_brush_geo(height, bristle_height, tip, width, gname, profile)
     connect_brush_to_node(tf, node)
 
     tf.attr("sfBrushWidth").set(width)
     tf.attr("sfBrushLiftLength").set((tip * 2))
-    tf.attr("sfBrushLiftHeight").set(tip *1.2)
+    tf.attr("sfBrushLiftHeight").set(tip * 1.2)
     tf.attr("sfBrushLiftBias").set(0)
     tf.attr("sfBrushRetention").set(1)
-    
-    pm.parent( tf, '|brushes' )
 
+    pm.parent(tf, '|brushes')
 
 
 def delete_brushes(node):
@@ -150,8 +163,9 @@ def create_brush_geo_from_sheet(factory_node):
     validate_brush_data(data)
     delete_brushes(factory_node)
     for row in data:
-        row = [uput.numeric(s) for s in row]
-        create_and_connect_brush_geo(factory_node, *row)
+        if len(row) > 9:
+            row = [uput.numeric(s) for s in row]
+            create_and_connect_brush_geo(factory_node, *row)
 
 
 # def numeric(s):
@@ -164,9 +178,9 @@ def create_brush_geo_from_sheet(factory_node):
 def validate_brush_data(data):
     if not len(data):
         raise ValueError("No brush data from Google sheets")
-    for row in data:
-        if not len(row) > 9:
-            raise ValueError("Invalid brush data from Google sheets")
+    # for row in data:
+    #     if not len(row) > 9:
+    #         raise ValueError("Invalid brush data from Google sheets")
 
     # delete existing brushes
 

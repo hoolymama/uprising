@@ -48,6 +48,9 @@ reload(sheets)
 RL = Robolink()
 
 
+
+
+
 class PaintingTab(gui.FormLayout):
 
     def __init__(self):
@@ -104,7 +107,13 @@ class PaintingTab(gui.FormLayout):
 
         pm.button(
             label='Delete curve instances',
+            ann="Select stroke factory",
             command=pm.Callback(self.on_delete_curve_instances))
+
+        pm.button(
+            label='Delete unconnected curve instances',
+            ann="Select stroke factory",
+            command=pm.Callback(self.on_delete_unconnected_curve_instances))
 
         pm.button(
             label='Set up dip stroke factory',
@@ -222,14 +231,17 @@ class PaintingTab(gui.FormLayout):
         RL.Render(True)
         RL.setWindowState(2)
  
+
+
+
     def on_delete_curve_instances(self):
-        nodes = pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type="strokeFactory")
-        for node in nodes:
+        for node in sfu.selected_stroke_factories():
             sfu.delete_curve_instances(node)
+
+    def on_delete_unconnected_curve_instances(self):
+        for node in sfu.selected_stroke_factories():
+            sfu.delete_curve_instances(node, True)
+
 
     def on_setup_dip(self):
         painting = pm.PyNode("paintingStrokeFactoryShape")
