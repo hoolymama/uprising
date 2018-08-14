@@ -22,6 +22,7 @@ public:
 	// const std::map<short, Paint>    &paints() const;
 	// const std::map<short, Brush>    &brushes() const;
 
+	// const std::vector<double> dummies() const;
 	// void setPaints(const std::map<short, Paint> &paints);
 
 	// void setBrushes(const std::map<short, Brush> &brushes);
@@ -45,7 +46,7 @@ private:
 	//   short paintId
 	// );
 
-
+	// std::vector<double> m_dummies;
 	// std::vector<clusterGeom> m_clusters;
 	// std::map<short, Paint> m_paints;
 	// std::map<short, Brush> m_brushes;

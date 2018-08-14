@@ -6,8 +6,9 @@ const double epsilon = .001;
 
 paintingGeom::paintingGeom()
 // m_clusters(),
-// m_paints(),
-// m_brushes()
+/*m_paints(),*/
+// m_brushes(),
+// : m_dummies()
 {}
 
 paintingGeom::~paintingGeom() {}
@@ -38,6 +39,9 @@ paintingGeom::~paintingGeom() {}
 // 	return m_brushes;
 // }
 
+// const std::vector<double> paintingGeom::dummies() const {
+// 	return m_dummies;
+// }
 
 // const Brush &paintingGeom::brushFromId(short id) const {
 
@@ -149,14 +153,15 @@ paintingGeom::~paintingGeom() {}
 // /* Is this assignment the same as default. If so remove it. */
 paintingGeom &paintingGeom::operator=( const paintingGeom &other )
 {
-	// if ( &other != this ) {
-	// 	m_clusters.clear();
-	// 	m_paints.clear();
-	// 	m_brushes.clear();
-	// 	m_clusters = other.clusters();
-	// 	m_paints = other.paints();
-	// 	m_brushes = other.brushes();
-	// }
+	if ( &other != this ) {
+		// m_clusters.clear();
+		// m_paints.clear();
+		// m_brushes.clear();
+		// m_clusters = other.clusters();
+		// m_paints = other.paints();
+		// m_brushes = other.brushes();
+		// m_dummies = other.dummies();
+	}
 	return *this;
 }
 
