@@ -6,7 +6,7 @@ PI = 3.14159265359
 
 from robolink import (Robolink, ITEM_TYPE_ROBOT)
 
-RL = Robolink()
+# RL = Robolink()
 
 
 def rad2deg(rad):
@@ -49,6 +49,7 @@ def mat_from_connected(attribute, space):
 
 
 def create_program(name):
+    RL = Robolink()
     program = RL.Item(name)
     if program.Valid():
         program.Delete()
@@ -56,6 +57,7 @@ def create_program(name):
 
 
 def create_frame(name):
+    RL = Robolink()
     frame = RL.Item(name)
     if frame.Valid():
         frame.Delete()
@@ -75,6 +77,7 @@ def config_key(config):
         return "%d%d%d" % tuple(config.list2()[0][0:3])
 
 def config_map(pose, mask="000"):
+    RL = Robolink()
     configs = {}
     robot = RL.Item('', ITEM_TYPE_ROBOT)
     ik = robot.SolveIK_All(pose)

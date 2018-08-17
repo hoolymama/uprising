@@ -26,9 +26,7 @@
 #include <maya/MAngle.h>
 
 #include <maya/MPlugArray.h>
-#include <maya/MRenderUtil.h>
-#include <maya/MFnDagNode.h>
-#include <maya/MDagPath.h>
+
 
 #include <maya/MFnUnitAttribute.h>
 #include <maya/MFnNumericAttribute.h>
@@ -48,12 +46,12 @@
 
 #include <maya/MFnEnumAttribute.h>
 
-#include <maya/MFnNurbsCurveData.h>
+
 #include "paintingGeom.h"
-#include "strokeCurveGeom.h"
+// #include "strokeCurveGeom.h"
 #include "strokeCurveData.h"
 
-#include "paintingData.h"
+
 #include "paintingNode.h"
 
 #include <jMayaIds.h>
@@ -73,9 +71,20 @@ const double rad_to_deg = (180 / 3.1415927);
 
 MTypeId painting::id( k_painting );
 
-painting::painting() {}
+painting::painting() {
+  m_pd = new paintingData;
+}
 
-painting::~painting() {}
+painting::~painting() {
+  if (m_pd) {
+    delete m_pd;
+    m_pd = 0;
+  }
+}
+
+// painting::painting() {}
+
+// painting::~painting() {}
 
 void *painting::creator() {
   return new painting();
@@ -391,7 +400,7 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   MStatus st;
   MString method("painting::compute");
   if (!(
-        plug == aOutTargets /*||  plug == aOutput */ )) {
+        plug == aOutTargets  ||  plug == aOutput  )) {
     return ( MS::kUnknownParameter );
   }
 
@@ -406,29 +415,51 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
   // PAINTING DATA COMMENTED OUT
 
-  // MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); ert;
-  // std::map<short, Brush> brushes = Brush::factory(
-  //                                    hBrushes,
-  //                                    painting::aBrushWidth,
-  //                                    painting::aBrushRetention,
-  //                                    painting::aBrushShape
-  //                                  );
+  MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); ert;
+  std::map<short, Brush> brushes = Brush::factory(
+                                     hBrushes,
+                                     painting::aBrushWidth,
+                                     painting::aBrushRetention,
+                                     painting::aBrushShape
+                                   );
 
-  // MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); ert;
-  // std::map<short, Paint> paints = Paint::factory(
-  //                                   hPaints,
-  //                                   painting::aPaintColor,
-  //                                   painting::aPaintOpacity,
-  //                                   painting::aPaintTravel
-  //                                 );
+  MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); ert;
+  std::map<short, Paint> paints = Paint::factory(
+                                    hPaints,
+                                    painting::aPaintColor,
+                                    painting::aPaintOpacity,
+                                    painting::aPaintTravel
+                                  );
+
+  // MAKE NEW DATA
+  m_pd->create( data, painting::aStrokeCurves, brushes, paints );
 
 
-  MDataHandle hOutput = data.outputValue(aOutput);
-  MFnPluginData fnOutPaintingData;
+
+  MFnPluginData fnOut;
   MTypeId kdid(paintingData::id);
-  MObject dOutPaintingData = fnOutPaintingData.create(kdid , &st );
-  paintingData *pPaintingData = (paintingData *)fnOutPaintingData.data(&st); er;
-  paintingGeom *pPaintingGeom = pPaintingData->fGeometry;
+  MObject dOut = fnOut.create(kdid , &st ); er;
+  paintingData *outGeometryData = (paintingData *)fnOut.data(&st); er;
+  if (m_pd) {
+    *outGeometryData = (*m_pd);
+  }
+
+  cerr <<  "PAINTING NODE COMPUTE" << endl;
+  cerr << *(outGeometryData->geometry()) << endl;
+
+
+
+  MDataHandle outputHandle = data.outputValue(aOutput, &st ); er;
+  st = outputHandle.set(outGeometryData); er;
+  data.setClean( plug );
+
+
+  // MDataHandle hOutput = data.outputValue(aOutput);
+  // MFnPluginData fnOutPaintingData;
+  // MTypeId kdid(paintingData::id);
+  // MObject dOutPaintingData = fnOutPaintingData.create(kdid , &st );
+  // paintingData *pPaintingData = (paintingData *)fnOutPaintingData.data(&st); er;
+  // paintingGeom *pPaintingGeom = pPaintingData->fGeometry;
 
 
   // pPaintingGeom->clear();
@@ -442,38 +473,38 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
 
 
-  MArrayDataHandle hStrokeCurves = data.inputValue(aStrokeCurves, &st); ert;
-  unsigned nCurves = hStrokeCurves.elementCount();
+  // MArrayDataHandle hStrokeCurves = data.inputValue(aStrokeCurves, &st); ert;
+  // unsigned nCurves = hStrokeCurves.elementCount();
 
 
 
-  for (unsigned i = 0; i < nCurves; i++, hStrokeCurves.next()) {
-    // JPMDBG;
-    short index = short(hStrokeCurves.elementIndex(&st));
+  // for (unsigned i = 0; i < nCurves; i++, hStrokeCurves.next()) {
+  //   // JPMDBG;
+  //   short index = short(hStrokeCurves.elementIndex(&st));
 
-    MDataHandle hStrokeCurve = hStrokeCurves.inputValue(&st );
-    MObject dStrokeCurve = hStrokeCurve.data();
-    MFnPluginData fnStrokeCurves( dStrokeCurve , &st); ert;
-    strokeCurveData *scData = (strokeCurveData *)fnStrokeCurves.data();
-    strokeCurveGeom *geom = scData->fGeometry;
-    // strokeCurveGeom *pScGeom = 0;
-    // st = getData(hStrokeCurves, pScGeom);
+  //   MDataHandle hStrokeCurve = hStrokeCurves.inputValue(&st );
+  //   MObject dStrokeCurve = hStrokeCurve.data();
+  //   MFnPluginData fnStrokeCurves( dStrokeCurve , &st); ert;
+  //   strokeCurveData *scData = (strokeCurveData *)fnStrokeCurves.data();
+  //   strokeCurveGeom *geom = scData->fGeometry;
+  //   // strokeCurveGeom *pScGeom = 0;
+  //   // st = getData(hStrokeCurves, pScGeom);
 
 
 
-    cerr << "POINTER: " << geom << endl;
-    cerr << *geom << endl;
+  //   cerr << "POINTER: " << geom << endl;
+  //   cerr << *geom << endl;
 
-    // pPaintingGeom->addStrokeCurve(*geom);
+  //   // pPaintingGeom->addStrokeCurve(*geom);
 
-    // if (geom) {
-    //   cerr << "num strokes" << geom->m_strokes.size() << endl;
-    //   cerr << "m_forceDip" << geom->m_forceDip << endl;
-    //   cerr << "m_brushId" << geom->m_brushId << endl;
-    //   cerr << "m_paintId" << geom->m_paintId << endl;
-    // }
+  //   // if (geom) {
+  //   //   cerr << "num strokes" << geom->m_strokes.size() << endl;
+  //   //   cerr << "m_forceDip" << geom->m_forceDip << endl;
+  //   //   cerr << "m_brushId" << geom->m_brushId << endl;
+  //   //   cerr << "m_paintId" << geom->m_paintId << endl;
+  //   // }
 
-  }
+  // }
 
 
 
@@ -483,8 +514,8 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
   st = setData(data, painting::aOutTargets, outTargets); er;
 
-  hOutput.set( pPaintingData );
-  data.setClean( plug );
+  // hOutput.set( pPaintingData );
+  // data.setClean( plug );
 
 
 
@@ -622,20 +653,30 @@ void painting::draw( M3dView &view,
   MObject thisObj = thisMObject();
 
 
-  /*
-  COMMENTED PAINTING DATA
 
+  // COMMENTED PAINTING DATA
+  // paintingData *ptd = 0;
   MPlug plugPaintingData( thisObj, aOutput );
   MObject dPaintingData;
   st = plugPaintingData.getValue(dPaintingData);
   MFnPluginData fnPaintingData(dPaintingData);
+  paintingData *ptd  =  (paintingData *)fnPaintingData.data();
+  if (! ptd)  {
+    cerr << "ptd: " << ptd << endl;
+    return;
+  }
+  paintingGeom *pGeom = ptd->geometry();
+
+  cerr << "draw: pGeom " << pGeom << endl;
+
+
+  /*
   paintingData *pPaintingData = (paintingData *)fnPaintingData.data(&st); er;
   paintingGeom *pPaintingGeom = pPaintingData->fGeometry;
 
 
 
   */
-
 
 
 

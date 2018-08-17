@@ -14,7 +14,7 @@ from robolink import (
 )
 import robodk as rdk
 
-RL = Robolink()
+# RL = Robolink()
 
 robot = RL.Item('', ITEM_TYPE_ROBOT)
 
@@ -30,10 +30,10 @@ robot = RL.Item('', ITEM_TYPE_ROBOT)
 # toolbar and without the menu
 
 
-RL.Render(False)
+# RL.Render(False)
 # RL.setWindowState(-1)
 
-RL.setWindowState(2)
+# RL.setWindowState(2)
 
 # robot.Childs()
 # for c in robot.Childs():
@@ -44,7 +44,7 @@ RL.setWindowState(2)
 def draw_seg(verts, color, name):
     # print "color %s %s %s" % color
     # print "name %s" % name
-
+    RL = Robolink()
     triangles = [
         list(verts[0]), list(verts[1]), list(verts[2]),
         list(verts[1]), list(verts[3]), list(verts[2])

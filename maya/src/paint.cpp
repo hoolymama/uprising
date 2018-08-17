@@ -60,3 +60,13 @@ Paint::Paint(
 }
 
 Paint::~Paint() {}
+
+ostream &operator<<(ostream &os, const Paint &p)
+{
+	os << " id:" << p.id << ",";
+	os << " color:" << p.color << ",";
+	os << " opacity:" << p.opacity << ",";
+	os << " travel:" << p.travel;
+	return os;
+}
+

@@ -30,6 +30,10 @@ public:
 	  MObject &retentionAttribute,
 	  MObject &shapeAttribute);
 
+
+	friend ostream &operator<<(ostream &os, const Brush &b);
+
+
 	short id;
 	double width;
 	double retention;

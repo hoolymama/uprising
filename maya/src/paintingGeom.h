@@ -16,40 +16,36 @@ public:
 
 	~paintingGeom();
 
-	paintingGeom &operator=( const paintingGeom &other );
+	// paintingGeom &operator=( const paintingGeom &other );
 
-	// const std::vector<clusterGeom> &clusters() const;
-	// const std::map<short, Paint>    &paints() const;
-	// const std::map<short, Brush>    &brushes() const;
+	const std::vector<clusterGeom> &clusters() const;
+	const std::map<short, Paint>    &paints() const;
+	const std::map<short, Brush>    &brushes() const;
 
-	// const std::vector<double> dummies() const;
-	// void setPaints(const std::map<short, Paint> &paints);
+	void setPaints(const std::map<short, Paint> &paints);
 
-	// void setBrushes(const std::map<short, Brush> &brushes);
+	void setBrushes(const std::map<short, Brush> &brushes);
 
-	// void  addStrokeCurve(const strokeCurveGeom &strokeCurve) ;
+	void  addStrokeCurve(const strokeCurveGeom &strokeCurve) ;
 
-	// const Brush &brushFromId(short id) const ;
-	// const Paint &paintFromId(short id) const ;
+	const Brush &brushFromId(short id) const ;
+	const Paint &paintFromId(short id) const ;
 
-	// double travelCutoff(short brushId, short paintId) const;
+	double travelCutoff(short brushId, short paintId) const;
 
-	// void clear();
-
-	// friend ostream &operator<<(ostream &os, const paintingGeom &geom);
+	friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 
 private:
 
-	// void prepClusterForStroke(
-	//   bool force,
-	//   short brushId,
-	//   short paintId
-	// );
+	void prepClusterForStroke(
+	  bool force,
+	  short brushId,
+	  short paintId
+	);
 
-	// std::vector<double> m_dummies;
-	// std::vector<clusterGeom> m_clusters;
-	// std::map<short, Paint> m_paints;
-	// std::map<short, Brush> m_brushes;
+	std::vector<clusterGeom> m_clusters;
+	std::map<short, Paint> m_paints;
+	std::map<short, Brush> m_brushes;
 
 };
 

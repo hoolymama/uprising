@@ -8,7 +8,7 @@ import uprising.uprising_util as uput
 import robodk as rdk
 import sheets
 
-RL = Robolink()
+# RL = Robolink()
 
 
 def add_brush_to_sf():
@@ -36,6 +36,7 @@ def connect_brush_to_node(brush_tf, node, connect_to="next_available"):
 
 
 def send_brushes(factory):
+    RL = Robolink()
     robot = RL.Item('', ITEM_TYPE_ROBOT)
     base = pm.PyNode("brushes|base")
     brushes = Brush.used_brushes(factory)
@@ -52,7 +53,7 @@ def send_brush(robot, brush, base):
     mesh, we rebuild triangles in robodk and add it to the
     hierarchy.
     """
-
+    RL = Robolink()
     geo = pm.PyNode(brush.name).getShapes() + base.getShapes()
     # print brush.name
     triangles = []
@@ -110,7 +111,8 @@ def create_brush_geo(height, bristle_height, tip, width, name, profile):
 
 
 def create_and_connect_brush_geo(
-        node,
+        painting_node,
+        dip_node,
         idx,
         _1,
         height,
@@ -120,18 +122,29 @@ def create_and_connect_brush_geo(
         _3,
         width,
         name,
-        profile):
+        profile,
+        dip_tip,
+        _4
+        ):
 
-    tf = create_brush_geo(height, bristle_height, tip, width, name, profile)
-    connect_brush_to_node(tf, node)
+    painting_tf = create_brush_geo(height, bristle_height, tip, width, ("%s_P" % name), profile)
+    if painting_node:
+        connect_brush_to_node(painting_tf, painting_node)
+        painting_tf.attr("sfBrushWidth").set(width)
+        painting_tf.attr("sfBrushRetention").set(1)
+    else:
+        pm.warning("No painting node. Skipping")
 
-    tf.attr("sfBrushWidth").set(width)
-    tf.attr("sfBrushLiftLength").set((tip * 2))
-    tf.attr("sfBrushLiftHeight").set(tip *1.2)
-    tf.attr("sfBrushLiftBias").set(0)
-    tf.attr("sfBrushRetention").set(1)
-    
-    pm.parent( tf, '|brushes' )
+    dip_tf = create_brush_geo(height, bristle_height, dip_tip, width, ("%s_D" % name), profile)
+    if dip_tf:
+        connect_brush_to_node(dip_tf, dip_node)
+        dip_tf.attr("sfBrushWidth").set(width)
+        dip_tf.attr("sfBrushRetention").set(1000)
+    else:
+        pm.warning("No dip node. Skipping")
+
+    pm.parent( painting_tf, '|brushes' )
+    pm.parent( dip_tf, '|brushes' )
 
 
 
@@ -145,13 +158,16 @@ def delete_brushes(node):
         pm.removeMultiInstance(node.attr("brushes[%d]" % i), b=True)
 
 
-def create_brush_geo_from_sheet(factory_node):
-    data = sheets.get_raw_brushes_data()
+def create_brush_geo_from_sheet(painting_node, dip_node):
+    data =  get_raw_brushes_data()
     validate_brush_data(data)
-    delete_brushes(factory_node)
+
+    delete_brushes(painting_node)
+    delete_brushes(dip_node)
+
     for row in data:
         row = [uput.numeric(s) for s in row]
-        create_and_connect_brush_geo(factory_node, *row)
+        create_and_connect_brush_geo(painting_node, dip_node, *row)
 
 
 # def numeric(s):
@@ -167,6 +183,18 @@ def validate_brush_data(data):
     for row in data:
         if not len(row) > 9:
             raise ValueError("Invalid brush data from Google sheets")
+
+
+
+def get_raw_brushes_data():
+    service = sheets._get_service()
+    result = service.spreadsheets().values().get(
+        spreadsheetId=sheets.SHEETS["Measurements"],
+        range='Brushes!A2:L18').execute()
+    values = result.get('values', [])
+    return values
+
+
 
     # delete existing brushes
 

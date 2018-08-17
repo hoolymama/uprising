@@ -2,26 +2,26 @@
 
 global proc uprising.init(string $moduleName) {
 
-    string $moduleMenu = module.menuName($moduleName);
+    // string $moduleMenu = module.menuName($moduleName);
 
-    setParent -m $moduleMenu;
+    // setParent -m $moduleMenu;
 
     // menuItem -l "Send to RoboDK" -c "python \"import uprising.io;reload(uprising.io);uprising.io.send()\"";
     // menuItem -l "Robot tools UI" -c "python \"import uprising.win;reload(uprising.win);uprising.win.setup()\"";
     
-    menuItem -l "Send Objects" -c "python \"import uprising.io;reload(uprising.io);uprising.io.send_objects()\"";
+    // menuItem -l "Send Objects" -c "python \"import uprising.io;reload(uprising.io);uprising.io.send_objects()\"";
      
-    menuItem -l "Curve project" -c "python \"import uprising.curve;reload(uprising.curve);uprising.curve.setup()\"";
+    // menuItem -l "Curve project" -c "python \"import uprising.curve;reload(uprising.curve);uprising.curve.setup()\"";
     
-    menuItem -l "Convert objects" -c "python \"import uprising.util as uut; uut.convert_objects()\"";
+    // menuItem -l "Convert objects" -c "python \"import uprising.util as uut; uut.convert_objects()\"";
     
-    menuItem -l "Insert Identity" -c "python \"import uprising.util as uut; uut.insert_identity()\"";
+    // menuItem -l "Insert Identity" -c "python \"import uprising.util as uut; uut.insert_identity()\"";
 
 
 
-		module.subMenu($moduleMenu, "Stroke Factory");
+		// module.subMenu($moduleMenu, "Stroke Factory");
 
-		menuItem -l "Create" -c "createStrokeFactory" -ann "Pick some curves";
+		// menuItem -l "Create" -c "createStrokeFactory" -ann "Pick some curves";
 
-    setParent -m $moduleMenu;
+    // setParent -m $moduleMenu;
 }

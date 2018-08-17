@@ -27,6 +27,8 @@ public:
 
 	~Paint();
 
+	friend ostream &operator<<(ostream &os, const Paint &p);
+
 	short id;
 	MColor color;
 	double opacity;

@@ -11,7 +11,7 @@ import robodk as rdk
 
 reload(pnt)
 
-RL = Robolink()
+# RL = Robolink()
 
 
 
@@ -20,6 +20,7 @@ def get_robot():
 
     Load from disk if necessary.
     """
+    RL = Robolink()
     robot = RL.Item('', ITEM_TYPE_ROBOT)
     if not robot.Valid():
         robot = RL.AddFile(
@@ -32,6 +33,7 @@ def get_robot():
 
 
 def status(text):
+    RL = Robolink()
     RL.ShowMessage(text, False)
 
 
@@ -44,6 +46,7 @@ def send_object(node, targets_parent, parent, robot):
     mesh, we rebuild triangles in robodk and add it to the
     hierarchy.
     """
+    RL = Robolink()
     name = node.name()
 
     if isinstance(node, pm.nodetypes.Transform):
@@ -103,7 +106,7 @@ class PropsTab(gui.FormLayout):
         self.attachControl(self.column, 'bottom', 2, but)
 
     def on_send(self):
-
+        RL = Robolink()
         robot = get_robot()
 
         targets_parent = RL.Item('Targets')

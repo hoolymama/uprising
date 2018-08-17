@@ -8,7 +8,7 @@ import robodk as rdk
 from uprising_util import StrokeError, ClusterError
 
 
-RL = Robolink()
+# RL = Robolink()
 
 
 import pymel.core as pm
@@ -62,7 +62,7 @@ class Cluster(object):
         raise NotImplementedError
 
     def write_program_comands(self, robot, parent_program, parent_frame):
-        
+        RL = Robolink()
 
         prefix =  "px" if self.__class__.__name__ == "PaintingCluster" else "dx"
 
@@ -142,7 +142,7 @@ class PaintingCluster(Cluster):
         return None
 
     def write_program_comands(self, robot, parent_program, parent_frame):
-
+        RL = Robolink()
         cluster_approach_target = RL.Item(k.CLUSTER_APPROACH)
         tool_change_target = RL.Item(k.TOOL_CHANGE_APPROACH)
         
@@ -218,7 +218,7 @@ class DipCluster(Cluster):
         return False
 
     def write_program_comands(self, robot, parent_program, parent_frame):
-
+        RL = Robolink()
         # we have to set the tool in each subroutine
         tool = RL.Item(self.brush.name)
         if not tool.Valid():

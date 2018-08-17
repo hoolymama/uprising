@@ -4,7 +4,7 @@ import datetime
 import pymel.core as pm
 
 from robolink import (Robolink, RUNMODE_MAKE_ROBOTPROG, ITEM_TYPE_ROBOT, RUNMODE_MAKE_ROBOTPROG)
-RL = Robolink()
+# RL = Robolink()
 
 
 def mkdir_p(path):
@@ -18,6 +18,7 @@ def mkdir_p(path):
 
 
 def write_program():
+    RL = Robolink()
     robot = RL.Item('', ITEM_TYPE_ROBOT)
     export_dir = os.path.join(pm.workspace.getPath(), 'export')
     entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",

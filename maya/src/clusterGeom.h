@@ -61,7 +61,7 @@ public:
 
 	void pushStroke(const strokeGeom &s);
 
-	clusterGeom &operator=( const clusterGeom &other );
+	// clusterGeom &operator=( const clusterGeom &other );
 
 	friend ostream &operator<<(ostream &os, const clusterGeom &geom);
 
@@ -75,8 +75,7 @@ private:
 	short m_brushId;
 	double m_travelCutoff;
 	double m_travel;
-	// short m_paintId;
-	// short m_brushId;
+
 
 };
 

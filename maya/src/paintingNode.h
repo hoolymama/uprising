@@ -16,6 +16,8 @@
 
 #include <maya/MDGMessage.h>
 #include <maya/MDGModifier.h>
+
+#include "paintingData.h"
 #include "strokeCurveGeom.h"
 // #include "stroke.h"
 #include "brush.h"
@@ -155,6 +157,9 @@ private:
   // static MObject aWireColor;
 
   static MObject aStackGap;
+
+  paintingData *m_pd;
+
 
 };
 

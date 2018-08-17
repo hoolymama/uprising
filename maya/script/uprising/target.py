@@ -1,7 +1,7 @@
 import robodk as rdk
 
 from uprising_util import StrokeError
-from robolink import (Robolink, COLLISION_ON, COLLISION_OFF, ITEM_TYPE_ROBOT)
+# from robolink import (COLLISION_ON, COLLISION_OFF, ITEM_TYPE_ROBOT)
 
 CONFIG_MASK = "000"
 

@@ -66,13 +66,11 @@ strokeGeom &strokeGeom::operator=( const strokeGeom &other )
 
 ostream &operator<<(ostream &os, const strokeGeom &g)
 {
-	MString direction = (g.m_direction == 1) ? "Frontstroke" : "Backstroke"  ;
+	MString direction = (g.m_direction == 1) ? "forward" : "back"  ;
 
-
-	os << "Direction: " <<  direction << "\n";
-
-	os << g.m_targets.length() << " Targets\n";
-	os << "Arc length: " <<  g.m_arcLength << "\n";
+	os << " Direction:" <<  direction << ",";
+	os << " Targets:" << g.m_targets.length() << ",";
+	os << " Arc length:" <<  g.m_arcLength;
 
 	return os;
 }

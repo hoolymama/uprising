@@ -45,7 +45,7 @@ reload(sfu)
 reload(sheets)
 
 
-RL = Robolink()
+# RL = Robolink()
 
 
 class PaintingTab(gui.FormLayout):
@@ -61,78 +61,78 @@ class PaintingTab(gui.FormLayout):
     def create_butttons(self):
         pm.setParent(self.column)
 
-        pm.button(
-            label='Create Stroke Factory',
-            command=pm.Callback(sfu.create_stroke_factory))
+        # pm.button(
+        #     label='Create Stroke Factory',
+        #     command=pm.Callback(sfu.create_stroke_factory))
  
-        pm.button(
-            label='Create painting',
-            command=pm.Callback(self.on_create_painting))
+        # pm.button(
+        #     label='Create painting',
+        #     command=pm.Callback(self.on_create_painting))
 
-        pm.button(
-            label='Create dip subroutines',
-            command=pm.Callback(self.on_create_dip_only))
+        # pm.button(
+        #     label='Create dip subroutines',
+        #     command=pm.Callback(self.on_create_dip_only))
 
-        pm.button(
-            label='Send brushes',
-            command=pm.Callback(self.on_send_brushes))
+        # pm.button(
+        #     label='Send brushes',
+        #     command=pm.Callback(self.on_send_brushes))
 
-        pm.button(
-            label='Create all',
-            command=pm.Callback(self.on_create_all))
+        # pm.button(
+        #     label='Create all',
+        #     command=pm.Callback(self.on_create_all))
 
-        pm.button(
-            label='Add curve to factory',
-            command=pm.Callback(cutl.add_curve_to_sf))
+        # pm.button(
+        #     label='Add curve to factory',
+        #     command=pm.Callback(cutl.add_curve_to_sf))
 
-        pm.button(
-            label='Update curve driver connections',
-            command=pm.Callback(cutl.update_curve_sf))
+        # pm.button(
+        #     label='Update curve driver connections',
+        #     command=pm.Callback(cutl.update_curve_sf))
 
 
-        pm.button(
-            label='Add brush to factory',
-            command=pm.Callback(butl.add_brush_to_sf))
+        # pm.button(
+        #     label='Add brush to factory',
+        #     command=pm.Callback(butl.add_brush_to_sf))
 
-        pm.button(
-            label='Add all paint trays to factory',
-            command=pm.Callback(putl.add_all_trays_to_sf))
+        # pm.button(
+        #     label='Add all paint trays to factory',
+        #     command=pm.Callback(putl.add_all_trays_to_sf))
 
-        pm.button(
-            label='Send paint trays',
-            command=pm.Callback(self.on_send_paint_trays))
+        # pm.button(
+        #     label='Send paint trays',
+        #     command=pm.Callback(self.on_send_paint_trays))
 
-        pm.button(
-            label='Delete curve instances',
-            command=pm.Callback(self.on_delete_curve_instances))
+        # pm.button(
+        #     label='Delete curve instances',
+        #     command=pm.Callback(self.on_delete_curve_instances))
 
-        pm.button(
-            label='Set up dip stroke factory',
-            command=pm.Callback(self.on_setup_dip))
+        # pm.button(
+        #     label='Set up dip stroke factory',
+        #     command=pm.Callback(self.on_setup_dip))
 
-        pm.button(
-            label='Write program, station, simulation',
-            command=pm.Callback(write.write_program))
+        # pm.button(
+        #     label='Write program, station, simulation',
+        #     command=pm.Callback(write.write_program))
 
-        pm.button(
-            label='Randomize paints assignments',
-            command=pm.Callback(self.on_random_paints))
+        # pm.button(
+        #     label='Randomize paints assignments',
+        #     command=pm.Callback(self.on_random_paints))
 
-        pm.button(
-            label='Randomize brush assignments',
-            command=pm.Callback(self.on_random_brushes))
+        # pm.button(
+        #     label='Randomize brush assignments',
+        #     command=pm.Callback(self.on_random_brushes))
 
-        pm.button(
-            label='Export approach objects',
-            command=pm.Callback(self.on_send_approach_targets))
+        # pm.button(
+        #     label='Export approach objects',
+        #     command=pm.Callback(self.on_send_approach_targets))
 
         pm.button(
             label='Create brushes from spreadsheet',
             command=pm.Callback(self.create_brush_geo_from_sheet))
 
-        pm.button(
-            label='Set board transform from spreadsheet',
-            command=pm.Callback(self.set_board_transform_from_sheet))
+        # pm.button(
+        #     label='Set board transform from spreadsheet',
+        #     command=pm.Callback(self.set_board_transform_from_sheet))
 
 
     def create_action_buttons(self):
@@ -165,8 +165,9 @@ class PaintingTab(gui.FormLayout):
 
 
     def create_brush_geo_from_sheet(self):
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        butl.create_brush_geo_from_sheet(painting_factory)
+        painting_node = pm.PyNode("mainPaintingShape")
+        dip_node = pm.PyNode("dipPaintingShape")
+        butl.create_brush_geo_from_sheet(painting_node, dip_node)
         
     def on_send_paint_trays(self):
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
@@ -189,6 +190,7 @@ class PaintingTab(gui.FormLayout):
         sfu.send_aproach_objects(painting_factory)
 
     def on_create_all(self):
+        RL = Robolink()
         RL.setWindowState(-1)
         RL.Render(False)
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
@@ -205,6 +207,7 @@ class PaintingTab(gui.FormLayout):
         RL.setWindowState(2)
  
     def on_create_painting(self):
+        RL = Robolink()
         RL.setWindowState(-1)
         RL.Render(False)
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
@@ -214,6 +217,7 @@ class PaintingTab(gui.FormLayout):
         RL.setWindowState(2)
 
     def on_create_dip_only(self):
+        RL = Robolink()
         RL.setWindowState(-1)
         RL.Render(False)
         dip_factory = pm.PyNode("dipStrokeFactoryShape")

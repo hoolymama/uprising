@@ -1,0 +1,146 @@
+
+
+
+
+ 
+/*
+ * AErelaxPointsTemplate.mel
+ * mel
+ * 
+ * Created by Julian Mann on 03/07/2010.
+ * 
+ * Copyright (c) 2009 Julian Mann
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 
+ * Neither the name of the project's author nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+
+
+ global proc     AEstrokeFactoryTemplate(string $nodeName)
+ {
+
+ 	editorTemplate -beginScrollLayout;
+
+
+	// editorTemplate -cl 0 -beginLayout "General Attributes";
+	// editorTemplate -addControl "strokeCountFactor"; 
+ // 	editorTemplate -addControl "rotateOrder"; 
+ // 	editorTemplate -addControl "outAngularUnit"; 
+ // 	editorTemplate -endLayout;
+
+ 
+	editorTemplate -cl 0 -beginLayout "Approach Attributes";
+	editorTemplate -addControl "clusterApproachObject";
+	editorTemplate -addControl "toolChangeApproachObject";
+	editorTemplate -addControl "homeApproachObject";
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Speed Attributes";
+	editorTemplate -addControl "linearSpeed";
+	editorTemplate -addControl "angularSpeed";
+	editorTemplate -addControl "approximationDistance";
+	editorTemplate -endLayout;
+
+	// editorTemplate -cl 0 -beginLayout "Display Attributes";
+ // 	editorTemplate -addControl "displayPoints"; 
+ // 	editorTemplate -addControl "displayIds";
+ // 	editorTemplate -addControl "displayBrush"; 
+ // 	editorTemplate -addControl "displayPaint"; 
+ //  editorTemplate -addControl "displayBrushLift"; 
+ // 	editorTemplate -addControl "displayPaintOutlines"; 
+ //  editorTemplate -addControl "paintOutlineThickness"; 
+ // 	editorTemplate -addControl "pointSize"; 
+ // 	editorTemplate -addControl "normalLength"; 
+ // 	editorTemplate -addControl "displayApproach"; 
+ // 	editorTemplate -addControl "lineColor"; 
+ // 	editorTemplate -addControl "stackGap"; 
+ // 	editorTemplate -endLayout;
+
+
+	// editorTemplate -cl 0 -beginLayout "Curves";
+ // 	editorTemplate -callCustom "AEpaintingCurvesNew" "AEpaintingCurvesReplace" "curves";
+ // 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Paints";
+ 	editorTemplate -callCustom "AEpaintingPaintsNew" "AEpaintingPaintsReplace" "paints";
+ 	editorTemplate -endLayout;
+ 
+	editorTemplate -cl 0 -beginLayout "Brushes";
+ 	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
+ 	editorTemplate -endLayout;
+
+
+	editorTemplate -suppress "strokeCurves";
+
+ 	editorTemplate -suppress "outTargets";
+ 	// editorTemplate -suppress "outTargetsWorld";
+  // editorTemplate -suppress "outNormalsLocal";
+ 	// editorTemplate -suppress "outNormalsWorld";
+ 	editorTemplate -suppress "outCounts";
+
+ 	editorTemplate -suppress "inMatrix";
+
+	AElocatorInclude $nodeName;
+	
+
+	editorTemplate -suppress "values" ;
+	editorTemplate -suppress "useObjectColor" ;
+	editorTemplate -suppress "objectColor" ;
+	editorTemplate -suppress "nodeState"; 
+	editorTemplate -suppress "visibility"; 
+	editorTemplate -suppress "intermediateObject"; 
+	editorTemplate -suppress "lodVisibility"; 
+	editorTemplate -suppress "instObjGroups";  
+	editorTemplate -suppress "compInstObjGroups"; 
+	
+	editorTemplate -suppress "caching";
+	editorTemplate -suppress "template";
+	editorTemplate -suppress "drawOverride" ;
+	editorTemplate -suppress "renderInfo" ;
+	editorTemplate -suppress "motionBlur" ;
+	editorTemplate -suppress "visibleInReflections" ;
+	editorTemplate -suppress "visibleInRefractions" ; 
+	editorTemplate -suppress "castsShadows" ;
+	editorTemplate -suppress "maxVisibilitySamplesOverride";
+	editorTemplate -suppress "maxVisibilitySamples";
+	editorTemplate -suppress "geometryAntialiasingOverride";
+	editorTemplate -suppress "antialiasingLevel";
+	editorTemplate -suppress "shadingSamplesOverride";
+	editorTemplate -suppress "shadingSamples";
+	editorTemplate -suppress "maxShadingSamples";
+	editorTemplate -suppress "volumeSamplesOverride";
+	editorTemplate -suppress "volumeSamples";
+	editorTemplate -suppress "primaryVisibility";
+	
+	editorTemplate -suppress "localPosition";
+ 	editorTemplate -addExtraControls;
+
+ 	editorTemplate -endScrollLayout;
+ }

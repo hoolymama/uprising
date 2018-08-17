@@ -25,9 +25,9 @@ import const as k
 
 # , PaintingCluster, DipCluster
 
-RL = Robolink()
+# RL = Robolink()
 
-RL.setCollisionActive(COLLISION_OFF)
+# RL.setCollisionActive(COLLISION_OFF)
 
 
 
@@ -62,6 +62,7 @@ def paint_and_brush_name(paint, brush):
 class Painting(object):
 
     def __init__(self, factory_node, is_dip=False):
+        RL = Robolink()
         RL.setCollisionActive(0)
         self.brushes = {}
         self.paints = {}
@@ -102,7 +103,7 @@ class Painting(object):
  
 
     def _create_clusters(self, is_dip):
-
+        RL = Robolink()
         robot = RL.Item('', ITEM_TYPE_ROBOT)
         positions = self.node.attr("outPosition").get()
 
@@ -219,6 +220,7 @@ class Painting(object):
 
 
     def create_approaches(self):
+        RL = Robolink()
         robot = RL.Item('', ITEM_TYPE_ROBOT)
         targets_frame = uutl.create_frame("ax_frame")
 
@@ -240,7 +242,7 @@ class Painting(object):
 
         # make sure nothing is selected
 
-
+        RL = Robolink()
         RL.Render(False)
         num_clusters = len(self.clusters)
         completed_clusters = 0
@@ -273,6 +275,7 @@ class Painting(object):
         RL.Render(True)
 
     def create_dip_subroutines(self):
+        RL = Robolink()
         RL.Render(False)
         # print "Creating dip subroutines"
         num_clusters = len(self.clusters)

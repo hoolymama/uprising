@@ -1,8 +1,11 @@
- global proc AEstrokeFactoryBrushesAddMultiWidget(string $plug, string $columnLayout,  int $index) {
+ global proc AEPaintingBrushesAddMultiWidget(
+ 	string $plug, 
+ 	string $columnLayout,  
+ 	int $index) 
+{
 
  	setParent $columnLayout;
  	global int $gTextColumnWidthIndex;
-
 
  	string $label = ("No brush matrix: " + $index);
  	string $input[] = `listConnections -s 1 -d 0 -p 1 ($plug+".brushMatrix")`;
@@ -14,23 +17,19 @@
  	global int $gTextColumnWidthIndex;
  	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label $label`;
 
-
  	attrControlGrp -attribute ($plug+".brushWidth");
- 	attrControlGrp -attribute ($plug+".brushLift");
- 
  	attrControlGrp -attribute ($plug+".brushRetention");
+ 	attrControlGrp -attribute ($plug+".brushShape");
 
   string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
-
-
  	setParent ..;
  }
 
- global proc AEmultiStrokeFactoryBrushesReplace (string $nodeAttr) {
+ global proc AEpaintingBrushesReplace (string $nodeAttr) {
 
  	string $node = attr.nodeFromNodeAttr($nodeAttr);
- 	string $col = "AEaddStrokeFactoryBrushesCol";
+ 	string $col = "AEaddPaintingBrushesCol";
 
  	setParent ..;
  	int $numElements = `getAttr -size $nodeAttr`;
@@ -43,25 +42,25 @@
  	int $indices[] = `getAttr -mi $nodeAttr`;
  	for ($i = 0;$i<$numElements;$i++) {
  		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
- 		AEstrokeFactoryBrushesAddMultiWidget ($plug, $col,  $indices[$i]) ;
+ 		AEPaintingBrushesAddMultiWidget ($plug, $col,  $indices[$i]) ;
  	}
  	setParent ..;
 
- 	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
- 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].brushRetention 1.0" ) "AEaddStrokeFactoryBrushesBtn";
+ 	// int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+ 	// button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].brushRetention 1.0" ) "AEaddPaintingBrushesBtn";
 
  }
 
 
- global proc AEmultiStrokeFactoryBrushesNew (string $nodeAttr) {
+ global proc AEpaintingBrushesNew (string $nodeAttr) {
  	setUITemplate -pst attributeEditorTemplate;
 
- 	string $col = "AEaddStrokeFactoryBrushesCol";
- 	button -l "Add" "AEaddStrokeFactoryBrushesBtn";
+ 	string $col = "AEaddPaintingBrushesCol";
+ 	button -l "Add" "AEaddPaintingBrushesBtn";
  	columnLayout -adj 1 $col ;	
  	setParent ..;
  	setUITemplate -ppt;
 
- 	AEmultiStrokeFactoryBrushesReplace($nodeAttr);
+ 	AEpaintingBrushesReplace($nodeAttr);
 
  }

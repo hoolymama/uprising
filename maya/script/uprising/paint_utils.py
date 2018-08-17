@@ -6,7 +6,7 @@ import uprising.maya_util as uut
 import robodk as rdk
 
 
-RL = Robolink()
+# RL = Robolink()
 
 
 def add_all_trays_to_sf():
@@ -32,6 +32,7 @@ def connect_paint_to_node(paint_tf, node, connect_to="next_available"):
 
 
 def send_paints(factory):
+    RL = Robolink()
     robot = RL.Item('', ITEM_TYPE_ROBOT)
     p_indices = factory.attr("paints").getArrayIndices()
     for i in p_indices:
@@ -42,7 +43,7 @@ def send_paints(factory):
 
 
 def send_paint(robot, tray):
-
+    RL = Robolink()
     geo = tray.getShapes()
 
     triangles = []

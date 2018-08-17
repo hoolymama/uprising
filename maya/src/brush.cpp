@@ -1,6 +1,8 @@
 #include <map>
 
 
+
+#include <maya/MString.h>
 #include "brush.h"
 
 
@@ -55,3 +57,21 @@ std::map<short, Brush> Brush::factory(
 	}
 	return result;
 }
+
+
+
+
+ostream &operator<<(ostream &os, const Brush &b)
+{
+
+	MString shapeStr  =  "flat";
+	if (b.shape == Brush::kRound) {
+		shapeStr = "round";
+	}
+	os << " id:" << b.id;
+	os << " width:" << b.width;
+	os << " retention:" << b.retention;
+	os << " shape:" << shapeStr;
+	return os;
+}
+

@@ -1,26 +1,51 @@
 #ifndef _paintingData
 #define _paintingData
+
+#include <map>
+
 #include <maya/MPxData.h>
 #include <maya/MTypeId.h>
 #include <maya/MString.h>
 #include "paintingGeom.h"
+
+#include "brush.h"
+#include "paint.h"
+
+
 class paintingData : public MPxData
 {
 public:
 
-    paintingData();
-    virtual ~paintingData();
-    virtual void            copy ( const MPxData &other );
-    virtual MTypeId         typeId() const;
-    virtual MString         name() const;
+	paintingData();
+	virtual ~paintingData();
 
-    static void *creator();
+	void	 clear();
+	void create() ;
+
+	virtual void copy ( const MPxData &other );
+	paintingData &operator=(const paintingData &otherData ) ;
+	paintingGeom	*geometry() const ;
+
+
+
+	virtual MTypeId         typeId() const;
+	virtual MString         name() const;
+
+	static void *creator();
+
+	MStatus  create(
+	  MDataBlock &data,
+	  MObject &strokeCurvesAtt,
+	  const std::map<short, Brush> &brushes,
+	  const std::map<short, Paint> &paints);
+
+
 public:
 
-    static const MString typeName;
-    static const MTypeId id;
+	static const MString typeName;
+	static const MTypeId id;
 
-    paintingGeom *fGeometry;
+	paintingGeom *m_pGeometry;
 };
 #endif
 

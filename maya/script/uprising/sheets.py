@@ -17,13 +17,13 @@ def _get_service():
     return service
 
 
-def get_raw_brushes_data():
-    service = _get_service()
-    result = service.spreadsheets().values().get(
-        spreadsheetId=SHEETS["Measurements"],
-        range='Brushes!A2:J18').execute()
-    values = result.get('values', [])
-    return values
+# def get_raw_brushes_data():
+#     service = _get_service()
+#     result = service.spreadsheets().values().get(
+#         spreadsheetId=SHEETS["Measurements"],
+#         range='Brushes!A2:J18').execute()
+#     values = result.get('values', [])
+#     return values
 
 
 def get_raw_board_data():
