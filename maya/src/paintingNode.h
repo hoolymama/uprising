@@ -54,7 +54,7 @@ public:
 
 
   enum Spac { kParametric, kArcLen };
-  enum BrushDisplay {kNone,  kBrushLine, kBrushMatrix };
+  enum TargetDisplay {kTargetsNone, kTargetsPoint, kTargetsLine, kTargetsMatrix };
 
   enum OutlineDisplay { kOutlinesNone, kOutlinesBorders, kOutlinesArrows, kOutlinesBoth };
 
@@ -63,6 +63,21 @@ public:
 
 
 private:
+
+  void setWireDrawColor(M3dView &view,  M3dView::DisplayStatus status);
+
+  void drawWireframeTargets(const paintingGeom &geom, M3dView &view,
+                            const MDagPath &path, M3dView::DisplayStatus status );
+
+  void drawWireframeBorders( const paintingGeom &geom, M3dView &view,
+                             const MDagPath &path, M3dView::DisplayStatus status );
+
+  void drawWireframe(const paintingGeom &geom, M3dView &view, const MDagPath &path,
+                     M3dView::DisplayStatus status ) ;
+
+  void drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
+                  M3dView::DisplayStatus status ) ;
+
 
   MStatus setData(MDataBlock &block, MObject &attribute,
                   const MMatrixArray &data) ;
@@ -106,7 +121,14 @@ private:
   static MObject  aPaintTravel;
   static MObject  aPaints;
 
-
+  static MObject  aPointSize;
+  static MObject  aLineLength;
+  static MObject  aLineThickness;
+  static MObject  aDisplayIds;
+  static MObject  aDisplayTargets;
+  static MObject  aDisplayLift;
+  static MObject  aDisplayApproach;
+  static MObject  aDisplayArrows;
 
   static MObject  aOutTargets; // local
 

@@ -92,7 +92,7 @@ class PaintingTab(gui.FormLayout):
 
         # pm.button(
         #     label='Add brush to factory',
-        #     command=pm.Callback(butl.add_brush_to_sf))
+        #     command=pm.Callback(butl.add_brush_to_painting))
 
         # pm.button(
         #     label='Add all paint trays to factory',
@@ -127,8 +127,9 @@ class PaintingTab(gui.FormLayout):
         #     command=pm.Callback(self.on_send_approach_targets))
 
         pm.button(
-            label='Create brushes from spreadsheet',
-            command=pm.Callback(self.create_brush_geo_from_sheet))
+            label='Setup from spreadsheet',
+            ann="Read and connect paints and brushes and board from the spreadsheet",
+            command=pm.Callback(self.setup_from_spreadsheet))
 
         # pm.button(
         #     label='Set board transform from spreadsheet',
@@ -164,11 +165,13 @@ class PaintingTab(gui.FormLayout):
 
 
 
-    def create_brush_geo_from_sheet(self):
+    def setup_from_spreadsheet(self):
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
         butl.create_brush_geo_from_sheet(painting_node, dip_node)
-        
+        putl.setup_paints_from_sheet(painting_node, dip_node)
+        sfu.set_board_from_sheet(painting_node)
+   
     def on_send_paint_trays(self):
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
         putl.send_paints(painting_factory)

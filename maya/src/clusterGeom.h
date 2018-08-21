@@ -25,7 +25,7 @@ public:
 	  double travelCutoff,
 	  clusterGeom::Reason reason);
 
-	clusterGeom(const clusterGeom &other);
+	// clusterGeom(const clusterGeom &other);
 
 
 
@@ -52,6 +52,9 @@ public:
 
 	double travel() const ;
 
+	MString name() const ;
+
+
 	const std::vector<strokeGeom> &strokes() const ;
 	// double maxTravel() const ;
 
@@ -61,7 +64,7 @@ public:
 
 	void pushStroke(const strokeGeom &s);
 
-	// clusterGeom &operator=( const clusterGeom &other );
+	clusterGeom &operator=( const clusterGeom &other );
 
 	friend ostream &operator<<(ostream &os, const clusterGeom &geom);
 

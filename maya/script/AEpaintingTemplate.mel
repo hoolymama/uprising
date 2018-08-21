@@ -43,7 +43,7 @@
 
 
 
- global proc     AEstrokeFactoryTemplate(string $nodeName)
+ global proc     AEpaintingTemplate(string $nodeName)
  {
 
  	editorTemplate -beginScrollLayout;
@@ -68,7 +68,18 @@
 	editorTemplate -addControl "approximationDistance";
 	editorTemplate -endLayout;
 
-	// editorTemplate -cl 0 -beginLayout "Display Attributes";
+	editorTemplate -cl 0 -beginLayout "Display Attributes";
+	editorTemplate -addControl "pointSize"; 
+	editorTemplate -addControl "lineLength";
+	editorTemplate -addControl "lineThickness";
+	
+	editorTemplate -addControl "displayIds";
+	editorTemplate -addControl "displayTargets";
+	editorTemplate -addControl "displayLift";
+	editorTemplate -addControl "displayApproach";
+	editorTemplate -addControl "displayArrows";
+
+
  // 	editorTemplate -addControl "displayPoints"; 
  // 	editorTemplate -addControl "displayIds";
  // 	editorTemplate -addControl "displayBrush"; 
@@ -76,12 +87,11 @@
  //  editorTemplate -addControl "displayBrushLift"; 
  // 	editorTemplate -addControl "displayPaintOutlines"; 
  //  editorTemplate -addControl "paintOutlineThickness"; 
- // 	editorTemplate -addControl "pointSize"; 
  // 	editorTemplate -addControl "normalLength"; 
  // 	editorTemplate -addControl "displayApproach"; 
  // 	editorTemplate -addControl "lineColor"; 
  // 	editorTemplate -addControl "stackGap"; 
- // 	editorTemplate -endLayout;
+ editorTemplate -endLayout;
 
 
 	// editorTemplate -cl 0 -beginLayout "Curves";

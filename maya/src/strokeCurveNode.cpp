@@ -1026,7 +1026,7 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
 
   for (auto &citer : strokes)  // ranged based for loop
   {
-    citer->appendTargets(planeNormal, outTargets);
+    citer->appendTargets(outTargets);
     citer->appendTangents(outTangents);
     citer->appendPoints(outPositions);
     outCounts.append(citer->length());
@@ -1056,7 +1056,7 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
   MObject dOut = fnOut.create(kdid , &st );
   strokeCurveData *newData = (strokeCurveData *)fnOut.data(&st); er;
   strokeCurveGeom *geom = newData->fGeometry;
-  geom->create(strokes, planeNormal, force, brushId, paintId );
+  geom->create(strokes, force, brushId, paintId );
 
   hOutput.set( newData );
   data.setClean( plug );

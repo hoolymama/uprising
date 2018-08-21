@@ -56,7 +56,7 @@
  	setUITemplate -pst attributeEditorTemplate;
 
  	string $col = "AEaddPaintingBrushesCol";
- 	button -l "Add" "AEaddPaintingBrushesBtn";
+ 	// button -l "Add" "AEaddPaintingBrushesBtn";
  	columnLayout -adj 1 $col ;	
  	setParent ..;
  	setUITemplate -ppt;

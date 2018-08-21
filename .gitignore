@@ -13,3 +13,5 @@ tmp/
 *.sublime-project
 .nfs*
 __pycache__
+*.mabak
+*.mayaSwatches

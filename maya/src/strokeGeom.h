@@ -12,9 +12,7 @@ class strokeGeom
 public:
 	strokeGeom();
 
-	strokeGeom(
-	  const Stroke &src,
-	  const MVector &planeNormal);
+	strokeGeom(const Stroke &src);
 
 	~strokeGeom();
 
@@ -22,10 +20,25 @@ public:
 	const MMatrix &endApproach() const ;
 	const MMatrixArray &targets() const ;
 	const MVectorArray &tangents() const ;
+	const MVector &planeNormal() const;
 	double arcLength() const ;
 	short direction() const ;  // 1 or -1
 
-	strokeGeom &operator=( const strokeGeom &other );
+
+
+
+
+	void getPoints(MFloatPointArray &result) const;
+	void getXAxes(MFloatVectorArray &result) const;
+	void getYAxes(MFloatVectorArray &result) const;
+	void getZAxes(MFloatVectorArray &result) const;
+	void getBorders(MFloatPointArray &lefts, MFloatPointArray &rights,
+	                double brushWidth) const;
+
+
+
+
+	// strokeGeom &operator=( const strokeGeom &other );
 
 	friend ostream &operator<<(ostream &os, const strokeGeom &geom);
 
@@ -37,6 +50,9 @@ private:
 	MVectorArray m_tangents;
 	double m_arcLength;
 	short m_direction; // 1 or -1
+	MVector m_planeNormal;
+
+
 
 };
 

@@ -60,24 +60,24 @@ public:
 
 	) ;
 
-	unsigned  generateRepeats(
-	  unsigned repeats,
-	  double repeatOffset,
-	  bool repeatMirror,
-	  bool repeatOscillate,
-	  const MVector &planeNormal,
-	  const MMatrix &inversePlaneMatrix,
-	  std::vector<std::unique_ptr<Stroke> > &strokes) const ;
+	// unsigned  generateRepeats(
+	//   unsigned repeats,
+	//   double repeatOffset,
+	//   bool repeatMirror,
+	//   bool repeatOscillate,
+	//   const MVector &planeNormal,
+	//   const MMatrix &inversePlaneMatrix,
+	//   std::vector<std::unique_ptr<Stroke> > &strokes) const ;
 
 
 	void offsetFrom(
 	  const Stroke &other,
-	  const MVector &planeNormal,
 	  double offset);
 
 
-	void initializeTargets(
+	void initialize(
 	  const MObject &curveObject ,
+	  const MVector &planeNormal,
 	  double curveLength,
 	  double startDist,
 	  double endDist,
@@ -105,7 +105,7 @@ public:
 
 	// virtual bool  shouldMakeBackstroke( bool oscillate,  int index ) const  ;
 
-	virtual void appendTargets(const MVector &planeNormal, MMatrixArray &result) const;
+	virtual void appendTargets(MMatrixArray &result) const;
 
 	virtual void  appendTangents(MVectorArray &result) const;
 
@@ -121,13 +121,11 @@ public:
 	bool overlapsPlane(const MMatrix &inversePlaneMatrix) const;
 
 
-	const std::vector<Target> &targets() const {
-		return m_targets;
-	}
+	const std::vector<Target> &targets() const;
 
-	const MDoubleArray &profile() const {
-		return m_profile;
-	}
+	const MVector &planeNormal() const ;
+
+	const MDoubleArray &profile() const;
 
 	double arcLength() const;
 
@@ -143,8 +141,7 @@ public:
 
 	virtual short direction() const ;
 
-	virtual	void  getApproachTargets( const MVector &planeNormal, MMatrix &startApproach,
-	                                  MMatrix &endApproach) const;
+	virtual	void  getApproachTargets( MMatrix &startApproach, MMatrix &endApproach) const;
 
 
 protected:
@@ -154,11 +151,10 @@ protected:
 	MDoubleArray m_profile;
 	MPoint m_pivot;
 	bool m_follow;
-
 	double m_arcLength;
-
 	double m_approachDistStart;
 	double m_approachDistEnd;
+	MVector m_planeNormal;
 };
 
 

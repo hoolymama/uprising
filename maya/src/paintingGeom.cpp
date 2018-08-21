@@ -20,7 +20,6 @@ void paintingGeom::setBrushes(const std::map<short, Brush> &brushes) {
 	m_brushes = brushes;
 }
 
-
 const std::vector<clusterGeom> &paintingGeom::clusters() const
 {
 	return m_clusters;
@@ -68,7 +67,7 @@ double paintingGeom::travelCutoff(  short brushId, short paintId) const {
 }
 
 
-void paintingGeom::prepClusterForStroke(
+clusterGeom &paintingGeom::prepCluster(
   bool force,
   short brushId,
   short paintId)
@@ -76,15 +75,14 @@ void paintingGeom::prepClusterForStroke(
 
 	// FIRST CLUSTER
 	if (m_clusters.empty()) {
-		cerr << "FIRST CLUSTER" << endl;
 		double cutoff = travelCutoff(brushId, paintId);
 		m_clusters.push_back(
 		  clusterGeom(brushId, paintId, cutoff, clusterGeom::kTool)
 		);
-		return;
+		return m_clusters.back();
 	}
 
-	// there's at least one cluster
+	// there's at least one cluster, so its safe to call back()
 	const clusterGeom &back = m_clusters.back();
 
 	// CHANGE PAINT OR BRUSH (tool change)
@@ -95,38 +93,29 @@ void paintingGeom::prepClusterForStroke(
 		m_clusters.push_back(
 		  clusterGeom(brushId, paintId, cutoff, clusterGeom::kTool)
 		);
-		return;
+		return m_clusters.back();
 	}
 
 	// RAN OUT PAINT (dip only)
-	if (back.ranOutOfPaint()) {
-		cerr << "RAN OUT PAINT (dip only)" << endl;
-		m_clusters.push_back( clusterGeom(back) );
-		return;
-	}
-
 	// FORCE DIP ON FIRST STROKE OF CURVE
 	/*
-	Since the blocks above have taken care of cases where
-	paint or brush changed, we know the paint and brush didn't change
-	here, so we can instantiate a cluster from the last cluster in the
-	array.
+	Since the blocks above have taken care of cases where paint or brush
+	changed, we know the paint and brush didn't change here, so we can
+	instantiate a cluster from the last cluster in the array.
 	*/
-	if (force) {
-		cerr << "FORCE DIP ON FIRST STROKE OF CURVE" << endl;
-		m_clusters.push_back( clusterGeom(back) );
-		return;
+
+	if (back.ranOutOfPaint() or force) {
+		cerr << "RAN OUT PAINT OR FORCE (dip only)" << endl;
+		m_clusters.push_back( clusterGeom(
+		                        back.brushId(),
+		                        back.paintId(),
+		                        back.travelCutoff(),
+		                        clusterGeom::kDip)
+		                    );
 	}
 
-	return;
+	return m_clusters.back();
 }
-
-// void paintingGeom::clear() {
-// 	m_clusters.clear();
-// 	m_paints.clear();
-// 	m_brushes.clear();
-// }
-
 
 void paintingGeom::addStrokeCurve(const strokeCurveGeom &strokeCurve) {
 
@@ -136,13 +125,14 @@ void paintingGeom::addStrokeCurve(const strokeCurveGeom &strokeCurve) {
 	const std::vector<strokeGeom> &strokes = strokeCurve.strokes();
 
 	std::vector<strokeGeom>::const_iterator citer;
-	for (citer = strokes.begin(); citer != strokes.end(); citer++) {
-
+	cerr << "num strokes is " << strokes.size() << endl;
+	unsigned i = 0;
+	for (citer = strokes.begin(); citer != strokes.end(); citer++, i++) {
 		bool force = (citer == strokes.begin()) && strokeCurve.forceDip();
-		prepClusterForStroke(force, brushId , paintId );
-		clusterGeom &g = m_clusters.back();
+		clusterGeom &g = prepCluster(force, brushId , paintId );
 		g.pushStroke(*citer);
 	}
+
 }
 
 

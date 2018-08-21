@@ -11,7 +11,7 @@ import sheets
 # RL = Robolink()
 
 
-def add_brush_to_sf():
+def add_brush_to_painting():
     node = pm.ls(selection=True, dag=True, leaf=True, type="strokeFactory")[0]
     brushes = pm.ls(selection=True, dag=True, leaf=True, type="mesh")
     for brush in brushes:
@@ -22,7 +22,7 @@ def add_brush_to_sf():
 def connect_brush_to_node(brush_tf, node, connect_to="next_available"):
     index = sfu.get_index(node, "brushes.brushMatrix", connect_to)
     brush_tf.attr("matrix") >> node.attr("brushes[%d].brushMatrix" % index)
-    whitelist = ["double", "short", "bool", "doubleAngle"]
+    whitelist = ["double", "short", "bool", "doubleAngle", "enum"]
     atts = node.attr("brushes[%d]" % index).getChildren()
     for att in atts:
         att_type = att.type()
@@ -76,6 +76,11 @@ def send_brush(robot, brush, base):
     robot.setPoseTool(tool_item)
     shape.Delete()
 
+######################################
+######################################
+######################################
+######################################
+
 
 def create_brush_geo(height, bristle_height, tip, width, name, profile):
 
@@ -110,6 +115,21 @@ def create_brush_geo(height, bristle_height, tip, width, name, profile):
     return geo
 
 
+def brush_name(idx, unsplay_width, xname, profile, type):
+    parts = [
+        "bx%s" % str(int(idx)),
+        "%smm" % str(int(unsplay_width * 10)),
+        profile.lower()
+    ]
+    if xname:
+        parts.append(xname.lower())
+
+    if type:
+        parts.append(type)
+
+
+    return "_".join(parts)
+
 def create_and_connect_brush_geo(
         painting_node,
         dip_node,
@@ -119,27 +139,38 @@ def create_and_connect_brush_geo(
         bristle_height,
         tip,
         _2,
-        _3,
+        unsplay_width,
         width,
-        name,
+        xname,
         profile,
         dip_tip,
         _4
         ):
 
-    painting_tf = create_brush_geo(height, bristle_height, tip, width, ("%s_P" % name), profile)
+    name = brush_name(idx, unsplay_width, xname, profile, "P")
+    painting_tf = create_brush_geo(height, bristle_height, tip, width, name, profile)
+    profile_shape = 0
+    if profile.lower() == "round":
+        profile_shape = 1
+
+
+
     if painting_node:
         connect_brush_to_node(painting_tf, painting_node)
         painting_tf.attr("sfBrushWidth").set(width)
         painting_tf.attr("sfBrushRetention").set(1)
+        painting_tf.attr("sfBrushShape").set(profile_shape)
+        
     else:
         pm.warning("No painting node. Skipping")
 
-    dip_tf = create_brush_geo(height, bristle_height, dip_tip, width, ("%s_D" % name), profile)
-    if dip_tf:
+    name = brush_name(idx, unsplay_width, xname, profile, "D")
+    dip_tf = create_brush_geo(height, bristle_height, dip_tip, width, name, profile)
+    if dip_node:
         connect_brush_to_node(dip_tf, dip_node)
         dip_tf.attr("sfBrushWidth").set(width)
         dip_tf.attr("sfBrushRetention").set(1000)
+        dip_tf.attr("sfBrushShape").set(profile_shape)
     else:
         pm.warning("No dip node. Skipping")
 
@@ -151,7 +182,7 @@ def create_and_connect_brush_geo(
 def delete_brushes(node):
     brushes = pm.listRelatives("|brushes", children=True)
     for brush in brushes:
-        if brush.name().startswith("bx_"):
+        if brush.name().startswith("bx"):
             pm.delete(brush)
     indices = node.attr("brushes").getArrayIndices()
     for i in indices:

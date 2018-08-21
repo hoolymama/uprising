@@ -66,8 +66,9 @@ unsigned Stroke::factory(
 		stk = std::make_unique<Stroke>();
 	}
 
-	stk->initializeTargets(
+	stk->initialize(
 	  dCurve,
+	  planeNormal,
 	  curveLength,
 	  startDist,
 	  endDist,
@@ -120,7 +121,7 @@ unsigned Stroke::factory(
 			else {
 				rstk = std::make_unique<Stroke>();
 			}
-			rstk->offsetFrom(mother, planeNormal, offset);
+			rstk->offsetFrom(mother, offset);
 			if (rstk->overlapsPlane(inversePlaneMatrix)) {
 				strokes.push_back(std::move(rstk));
 				count++;
@@ -133,9 +134,9 @@ unsigned Stroke::factory(
 
 void Stroke::offsetFrom(
   const Stroke &other,
-  const MVector &planeNormal,
   double offset) {
 
+	m_planeNormal = other.planeNormal();
 	m_targets = other.targets();
 	m_profile = other.profile();
 	m_pivot = other.pivot();
@@ -143,7 +144,7 @@ void Stroke::offsetFrom(
 
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++) {
-		MVector offsetVec = (iter->tangent() ^ planeNormal) * offset;
+		MVector offsetVec = (iter->tangent() ^ m_planeNormal) * offset;
 		iter->offsetBy(offsetVec);
 	}
 	setArcLength();
@@ -156,6 +157,7 @@ Stroke::Stroke()	:
 	m_arcLength(),
 	m_approachDistStart(1),
 	m_approachDistEnd(1),
+	m_planeNormal(),
 	m_follow(true)
 {}
 
@@ -177,8 +179,9 @@ bool Stroke::follow() const {
 
 Stroke::~Stroke() {}
 
-void Stroke::initializeTargets(
+void Stroke::initialize(
   const MObject &curveObject ,
+  const MVector &planeNormal,
   double curveLength,
   double startDist,
   double endDist,
@@ -186,7 +189,8 @@ void Stroke::initializeTargets(
   double liftLength,
   double liftBias
 ) {
-	// JPMDBG;
+
+	m_planeNormal = planeNormal;
 	double liftOffset  = liftLength - liftBias;
 	double startLiftDist = startDist - liftOffset;
 	double startBiasDist = startDist + liftBias;
@@ -200,7 +204,6 @@ void Stroke::initializeTargets(
 		startBiasDist = centerDist - 0.1;
 	}
 
-	// JPMDBG;
 
 	Target startLiftTarget = Target(curveObject, curveLength, startDist, endDist,
 	                                startLiftDist );
@@ -276,13 +279,12 @@ void Stroke::getCurveFractions(MDoubleArray &result) const {
 	}
 }
 
-void Stroke::appendTargets(const MVector &planeNormal,
-                           MMatrixArray &result) const {
+void Stroke::appendTargets(MMatrixArray &result) const {
 	std::vector<Target>::const_iterator citer;
 	// cerr << "m_follow: " << m_follow << endl;
 	unsigned i = 0;
 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++, i++) {
-		result.append(citer->matrix(planeNormal, m_profile[i], false, m_follow));
+		result.append(citer->matrix(m_planeNormal, m_profile[i], false, m_follow));
 	}
 }
 
@@ -300,16 +302,16 @@ void Stroke::appendPoints(MVectorArray &result) const {
 	}
 }
 
-void Stroke::getApproachTargets(const MVector &planeNormal, MMatrix &startApproach,
-                                MMatrix &endApproach) const {
+void Stroke::getApproachTargets( MMatrix &startApproach,
+                                 MMatrix &endApproach) const {
 	unsigned num = m_profile.length();
 
 
 	double startHeight =  m_profile[0] + m_approachDistStart;
 	double endHeight =  m_profile[(num - 1)] + m_approachDistEnd;
 	std::vector<Target>::const_iterator citer = m_targets.begin();
-	startApproach = citer->matrix(planeNormal, startHeight, false, m_follow);
-	endApproach = m_targets.back().matrix(planeNormal, endHeight, false, m_follow);
+	startApproach = citer->matrix(m_planeNormal, startHeight, false, m_follow);
+	endApproach = m_targets.back().matrix(m_planeNormal, endHeight, false, m_follow);
 }
 
 short Stroke::direction() const {
@@ -382,6 +384,21 @@ void Stroke::setArcLength() {
 	}
 	// cerr << endl << endl;
 }
+
+
+
+const std::vector<Target> &Stroke::targets() const {
+	return m_targets;
+}
+
+const MVector &Stroke::planeNormal() const {
+	return m_planeNormal;
+}
+const MDoubleArray &Stroke::profile() const {
+	return m_profile;
+}
+
+
 
 double Stroke::arcLength() const {
 	return m_arcLength;

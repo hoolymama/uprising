@@ -30,46 +30,36 @@ bool strokeCurveGeom::forceDip() const {
 
 void strokeCurveGeom::create(
   const std::vector<std::unique_ptr<Stroke> > &strokes,
-  const MVector &planeNormal,
   bool forceDip,
   short brushId,
   short paintId) {
-	cerr << "strokeCurveGeom::create\n";
-	cerr << "paintId: " << paintId  << "\n";
-	cerr << "brushId: " << brushId  << "\n";
-	cerr << "forceDip: " << forceDip <<  endl;
-
 	m_forceDip = forceDip;
 	m_brushId = brushId;
 	m_paintId = paintId;
-
 	for (auto &citer : strokes)
 	{
-		m_strokes.push_back(strokeGeom(*citer, planeNormal));
+		m_strokes.push_back(strokeGeom(*citer));
 	}
-	cerr << "Done create: " << forceDip  <<  endl;
-
 }
 
 
 /* Is this assignment the same as default. If so remove it. */
-strokeCurveGeom &strokeCurveGeom::operator=( const strokeCurveGeom &other )
-{
-	if ( &other != this ) {
-		m_strokes.clear();
-		m_strokes = other.strokes();
-		m_forceDip = other.forceDip();
-		m_brushId = other.brushId();
-		m_paintId = other.paintId();
-	}
-	return *this;
-}
+// strokeCurveGeom &strokeCurveGeom::operator=( const strokeCurveGeom &other )
+// {
+// 	if ( &other != this ) {
+// 		m_strokes = other.strokes();
+// 		m_forceDip = other.forceDip();
+// 		m_brushId = other.brushId();
+// 		m_paintId = other.paintId();
+// 	}
+// 	return *this;
+// }
 
 
 
 ostream &operator<<(ostream &os, const strokeCurveGeom &g)
 {
- 
+
 	os << "---------  strokeCurveGeom\n";
 	os << "Force dip: " <<  g.m_forceDip << "\n";
 

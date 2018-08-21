@@ -25,16 +25,16 @@ clusterGeom::clusterGeom(
 	m_travel(0.0)
 {}
 
-clusterGeom::clusterGeom(
-  const clusterGeom &other):
-	m_strokes(),
-	m_reason(clusterGeom::kDip),
-	m_name(),
-	m_brushId(other.brushId()),
-	m_paintId(other.paintId()),
-	m_travelCutoff(other.travelCutoff()),
-	m_travel(0.0)
-{}
+// clusterGeom::clusterGeom(
+//   const clusterGeom &other):
+// 	m_strokes(),
+// 	m_reason(clusterGeom::kDip),
+// 	m_name(),
+// 	m_brushId(other.brushId()),
+// 	m_paintId(other.paintId()),
+// 	m_travelCutoff(other.travelCutoff()),
+// 	m_travel(0.0)
+// {}
 
 clusterGeom::~clusterGeom() {}
 
@@ -56,6 +56,7 @@ double clusterGeom::travelCutoff() const {
 // }
 
 void clusterGeom::pushStroke(const strokeGeom &s) {
+	// cerr << "clusterGeom::pushStroke" << endl;
 	m_strokes.push_back(s);
 	m_travel += s.arcLength();
 }
@@ -77,28 +78,30 @@ double clusterGeom::travel() const {
 	return m_travel;
 }
 
+MString clusterGeom::name() const {
+	return m_name;
+}
+
 const std::vector<strokeGeom> &clusterGeom::strokes() const {
 	return m_strokes;
 }
 
 
 /* Is this assignment the same as default. If so remove it. */
-// clusterGeom &clusterGeom::operator=( const clusterGeom &other )
-// {
-// 	if ( &other != this ) {
-// 		m_strokes.clear();
-// 		m_strokes = other.strokes();
-// 		m_reason = other.reason();
-// 		m_paintId = other.paintId();
-// 		m_brushId = other.brushId();
-// 		m_travelCutoff = other.travelCutoff();
-// 		m_travel = other.travel();
-// 	}
-// 	return *this;
-// }
-
-
-
+clusterGeom &clusterGeom::operator=( const clusterGeom &other )
+{
+	if ( &other != this ) {
+		m_strokes.clear();
+		m_strokes = other.strokes();
+		m_reason = other.reason();
+		m_paintId = other.paintId();
+		m_brushId = other.brushId();
+		m_travelCutoff = other.travelCutoff();
+		m_travel = other.travel();
+		m_name = other.name();
+	}
+	return *this;
+}
 
 ostream &operator<<(ostream &os, const clusterGeom &g)
 {

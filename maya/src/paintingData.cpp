@@ -16,17 +16,15 @@ const MString paintingData::typeName( "paintingData" );
 
 paintingData::paintingData() : m_pGeometry( 0 )
 {
-	// m_pGeometry = new paintingGeom;
 }
 paintingData::~paintingData()
 {
-	// if ( 0 != m_pGeometry ) {
-	// 	delete m_pGeometry;
-	// 	m_pGeometry = 0;
-	// }
+
 }
 
-paintingGeom	*paintingData::geometry() const {return m_pGeometry;}
+paintingGeom	*paintingData::geometry() const {
+	return m_pGeometry;
+}
 
 // clean up
 void	paintingData::clear() {
@@ -53,7 +51,7 @@ MStatus paintingData::create(MDataBlock &data, MObject &strokeCurvesAtt,
 
 	MArrayDataHandle hStrokeCurves = data.inputValue(strokeCurvesAtt, &st); ert;
 	unsigned nCurves = hStrokeCurves.elementCount();
-
+	cerr << "nCurves: " << nCurves << endl;
 	for (unsigned i = 0; i < nCurves; i++, hStrokeCurves.next()) {
 		short index = short(hStrokeCurves.elementIndex(&st));
 

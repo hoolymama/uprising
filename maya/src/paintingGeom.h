@@ -37,11 +37,15 @@ public:
 
 private:
 
-	void prepClusterForStroke(
+	// void prepClusterForStroke(
+	//   bool force,
+	//   short brushId,
+	//   short paintId
+	// );
+	clusterGeom &prepCluster(
 	  bool force,
 	  short brushId,
-	  short paintId
-	);
+	  short paintId);
 
 	std::vector<clusterGeom> m_clusters;
 	std::map<short, Paint> m_paints;

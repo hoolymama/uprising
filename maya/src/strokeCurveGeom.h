@@ -26,13 +26,12 @@ public:
 
 	void create(
 	  const std::vector<std::unique_ptr<Stroke> > &strokes,
-	  const MVector &planeNormal,
 	  bool forceDip,
 	  short brushId,
 	  short paintId
 	);
 
-	strokeCurveGeom &operator=( const strokeCurveGeom &other );
+	// strokeCurveGeom &operator=( const strokeCurveGeom &other );
 
 
 	const std::vector<strokeGeom> &strokes() const ;
