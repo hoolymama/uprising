@@ -111,7 +111,7 @@ def create_brush_geo(height, bristle_height, tip, width, name, profile):
 
 def brush_name(idx, unsplay_width, xname, profile):
     parts = [
-        "bx%s" % str(int(idx)),
+        "bx_%s" % str(int(idx)),
         "%smm" % str(int(unsplay_width * 10)),
         profile.lower()
     ]
