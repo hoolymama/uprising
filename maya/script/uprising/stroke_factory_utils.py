@@ -12,6 +12,10 @@ def input_connection(attribute):
     conns = attribute.connections(source=True, destination=False, plugs=True)
     return conns and conns[0]
 
+def input_connections(attribute):
+    conns = attribute.connections(source=True, destination=False, plugs=True)
+    return conns
+
 def assembly(node):
     top = node
     p = node.getParent()
@@ -33,7 +37,10 @@ def get_index(node, att, connect_to):
         while(True):
             if index not in indices:
                 break
-            elif not pm.listConnections(node.attr("%s[%d].%s" % (array_att, index, connection_att)), source=True, destination=False):
+            full_att =  "%s[%d]" % (array_att, index)
+            if connection_att:
+                full_att = "%s.%s" % (full_att, connection_att);
+            elif not pm.listConnections(node.attr(full_att), source=True, destination=False):
                 break
             index += 1
     elif connect_to is "at_end":
@@ -94,9 +101,9 @@ def create_stroke_factory():
     pm.group(plane_transform, pos_grp, crvs_grp, name="strokeFactoryGroup")
 
 def delete_curve_instances(node):
-    indices = node.attr("curves").getArrayIndices()
+    indices = node.attr("strokeCurves").getArrayIndices()
     for i in indices:
-        pm.removeMultiInstance(node.attr("curves[%d]" % i), b=True)
+        pm.removeMultiInstance(node.attr("strokeCurves[%d]" % i), b=True)
 
 
 def set_board_from_sheet(node):

@@ -208,7 +208,7 @@ MStatus strokeCurve::initialize()
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
   nAttr.setStorable(true);
-  nAttr.setDefault( 0.1 );
+  nAttr.setDefault( 1.0 );
   st = addAttribute(aPointDensity); er;
 
   aStrokeLength = nAttr.create( "strokeLength", "stl", MFnNumericData::kDouble);
@@ -216,8 +216,7 @@ MStatus strokeCurve::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setMin(0.01);
-
-  nAttr.setDefault(5.0);
+  nAttr.setDefault(10.0);
   st = addAttribute(aStrokeLength); er;
 
   aRandomLengthFactor = nAttr.create( "randomLengthFactor", "rlfc",
@@ -227,14 +226,12 @@ MStatus strokeCurve::initialize()
   nAttr.setKeyable(true);
   nAttr.setMin(0.00);
   nAttr.setMax(1.0);
-  nAttr.setDefault(0.2);
   st = addAttribute(aRandomLengthFactor); er;
 
 
   aOverlap  = nAttr.create("overlap", "ovlp", MFnNumericData::kDouble);
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
-  nAttr.setDefault( 0.1 );
   st = addAttribute(aOverlap); er;
 
   aRandomOverlapFactor = nAttr.create( "randomOverlapFactor", "rofc",
@@ -244,7 +241,6 @@ MStatus strokeCurve::initialize()
   nAttr.setKeyable(true);
   nAttr.setMin(0.00);
   nAttr.setMax(1.0);
-  nAttr.setDefault(0.2);
   st = addAttribute(aRandomOverlapFactor); er;
 
 
@@ -264,13 +260,11 @@ MStatus strokeCurve::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  nAttr.setDefault(0);
   st = addAttribute(aRepeats); er;
 
   aRepeatOffset = nAttr.create("repeatOffset", "rpof", MFnNumericData::kDouble);
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
-  nAttr.setDefault( 0.0 );
   nAttr.setStorable(true);
   addAttribute(aRepeatOffset);
 
@@ -349,12 +343,13 @@ MStatus strokeCurve::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  nAttr.setDefault(true);
+  nAttr.setDefault(false);
   st = addAttribute(aForceDip); er;
 
 
-  aSubcurveMin = nAttr.create( "subcurveMin", "scvn", MFnNumericData::kDouble );
-  aSubcurveMax = nAttr.create( "subcurveMax", "scvx", MFnNumericData::kDouble );
+  aSubcurveMin = nAttr.create( "subcurveMin", "scvn", MFnNumericData::kDouble, 0.0 );
+  nAttr.setDefault(0.0 );
+  aSubcurveMax = nAttr.create( "subcurveMax", "scvx", MFnNumericData::kDouble, 99999.0 );
   aSubcurve = nAttr.create( "subcurve", "scv", aSubcurveMin, aSubcurveMax);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -365,13 +360,13 @@ MStatus strokeCurve::initialize()
 
   aApproachDistanceStart = nAttr.create( "approachDistanceStart",
                                          "apds", MFnNumericData::kDouble);
-
+  nAttr.setDefault(5.0);
   aApproachDistanceMid = nAttr.create( "approachDistanceMid",
                                        "apdm", MFnNumericData::kDouble);
-
+  nAttr.setDefault(3.0);
   aApproachDistanceEnd = nAttr.create( "approachDistanceEnd",
                                        "apde", MFnNumericData::kDouble);
-
+  nAttr.setDefault(5.0);
   aApproachDistance = nAttr.create( "approachDistance",
                                     "apd", aApproachDistanceStart, aApproachDistanceMid, aApproachDistanceEnd);
 
@@ -397,9 +392,9 @@ MStatus strokeCurve::initialize()
   // nAttr.setReadable(true);
   // st = addAttribute(aApproachDistance); er;
 
-  aLiftLength = nAttr.create( "liftLength", "llg", MFnNumericData::kDouble );
-  aLiftHeight = nAttr.create( "liftHeight", "lht", MFnNumericData::kDouble );
-  aLiftBias = nAttr.create( "liftBias", "lbi", MFnNumericData::kDouble);
+  aLiftLength = nAttr.create( "liftLength", "llg", MFnNumericData::kDouble, 2.0 );
+  aLiftHeight = nAttr.create( "liftHeight", "lht", MFnNumericData::kDouble, 2.0 );
+  aLiftBias = nAttr.create( "liftBias", "lbi", MFnNumericData::kDouble, 0.0);
   aLift = nAttr.create( "lift", "lft", aLiftLength, aLiftHeight,
                         aLiftBias );
   nAttr.setStorable(true);
@@ -487,6 +482,35 @@ MStatus strokeCurve::initialize()
   // tAttr.setCached(false);
   addAttribute(aOutput);
 
+  // setAttr "strokeCurve5.brushId" 1;
+  // setAttr "strokeCurve5.paintId" 1;
+  // setAttr "strokeCurve5.repeatMirror" 0;
+  // setAttr "strokeCurve5.repeatOscillate" 0;
+  // setAttr "strokeCurve5.subcurveMax" 100;
+  // setAttr "strokeCurve5.brushId" 10;
+  // setAttr "strokeCurve5.overlap" 0;
+  // setAttr "strokeCurve5.randomLengthFactor" 0;
+  // setAttr "strokeCurve5.randomOverlapFactor" 0;
+  // setAttr "strokeCurve5.approachDistanceStart" 1;
+  // setAttr "strokeCurve5.approachDistanceMid" 1;
+  // setAttr "strokeCurve5.approachDistanceEnd" 1;
+  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_Position" 0;
+  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_FloatValue" 0.44;
+  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_Position" 0;
+  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_FloatValue" 0;
+  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_Position" 0;
+  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_FloatValue" 0.46;
+  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_FloatValue" 0.5;
+  // setAttr "strokeCurve5.brushTiltRamp[0].brushTiltRamp_Position" 0;
+  // setAttr "strokeCurve5.brushTiltRamp[0].brushTiltRamp_FloatValue" 0.14;
+  // setAttr "strokeCurve5.brushTiltRamp[0].brushTiltRamp_FloatValue" 0.5;
+  // setAttr "strokeCurve5.brushBankRamp[0].brushBankRamp_FloatValue" 0.5;
+  // setAttr "strokeCurve5.brushTwistRamp[0].brushTwistRamp_FloatValue" 0.5;
+  // setAttr "strokeCurve5.strokeLength" 30;
+  // setAttr "strokeCurve5.strokeLength" 10;
+  // setAttr "strokeCurve5.pointDensity" 0.5;
+  // setAttr "strokeCurve5.pointDensity" 1;
+  // setAttr "strokeCurve5.brushId" 1;
 
 
   st = attributeAffects(aCurve, aOutput);
@@ -517,7 +541,7 @@ MStatus strokeCurve::initialize()
   st = attributeAffects(aStrokeRotationTexture, aOutput);
   st = attributeAffects(aStrokeTranslationTexture, aOutput);
   st = attributeAffects(aStrokeTranslationSampleDistance, aOutput);
-
+  st = attributeAffects(aApproachDistance, aOutput);
   st = attributeAffects(aForceDip, aOutput);
   st = attributeAffects(aBrushId, aOutput);
   st = attributeAffects(aPaintId, aOutput);
@@ -548,7 +572,7 @@ MStatus strokeCurve::initialize()
   st = attributeAffects(aBrushBankRamp, aOutTargets);
   st = attributeAffects(aBrushTwistRamp, aOutTargets);
   st = attributeAffects(aBrushFollowStroke, aOutTargets);
-  // st = attributeAffects(aApproachDistance, aOutTargets);
+  st = attributeAffects(aApproachDistance, aOutTargets);
   st = attributeAffects(aPlaneMatrix, aOutTargets);
   st = attributeAffects(aStrokeRotationTexture, aOutTargets);
   st = attributeAffects(aStrokeTranslationTexture, aOutTargets);
@@ -578,7 +602,7 @@ MStatus strokeCurve::initialize()
   st = attributeAffects(aBrushBankRamp, aOutTangents);
   st = attributeAffects(aBrushTwistRamp, aOutTangents);
   st = attributeAffects(aBrushFollowStroke, aOutTangents);
-  // st = attributeAffects(aApproachDistance, aOutTangents);
+  st = attributeAffects(aApproachDistance, aOutTangents);
   st = attributeAffects(aPlaneMatrix, aOutTangents);
   st = attributeAffects(aStrokeRotationTexture, aOutTangents);
   st = attributeAffects(aStrokeTranslationTexture, aOutTangents);
@@ -609,7 +633,7 @@ MStatus strokeCurve::initialize()
   st = attributeAffects(aBrushBankRamp, aOutPositions);
   st = attributeAffects(aBrushTwistRamp, aOutPositions);
   st = attributeAffects(aBrushFollowStroke, aOutPositions);
-  // st = attributeAffects(aApproachDistance, aOutPositions);
+  st = attributeAffects(aApproachDistance, aOutPositions);
   st = attributeAffects(aPlaneMatrix, aOutPositions);
   st = attributeAffects(aStrokeRotationTexture, aOutPositions);
   st = attributeAffects(aStrokeTranslationTexture, aOutPositions);
@@ -1162,10 +1186,13 @@ MStatus strokeCurve::sampleUVGradient(const MObject &attribute, float sampleDist
   return MS::kSuccess;
 }
 
+
 void strokeCurve::postConstructor()
 {
-
+  setExistWithoutInConnections(false);
+  setExistWithoutOutConnections(true);
 }
+
 
 
 

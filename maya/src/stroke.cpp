@@ -309,8 +309,8 @@ void Stroke::getApproachTargets( MMatrix &startApproach,
 
 	double startHeight =  m_profile[0] + m_approachDistStart;
 	double endHeight =  m_profile[(num - 1)] + m_approachDistEnd;
-	std::vector<Target>::const_iterator citer = m_targets.begin();
-	startApproach = citer->matrix(m_planeNormal, startHeight, false, m_follow);
+	// std::vector<Target>::const_iterator citer = m_targets.begin();
+	startApproach = m_targets.front().matrix(m_planeNormal, startHeight, false, m_follow);
 	endApproach = m_targets.back().matrix(m_planeNormal, endHeight, false, m_follow);
 }
 
@@ -379,13 +379,9 @@ void Stroke::setArcLength() {
 	std::vector<Target>::const_iterator enditer = std::prev(m_targets.end());
 	unsigned i = 0;
 	for ( ; iter != enditer; iter++, previter++, i++) {
-		// cerr << "t i : " << i ;
 		m_arcLength += iter->curvePoint().distanceTo(previter->curvePoint());
 	}
-	// cerr << endl << endl;
 }
-
-
 
 const std::vector<Target> &Stroke::targets() const {
 	return m_targets;
@@ -394,11 +390,10 @@ const std::vector<Target> &Stroke::targets() const {
 const MVector &Stroke::planeNormal() const {
 	return m_planeNormal;
 }
+
 const MDoubleArray &Stroke::profile() const {
 	return m_profile;
 }
-
-
 
 double Stroke::arcLength() const {
 	return m_arcLength;

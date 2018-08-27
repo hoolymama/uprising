@@ -75,6 +75,14 @@ private:
   void drawWireframe(const paintingGeom &geom, M3dView &view, const MDagPath &path,
                      M3dView::DisplayStatus status ) ;
 
+  void drawWireframeApproach( const paintingGeom &geom, M3dView &view, const MDagPath &path,
+                              M3dView:: DisplayStatus status );
+
+  void drawWireframeClusterPath(
+    const paintingGeom &geom, M3dView &view,
+    const MDagPath &path, M3dView::DisplayStatus status );
+
+
   void drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
                   M3dView::DisplayStatus status ) ;
 
@@ -128,7 +136,8 @@ private:
   static MObject  aDisplayTargets;
   static MObject  aDisplayLift;
   static MObject  aDisplayApproach;
-  static MObject  aDisplayArrows;
+  static MObject  aDisplayClusterPath;
+  static MObject  aStackGap;
 
   static MObject  aOutTargets; // local
 
@@ -178,7 +187,7 @@ private:
   // static MObject aPointSize;
   // static MObject aWireColor;
 
-  static MObject aStackGap;
+  // static MObject aStackGap;
 
   paintingData *m_pd;
 

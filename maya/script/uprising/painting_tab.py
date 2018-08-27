@@ -1,12 +1,12 @@
 import os.path
 import pymel.core as pm
 
-import setup_dip
+# import setup_dip
 import curve_utils as cutl
 import brush_utils as butl
 import paint_utils as putl
 
-from setup_dip import setup_dip_factory
+# from setup_dip import setup_dip_factory
 
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
@@ -15,34 +15,34 @@ import painting as pnt
 from robolink import (
     Robolink
 )
-import robodk as rdk
-import paint
-import brush
-import stroke
-import cluster
-import target
-import write
-import uprising_util
-import const
-import sheets
+# import robodk as rdk
+# import paint
+# import brush
+# import stroke
+# import cluster
+# import target
+# import write
+# import uprising_util
+# import const
+# import sheets
 
 
-reload(uprising_util)
-reload(paint)
-reload(brush)
-reload(stroke)
-reload(cluster)
-reload(target)
-reload(write)
-reload(setup_dip)
-reload(const)
+# reload(uprising_util)
+# reload(paint)
+# reload(brush)
+# reload(stroke)
+# reload(cluster)
+# reload(target)
+# reload(write)
+# reload(setup_dip)
+# reload(const)
 
-reload(cutl)
-reload(butl)
-reload(putl)
-reload(pnt)
-reload(sfu)
-reload(sheets)
+# reload(cutl)
+# reload(butl)
+# reload(putl)
+# reload(pnt)
+# reload(sfu)
+# reload(sheets)
 
 
 # RL = Robolink()
@@ -80,10 +80,36 @@ class PaintingTab(gui.FormLayout):
         # pm.button(
         #     label='Create all',
         #     command=pm.Callback(self.on_create_all))
+        pm.button(
+            label='Setup from spreadsheet',
+            ann="Read and connect paints and brushes and board from the spreadsheet",
+            command=pm.Callback(self.setup_from_spreadsheet))
 
-        # pm.button(
-        #     label='Add curve to factory',
-        #     command=pm.Callback(cutl.add_curve_to_sf))
+
+
+        pm.button(
+            label='Add curves to painting',
+            ann="Add selected curves to selected painting node",
+            command=pm.Callback(self.add_curves_to_painting))
+
+        pm.rowLayout(numberOfColumns=2,
+                     columnWidth2=(
+                         (100), 100),
+                     adjustableColumn=1,
+                     columnAlign=(1, 'right'),
+                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+        pm.button(
+            label='Generate brush dip curves from default curves',
+            ann="Add selected curves to selected painting node",
+            command=pm.Callback(self.on_generate_brush_dip_curves))
+
+        force_gen_bc  = 1
+        self.force_gen_brush_curves_cb = pm.checkBox(
+            label='Force',
+            value=force_gen_bc,
+            annotation='Force generate brush curves')
+    
+
 
         # pm.button(
         #     label='Update curve driver connections',
@@ -126,10 +152,6 @@ class PaintingTab(gui.FormLayout):
         #     label='Export approach objects',
         #     command=pm.Callback(self.on_send_approach_targets))
 
-        pm.button(
-            label='Setup from spreadsheet',
-            ann="Read and connect paints and brushes and board from the spreadsheet",
-            command=pm.Callback(self.setup_from_spreadsheet))
 
         # pm.button(
         #     label='Set board transform from spreadsheet',
@@ -172,6 +194,40 @@ class PaintingTab(gui.FormLayout):
         putl.setup_paints_from_sheet(painting_node, dip_node)
         sfu.set_board_from_sheet(painting_node)
    
+
+    def add_curves_to_painting(self):
+        node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
+        if not node:
+            raise IndexError("No painting node selected")
+        curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve")
+        for curve in curves:
+            cutl.connect_curve_to_painting(curve, node, connect_to="next_available")
+
+
+
+    def on_generate_brush_dip_curves(self):
+
+        force = pm.checkBox(self.force_gen_brush_curves_cb, query=True, v=True)
+
+        dip_painting_node = pm.PyNode("dipPaintingShape")
+        if not dip_painting_node:
+            raise IndexError("Can't find dipPaintingShape")
+        dip_brushes = pm.ls("brushes|dipBrushes|bx*", selection=True, dag=True, leaf=True)
+        if not  dip_brushes:
+            dip_brushes = pm.ls("brushes|dipBrushes|bx*", dag=True, leaf=True)
+ 
+        cutl.generate_brush_dip_curves(dip_painting_node, dip_brushes, force )
+
+
+
+    def on_setup_dip(self):
+        painting = pm.PyNode("mainPaintingShape")
+        dip = pm.PyNode("dipPaintingShape")
+        dip_curves_grp = pm.PyNode("brushes|dipCurves")
+        setup_dip_factory(painting, dip, dip_curves_grp)
+
+
+
     def on_send_paint_trays(self):
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
         putl.send_paints(painting_factory)
@@ -238,15 +294,7 @@ class PaintingTab(gui.FormLayout):
         for node in nodes:
             sfu.delete_curve_instances(node)
 
-    def on_setup_dip(self):
-        painting = pm.PyNode("paintingStrokeFactoryShape")
-        dip = pm.PyNode("dipStrokeFactoryShape")
-        dip_curves_grp = pm.PyNode("dipCurves")
 
-        # curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve")
-        # if not curves:
-        #     raise TypeError("Need dip curves")
-        setup_dip_factory(painting, dip, dip_curves_grp)
 
     def on_test_strokes(self):
         node = pm.PyNode("paintingStrokeFactoryShape")

@@ -22,7 +22,6 @@ public:
 
 	Paint( short id,
 	       MColor color,
-	       double opacity,
 	       double travel);
 
 	~Paint();
@@ -31,7 +30,6 @@ public:
 
 	short id;
 	MColor color;
-	double opacity;
 	double travel;
 };
 

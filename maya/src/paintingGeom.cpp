@@ -87,7 +87,7 @@ clusterGeom &paintingGeom::prepCluster(
 
 	// CHANGE PAINT OR BRUSH (tool change)
 	if (! (back.brushId() == brushId && back.paintId() == paintId)) {
-		cerr << "CHANGE PAINT OR BRUSH (tool change)" << endl;
+		// cerr << "CHANGE PAINT OR BRUSH (tool change)" << endl;
 
 		double cutoff = travelCutoff(brushId, paintId);
 		m_clusters.push_back(
@@ -105,7 +105,7 @@ clusterGeom &paintingGeom::prepCluster(
 	*/
 
 	if (back.ranOutOfPaint() or force) {
-		cerr << "RAN OUT PAINT OR FORCE (dip only)" << endl;
+		// cerr << "RAN OUT PAINT OR FORCE (dip only)" << endl;
 		m_clusters.push_back( clusterGeom(
 		                        back.brushId(),
 		                        back.paintId(),
@@ -125,7 +125,7 @@ void paintingGeom::addStrokeCurve(const strokeCurveGeom &strokeCurve) {
 	const std::vector<strokeGeom> &strokes = strokeCurve.strokes();
 
 	std::vector<strokeGeom>::const_iterator citer;
-	cerr << "num strokes is " << strokes.size() << endl;
+	// cerr << "num strokes is " << strokes.size() << endl;
 	unsigned i = 0;
 	for (citer = strokes.begin(); citer != strokes.end(); citer++, i++) {
 		bool force = (citer == strokes.begin()) && strokeCurve.forceDip();

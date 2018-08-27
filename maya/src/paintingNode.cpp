@@ -64,13 +64,13 @@
 
 const double rad_to_deg = (180 / 3.1415927);
 
+const int LEAD_COLOR            = 18;
+const int ACTIVE_COLOR          = 15;
+const int ACTIVE_AFFECTED_COLOR = 8;
+const int DORMANT_COLOR         = 4;
+const int HILITE_COLOR          = 17;
+const int RED_COLOR          = 12;
 
-
-const int LEAD_COLOR             = 18;
-const int ACTIVE_COLOR           = 15;
-const int ACTIVE_AFFECTED_COLOR  = 8;
-const int DORMANT_COLOR          = 4;
-const int HILITE_COLOR           = 17;
 
 
 
@@ -140,14 +140,11 @@ MObject painting::aDisplayIds;
 MObject painting::aDisplayTargets;
 MObject painting::aDisplayLift;
 MObject painting::aDisplayApproach;
-MObject painting::aDisplayArrows;
-
+MObject painting::aDisplayClusterPath;
+MObject painting::aStackGap;
 MObject painting::aOutTargets; // local
 MObject painting::aOutput;
 
-
-
-MObject painting::aStackGap;
 
 MStatus painting::initialize()
 {
@@ -238,6 +235,7 @@ MStatus painting::initialize()
   tAttr.setReadable(false);
   tAttr.setStorable(false);
   tAttr.setArray(true);
+  tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   addAttribute(aStrokeCurves);
 
   aBrushWidth  = nAttr.create("brushWidth", "brwd", MFnNumericData::kDouble);
@@ -388,12 +386,24 @@ MStatus painting::initialize()
   addAttribute(aDisplayApproach );
 
 
-  aDisplayArrows = nAttr.create( "displayArrows", "darr", MFnNumericData::kBoolean);
+  aDisplayClusterPath = nAttr.create( "displayClusterPath", "dcpt",
+                                      MFnNumericData::kBoolean);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
-  addAttribute(aDisplayArrows );
+  addAttribute(aDisplayClusterPath );
+
+
+
+  aStackGap = nAttr.create( "stackGap", "sgap", MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setMin(0.00);
+  nAttr.setSoftMax(1);
+  nAttr.setDefault(0);
+  addAttribute(aStackGap);
+
 
   ///////
 
@@ -493,7 +503,7 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   }
 
 
-  cerr << "plug name: " << plug.name() << endl;
+  // cerr << "plug name: " << plug.name() << endl;
 
   MMatrixArray outTargets; // outTargets.clear();
   MDataHandle mh = data.inputValue(aInMatrix, &st); er;
@@ -535,8 +545,8 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
     *outGeometryData = (*m_pd);
   }
 
-  cerr <<  "PAINTING NODE COMPUTE - GEO FULL" << endl;
-  cerr << *(outGeometryData->geometry()) << endl;
+  // cerr <<  "PAINTING NODE COMPUTE - GEO FULL" << endl;
+  // cerr << *(outGeometryData->geometry()) << endl;
 
 
 
@@ -761,6 +771,8 @@ void painting::drawWireframeTargets(
   const MDagPath &path,
   M3dView:: DisplayStatus status )
 {
+  setWireDrawColor(view, status);
+
   MObject thisObj = thisMObject();
 
   double pointSize;
@@ -772,6 +784,13 @@ void painting::drawWireframeTargets(
   double lineThickness;
   MPlug(thisObj, aLineThickness).getValue(lineThickness);
 
+
+
+
+  double stackGap;
+  MPlug(thisObj, aStackGap).getValue(stackGap);
+
+
   short tmp;
   MPlug(thisObj, aDisplayTargets).getValue(tmp);
   TargetDisplay targetDisplayStyle = TargetDisplay(tmp);
@@ -780,6 +799,7 @@ void painting::drawWireframeTargets(
   }
 
   if (targetDisplayStyle == painting::kTargetsPoint) {
+    double stackHeight = 0.0;
     glPushAttrib(GL_CURRENT_BIT);
     glPointSize(float(pointSize));
 
@@ -789,8 +809,9 @@ void painting::drawWireframeTargets(
     {
       for (auto stroke : cluster.strokes())
       {
+        stackHeight += stackGap;
         MFloatPointArray points;
-        stroke.getPoints(points);
+        stroke.getPoints(points, stackHeight);
         unsigned len = points.length();
         for (int i = 0; i < len; ++i)
         {
@@ -804,6 +825,7 @@ void painting::drawWireframeTargets(
   }
 
   if (targetDisplayStyle == painting::kTargetsLine) {
+    double stackHeight = 0.0;
     glPushAttrib(GL_LINE_BIT);
     glLineWidth(GLfloat(lineThickness));
     glBegin(GL_LINES);
@@ -811,8 +833,9 @@ void painting::drawWireframeTargets(
     {
       for (auto stroke : cluster.strokes())
       {
+        stackHeight += stackGap;
         MFloatPointArray starts;
-        stroke.getPoints(starts);
+        stroke.getPoints(starts, stackHeight);
         MFloatVectorArray ends;
         stroke.getZAxes(ends);
 
@@ -835,6 +858,7 @@ void painting::drawWireframeTargets(
 
 
   if (targetDisplayStyle == painting::kTargetsMatrix) {
+    double stackHeight = 0.0;
     glPushAttrib(GL_LINE_BIT);
     glLineWidth(GLfloat(lineThickness));
     glBegin(GL_LINES);
@@ -842,8 +866,9 @@ void painting::drawWireframeTargets(
     {
       for (auto stroke : cluster.strokes())
       {
+        stackHeight += stackGap;
         MFloatPointArray starts;
-        stroke.getPoints(starts);
+        stroke.getPoints(starts, stackHeight);
 
         MFloatVectorArray xAxes;
         stroke.getXAxes(xAxes);
@@ -893,11 +918,18 @@ void painting::drawWireframeBorders(
   M3dView:: DisplayStatus status )
 {
 
+  setWireDrawColor(view, status);
   MObject thisObj = thisMObject();
 
   double lineThickness;
   MPlug(thisObj, aLineThickness).getValue(lineThickness);
 
+  bool displayLift;
+  MPlug(thisObj, aDisplayLift).getValue(displayLift);
+
+  double stackGap;
+  MPlug(thisObj, aStackGap).getValue(stackGap);
+  double stackHeight = 0.0;
 
   glPushAttrib(GL_LINE_BIT);
   glLineWidth(GLfloat(lineThickness));
@@ -907,10 +939,12 @@ void painting::drawWireframeBorders(
     double brushWidth = geom.brushFromId(cluster.brushId()).width;
     for (auto stroke : cluster.strokes())
     {
+      stackHeight += stackGap;
+
       MFloatPointArray lefts;
       MFloatPointArray rights;
 
-      stroke.getBorders(lefts, rights, brushWidth);
+      stroke.getBorders(lefts, rights, brushWidth, displayLift, stackHeight);
 
       unsigned len = lefts.length();
       if (! len) {
@@ -932,9 +966,10 @@ void painting::drawWireframeBorders(
 
       }
 
+      int last = len - 1;
 
-      glVertex3f( lefts[i].x , lefts[i].y , lefts[i].z );
-      glVertex3f( rights[i].x , rights[i].y, rights[i].z);
+      glVertex3f( lefts[last].x , lefts[last].y , lefts[last].z );
+      glVertex3f( rights[last].x , rights[last].y, rights[last].z);
 
 
 
@@ -947,62 +982,230 @@ void painting::drawWireframeBorders(
 
 
 
+void painting::drawWireframeApproach(
+  const paintingGeom &geom, M3dView &view,
+  const MDagPath &path,
+  M3dView:: DisplayStatus status )
+{
+
+  setWireDrawColor(view, status);
+  MObject thisObj = thisMObject();
+
+  bool doDisplayApproach;
+  MPlug(thisObj, aDisplayApproach).getValue(doDisplayApproach);
+  if (! doDisplayApproach ) {
+    return;
+  }
+
+
+  double lineThickness;
+  MPlug(thisObj, aLineThickness).getValue(lineThickness);
+
+  double stackGap;
+  MPlug(thisObj, aStackGap).getValue(stackGap);
+  double stackHeight = 0.0;
+
+  glPushAttrib(GL_LINE_BIT);
+  glLineWidth(GLfloat(lineThickness));
+  glBegin(GL_LINES);
+  for (auto cluster : geom.clusters())
+  {
+    double brushWidth = geom.brushFromId(cluster.brushId()).width;
+    for (auto stroke : cluster.strokes())
+    {
+      stackHeight += stackGap;
+      /* three points each */
+      MFloatPointArray starts;
+      MFloatPointArray ends;
+
+      stroke.getApproaches(starts, ends, stackHeight);
+
+      // cerr << starts << endl;
+      // cerr << ends << endl;
+
+
+
+      glVertex3f( starts[0].x , starts[0].y , starts[0].z );
+      glVertex3f( starts[1].x , starts[1].y , starts[1].z );
+
+      glVertex3f( starts[1].x , starts[1].y , starts[1].z );
+      glVertex3f( starts[2].x , starts[2].y , starts[2].z );
+
+      glVertex3f( ends[0].x , ends[0].y , ends[0].z );
+      glVertex3f( ends[1].x , ends[1].y , ends[1].z );
+
+      glVertex3f( ends[1].x , ends[1].y , ends[1].z );
+      glVertex3f( ends[2].x , ends[2].y , ends[2].z );
+
+    }
+  }
+  glEnd();
+  glPopAttrib();
+}
+
+
+
+void painting::drawWireframeClusterPath(
+  const paintingGeom &geom, M3dView &view,
+  const MDagPath &path,
+  M3dView:: DisplayStatus status )
+{
+
+  // view.setDrawColor( RED_COLOR, M3dView::kActiveColors );
+  MObject thisObj = thisMObject();
+
+  bool doDisplayClusterPath;
+  MPlug(thisObj, aDisplayClusterPath).getValue(doDisplayClusterPath);
+  if (! doDisplayClusterPath ) {
+    return;
+  }
+
+  double lineThickness;
+  MPlug(thisObj, aLineThickness).getValue(lineThickness);
+
+
+  double stackGap;
+  MPlug(thisObj, aStackGap).getValue(stackGap);
+  double stackHeight = 0.0;
+
+
+  glPushAttrib(GL_LINE_BIT);
+  glLineWidth(GLfloat(lineThickness));
+  for (auto cluster : geom.clusters())
+  {
+    glBegin(GL_LINE_STRIP);
+    MColor color = geom.paintFromId(cluster.paintId()).color;
+    glColor4f(color.r , color.g , color.b, 1.0f);
+    for (auto stroke : cluster.strokes())
+    {
+      stackHeight += stackGap;
+      MFloatPointArray points;
+      stroke.getFullPath(points, stackHeight);
+      unsigned len = points.length();
+      for (int i = 0; i < len; ++i)
+      {
+        glVertex3f( points[i].x , points[i].y , points[i].z );
+      }
+    }
+    glEnd();
+  }
+  glPopAttrib();
+}
+
+
+
+
 void painting::drawWireframe(const paintingGeom &geom, M3dView &view,
                              const MDagPath &path,
                              M3dView:: DisplayStatus status ) {
 
   view.beginGL();
-  setWireDrawColor(view, status);
-
   drawWireframeTargets(geom, view, path, status);
-
-  setWireDrawColor(view, status);
   drawWireframeBorders(geom, view, path, status);
-
-  // MObject thisObj = thisMObject();
-
-  // // TARGETS
-
-  // double pointSize;
-  // MPlug(thisObj, aPointSize).getValue(pointSize);
-
-  // short tmp;
-  // MPlug(thisObj, aDisplayTargets).getValue(tmp);
-  // TargetDisplay targetDisplayStyle = TargetDisplay(tmp);
+  drawWireframeApproach(geom, view, path, status);
+  drawWireframeClusterPath(geom, view, path, status);
 
 
-  // glPushAttrib(GL_CURRENT_BIT);
-  // glPointSize(float(pointSize));
-
-  // glBegin( GL_POINTS );
-
-  // for (auto cluster : geom.clusters())
-  // {
-  //   for (auto stroke : cluster.strokes())
-  //   {
-  //     MFloatPointArray points;
-  //     stroke.getPoints(points);
-  //     unsigned len = points.length();
-  //     for (int i = 0; i < len; ++i)
-  //     {
-  //       glVertex3f(points[i].x, points[i].y, points[i].z);
-  //     }
-  //   }
-  // }
-
-
-  // glEnd();
-  // glPopAttrib();
 
 
   view.endGL();
 
 
 }
+
+
+
+//   glPushAttrib(GL_CURRENT_BIT);
+//   glEnable(GL_BLEND);
+//   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//   unsigned i = 0;
+//   for (int j = 0; j < numStrokes; ++j)
+//   {
+//     unsigned numPoints = counts[j];
+//     double width = brushWidths[j] * 0.5;
+//     const MVector    &pcv = paintColors[j];
+
+
+//     float opac = float(paintOpacities[j]);
+//     MColor pcolor = MColor(pcv.x, pcv.y, pcv.z, opac);
+
+//     glColor4f(pcolor.r , pcolor.g , pcolor.b, opac);
+
+//     glBegin(GL_TRIANGLE_STRIP);
+
+//     unsigned first = 0;
+//     unsigned end = numPoints;
+
+//     if (! doDisplayBrushLift) {i++;  numPoints -= 2;}
+
+//     for (int k = 0; k < numPoints ; ++k)
+//     {
+//       MVector side = (tangents[i] ^ planeNormal).normal() * width;
+
+
+//       MFloatVector a(targets[i][3][0] + side.x, targets[i][3][1] + side.y,
+//                      targets[i][3][2] + side.z);
+//       MFloatVector b(targets[i][3][0] - side.x, targets[i][3][1] - side.y,
+//                      targets[i][3][2] - side.z);
+
+//       glVertex3f( a.x , a.y , a.z );
+//       glVertex3f( b.x , b.y, b.z);
+//       i++;
+//     }
+
+//     if (! doDisplayBrushLift) { i++; }
+
 void painting::drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
                           M3dView:: DisplayStatus status ) {
 
 
+
+  MObject thisObj = thisMObject();
+
+  bool displayLift;
+  MPlug(thisObj, aDisplayLift).getValue(displayLift);
+
+  double stackGap;
+  MPlug(thisObj, aStackGap).getValue(stackGap);
+  double stackHeight = 0.0;
+
+
+  glPushAttrib(GL_CURRENT_BIT);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  for (auto cluster : geom.clusters())
+  {
+    double brushWidth = geom.brushFromId(cluster.brushId()).width;
+    MColor color = geom.paintFromId(cluster.paintId()).color;
+    glColor4f(color.r , color.g , color.b, color.a);
+
+
+    for (auto stroke : cluster.strokes())
+    {
+      stackHeight += stackGap;
+
+      MFloatPointArray lefts;
+      MFloatPointArray rights;
+
+      stroke.getBorders(lefts, rights, brushWidth, displayLift, stackHeight);
+
+      unsigned len = lefts.length();
+      if (! len) {
+        // should never happen - maybe remove this check.
+        continue;
+      }
+      glBegin(GL_TRIANGLE_STRIP);
+
+      for (unsigned i = 0; i < len; ++i)
+      {
+        glVertex3f( lefts[i].x , lefts[i].y , lefts[i].z );
+        glVertex3f( rights[i].x , rights[i].y , rights[i].z );
+      }
+      glEnd();
+    }
+  }
+  glPopAttrib();
 }
 void painting::draw( M3dView &view,
                      const MDagPath &path,
@@ -1048,8 +1251,9 @@ void painting::draw( M3dView &view,
   }
   else if ((style ==  M3dView::kGouraudShaded) || (style ==  M3dView::kFlatShaded)) {
     drawShaded(geom, view, path, status);
+    bool wfos = view.wireframeOnShaded() ;
     if (status == M3dView::kActive || status == M3dView::kLead
-        || status == M3dView::kHilite) {
+        || status == M3dView::kHilite || wfos ) {
       drawWireframe(geom, view, path, status);
     }
   }

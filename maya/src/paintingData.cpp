@@ -51,7 +51,7 @@ MStatus paintingData::create(MDataBlock &data, MObject &strokeCurvesAtt,
 
 	MArrayDataHandle hStrokeCurves = data.inputValue(strokeCurvesAtt, &st); ert;
 	unsigned nCurves = hStrokeCurves.elementCount();
-	cerr << "nCurves: " << nCurves << endl;
+	// cerr << "nCurves: " << nCurves << endl;
 	for (unsigned i = 0; i < nCurves; i++, hStrokeCurves.next()) {
 		short index = short(hStrokeCurves.elementIndex(&st));
 

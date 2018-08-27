@@ -162,6 +162,29 @@ private:
   static MObject aOutput;
 };
 
+
+// namespace strokeCurveCallback
+// {
+// static  MCallbackId id;
+
+//   static void makeDefaultConnections(  MObject &node, void *clientData )
+//   {
+
+//     MPlug wmPlugmulti( node, strokeFactory::worldMatrix );
+//     MPlug wm( wmPlugmulti.elementByLogicalIndex( 0 ) );
+//     MPlug mt( node, strokeFactory::aInMatrix );
+
+//     MDGModifier mod;
+//     mod.connect( wm, mt );
+//     MStatus stat = mod.doIt();
+//     if (stat != MS::kSuccess)
+//     {
+//       stat.perror("strokeFactory ERROR :: callback unable to make matrix connections");
+//     }
+//   }
+// }
+
+
 #endif
 
 

@@ -1,14 +1,23 @@
  global proc AEPaintingPaintsAddMultiWidget(string $plug, string $columnLayout, int $index) {
 
+ 	string $label = ("No paint : " + $index);
+ 	string $input[] = `listConnections -s 1 -d 0 ($plug+".paintTravel")`;
+ 	if (`size $input`) {
+ 		 $label = ($index +": " + $input[0]);
+ 	}
+
  	setParent $columnLayout;
  	global int $gTextColumnWidthIndex;
- 	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label ("Paint: " + $index)`;
+
+
+ 	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label $label`;
 
  	attrControlGrp -attribute ($plug+".paintColor");
  	attrControlGrp -attribute ($plug+".paintOpacity");
  	attrControlGrp -attribute ($plug +".paintTravel");
  	
- 
+
+
  	string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
 

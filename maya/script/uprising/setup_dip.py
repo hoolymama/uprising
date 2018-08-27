@@ -6,149 +6,158 @@ from brush import Brush
 import curve_utils as cutl
 
 DIP_CURVE_DEFAULTS = [
-    ("sfForceDip", 1),
-    ("sfFollowStroke", 0),
-    ("sfActive", 1),
-    ("sfStrokeLength", 1000),
-    ("sfRandomOverlapFactor", 0),
-    ("sfRandomLengthFactor", 0),
-    ("sfRepeats", 0),
-    ("sfOverlap", 0)
+    ("forceDip", 1),
+    ("followStroke", 0),
+    ("strokeLength", 1000),
+    ("randomOverlapFactor", 0),
+    ("randomLengthFactor", 0),
+    ("repeats", 0),
+    ("overlap", 0)
 ]
 
 
-def get_dip_combinations(painting_factory):
+def dip_combinations(painting_node):
 
     result = {}
-    brushes = Brush.brushes(painting_factory)
-    paints =  Paint.paints(painting_factory)
-    indices = painting_factory.attr("curves").getArrayIndices()
+    brushes = Brush.brushes(painting_node)
+    paints = Paint.paints(painting_node)
+    indices = painting_node.attr("strokeCurves").getArrayIndices()
     for index in indices:
-        if painting_factory.attr("curves[%d].active" % index).get():
-            brush_id = painting_factory.attr("curves[%d].brushId" % index).get()
-            paint_id = painting_factory.attr("curves[%d].paintId" % index).get()
-            key = "p%02d_b%02d" % (paint_id, brush_id)
-            result[key] = {
-                "brush": brushes[brush_id],
-                "paint": paints[paint_id]
-            }
+        stroke_curves = painting_node.attr(
+            "strokeCurves[%d]" %
+            index).connections(
+            source=True, destination=False, plugs=False)
+        if not stroke_curves:
+            continue
+
+        brush_id = stroke_curves[0].attr("brushId").get()
+        paint_id = stroke_curves[0].attr("paintId").get()
+        key = "p%02d_b%02d" % (paint_id, brush_id)
+        result[key] = {
+            "brush": brushes[brush_id],
+            "paint": paints[paint_id]
+        }
     return result
- 
+
+
 def delete_if_exist(name):
     try:
         pm.delete(name)
     except BaseException:
         pass
 
-def duplicate_and_connect(dip_curves_grp, factory, paint_id, brush_id):
-    grp = pm.duplicate(dip_curves_grp)[0]
-    curves = grp.getChildren()
-    grp_name = "t_p%02d_b%02d" % (paint_id, brush_id)
+
+
+
+
+
+
+def duplicate_and_connect(src_grp, dip_node, paint_id, brush_id):
+
+    grp_name = "dcx_p%02d_b%02d" % (paint_id, brush_id)
     delete_if_exist(grp_name)
+    grp = cutl.duplicate_grp_with_stroke_curves(src_grp, grp_name)
     grp.rename(grp_name)
+    curves = grp.getChildren()
+
     for i, curve in enumerate(curves):
-        name = "p%02d_b%02d_c%02d" % (paint_id, brush_id, i)
+        name = "dcx_p%02d_b%02d_c%02d" % (paint_id, brush_id, i)
         curve.rename(name)
         shape = pm.listRelatives(curve, children=True)[0]
+        stroke_curve = shape.attr("worldSpace[0]").connections(destination=True, source=False)[0]
+
         first = (i == 0)
-        cutl.connect_curve_to_node(shape, factory)
-        set_dip_curve_defaults(shape, first)
-        shape.attr("sfBrushId").set(brush_id)
-        shape.attr("sfPaintId").set(paint_id)
+        cutl.connect_curve_to_painting(
+            stroke_curve, dip_node, connect_to="next_available")
+        
+        set_dip_curve_defaults(stroke_curve, first, brush_id, paint_id)
     return grp
 
 
-# def rename_as_source(curves):
-#     for i, curve in enumerate(curves):
-#         name = "source_c%02d_" % i
-#         shape_name = "%sShape" % name
-#         curve.rename(shape_name)
-#         curve.getParent().rename("source_c%02d" % i)
-
-#     return curves
-
-
-def set_dip_curve_defaults(curve, first=True):
+def set_dip_curve_defaults(stroke_curve, first, brush_id, paint_id):
     for d in DIP_CURVE_DEFAULTS:
-        try:
-            curve.attr(d[0]).set(d[1])
-        except BaseException:
-            pass
+        stroke_curve.attr(d[0]).set(d[1])
     if not first:
-        try:
-            curve.attr("sfForceDip").set(0)
-        except BaseException:
-            pass
- 
+        stroke_curve.attr("forceDip").set(0)
+    stroke_curve.attr("brushId").set(brush_id)
+    stroke_curve.attr("paintId").set(paint_id)
 
-def setup_dip_factory(painting_factory, dip_factory, dip_curves_grp):
-    
 
-    sfu.delete_curve_instances(dip_factory)
 
-    curves_grp = pm.PyNode("dipPainting|curves")
+
+def doit():
+    painting_node = pm.PyNode("mainPaintingShape")
+    dip_node = pm.PyNode("dipPaintingShape")
+
+
+
+    dip_assembly = sfu.assembly(dip_node)
+
+    zpos = dip_assembly.attr("zeroPosition").get()
+    dip_assembly.attr("zeroPosition").set(True)
+
+    pm.delete(dip_node.attr("strokeCurves").connections(destination=False, source=True, type="strokeCurve"))
+    # sfu.delete_curve_instances(dip_node)
+
+    curves_grp = pm.PyNode("%s|curves" % dip_assembly)
     pm.delete(curves_grp.getChildren())
 
-    t = pm.currentTime(query=True)
-    pm.currentTime(0)
     # source_curves = rename_as_source(curves)
-    tfs = dip_curves_grp.getChildren()
-    dip_combinations = get_dip_combinations(painting_factory)
-
-    
-
-    for dip in dip_combinations:
-        paint_id = dip_combinations[dip]["paint"].id
-        brush_id = dip_combinations[dip]["brush"].id
-        grp = duplicate_and_connect(dip_curves_grp, dip_factory, paint_id, brush_id)
-        tray = pm.PyNode("r_tray%d" % paint_id)
-        pm.parent(grp, tray, relative=True)
-        pm.parent(grp, curves_grp , absolute=True)
-
-    # source_parents = pm.listRelatives(source_curves, parent=True)
-    # print "SOURCE PARENTS"
-    # print source_parents
-    # pm.delete(source_parents)
-    connect_brushes(painting_factory, dip_factory)
-    connect_paints(painting_factory, dip_factory)
-    pm.currentTime(t)
+    # tfs = dip_curves_grp.getChildren()
+    combinations = dip_combinations(painting_node)
 
 
 
-def connect_brushes(src, dest):
-    for index in dest.attr("brushes").getArrayIndices():
-        pm.removeMultiInstance(dest.attr("brushes[%d]" % index), b=True)
+    for dip in combinations:
+        paint_id = combinations[dip]["paint"].id
+        brush_id = combinations[dip]["brush"].id
+        brush_dip_curve_grp = "brushes|dipCurves|%s" % combinations[dip]["brush"].name.replace("bpx", "bdcx")
+        # print pm.objExists(dip_curve_grp)
 
-    for index in src.attr("brushes").getArrayIndices():
-        atts = [
-            "brushWidth",
-            "brushLift",
-            "brushMatrix",
-            "brushRetention"]
-        for att in atts:
-            src_attribute = src.attr("brushes[%d].%s" % (index, att))
-            dest_attribute = dest.attr("brushes[%d].%s" % (index, att))
-            src_conn = sfu.input_connection(src_attribute)
-            if src_conn:
-                src_conn >> dest_attribute
-            else:
-                src_attribute >> dest_attribute
+        dip_curve_grp = duplicate_and_connect(brush_dip_curve_grp, dip_node, paint_id, brush_id)
+        tray = dip_node.attr("paints[%d].paintTravel" % paint_id).connections(source=1,destination=0 )[0]
+
+        # pm.PyNode("r_tray%d" % paint_id)
+        pm.parent(dip_curve_grp, tray, relative=True)
+        pm.parent(dip_curve_grp, curves_grp , absolute=True)
+
+    # connect_brushes(painting_node, dip_node)
+    # connect_paints(painting_node, dip_node)
+    dip_assembly.attr("zeroPosition").set(zpos)
 
 
-def connect_paints(src, dest):
-    for index in dest.attr("paints").getArrayIndices():
-        pm.removeMultiInstance(dest.attr("paints[%d]" % index), b=True)
+# def connect_brushes(src, dest):
+#     for index in dest.attr("brushes").getArrayIndices():
+#         pm.removeMultiInstance(dest.attr("brushes[%d]" % index), b=True)
 
-    for index in src.attr("paints").getArrayIndices():
-        dest.attr(  "paints[%d].paintMaxArcLength" % index).set(1000)
-        for att in [
-            "paintColor",
-            "paintName",
-            "paintOpacity"]:
+#     for index in src.attr("brushes").getArrayIndices():
+#         atts = [
+#             "brushWidth",
+#             "brushMatrix",
+#             "brushRetention"]
+#         for att in atts:
+#             src_attribute = src.attr("brushes[%d].%s" % (index, att))
+#             dest_attribute = dest.attr("brushes[%d].%s" % (index, att))
+#             src_conn = sfu.input_connection(src_attribute)
+#             if src_conn:
+#                 src_conn >> dest_attribute
+#             else:
+#                 src_attribute >> dest_attribute
 
-            src.attr(
-                "paints[%d].%s" %
-                (index, att)) >> dest.attr(
-                "paints[%d].%s" %
-                (index, att))
 
+# def connect_paints(src, dest):
+#     for index in dest.attr("paints").getArrayIndices():
+#         pm.removeMultiInstance(dest.attr("paints[%d]" % index), b=True)
+
+#     for index in src.attr("paints").getArrayIndices():
+#         dest.attr("paints[%d].paintMaxArcLength" % index).set(1000)
+#         for att in [
+#             "paintColor",
+#             "paintName",
+#                 "paintOpacity"]:
+
+#             src.attr(
+#                 "paints[%d].%s" %
+#                 (index, att)) >> dest.attr(
+#                 "paints[%d].%s" %
+#                 (index, att))

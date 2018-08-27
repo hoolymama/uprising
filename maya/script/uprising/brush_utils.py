@@ -115,22 +115,49 @@ def create_brush_geo(height, bristle_height, tip, width, name, profile):
     return geo
 
 
-def brush_name(idx, unsplay_width, xname, profile, type):
-    parts = [
-        "bx%s" % str(int(idx)),
+def brush_name(idx, unsplay_width, desc, profile, prefix):
+    return "_".join([
+        prefix,
+        str(int(idx)),
         "%smm" % str(int(unsplay_width * 10)),
-        profile.lower()
-    ]
-    if xname:
-        parts.append(xname.lower())
-
-    if type:
-        parts.append(type)
+        profile.lower(),
+        desc.lower() 
+    ])
 
 
-    return "_".join(parts)
+def create_and_connect_single_brush_geo(
+        node,
+        idx,
+        unsplay_width,
+        desc,
+        profile,
+        prefix,
+        height,
+        bristle_height,
+        tip,
+        width,
+        parent):
+    if not node:
+        pm.warning("No destination node. Skipping brush gen")
+        return
 
-def create_and_connect_brush_geo(
+    name = brush_name(idx, unsplay_width, desc, profile, prefix)
+    tf = create_brush_geo(height, bristle_height, tip, width, name, profile)
+    profile_shape = 0
+    if profile.lower() == "round":
+        profile_shape = 1
+
+    connect_brush_to_node(tf, node)
+    tf.attr("sfBrushWidth").set(width)
+    tf.attr("sfBrushShape").set(profile_shape)
+
+    retention = 1 if prefix == "bpx" else 1000
+    tf.attr("sfBrushRetention").set(retention)
+
+    pm.parent(tf, parent)
+
+
+def create_and_connect_both_brushes_geo(
         painting_node,
         dip_node,
         idx,
@@ -141,72 +168,63 @@ def create_and_connect_brush_geo(
         _2,
         unsplay_width,
         width,
-        xname,
+        desc,
         profile,
         dip_tip,
         _4
-        ):
+):
 
-    name = brush_name(idx, unsplay_width, xname, profile, "P")
-    painting_tf = create_brush_geo(height, bristle_height, tip, width, name, profile)
-    profile_shape = 0
-    if profile.lower() == "round":
-        profile_shape = 1
+    create_and_connect_single_brush_geo(
+        painting_node,
+        idx,
+        unsplay_width,
+        desc,
+        profile,
+        "bpx",
+        height,
+        bristle_height,
+        tip,
+        width,
+        '|brushes|paintingBrushes')
 
+    create_and_connect_single_brush_geo(
+        dip_node,
+        idx,
+        unsplay_width,
+        desc,
+        profile,
+        "bdx",
+        height,
+        bristle_height,
+        dip_tip,
+        width,
+        '|brushes|dipBrushes')
 
+def remove_brush_multi_atts(*nodes):
+    for node in nodes:
+        indices = node.attr("brushes").getArrayIndices()
+        for i in indices:
+            pm.removeMultiInstance(node.attr("brushes[%d]" % i), b=True)
 
-    if painting_node:
-        connect_brush_to_node(painting_tf, painting_node)
-        painting_tf.attr("sfBrushWidth").set(width)
-        painting_tf.attr("sfBrushRetention").set(1)
-        painting_tf.attr("sfBrushShape").set(profile_shape)
-        
-    else:
-        pm.warning("No painting node. Skipping")
-
-    name = brush_name(idx, unsplay_width, xname, profile, "D")
-    dip_tf = create_brush_geo(height, bristle_height, dip_tip, width, name, profile)
-    if dip_node:
-        connect_brush_to_node(dip_tf, dip_node)
-        dip_tf.attr("sfBrushWidth").set(width)
-        dip_tf.attr("sfBrushRetention").set(1000)
-        dip_tf.attr("sfBrushShape").set(profile_shape)
-    else:
-        pm.warning("No dip node. Skipping")
-
-    pm.parent( painting_tf, '|brushes' )
-    pm.parent( dip_tf, '|brushes' )
-
-
-
-def delete_brushes(node):
-    brushes = pm.listRelatives("|brushes", children=True)
-    for brush in brushes:
-        if brush.name().startswith("bx"):
-            pm.delete(brush)
-    indices = node.attr("brushes").getArrayIndices()
-    for i in indices:
-        pm.removeMultiInstance(node.attr("brushes[%d]" % i), b=True)
+def delete_brushes(painting_node, dip_node):
+    try:
+        pm.delete("|brushes|dipBrushes|*")
+    except pm.MayaNodeError:
+        pass
+    try:
+        pm.delete("|brushes|paintingBrushes|*")
+    except pm.MayaNodeError:
+        pass
+    remove_brush_multi_atts(painting_node, dip_node)
 
 
 def create_brush_geo_from_sheet(painting_node, dip_node):
-    data =  get_raw_brushes_data()
+    data = get_raw_brushes_data()
     validate_brush_data(data)
-
-    delete_brushes(painting_node)
-    delete_brushes(dip_node)
-
+    delete_brushes(painting_node, dip_node)
     for row in data:
         row = [uput.numeric(s) for s in row]
-        create_and_connect_brush_geo(painting_node, dip_node, *row)
-
-
-# def numeric(s):
-#     try:
-#         return float(s)
-#     except ValueError:
-#         return s
-
+        create_and_connect_both_brushes_geo(painting_node, dip_node, *row)
 
 def validate_brush_data(data):
     if not len(data):
@@ -216,7 +234,6 @@ def validate_brush_data(data):
             raise ValueError("Invalid brush data from Google sheets")
 
 
-
 def get_raw_brushes_data():
     service = sheets._get_service()
     result = service.spreadsheets().values().get(
@@ -224,8 +241,6 @@ def get_raw_brushes_data():
         range='Brushes!A2:L18').execute()
     values = result.get('values', [])
     return values
-
-
 
     # delete existing brushes
 

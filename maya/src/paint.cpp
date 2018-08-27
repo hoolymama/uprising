@@ -28,13 +28,15 @@ std::map<short, Paint> Paint::factory(
 		}
 
 		MFloatVector vc =  hComp.child(colorAttribute).asFloatVector() ;
-		MColor color(vc.x, vc.y, vc.z);
 
 		double opacity = hComp.child(opacityAttribute).asDouble() ;
 
+		MColor color(vc.x, vc.y, vc.z, opacity);
+
+
 		double travel = hComp.child(travelAttribute).asDouble() ;
 
-		result[index] = Paint(index, color, opacity, travel);
+		result[index] = Paint(index, color, travel);
 	}
 	return result;
 }
@@ -43,18 +45,15 @@ std::map<short, Paint> Paint::factory(
 Paint::Paint() :
 	id(-1),
 	color(1.0, 0.0, 1.0) ,
-	opacity(1),
 	travel(10)
 {}
 
 Paint::Paint(
   short id,
   MColor color,
-  double opacity,
   double travel) :
 	id(id),
 	color(color) ,
-	opacity(opacity),
 	travel(travel)
 {
 }
@@ -65,7 +64,6 @@ ostream &operator<<(ostream &os, const Paint &p)
 {
 	os << " id:" << p.id << ",";
 	os << " color:" << p.color << ",";
-	os << " opacity:" << p.opacity << ",";
 	os << " travel:" << p.travel;
 	return os;
 }

@@ -10,7 +10,6 @@
 class strokeGeom
 {
 public:
-	strokeGeom();
 
 	strokeGeom(const Stroke &src);
 
@@ -24,21 +23,18 @@ public:
 	double arcLength() const ;
 	short direction() const ;  // 1 or -1
 
-
-
-
-
-	void getPoints(MFloatPointArray &result) const;
+	/* These functions return data used for drawing. */
+	void getPoints(MFloatPointArray &result, double stackHeight = 0.0) const;
 	void getXAxes(MFloatVectorArray &result) const;
 	void getYAxes(MFloatVectorArray &result) const;
 	void getZAxes(MFloatVectorArray &result) const;
 	void getBorders(MFloatPointArray &lefts, MFloatPointArray &rights,
-	                double brushWidth) const;
+	                double brushWidth, bool withLift = false, double stackHeight = 0.0) const;
 
+	void  getApproaches(MFloatPointArray &startApproachPoints,
+	                    MFloatPointArray &endApproachPoints, double stackHeight = 0.0) const;
 
-
-
-	// strokeGeom &operator=( const strokeGeom &other );
+	void getFullPath(MFloatPointArray &points, double stackHeight = 0.0) const;
 
 	friend ostream &operator<<(ostream &os, const strokeGeom &geom);
 
@@ -51,8 +47,6 @@ private:
 	double m_arcLength;
 	short m_direction; // 1 or -1
 	MVector m_planeNormal;
-
-
 
 };
 

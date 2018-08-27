@@ -148,13 +148,7 @@ def setup_paints_from_sheet(painting_node, dip_node):
 
 
 
-
-    # print trays
-    # print locators
-    
-        # create_and_connect_brush_geo(painting_node, dip_node, *row)
-
-
+ 
 
 def get_raw_paint_data():
     service = sheets._get_service()
