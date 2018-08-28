@@ -59,26 +59,10 @@ MStatus paintingData::create(MDataBlock &data, MObject &strokeCurvesAtt,
 		MObject dStrokeCurve = hStrokeCurve.data();
 		MFnPluginData fnStrokeCurves( dStrokeCurve , &st); ert;
 		strokeCurveData *scData = (strokeCurveData *)fnStrokeCurves.data();
-		strokeCurveGeom *geom = scData->fGeometry;
-
-		// strokeCurveGeom *pScGeom = 0;
-		// st = getData(hStrokeCurves, pScGeom);
-
-
-
-		// cerr << "POINTER: " << geom << endl;
-		// cerr << *geom << endl;
-
-		m_pGeometry->addStrokeCurve(*geom);
-
-		// if (geom) {
-		//   cerr << "num strokes" << geom->m_strokes.size() << endl;
-		//   cerr << "m_forceDip" << geom->m_forceDip << endl;
-		//   cerr << "m_brushId" << geom->m_brushId << endl;
-		//   cerr << "m_paintId" << geom->m_paintId << endl;
-		// }
-
+		strokeCurveGeom *scGeom = scData->fGeometry;
+		m_pGeometry->addStrokeCurve(*scGeom);
 	}
+
 
 	// NOTE: there is a paintingGeom which is either
 	// null, has zero size, or has size

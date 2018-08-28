@@ -48,10 +48,7 @@
 
 
 #include "paintingGeom.h"
-// #include "strokeCurveGeom.h"
 #include "strokeCurveData.h"
-
-
 #include "paintingNode.h"
 
 #include <jMayaIds.h>

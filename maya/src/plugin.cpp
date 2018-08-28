@@ -6,6 +6,7 @@
 #include "paintingData.h"
 #include "strokeCurveNode.h"
 #include "paintingNode.h"
+#include "paintingCmd.h"
 
 MStatus initializePlugin( MObject obj)
 {
@@ -31,6 +32,8 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "painting", painting::id, painting::creator,
 	                          painting::initialize, MPxNode::kLocatorNode ); ert;
 
+	st = plugin.registerCommand( "paintingQuery", paintingCmd::creator ,
+	                             paintingCmd::newSyntax); er;
 	// strokeFactoryCallback::id = MDGMessage::addNodeAddedCallback (
 	//                               strokeFactoryCallback::makeDefaultConnections, "strokeFactory", NULL,  &st ); er;
 
@@ -50,6 +53,9 @@ MStatus uninitializePlugin( MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin( obj );
+
+
+	st = plugin.deregisterCommand( "paintingCmd" ); er;
 
 	st = plugin.deregisterNode( painting::id ); er;
 
