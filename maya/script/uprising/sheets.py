@@ -30,6 +30,6 @@ def get_raw_board_data():
     service = _get_service()
     result = service.spreadsheets().values().get(
         spreadsheetId=SHEETS["Measurements"],
-        range='Board!A2:D5').execute()
+        range='Board!A9:D12').execute()
     values = result.get('values', [])
     return values

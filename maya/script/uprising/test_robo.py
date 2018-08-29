@@ -13,10 +13,10 @@ from robolink import (
     RUNMODE_SIMULATE
 )
 import robodk as rdk
-
+import datetime
 RL = Robolink()
 
-robot = RL.Item('', ITEM_TYPE_ROBOT)
+
 
 
 # WINDOWSTATE_HIDDEN      = -1        # Hidden
@@ -30,10 +30,10 @@ robot = RL.Item('', ITEM_TYPE_ROBOT)
 # toolbar and without the menu
 
 
-RL.Render(False)
-# RL.setWindowState(-1)
+# RL.Render(False)
+# # RL.setWindowState(-1)
 
-RL.setWindowState(2)
+# RL.setWindowState(2)
 
 # robot.Childs()
 # for c in robot.Childs():
@@ -59,6 +59,48 @@ def draw_seg(verts, color, name):
         geo.AddGeometry(shape, rdk.eye())
         shape.Delete()
     geo.setColor(list(color))
+
+
+def save_prog():
+    robot = RL.Item('', ITEM_TYPE_ROBOT)
+    RL.setRunMode(RUNMODE_MAKE_ROBOTPROG)
+    timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
+    ddir = "/Users/julian/projects/robot/export/"
+    prog_filename = "PX_%s" % timestamp
+
+    RL.ProgramStart(prog_filename, ddir, "KUKA_KRC4_RN", robot)
+    # RL.RunProgram('px', True)
+    robot.RunInstruction("px", INSTRUCTION_CALL_PROGRAM)
+    # RL.RunMessage("foo")
+    RL.Finish()
+
+
+save_prog()
+
+
+# RL.ProgramStart("px_file", folder, "KUKA_KRC4_RN", robot)
+# robot.RunInstruction('AutoProgram', INSTRUCTION_CALL_PROGRAM)
+# RL.Render(True)
+# RL.Finish()
+
+# prog_filename = "PX_%s" % timestamp
+# station = os.path.join(ts_dir, "%s.rdk" % timestamp)
+# RL.Save(station)
+
+# RL.ProgramStart(prog_filename, ts_dir, "KUKA_KRC4_RN", robot)
+# print "ProgramStart %s" % ts_dir
+# RL.Render(False)
+# print "Render False - now run"
+# program = RL.Item("px")
+# RL.RunProgram("px", False)
+# print "Render True"
+# RL.Render(True)
+# print "DONE"
+# RL.Finish()
+
+
+
+
     # shape.Delete()
 # robot = RL.Item('', ITEM_TYPE_ROBOT)
 
