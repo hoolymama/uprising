@@ -13,7 +13,7 @@
 
  
 	editorTemplate -cl 0 -beginLayout "Approach Attributes";
-	editorTemplate -addControl "clusterApproachObject";
+	editorTemplate -addControl "dipApproachObject";
 	editorTemplate -addControl "toolChangeApproachObject";
 	editorTemplate -addControl "homeApproachObject";
  	editorTemplate -endLayout;

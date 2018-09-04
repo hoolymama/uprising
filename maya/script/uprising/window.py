@@ -3,10 +3,17 @@ import pymel.core as pm
 import pymel.core.uitypes as gui
 from  uprising import (painting_tab , setup_tab, props_tab)
 
+
+
+# import uprising.logger_setup
+
+
 import setup_dip
 # from setup_dip import setup_dip_factory
 
 import stroke_factory_utils
+
+import studio
 
 import painting 
 import paint
@@ -23,6 +30,7 @@ import brush_utils
 import paint_utils
 
 
+reload(studio)
 reload(uprising_util)
 reload(paint)
 reload(brush)
@@ -40,11 +48,10 @@ reload(painting)
 reload(stroke_factory_utils)
 reload(sheets)
 
-
-
 reload(painting_tab)
 reload(setup_tab)
 reload(props_tab)
+
 
 class RobotWindow(gui.Window):
 
@@ -74,7 +81,7 @@ class RobotWindow(gui.Window):
 
         self.show()
         self.setResizeToFitChildren()
-        self.tabs.setSelectTabIndex(1)
+        self.tabs.setSelectTabIndex(2)
 
     def onTabChanged(self):
         print ""

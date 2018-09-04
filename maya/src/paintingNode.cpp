@@ -106,7 +106,7 @@ MObject painting::aOutputUnit;
 // MObject painting::aApproachDistanceEnd;
 // MObject painting::aApproachDistance;
 
-MObject painting::aClusterApproachObject;
+MObject painting::aDipApproachObject;
 MObject painting::aToolChangeApproachObject;
 MObject painting::aHomeApproachObject;
 MObject painting::aLinearSpeed; // cm/sec
@@ -173,24 +173,24 @@ MStatus painting::initialize()
   addAttribute(aPlaneMatrix);
 
   // APPROACH OBJECTS
-  aClusterApproachObject =  msgAttr.create("clusterApproachObject", "clao");
-  addAttribute(aClusterApproachObject);
+  aDipApproachObject =  msgAttr.create("dipApproachObject", "dao");
+  addAttribute(aDipApproachObject);
   aToolChangeApproachObject =  msgAttr.create("toolChangeApproachObject", "tcao");
   addAttribute(aToolChangeApproachObject);
   aHomeApproachObject =  msgAttr.create("homeApproachObject", "hmao");
   addAttribute(aHomeApproachObject);
 
-
   aLinearSpeed = nAttr.create( "linearSpeed", "lnsp", MFnNumericData::kDouble);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setMin(0.00);
-  nAttr.setSoftMax(100);
-  nAttr.setDefault(50);
+  nAttr.setSoftMax(200);
+  nAttr.setDefault(100.00);
   nAttr.setKeyable(true);
   addAttribute(aLinearSpeed);
 
   const double minAngSpeed = mayaMath::single_pi / 900.00;
+  const double defaultAngSpeed = mayaMath::single_pi / 9.00;
   aAngularSpeed = uAttr.create( "angularSpeed", "agsp", MFnUnitAttribute::kAngle );
   uAttr.setStorable(true);
   uAttr.setReadable(true);
@@ -204,8 +204,8 @@ MStatus painting::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setMin(0.00);
-  nAttr.setSoftMax(100);
-  nAttr.setDefault(10);
+  nAttr.setSoftMax(20);
+  nAttr.setDefault(5.0);
   nAttr.setKeyable(true);
   addAttribute(aApproximationDistance);
 
@@ -405,24 +405,24 @@ MStatus painting::initialize()
   ///////
 
 
-  st = attributeAffects(aPlaneMatrix, aOutTargets);
-  st = attributeAffects(aStrokeCurves, aOutTargets);
-  st = attributeAffects(aClusterApproachObject, aOutTargets);
-  st = attributeAffects(aToolChangeApproachObject, aOutTargets);
-  st = attributeAffects(aHomeApproachObject, aOutTargets);
-  st = attributeAffects(aLinearSpeed, aOutTargets);
-  st = attributeAffects(aAngularSpeed, aOutTargets);
-  st = attributeAffects(aApproximationDistance, aOutTargets);
+  // st = attributeAffects(aPlaneMatrix, aOutTargets);
+  // st = attributeAffects(aStrokeCurves, aOutTargets);
+  // st = attributeAffects(aDipApproachObject, aOutTargets);
+  // st = attributeAffects(aToolChangeApproachObject, aOutTargets);
+  // st = attributeAffects(aHomeApproachObject, aOutTargets);
+  // st = attributeAffects(aLinearSpeed, aOutTargets);
+  // st = attributeAffects(aAngularSpeed, aOutTargets);
+  // st = attributeAffects(aApproximationDistance, aOutTargets);
 
-  st = attributeAffects(aBrushes, aOutTargets);
-  st = attributeAffects(aPaints, aOutTargets);
+  // st = attributeAffects(aBrushes, aOutTargets);
+  // st = attributeAffects(aPaints, aOutTargets);
 
 
   st = attributeAffects(aPlaneMatrix, aOutput);
   st = attributeAffects(aStrokeCurves, aOutput);
-  st = attributeAffects(aClusterApproachObject, aOutput);
-  st = attributeAffects(aToolChangeApproachObject, aOutput);
-  st = attributeAffects(aHomeApproachObject, aOutput);
+  // st = attributeAffects(aDipApproachObject, aOutput);
+  // st = attributeAffects(aToolChangeApproachObject, aOutput);
+  // st = attributeAffects(aHomeApproachObject, aOutput);
   st = attributeAffects(aLinearSpeed, aOutput);
   st = attributeAffects(aAngularSpeed, aOutput);
   st = attributeAffects(aApproximationDistance, aOutput);
@@ -502,7 +502,8 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
   // cerr << "plug name: " << plug.name() << endl;
 
-  MMatrixArray outTargets; // outTargets.clear();
+  // MMatrixArray outTargets; // outTargets.clear();
+
   MDataHandle mh = data.inputValue(aInMatrix, &st); er;
   MMatrix wm = mh.asMatrix();
   MMatrix planeMatrix = data.inputValue(painting::aPlaneMatrix).asMatrix();
@@ -610,7 +611,7 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
   // cerr << *pPaintingGeom << endl;
 
-  st = setData(data, painting::aOutTargets, outTargets); er;
+  // st = setData(data, painting::aOutTargets, outTargets); er;
 
   // hOutput.set( pPaintingData );
   // data.setClean( plug );
@@ -988,11 +989,20 @@ void painting::drawWireframeApproach(
   setWireDrawColor(view, status);
   MObject thisObj = thisMObject();
 
+  /* Don't draw approach if cluster path visible as it will interfere */
+  bool doDisplayClusterPath;
+  MPlug(thisObj, aDisplayClusterPath).getValue(doDisplayClusterPath);
+  if (doDisplayClusterPath ) {
+    return;
+  }
+
   bool doDisplayApproach;
   MPlug(thisObj, aDisplayApproach).getValue(doDisplayApproach);
   if (! doDisplayApproach ) {
     return;
   }
+
+
 
 
   double lineThickness;

@@ -16,8 +16,8 @@
 #define kClusterCountFlag				"-cc"
 #define kClusterCountFlagL 			"-clusterCount"
 
-#define  kClusterIndexFlag "-ci"
-#define  kClusterIndexFlagL "-clusterIndex"
+#define kClusterIndexFlag "-ci"
+#define kClusterIndexFlagL "-clusterIndex"
 
 #define kStrokeCountFlag				"-sc"
 #define kStrokeCountFlagL 			"-strokeCount"
@@ -25,13 +25,10 @@
 #define kClusterReasonFlag				"-cr"
 #define kClusterReasonFlagL 			"-clusterReason"
 
-#define kClusterNameFlag				"-cn"
-#define kClusterNameFlagL 			"-clusterName"
-
-#define kClusterPaintIdFlag				"-cpid"
+#define kClusterPaintIdFlag				"-cpi"
 #define kClusterPaintIdFlagL 			"-clusterPaintId"
 
-#define kClusterBrushIdFlag				"-cbid"
+#define kClusterBrushIdFlag				"-cbi"
 #define kClusterBrushIdFlagL 			"-clusterBrushId"
 
 #define kClusterTravelCutoffFlag	"-ctc"
@@ -40,41 +37,32 @@
 #define kClusterTravelFlag				"-ct"
 #define kClusterTravelFlagL 			"-clusterTravel"
 
-#define  kStrokeIndexFlag "-si"
-#define  kStrokeIndexFlagL "-strokeIndex"
+#define kStrokeIndexFlag  "-si"
+#define kStrokeIndexFlagL "-strokeIndex"
 
-// -clusterCount
-// -clusterIndex
-// -strokeIndex
-// -strokeCount
-// -clusterReason
-// -clusterName
-// -paintId
-// -brushId
-// -travelCutoff
-// -travel
+#define kRotateOrderFlag "-ro"
+#define kRotateOrderFlagL "-rotateOrder"
 
+#define kRotateUnitFlag "-ru"
+#define kRotateUnitFlagL "-rotateUnit"
 
-// #define kBrushCountFlag				"-bc"
-// #define kBrushCountFlagL 			"-brushCount"
+#define kStrokePositionsFlag "-sp"
+#define kStrokePositionsFlagL "-strokePositions"
 
-// #define kJointsFlag				"-j"
-// #define kJointsFlagL 			"-joints"
+#define kStrokeRotationsFlag "-sr"
+#define kStrokeRotationsFlagL "-strokeRotations"
 
-/*
-#define kCacheFrameFlag			"-c"
-#define kCacheFrameFlagL 		"-cacheFrame"
+#define kStrokeTangentsFlag "-st"
+#define kStrokeTangentsFlagL "-strokeTangents"
 
-#define kForceCacheFlag			"-fc"
-#define kForceCacheFlagL 		"-forceCache"
-*/
+#define kStrokeDirectionFlag "-sd"
+#define kStrokeDirectionFlagL "-strokeDirection"
 
-// #define kFixFlag				"-fx"
-// #define kFixFlagL 				"-fix"
+#define kStrokeArcLengthFlag "-sal"
+#define kStrokeArcLengthFlagL "-strokeArcLength"
 
-
-
-
+#define kStrokeNormalFlag "-sn"
+#define kStrokeNormalFlagL "-strokeNormal"
 
 
 /////////////////////////////////////////
@@ -114,6 +102,24 @@ private:
 	MStatus handleClusterBrushIdFlag(const paintingGeom &geom, MArgDatabase &argData);
 	MStatus handleClusterTravelCutoffFlag(const paintingGeom &geom, MArgDatabase &argData);
 	MStatus handleClusterTravelFlag(const paintingGeom &geom, MArgDatabase &argData);
+
+	MStatus  handleStrokePositionsFlag(const paintingGeom &geom, MArgDatabase &argData,
+	                                   const MMatrix &worldMatrix);
+
+	MStatus handleStrokeRotationsFlag(const paintingGeom &geom, MArgDatabase &argData,
+	                                  const MMatrix &worldMatrix);
+	MStatus handleStrokeTangentsFlag(const paintingGeom &geom, MArgDatabase &argData,
+	                                 const MMatrix &worldMatrix);
+	MStatus handleStrokeDirectionFlag(const paintingGeom &geom, MArgDatabase &argData);
+	MStatus handleStrokeArcLengthFlag(const paintingGeom &geom, MArgDatabase &argData);
+	MStatus handleStrokeNormalFlag(const paintingGeom &geom, MArgDatabase &argData,
+	                               const MMatrix &worldMatrix);
+
+
+	MMatrix getWorldMatrix(MObject &paintingObject, MStatus *st );
+	MTransformationMatrix::RotationOrder getRotationOrder(MArgDatabase &argData);
+	MAngle::Unit  getRotationUnit(MArgDatabase &argData);
+
 };
 
 #endif	//	!__paintingCmd_H__

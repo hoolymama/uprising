@@ -106,7 +106,7 @@ private:
 
   static MObject aPlaneMatrix;
 
-  static MObject aClusterApproachObject;
+  static MObject aDipApproachObject;
   static MObject aToolChangeApproachObject;
   static MObject aHomeApproachObject;
 

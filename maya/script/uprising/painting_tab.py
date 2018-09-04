@@ -10,42 +10,11 @@ import paint_utils as putl
 
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
-import painting as pnt
-
+# import painting as pnt
+from studio import Studio
 from robolink import (
     Robolink
 )
-# import robodk as rdk
-# import paint
-# import brush
-# import stroke
-# import cluster
-# import target
-# import write
-# import uprising_util
-# import const
-# import sheets
-
-
-# reload(uprising_util)
-# reload(paint)
-# reload(brush)
-# reload(stroke)
-# reload(cluster)
-# reload(target)
-# reload(write)
-# reload(setup_dip)
-# reload(const)
-
-# reload(cutl)
-# reload(butl)
-# reload(putl)
-# reload(pnt)
-# reload(sfu)
-# reload(sheets)
-
-
-# RL = Robolink()
 
 
 class PaintingTab(gui.FormLayout):
@@ -55,19 +24,21 @@ class PaintingTab(gui.FormLayout):
         pm.setParent(self)
         self.column = pm.columnLayout()
         self.column.adjustableColumn(True)
-        self.create_butttons()
+        self.create_buttons()
         self.create_action_buttons()
 
-    def create_butttons(self):
+    def create_buttons(self):
         pm.setParent(self.column)
 
-        # pm.button(
-        #     label='Create Stroke Factory',
-        #     command=pm.Callback(sfu.create_stroke_factory))
- 
-        # pm.button(
-        #     label='Create painting',
-        #     command=pm.Callback(self.on_create_painting))
+        pm.button(
+            label='Add curves to painting',
+            ann="Add selected curves to selected painting node",
+            command=pm.Callback(self.add_curves_to_painting))
+
+
+        pm.button(
+            label='Create painting',
+            command=pm.Callback(self.on_create_painting))
 
         # pm.button(
         #     label='Create dip subroutines',
@@ -80,34 +51,29 @@ class PaintingTab(gui.FormLayout):
         # pm.button(
         #     label='Create all',
         #     command=pm.Callback(self.on_create_all))
-        pm.button(
-            label='Setup from spreadsheet',
-            ann="Read and connect paints and brushes and board from the spreadsheet",
-            command=pm.Callback(self.setup_from_spreadsheet))
+        # pm.button(
+        #     label='Setup from spreadsheet',
+        #     ann="Read and connect paints and brushes and board from the spreadsheet",
+        #     command=pm.Callback(self.setup_from_spreadsheet))
 
+     
 
+        # pm.rowLayout(numberOfColumns=2,
+        #              columnWidth2=(
+        #                  (100), 100),
+        #              adjustableColumn=1,
+        #              columnAlign=(1, 'right'),
+        #              columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+        # pm.button(
+        #     label='Generate brush dip curves from default curves',
+        #     ann="Add selected curves to selected painting node",
+        #     command=pm.Callback(self.on_generate_brush_dip_curves))
 
-        pm.button(
-            label='Add curves to painting',
-            ann="Add selected curves to selected painting node",
-            command=pm.Callback(self.add_curves_to_painting))
-
-        pm.rowLayout(numberOfColumns=2,
-                     columnWidth2=(
-                         (100), 100),
-                     adjustableColumn=1,
-                     columnAlign=(1, 'right'),
-                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
-        pm.button(
-            label='Generate brush dip curves from default curves',
-            ann="Add selected curves to selected painting node",
-            command=pm.Callback(self.on_generate_brush_dip_curves))
-
-        force_gen_bc  = 1
-        self.force_gen_brush_curves_cb = pm.checkBox(
-            label='Force',
-            value=force_gen_bc,
-            annotation='Force generate brush curves')
+        # force_gen_bc  = 1
+        # self.force_gen_brush_curves_cb = pm.checkBox(
+        #     label='Force',
+        #     value=force_gen_bc,
+        #     annotation='Force generate brush curves')
     
 
 
@@ -179,22 +145,9 @@ class PaintingTab(gui.FormLayout):
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
-    def set_board_transform_from_sheet(self):
-        
-        node = pm.PyNode("paintingStrokeFactoryShape")
-        sfu.set_board_from_sheet(node)
+ 
 
-
-
-
-    def setup_from_spreadsheet(self):
-        painting_node = pm.PyNode("mainPaintingShape")
-        dip_node = pm.PyNode("dipPaintingShape")
-        butl.create_brush_geo_from_sheet(painting_node, dip_node)
-        putl.setup_paints_from_sheet(painting_node, dip_node)
-        sfu.set_board_from_sheet(painting_node)
-   
-
+ 
     def add_curves_to_painting(self):
         node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
         if not node:
@@ -220,11 +173,11 @@ class PaintingTab(gui.FormLayout):
 
 
 
-    def on_setup_dip(self):
-        painting = pm.PyNode("mainPaintingShape")
-        dip = pm.PyNode("dipPaintingShape")
-        dip_curves_grp = pm.PyNode("brushes|dipCurves")
-        setup_dip_factory(painting, dip, dip_curves_grp)
+    # def on_setup_dip(self):
+    #     painting = pm.PyNode("mainPaintingShape")
+    #     dip = pm.PyNode("dipPaintingShape")
+    #     dip_curves_grp = pm.PyNode("brushes|dipCurves")
+    #     setup_dip_factory(painting, dip, dip_curves_grp)
 
 
 
@@ -252,38 +205,36 @@ class PaintingTab(gui.FormLayout):
         RL = Robolink()
         RL.setWindowState(-1)
         RL.Render(False)
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        dip_factory = pm.PyNode("dipStrokeFactoryShape")
-       
-        butl.send_brushes(painting_factory)
+        
+        # pnt.Dip(pm.PyNode("dipPaintingShape")).write()
+        # pnt.Painting(pm.PyNode("mainPaintingShape")).write()
 
-        dip = pnt.Painting(dip_factory, True)
-        dip.create_dip_subroutines()
-
-        painting = pnt.Painting(painting_factory)
-        painting.create_painting_program()
         RL.Render(True)
         RL.setWindowState(2)
  
     def on_create_painting(self):
         RL = Robolink()
         RL.setWindowState(-1)
-        RL.Render(False)
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        painting = pnt.Painting(painting_factory)
-        painting.create_painting_program()
-        RL.Render(True)
+        # RL.Render(False)
+        painting_node = pm.PyNode("mainPaintingShape")
+        dip_node = pm.PyNode("dipPaintingShape")
+        studio = Studio(painting_node, dip_node)
+        studio.write()
+        
+        # painting = pnt.Painting(painting_node)
+        # painting.create_painting_program()
+        # RL.Render(True)
         RL.setWindowState(2)
 
-    def on_create_dip_only(self):
-        RL = Robolink()
-        RL.setWindowState(-1)
-        RL.Render(False)
-        dip_factory = pm.PyNode("dipStrokeFactoryShape")
-        dip = pnt.Painting(dip_factory, True)
-        dip.create_dip_subroutines()
-        RL.Render(True)
-        RL.setWindowState(2)
+    # def on_create_dip_only(self):
+    #     RL = Robolink()
+    #     RL.setWindowState(-1)
+    #     RL.Render(False)
+    #     dip_factory = pm.PyNode("dipStrokeFactoryShape")
+    #     dip = pnt.Painting(dip_factory, True)
+    #     dip.create_dip_subroutines()
+    #     RL.Render(True)
+    #     RL.setWindowState(2)
  
     def on_delete_curve_instances(self):
         nodes = pm.ls(
@@ -296,12 +247,12 @@ class PaintingTab(gui.FormLayout):
 
 
 
-    def on_test_strokes(self):
-        node = pm.PyNode("paintingStrokeFactoryShape")
-        painting = pnt.Painting(node)
-        painting.test_strokes()
+    # def on_test_strokes(self):
+    #     node = pm.PyNode("paintingStrokeFactoryShape")
+    #     painting = pnt.Painting(node)
+    #     painting.test_strokes()
 
-    def on_show_painting(self):
-        node = pm.PyNode("paintingStrokeFactoryShape")
-        painting = pnt.Painting(node)
-        painting.show()
+    # def on_show_painting(self):
+    #     node = pm.PyNode("paintingStrokeFactoryShape")
+    #     painting = pnt.Painting(node)
+    #     painting.show()

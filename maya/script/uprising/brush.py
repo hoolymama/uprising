@@ -2,6 +2,8 @@ import pymel.core as pm
 import const as k
 
 import uprising_util as uutl
+import uprising.maya_util as mut
+import robodk as rdk
 
 class Brush(object):
     def __init__(self, the_id, name, matrix, width, retention, shape):
@@ -12,6 +14,29 @@ class Brush(object):
         self.retention = retention
         self.name = name
                
+
+    def write(self, studio):
+        old_brush = studio.RL.Item(self.name)
+        if old_brush.Valid():
+            old_brush.Delete()
+ 
+        geo = pm.PyNode(self.name).getShapes() + pm.PyNode("brushes|brushBase").getShapes()
+        triangles = []
+        for g in geo:
+            points = g.getPoints(space='world')
+            _, vert_ids = g.getTriangles()
+            for vert_id in vert_ids:
+                triangles.append(
+                    [points[vert_id].x * 10, points[vert_id].y * 10, points[vert_id].z * 10])
+
+        color = mut.shape_color(g)
+        tool_item = studio.robot.AddTool(self.matrix, self.name)
+        shape = studio.RL.AddShape(triangles)
+        shape.setColor(list(color))
+        tool_item.AddGeometry(shape, rdk.eye())
+        studio.robot.setPoseTool(tool_item)
+        shape.Delete()
+ 
     @classmethod
     def brush_at_index(cls, node, index):
         vals = [index]
@@ -51,3 +76,4 @@ class Brush(object):
                 if found_brushes == num_brushes:
                     break
         return result
+

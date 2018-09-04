@@ -130,7 +130,6 @@ class SetupTab(gui.FormLayout):
         putl.setup_paints_from_sheet(painting_node, dip_node)
         sfu.set_board_from_sheet(painting_node)
    
-
     def add_curves_to_painting(self):
         node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
         if not node:
@@ -139,96 +138,11 @@ class SetupTab(gui.FormLayout):
         for curve in curves:
             cutl.connect_curve_to_painting(curve, node, connect_to="next_available")
 
-
-
     def on_generate_brush_dip_curves(self):
         force = pm.checkBox(self.force_gen_brush_curves_cb, query=True, v=True)
         cutl.generate_brush_dip_curves(force )
-
-
-
-        # dip_curves_grp = pm.PyNode("dipCurves")
-        # setup_dip_factory(painting, dip, dip_curves_grp)
 
     def visualize_brush_dips(self):
         painting_dip = pm.PyNode("mainPaintingShape")
         dip_dip = pm.PyNode("dipPaintingShape")
         
-
-    # def on_send_paint_trays(self):
-    #     painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-    #     putl.send_paints(painting_factory)
-
-    # def on_random_paints(self):
-    #     painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-    #     cutl.assign_random_paints(painting_factory)
-        
-    # def on_random_brushes(self):
-    #     painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-    #     cutl.assign_random_brushes(painting_factory)
-
-    # def on_send_brushes(self):
-    #     painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-    #     butl.send_brushes(painting_factory)
-
-    # def on_send_approach_targets(self):
-    #     painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-    #     sfu.send_aproach_objects(painting_factory)
-
-    # def on_create_all(self):
-    #     RL = Robolink()
-    #     RL.setWindowState(-1)
-    #     RL.Render(False)
-    #     painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-    #     dip_factory = pm.PyNode("dipStrokeFactoryShape")
-       
-    #     butl.send_brushes(painting_factory)
-
-    #     dip = pnt.Painting(dip_factory, True)
-    #     dip.create_dip_subroutines()
-
-    #     painting = pnt.Painting(painting_factory)
-    #     painting.create_painting_program()
-    #     RL.Render(True)
-    #     RL.setWindowState(2)
- 
-    # def on_create_painting(self):
-    #     RL = Robolink()
-    #     RL.setWindowState(-1)
-    #     RL.Render(False)
-    #     painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-    #     painting = pnt.Painting(painting_factory)
-    #     painting.create_painting_program()
-    #     RL.Render(True)
-    #     RL.setWindowState(2)
-
-    # def on_create_dip_only(self):
-    #     RL = Robolink()
-    #     RL.setWindowState(-1)
-    #     RL.Render(False)
-    #     dip_factory = pm.PyNode("dipStrokeFactoryShape")
-    #     dip = pnt.Painting(dip_factory, True)
-    #     dip.create_dip_subroutines()
-    #     RL.Render(True)
-    #     RL.setWindowState(2)
- 
-    # def on_delete_curve_instances(self):
-    #     nodes = pm.ls(
-    #         selection=True,
-    #         dag=True,
-    #         leaf=True,
-    #         type="strokeFactory")
-    #     for node in nodes:
-    #         sfu.delete_curve_instances(node)
-
-
-
-    # def on_test_strokes(self):
-    #     node = pm.PyNode("paintingStrokeFactoryShape")
-    #     painting = pnt.Painting(node)
-    #     painting.test_strokes()
-
-    # def on_show_painting(self):
-    #     node = pm.PyNode("paintingStrokeFactoryShape")
-    #     painting = pnt.Painting(node)
-    #     painting.show()

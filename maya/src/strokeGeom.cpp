@@ -3,10 +3,42 @@
 #include "errorMacros.h"
 
 
+const double rad_to_deg = (180 / 3.1415927);
 
-MFloatPoint extractPos(const MMatrix &mat) {
-	return MFloatVector(mat[3][0], mat[3][1], mat[3][2]);
+
+MFloatPoint extractfPos(const MMatrix &mat) {
+	return MFloatPoint(mat[3][0], mat[3][1], mat[3][2]);
 }
+
+
+MPoint extractPos(const MMatrix &mat) {
+	return MPoint(mat[3][0], mat[3][1], mat[3][2]);
+}
+
+MVector extractRotation(const MMatrix &mat,
+                        MTransformationMatrix::RotationOrder order,
+                        MAngle::Unit unit)
+{
+
+	double rotValue[3];
+	MTransformationMatrix tMat(mat);
+	tMat.reorderRotation(order);
+
+	MTransformationMatrix::RotationOrder throwAway;
+	tMat.getRotation( rotValue, throwAway );
+	if (unit == MAngle::kDegrees) {
+		rotValue[0] *= rad_to_deg;
+		rotValue[1] *= rad_to_deg;
+		rotValue[2] *= rad_to_deg;
+	}
+
+	// outPosition[i] = tMat.getTranslation( MSpace::kWorld);
+	return MVector(rotValue[0], rotValue[1], rotValue[2]);
+
+
+}
+
+
 
 // strokeGeom::strokeGeom():
 // 	m_startApproach(),
@@ -68,7 +100,7 @@ void strokeGeom::getPoints(MFloatPointArray &result, double stackHeight) const {
 	result.setLength(len);
 	for (int i = 0; i < len; ++i)
 	{
-		result.set(extractPos(m_targets[i]) + stackOffset , i);
+		result.set(extractfPos(m_targets[i]) + stackOffset , i);
 	}
 }
 
@@ -119,7 +151,7 @@ void strokeGeom::getBorders(MFloatPointArray &lefts, MFloatPointArray &rights,
 		MFloatVector projectedX = MFloatVector(((MVector::xAxis * m_targets[i]) ^ m_planeNormal)^
 		                                       m_planeNormal).normal();
 		const MMatrix &m = m_targets[i];
-		MFloatPoint c = extractPos(m_targets[i]) + stackOffset;
+		MFloatPoint c = extractfPos(m_targets[i]) + stackOffset;
 		projectedX *= width;
 		lefts.append( c + projectedX);
 		rights.append(c - projectedX);
@@ -135,14 +167,14 @@ void strokeGeom::getApproaches(MFloatPointArray &startApproachPoints,
 	startApproachPoints.setLength(3);
 	endApproachPoints.setLength(3);
 
-	startApproachPoints.set(extractPos(m_targets[1]) + stackOffset, 0);
-	startApproachPoints.set(extractPos(m_targets[0]) + stackOffset, 1);
-	startApproachPoints.set(extractPos(m_startApproach) + stackOffset, 2);
+	startApproachPoints.set(extractfPos(m_targets[1]) + stackOffset, 0);
+	startApproachPoints.set(extractfPos(m_targets[0]) + stackOffset, 1);
+	startApproachPoints.set(extractfPos(m_startApproach) + stackOffset, 2);
 
 	unsigned len = m_targets.length();
-	endApproachPoints.set(extractPos(m_targets[(len - 2)]) + stackOffset, 0);
-	endApproachPoints.set(extractPos(m_targets[(len - 1)]) + stackOffset, 1);
-	endApproachPoints.set(extractPos(m_endApproach) + stackOffset, 2);
+	endApproachPoints.set(extractfPos(m_targets[(len - 2)]) + stackOffset, 0);
+	endApproachPoints.set(extractfPos(m_targets[(len - 1)]) + stackOffset, 1);
+	endApproachPoints.set(extractfPos(m_endApproach) + stackOffset, 2);
 
 }
 
@@ -152,13 +184,54 @@ void strokeGeom::getFullPath(MFloatPointArray &points, double stackHeight) const
 
 	unsigned len = m_targets.length();
 
-	points.append(extractPos(m_startApproach) + stackOffset);
+	points.append(extractfPos(m_startApproach) + stackOffset);
 	for (int i = 0; i < len; ++i)
 	{
-		points.append(extractPos(m_targets[i]) + stackOffset);
+		points.append(extractfPos(m_targets[i]) + stackOffset);
 	}
-	points.append(extractPos(m_endApproach) + stackOffset);
+	points.append(extractfPos(m_endApproach) + stackOffset);
 }
+
+
+void strokeGeom::getAllPositions(const MMatrix &worldMatrix, MPointArray &result) const
+{
+	result.append(extractPos(m_startApproach * worldMatrix));
+	unsigned len = m_targets.length();
+	for (int i = 0; i < len; ++i)
+	{
+		result.append(extractPos(m_targets[i]*worldMatrix));
+	}
+	result.append(extractPos(m_endApproach * worldMatrix));
+}
+
+void strokeGeom::getAllRotations(
+  const MMatrix &worldMatrix,
+  MTransformationMatrix::RotationOrder order,
+  MAngle::Unit unit,
+  MVectorArray &result ) const
+{
+
+	unsigned len = m_targets.length();
+
+	result.append(extractRotation(m_startApproach * worldMatrix, order, unit));
+	for (int i = 0; i < len; ++i)
+	{
+		result.append(extractRotation(m_targets[i]*worldMatrix, order, unit));
+	}
+	result.append(extractRotation(m_endApproach * worldMatrix, order, unit));
+}
+
+void strokeGeom::getAllTangents(const MMatrix &worldMatrix, MVectorArray &result) const
+{
+	unsigned len = m_tangents.length();
+	result.append(m_tangents[0]*worldMatrix);
+	for (int i = 0; i < len; ++i)
+	{
+		result.append(m_tangents[i]*worldMatrix);
+	}
+	result.append(m_tangents[(len - 1)]*worldMatrix);
+}
+
 
 
 /* Is this assignment the same as default. If so remove it. */

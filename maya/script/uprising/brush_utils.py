@@ -35,46 +35,46 @@ def connect_brush_to_node(brush_tf, node, connect_to="next_available"):
     return index
 
 
-def send_brushes(factory):
-    RL = Robolink()
-    robot = RL.Item('', ITEM_TYPE_ROBOT)
-    base = pm.PyNode("brushes|base")
-    brushes = Brush.used_brushes(factory)
-    for _id in brushes:
-        send_brush(robot, brushes[_id], base)
+# def send_brushes(factory):
+#     RL = Robolink()
+#     robot = RL.Item('', ITEM_TYPE_ROBOT)
+#     base = pm.PyNode("brushes|base")
+#     brushes = Brush.used_brushes(factory)
+#     for _id in brushes:
+#         send_brush(robot, brushes[_id], base)
 
 
-def send_brush(robot, brush, base):
-    """Send a node to robodk.
+# def send_brush(robot, brush, base):
+#     """Send a node to robodk.
 
-    If the node is a locator, it becomes a target in robodk
-    and exists in world space. If it is a transform, it is
-    added as a reference frame to the hierarchy. If it is a
-    mesh, we rebuild triangles in robodk and add it to the
-    hierarchy.
-    """
-    RL = Robolink()
-    geo = pm.PyNode(brush.name).getShapes() + base.getShapes()
-    # print brush.name
-    triangles = []
-    for g in geo:
-        points = g.getPoints(space='world')
-        _, vids = g.getTriangles()
-        for vid in vids:
-            triangles.append(
-                [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
+#     If the node is a locator, it becomes a target in robodk
+#     and exists in world space. If it is a transform, it is
+#     added as a reference frame to the hierarchy. If it is a
+#     mesh, we rebuild triangles in robodk and add it to the
+#     hierarchy.
+#     """
+#     RL = Robolink()
+#     geo = pm.PyNode(brush.name).getShapes() + base.getShapes()
+#     # print brush.name
+#     triangles = []
+#     for g in geo:
+#         points = g.getPoints(space='world')
+#         _, vids = g.getTriangles()
+#         for vid in vids:
+#             triangles.append(
+#                 [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
 
-    tool_item = RL.Item(brush.name)
-    if tool_item.Valid():
-        tool_item.Delete()
+#     tool_item = RL.Item(brush.name)
+#     if tool_item.Valid():
+#         tool_item.Delete()
 
-    color = uut.shape_color(g)
-    tool_item = robot.AddTool(brush.matrix, brush.name)
-    shape = RL.AddShape(triangles)
-    shape.setColor(list(color))
-    tool_item.AddGeometry(shape, rdk.eye())
-    robot.setPoseTool(tool_item)
-    shape.Delete()
+#     color = uut.shape_color(g)
+#     tool_item = robot.AddTool(brush.matrix, brush.name)
+#     shape = RL.AddShape(triangles)
+#     shape.setColor(list(color))
+#     tool_item.AddGeometry(shape, rdk.eye())
+#     robot.setPoseTool(tool_item)
+#     shape.Delete()
 
 ######################################
 ######################################

@@ -5,6 +5,11 @@
 #include <vector>
 #include <maya/MVectorArray.h>
 #include <maya/MMatrixArray.h>
+
+#include <maya/MTransformationMatrix.h>
+#include <maya/MAngle.h>
+
+
 #include "stroke.h"
 
 class strokeGeom
@@ -35,6 +40,18 @@ public:
 	                    MFloatPointArray &endApproachPoints, double stackHeight = 0.0) const;
 
 	void getFullPath(MFloatPointArray &points, double stackHeight = 0.0) const;
+
+	/* These functions return data for painting query command */
+	void getAllPositions(const MMatrix &worldMatrix, MPointArray &result) const;
+
+	void getAllRotations(
+	  const MMatrix &worldMatrix,
+	  MTransformationMatrix::RotationOrder order,
+	  MAngle::Unit unit,
+	  MVectorArray &result ) const;
+
+	void getAllTangents(const MMatrix &worldMatrix, MVectorArray &result) const;
+
 
 	friend ostream &operator<<(ostream &os, const strokeGeom &geom);
 

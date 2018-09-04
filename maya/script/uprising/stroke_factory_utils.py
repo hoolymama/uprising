@@ -31,7 +31,7 @@ def get_index(node, att, connect_to):
     array_att, connection_att  = att.split(".")
     indices = node.attr(array_att).getArrayIndices()
     index = 0
-    if connect_to is "next_available":
+    if connect_to == "next_available":
         if not indices:
             return 0
         while(True):
@@ -43,7 +43,7 @@ def get_index(node, att, connect_to):
             elif not pm.listConnections(node.attr(full_att), source=True, destination=False):
                 break
             index += 1
-    elif connect_to is "at_end":
+    elif connect_to == "at_end":
         if not indices:
             return 0
         index = indices[-1] + 1
@@ -90,15 +90,15 @@ def create_and_connect_driver(driver_node, att):
         driver_node.attr(name) >> att
  
 
-def create_stroke_factory():
-    node = pm.createNode("strokeFactory")
-    plane = pm.createNode("sketchPlane")
-    plane_transform = plane.getParent()
-    plane_transform.rename("projection")
-    plane.attr("worldMatrix[0]") >> node.attr("planeMatrix")
-    pos_grp = pm.group(node.getParent(), name="positioner")
-    crvs_grp = pm.group(empty=True, name="curves")
-    pm.group(plane_transform, pos_grp, crvs_grp, name="strokeFactoryGroup")
+# def create_stroke_factory():
+#     node = pm.createNode("strokeFactory")
+#     plane = pm.createNode("sketchPlane")
+#     plane_transform = plane.getParent()
+#     plane_transform.rename("projection")
+#     plane.attr("worldMatrix[0]") >> node.attr("planeMatrix")
+#     pos_grp = pm.group(node.getParent(), name="positioner")
+#     crvs_grp = pm.group(empty=True, name="curves")
+#     pm.group(plane_transform, pos_grp, crvs_grp, name="strokeFactoryGroup")
 
 def delete_curve_instances(node):
     indices = node.attr("strokeCurves").getArrayIndices()

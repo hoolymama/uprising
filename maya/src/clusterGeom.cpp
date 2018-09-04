@@ -18,7 +18,6 @@ clusterGeom::clusterGeom(
   clusterGeom::Reason reason):
 	m_strokes(),
 	m_reason(reason),
-	m_name(),
 	m_brushId(brushId),
 	m_paintId(paintId),
 	m_travelCutoff(travelCutoff),
@@ -47,16 +46,7 @@ double clusterGeom::travelCutoff() const {
 	return m_travelCutoff;
 }
 
-// void clusterGeom::setPaint(Paint *p) {
-// 	m_paint = p;
-// }
-
-// void clusterGeom::setBrush( Brush *p) {
-// 	m_brush = p;
-// }
-
 void clusterGeom::pushStroke(const strokeGeom &s) {
-	// cerr << "clusterGeom::pushStroke" << endl;
 	m_strokes.push_back(s);
 	m_travel += s.arcLength();
 }
@@ -78,9 +68,7 @@ double clusterGeom::travel() const {
 	return m_travel;
 }
 
-MString clusterGeom::name() const {
-	return m_name;
-}
+
 
 const std::vector<strokeGeom> &clusterGeom::strokes() const {
 	return m_strokes;
@@ -88,7 +76,7 @@ const std::vector<strokeGeom> &clusterGeom::strokes() const {
 
 
 /* Is this assignment the same as default. If so remove it. */
-clusterGeom &clusterGeom::operator=( const clusterGeom &other )
+/*clusterGeom &clusterGeom::operator=( const clusterGeom &other )
 {
 	if ( &other != this ) {
 		m_strokes.clear();
@@ -98,11 +86,10 @@ clusterGeom &clusterGeom::operator=( const clusterGeom &other )
 		m_brushId = other.brushId();
 		m_travelCutoff = other.travelCutoff();
 		m_travel = other.travel();
-		m_name = other.name();
 	}
 	return *this;
 }
-
+*/
 ostream &operator<<(ostream &os, const clusterGeom &g)
 {
 	MString reason;
@@ -130,31 +117,3 @@ ostream &operator<<(ostream &os, const clusterGeom &g)
 	return os;
 }
 
-
-
-
-
-
-// double clusterGeom::maxTravel() const {
-// 	return
-// }
-
-
-// const MMatrix &clusterGeom::startApproach() const {
-// 	return m_startApproach;
-// }
-// const MMatrix &clusterGeom::endApproach() const {
-// 	return m_endApproach;
-// }
-// const MMatrixArray &clusterGeom::targets() const {
-// 	return m_targets;
-// }
-// const MVectorArray &clusterGeom::tangents() const {
-// 	return m_tangents;
-// }
-// double clusterGeom::arcLength() const {
-// 	return m_arcLength;
-// }
-// short clusterGeom::direction() const {
-// 	return m_direction;
-// }

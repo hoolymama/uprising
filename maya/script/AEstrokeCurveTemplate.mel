@@ -64,15 +64,16 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
 
 
 
-	editorTemplate -cl 0  -beginLayout "Approach";		
-	editorTemplate -addControl "approachDistanceStart" ;
- 	editorTemplate -addControl "approachDistanceMid" ;
- 	editorTemplate -addControl "approachDistanceEnd" ;
-	editorTemplate -endLayout;
-
-
-
-
+	editorTemplate -suppress "values" ;
+	editorTemplate -suppress "values" ;
+editorTemplate -suppress "values" ;
+	editorTemplate -suppress "values" ;
+editorTemplate -suppress "values" ;
+	editorTemplate -suppress "values" ;
+editorTemplate -suppress "values" ;
+	editorTemplate -suppress "values" ;
+editorTemplate -suppress "values" ;
+	editorTemplate -suppress "values" ;
 
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;

@@ -8,6 +8,32 @@ from robolink import (Robolink, ITEM_TYPE_ROBOT)
 
 # RL = Robolink()
 
+def to_vector_array(arr):
+    in_len = len(arr)
+    out_len = in_len / 3
+    if out_len * 3 != in_len:
+        raise ValueError("Input array must be multiple of 3")
+    result = []
+
+    for i in range(out_len):
+        j = i * 3
+        result.append(pm.dt.Vector(arr[j], arr[j + 1], arr[j + 2]))
+    return result
+    
+def to_point_array(arr):
+    in_len = len(arr)
+    out_len = in_len / 3
+    if out_len * 3 != in_len:
+        raise ValueError("Input array must be multiple of 3")
+    result = []
+
+    for i in range(out_len):
+        j = i * 3
+        result.append(pm.dt.Point(arr[j], arr[j + 1], arr[j + 2]))
+    return result
+    
+ 
+
 
 def rad2deg(rad):
     return rad * (180 / PI)
@@ -17,12 +43,15 @@ def deg2rad(deg):
     return deg / (180 / PI)
 
 
-class StrokeError(Exception):
+class PaintingError(Exception):
     pass
-
 
 class ClusterError(Exception):
     pass
+    
+class StrokeError(Exception):
+    pass
+
 
 
 def maya_to_robodk_mat(rhs):
@@ -35,17 +64,17 @@ def maya_to_robodk_mat(rhs):
     return rdk.Mat(mat)
 
 
-def mat_from_connected(attribute, space):
-    conns = attribute.connections(
-        source=True, destination=False)
-    if not conns:
-        return None
-    mat = None
-    if space == "world":
-        mat = pm.PyNode(conns[0]).attr("worldMatrix[0]").get()
-    else:
-        mat = pm.PyNode(conns[0]).attr("matrix").get()
-    return maya_to_robodk_mat(mat)
+# def mat_from_connected(attribute, space):
+#     conns = attribute.connections(
+#         source=True, destination=False)
+#     if not conns:
+#         return None
+#     mat = None
+#     if space == "world":
+#         mat = pm.PyNode(conns[0]).attr("worldMatrix[0]").get()
+#     else:
+#         mat = pm.PyNode(conns[0]).attr("matrix").get()
+#     return maya_to_robodk_mat(mat)
 
 
 def create_program(name):

@@ -16,27 +16,13 @@ public:
 
 	enum Reason {kNone, kTool, kDip };
 
-	// clusterGeom();
-
-	// clusterGeom(const Paint *p, const Brush *b);
 	clusterGeom(
 	  short brushId,
 	  short paintId,
 	  double travelCutoff,
 	  clusterGeom::Reason reason);
 
-	// clusterGeom(const clusterGeom &other);
-
-
-
-
 	~clusterGeom();
-
-	// const MMatrix &startApproach() const ;
-	// const MMatrix &endApproach() const ;
-	// const MMatrixArray &targets() const ;
-	// const MVectorArray &tangents() const ;
-	// short direction() const ;  // 1 or -1
 
 	short paintId() const;
 
@@ -52,19 +38,11 @@ public:
 
 	double travel() const ;
 
-	MString name() const ;
-
-
 	const std::vector<strokeGeom> &strokes() const ;
-	// double maxTravel() const ;
-
-	// void setPaint(Paint *p) ;
-
-	// void setBrush(Brush *p) ;
 
 	void pushStroke(const strokeGeom &s);
 
-	clusterGeom &operator=( const clusterGeom &other );
+	// clusterGeom &operator=( const clusterGeom &other );
 
 	friend ostream &operator<<(ostream &os, const clusterGeom &geom);
 
