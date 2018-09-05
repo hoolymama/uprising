@@ -51,6 +51,8 @@ unsigned Stroke::factory(
   bool repeatMirror,
   bool repeatOscillate,
   double pivotFraction,
+  short brushId,
+  short paintId,
   std::vector<std::unique_ptr<Stroke> > &strokes
 
 ) {
@@ -74,7 +76,9 @@ unsigned Stroke::factory(
 	  endDist,
 	  pointDensity,
 	  liftLength,
-	  liftBias
+	  liftBias,
+	  brushId,
+	  paintId
 	);
 
 	stk->setHeights(
@@ -94,6 +98,10 @@ unsigned Stroke::factory(
 	  follow
 	);
 
+	stk->setPivot( thisObj,
+	               pivotFraction,
+	               startDist,
+	               endDist);
 	/*
 	k will happen once (1) or twice (1 and -1) and its
 	value will help determine the offset.
@@ -141,6 +149,8 @@ void Stroke::offsetFrom(
 	m_profile = other.profile();
 	m_pivot = other.pivot();
 	m_follow = other.follow();
+	m_brushId = other.brushId();
+	m_paintId = other.paintId();
 
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++) {
@@ -165,14 +175,6 @@ const MPoint &Stroke::pivot() const {
 	return m_pivot;
 }
 
-// double Stroke::approachDistStart() const {
-// 	return m_approachDistStart;
-// }
-
-// double Stroke::approachDistEnd() const {
-// 	return m_approachDistEnd;
-// }
-
 bool Stroke::follow() const {
 	return m_follow;
 }
@@ -187,8 +189,10 @@ void Stroke::initialize(
   double endDist,
   double density,
   double liftLength,
-  double liftBias
-) {
+  double liftBias,
+  short brushId,
+  short paintId)
+{
 
 	m_planeNormal = planeNormal;
 	double liftOffset  = liftLength - liftBias;
@@ -228,6 +232,9 @@ void Stroke::initialize(
 
 	setArcLength();
 
+	m_brushId = brushId;
+	m_paintId = paintId;
+
 }
 
 
@@ -252,6 +259,17 @@ void Stroke::setHeights( const MObject &thisObj,
 	m_profile[(nVals - 1)] = liftHeight;
 }
 
+void Stroke::setPivot(
+  const MObject &curveObject,
+  double fraction,
+  double startDist,
+  double endDist)
+{
+	MFnNurbsCurve curveFn(curveObject);
+	double dist = startDist + (fraction * (endDist - startDist) );
+	double param = curveFn.findParamFromLength(dist);
+	curveFn.getPointAtParam(param, m_pivot, MSpace::kObject);
+}
 
 void Stroke::setApproach(double start, double end)  {
 	m_approachDistStart = start;
@@ -397,6 +415,14 @@ const MDoubleArray &Stroke::profile() const {
 
 double Stroke::arcLength() const {
 	return m_arcLength;
+}
+
+
+short Stroke::brushId() const {
+	return m_brushId;
+}
+short Stroke::paintId() const {
+	return m_paintId;
 }
 
 // void setApproach()

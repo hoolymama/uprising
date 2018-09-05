@@ -149,14 +149,14 @@ private:
   static MObject aStrokeTranslationTexture;
   static MObject aStrokeTranslationSampleDistance;
 
-  // output
-  static MObject  aOutTargets;
-  static MObject  aOutTangents;
-  static MObject  aOutPositions;
+  // // output
+  // static MObject  aOutTargets;
+  // static MObject  aOutTangents;
+  // static MObject  aOutPositions;
 
-  // one per stroke
-  static MObject  aOutCounts;
-  static MObject  aOutArcLengths;
+  // // one per stroke
+  // static MObject  aOutCounts;
+  // static MObject  aOutArcLengths;
 
 
   static MObject aOutput;

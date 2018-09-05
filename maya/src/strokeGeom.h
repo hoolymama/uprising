@@ -25,8 +25,16 @@ public:
 	const MMatrixArray &targets() const ;
 	const MVectorArray &tangents() const ;
 	const MVector &planeNormal() const;
+
+	const MPoint &pivot() const;
+
+
+
 	double arcLength() const ;
 	short direction() const ;  // 1 or -1
+
+	short brushId() const;
+	short paintId() const;
 
 	/* These functions return data used for drawing. */
 	void getPoints(MFloatPointArray &result, double stackHeight = 0.0) const;
@@ -64,6 +72,10 @@ private:
 	double m_arcLength;
 	short m_direction; // 1 or -1
 	MVector m_planeNormal;
+	short m_brushId;
+	short m_paintId;
+	MPoint m_pivot;
+
 
 };
 

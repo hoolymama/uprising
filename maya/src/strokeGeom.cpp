@@ -32,7 +32,6 @@ MVector extractRotation(const MMatrix &mat,
 		rotValue[2] *= rad_to_deg;
 	}
 
-	// outPosition[i] = tMat.getTranslation( MSpace::kWorld);
 	return MVector(rotValue[0], rotValue[1], rotValue[2]);
 
 
@@ -40,30 +39,20 @@ MVector extractRotation(const MMatrix &mat,
 
 
 
-// strokeGeom::strokeGeom():
-// 	m_startApproach(),
-// 	m_endApproach(),
-// 	m_targets(),
-// 	m_tangents(),
-// 	m_arcLength(0.0),
-// 	m_direction(1),
-// 	m_planeNormal()
-// {}
-
 strokeGeom::strokeGeom(const Stroke &src):
 	m_startApproach(),
 	m_endApproach(),
 	m_targets(),
 	m_tangents(),
-	m_planeNormal(src.planeNormal())
+	m_planeNormal(src.planeNormal()),
+	m_direction(src.direction()),
+	m_arcLength(src.arcLength()),
+	m_brushId(src.brushId()),
+	m_paintId(src.paintId())
 {
 	src.appendTargets(m_targets);
 	src.appendTangents(m_tangents);
 	src.getApproachTargets(m_startApproach, m_endApproach);
-
-	m_direction = src.direction();
-	m_arcLength = src.arcLength();
-
 }
 
 strokeGeom::~strokeGeom() {}
@@ -92,6 +81,13 @@ const MVector &strokeGeom::planeNormal() const {
 }
 
 
+
+short strokeGeom::brushId() const {
+	return m_brushId;
+}
+short strokeGeom::paintId() const {
+	return m_paintId;
+}
 
 
 void strokeGeom::getPoints(MFloatPointArray &result, double stackHeight) const {

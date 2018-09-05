@@ -56,6 +56,8 @@ public:
 	  bool repeatMirror,
 	  bool repeatOscillate,
 	  double pivotFraction,
+	  short brushId,
+	  short paintId,
 	  std::vector<std::unique_ptr<Stroke> > &strokes
 
 	) ;
@@ -83,7 +85,9 @@ public:
 	  double endDist,
 	  double density,
 	  double liftLength,
-	  double liftBias);
+	  double liftBias,
+	  short brushId,
+	  short paintId);
 
 	void setHeights( const MObject &thisObj,
 	                 const MObject &profileRampAttribute,
@@ -99,6 +103,12 @@ public:
 	  Stroke::Scope rampScope,
 	  bool follow
 	);
+
+	void setPivot(
+	  const MObject &curveObject,
+	  double fraction,
+	  double startDist,
+	  double endDist) ;
 
 	unsigned length() const;
 
@@ -125,6 +135,10 @@ public:
 
 	const MVector &planeNormal() const ;
 
+	short brushId() const;
+	short paintId() const;
+
+
 	const MDoubleArray &profile() const;
 
 	double arcLength() const;
@@ -132,6 +146,7 @@ public:
 	const MPoint &pivot() const ;
 
 	void setApproach(double start, double end) ;
+
 
 	// double approachDistStart() const;
 
@@ -155,6 +170,9 @@ protected:
 	double m_approachDistStart;
 	double m_approachDistEnd;
 	MVector m_planeNormal;
+	short m_brushId;
+	short m_paintId;
+
 };
 
 

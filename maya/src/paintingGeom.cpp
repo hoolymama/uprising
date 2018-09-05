@@ -82,7 +82,8 @@ clusterGeom &paintingGeom::prepCluster(
 		return m_clusters.back();
 	}
 
-	// there's at least one cluster, so its safe to call back()
+	// We got here, so there's at least one cluster and
+	// therefore safe to call back()
 	const clusterGeom &back = m_clusters.back();
 
 	// CHANGE PAINT OR BRUSH (tool change)
@@ -119,15 +120,14 @@ clusterGeom &paintingGeom::prepCluster(
 
 void paintingGeom::addStrokeCurve(const strokeCurveGeom &strokeCurve) {
 
-	short paintId = strokeCurve.paintId();
-	short brushId = strokeCurve.brushId();
-
 	const std::vector<strokeGeom> &strokes = strokeCurve.strokes();
 
 	std::vector<strokeGeom>::const_iterator citer;
-	// cerr << "num strokes is " << strokes.size() << endl;
+
 	unsigned i = 0;
 	for (citer = strokes.begin(); citer != strokes.end(); citer++, i++) {
+		short paintId = citer->paintId();
+		short brushId = citer->brushId();
 		bool force = (citer == strokes.begin()) && strokeCurve.forceDip();
 		clusterGeom &g = prepCluster(force, brushId , paintId );
 		g.pushStroke(*citer);
