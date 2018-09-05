@@ -97,13 +97,10 @@ def doit():
     dip_assembly.attr("zeroPosition").set(True)
 
     pm.delete(dip_node.attr("strokeCurves").connections(destination=False, source=True, type="strokeCurve"))
-    # sfu.delete_curve_instances(dip_node)
 
     curves_grp = pm.PyNode("%s|curves" % dip_assembly)
     pm.delete(curves_grp.getChildren())
 
-    # source_curves = rename_as_source(curves)
-    # tfs = dip_curves_grp.getChildren()
     combinations = dip_combinations(painting_node)
 
 
@@ -112,17 +109,15 @@ def doit():
         paint_id = combinations[dip]["paint"].id
         brush_id = combinations[dip]["brush"].id
         brush_dip_curve_grp = "brushes|dipCurves|%s" % combinations[dip]["brush"].name.replace("bpx", "bdcx")
-        # print pm.objExists(dip_curve_grp)
 
         dip_curve_grp = duplicate_and_connect(brush_dip_curve_grp, dip_node, paint_id, brush_id)
         tray = dip_node.attr("paints[%d].paintTravel" % paint_id).connections(source=1,destination=0 )[0]
 
-        # pm.PyNode("r_tray%d" % paint_id)
+
         pm.parent(dip_curve_grp, tray, relative=True)
         pm.parent(dip_curve_grp, curves_grp , absolute=True)
 
-    # connect_brushes(painting_node, dip_node)
-    # connect_paints(painting_node, dip_node)
+
     dip_assembly.attr("zeroPosition").set(zpos)
 
 

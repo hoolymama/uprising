@@ -4,7 +4,7 @@ import pymel.core as pm
 PI = 3.14159265359
 
 
-from robolink import (Robolink, ITEM_TYPE_ROBOT)
+from robolink import (Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TOOL)
 
 # RL = Robolink()
 
@@ -94,6 +94,10 @@ def create_frame(name):
     frame.setPose(rdk.eye())
     return frame
 
+def delete_tools():
+    RL = Robolink()
+    for t in RL.ItemList(filter = ITEM_TYPE_TOOL):
+        t.Delete()
 
 def numeric(s):
     try:
@@ -105,20 +109,21 @@ def config_key(config):
     if config:
         return "%d%d%d" % tuple(config.list2()[0][0:3])
 
-def config_map(pose, mask="000"):
+def config_000_poses(pose):
     RL = Robolink()
     configs = {}
+    result = []
     robot = RL.Item('', ITEM_TYPE_ROBOT)
     ik = robot.SolveIK_All(pose)
     siz = ik.size()   
     if not (ik and  siz[0] and  siz[1] and (len(ik.list()) > 5)):
-        return None
+        return result
     joint_poses = [el[0:6] for el in ik.list2()]
     for joint_pose in joint_poses:
         key = config_key(robot.JointsConfig(joint_pose))
-        if key.startswith(mask):
-            configs.setdefault(key, []).append(joint_pose)
-    return configs
+        if key == "000":
+            result.append(joint_pose)
+    return result
 
 
 

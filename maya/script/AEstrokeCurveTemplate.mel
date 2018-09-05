@@ -66,13 +66,13 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
 
 	editorTemplate -suppress "values" ;
 	editorTemplate -suppress "values" ;
-editorTemplate -suppress "values" ;
 	editorTemplate -suppress "values" ;
-editorTemplate -suppress "values" ;
 	editorTemplate -suppress "values" ;
-editorTemplate -suppress "values" ;
 	editorTemplate -suppress "values" ;
-editorTemplate -suppress "values" ;
+	editorTemplate -suppress "values" ;
+	editorTemplate -suppress "values" ;
+	editorTemplate -suppress "values" ;
+	editorTemplate -suppress "values" ;
 	editorTemplate -suppress "values" ;
 
 	editorTemplate -addExtraControls;

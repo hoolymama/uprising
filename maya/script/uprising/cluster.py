@@ -49,7 +49,7 @@ class Cluster(object):
     def name(self):
         raise NotImplementedError
 
-    def write(self, studio, program, motion):
+    def write(self, studio, program, frame, motion):
         logger.debug("Write cluster")
         # program = studio.painting_program
         tool = studio.RL.Item(self.brush.name)
@@ -69,7 +69,7 @@ class Cluster(object):
         program.setRounding(motion["rounding"])
 
         for i, stroke in enumerate(self.strokes):
-            stroke.write(cluster_name, program, studio)
+            stroke.write(cluster_name, program,  frame, studio)
 
 
 class PaintingCluster(Cluster):
@@ -87,6 +87,7 @@ class PaintingCluster(Cluster):
         cluster is also a tool change then offer up the flange
         to the user first."""
         program = studio.painting_program
+        frame = studio.painting_frame
 
         if self.reason == "tool":
             program.addMoveJ(studio.tool_approach)
@@ -105,7 +106,7 @@ class PaintingCluster(Cluster):
 
         # program.addMoveJ(studio.dip_approach)
 
-        super(PaintingCluster, self).write(studio, program, motion)
+        super(PaintingCluster, self).write(studio, program,frame, motion)
 
 
 class DipCluster(Cluster ):
@@ -119,7 +120,7 @@ class DipCluster(Cluster ):
 
 
     def write(self, studio, motion):
-
+        frame = studio.dip_frame
         dip_program_name = DipCluster.generate_program_name(
             self.paint.id, self.brush.id)
         program = uutl.create_program(dip_program_name)
@@ -128,8 +129,9 @@ class DipCluster(Cluster ):
         logger.debug( "dip approach is %s" % studio.dip_approach.Name())
  
         program.addMoveJ(studio.dip_approach)
-        super(DipCluster, self).write(studio, program, motion)
+        super(DipCluster, self).write(studio, program, frame, motion)
         program.addMoveJ(studio.dip_approach)
+        program.ShowInstructions(False)
     # def write(self, studio):
     #     logger.debug("Write cluster")
 

@@ -116,14 +116,6 @@ class Painting(object):
             "angular_speed": self.node.attr("angularSpeed").get(),
             "rounding": self.node.attr("approximationDistance").get() * 10
         }
-
-        # self.studio = Studio(node)
-
-        # self.create_painting_clusters()
-        # self.create_dip_clusters()
-
-        # self.set_approach_objects()
-
         logger.debug("Done initialize Painting")
 
 
@@ -161,7 +153,6 @@ class Painting(object):
                     paint)
                 self.clusters.append(cluster)
 
-
     def write(self, studio):
         logger.debug("Write program")
         for brush in self.brushes:
@@ -169,28 +160,26 @@ class Painting(object):
 
         for cluster in self.clusters:
             cluster.write(studio, self.motion)
+            
+    # def create_dip_subroutines(self):
+    #     RL = Robolink()
+    #     RL.Render(False)
+    #     # print "Creating dip subroutines"
+    #     num_clusters = len(self.clusters)
+    #     completed_clusters = 0
+    #     progressStart("Create RoboDK Dips", num_clusters)
 
+    #     robot = RL.Item('', ITEM_TYPE_ROBOT)
 
-
-    def create_dip_subroutines(self):
-        RL = Robolink()
-        RL.Render(False)
-        # print "Creating dip subroutines"
-        num_clusters = len(self.clusters)
-        completed_clusters = 0
-        progressStart("Create RoboDK Dips", num_clusters)
-
-        robot = RL.Item('', ITEM_TYPE_ROBOT)
-
-        dip_frame = uutl.create_frame("dx_frame")
-        for cluster in self.clusters:
-            program = uutl.create_program(cluster.name())
-            cluster.write_program_comands(robot, program, dip_frame)
-            completed_clusters += 1
-            progressUpdate(completed_clusters, num_clusters)
-            program.ShowInstructions(False)
-        progressEnd()
-        RL.Render(True)
+    #     dip_frame = uutl.create_frame("dx_frame")
+    #     for cluster in self.clusters:
+    #         program = uutl.create_program(cluster.name())
+    #         cluster.write_program_comands(robot, program, dip_frame)
+    #         completed_clusters += 1
+    #         progressUpdate(completed_clusters, num_clusters)
+    #         program.ShowInstructions(False)
+    #     progressEnd()
+    #     RL.Render(True)
 
 
     # def create_approaches(self):

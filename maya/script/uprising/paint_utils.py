@@ -2,19 +2,19 @@ import pymel.core as pm
 import stroke_factory_utils as sfu
 from brush import Brush
 from robolink import (Robolink, ITEM_TYPE_ROBOT)
-import uprising.uprising_util as uput
+import uprising.uprising_util as uutl
 import robodk as rdk
 import sheets
 
 # RL = Robolink()
 
 
-def add_all_trays_to_sf():
-    node = pm.ls(selection=True, dag=True, leaf=True, type="strokeFactory")[0]
-    paints = pm.ls(selection=True, dag=True, leaf=True, type="mesh")
-    for i, paint in enumerate(paints):
-        paint_tf = paint.getParent()
-        connect_paint_to_node(paint_tf, node, i)
+# def add_all_trays_to_sf():
+#     node = pm.ls(selection=True, dag=True, leaf=True, type="strokeFactory")[0]
+#     paints = pm.ls(selection=True, dag=True, leaf=True, type="mesh")
+#     for i, paint in enumerate(paints):
+#         paint_tf = paint.getParent()
+#         connect_paint_to_node(paint_tf, node, i)
 
 
 def connect_paint_to_node(paint_tf, node, connect_to="next_available"):
@@ -26,43 +26,47 @@ def connect_paint_to_node(paint_tf, node, connect_to="next_available"):
         if att_type in whitelist:
             sfu.create_and_connect_driver(paint_tf, att)
 
-def send_paints(factory):
-    RL = Robolink()
-    robot = RL.Item('', ITEM_TYPE_ROBOT)
-    p_indices = factory.attr("paints").getArrayIndices()
-    for i in p_indices:
-        att = sfu.input_connection(factory.attr("paints[%d].paintOpacity" % i))
-        if att:
-            tray = att.node()
-            send_paint(robot, tray)
 
 
-def send_paint(robot, tray):
-    RL = Robolink()
-    geo = tray.getShapes()
 
-    triangles = []
-    for g in geo:
-        points = g.getPoints(space='world')
-        _, vids = g.getTriangles()
-        for vid in vids:
-            triangles.append(
-                [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
-
-    name = "tx_%s" % str(tray)
-
-    tray_item = RL.Item(name)
-    if tray_item.Valid():
-        tray_item.Delete()
-
-    cR = tray.attr("sfPaintColorR").get()
-    cG = tray.attr("sfPaintColorG").get()
-    cB = tray.attr("sfPaintColorB").get()
-    shape = RL.AddShape(triangles)
-    shape.setName(name)
-    shape.setColor([cR, cG, cB])
+# def send_paint_trays(dip_node):
+#     RL = Robolink()
+#     robot = RL.Item('', ITEM_TYPE_ROBOT)
+#     p_indices = dip_node.attr("paints").getArrayIndices()
+#     for i in p_indices:
+#         att = sfu.input_connection(dip_node.attr("paints[%d].paintTravel" % i))
+#         if att:
+#             tray = att.node()
+#             send_paint_tray(robot, tray)
 
 
+# def send_paint_tray(robot, tray):
+#     RL = Robolink()
+#     geo = tray.getShapes()
+
+#     triangles = []
+#     for g in geo:
+#         points = g.getPoints(space='world')
+#         _, vids = g.getTriangles()
+#         for vid in vids:
+#             triangles.append(
+#                 [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
+
+#     name = "tx_%s" % str(tray)
+
+#     tray_item = RL.Item(name)
+#     if tray_item.Valid():
+#         tray_item.Delete()
+
+#     cR = tray.attr("sfPaintColorR").get()
+#     cG = tray.attr("sfPaintColorG").get()
+#     cB = tray.attr("sfPaintColorB").get()
+#     shape = RL.AddShape(triangles)
+#     shape.setName(name)
+#     shape.setColor([cR, cG, cB])
+
+
+################# SETUP ##################
 def validate_paint_data(data):
     if not len(data):
         raise ValueError("No paint data from Google sheets")
@@ -70,7 +74,7 @@ def validate_paint_data(data):
         if row[0].startswith("rack"):
             if not len(row) > 3:
                 raise ValueError("Invalid rack corner data from Google sheets")
-        elif uput.numeric(row[0]) in range(8):
+        elif uutl.numeric(row[0]) in range(8):
             if not len(row) > 7:
                 raise ValueError("Invalid paint data from Google sheets")
 
@@ -134,7 +138,7 @@ def setup_paints_from_sheet(painting_node, dip_node):
     colors = list(([],)*8)
     locators =  {}
     for row in data:
-        row = [uput.numeric(s) for s in row]
+        row = [uutl.numeric(s) for s in row]
         if row[0] in range(8):
             colors[int(row[0])] = row[5:9]
         elif str(row[0]).startswith("rack"):
@@ -145,10 +149,6 @@ def setup_paints_from_sheet(painting_node, dip_node):
     set_rack_position(dip_node, locators)
 
     set_up_trays(painting_node, dip_node, colors)
-
-
-
- 
 
 def get_raw_paint_data():
     service = sheets._get_service()

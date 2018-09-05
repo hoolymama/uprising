@@ -97,53 +97,53 @@ class Stroke(object):
     def name(self, prefix):
         return "%s_s%d" % (prefix, self.id)
 
-    def write(self, prefix, program, studio):
+    def write(self, prefix, program, frame, studio):
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
         for t in self.targets:
-            t.write(stroke_name, program, studio)
+            t.write(stroke_name, program,frame, studio)
 
     # Well there should only be the 000 config key anyway.
-    def get_common_configs(self):
-        result = []
-        keys = self.targets[0].configs.keys()
-        for key in keys:
-            valid = True
-            for target in self.targets:
-                if key not in target.configs:
-                    valid = False
-                    break
-            if valid:
-                result.append(key)
-        return result
+    # def get_common_configs(self):
+    #     result = []
+    #     keys = self.targets[0].configs.keys()
+    #     for key in keys:
+    #         valid = True
+    #         for target in self.targets:
+    #             if key not in target.configs:
+    #                 valid = False
+    #                 break
+    #         if valid:
+    #             result.append(key)
+    #     return result
 
     def configure(self):
 
-        self.common_configs = self.get_common_configs()
-        if not self.common_configs:
-            raise StrokeError("Cant find any common configs")
+        # self.common_configs = self.get_common_configs()
+        # if not self.common_configs:
+        #     raise StrokeError("Cant find any common configs")
 
-        for config in self.common_configs:
-            ref_pose = self.targets[0].configs[config][0]
-            found = self.configure_targets(self.robot, ref_pose, config)
-            if found:
-                break
+        # for config in self.common_configs:
+        ref_pose = self.targets[0].joint_poses[0]
+        self.configure_targets(self.robot, ref_pose)
+            # if found:
+            #     break
 
-        if not found:
-            raise StrokeError(
-                "Cannot find any stroke solution %s" %
-                self.identifier())
+        # if not found:
+        #     raise StrokeError(
+        #         "Cannot find any stroke solution %s" %
+        #         self.identifier())
 
-    def configure_targets(self, robot, ref_pose, config):
+    def configure_targets(self, robot, ref_pose):
         last_mat = None
         for target in self.targets:
-            try:
-                target.configure(robot, last_mat, ref_pose, config)
-            except StrokeError:
-                return False
+            # try:
+            target.configure(robot, last_mat, ref_pose)
+            # except StrokeError:
+                # return False
             ref_pose = target.joint_pose
             last_mat = target.tool_pose
-        return True
+        # return True
 
 
     # def __init__(

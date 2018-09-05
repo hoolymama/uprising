@@ -14,9 +14,12 @@ from robolink import (
 )
 import robodk as rdk
 
-# RL = Robolink()
+RL = Robolink()
 
 robot = RL.Item('', ITEM_TYPE_ROBOT)
+tools = RL.ItemList(filter = ITEM_TYPE_TOOL)
+
+print [t.Name() for t in tools]
 
 
 # WINDOWSTATE_HIDDEN      = -1        # Hidden

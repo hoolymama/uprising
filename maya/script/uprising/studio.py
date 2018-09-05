@@ -2,7 +2,7 @@ import pymel.core as pm
 import uprising_util as uutl
 
 from robolink import Robolink, ITEM_TYPE_ROBOT
-
+from paint import Paint
  
 from painting import Painting
 from cluster import (PaintingCluster, DipCluster)
@@ -50,8 +50,12 @@ class Studio(object):
     def write(self):
         """Clean up and make parent objects etc."""
         self.painting_program = uutl.create_program("px")
+        self.painting_program.ShowInstructions(False)
         self.painting_frame = uutl.create_frame("px_frame")
+        self.dip_frame = uutl.create_frame("dx_frame")
+        
         self.approaches_frame = uutl.create_frame("ax_frame")
+        self.trays_frame = uutl.create_frame("tx_frame")
 
         self.dip_approach = self._create_approach(
             DIP_TARGET, "dip_approach")
@@ -60,19 +64,23 @@ class Studio(object):
         self.home_approach = self._create_approach(
             HOME_TARGET, "home_approach")
 
+        uutl.delete_tools()
+
         self.dip.write(self)
         self.painting.write(self)
+
+        with final_position(self.dip.node):
+            Paint.write_trays(self.dip.node, self.trays_frame, self.RL)
 
 
     def _create_approach(self, object_name, name):
         mat = pm.PyNode(object_name).attr("worldMatrix[0]").get()
         mat = uutl.maya_to_robodk_mat(mat)
-        configs = uutl.config_map(mat, "000")
-        if configs and "000" in configs:
-            joints = configs["000"][0]
-        else:
+        joint_poses =  uutl.config_000_poses(mat)
+        if not joint_poses:
             raise StudioError("No configs for approach mat. Try repositioning.")
-        
+        joints = joint_poses[0]
+
         old_approach = self.RL.Item(name)
         if old_approach.Valid():
             old_approach.Delete()

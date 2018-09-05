@@ -1,10 +1,11 @@
-import os.path
+import sys
+# import os.path
 import pymel.core as pm
 
 # import setup_dip
 import curve_utils as cutl
 import brush_utils as butl
-import paint_utils as putl
+# import paint_utils as putl
 
 # from setup_dip import setup_dip_factory
 
@@ -181,9 +182,9 @@ class PaintingTab(gui.FormLayout):
 
 
 
-    def on_send_paint_trays(self):
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        putl.send_paints(painting_factory)
+    # def on_send_paint_trays(self):
+    #     painting_factory = pm.PyNode("dipPaintingShape")
+    #     putl.send_paints(painting_factory)
 
     def on_random_paints(self):
         painting_factory = pm.PyNode("paintingStrokeFactoryShape")
@@ -215,16 +216,22 @@ class PaintingTab(gui.FormLayout):
     def on_create_painting(self):
         RL = Robolink()
         RL.setWindowState(-1)
-        # RL.Render(False)
-        painting_node = pm.PyNode("mainPaintingShape")
-        dip_node = pm.PyNode("dipPaintingShape")
-        studio = Studio(painting_node, dip_node)
-        studio.write()
-        
+        try:
+            painting_node = pm.PyNode("mainPaintingShape")
+            dip_node = pm.PyNode("dipPaintingShape")
+            studio = Studio(painting_node, dip_node)
+            studio.write()
+        except Exception:
+            t, v, tb = sys.exc_info()
+            RL.setWindowState(2)
+            raise t, v, tb
+
+        RL.setWindowState(2)
+
+
         # painting = pnt.Painting(painting_node)
         # painting.create_painting_program()
         # RL.Render(True)
-        RL.setWindowState(2)
 
     # def on_create_dip_only(self):
     #     RL = Robolink()
