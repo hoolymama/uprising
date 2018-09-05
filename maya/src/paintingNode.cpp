@@ -101,10 +101,6 @@ MObject painting::aInMatrix;
 MObject painting::aStrokeCurves;
 MObject painting::aRotateOrder;
 MObject painting::aOutputUnit;
-// MObject painting::aApproachDistanceStart;
-// MObject painting::aApproachDistanceMid;
-// MObject painting::aApproachDistanceEnd;
-// MObject painting::aApproachDistance;
 
 MObject painting::aDipApproachObject;
 MObject painting::aToolChangeApproachObject;

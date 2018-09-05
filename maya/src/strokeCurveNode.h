@@ -130,6 +130,8 @@ private:
 
   static MObject aOverlap;
   static MObject aPivotFraction;
+  static MObject aRepeatPivot;
+
 
   static MObject  aBrushRampScope;
   static MObject  aBrushTiltRamp;
@@ -145,9 +147,10 @@ private:
   static MObject  aApproachDistance;
 
   static MObject aPlaneMatrix;
-  static MObject aStrokeRotationTexture;
-  static MObject aStrokeTranslationTexture;
-  static MObject aStrokeTranslationSampleDistance;
+
+  // static MObject aStrokeRotationTexture;
+  // static MObject aStrokeTranslationTexture;
+  // static MObject aStrokeTranslationSampleDistance;
 
   // // output
   // static MObject  aOutTargets;

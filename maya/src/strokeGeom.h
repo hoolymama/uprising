@@ -16,7 +16,7 @@ class strokeGeom
 {
 public:
 
-	strokeGeom(const Stroke &src);
+	strokeGeom(const Stroke &src, short brushId, short paintId);
 
 	~strokeGeom();
 

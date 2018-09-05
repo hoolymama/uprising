@@ -19,7 +19,6 @@ MVector extractRotation(const MMatrix &mat,
                         MTransformationMatrix::RotationOrder order,
                         MAngle::Unit unit)
 {
-
 	double rotValue[3];
 	MTransformationMatrix tMat(mat);
 	tMat.reorderRotation(order);
@@ -31,15 +30,10 @@ MVector extractRotation(const MMatrix &mat,
 		rotValue[1] *= rad_to_deg;
 		rotValue[2] *= rad_to_deg;
 	}
-
 	return MVector(rotValue[0], rotValue[1], rotValue[2]);
-
-
 }
 
-
-
-strokeGeom::strokeGeom(const Stroke &src):
+strokeGeom::strokeGeom(const Stroke &src, short brushId, short paintId):
 	m_startApproach(),
 	m_endApproach(),
 	m_targets(),
@@ -47,8 +41,8 @@ strokeGeom::strokeGeom(const Stroke &src):
 	m_planeNormal(src.planeNormal()),
 	m_direction(src.direction()),
 	m_arcLength(src.arcLength()),
-	m_brushId(src.brushId()),
-	m_paintId(src.paintId())
+	m_brushId(brushId),
+	m_paintId(paintId)
 {
 	src.appendTargets(m_targets);
 	src.appendTangents(m_tangents);
@@ -80,15 +74,12 @@ const MVector &strokeGeom::planeNormal() const {
 	return m_planeNormal;
 }
 
-
-
 short strokeGeom::brushId() const {
 	return m_brushId;
 }
 short strokeGeom::paintId() const {
 	return m_paintId;
 }
-
 
 void strokeGeom::getPoints(MFloatPointArray &result, double stackHeight) const {
 	MFloatVector stackOffset = MFloatVector(m_planeNormal * stackHeight);

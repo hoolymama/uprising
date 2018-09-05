@@ -56,8 +56,8 @@ public:
 	  bool repeatMirror,
 	  bool repeatOscillate,
 	  double pivotFraction,
-	  short brushId,
-	  short paintId,
+	  /*	  short brushId,
+	  	  short paintId,*/
 	  std::vector<std::unique_ptr<Stroke> > &strokes
 
 	) ;
@@ -85,9 +85,10 @@ public:
 	  double endDist,
 	  double density,
 	  double liftLength,
-	  double liftBias,
-	  short brushId,
-	  short paintId);
+	  double liftBias
+	  // ,short brushId,
+	  // short paintId
+	);
 
 	void setHeights( const MObject &thisObj,
 	                 const MObject &profileRampAttribute,
@@ -135,8 +136,8 @@ public:
 
 	const MVector &planeNormal() const ;
 
-	short brushId() const;
-	short paintId() const;
+	// short brushId() const;
+	// short paintId() const;
 
 
 	const MDoubleArray &profile() const;
@@ -170,8 +171,8 @@ protected:
 	double m_approachDistStart;
 	double m_approachDistEnd;
 	MVector m_planeNormal;
-	short m_brushId;
-	short m_paintId;
+	// short m_brushId;
+	// short m_paintId;
 
 };
 

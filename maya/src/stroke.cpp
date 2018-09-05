@@ -51,8 +51,8 @@ unsigned Stroke::factory(
   bool repeatMirror,
   bool repeatOscillate,
   double pivotFraction,
-  short brushId,
-  short paintId,
+  /*  short brushId,
+    short paintId,*/
   std::vector<std::unique_ptr<Stroke> > &strokes
 
 ) {
@@ -76,9 +76,8 @@ unsigned Stroke::factory(
 	  endDist,
 	  pointDensity,
 	  liftLength,
-	  liftBias,
-	  brushId,
-	  paintId
+	  liftBias
+	  // , brushId, paintId
 	);
 
 	stk->setHeights(
@@ -149,8 +148,8 @@ void Stroke::offsetFrom(
 	m_profile = other.profile();
 	m_pivot = other.pivot();
 	m_follow = other.follow();
-	m_brushId = other.brushId();
-	m_paintId = other.paintId();
+	// m_brushId = other.brushId();
+	// m_paintId = other.paintId();
 
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++) {
@@ -189,9 +188,9 @@ void Stroke::initialize(
   double endDist,
   double density,
   double liftLength,
-  double liftBias,
-  short brushId,
-  short paintId)
+  double liftBias
+  // , short brushId, short paintId
+)
 {
 
 	m_planeNormal = planeNormal;
@@ -232,8 +231,8 @@ void Stroke::initialize(
 
 	setArcLength();
 
-	m_brushId = brushId;
-	m_paintId = paintId;
+	// m_brushId = brushId;
+	// m_paintId = paintId;
 
 }
 
@@ -418,12 +417,12 @@ double Stroke::arcLength() const {
 }
 
 
-short Stroke::brushId() const {
-	return m_brushId;
-}
-short Stroke::paintId() const {
-	return m_paintId;
-}
+// short Stroke::brushId() const {
+// 	return m_brushId;
+// }
+// short Stroke::paintId() const {
+// 	return m_paintId;
+// }
 
 // void setApproach()
 

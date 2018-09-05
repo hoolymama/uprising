@@ -99,6 +99,7 @@ MObject strokeCurve::aStrokeCountFactor;
 
 MObject strokeCurve::aOverlap;
 MObject strokeCurve::aPivotFraction;
+MObject strokeCurve::aRepeatPivot;
 
 MObject strokeCurve::aBrushRampScope;
 MObject strokeCurve::aBrushTiltRamp;
@@ -114,9 +115,9 @@ MObject strokeCurve::aApproachDistanceEnd;
 MObject strokeCurve::aApproachDistance;
 
 MObject strokeCurve::aPlaneMatrix;
-MObject strokeCurve::aStrokeRotationTexture;
-MObject strokeCurve::aStrokeTranslationTexture;
-MObject strokeCurve::aStrokeTranslationSampleDistance;
+// MObject strokeCurve::aStrokeRotationTexture;
+// MObject strokeCurve::aStrokeTranslationTexture;
+// MObject strokeCurve::aStrokeTranslationSampleDistance;
 
 // // output
 // MObject strokeCurve::aOutTargets;
@@ -165,28 +166,28 @@ MStatus strokeCurve::initialize()
   mAttr.setDefault(identity);
   st = addAttribute(aPlaneMatrix); er;
 
-  aStrokeRotationTexture = nAttr.create( "strokeRotationTexture", "srtx",
-                                         MFnNumericData::kDouble);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setKeyable(true);
-  st = addAttribute(aStrokeRotationTexture); er;
+  // aStrokeRotationTexture = nAttr.create( "strokeRotationTexture", "srtx",
+  //                                        MFnNumericData::kDouble);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // nAttr.setKeyable(true);
+  // st = addAttribute(aStrokeRotationTexture); er;
 
-  aStrokeTranslationTexture = nAttr.create( "strokeTranslationTexture", "strx",
-                              MFnNumericData::kDouble);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setKeyable(true);
-  st = addAttribute(aStrokeTranslationTexture); er;
+  // aStrokeTranslationTexture = nAttr.create( "strokeTranslationTexture", "strx",
+  //                             MFnNumericData::kDouble);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // nAttr.setKeyable(true);
+  // st = addAttribute(aStrokeTranslationTexture); er;
 
-  aStrokeTranslationSampleDistance = nAttr.create( "strokeTranslationSampleDistance",
-                                     "stsd", MFnNumericData::kDouble);
-  nAttr.setKeyable(true);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setMin(0.00);
-  nAttr.setDefault(5.0);
-  st = addAttribute(aStrokeTranslationSampleDistance); er;
+  // aStrokeTranslationSampleDistance = nAttr.create( "strokeTranslationSampleDistance",
+  //                                    "stsd", MFnNumericData::kDouble);
+  // nAttr.setKeyable(true);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // nAttr.setMin(0.00);
+  // nAttr.setDefault(5.0);
+  // st = addAttribute(aStrokeTranslationSampleDistance); er;
 
   aStrokeCountFactor = nAttr.create( "strokeCountFactor",
                                      "stcf", MFnNumericData::kDouble);
@@ -306,6 +307,18 @@ MStatus strokeCurve::initialize()
   nAttr.setMax(1.0);
   nAttr.setDefault(0.5);
   addAttribute(aPivotFraction);
+
+
+  aRepeatPivot = nAttr.create( "repeatPivot", "rpiv", MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(true);
+  addAttribute(aRepeatPivot);
+
+
+
 
   aBrushId = nAttr.create("brushId", "brid", MFnNumericData::kShort); er;
   nAttr.setHidden(false);
@@ -532,15 +545,19 @@ MStatus strokeCurve::initialize()
   st = attributeAffects(aStrokeCountFactor, aOutput);
   st = attributeAffects(aOverlap, aOutput);
   st = attributeAffects(aPivotFraction, aOutput);
+  st = attributeAffects(aRepeatPivot, aOutput);
+
+
+
   st = attributeAffects(aBrushRampScope, aOutput);
   st = attributeAffects(aBrushTiltRamp, aOutput);
   st = attributeAffects(aBrushBankRamp, aOutput);
   st = attributeAffects(aBrushTwistRamp, aOutput);
   st = attributeAffects(aBrushFollowStroke, aOutput);
   st = attributeAffects(aPlaneMatrix, aOutput);
-  st = attributeAffects(aStrokeRotationTexture, aOutput);
-  st = attributeAffects(aStrokeTranslationTexture, aOutput);
-  st = attributeAffects(aStrokeTranslationSampleDistance, aOutput);
+  // st = attributeAffects(aStrokeRotationTexture, aOutput);
+  // st = attributeAffects(aStrokeTranslationTexture, aOutput);
+  // st = attributeAffects(aStrokeTranslationSampleDistance, aOutput);
   st = attributeAffects(aApproachDistance, aOutput);
   st = attributeAffects(aForceDip, aOutput);
   st = attributeAffects(aBrushId, aOutput);
@@ -1015,8 +1032,8 @@ MStatus strokeCurve::generateStrokes(MDataBlock &data,
                                  repeatMirror,
                                  repeatOscillate,
                                  pivotFraction,
-                                 brushId,
-                                 paintId,
+                                 /*                   brushId,
+                                                    paintId,*/
                                  strokes);
 
   }
@@ -1049,7 +1066,7 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
   MMatrix planeMatrix = data.inputValue(strokeCurve::aPlaneMatrix).asMatrix();
   MMatrix inversePlaneMatrix = planeMatrix.inverse();
   MVector planeNormal = (MVector::zAxis * planeMatrix).normal();
-  double sampleDistance = data.inputValue(aStrokeTranslationSampleDistance).asDouble();
+  // double sampleDistance = data.inputValue(aStrokeTranslationSampleDistance).asDouble();
 
   std::vector<std::unique_ptr<Stroke> > strokes;
 
@@ -1076,8 +1093,8 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
   // st = setData(data, strokeCurve::aOutArcLengths, outArcLengths); er;
 
   bool force = data.inputValue(aForceDip).asBool();
-  // short brushId = data.inputValue(aBrushId).asShort();
-  // short paintId = data.inputValue(aPaintId).asShort();
+  short brushId = data.inputValue(aBrushId).asShort();
+  short paintId = data.inputValue(aPaintId).asShort();
 
 
   MDataHandle hOutput = data.outputValue(aOutput);
@@ -1087,7 +1104,7 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
   MObject dOut = fnOut.create(kdid , &st );
   strokeCurveData *newData = (strokeCurveData *)fnOut.data(&st); er;
   strokeCurveGeom *geom = newData->fGeometry;
-  geom->create(strokes, force/*, brushId, paintId*/ );
+  geom->create(strokes, force, brushId, paintId );
 
   hOutput.set( newData );
   data.setClean( plug );

@@ -38,9 +38,9 @@ public:
 
   virtual void postConstructor();
 
-  virtual bool            isBounded() const;
+  virtual bool isBounded() const;
 
-  virtual MBoundingBox    boundingBox() const;
+  virtual MBoundingBox boundingBox() const;
 
   virtual void draw(  M3dView &view,
                       const MDagPath &path,
@@ -59,8 +59,6 @@ public:
   enum OutlineDisplay { kOutlinesNone, kOutlinesBorders, kOutlinesArrows, kOutlinesBoth };
 
   static MObject aInMatrix;
-
-
 
 private:
 
@@ -82,7 +80,6 @@ private:
     const paintingGeom &geom, M3dView &view,
     const MDagPath &path, M3dView::DisplayStatus status );
 
-
   void drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
                   M3dView::DisplayStatus status ) ;
 
@@ -95,7 +92,7 @@ private:
   MStatus getData( MObject &attribute,  MDoubleArray &array);
 
   MStatus getData( MObject &attribute,  MVectorArray &array);
-  MStatus  getData( MArrayDataHandle &ha,  strokeCurveGeom *result);
+  MStatus getData( MArrayDataHandle &ha,  strokeCurveGeom *result);
 
   static MObject aStrokeCurves;
 
