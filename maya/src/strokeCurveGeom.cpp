@@ -3,8 +3,8 @@
 #include "errorMacros.h"
 
 strokeCurveGeom::strokeCurveGeom():
-	m_strokes(),
-	m_forceDip(false)
+	m_strokes()
+	// m_forceDip(false)
 
 	// ,
 	// m_brushId(0),
@@ -17,16 +17,16 @@ const std::vector<strokeGeom> &strokeCurveGeom::strokes() const {
 	return m_strokes;
 }
 
-short strokeCurveGeom::brushId() const {
-	return m_brushId;
-}
-short strokeCurveGeom::paintId() const {
-	return m_paintId;
-}
+// short strokeCurveGeom::brushId() const {
+// 	return m_brushId;
+// }
+// short strokeCurveGeom::paintId() const {
+// 	return m_paintId;
+// }
 
-bool strokeCurveGeom::forceDip() const {
-	return m_forceDip;
-}
+// bool strokeCurveGeom::forceDip() const {
+// 	return m_forceDip;
+// }
 
 
 
@@ -36,39 +36,17 @@ void strokeCurveGeom::create(
   short brushId,
   short paintId)
 {
-	m_forceDip = forceDip;
-	// m_brushId = brushId;
-	// m_paintId = paintId;
+	// m_forceDip = forceDip;
+	bool first = true;
 	for (auto &citer : strokes)
 	{
-		m_strokes.push_back(strokeGeom(*citer, brushId, paintId));
+		bool doForce = forceDip && first;
+		m_strokes.push_back(strokeGeom(*citer, brushId, paintId, doForce));
 	}
 }
 
-
-/* Is this assignment the same as default. If so remove it. */
-// strokeCurveGeom &strokeCurveGeom::operator=( const strokeCurveGeom &other )
+// ostream &operator<<(ostream &os, const strokeCurveGeom &g)
 // {
-// 	if ( &other != this ) {
-// 		m_strokes = other.strokes();
-// 		m_forceDip = other.forceDip();
-// 		m_brushId = other.brushId();
-// 		m_paintId = other.paintId();
-// 	}
-// 	return *this;
+// 	return os;
 // }
-
-
-
-ostream &operator<<(ostream &os, const strokeCurveGeom &g)
-{
-
-	os << "---------  strokeCurveGeom\n";
-	os << "Force dip: " <<  g.m_forceDip << "\n";
-
-	os << "Brush Id: " <<  g.m_brushId << "\n";
-	os << "Paint Id: " <<  g.m_paintId << "\n";
-
-	return os;
-}
 

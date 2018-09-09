@@ -20,7 +20,15 @@ public:
 	virtual ~paintingData();
 
 	void	 clear();
-	void create() ;
+
+	MStatus create() ;
+
+	MStatus  create(
+	  MDataBlock &data,
+	  MObject &strokeCurvesAtt,
+	  const std::map<short, Brush> &brushes,
+	  const std::map<short, Paint> &paints);
+
 
 	virtual void copy ( const MPxData &other );
 	paintingData &operator=(const paintingData &otherData ) ;
@@ -33,11 +41,7 @@ public:
 
 	static void *creator();
 
-	MStatus  create(
-	  MDataBlock &data,
-	  MObject &strokeCurvesAtt,
-	  const std::map<short, Brush> &brushes,
-	  const std::map<short, Paint> &paints);
+
 
 
 public:

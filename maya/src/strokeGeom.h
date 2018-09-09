@@ -16,8 +16,7 @@ class strokeGeom
 {
 public:
 
-	strokeGeom(const Stroke &src, short brushId, short paintId);
-
+	strokeGeom(const Stroke &src, short brushId, short paintId, bool force);
 	~strokeGeom();
 
 	const MMatrix &startApproach() const ;
@@ -35,6 +34,16 @@ public:
 
 	short brushId() const;
 	short paintId() const;
+	bool forceDip() const;
+
+	void setBrushId(short val) ;
+	void setPaintId(short val) ;
+
+	// void setForceDip(bool value);
+
+
+	unsigned id() const ;
+	void setId(unsigned val) ;
 
 	/* These functions return data used for drawing. */
 	void getPoints(MFloatPointArray &result, double stackHeight = 0.0) const;
@@ -60,11 +69,15 @@ public:
 
 	void getAllTangents(const MMatrix &worldMatrix, MVectorArray &result) const;
 
+	void getPivotUVs(
+	  const MMatrix &inversePlaneMatrix,
+	  float &u,
+	  float &v) const ;
 
 	friend ostream &operator<<(ostream &os, const strokeGeom &geom);
 
 private:
-
+	unsigned m_id;
 	MMatrix m_startApproach;
 	MMatrix m_endApproach;
 	MMatrixArray m_targets;
@@ -75,6 +88,7 @@ private:
 	short m_brushId;
 	short m_paintId;
 	MPoint m_pivot;
+	bool m_forceDip;
 
 
 };

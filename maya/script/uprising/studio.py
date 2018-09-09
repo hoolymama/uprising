@@ -39,23 +39,30 @@ class Studio(object):
         self.tool_approach = None
         self.home_approach = None
 
-        with final_position(dip_node):
-            self.dip = Painting(dip_node)
-            self.dip.create_clusters("dip", self.robot)
-        with final_position(painting_node):
-            self.painting = Painting(painting_node)
-            self.painting.create_clusters("painting", self.robot)
+        self.dip = None
+        self.painting = None
+
+        if dip_node:
+            with final_position(dip_node):
+                self.dip = Painting(dip_node)
+                self.dip.create_clusters("dip", self.robot)
+        if painting_node:
+            with final_position(painting_node):
+                self.painting = Painting(painting_node)
+                self.painting.create_clusters("painting", self.robot)
 
 
     def write(self):
         """Clean up and make parent objects etc."""
-        self.painting_program = uutl.create_program("px")
-        self.painting_program.ShowInstructions(False)
-        self.painting_frame = uutl.create_frame("px_frame")
-        self.dip_frame = uutl.create_frame("dx_frame")
+        if self.painting:
+            self.painting_program = uutl.create_program("px")
+            self.painting_program.ShowInstructions(False)
+            self.painting_frame = uutl.create_frame("px_frame")
+        if self.dip:
+            self.dip_frame = uutl.create_frame("dx_frame")
+            self.trays_frame = uutl.create_frame("tx_frame")
         
         self.approaches_frame = uutl.create_frame("ax_frame")
-        self.trays_frame = uutl.create_frame("tx_frame")
 
         self.dip_approach = self._create_approach(
             DIP_TARGET, "dip_approach")
@@ -65,12 +72,15 @@ class Studio(object):
             HOME_TARGET, "home_approach")
 
         uutl.delete_tools()
+        if self.dip:
+            self.dip.write(self)
+            with final_position(self.dip.node):
+                Paint.write_trays(self.dip.node, self.trays_frame, self.RL)
 
-        self.dip.write(self)
-        self.painting.write(self)
+        if self.painting:
+            self.painting.write(self)
 
-        with final_position(self.dip.node):
-            Paint.write_trays(self.dip.node, self.trays_frame, self.RL)
+
 
 
     def _create_approach(self, object_name, name):

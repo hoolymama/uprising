@@ -220,19 +220,25 @@ def delete_brushes(painting_node, dip_node):
 
 def create_brush_geo_from_sheet(painting_node, dip_node):
     data = get_raw_brushes_data()
-    validate_brush_data(data)
+    data = validate_brush_data(data)
     delete_brushes(painting_node, dip_node)
     for row in data:
         row = [uput.numeric(s) for s in row]
         create_and_connect_both_brushes_geo(painting_node, dip_node, *row)
 
 def validate_brush_data(data):
+    result = []
     if not len(data):
         raise ValueError("No brush data from Google sheets")
     for row in data:
         if not len(row) > 9:
-            raise ValueError("Invalid brush data from Google sheets")
-
+            continue
+        try: 
+            int(row[0])
+        except ValueError:
+            continue
+        result.append(row)
+    return result
 
 def get_raw_brushes_data():
     service = sheets._get_service()

@@ -33,7 +33,8 @@ MVector extractRotation(const MMatrix &mat,
 	return MVector(rotValue[0], rotValue[1], rotValue[2]);
 }
 
-strokeGeom::strokeGeom(const Stroke &src, short brushId, short paintId):
+strokeGeom::strokeGeom(const Stroke &src, short brushId, short paintId, bool force):
+	m_id(0),
 	m_startApproach(),
 	m_endApproach(),
 	m_targets(),
@@ -41,8 +42,10 @@ strokeGeom::strokeGeom(const Stroke &src, short brushId, short paintId):
 	m_planeNormal(src.planeNormal()),
 	m_direction(src.direction()),
 	m_arcLength(src.arcLength()),
+	m_pivot(src.pivot()),
 	m_brushId(brushId),
-	m_paintId(paintId)
+	m_paintId(paintId),
+	m_forceDip(force)
 {
 	src.appendTargets(m_targets);
 	src.appendTangents(m_tangents);
@@ -80,6 +83,32 @@ short strokeGeom::brushId() const {
 short strokeGeom::paintId() const {
 	return m_paintId;
 }
+
+void strokeGeom::setBrushId(short val) {
+	m_brushId = val;
+}
+void strokeGeom::setPaintId(short val) {
+	m_paintId = val;
+}
+
+bool strokeGeom::forceDip() const {
+	return m_forceDip;
+}
+
+unsigned strokeGeom::id() const
+{
+	return m_id;
+}
+
+void strokeGeom::setId(unsigned val)
+{
+	m_id = val;
+}
+
+// void strokeGeom::setForceDip(bool value)
+// {
+// 	m_forceDip = value;
+// }
 
 void strokeGeom::getPoints(MFloatPointArray &result, double stackHeight) const {
 	MFloatVector stackOffset = MFloatVector(m_planeNormal * stackHeight);
@@ -219,29 +248,22 @@ void strokeGeom::getAllTangents(const MMatrix &worldMatrix, MVectorArray &result
 	result.append(m_tangents[(len - 1)]*worldMatrix);
 }
 
-
-
-/* Is this assignment the same as default. If so remove it. */
-// strokeGeom &strokeGeom::operator=( const strokeGeom &other )
-// {
-// 	if ( &other != this ) {
-// 		m_startApproach = other.startApproach() ;
-// 		m_endApproach = other.endApproach();
-// 		m_targets = other.targets();
-// 		m_tangents = other.tangents();
-// 		m_arcLength = other.arcLength();
-// 		m_direction = other.direction();
-// m_planeNormal = other.planeNormal();
-// 	}
-// 	return *this;
-// }
+void strokeGeom::getPivotUVs(
+  const MMatrix &inversePlaneMatrix,
+  float &u,
+  float &v) const
+{
+	MPoint p = ((m_pivot * inversePlaneMatrix) * 0.5) + MVector(0.5, 0.5, 0.0);
+	u = p.x;
+	v = p.y;
+}
 
 
 
 ostream &operator<<(ostream &os, const strokeGeom &g)
 {
 	MString direction = (g.m_direction == 1) ? "forward" : "back"  ;
-
+	os << " Id:" <<  g.m_id << ",";
 	os << " Direction:" <<  direction << ",";
 	os << " Targets:" << g.m_targets.length() << ",";
 	os << " Arc length:" <<  g.m_arcLength;

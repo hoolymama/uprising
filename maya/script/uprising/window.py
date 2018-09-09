@@ -1,7 +1,7 @@
 
 import pymel.core as pm
 import pymel.core.uitypes as gui
-from  uprising import (painting_tab , setup_tab, props_tab)
+from  uprising import (painting_tab , setup_tab, props_tab, export_tab, rings_tab)
 
 
 
@@ -51,8 +51,8 @@ reload(sheets)
 reload(painting_tab)
 reload(setup_tab)
 reload(props_tab)
-
-
+reload(export_tab)
+reload(rings_tab)
 class RobotWindow(gui.Window):
 
     def __init__(self):
@@ -79,9 +79,20 @@ class RobotWindow(gui.Window):
         self.props_tab = props_tab.PropsTab()
         self.tabs.setTabLabel((self.props_tab, "Props"))
 
+         
+        pm.setParent(self.tabs)
+        self.export_tab = export_tab.ExportTab()
+        self.tabs.setTabLabel((self.export_tab, "Export"))
+         
+
+        pm.setParent(self.tabs)
+        self.rings_tab = rings_tab.RingsTab()
+        self.tabs.setTabLabel((self.rings_tab, "Rings"))
+         
+
         self.show()
         self.setResizeToFitChildren()
-        self.tabs.setSelectTabIndex(2)
+        self.tabs.setSelectTabIndex(5)
 
     def onTabChanged(self):
         print ""

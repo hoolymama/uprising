@@ -2,12 +2,10 @@
 #ifndef _strokeCurve_H
 #define _strokeCurve_H
 
-#include <maya/MFloatArray.h>
 #include <maya/MVector.h>
 #include <maya/MFnDependencyNode.h>
 
 #include <maya/MFnNurbsCurve.h>
-#include <maya/MAngle.h>
 #include <maya/MVectorArray.h>
 
 #include <maya/MPxNode.h>
@@ -16,14 +14,6 @@
 #include <maya/MDGModifier.h>
 
 #include "stroke.h"
-
-
-// #include "forwardstroke.h"
-// #include "backstroke.h"
-
-// #include "brush.h"
-// #include "paint.h"
-
 
 
 class strokeCurve : public MPxNode
@@ -35,10 +25,6 @@ public:
   static MStatus initialize();
   virtual void postConstructor();
 
-  // virtual bool            isBounded() const;
-
-  // virtual MBoundingBox    boundingBox() const;
-
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
   static  MTypeId   id;
@@ -48,37 +34,10 @@ public:
 
 private:
 
-
-  MStatus setData(MDataBlock &block, MObject &attribute,
-                  const MVectorArray &data) ;
-
-  MStatus setData(MDataBlock &block, MObject &attribute,
-                  const MDoubleArray &data) ;
-
-  MStatus setData(MDataBlock &block, MObject &attribute,
-                  const MMatrixArray &data) ;
-
-  MStatus setData(MDataBlock &block, MObject &attribute,
-                  const MIntArray &data) ;
-
-  MStatus setData(MDataBlock &block, MObject &attribute,
-                  const MMatrix &data);
-
-  MStatus getData( MObject &attribute,  MIntArray &array);
-
-  MStatus getData( MObject &attribute,  MDoubleArray &array);
-
-  MStatus getData( MObject &attribute,  MVectorArray &array);
-
-
   unsigned int  getStrokeBoundaries(
     MDataBlock &data,
     MVectorArray &result
   ) const  ;
-
-  // MStatus getBrushes(MDataBlock &data, std::map<short, Brush> &brushes ) const;
-
-  // MStatus getPaints(MDataBlock &data, std::map<short, Paint> &paints ) const ;
 
   void setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
                    double approachStart, double approachMid, double approachEnd) const;
@@ -86,18 +45,6 @@ private:
   MStatus generateStrokes(MDataBlock &data,
                           std::vector<std::unique_ptr<Stroke> > &strokes  ) const;
 
-  MVector  binormal(const MMatrix &p1, const MMatrix &p2, const MVector &normal) const;
-
-
-  MStatus getTextureName(const MObject &attribute,
-                         MString &name) const;
-  MStatus sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,
-                          MFloatArray &vVals, MFloatArray &result) const;
-
-  MStatus sampleUVGradient(const MObject &attribute, float sampleDistance,
-                           MFloatArray &uVals,
-                           MFloatArray &vVals, MFloatVectorArray &result) const;
-  // curves
   static MObject aCurve;
   static MObject aSubcurveMin;
   static MObject aSubcurveMax;
@@ -148,45 +95,8 @@ private:
 
   static MObject aPlaneMatrix;
 
-  // static MObject aStrokeRotationTexture;
-  // static MObject aStrokeTranslationTexture;
-  // static MObject aStrokeTranslationSampleDistance;
-
-  // // output
-  // static MObject  aOutTargets;
-  // static MObject  aOutTangents;
-  // static MObject  aOutPositions;
-
-  // // one per stroke
-  // static MObject  aOutCounts;
-  // static MObject  aOutArcLengths;
-
-
   static MObject aOutput;
 };
-
-
-// namespace strokeCurveCallback
-// {
-// static  MCallbackId id;
-
-//   static void makeDefaultConnections(  MObject &node, void *clientData )
-//   {
-
-//     MPlug wmPlugmulti( node, strokeFactory::worldMatrix );
-//     MPlug wm( wmPlugmulti.elementByLogicalIndex( 0 ) );
-//     MPlug mt( node, strokeFactory::aInMatrix );
-
-//     MDGModifier mod;
-//     mod.connect( wm, mt );
-//     MStatus stat = mod.doIt();
-//     if (stat != MS::kSuccess)
-//     {
-//       stat.perror("strokeFactory ERROR :: callback unable to make matrix connections");
-//     }
-//   }
-// }
-
 
 #endif
 

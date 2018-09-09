@@ -7,7 +7,8 @@ const MString strokeCurveData::typeName( "strokeCurveData" );
 
 strokeCurveData::strokeCurveData() : fGeometry( NULL )
 {
-	fGeometry = new strokeCurveGeom;
+	// fGeometry = new strokeCurveGeom;
+	fGeometry = new  std::vector<strokeGeom>;
 }
 strokeCurveData::~strokeCurveData()
 {

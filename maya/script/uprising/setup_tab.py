@@ -9,9 +9,7 @@ import paint_utils as putl
 
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
-
-import setup_dip  
-
+ 
 class SetupTab(gui.FormLayout):
 
     def __init__(self):
@@ -110,8 +108,8 @@ class SetupTab(gui.FormLayout):
         self.attachForm(go_but, 'bottom', 2)
 
     def set_board_transform_from_sheet(self):
-        node = pm.PyNode("mainPaintingShape")
-        sfu.set_board_from_sheet(node)
+        painting_node = pm.PyNode("mainPaintingShape")
+        sfu.set_board_from_sheet(painting_node)
 
     def create_brushes_from_sheet(self):
         painting_node = pm.PyNode("mainPaintingShape")
@@ -134,7 +132,7 @@ class SetupTab(gui.FormLayout):
         node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
         if not node:
             raise IndexError("No painting node selected")
-        curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve")
+        curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve", ni=True, ut=True, v=True)
         for curve in curves:
             cutl.connect_curve_to_painting(curve, node, connect_to="next_available")
 

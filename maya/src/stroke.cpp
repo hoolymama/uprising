@@ -97,10 +97,14 @@ unsigned Stroke::factory(
 	  follow
 	);
 
-	stk->setPivot( thisObj,
+	stk->setPivot( dCurve,
 	               pivotFraction,
 	               startDist,
 	               endDist);
+
+
+
+
 	/*
 	k will happen once (1) or twice (1 and -1) and its
 	value will help determine the offset.
@@ -148,8 +152,6 @@ void Stroke::offsetFrom(
 	m_profile = other.profile();
 	m_pivot = other.pivot();
 	m_follow = other.follow();
-	// m_brushId = other.brushId();
-	// m_paintId = other.paintId();
 
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++) {
@@ -189,7 +191,6 @@ void Stroke::initialize(
   double density,
   double liftLength,
   double liftBias
-  // , short brushId, short paintId
 )
 {
 
@@ -231,9 +232,6 @@ void Stroke::initialize(
 
 	setArcLength();
 
-	// m_brushId = brushId;
-	// m_paintId = paintId;
-
 }
 
 
@@ -267,7 +265,11 @@ void Stroke::setPivot(
 	MFnNurbsCurve curveFn(curveObject);
 	double dist = startDist + (fraction * (endDist - startDist) );
 	double param = curveFn.findParamFromLength(dist);
-	curveFn.getPointAtParam(param, m_pivot, MSpace::kObject);
+	curveFn.getPointAtParam(param, m_pivot, MSpace::kWorld);
+
+	// 	cerr << "Stroke::setPivot d:" << dist << " f:" << fraction  << " s: " << startDist <<
+	// 	     " e:" << endDist <<
+	// 	     " p:"  << param << " piv: " << m_pivot << endl;
 }
 
 void Stroke::setApproach(double start, double end)  {

@@ -26,30 +26,28 @@ public:
 
 	void create(
 	  const std::vector<std::unique_ptr<Stroke> > &strokes,
-	  bool forceDip
-	  ,
+	  bool forceDip,
 	  short brushId,
-	  short paintId
-	);
+	  short paintId);
 
 	// strokeCurveGeom &operator=( const strokeCurveGeom &other );
 
 
 	const std::vector<strokeGeom> &strokes() const ;
 
-	short brushId() const;
-	short paintId() const;
-	bool forceDip() const;
+	// short brushId() const;
+	// short paintId() const;
+	// bool forceDip() const;
 
-	friend ostream &operator<<(ostream &os, const strokeCurveGeom &g);
+	// friend ostream &operator<<(ostream &os, const strokeCurveGeom &g);
 
 
 private:
 
 	std::vector<strokeGeom> m_strokes;
-	bool m_forceDip;
-	short m_brushId;
-	short m_paintId;
+	// bool m_forceDip;
+	// short m_brushId;
+	// short m_paintId;
 
 };
 

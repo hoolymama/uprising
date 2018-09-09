@@ -39,15 +39,16 @@ def write_program():
     prog_filename = "PX_%s" % timestamp
     station = os.path.join(ts_dir, "%s.rdk" % timestamp)
     RL.Save(station)
+    program = RL.Item("px")
+    program.setName(prog_filename)
+    program.MakeProgram(ts_dir)
 
     # RL.Save(station)
-    RL.setRunMode(RUNMODE_MAKE_ROBOTPROG)
-    RL.ProgramStart(prog_filename, ts_dir, "KUKA_KRC4_RN", robot)
-    RL.Render(False)
-    program = RL.Item("px")
-    RL.RunProgram("px", False)
-    RL.Render(True)
-    RL.Finish()
+    # RL.setRunMode(RUNMODE_MAKE_ROBOTPROG)
+    # RL.ProgramStart(prog_filename, ts_dir, "KUKA_KRC4_RN", robot)
+    # RL.Render(False)
+    # RL.Render(True)
+    # RL.Finish()
 
 
     # save maya scene

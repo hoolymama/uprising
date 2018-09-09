@@ -118,22 +118,36 @@ clusterGeom &paintingGeom::prepCluster(
 	return m_clusters.back();
 }
 
-void paintingGeom::addStrokeCurve(const strokeCurveGeom &strokeCurve) {
+// void paintingGeom::addStrokeCurve(const strokeCurveGeom &strokeCurve) {
 
-	const std::vector<strokeGeom> &strokes = strokeCurve.strokes();
+// 	const std::vector<strokeGeom> &strokes = strokeCurve.strokes();
 
-	std::vector<strokeGeom>::const_iterator citer;
+// 	std::vector<strokeGeom>::const_iterator citer;
 
-	unsigned i = 0;
-	for (citer = strokes.begin(); citer != strokes.end(); citer++, i++) {
-		short paintId = citer->paintId();
-		short brushId = citer->brushId();
-		bool force = (citer == strokes.begin()) && strokeCurve.forceDip();
-		clusterGeom &g = prepCluster(force, brushId , paintId );
-		g.pushStroke(*citer);
-	}
+// 	unsigned i = 0;
+// 	for (citer = strokes.begin(); citer != strokes.end(); citer++) {
+// 		short paintId = citer->paintId();
+// 		short brushId = citer->brushId();
+// 		bool force = (citer == strokes.begin()) && strokeCurve.forceDip();
+// 		clusterGeom &g = prepCluster(force, brushId , paintId );
+// 		g.pushStroke(*citer);
+// 	}
+// }
+
+
+void paintingGeom::addStroke(const strokeGeom &stroke) {
+
+	short paintId = stroke.paintId();
+	short brushId = stroke.brushId();
+	bool force = stroke.forceDip();
+	clusterGeom &g = prepCluster(force, brushId , paintId );
+	g.pushStroke(stroke);
 
 }
+
+
+// void paintingGeom::addStrokes(const strokeCurveGeom &strokeCurve) {}
+
 
 
 

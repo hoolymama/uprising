@@ -3,7 +3,7 @@
 #include <maya/MPxData.h>
 #include <maya/MTypeId.h>
 #include <maya/MString.h>
-#include "strokeCurveGeom.h"
+// #include "strokeCurveGeom.h"
 class strokeCurveData : public MPxData
 {
 public:
@@ -20,7 +20,8 @@ public:
     static const MString typeName;
     static const MTypeId id;
 
-    strokeCurveGeom *fGeometry;
+    // strokeCurveGeom *fGeometry;
+    std::vector<strokeGeom> *fGeometry;
 };
 #endif
 

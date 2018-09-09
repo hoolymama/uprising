@@ -56,11 +56,26 @@ public:
   enum Spac { kParametric, kArcLen };
   enum TargetDisplay {kTargetsNone, kTargetsPoint, kTargetsLine, kTargetsMatrix };
 
-  enum OutlineDisplay { kOutlinesNone, kOutlinesBorders, kOutlinesArrows, kOutlinesBoth };
+  enum StrokeSort { kNoSort,
+                    kBrushAscPaintAsc,
+                    kBrushAscPaintDesc,
+                    kBrushDescPaintAsc,
+                    kBrushDescPaintDesc,
+                    kPaintAscBrushAsc,
+                    kPaintAscBrushDesc,
+                    kPaintDescBrushAsc,
+                    kPaintDescBrushDesc
+                  };
+
 
   static MObject aInMatrix;
 
 private:
+
+
+
+  MStatus populateStrokePool(MDataBlock &data,
+                             std::vector<strokeGeom> &strokePool);
 
   void setWireDrawColor(M3dView &view,  M3dView::DisplayStatus status);
 
@@ -84,17 +99,35 @@ private:
                   M3dView::DisplayStatus status ) ;
 
 
-  MStatus setData(MDataBlock &block, MObject &attribute,
-                  const MMatrixArray &data) ;
+  // MStatus setData(MDataBlock &block, MObject &attribute,
+  //                 const MMatrixArray &data) ;
 
-  MStatus getData( MObject &attribute,  MIntArray &array);
+  // MStatus getData( MObject &attribute,  MIntArray &array);
 
-  MStatus getData( MObject &attribute,  MDoubleArray &array);
+  // MStatus getData( MObject &attribute,  MDoubleArray &array);
 
-  MStatus getData( MObject &attribute,  MVectorArray &array);
-  MStatus getData( MArrayDataHandle &ha,  strokeCurveGeom *result);
+  // MStatus getData( MObject &attribute,  MVectorArray &array);
+  // MStatus getData( MArrayDataHandle &ha,  strokeCurveGeom *result);
+
+
+
+  MStatus getTextureName(const MObject &attribute,
+                         MString &name) const ;
+
+  MStatus sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,
+                          MFloatArray &vVals, MIntArray &result, short range) const;
+
 
   static MObject aStrokeCurves;
+
+
+  static MObject aBrushIdTexture;
+  static MObject aPaintIdTexture;
+
+  static MObject aStrokeSort;
+  static MObject aBrushIdTextureRange;
+  static MObject aPaintIdTextureRange;
+
 
   static MObject aRotateOrder;
   static MObject aOutputUnit;
@@ -103,9 +136,9 @@ private:
 
   static MObject aPlaneMatrix;
 
-  static MObject aDipApproachObject;
-  static MObject aToolChangeApproachObject;
-  static MObject aHomeApproachObject;
+  // static MObject aDipApproachObject;
+  // static MObject aToolChangeApproachObject;
+  // static MObject aHomeApproachObject;
 
   static MObject aLinearSpeed; // cm/sec
   static MObject aAngularSpeed; // per sec
@@ -136,7 +169,7 @@ private:
   static MObject  aDisplayClusterPath;
   static MObject  aStackGap;
 
-  static MObject  aOutTargets; // local
+  // static MObject  aOutTargets; // local
 
   static MObject aOutput;
 

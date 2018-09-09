@@ -4,6 +4,9 @@ import stroke_factory_utils as sfu
 from paint import Paint
 from brush import Brush
 import curve_utils as cutl
+import logging
+logger = logging.getLogger('uprising')
+
 
 DIP_CURVE_DEFAULTS = [
     ("forceDip", 1),
@@ -89,9 +92,8 @@ def doit():
     painting_node = pm.PyNode("mainPaintingShape")
     dip_node = pm.PyNode("dipPaintingShape")
 
-
-
     dip_assembly = sfu.assembly(dip_node)
+    logger.debug("dip_assembly: %s" % dip_assembly)
 
     zpos = dip_assembly.attr("zeroPosition").get()
     dip_assembly.attr("zeroPosition").set(True)
@@ -99,10 +101,14 @@ def doit():
     pm.delete(dip_node.attr("strokeCurves").connections(destination=False, source=True, type="strokeCurve"))
 
     curves_grp = pm.PyNode("%s|curves" % dip_assembly)
+    
+    logger.debug("curves_grp: %s" % curves_grp)
+
     pm.delete(curves_grp.getChildren())
 
     combinations = dip_combinations(painting_node)
 
+    logger.debug("combinations: %s" % combinations)
 
 
     for dip in combinations:

@@ -3,7 +3,7 @@
 #include <math.h>
 #include <algorithm>
 #include <map>
-
+#include <utility>
 
 #include <maya/MDoubleArray.h>
 #include <maya/MFloatVectorArray.h>
@@ -11,10 +11,7 @@
 #include <maya/MFloatPointArray.h>
 #include <maya/MPoint.h>
 #include <maya/MFnPluginData.h>
-
-
-
-
+#include <maya/MRenderUtil.h>
 #include <maya/MString.h>
 #include <maya/MFloatMatrix.h>
 #include <maya/MFnTypedAttribute.h>
@@ -38,8 +35,6 @@
 #include <maya/MFnIntArrayData.h>
 #include <maya/MFnMatrixData.h>
 #include <maya/MTransformationMatrix.h>
-
-
 
 #include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
@@ -66,8 +61,124 @@ const int ACTIVE_COLOR          = 15;
 const int ACTIVE_AFFECTED_COLOR = 8;
 const int DORMANT_COLOR         = 4;
 const int HILITE_COLOR          = 17;
-const int RED_COLOR          = 12;
+const int RED_COLOR             = 12;
 
+
+
+// eAttr.addField("brushUpPaintUp", painting::kBrushAscPaintAsc);
+// eAttr.addField("brushUpPaintDown", painting::kBrushAscPaintDesc);
+// eAttr.addField("brushDownPaintUp", painting::kBrushDescPaintAsc);
+// eAttr.addField("brushDownPaintDown", paintig::kBrushDescPaintDesc);
+// eAttr.addField("paintUpBrushUp", painting::kPaintAscBrushAsc);
+// eAttr.addField("paintUpBrushDown", painting::kPaintAscBrushDesc);
+// eAttr.addField("paintDownBrushUp", painting::kPaintDescBrushAsc);
+// eAttr.addField("paintDownBrushDown", painting::kPaintDescBrushDesc);
+
+class StrokeCompare
+{
+public:
+  StrokeCompare(painting::StrokeSort sortOrder = painting::kBrushAscPaintAsc)
+    : m_sortOrder(sortOrder)
+  {}
+
+  bool operator()(const strokeGeom &a, const strokeGeom &b) {
+    if (m_sortOrder ==  painting::kBrushAscPaintAsc) {
+      if (a.brushId()  < b.brushId() ) { return true; }
+      if (b.brushId()  < a.brushId() ) { return false; }
+      if (a.paintId()  < b.paintId() ) { return true; }
+      if (b.paintId()  < a.paintId() ) { return false; }
+      if (a.id()  < b.id() ) { return true; }
+      if (b.id()  < a.id() ) { return false; }
+      return false;
+    }
+
+    if (m_sortOrder ==  painting::kBrushAscPaintDesc) {
+      if (a.brushId()  < b.brushId() ) { return true; }
+      if (b.brushId()  < a.brushId() ) { return false; }
+      if (a.paintId()  > b.paintId() ) { return true; }
+      if (b.paintId()  > a.paintId() ) { return false; }
+      if (a.id()  < b.id() ) { return true; }
+      if (b.id()  < a.id() ) { return false; }
+      return false;
+    }
+
+    if (m_sortOrder ==  painting::kBrushDescPaintAsc) {
+      if (a.brushId()  > b.brushId() ) { return true; }
+      if (b.brushId()  > a.brushId() ) { return false; }
+      if (a.paintId()  < b.paintId() ) { return true; }
+      if (b.paintId()  < a.paintId() ) { return false; }
+      if (a.id()  < b.id() ) { return true; }
+      if (b.id()  < a.id() ) { return false; }
+      return false;
+    }
+
+    if (m_sortOrder ==  painting::kBrushDescPaintDesc) {
+      if (a.brushId()  > b.brushId() ) { return true; }
+      if (b.brushId()  > a.brushId() ) { return false; }
+      if (a.paintId()  > b.paintId() ) { return true; }
+      if (b.paintId()  > a.paintId() ) { return false; }
+      if (a.id()  < b.id() ) { return true; }
+      if (b.id()  < a.id() ) { return false; }
+      return false;
+    }
+
+    if (m_sortOrder ==  painting::kPaintAscBrushAsc) {
+      if (a.paintId()  < b.paintId() ) { return true; }
+      if (b.paintId()  < a.paintId() ) { return false; }
+      if (a.brushId()  < b.brushId() ) { return true; }
+      if (b.brushId()  < a.brushId() ) { return false; }
+      if (a.id()  < b.id() ) { return true; }
+      if (b.id()  < a.id() ) { return false; }
+      return false;
+    }
+
+    if (m_sortOrder ==  painting::kPaintAscBrushDesc) {
+      if (a.paintId()  < b.paintId() ) { return true; }
+      if (b.paintId()  < a.paintId() ) { return false; }
+      if (a.brushId()  > b.brushId() ) { return true; }
+      if (b.brushId()  > a.brushId() ) { return false; }
+      if (a.id()  < b.id() ) { return true; }
+      if (b.id()  < a.id() ) { return false; }
+      return false;
+    }
+
+    if (m_sortOrder ==  painting::kPaintDescBrushAsc) {
+      if (a.paintId()  > b.paintId() ) { return true; }
+      if (b.paintId()  > a.paintId() ) { return false; }
+      if (a.brushId()  < b.brushId() ) { return true; }
+      if (b.brushId()  < a.brushId() ) { return false; }
+      if (a.id()  < b.id() ) { return true; }
+      if (b.id()  < a.id() ) { return false; }
+      return false;
+    }
+
+    if (m_sortOrder ==  painting::kPaintDescBrushDesc) {
+      if (a.paintId()  > b.paintId() ) { return true; }
+      if (b.paintId()  > a.paintId() ) { return false; }
+      if (a.brushId()  > b.brushId() ) { return true; }
+      if (b.brushId()  > a.brushId() ) { return false; }
+      if (a.id()  < b.id() ) { return true; }
+      if (b.id()  < a.id() ) { return false; }
+      return false;
+    }
+    return false;
+  }
+
+private:
+  painting::StrokeSort m_sortOrder;
+};
+
+
+
+// struct comp_struct {
+//   bool operator() (const strokeGeom &a, const strokeGeom &b) {
+//     if (a.paintId()  < b.paintId() ) { return true; }
+//     if (b.paintId()  < a.paintId() ) { return false; }
+//     if (a.brushId()  < b.brushId() ) { return true; }
+//     if (b.brushId()  < a.brushId() ) { return false; }
+//     return false;
+//   }
+// } compare_strokes;
 
 
 
@@ -85,10 +196,6 @@ painting::~painting() {
   }
 }
 
-// painting::painting() {}
-
-// painting::~painting() {}
-
 void *painting::creator() {
   return new painting();
 }
@@ -102,13 +209,15 @@ MObject painting::aStrokeCurves;
 MObject painting::aRotateOrder;
 MObject painting::aOutputUnit;
 
-MObject painting::aDipApproachObject;
-MObject painting::aToolChangeApproachObject;
-MObject painting::aHomeApproachObject;
+
+MObject painting::aBrushIdTexture;
+MObject painting::aPaintIdTexture;
+MObject painting::aBrushIdTextureRange;
+MObject painting::aPaintIdTextureRange;
+MObject painting::aStrokeSort;
 MObject painting::aLinearSpeed; // cm/sec
 MObject painting::aAngularSpeed; // per sec
 MObject painting::aApproximationDistance; // cm
-
 
 MObject painting::aBrushMatrix;
 MObject painting::aBrushRetention;
@@ -135,7 +244,7 @@ MObject painting::aDisplayLift;
 MObject painting::aDisplayApproach;
 MObject painting::aDisplayClusterPath;
 MObject painting::aStackGap;
-MObject painting::aOutTargets; // local
+// MObject painting::aOutTargets; // local
 MObject painting::aOutput;
 
 
@@ -168,13 +277,13 @@ MStatus painting::initialize()
   mAttr.setDefault(identity);
   addAttribute(aPlaneMatrix);
 
-  // APPROACH OBJECTS
-  aDipApproachObject =  msgAttr.create("dipApproachObject", "dao");
-  addAttribute(aDipApproachObject);
-  aToolChangeApproachObject =  msgAttr.create("toolChangeApproachObject", "tcao");
-  addAttribute(aToolChangeApproachObject);
-  aHomeApproachObject =  msgAttr.create("homeApproachObject", "hmao");
-  addAttribute(aHomeApproachObject);
+  // // APPROACH OBJECTS
+  // aDipApproachObject =  msgAttr.create("dipApproachObject", "dao");
+  // addAttribute(aDipApproachObject);
+  // aToolChangeApproachObject =  msgAttr.create("toolChangeApproachObject", "tcao");
+  // addAttribute(aToolChangeApproachObject);
+  // aHomeApproachObject =  msgAttr.create("homeApproachObject", "hmao");
+  // addAttribute(aHomeApproachObject);
 
   aLinearSpeed = nAttr.create( "linearSpeed", "lnsp", MFnNumericData::kDouble);
   nAttr.setStorable(true);
@@ -230,6 +339,50 @@ MStatus painting::initialize()
   tAttr.setArray(true);
   tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   addAttribute(aStrokeCurves);
+
+  aBrushIdTexture = nAttr.create( "brushIdTexture", "bidt",
+                                  MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aBrushIdTexture);
+
+  aPaintIdTexture = nAttr.create( "paintIdTexture", "pidt",
+                                  MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aPaintIdTexture);
+
+  aBrushIdTextureRange = nAttr.create( "brushIdTextureRange", "bitr",
+                                       MFnNumericData::kShort);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aBrushIdTextureRange);
+
+  aPaintIdTextureRange = nAttr.create( "paintIdTextureRange", "pitr",
+                                       MFnNumericData::kShort);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aPaintIdTextureRange);
+
+
+  aStrokeSort = eAttr.create("strokeSort", "stst", painting::kNoSort);
+  eAttr.addField("NoSort", painting::kNoSort);
+  eAttr.addField("brushUpPaintUp", painting::kBrushAscPaintAsc);
+  eAttr.addField("brushUpPaintDown", painting::kBrushAscPaintDesc);
+  eAttr.addField("brushDownPaintUp", painting::kBrushDescPaintAsc);
+  eAttr.addField("brushDownPaintDown", painting::kBrushDescPaintDesc);
+  eAttr.addField("paintUpBrushUp", painting::kPaintAscBrushAsc);
+  eAttr.addField("paintUpBrushDown", painting::kPaintAscBrushDesc);
+  eAttr.addField("paintDownBrushUp", painting::kPaintDescBrushAsc);
+  eAttr.addField("paintDownBrushDown", painting::kPaintDescBrushDesc);
+  eAttr.setKeyable(true);
+  eAttr.setStorable(true);
+  eAttr.setHidden(false);
+  st = addAttribute( aStrokeSort ); er;
 
   aBrushWidth  = nAttr.create("brushWidth", "brwd", MFnNumericData::kDouble);
   nAttr.setHidden( false );
@@ -300,24 +453,17 @@ MStatus painting::initialize()
   cAttr.setReadable(false);
   st = addAttribute( aPaints ); er;
 
-  aOutTargets = tAttr.create("outTargets", "otg", MFnData::kMatrixArray, &st);
-  er;
-  tAttr.setStorable(false);
-  tAttr.setReadable(true);
-  st = addAttribute(aOutTargets ); er;
+  // aOutTargets = tAttr.create("outTargets", "otg", MFnData::kMatrixArray, &st);
+  // er;
+  // tAttr.setStorable(false);
+  // tAttr.setReadable(true);
+  // st = addAttribute(aOutTargets ); er;
 
 
   aOutput = tAttr.create("output", "out", paintingData::id);
   tAttr.setReadable(true);
   tAttr.setStorable(false);
-  // tAttr.setCached(false);
   addAttribute(aOutput);
-
-
-
-  ////////
-
-
 
   aPointSize = nAttr.create( "pointSize", "psi", MFnNumericData::kDouble);
   nAttr.setStorable(true);
@@ -342,9 +488,6 @@ MStatus painting::initialize()
   nAttr.setSoftMax(20.0);
   nAttr.setDefault(5.0);
   addAttribute(aLineThickness);
-
-
-
 
   aDisplayIds = nAttr.create( "displayIds", "dids", MFnNumericData::kBoolean);
   nAttr.setHidden(false);
@@ -378,7 +521,6 @@ MStatus painting::initialize()
   nAttr.setDefault(true);
   addAttribute(aDisplayApproach );
 
-
   aDisplayClusterPath = nAttr.create( "displayClusterPath", "dcpt",
                                       MFnNumericData::kBoolean);
   nAttr.setHidden(false);
@@ -386,8 +528,6 @@ MStatus painting::initialize()
   nAttr.setReadable(true);
   nAttr.setDefault(true);
   addAttribute(aDisplayClusterPath );
-
-
 
   aStackGap = nAttr.create( "stackGap", "sgap", MFnNumericData::kDouble);
   nAttr.setStorable(true);
@@ -398,107 +538,30 @@ MStatus painting::initialize()
   addAttribute(aStackGap);
 
 
-  ///////
-
-
-  // st = attributeAffects(aPlaneMatrix, aOutTargets);
-  // st = attributeAffects(aStrokeCurves, aOutTargets);
-  // st = attributeAffects(aDipApproachObject, aOutTargets);
-  // st = attributeAffects(aToolChangeApproachObject, aOutTargets);
-  // st = attributeAffects(aHomeApproachObject, aOutTargets);
-  // st = attributeAffects(aLinearSpeed, aOutTargets);
-  // st = attributeAffects(aAngularSpeed, aOutTargets);
-  // st = attributeAffects(aApproximationDistance, aOutTargets);
-
-  // st = attributeAffects(aBrushes, aOutTargets);
-  // st = attributeAffects(aPaints, aOutTargets);
-
-
   st = attributeAffects(aPlaneMatrix, aOutput);
   st = attributeAffects(aStrokeCurves, aOutput);
-  // st = attributeAffects(aDipApproachObject, aOutput);
-  // st = attributeAffects(aToolChangeApproachObject, aOutput);
-  // st = attributeAffects(aHomeApproachObject, aOutput);
   st = attributeAffects(aLinearSpeed, aOutput);
   st = attributeAffects(aAngularSpeed, aOutput);
   st = attributeAffects(aApproximationDistance, aOutput);
   st = attributeAffects(aBrushes, aOutput);
   st = attributeAffects(aPaints, aOutput);
+  st = attributeAffects(aBrushIdTexture, aOutput);
+  st = attributeAffects(aPaintIdTexture, aOutput);
+  st = attributeAffects(aBrushIdTextureRange, aOutput);
+  st = attributeAffects(aPaintIdTextureRange, aOutput);
+  st = attributeAffects(aStrokeSort, aOutput);
 
   return ( MS::kSuccess );
 
 }
 
-MStatus painting::setData(MDataBlock &block, MObject &attribute,
-                          const MMatrixArray &data) {
-  MDataHandle h = block.outputValue(attribute);
-  MFnMatrixArrayData fn;
-  MObject d = fn.create(data);
-  h.set(d);
-  return block.setClean( attribute );
-}
-
-MStatus painting::getData( MObject &attribute,  MIntArray &array) {
-  MStatus st;
-  MFnIntArrayData fn;
-  MPlug plug(thisMObject(), attribute);
-  MObject d;
-  st = plug.getValue(d); ert;
-  fn.setObject(d);
-  array = fn.array(&st); ert;
-  return MS::kSuccess;
-}
-
-
-MStatus painting::getData( MObject &attribute,  MDoubleArray &array) {
-  MStatus st;
-  MFnDoubleArrayData fn;
-  MPlug plug(thisMObject(), attribute);
-  MObject d;
-  st = plug.getValue(d); ert;
-  fn.setObject(d);
-  array = fn.array(&st); ert;
-  return MS::kSuccess;
-
-}
-
-MStatus painting::getData( MObject &attribute,  MVectorArray &array) {
-  MStatus st;
-  MFnVectorArrayData fn;
-  MPlug plug(thisMObject(), attribute);
-  MObject d;
-  st = plug.getValue(d); ert;
-  fn.setObject(d);
-  array = fn.array(&st); ert;
-  return MS::kSuccess;
-
-}
-
-
-
-MStatus painting::getData( MArrayDataHandle &ha,  strokeCurveGeom *result) {
-  MStatus st;
-  MDataHandle h = ha.inputValue(&st );
-  MObject d = h.data();
-  MFnPluginData fn ( d , &st); ert;
-  strokeCurveData *scData = (strokeCurveData *)fn.data();
-  result = scData->fGeometry;
-  return MS::kSuccess;
-}
 
 MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 {
   MStatus st;
   MString method("painting::compute");
-  if (!(
-        /* plug == aOutTargets  || */ plug == aOutput  )) {
-    return ( MS::kUnknownParameter );
-  }
+  if (plug != aOutput  ) { return ( MS::kUnknownParameter ); }
 
-
-  // cerr << "plug name: " << plug.name() << endl;
-
-  // MMatrixArray outTargets; // outTargets.clear();
 
   MDataHandle mh = data.inputValue(aInMatrix, &st); er;
   MMatrix wm = mh.asMatrix();
@@ -506,9 +569,8 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   MMatrix inversePlaneMatrix = planeMatrix.inverse();
   MVector planeNormal = (MVector::zAxis * planeMatrix).normal();
 
-
-
-  // PAINTING DATA COMMENTED OUT
+  painting::StrokeSort sortOrder = painting::StrokeSort(data.inputValue(
+                                     aStrokeSort).asShort());
 
   MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); ert;
   std::map<short, Brush> brushes = Brush::factory(
@@ -526,10 +588,63 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
                                     painting::aPaintTravel
                                   );
 
-  // MAKE NEW DATA
-  // cerr <<  "m_pd->create" << endl;
-  m_pd->create( data, painting::aStrokeCurves, brushes, paints );
-  // cerr << " m_pd->geometry()" <<  m_pd->geometry()->clusters().size() << endl;
+  m_pd->create();
+  paintingGeom *pGeom = m_pd->geometry();
+  pGeom->setBrushes(brushes);
+  pGeom->setPaints(paints);
+
+
+  std::vector<strokeGeom> strokePool;
+  populateStrokePool(data,  strokePool);
+
+
+  std::vector<strokeGeom>::const_iterator citer;
+  std::vector<strokeGeom>::iterator iter;
+
+  unsigned nStrokes = strokePool.size();
+  MFloatArray uVals(nStrokes);
+  MFloatArray vVals(nStrokes);
+
+  citer = strokePool.begin();
+  for (unsigned i = 0; citer != strokePool.end(); citer++, i++) {
+    float &u = uVals[i];
+    float &v = vVals[i];
+    citer->getPivotUVs(inversePlaneMatrix, u, v);
+  }
+
+
+  MIntArray brushIds;
+  MIntArray paintIds;
+  short rangeBrushId = data.inputValue(aBrushIdTextureRange).asShort();
+  short rangePaintId = data.inputValue(aPaintIdTextureRange).asShort();
+
+  MFloatVectorArray translations;
+  st = sampleUVTexture(painting::aBrushIdTexture, uVals, vVals, brushIds, rangeBrushId);
+  if (! st.error()) {
+    iter = strokePool.begin();
+    for (unsigned i = 0; iter != strokePool.end(); iter++, i++) {
+      iter->setBrushId(short(brushIds[i]));
+    }
+  }
+  st = sampleUVTexture(painting::aPaintIdTexture, uVals, vVals, paintIds, rangePaintId);
+  if (! st.error()) {
+    iter = strokePool.begin();
+    for (unsigned i = 0; iter != strokePool.end(); iter++, i++) {
+      iter->setPaintId(short(paintIds[i]));
+    }
+  }
+
+
+  if (sortOrder !=  painting::kNoSort)
+  {
+    std::sort(strokePool.begin(), strokePool.end(), StrokeCompare(sortOrder));
+  }
+
+  for (citer = strokePool.begin(); citer != strokePool.end(); citer++) {
+    pGeom->addStroke(*citer);
+  }
+
+
 
   MFnPluginData fnOut;
   MTypeId kdid(paintingData::id);
@@ -539,198 +654,88 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
     *outGeometryData = (*m_pd);
   }
 
-  // cerr <<  "PAINTING NODE COMPUTE - GEO FULL" << endl;
-  // cerr << *(outGeometryData->geometry()) << endl;
-
-
 
   MDataHandle outputHandle = data.outputValue(aOutput, &st ); er;
   st = outputHandle.set(outGeometryData); er;
   data.setClean( plug );
 
 
-  // MDataHandle hOutput = data.outputValue(aOutput);
-  // MFnPluginData fnOutPaintingData;
-  // MTypeId kdid(paintingData::id);
-  // MObject dOutPaintingData = fnOutPaintingData.create(kdid , &st );
-  // paintingData *pPaintingData = (paintingData *)fnOutPaintingData.data(&st); er;
-  // paintingGeom *pPaintingGeom = pPaintingData->fGeometry;
-
-
-  // pPaintingGeom->clear();
-  // pPaintingGeom->setPaints(paints);
-  // pPaintingGeom->setBrushes(brushes);
-
-
-
-
-
-
-
-
-  // MArrayDataHandle hStrokeCurves = data.inputValue(aStrokeCurves, &st); ert;
-  // unsigned nCurves = hStrokeCurves.elementCount();
-
-
-
-  // for (unsigned i = 0; i < nCurves; i++, hStrokeCurves.next()) {
-  //   // JPMDBG;
-  //   short index = short(hStrokeCurves.elementIndex(&st));
-
-  //   MDataHandle hStrokeCurve = hStrokeCurves.inputValue(&st );
-  //   MObject dStrokeCurve = hStrokeCurve.data();
-  //   MFnPluginData fnStrokeCurves( dStrokeCurve , &st); ert;
-  //   strokeCurveData *scData = (strokeCurveData *)fnStrokeCurves.data();
-  //   strokeCurveGeom *geom = scData->fGeometry;
-  //   // strokeCurveGeom *pScGeom = 0;
-  //   // st = getData(hStrokeCurves, pScGeom);
-
-
-
-  //   cerr << "POINTER: " << geom << endl;
-  //   cerr << *geom << endl;
-
-  //   // pPaintingGeom->addStrokeCurve(*geom);
-
-  //   // if (geom) {
-  //   //   cerr << "num strokes" << geom->m_strokes.size() << endl;
-  //   //   cerr << "m_forceDip" << geom->m_forceDip << endl;
-  //   //   cerr << "m_brushId" << geom->m_brushId << endl;
-  //   //   cerr << "m_paintId" << geom->m_paintId << endl;
-  //   // }
-
-  // }
-
-
-
-
-
-  // cerr << *pPaintingGeom << endl;
-
-  // st = setData(data, painting::aOutTargets, outTargets); er;
-
-  // hOutput.set( pPaintingData );
-  // data.setClean( plug );
-
-
-
-  // aStrokeRotationTexture
-  // aStrokeTranslationTexture
-  // aStrokeTranslationSampleDistance
-  // sample rotation texture and translation gradient
-
-  // std::vector<Stroke>::const_iterator citer;
-  // std::vector<Stroke>::iterator iter;
-  // // // JPMDBG;
-
-  // unsigned nStrokes = strokes.size();
-  // MFloatArray uVals(nStrokes);
-  // MFloatArray vVals(nStrokes);
-  // // // JPMDBG;
-
-  // citer = strokes.begin();
-  // for (unsigned i = 0; citer != strokes.end(); citer++, i++) {
-  //   float &u = uVals[i];
-  //   float &v = vVals[i];
-  //   citer->getPivotUVs(inversePlaneMatrix, u, v);
-  // }
-  // MFloatArray rotations;
-  // MFloatVectorArray translations;
-  // // // JPMDBG;
-
-
-
-
-  // citer = strokes.begin();
-  // for (; citer != strokes.end(); citer++) {
-  //   const MMatrixArray &targets = citer->targets();
-  //   const MVectorArray &tangents = citer->tangents();
-  //   const unsigned len = targets.length();
-
-  //   outCounts.append(len);
-  //   outBrushIds.append(citer->brush().id);
-  //   outPaintIds.append(citer->paint().id);
-  //   outArcLengths.append(citer->arcLength());
-  //   outBrushWidths.append(citer->brush().width);
-  //   const MColor &c = citer->paint().color;
-  //   outPaintColors.append(MVector(c.r, c.g, c.b));
-  //   outPaintOpacities.append(citer->paint().opacity);
-  //   outForceDips.append(citer->forceDip());
-  //   outCurveIds.append(citer->curveId());
-  //   outApproachStarts.append(citer->approachStart());
-  //   outApproachEnds.append(citer->approachEnd());
-
-  //   for (int i = 0; i < len; ++i)
-  //   {
-  //     outTargets.append(targets[i]);
-  //     outTangents.append(tangents[i]);
-  //     // outNormals.append(nrm[i]);
-  //   }
-  // }
-
-  // // JPMDBG;
-
-  // unsigned len = outTargets.length();
-  // cerr << "len: " << len << endl;
-
-  // MMatrixArray outTargetsWorld(len);
-  // MVectorArray normalsWorld(len);
-  // MVectorArray outPosition(len);
-  // MVectorArray outRotation(len);
-
-  // MTransformationMatrix::RotationOrder order =  MTransformationMatrix::RotationOrder(
-  //       data.inputValue(aRotateOrder).asShort());
-
-  // MAngle::Unit outUnit = MAngle::Unit(data.inputValue(aOutputUnit).asShort());
-
-
-  // for (int i = 0; i < len; ++i)
-  // {
-  //   double rotValue[3];
-  //   MTransformationMatrix tMat( outTargets[i] * wm );
-  //   tMat.reorderRotation(order);
-
-  //   MTransformationMatrix::RotationOrder tmpOrd;
-  //   tMat.getRotation( rotValue, tmpOrd );
-  //   if (outUnit == MAngle::kDegrees) {
-  //     rotValue[0] *= rad_to_deg;
-  //     rotValue[1] *= rad_to_deg;
-  //     rotValue[2] *= rad_to_deg;
-  //   }
-  //   outPosition[i] = tMat.getTranslation( MSpace::kWorld);
-  //   outRotation[i] = MVector(rotValue[0], rotValue[1], rotValue[2]);
-  // }
-
-
-  // st = setData(data, painting::aOutTangents, outTangents); er;
-  // st = setData(data, painting::aOutPosition, outPosition); er;
-  // st = setData(data, painting::aOutRotation, outRotation); er;
-  // st = setData(data, painting::aOutCounts, outCounts); er;
-  // st = setData(data, painting::aOutBrushIds, outBrushIds); er;
-  // st = setData(data, painting::aOutPaintIds, outPaintIds); er;
-  // st = setData(data, painting::aOutCurveIds, outCurveIds); er;
-
-  // st = setData(data, painting::aOutBrushWidths, outBrushWidths); er;
-  // st = setData(data, painting::aOutPaintColors, outPaintColors); er;
-  // st = setData(data, painting::aOutPaintOpacities, outPaintOpacities); er;
-  // st = setData(data, painting::aOutForceDips, outForceDips); er;
-  // st = setData(data, painting::aOutArcLengths, outArcLengths); er;
-
-
-  // st = setData(data, painting::aOutApproachStarts, outApproachStarts); er;
-  // st = setData(data, painting::aOutApproachEnds, outApproachEnds); er;
-
-  // st = setData(data, painting::aOutPlaneMatrixWorld, outPlaneMatrixWorld); er;
-
-
-  // MDataHandle hOutMat = data.outputValue(aOutPlaneMatrixWorld);
-  // hOutMat.set(outPlaneMatrixWorld);
-  // st = data.setClean( aOutPlaneMatrixWorld ); er;
-
-
-
   return MS::kSuccess;
 
+}
+
+
+
+MStatus painting::populateStrokePool(MDataBlock &data,
+                                     std::vector<strokeGeom> &strokePool)
+{
+  MStatus st;
+  MArrayDataHandle hStrokeCurves = data.inputValue(aStrokeCurves, &st); ert;
+  unsigned nCurves = hStrokeCurves.elementCount();
+  unsigned j = 0;
+  for (unsigned i = 0; i < nCurves; i++, hStrokeCurves.next()) {
+    short index = short(hStrokeCurves.elementIndex(&st));
+    MDataHandle hStrokeCurve = hStrokeCurves.inputValue(&st);
+    if (st.error()) {
+      continue;
+    }
+    MObject dStrokeCurve = hStrokeCurve.data();
+    MFnPluginData fnStrokeCurves( dStrokeCurve , &st);
+    if (st.error()) {
+      continue;
+    }
+    strokeCurveData *scData = (strokeCurveData *)fnStrokeCurves.data();
+    strokeCurveGeom *scGeom = scData->fGeometry;
+
+    const std::vector<strokeGeom> &strokes = scGeom->strokes();
+    std::vector<strokeGeom>::const_iterator citer;
+
+    for (citer = strokes.begin(); citer != strokes.end(); citer++) {
+      strokePool.push_back(*citer);
+      strokePool.back().setId(j);
+      j++;
+    }
+  }
+  return MS::kSuccess;
+}
+
+MStatus painting::getTextureName(const MObject &attribute,
+                                 MString &name) const {
+  MStatus st;
+  MPlugArray plugArray;
+  MPlug plug(thisMObject(), attribute);
+  bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st); ert;
+  if (! hasConnection) { return MS::kUnknownParameter; }
+  name = plugArray[0].name(&st);
+  return MS::kSuccess;
+}
+
+
+
+
+MStatus painting::sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,
+                                  MFloatArray &vVals, MIntArray &result, short range) const {
+
+  MStatus st;
+  MString plugName;
+  st = getTextureName(attribute, plugName);
+  if (st.error()) {return MS::kFailure; }
+  MFloatMatrix cameraMat;
+  cameraMat.setToIdentity();
+  MFloatVectorArray transparencies;
+  MFloatVectorArray colors;
+
+  int n = uVals.length();
+
+  st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat,
+        0, &uVals, &vVals, 0, 0, 0, 0, 0, colors, transparencies); ert;
+
+  result.setLength(n);
+  for (int i = 0; i < n; ++i)
+  {
+    result.set(  int(colors[i].x * float(range)), i);
+  }
+  return MS::kSuccess;
 }
 
 
@@ -778,12 +783,8 @@ void painting::drawWireframeTargets(
   double lineThickness;
   MPlug(thisObj, aLineThickness).getValue(lineThickness);
 
-
-
-
   double stackGap;
   MPlug(thisObj, aStackGap).getValue(stackGap);
-
 
   short tmp;
   MPlug(thisObj, aDisplayTargets).getValue(tmp);
@@ -849,8 +850,6 @@ void painting::drawWireframeTargets(
     return;
   }
 
-
-
   if (targetDisplayStyle == painting::kTargetsMatrix) {
     double stackHeight = 0.0;
     glPushAttrib(GL_LINE_BIT);
@@ -904,8 +903,6 @@ void painting::drawWireframeTargets(
   }
 }
 
-
-
 void painting::drawWireframeBorders(
   const paintingGeom &geom, M3dView &view,
   const MDagPath &path,
@@ -945,7 +942,6 @@ void painting::drawWireframeBorders(
         continue;
       }
 
-
       glVertex3f( lefts[0].x , lefts[0].y , lefts[0].z );
       glVertex3f( rights[0].x , rights[0].y, rights[0].z);
       unsigned i = 1;
@@ -973,9 +969,6 @@ void painting::drawWireframeBorders(
   glPopAttrib();
 }
 
-
-
-
 void painting::drawWireframeApproach(
   const paintingGeom &geom, M3dView &view,
   const MDagPath &path,
@@ -998,9 +991,6 @@ void painting::drawWireframeApproach(
     return;
   }
 
-
-
-
   double lineThickness;
   MPlug(thisObj, aLineThickness).getValue(lineThickness);
 
@@ -1022,10 +1012,6 @@ void painting::drawWireframeApproach(
       MFloatPointArray ends;
 
       stroke.getApproaches(starts, ends, stackHeight);
-
-      // cerr << starts << endl;
-      // cerr << ends << endl;
-
 
 
       glVertex3f( starts[0].x , starts[0].y , starts[0].z );
@@ -1054,7 +1040,6 @@ void painting::drawWireframeClusterPath(
   M3dView:: DisplayStatus status )
 {
 
-  // view.setDrawColor( RED_COLOR, M3dView::kActiveColors );
   MObject thisObj = thisMObject();
 
   bool doDisplayClusterPath;
@@ -1095,9 +1080,6 @@ void painting::drawWireframeClusterPath(
   glPopAttrib();
 }
 
-
-
-
 void painting::drawWireframe(const paintingGeom &geom, M3dView &view,
                              const MDagPath &path,
                              M3dView:: DisplayStatus status ) {
@@ -1107,58 +1089,11 @@ void painting::drawWireframe(const paintingGeom &geom, M3dView &view,
   drawWireframeBorders(geom, view, path, status);
   drawWireframeApproach(geom, view, path, status);
   drawWireframeClusterPath(geom, view, path, status);
-
-
-
-
   view.endGL();
-
-
 }
 
-
-
-//   glPushAttrib(GL_CURRENT_BIT);
-//   glEnable(GL_BLEND);
-//   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//   unsigned i = 0;
-//   for (int j = 0; j < numStrokes; ++j)
-//   {
-//     unsigned numPoints = counts[j];
-//     double width = brushWidths[j] * 0.5;
-//     const MVector    &pcv = paintColors[j];
-
-
-//     float opac = float(paintOpacities[j]);
-//     MColor pcolor = MColor(pcv.x, pcv.y, pcv.z, opac);
-
-//     glColor4f(pcolor.r , pcolor.g , pcolor.b, opac);
-
-//     glBegin(GL_TRIANGLE_STRIP);
-
-//     unsigned first = 0;
-//     unsigned end = numPoints;
-
-//     if (! doDisplayBrushLift) {i++;  numPoints -= 2;}
-
-//     for (int k = 0; k < numPoints ; ++k)
-//     {
-//       MVector side = (tangents[i] ^ planeNormal).normal() * width;
-
-
-//       MFloatVector a(targets[i][3][0] + side.x, targets[i][3][1] + side.y,
-//                      targets[i][3][2] + side.z);
-//       MFloatVector b(targets[i][3][0] - side.x, targets[i][3][1] - side.y,
-//                      targets[i][3][2] - side.z);
-
-//       glVertex3f( a.x , a.y , a.z );
-//       glVertex3f( b.x , b.y, b.z);
-//       i++;
-//     }
-
-//     if (! doDisplayBrushLift) { i++; }
-
-void painting::drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
+void painting::drawShaded(const paintingGeom &geom, M3dView &view,
+                          const MDagPath &path,
                           M3dView:: DisplayStatus status ) {
 
 
@@ -1216,24 +1151,18 @@ void painting::draw( M3dView &view,
                      M3dView:: DisplayStatus status  )
 {
 
-  // cerr << "painting::DRAW" << endl;
+
   MStatus st;
-  // JPMDBG;
+
   MObject thisObj = thisMObject();
 
-  //   MPlug pointSizePlug (thisObj, aPointSize);
-  //   double pointSize;
-  //   pointSizePlug.getValue(pointSize);
 
-  // COMMENTED PAINTING DATA
-  // paintingData *ptd = 0;
   MPlug plugPaintingData( thisObj, aOutput );
   MObject dPaintingData;
   st = plugPaintingData.getValue(dPaintingData);
   MFnPluginData fnPaintingData(dPaintingData);
   paintingData *ptd  =  (paintingData *)fnPaintingData.data();
   if (! ptd)  {
-    // cerr << "ptd: " << ptd << endl;
     return;
   }
 
@@ -1244,10 +1173,6 @@ void painting::draw( M3dView &view,
     return;
   }
   const paintingGeom &geom = *pGeom;
-
-
-  // drawWireframe(geom, view, path, status);
-
 
   if (style ==  M3dView::kWireFrame ) {
     drawWireframe(geom, view, path, status);
@@ -1260,505 +1185,6 @@ void painting::draw( M3dView &view,
       drawWireframe(geom, view, path, status);
     }
   }
-
-
-
-  // cerr << "draw: pGeom " << pGeom << endl;
-
-
-  /*
-  paintingData *pPaintingData = (paintingData *)fnPaintingData.data(&st); er;
-  paintingGeom *pPaintingGeom = pPaintingData->fGeometry;
-
-
-
-  */
-
-
-
-  MFnMatrixArrayData fnXA;
-
-  // MFnVectorArrayData fnV;
-  // MFnDoubleArrayData fnD;
-  // MFnIntArrayData fnI;
-  // cerr << "HERE draw" << endl;
-  // JPMDBG;
-
-  MFnMatrixData fnX;
-  MObject dX;
-  MPlug plugX( thisObj, aPlaneMatrix );
-  st = plugX.getValue(dX);
-  MMatrix pmat;
-  if (st.error()) {
-    pmat.setToIdentity();
-  }
-  else {
-    fnX.setObject(dX);
-    pmat = fnX.matrix(&st);
-    if (st.error()) {
-      pmat.setToIdentity();
-    }
-  }
-  MVector planeNormal = (MVector::zAxis * pmat).normal();
-
-
-
-  // MMatrix ipmat = pmat.inverse();
-  // JPMDBG;
-
-  // get sample positions from output
-  // MPlug targetsPlug(thisObj, aOutTargets);
-  // MObject dTargets;
-  // st = targetsPlug.getValue(dTargets); er;
-  // fnXA.setObject(dTargets);
-  // MMatrixArray tmpTargets = fnXA.array(&st); er;
-  // unsigned pl = tmpTargets.length();
-  // JPMDBG;
-
-  // double stackGap;
-  // MPlug(thisObj, aStackGap).getValue(stackGap);
-  // bool doStack = stackGap > 0;
-
-  // MMatrixArray targets(tmpTargets);
-  // JPMDBG;
-
-  // MPlug tangentsPlug(thisObj, aOutTangents);
-  // MObject dTangents;
-  // st = tangentsPlug.getValue(dTangents); er;
-  // fnV.setObject(dTangents);
-  // MVectorArray tangents = fnV.array(&st); er;
-
-  // MPlug countsPlug(thisObj, aOutCounts);
-  // MObject dCounts;
-  // st = countsPlug.getValue(dCounts); er;
-  // fnI.setObject(dCounts);
-  // MIntArray counts = fnI.array(&st); er;
-  // unsigned numStrokes = counts.length();
-
-  // MPlug widthsPlug(thisObj, aOutBrushWidths);
-  // MObject dBrushWidths;
-  // st = widthsPlug.getValue(dBrushWidths); er;
-  // fnD.setObject(dBrushWidths);
-  // MDoubleArray brushWidths = fnD.array(&st); er;
-
-  // MPlug paintColorsPlug(thisObj, aOutPaintColors);
-  // MObject dPaintColors;
-  // st = paintColorsPlug.getValue(dPaintColors); er;
-  // fnV.setObject(dPaintColors);
-  // MVectorArray paintColors = fnV.array(&st); er;
-
-  // MPlug paintOpacitiesPlug(thisObj, aOutPaintOpacities);
-  // MObject dPaintOpacities;
-  // st = paintOpacitiesPlug.getValue(dPaintOpacities); er;
-  // fnD.setObject(dPaintOpacities);
-  // MDoubleArray paintOpacities = fnD.array(&st); er;
-
-
-
-
-
-  // if (stackGap > 0) {
-  //   MMatrixArray stackTargets(pl);
-  //   unsigned i = 0;
-  //   for (int j = 0; j < numStrokes; ++j)
-  //   {
-  //     MVector z(planeNormal * stackGap * j);
-  //     unsigned numPoints = counts[j];
-  //     for (int k = 0; k < numPoints ; ++k)
-  //     {
-  //       stackTargets[i] = tmpTargets[i];
-  //       stackTargets[i][3][0] = stackTargets[i][3][0] + z.x;
-  //       stackTargets[i][3][1] = stackTargets[i][3][1] + z.y;
-  //       stackTargets[i][3][2] = stackTargets[i][3][2] + z.z;
-  //       i++;
-  //     }
-  //   }
-  //   targets = stackTargets;
-  // }
-  // else {
-  //   targets = tmpTargets;
-  // }
-
-  // bool doDisplayPoints;
-  // bool doDisplayIds;
-  // bool doDisplaySegments;
-  // bool doDisplayBrushLift;
-  // bool doDisplayApproach;
-
-  // MPlug(thisObj, aDisplayPoints).getValue(doDisplayPoints);
-  // MPlug(thisObj, aDisplayIds).getValue(doDisplayIds);
-
-  // MPlug(thisObj, aDisplaySegments).getValue(doDisplaySegments);
-  // MPlug(thisObj, aDisplayBrushLift).getValue(doDisplayBrushLift);
-  // MPlug(thisObj, aDisplayApproach).getValue(doDisplayApproach);
-
-  // short brushDisp;
-  // MPlug(thisObj, aDisplayBrush).getValue(brushDisp);
-
-  // short displaySegmentOutlines;
-  // MPlug(thisObj, aDisplaySegmentOutlines).getValue(displaySegmentOutlines);
-  // OutlineDisplay od = OutlineDisplay(displaySegmentOutlines);
-
-  // bool doArrows = od == painting::kOutlinesArrows
-  //                 || od == painting::kOutlinesBoth;
-  // bool doBorders = od == painting::kOutlinesBorders
-  //                  || od == painting::kOutlinesBoth;
-
-  // MPlug wireColorPlug (thisObj, aWireColor);
-  // float wireColorRed, wireColorGreen, wireColorBlue;
-  // wireColorPlug.child(0).getValue(wireColorRed);
-  // wireColorPlug.child(1).getValue(wireColorGreen);
-  // wireColorPlug.child(2).getValue(wireColorBlue);
-
-  // MColor wireColor( MColor::kRGB, wireColorRed, wireColorGreen, wireColorBlue);
-
-  // double thickness;
-  // MPlug(thisObj, aSegmentOutlineThickness).getValue(thickness);
-
-
-  // double approachDistanceStart, approachDistanceMid, approachDistanceEnd;
-  // MPlug(thisObj, aStrokeApproachDistanceStart).getValue(approachDistanceStart);
-  // MPlug(thisObj, aStrokeApproachDistanceMid).getValue(approachDistanceMid);
-  // MPlug(thisObj, aStrokeApproachDistanceEnd).getValue(approachDistanceEnd);
-
-
-
-  // JPMDBG;
-
-
-  view.beginGL();
-
-
-  // // POINTS
-  // if (doDisplayPoints)
-  // {
-  //   MPlug pointSizePlug (thisObj, aPointSize);
-  //   double pointSize;
-  //   pointSizePlug.getValue(pointSize);
-
-  //   view.setDrawColor(wireColor );
-
-  //   glPushAttrib(GL_CURRENT_BIT);
-  //   glPointSize(float(pointSize));
-
-  //   glBegin( GL_POINTS );
-
-  //   unsigned i = 0;
-  //   for (int j = 0; j < numStrokes; ++j)
-  //   {
-  //     unsigned numPoints = counts[j];
-  //     if (! doDisplayBrushLift) {i++;  numPoints -= 2;}
-  //     for (int k = 0; k < numPoints ; ++k)
-  //     {
-  //       glVertex3f(float(targets[i][3][0]), float(targets[i][3][1]), float(targets[i][3][2]));
-  //       i++;
-  //     }
-  //     if (! doDisplayBrushLift) { i++; }
-  //   }
-
-  //   glEnd();
-  //   glPopAttrib();
-  // }
-
-  // // SEGMENTS
-  // if (doDisplaySegments)
-  // {
-
-  //   glPushAttrib(GL_CURRENT_BIT);
-
-  //   glEnable(GL_BLEND);
-  //   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  //   unsigned i = 0;
-  //   for (int j = 0; j < numStrokes; ++j)
-  //   {
-  //     unsigned numPoints = counts[j];
-  //     double width = brushWidths[j] * 0.5;
-  //     const MVector    &pcv = paintColors[j];
-
-
-  //     float opac = float(paintOpacities[j]);
-  //     MColor pcolor = MColor(pcv.x, pcv.y, pcv.z, opac);
-
-  //     glColor4f(pcolor.r , pcolor.g , pcolor.b, opac);
-
-  //     glBegin(GL_TRIANGLE_STRIP);
-
-  //     unsigned first = 0;
-  //     unsigned end = numPoints;
-
-  //     if (! doDisplayBrushLift) {i++;  numPoints -= 2;}
-
-  //     for (int k = 0; k < numPoints ; ++k)
-  //     {
-  //       MVector side = (tangents[i] ^ planeNormal).normal() * width;
-
-
-  //       MFloatVector a(targets[i][3][0] + side.x, targets[i][3][1] + side.y,
-  //                      targets[i][3][2] + side.z);
-  //       MFloatVector b(targets[i][3][0] - side.x, targets[i][3][1] - side.y,
-  //                      targets[i][3][2] - side.z);
-
-  //       glVertex3f( a.x , a.y , a.z );
-  //       glVertex3f( b.x , b.y, b.z);
-  //       i++;
-  //     }
-
-  //     if (! doDisplayBrushLift) { i++; }
-
-  //     glEnd();
-  //   }
-  //   glPopAttrib();
-  // }
-
-
-
-
-  // if (doDisplayApproach) {
-
-  //   MDoubleArray approachStarts, approachEnds;
-  //   getData( painting::aOutApproachStarts, approachStarts);
-  //   getData( painting::aOutApproachEnds, approachEnds);
-
-  //   // MFloatVector approachVec = MFloatVector(planeNormal * approachDistance);
-
-  //   // cerr << "approachVec length : " << approachVec.length() << endl;
-  //   glPushAttrib(GL_LINE_BIT);
-
-  //   unsigned i = 0;
-
-
-  //   view.setDrawColor(wireColor );
-
-
-  //   glLineWidth(GLfloat(thickness));
-  //   glBegin(GL_LINES);
-
-  //   for (int j = 0; j < numStrokes; ++j)
-  //   {
-
-  //     MVector approachVec;
-  //     approachVec = MFloatVector(planeNormal *  approachStarts[j] ); ;
-  //     // MVector approachEnd = MFloatVector(planeNormal * approachEnds[j] ); ;
-
-
-  //     unsigned numPoints = counts[j];
-  //     MFloatVector lift, stroke, approach;
-
-
-  //     // start
-  //     lift = MFloatVector(targets[i][3][0], targets[i][3][1], targets[i][3][2]);
-  //     stroke = MFloatVector(targets[(i + 1)][3][0], targets[(i + 1)][3][1],
-  //                           targets[(i + 1)][3][2]);
-  //     approach = MFloatVector(lift + approachVec);
-
-  //     glVertex3f(lift.x , lift.y, lift.z);
-  //     glVertex3f(approach.x , approach.y , approach.z);
-
-  //     glVertex3f(stroke.x , stroke.y, stroke.z);
-  //     glVertex3f(lift.x , lift.y , lift.z);
-
-  //     i += numPoints - 1;
-
-
-  //     approachVec = MFloatVector(planeNormal *  approachEnds[j] ); ;
-
-  //     lift = MFloatVector(targets[i][3][0], targets[i][3][1], targets[i][3][2]);
-  //     stroke = MFloatVector(targets[(i - 1)][3][0], targets[(i - 1)][3][1],
-  //                           targets[(i - 1)][3][2]);
-  //     approach = MFloatVector(lift + approachVec);
-
-  //     glVertex3f(lift.x , lift.y, lift.z);
-  //     glVertex3f(approach.x , approach.y , approach.z);
-
-  //     glVertex3f(stroke.x , stroke.y, stroke.z);
-  //     glVertex3f(lift.x , lift.y , lift.z);
-
-  //     i++;
-
-  //   }
-  //   glEnd();
-  //   glPopAttrib();
-  // }
-
-  // // SEGMENT OUITLINES
-  // if (doArrows || doBorders)
-  // {
-
-
-  //   glPushAttrib(GL_LINE_BIT);
-
-  //   unsigned i = 0;
-  //   for (int j = 0; j < numStrokes; ++j)
-  //   {
-  //     unsigned numPoints = counts[j];
-  //     double width = brushWidths[j] * 0.5;
-  //     view.setDrawColor(wireColor );
-
-  //     glLineWidth(GLfloat(thickness));
-  //     glBegin(GL_LINES);
-
-  //     MFloatVector last_a;
-  //     MFloatVector last_b;
-
-  //     if (! doDisplayBrushLift) {i++;  numPoints -= 2;}
-
-  //     for (int k = 0; k < numPoints ; ++k)
-  //     {
-  //       MVector side = (tangents[i] ^ planeNormal).normal() * width;
-
-  //       MFloatVector p(targets[i][3][0], targets[i][3][1], targets[i][3][2]);
-  //       MFloatVector a(p + side);
-  //       MFloatVector b(p - side);
-
-  //       if (! doArrows) {
-  //         // draw the ends unless arrows
-  //         if (k == 0 || k == (numPoints - 1)) {
-  //           glVertex3f(a.x , a.y, a.z);
-  //           glVertex3f(b.x , b.y , b.z);
-  //         }
-  //       }
-  //       if (k > 0) {
-  //         if (doBorders) {
-  //           glVertex3f( last_a.x , last_a.y, last_a.z);
-  //           glVertex3f( a.x , a.y , a.z );
-  //           glVertex3f( last_b.x , last_b.y, last_b.z);
-  //           glVertex3f( b.x , b.y , b.z );
-
-  //         }
-  //         if (doArrows)  {
-  //           glVertex3f( last_a.x , last_a.y, last_a.z);
-  //           glVertex3f( p.x , p.y , p.z );
-  //           glVertex3f( last_b.x , last_b.y, last_b.z);
-  //           glVertex3f( p.x , p.y , p.z );
-  //         }
-  //       }
-
-
-  //       last_a = a;
-  //       last_b = b;
-  //       i++;
-  //     }
-  //     if (! doDisplayBrushLift) { i++; }
-
-  //     glEnd();
-  //   }
-  //   glPopAttrib();
-  // }
-
-
-
-
-  // if ( BrushDisplay(brushDisp) == painting::kBrushLine)
-  // {
-
-  //   double lineLength;
-  //   MPlug(thisObj, aNormalLength).getValue(lineLength);
-
-  //   view.setDrawColor(MColor(0.0, 0.0, 1.0) );
-
-  //   glPushAttrib(GL_LINE_BIT);
-  //   glLineWidth(GLfloat(thickness));
-  //   glBegin( GL_LINES );
-
-
-  //   unsigned i = 0;
-  //   for (int j = 0; j < numStrokes; ++j)
-  //   {
-  //     unsigned numPoints = counts[j];
-  //     if (! doDisplayBrushLift) {i++;  numPoints -= 2;}
-  //     for (int k = 0; k < numPoints ; ++k)
-  //     {
-  //       MFloatVector start(targets[i][3][0], targets[i][3][1], targets[i][3][2]);
-  //       // MFloatVector end =  MFloatVector::zAxis;
-  //       MFloatVector end( MFloatVector( MVector::zNegAxis * lineLength * targets[i]));
-  //       end += start;
-
-  //       glVertex3f( start.x , start.y , start.z );
-  //       glVertex3f( end.x , end.y, end.z);
-  //       i++;
-  //     }
-  //     if (! doDisplayBrushLift) { i++; }
-  //   }
-
-  //   glEnd();
-  //   glPopAttrib();
-  // }
-
-
-
-  // if ( BrushDisplay(brushDisp) == painting::kBrushMatrix)
-  // {
-
-  //   double lineLength;
-  //   MPlug(thisObj, aNormalLength).getValue(lineLength);
-
-  //   // view.setDrawColor(wireColor );
-
-  //   glPushAttrib(GL_LINE_BIT);
-  //   glLineWidth(GLfloat(thickness));
-  //   glBegin( GL_LINES );
-
-
-  //   unsigned i = 0;
-  //   for (int j = 0; j < numStrokes; ++j)
-  //   {
-  //     unsigned numPoints = counts[j];
-  //     if (! doDisplayBrushLift) {i++;  numPoints -= 2;}
-  //     for (int k = 0; k < numPoints ; ++k)
-  //     {
-  //       MFloatVector start(targets[i][3][0], targets[i][3][1], targets[i][3][2]);
-
-  //       MFloatVector endX( MFloatVector(MVector::xAxis * lineLength  * targets[i]) )   ;
-  //       MFloatVector endY(  MFloatVector(MVector::yAxis * lineLength  * targets[i]) )   ;
-  //       MFloatVector endZ(  MFloatVector(MVector::zAxis * lineLength  * targets[i]) )   ;
-  //       endX += start;
-  //       endY += start;
-  //       endZ += start;
-
-
-  //       glColor3f(1.0f , 0.0f, 0.0f );
-  //       glVertex3f( start.x , start.y , start.z );
-  //       glVertex3f( endX.x , endX.y, endX.z);
-
-  //       glColor3f(0.0f , 1.0f, 0.0f );
-  //       glVertex3f( start.x , start.y , start.z );
-  //       glVertex3f( endY.x , endY.y, endY.z);
-
-  //       glColor3f(0.0f , 0.0f, 1.0f );
-  //       glVertex3f( start.x , start.y , start.z );
-  //       glVertex3f( endZ.x , endZ.y, endZ.z);
-  //       i++;
-  //     }
-  //     if (! doDisplayBrushLift) { i++; }
-  //   }
-
-  //   glEnd();
-  //   glPopAttrib();
-  // }
-
-  // // IDs
-  // if (doDisplayIds)
-  // {
-  //   glPushAttrib(GL_CURRENT_BIT);
-
-  //   view.setDrawColor(wireColor );
-  //   unsigned i = 0;
-  //   for (int j = 0; j < numStrokes; ++j)
-  //   {
-  //     int k = i + 1;
-  //     MString txt  = "";
-  //     txt += j;
-  //     MPoint textPos =  MPoint( targets[k][3][0], targets[k][3][1], targets[k][3][2]);
-  //     view.drawText( txt , textPos,  M3dView::kRight);
-  //     i +=  counts[j];
-  //   }
-  //   glPopAttrib();
-
-  // }
-  // JPMDBG;
-
-  view.endGL();
-
 }
 
 bool painting::isBounded() const

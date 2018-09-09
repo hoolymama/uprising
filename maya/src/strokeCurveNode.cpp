@@ -4,9 +4,6 @@
 #include <algorithm>
 #include <map>
 
-
-
-
 #include <maya/MFnPluginData.h>
 #include <maya/MDoubleArray.h>
 #include <maya/MFloatVectorArray.h>
@@ -115,18 +112,6 @@ MObject strokeCurve::aApproachDistanceEnd;
 MObject strokeCurve::aApproachDistance;
 
 MObject strokeCurve::aPlaneMatrix;
-// MObject strokeCurve::aStrokeRotationTexture;
-// MObject strokeCurve::aStrokeTranslationTexture;
-// MObject strokeCurve::aStrokeTranslationSampleDistance;
-
-// // output
-// MObject strokeCurve::aOutTargets;
-// MObject strokeCurve::aOutTangents;
-// MObject strokeCurve::aOutPositions;
-
-// // one per stroke
-// MObject strokeCurve::aOutCounts;
-// MObject strokeCurve::aOutArcLengths;
 
 MObject strokeCurve::aOutput;
 
@@ -165,29 +150,6 @@ MStatus strokeCurve::initialize()
   mAttr.setHidden( true );
   mAttr.setDefault(identity);
   st = addAttribute(aPlaneMatrix); er;
-
-  // aStrokeRotationTexture = nAttr.create( "strokeRotationTexture", "srtx",
-  //                                        MFnNumericData::kDouble);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setKeyable(true);
-  // st = addAttribute(aStrokeRotationTexture); er;
-
-  // aStrokeTranslationTexture = nAttr.create( "strokeTranslationTexture", "strx",
-  //                             MFnNumericData::kDouble);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setKeyable(true);
-  // st = addAttribute(aStrokeTranslationTexture); er;
-
-  // aStrokeTranslationSampleDistance = nAttr.create( "strokeTranslationSampleDistance",
-  //                                    "stsd", MFnNumericData::kDouble);
-  // nAttr.setKeyable(true);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setDefault(5.0);
-  // st = addAttribute(aStrokeTranslationSampleDistance); er;
 
   aStrokeCountFactor = nAttr.create( "strokeCountFactor",
                                      "stcf", MFnNumericData::kDouble);
@@ -389,22 +351,6 @@ MStatus strokeCurve::initialize()
   addAttribute(aApproachDistance);
 
 
-
-
-
-  // aApproachDistanceStart = nAttr.create( "approachDistanceStart",
-  //                                        "apds", MFnNumericData::kDouble);
-  // aApproachDistanceMid = nAttr.create( "approachDistanceMid",
-  //                                      "apdm", MFnNumericData::kDouble);
-  // aApproachDistanceEnd = nAttr.create( "approachDistanceEnd",
-  //                                      "apde", MFnNumericData::kDouble);
-  // aApproachDistance = nAttr.create( "approachDistance",
-  //                                   "apd", aApproachDistanceStart, aApproachDistanceMid, aApproachDistanceEnd);
-  // nAttr.setKeyable(true);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // st = addAttribute(aApproachDistance); er;
-
   aLiftLength = nAttr.create( "liftLength", "llg", MFnNumericData::kDouble, 2.0 );
   aLiftHeight = nAttr.create( "liftHeight", "lht", MFnNumericData::kDouble, 2.0 );
   aLiftBias = nAttr.create( "liftBias", "lbi", MFnNumericData::kDouble, 0.0);
@@ -456,74 +402,11 @@ MStatus strokeCurve::initialize()
 
 
 
-  // aOutCounts  = tAttr.create("outCounts", "octs", MFnData::kIntArray, &st); er;
-  // tAttr.setStorable(false);
-  // tAttr.setReadable(true);
-  // st = addAttribute(aOutCounts ); er;
-
-  // aOutTargets = tAttr.create("outTargets", "otg", MFnData::kMatrixArray, &st);
-  // er;
-  // tAttr.setStorable(false);
-  // tAttr.setReadable(true);
-  // st = addAttribute(aOutTargets ); er;
-
-  // aOutTangents = tAttr.create("outTangents", "otan", MFnData::kVectorArray, &st);
-  // er;
-  // tAttr.setStorable(false);
-  // tAttr.setReadable(true);
-  // st = addAttribute(aOutTangents ); er;
-
-  // aOutPositions = tAttr.create("outPositions", "opos", MFnData::kVectorArray, &st);
-  // er;
-  // tAttr.setStorable(false);
-  // tAttr.setReadable(true);
-  // st = addAttribute(aOutPositions ); er;
-
-
-
-  // aOutArcLengths = tAttr.create("outArcLengths", "oarc", MFnData::kDoubleArray,
-  //                               &st); er;
-  // tAttr.setStorable(false);
-  // tAttr.setReadable(true);
-  // st = addAttribute(aOutArcLengths ); er;
-
-
-
   aOutput = tAttr.create("output", "out", strokeCurveData::id);
   tAttr.setReadable(true);
   tAttr.setStorable(false);
   // tAttr.setCached(false);
   addAttribute(aOutput);
-
-  // setAttr "strokeCurve5.brushId" 1;
-  // setAttr "strokeCurve5.paintId" 1;
-  // setAttr "strokeCurve5.repeatMirror" 0;
-  // setAttr "strokeCurve5.repeatOscillate" 0;
-  // setAttr "strokeCurve5.subcurveMax" 100;
-  // setAttr "strokeCurve5.brushId" 10;
-  // setAttr "strokeCurve5.overlap" 0;
-  // setAttr "strokeCurve5.randomLengthFactor" 0;
-  // setAttr "strokeCurve5.randomOverlapFactor" 0;
-  // setAttr "strokeCurve5.approachDistanceStart" 1;
-  // setAttr "strokeCurve5.approachDistanceMid" 1;
-  // setAttr "strokeCurve5.approachDistanceEnd" 1;
-  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_Position" 0;
-  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_FloatValue" 0.44;
-  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_Position" 0;
-  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_FloatValue" 0;
-  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_Position" 0;
-  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_FloatValue" 0.46;
-  // setAttr "strokeCurve5.strokeProfileRamp[0].strokeProfileRamp_FloatValue" 0.5;
-  // setAttr "strokeCurve5.brushTiltRamp[0].brushTiltRamp_Position" 0;
-  // setAttr "strokeCurve5.brushTiltRamp[0].brushTiltRamp_FloatValue" 0.14;
-  // setAttr "strokeCurve5.brushTiltRamp[0].brushTiltRamp_FloatValue" 0.5;
-  // setAttr "strokeCurve5.brushBankRamp[0].brushBankRamp_FloatValue" 0.5;
-  // setAttr "strokeCurve5.brushTwistRamp[0].brushTwistRamp_FloatValue" 0.5;
-  // setAttr "strokeCurve5.strokeLength" 30;
-  // setAttr "strokeCurve5.strokeLength" 10;
-  // setAttr "strokeCurve5.pointDensity" 0.5;
-  // setAttr "strokeCurve5.pointDensity" 1;
-  // setAttr "strokeCurve5.brushId" 1;
 
 
   st = attributeAffects(aCurve, aOutput);
@@ -555,9 +438,7 @@ MStatus strokeCurve::initialize()
   st = attributeAffects(aBrushTwistRamp, aOutput);
   st = attributeAffects(aBrushFollowStroke, aOutput);
   st = attributeAffects(aPlaneMatrix, aOutput);
-  // st = attributeAffects(aStrokeRotationTexture, aOutput);
-  // st = attributeAffects(aStrokeTranslationTexture, aOutput);
-  // st = attributeAffects(aStrokeTranslationSampleDistance, aOutput);
+
   st = attributeAffects(aApproachDistance, aOutput);
   st = attributeAffects(aForceDip, aOutput);
   st = attributeAffects(aBrushId, aOutput);
@@ -565,263 +446,8 @@ MStatus strokeCurve::initialize()
 
 
 
-  // st = attributeAffects(aCurve, aOutTargets);
-  // st = attributeAffects(aSubcurve, aOutTargets);
-  // st = attributeAffects(aPointDensity, aOutTargets);
-  // st = attributeAffects(aStrokeLength, aOutTargets);
-  // st = attributeAffects(aRandomLengthFactor, aOutTargets);
-  // st = attributeAffects(aRandomOverlapFactor, aOutTargets);
-  // st = attributeAffects(aBackstroke, aOutTargets);
-  // st = attributeAffects(aRepeats, aOutTargets);
-  // st = attributeAffects(aRepeatOffset, aOutTargets);
-  // st = attributeAffects(aRepeatMirror, aOutTargets);
-  // st = attributeAffects(aRepeatOscillate, aOutTargets);
-  // st = attributeAffects(aSeed, aOutTargets);
-  // st = attributeAffects(aLift, aOutTargets);
-  // st = attributeAffects(aStrokeProfileRamp, aOutTargets);
-  // st = attributeAffects(aStrokeProfileScale, aOutTargets);
-  // st = attributeAffects(aActive, aOutTargets);
-  // st = attributeAffects(aStrokeCountFactor, aOutTargets);
-  // st = attributeAffects(aOverlap, aOutTargets);
-  // st = attributeAffects(aPivotFraction, aOutTargets);
-  // st = attributeAffects(aBrushRampScope, aOutTargets);
-  // st = attributeAffects(aBrushTiltRamp, aOutTargets);
-  // st = attributeAffects(aBrushBankRamp, aOutTargets);
-  // st = attributeAffects(aBrushTwistRamp, aOutTargets);
-  // st = attributeAffects(aBrushFollowStroke, aOutTargets);
-  // st = attributeAffects(aApproachDistance, aOutTargets);
-  // st = attributeAffects(aPlaneMatrix, aOutTargets);
-  // st = attributeAffects(aStrokeRotationTexture, aOutTargets);
-  // st = attributeAffects(aStrokeTranslationTexture, aOutTargets);
-  // st = attributeAffects(aStrokeTranslationSampleDistance, aOutTargets);
-
-  // st = attributeAffects(aCurve, aOutTangents);
-  // st = attributeAffects(aSubcurve, aOutTangents);
-  // st = attributeAffects(aPointDensity, aOutTangents);
-  // st = attributeAffects(aStrokeLength, aOutTangents);
-  // st = attributeAffects(aRandomLengthFactor, aOutTangents);
-  // st = attributeAffects(aRandomOverlapFactor, aOutTangents);
-  // st = attributeAffects(aBackstroke, aOutTangents);
-  // st = attributeAffects(aRepeats, aOutTangents);
-  // st = attributeAffects(aRepeatOffset, aOutTangents);
-  // st = attributeAffects(aRepeatMirror, aOutTangents);
-  // st = attributeAffects(aRepeatOscillate, aOutTangents);
-  // st = attributeAffects(aSeed, aOutTangents);
-  // st = attributeAffects(aLift, aOutTangents);
-  // st = attributeAffects(aStrokeProfileRamp, aOutTangents);
-  // st = attributeAffects(aStrokeProfileScale, aOutTangents);
-  // st = attributeAffects(aActive, aOutTangents);
-  // st = attributeAffects(aStrokeCountFactor, aOutTangents);
-  // st = attributeAffects(aOverlap, aOutTangents);
-  // st = attributeAffects(aPivotFraction, aOutTangents);
-  // st = attributeAffects(aBrushRampScope, aOutTangents);
-  // st = attributeAffects(aBrushTiltRamp, aOutTangents);
-  // st = attributeAffects(aBrushBankRamp, aOutTangents);
-  // st = attributeAffects(aBrushTwistRamp, aOutTangents);
-  // st = attributeAffects(aBrushFollowStroke, aOutTangents);
-  // st = attributeAffects(aApproachDistance, aOutTangents);
-  // st = attributeAffects(aPlaneMatrix, aOutTangents);
-  // st = attributeAffects(aStrokeRotationTexture, aOutTangents);
-  // st = attributeAffects(aStrokeTranslationTexture, aOutTangents);
-  // st = attributeAffects(aStrokeTranslationSampleDistance, aOutTangents);
-
-
-  // st = attributeAffects(aCurve, aOutPositions);
-  // st = attributeAffects(aSubcurve, aOutPositions);
-  // st = attributeAffects(aPointDensity, aOutPositions);
-  // st = attributeAffects(aStrokeLength, aOutPositions);
-  // st = attributeAffects(aRandomLengthFactor, aOutPositions);
-  // st = attributeAffects(aRandomOverlapFactor, aOutPositions);
-  // st = attributeAffects(aBackstroke, aOutPositions);
-  // st = attributeAffects(aRepeats, aOutPositions);
-  // st = attributeAffects(aRepeatOffset, aOutPositions);
-  // st = attributeAffects(aRepeatMirror, aOutPositions);
-  // st = attributeAffects(aRepeatOscillate, aOutPositions);
-  // st = attributeAffects(aSeed, aOutPositions);
-  // st = attributeAffects(aLift, aOutPositions);
-  // st = attributeAffects(aStrokeProfileRamp, aOutPositions);
-  // st = attributeAffects(aStrokeProfileScale, aOutPositions);
-  // st = attributeAffects(aActive, aOutPositions);
-  // st = attributeAffects(aStrokeCountFactor, aOutPositions);
-  // st = attributeAffects(aOverlap, aOutPositions);
-  // st = attributeAffects(aPivotFraction, aOutPositions);
-  // st = attributeAffects(aBrushRampScope, aOutPositions);
-  // st = attributeAffects(aBrushTiltRamp, aOutPositions);
-  // st = attributeAffects(aBrushBankRamp, aOutPositions);
-  // st = attributeAffects(aBrushTwistRamp, aOutPositions);
-  // st = attributeAffects(aBrushFollowStroke, aOutPositions);
-  // st = attributeAffects(aApproachDistance, aOutPositions);
-  // st = attributeAffects(aPlaneMatrix, aOutPositions);
-  // st = attributeAffects(aStrokeRotationTexture, aOutPositions);
-  // st = attributeAffects(aStrokeTranslationTexture, aOutPositions);
-  // st = attributeAffects(aStrokeTranslationSampleDistance, aOutPositions);
-
-
-
-  // st = attributeAffects(aCurve, aOutCounts);
-  // st = attributeAffects(aSubcurve, aOutCounts);
-  // st = attributeAffects(aPointDensity, aOutCounts);
-  // st = attributeAffects(aStrokeLength, aOutCounts);
-  // st = attributeAffects(aRandomLengthFactor, aOutCounts);
-  // st = attributeAffects(aRandomOverlapFactor, aOutCounts);
-  // st = attributeAffects(aBackstroke, aOutCounts);
-  // st = attributeAffects(aRepeats, aOutCounts);
-  // st = attributeAffects(aRepeatOffset, aOutCounts);
-  // st = attributeAffects(aRepeatMirror, aOutCounts);
-  // st = attributeAffects(aRepeatOscillate, aOutCounts);
-  // st = attributeAffects(aSeed, aOutCounts);
-  // st = attributeAffects(aLift, aOutCounts);
-  // st = attributeAffects(aActive, aOutCounts);
-  // st = attributeAffects(aStrokeCountFactor, aOutCounts);
-  // st = attributeAffects(aOverlap, aOutCounts);
-  // st = attributeAffects(aPivotFraction, aOutCounts);
-  // st = attributeAffects(aPlaneMatrix, aOutCounts);
-  // st = attributeAffects(aStrokeRotationTexture, aOutCounts);
-  // st = attributeAffects(aStrokeTranslationTexture, aOutCounts);
-  // st = attributeAffects(aStrokeTranslationSampleDistance, aOutCounts);
-
-
-  // st = attributeAffects(aCurve, aOutArcLengths);
-  // st = attributeAffects(aSubcurve, aOutArcLengths);
-  // st = attributeAffects(aPointDensity, aOutArcLengths);
-  // st = attributeAffects(aStrokeLength, aOutArcLengths);
-  // st = attributeAffects(aRandomLengthFactor, aOutArcLengths);
-  // st = attributeAffects(aRandomOverlapFactor, aOutArcLengths);
-  // st = attributeAffects(aBackstroke, aOutArcLengths);
-  // st = attributeAffects(aRepeats, aOutArcLengths);
-  // st = attributeAffects(aRepeatOffset, aOutArcLengths);
-  // st = attributeAffects(aRepeatMirror, aOutArcLengths);
-  // st = attributeAffects(aRepeatOscillate, aOutArcLengths);
-  // st = attributeAffects(aSeed, aOutArcLengths);
-  // st = attributeAffects(aLift, aOutArcLengths);
-  // st = attributeAffects(aActive, aOutArcLengths);
-  // st = attributeAffects(aStrokeCountFactor, aOutArcLengths);
-  // st = attributeAffects(aOverlap, aOutArcLengths);
-  // st = attributeAffects(aPivotFraction, aOutArcLengths);
-  // st = attributeAffects(aPlaneMatrix, aOutArcLengths);
-  // st = attributeAffects(aStrokeRotationTexture, aOutArcLengths);
-  // st = attributeAffects(aStrokeTranslationTexture, aOutArcLengths);
-  // st = attributeAffects(aStrokeTranslationSampleDistance, aOutArcLengths);
-
 
   return ( MS::kSuccess );
-
-}
-
-
-MStatus strokeCurve::setData(MDataBlock &block, MObject &attribute,
-                             const MMatrix &data) {
-
-  MDataHandle h = block.outputValue(attribute);
-  h.set(data);
-  return block.setClean( attribute );
-}
-
-
-MStatus strokeCurve::setData(MDataBlock &block, MObject &attribute,
-                             const MVectorArray &data) {
-  MDataHandle h = block.outputValue(attribute);
-  MFnVectorArrayData fn;
-  MObject d = fn.create(data);
-  h.set(d);
-  return block.setClean( attribute );
-}
-
-MStatus strokeCurve::setData(MDataBlock &block, MObject &attribute,
-                             const MDoubleArray &data) {
-  MDataHandle h = block.outputValue(attribute);
-  MFnDoubleArrayData fn;
-  MObject d = fn.create(data);
-  h.set(d);
-  return block.setClean( attribute );
-}
-
-MStatus strokeCurve::setData(MDataBlock &block, MObject &attribute,
-                             const MMatrixArray &data) {
-  MDataHandle h = block.outputValue(attribute);
-  MFnMatrixArrayData fn;
-  MObject d = fn.create(data);
-  h.set(d);
-  return block.setClean( attribute );
-}
-
-
-
-MStatus strokeCurve::setData(MDataBlock &block, MObject &attribute,
-                             const MIntArray &data) {
-  MDataHandle h = block.outputValue(attribute);
-  MFnIntArrayData fn;
-  MObject d = fn.create(data);
-  h.set(d);
-  return block.setClean( attribute );
-}
-
-
-// MStatus strokeCurve::setData(MDataBlock &block, MObject &attribute,
-//                              const std::vector<std::unique_ptr<Stroke> > &strokes) {
-
-//   MDataHandle h = block.outputValue(attribute);
-//   MFnIntArrayData fn;
-//   MObject d = fn.create(data);
-//   h.set(d);
-//   return block.setClean( attribute );
-// }
-
-// MDataHandle hOutput = data.outputValue(aOutput);
-// MFnPluginData fnOut;
-// MTypeId kdid(strokeCurveData::id);
-// MObject dOut = fnOut.create(kdid , &st ); er;
-// strokeCurveData *newData = (strokeCurveData *)fnOut.data(&st); er;
-// strokeCurveGeom *geom = newData->fGeometry;
-
-
-// geom->create(strokes, planeNormal, force, brushId, paintId );
-
-
-// cerr << "data is copied here in preparation for the output " << endl;
-
-// do stuff with geomPtr
-
-
-// hOutput.set( newData );
-// data.setClean( plug );
-
-
-
-
-MStatus strokeCurve::getData( MObject &attribute,  MIntArray &array) {
-  MStatus st;
-  MFnIntArrayData fn;
-  MPlug plug(thisMObject(), attribute);
-  MObject d;
-  st = plug.getValue(d); ert;
-  fn.setObject(d);
-  array = fn.array(&st); ert;
-  return MS::kSuccess;
-}
-
-
-MStatus strokeCurve::getData( MObject &attribute,  MDoubleArray &array) {
-  MStatus st;
-  MFnDoubleArrayData fn;
-  MPlug plug(thisMObject(), attribute);
-  MObject d;
-  st = plug.getValue(d); ert;
-  fn.setObject(d);
-  array = fn.array(&st); ert;
-  return MS::kSuccess;
-
-}
-
-MStatus strokeCurve::getData( MObject &attribute,  MVectorArray &array) {
-  MStatus st;
-  MFnVectorArrayData fn;
-  MPlug plug(thisMObject(), attribute);
-  MObject d;
-  st = plug.getValue(d); ert;
-  fn.setObject(d);
-  array = fn.array(&st); ert;
-  return MS::kSuccess;
 
 }
 
@@ -992,9 +618,6 @@ MStatus strokeCurve::generateStrokes(MDataBlock &data,
 
   bool follow =  data.inputValue( aBrushFollowStroke).asBool();
 
-  // bool force = data.inputValue(aForceDip).asBool();
-  short brushId = data.inputValue(aBrushId).asShort();
-  short paintId = data.inputValue(aPaintId).asShort();
 
 
   Stroke::Scope brushRampScope =
@@ -1049,48 +672,18 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
   MStatus st;
   MString method("strokeCurve::compute");
   if (!(
-        // plug == aOutTargets ||
-        // plug == aOutTangents ||
-        // plug == aOutPositions ||
-        // plug == aOutCounts ||
-        // plug == aOutArcLengths ||
         plug == aOutput
       )) { return ( MS::kUnknownParameter ); }
 
-  // MMatrixArray outTargets; // outTargets.clear();
-  // MVectorArray outTangents; // outTargets.clear();
-  // MVectorArray outPositions;
-  // MIntArray outCounts; // outCounts.clear();
-  // MDoubleArray outArcLengths; // outArcLengths.clear();
+
 
   MMatrix planeMatrix = data.inputValue(strokeCurve::aPlaneMatrix).asMatrix();
   MMatrix inversePlaneMatrix = planeMatrix.inverse();
   MVector planeNormal = (MVector::zAxis * planeMatrix).normal();
-  // double sampleDistance = data.inputValue(aStrokeTranslationSampleDistance).asDouble();
 
   std::vector<std::unique_ptr<Stroke> > strokes;
 
   st = generateStrokes(data, strokes) ;
-
-  // for (auto &citer : strokes)  // ranged based for loop
-  // {
-  //   citer->appendTargets(outTargets);
-  //   citer->appendTangents(outTangents);
-  //   citer->appendPoints(outPositions);
-  //   outCounts.append(citer->length());
-  //   outArcLengths.append(citer->arcLength());
-  // }
-
-  // unsigned len = outTargets.length();
-
-  // st = setData(data, strokeCurve::aOutTargets, outTargets); er;
-  // st = setData(data, strokeCurve::aOutTangents, outTangents); er;
-  // st = setData(data, strokeCurve::aOutPositions, outPositions); er;
-
-  // st = setData(data, strokeCurve::aOutCounts, outCounts); er;
-  // st = setData(data, strokeCurve::aOutArcLengths, outArcLengths); er;
-
-  // st = setData(data, strokeCurve::aOutArcLengths, outArcLengths); er;
 
   bool force = data.inputValue(aForceDip).asBool();
   short brushId = data.inputValue(aBrushId).asShort();
@@ -1104,6 +697,7 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
   MObject dOut = fnOut.create(kdid , &st );
   strokeCurveData *newData = (strokeCurveData *)fnOut.data(&st); er;
   strokeCurveGeom *geom = newData->fGeometry;
+
   geom->create(strokes, force, brushId, paintId );
 
   hOutput.set( newData );
@@ -1112,104 +706,6 @@ MStatus strokeCurve::compute( const MPlug &plug, MDataBlock &data )
   return MS::kSuccess;
 
 }
-
-
-MVector strokeCurve::binormal(const MMatrix &p1, const MMatrix &p2,
-                              const MVector &normal) const {
-  return (   MVector(p2[3][0] - p1[3][0], p2[3][1] - p1[3][1],
-                     p2[3][2] - p1[3][2]) ^ normal).normal();
-}
-
-
-MStatus strokeCurve::getTextureName(const MObject &attribute,
-                                    MString &name) const {
-  MStatus st;
-  MPlugArray plugArray;
-  MPlug plug(thisMObject(), attribute);
-  bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st); ert;
-  if (! hasConnection) { return MS::kUnknownParameter; }
-  name = plugArray[0].name(&st);
-  return MS::kSuccess;
-}
-
-
-
-MStatus strokeCurve::sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,
-                                     MFloatArray &vVals, MFloatArray &result) const {
-
-  MStatus st;
-  MString plugName;
-  st = getTextureName(attribute, plugName);
-  if (st.error()) {   return MS::kFailure; }
-  MFloatMatrix cameraMat;
-  cameraMat.setToIdentity();
-  MFloatVectorArray transparencies;
-  MFloatVectorArray colors;
-
-  int n = uVals.length();
-
-  st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat,
-        0, &uVals, &vVals, 0, 0, 0, 0, 0, colors, transparencies); ert;
-
-  result.setLength(n);
-  for (int i = 0; i < n; ++i)
-  {
-    result.set(colors[i].x, i);
-  }
-  return MS::kSuccess;
-}
-
-
-MStatus strokeCurve::sampleUVGradient(const MObject &attribute, float sampleDistance,
-                                      MFloatArray &uVals,
-                                      MFloatArray &vVals, MFloatVectorArray &result) const {
-  MStatus st;
-  MString plugName;
-  st = getTextureName(attribute, plugName);
-  if (st.error()) {   return MS::kFailure; }
-
-  unsigned n = uVals.length();
-  result.setLength(n);
-
-  if (sampleDistance < 0.00001) {
-    sampleDistance = 0.00001;
-  }
-  float sampleRecip = 1.0f / sampleDistance;
-
-  MFloatMatrix cameraMat;
-  cameraMat.setToIdentity();
-
-  MFloatVectorArray transparencies;
-  MFloatVectorArray colors;
-
-
-  MFloatArray uOffsetVals(n);
-  MFloatArray vOffsetVals(n);
-
-  for (unsigned i = 0; i < n; i++) {
-    uOffsetVals.set( (uVals[i] + sampleDistance) , i);
-    vOffsetVals.set( (vVals[i] + sampleDistance) , i);
-  }
-
-
-  MFloatVectorArray uOffsetColors;
-  MFloatVectorArray vOffsetColors;
-
-  st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat, 0, &uVals,
-        &vVals, 0, 0, 0, 0, 0, colors, transparencies); ert;
-  st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat, 0,
-        &uOffsetVals, &vVals, 0, 0, 0, 0, 0, uOffsetColors, transparencies); ert;
-  st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat, 0, &uVals,
-        &vOffsetVals, 0, 0, 0, 0, 0, vOffsetColors, transparencies); ert;
-
-  for (unsigned i = 0; i < n; i++) {
-    MFloatVector grad( (uOffsetColors[i].x - colors[i].x) ,
-                       (vOffsetColors[i].x - colors[i].x) , 0.0);
-    result.set(grad * sampleRecip, i);
-  }
-  return MS::kSuccess;
-}
-
 
 void strokeCurve::postConstructor()
 {
