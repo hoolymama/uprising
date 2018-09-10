@@ -18,8 +18,6 @@
 #include <maya/MDGModifier.h>
 
 #include "paintingData.h"
-#include "strokeCurveGeom.h"
-// #include "stroke.h"
 #include "brush.h"
 #include "paint.h"
 

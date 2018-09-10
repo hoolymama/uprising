@@ -43,7 +43,7 @@
 
 
 #include "paintingGeom.h"
-#include "strokeCurveData.h"
+#include "strokeGeometryData.h"
 #include "paintingNode.h"
 
 #include <jMayaIds.h>
@@ -333,7 +333,7 @@ MStatus painting::initialize()
   st = addAttribute( aOutputUnit ); er;
 
 
-  aStrokeCurves = tAttr.create( "strokeCurves", "scrvs", strokeCurveData::id );
+  aStrokeCurves = tAttr.create( "strokeCurves", "scrvs", strokeGeometryData::id );
   tAttr.setReadable(false);
   tAttr.setStorable(false);
   tAttr.setArray(true);
@@ -684,13 +684,14 @@ MStatus painting::populateStrokePool(MDataBlock &data,
     if (st.error()) {
       continue;
     }
-    strokeCurveData *scData = (strokeCurveData *)fnStrokeCurves.data();
-    strokeCurveGeom *scGeom = scData->fGeometry;
+    strokeGeometryData *scData = (strokeGeometryData *)fnStrokeCurves.data();
+    // strokeCurveGeom *scGeom = scData->fGeometry;
+    const std::vector<strokeGeom> *scGeom = scData->fGeometry;
 
-    const std::vector<strokeGeom> &strokes = scGeom->strokes();
+    // const std::vector<strokeGeom> &strokes = scGeom->strokes();
     std::vector<strokeGeom>::const_iterator citer;
 
-    for (citer = strokes.begin(); citer != strokes.end(); citer++) {
+    for (citer = scGeom->begin(); citer != scGeom->end(); citer++) {
       strokePool.push_back(*citer);
       strokePool.back().setId(j);
       j++;

@@ -1,15 +1,15 @@
-#ifndef _strokeCurveData
-#define _strokeCurveData
+#ifndef _strokeGeometryData
+#define _strokeGeometryData
 #include <maya/MPxData.h>
 #include <maya/MTypeId.h>
 #include <maya/MString.h>
-// #include "strokeCurveGeom.h"
-class strokeCurveData : public MPxData
+#include "strokeGeom.h"
+class strokeGeometryData : public MPxData
 {
 public:
 
-    strokeCurveData();
-    virtual ~strokeCurveData();
+    strokeGeometryData();
+    virtual ~strokeGeometryData();
     virtual void            copy ( const MPxData &other );
     virtual MTypeId         typeId() const;
     virtual MString         name() const;

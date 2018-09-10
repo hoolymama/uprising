@@ -1,6 +1,6 @@
 
-#ifndef _strokeCurve_H
-#define _strokeCurve_H
+#ifndef _strokeNode_H
+#define _strokeNode_H
 
 #include <maya/MVector.h>
 #include <maya/MFnDependencyNode.h>
@@ -16,45 +16,38 @@
 #include "stroke.h"
 
 
-class strokeCurve : public MPxNode
+class strokeNode : public MPxNode
 {
 public:
-  strokeCurve();
-  virtual ~strokeCurve();
+  strokeNode();
+  virtual ~strokeNode();
+  virtual bool    isAbstractClass() const {return true;}
+
   static void *creator();
   static MStatus initialize();
-  virtual void postConstructor();
+  // virtual void postConstructor();
 
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
   static  MTypeId   id;
 
-  enum Spac { kParametric, kArcLen };
 
+protected:
 
-private:
+  virtual MStatus generateStrokeGeometry(MDataBlock &data,
+                                         std::vector<strokeGeom> *geom) const;
 
-  unsigned int  getStrokeBoundaries(
-    MDataBlock &data,
-    MVectorArray &result
-  ) const  ;
+  // static MObject aCurve;
+  // static MObject aSubcurveMin;
+  // static MObject aSubcurveMax;
+  // static MObject aSubcurve;
+  // static MObject aOverlap;
+  // static MObject aRandomOverlapFactor;
+  // static MObject  aForceDip;
 
-  void setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
-                   double approachStart, double approachMid, double approachEnd) const;
-
-  // MStatus generateStrokes(MDataBlock &data,
-  //                         std::vector<std::unique_ptr<Stroke> > &strokes  ) const;
-
-  MStatus generateStrokeGeometry(MDataBlock &data,
-                                 std::vector<strokeGeom> *geom) const;
-  static MObject aCurve;
-  static MObject aSubcurveMin;
-  static MObject aSubcurveMax;
-  static MObject aSubcurve;
   static MObject aPointDensity;
   static MObject aStrokeLength;
   static MObject aRandomLengthFactor;
-  static MObject aRandomOverlapFactor;
   static MObject aBackstroke;
   static MObject aRepeats;
   static MObject aRepeatOffset;
@@ -77,7 +70,6 @@ private:
   static MObject aActive;
   static MObject aStrokeCountFactor;
 
-  static MObject aOverlap;
   static MObject aPivotFraction;
   static MObject aRepeatPivot;
 
@@ -88,7 +80,6 @@ private:
   static MObject  aBrushTwistRamp;
 
   static MObject  aBrushFollowStroke;
-  static MObject  aForceDip;
 
   static MObject  aApproachDistanceStart;
   static MObject  aApproachDistanceMid;

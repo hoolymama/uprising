@@ -2,7 +2,7 @@
 #include <maya/MFnPlugin.h>
 #include <maya/MGlobal.h>
 #include <errorMacros.h>
-#include "strokeCurveData.h"
+#include "strokeGeometryData.h"
 #include "paintingData.h"
 #include "strokeCurveNode.h"
 #include "paintingNode.h"
@@ -18,8 +18,8 @@ MStatus initializePlugin( MObject obj)
 	MFnPlugin plugin( obj, PLUGIN_VENDOR, PLUGIN_VERSION , MAYA_VERSION);
 
 
-	st = plugin.registerData( "strokeCurveData", strokeCurveData::id,
-	                          strokeCurveData::creator ); er;
+	st = plugin.registerData( "strokeGeometryData", strokeGeometryData::id,
+	                          strokeGeometryData::creator ); er;
 
 
 	st = plugin.registerData( "paintingData", paintingData::id,
@@ -61,7 +61,7 @@ MStatus uninitializePlugin( MObject obj)
 
 	st = plugin.deregisterNode( strokeCurve::id ); er;
 
-	st = plugin.deregisterData( strokeCurveData::id ); er;
+	st = plugin.deregisterData( strokeGeometryData::id ); er;
 
 	st = plugin.deregisterData( paintingData::id ); er;
 

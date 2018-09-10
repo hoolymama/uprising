@@ -6,7 +6,7 @@
 #include <maya/MArrayDataHandle.h>
 #include <maya/MFnPluginData.h>
 
-#include "strokeCurveData.h"
+#include "strokeGeometryData.h"
 
 
 #include "errorMacros.h"
@@ -57,7 +57,7 @@ void	paintingData::clear() {
 // 		MDataHandle hStrokeCurve = hStrokeCurves.inputValue(&st );
 // 		MObject dStrokeCurve = hStrokeCurve.data();
 // 		MFnPluginData fnStrokeCurves( dStrokeCurve , &st); ert;
-// 		strokeCurveData *scData = (strokeCurveData *)fnStrokeCurves.data();
+// 		strokeGeometryData *scData = (strokeGeometryData *)fnStrokeCurves.data();
 // 		strokeCurveGeom *scGeom = scData->fGeometry;
 // 		m_pGeometry->addStrokeCurve(*scGeom);
 // 	}
@@ -97,7 +97,7 @@ void	paintingData::clear() {
 // 		MDataHandle hStrokeCurve = hStrokeCurves.inputValue(&st );
 // 		MObject dStrokeCurve = hStrokeCurve.data();
 // 		MFnPluginData fnStrokeCurves( dStrokeCurve , &st); ert;
-// 		strokeCurveData *scData = (strokeCurveData *)fnStrokeCurves.data();
+// 		strokeGeometryData *scData = (strokeGeometryData *)fnStrokeCurves.data();
 // 		strokeCurveGeom *scGeom = scData->fGeometry;
 
 

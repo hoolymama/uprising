@@ -6,7 +6,6 @@
 
 #include "clusterGeom.h"
 
-#include "strokeCurveGeom.h"
 class paintingGeom
 {
 public:

@@ -4,7 +4,7 @@
 //Codeset: UTF-8
 requires maya "2017ff04";
 requires -nodeType "glyphShape" -nodeType "matrixGlyphShape" "Congregation" "2017.dev.999";
-requires -nodeType "strokeCurve" -nodeType "painting" -dataType "strokeCurveData"
+requires -nodeType "strokeCurve" -nodeType "painting" -dataType "strokeGeometryData"
 		 -dataType "paintingData" "Uprising" "2017.dev.999";
 requires "stereoCamera" "10.0";
 requires "stereoCamera" "10.0";
