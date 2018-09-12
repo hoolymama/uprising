@@ -12,7 +12,7 @@
 #include <mayaMath.h>
 #include <attrUtils.h>
 
-
+#include "strokeRotationSpec.h"
 // #include "brush.h"
 #include "target.h"
 
@@ -20,7 +20,7 @@
 class Stroke {
 public:
 
-	enum Scope { kStroke, kTravelStroke, kCurve };
+	// enum Scope { kStroke, kTravelStroke, kCurve };
 
 	Stroke();
 
@@ -45,11 +45,7 @@ public:
 	  const MObject &profileRampAttribute,
 	  double strokeProfileScaleMin,
 	  double strokeProfileScaleMax,
-	  const MObject &tiltRamp,
-	  const MObject &bankRamp,
-	  const MObject &twistRamp,
-	  Stroke::Scope brushRampScope,
-	  bool follow,
+	  const StrokeRotationSpec &rotSpec,
 	  bool backstroke,
 	  int repeats,
 	  double repeatOffset,
@@ -98,12 +94,8 @@ public:
 
 	void setRotations(
 	  const MObject &thisObj,
-	  const MObject &tiltRamp,
-	  const MObject &bankRamp,
-	  const MObject &twistRamp,
-	  Stroke::Scope rampScope,
-	  bool follow
-	);
+	  const StrokeRotationSpec &rotSpec);
+
 
 	void setPivot(
 	  const MObject &curveObject,

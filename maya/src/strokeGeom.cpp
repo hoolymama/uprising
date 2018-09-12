@@ -2,14 +2,11 @@
 #include "strokeGeom.h"
 #include "errorMacros.h"
 
-
 const double rad_to_deg = (180 / 3.1415927);
-
 
 MFloatPoint extractfPos(const MMatrix &mat) {
 	return MFloatPoint(mat[3][0], mat[3][1], mat[3][2]);
 }
-
 
 MPoint extractPos(const MMatrix &mat) {
 	return MPoint(mat[3][0], mat[3][1], mat[3][2]);
@@ -35,6 +32,7 @@ MVector extractRotation(const MMatrix &mat,
 
 strokeGeom::strokeGeom(const Stroke &src, short brushId, short paintId, bool force):
 	m_id(0),
+	m_parentId(0),
 	m_startApproach(),
 	m_endApproach(),
 	m_targets(),
@@ -45,7 +43,8 @@ strokeGeom::strokeGeom(const Stroke &src, short brushId, short paintId, bool for
 	m_pivot(src.pivot()),
 	m_brushId(brushId),
 	m_paintId(paintId),
-	m_forceDip(force)
+	m_forceDip(force),
+	m_preStops()
 {
 	src.appendTargets(m_targets);
 	src.appendTangents(m_tangents);
@@ -95,20 +94,22 @@ bool strokeGeom::forceDip() const {
 	return m_forceDip;
 }
 
-unsigned strokeGeom::id() const
+int strokeGeom::id() const
 {
 	return m_id;
 }
-
-void strokeGeom::setId(unsigned val)
+int strokeGeom::parentId() const
 {
-	m_id = val;
+	return m_parentId;
 }
 
-// void strokeGeom::setForceDip(bool value)
-// {
-// 	m_forceDip = value;
-// }
+void strokeGeom::setIds(int parentId, int uid)
+{
+	// cerr << "IDs: " << parentId << " -- " << uid << endl;
+	m_id = uid;
+	m_parentId = parentId;
+}
+
 
 void strokeGeom::getPoints(MFloatPointArray &result, double stackHeight) const {
 	MFloatVector stackOffset = MFloatVector(m_planeNormal * stackHeight);
@@ -146,6 +147,47 @@ void strokeGeom::getZAxes(MFloatVectorArray &result) const {
 		result.set( (MFloatVector(MVector::zAxis * m_targets[i])) , i);
 	}
 }
+
+
+void strokeGeom::getStopPoints(MFloatPointArray &result, double stackHeight) const {
+	MFloatVector stackOffset = MFloatVector(m_planeNormal * stackHeight);
+	unsigned len = m_preStops.length();
+	result.setLength(len);
+	for (int i = 0; i < len; ++i)
+	{
+		result.set(extractfPos(m_preStops[i]) + stackOffset , i);
+	}
+}
+
+void strokeGeom::getStopXAxes(MFloatVectorArray &result) const {
+	unsigned len = m_preStops.length();
+	result.setLength(len);
+	for (int i = 0; i < len; ++i)
+	{
+		result.set( (MFloatVector(MVector::xAxis * m_preStops[i])) , i);
+	}
+}
+
+void strokeGeom::getStopYAxes(MFloatVectorArray &result) const {
+	unsigned len = m_preStops.length();
+	result.setLength(len);
+	for (int i = 0; i < len; ++i)
+	{
+		result.set( (MFloatVector(MVector::yAxis * m_preStops[i])) , i);
+	}
+}
+
+void strokeGeom::getStopZAxes(MFloatVectorArray &result) const {
+	unsigned len = m_preStops.length();
+	result.setLength(len);
+	for (int i = 0; i < len; ++i)
+	{
+		result.set( (MFloatVector(MVector::zAxis * m_preStops[i])) , i);
+	}
+}
+
+
+
 
 void strokeGeom::getBorders(MFloatPointArray &lefts, MFloatPointArray &rights,
                             double brushWidth, bool withLift, double stackHeight) const {
@@ -237,6 +279,35 @@ void strokeGeom::getAllRotations(
 	result.append(extractRotation(m_endApproach * worldMatrix, order, unit));
 }
 
+
+
+void strokeGeom::getStopPositions(const MMatrix &worldMatrix, MPointArray &result) const
+{
+	unsigned len = m_preStops.length();
+	for (int i = 0; i < len; ++i)
+	{
+		result.append(extractPos(m_preStops[i]*worldMatrix));
+	}
+}
+
+void strokeGeom::getStopRotations(
+  const MMatrix &worldMatrix,
+  MTransformationMatrix::RotationOrder order,
+  MAngle::Unit unit,
+  MVectorArray &result ) const
+{
+
+	unsigned len = m_preStops.length();
+
+	for (int i = 0; i < len; ++i)
+	{
+		result.append(extractRotation(m_preStops[i]*worldMatrix, order, unit));
+	}
+}
+
+
+
+
 void strokeGeom::getAllTangents(const MMatrix &worldMatrix, MVectorArray &result) const
 {
 	unsigned len = m_tangents.length();
@@ -259,6 +330,10 @@ void strokeGeom::getPivotUVs(
 }
 
 
+void strokeGeom::addPreStop(const MMatrix &mat)
+{
+	m_preStops.append(mat);
+}
 
 ostream &operator<<(ostream &os, const strokeGeom &g)
 {

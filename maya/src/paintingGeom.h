@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 
+
 #include "clusterGeom.h"
 
 class paintingGeom
@@ -32,6 +33,9 @@ public:
 
 	void addStroke(const strokeGeom &stroke);
 
+	void setPreStops(double threshold) ;
+
+	void dipCombinations(MIntArray &result) const ;
 
 	friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 

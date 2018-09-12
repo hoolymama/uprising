@@ -40,11 +40,7 @@ unsigned Stroke::factory(
   const MObject &profileRampAttribute,
   double strokeProfileScaleMin,
   double strokeProfileScaleMax,
-  const MObject &tiltRamp,
-  const MObject &bankRamp,
-  const MObject &twistRamp,
-  Stroke::Scope brushRampScope,
-  bool follow,
+  const StrokeRotationSpec &rotSpec,
   bool backstroke,
   int repeats,
   double repeatOffset,
@@ -90,11 +86,7 @@ unsigned Stroke::factory(
 
 	stk->setRotations(
 	  thisObj,
-	  tiltRamp,
-	  bankRamp,
-	  twistRamp,
-	  brushRampScope,
-	  follow
+	  rotSpec
 	);
 
 	stk->setPivot( dCurve,
@@ -340,19 +332,15 @@ short Stroke::direction() const {
 
 void Stroke::setRotations(
   const MObject &thisObj,
-  const MObject &tiltRamp,
-  const MObject &bankRamp,
-  const MObject &twistRamp,
-  Stroke::Scope rampScope,
-  bool follow
-) {
-	m_follow = follow;
+  const StrokeRotationSpec &rotSpec)
+{
+	m_follow = rotSpec.followStroke;
 
 	MDoubleArray sampleVals;
-	if (rampScope ==  Stroke::kStroke) {
+	if (rotSpec.rampScope ==  StrokeRotationSpec::kStroke) {
 		getStrokeFractions(sampleVals);
 	}
-	else if (rampScope ==  Stroke::kTravelStroke) {
+	else if (rotSpec.rampScope ==  StrokeRotationSpec::kTravelStroke) {
 		getTravelStrokeFractions(sampleVals);
 	}
 	else {   // curve
@@ -363,11 +351,19 @@ void Stroke::setRotations(
 	MDoubleArray outBank(nVals);
 	MDoubleArray outTwist(nVals);
 
+	const double &tiltMin = rotSpec.tiltRampMin;
+	const double &tiltMax = rotSpec.tiltRampMax;
+	const double &bankMin = rotSpec.bankRampMin;
+	const double &bankMax = rotSpec.bankRampMax;
+	const double &twistMin = rotSpec.twistRampMin;
+	const double &twistMax = rotSpec.twistRampMax;
 
-
-	doRampLookup(thisObj, tiltRamp, sampleVals, outTilt, 0.0, 1.0, -half_pi, half_pi );
-	doRampLookup(thisObj, bankRamp, sampleVals, outBank, 0.0, 1.0, -half_pi, half_pi );
-	doRampLookup(thisObj, twistRamp, sampleVals, outTwist, 0.0, 1.0, -pi, pi );
+	doRampLookup(thisObj, rotSpec.tiltRampAtt, sampleVals, outTilt, 0.0, 1.0, tiltMin,
+	             tiltMax );
+	doRampLookup(thisObj, rotSpec.bankRampAtt, sampleVals, outBank, 0.0, 1.0, bankMin,
+	             bankMax );
+	doRampLookup(thisObj, rotSpec.twistRampAtt, sampleVals, outTwist, 0.0, 1.0, twistMin,
+	             twistMax );
 
 	std::vector<Target>::iterator iter = m_targets.begin();
 	unsigned i = 0;

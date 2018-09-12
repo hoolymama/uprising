@@ -49,7 +49,7 @@
 #include "strokeCurveNode.h"
 #include "stroke.h"
 #include "backstroke.h"
-
+#include "strokeRotationSpec.h"
 
 #include <jMayaIds.h>
 #include "mayaMath.h"
@@ -59,59 +59,16 @@ const double rad_to_deg = (180 / 3.1415927);
 
 // per - curve, pass through
 MObject strokeCurve::aForceDip;
-MObject strokeCurve::aBrushId;
-MObject strokeCurve::aPaintId;
+
 
 MObject strokeCurve::aCurve;
 MObject strokeCurve::aSubcurveMin;
 MObject strokeCurve::aSubcurveMax;
 MObject strokeCurve::aSubcurve;
-MObject strokeCurve::aPointDensity;
-MObject strokeCurve::aStrokeLength;
-MObject strokeCurve::aRandomLengthFactor;
+
 MObject strokeCurve::aRandomOverlapFactor;
-MObject strokeCurve::aBackstroke;
-MObject strokeCurve::aRepeats;
-MObject strokeCurve::aRepeatOffset;
-MObject strokeCurve::aRepeatMirror;
-MObject strokeCurve::aRepeatOscillate;
-
-MObject strokeCurve::aSeed;
-
-MObject strokeCurve::aLiftLength;
-MObject strokeCurve::aLiftBias;
-MObject strokeCurve::aLiftHeight;
-MObject strokeCurve::aLift;
-
-MObject strokeCurve::aStrokeProfileRamp;
-MObject strokeCurve::aStrokeProfileScaleMin;
-MObject strokeCurve::aStrokeProfileScaleMax;
-MObject strokeCurve::aStrokeProfileScale;
-
-
-MObject strokeCurve::aActive;
-MObject strokeCurve::aStrokeCountFactor;
-
 MObject strokeCurve::aOverlap;
-MObject strokeCurve::aPivotFraction;
-MObject strokeCurve::aRepeatPivot;
-
 MObject strokeCurve::aBrushRampScope;
-MObject strokeCurve::aBrushTiltRamp;
-MObject strokeCurve::aBrushBankRamp;
-MObject strokeCurve::aBrushTwistRamp;
-
-MObject strokeCurve::aBrushFollowStroke;
-
-
-MObject strokeCurve::aApproachDistanceStart;
-MObject strokeCurve::aApproachDistanceMid;
-MObject strokeCurve::aApproachDistanceEnd;
-MObject strokeCurve::aApproachDistance;
-
-MObject strokeCurve::aPlaneMatrix;
-
-MObject strokeCurve::aOutput;
 
 
 MTypeId strokeCurve:: id(k_strokeCurve );
@@ -143,52 +100,16 @@ MStatus strokeCurve:: initialize()
     MMatrix identity;
     identity.setToIdentity();
 
-    aPlaneMatrix = mAttr.create("planeMatrix", "pmat",  MFnMatrixAttribute::kDouble );
-    mAttr.setStorable(false);
-    mAttr.setHidden(true);
-    mAttr.setDefault(identity);
-    st = addAttribute(aPlaneMatrix) ; er ;
 
-    aStrokeCountFactor = nAttr.create("strokeCountFactor",
-                                      "stcf", MFnNumericData::kDouble);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setMin(0.00);
-    nAttr.setMax(1.0);
-    nAttr.setDefault(1.0);
-    st = addAttribute(aStrokeCountFactor); er;
+    inheritAttributesFrom("strokeNode");
+
+
 
 
     aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve, & st); er;
     tAttr.setReadable(false);
     tAttr.setStorable(false);
     st = addAttribute(aCurve); er;
-
-    aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData:: kDouble);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setDefault(1.0);
-    st = addAttribute(aPointDensity);    er;
-
-    aStrokeLength = nAttr.create("strokeLength", "stl", MFnNumericData::kDouble);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setMin(0.01);
-    nAttr.setDefault(10.0);
-    st = addAttribute(aStrokeLength); er;
-
-    aRandomLengthFactor = nAttr.create("randomLengthFactor", "rlfc",
-                                       MFnNumericData::kDouble);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setMin(0.00);
-    nAttr.setMax(1.0);
-    st = addAttribute(aRandomLengthFactor);
-    er;
 
 
     aOverlap  = nAttr.create("overlap", "ovlp", MFnNumericData:: kDouble);
@@ -208,118 +129,6 @@ MStatus strokeCurve:: initialize()
     er;
 
 
-
-    aBackstroke = nAttr.create("reverseDirection", "revd", MFnNumericData::kBoolean);
-    nAttr.setHidden(false);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(false);
-    st = addAttribute(aBackstroke);
-    er;
-
-
-
-    aRepeats = nAttr.create("repeats", "rpts", MFnNumericData:: kShort);
-    nAttr.setHidden(false);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    st = addAttribute(aRepeats);
-    er;
-
-    aRepeatOffset = nAttr.create("repeatOffset", "rpof", MFnNumericData:: kDouble);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    addAttribute(aRepeatOffset);
-
-
-    aRepeatMirror = nAttr.create("repeatMirror", "rpmr", MFnNumericData::kBoolean);
-    nAttr.setHidden(false);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(true);
-    addAttribute(aRepeatMirror);
-
-
-
-    aRepeatOscillate = nAttr.create("repeatOscillate", "rpoc", MFnNumericData::kBoolean);
-    nAttr.setHidden(false);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(true);
-    addAttribute(aRepeatOscillate);
-
-
-
-
-    aSeed = nAttr.create("seed", "sd", MFnNumericData::kInt);
-    nAttr.setHidden(false);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(0);
-    st = addAttribute(aSeed);
-    er;
-
-
-    aPivotFraction = nAttr.create("pivotFraction", "pfrc", MFnNumericData:: kDouble);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setMin(0.0);
-    nAttr.setMax(1.0);
-    nAttr.setDefault(0.5);
-    addAttribute(aPivotFraction);
-
-
-    aRepeatPivot = nAttr.create("repeatPivot", "rpiv", MFnNumericData::kBoolean);
-    nAttr.setHidden(false);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(true);
-    addAttribute(aRepeatPivot);
-
-
-
-
-    aBrushId = nAttr.create("brushId", "brid", MFnNumericData::kShort);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setWritable(true);
-    st = addAttribute(aBrushId);
-    er;
-
-    aPaintId = nAttr.create("paintId", "ptid", MFnNumericData::kShort);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setWritable(true);
-    st = addAttribute(aPaintId);
-    er
-
-    aActive = nAttr.create("active", "act", MFnNumericData::kBoolean);
-    nAttr.setHidden(false);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(true);
-    st = addAttribute(aActive);
-    er;
-
-
-    aBrushFollowStroke = nAttr.create("followStroke", "fst", MFnNumericData::kBoolean);
-    nAttr.setHidden(false);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(true);
-    st = addAttribute(aBrushFollowStroke);
-    er;
 
     aForceDip = nAttr.create("forceDip", "fcdp", MFnNumericData::kBoolean);
     nAttr.setHidden(false);
@@ -343,120 +152,25 @@ MStatus strokeCurve:: initialize()
     er;
 
 
-    aApproachDistanceStart = nAttr.create("approachDistanceStart",
-                                          "apds", MFnNumericData::kDouble);
-    nAttr.setDefault(5.0);
-    aApproachDistanceMid = nAttr.create("approachDistanceMid",
-                                        "apdm", MFnNumericData::kDouble);
-    nAttr.setDefault(3.0);
-    aApproachDistanceEnd = nAttr.create("approachDistanceEnd",
-                                        "apde", MFnNumericData::kDouble);
-    nAttr.setDefault(5.0);
-    aApproachDistance = nAttr.create("approachDistance",
-                                     "apd", aApproachDistanceStart, aApproachDistanceMid, aApproachDistanceEnd);
-
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    addAttribute(aApproachDistance);
-
-
-    aLiftLength = nAttr.create("liftLength", "llg", MFnNumericData::kDouble, 2.0 );
-    aLiftHeight = nAttr.create("liftHeight", "lht", MFnNumericData::kDouble, 2.0 );
-    aLiftBias = nAttr.create("liftBias", "lbi", MFnNumericData::kDouble, 0.0);
-    aLift = nAttr.create("lift", "lft", aLiftLength, aLiftHeight, aLiftBias);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    st = addAttribute(aLift);
-    er;
-
-
-    aStrokeProfileRamp = MRampAttribute:: createCurveRamp("strokeProfileRamp", "spr");
-    st = addAttribute(aStrokeProfileRamp);
-    er;
-
-
-
-    aStrokeProfileScaleMin = nAttr.create("strokeProfileScaleMin", "spscn",
-                                          MFnNumericData::kDouble, -1.0 );
-    aStrokeProfileScaleMax = nAttr.create("strokeProfileScaleMax", "spscx",
-                                          MFnNumericData::kDouble, 1.0 );
-    aStrokeProfileScale = nAttr.create("strokeProfileScale", "spsc",
-                                       aStrokeProfileScaleMin, aStrokeProfileScaleMax);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    st = addAttribute(aStrokeProfileScale);
-    er;
-
-
 
 
     aBrushRampScope = eAttr.create("brushRampScope", "brsc",
-                                   Stroke::kStroke);
-    eAttr.addField("curve", Stroke:: kCurve);
-    eAttr.addField("stroke", Stroke:: kStroke);
-    eAttr.addField("travelStroke", Stroke:: kTravelStroke);
+                                   StrokeRotationSpec::kStroke);
+    eAttr.addField("curve", StrokeRotationSpec::kCurve);
+    eAttr.addField("stroke", StrokeRotationSpec::kStroke);
+    eAttr.addField("travelStroke", StrokeRotationSpec::kTravelStroke);
     eAttr.setKeyable(true);
     eAttr.setHidden(false);
     st = addAttribute(aBrushRampScope);
     er;
 
-    aBrushTiltRamp  = MRampAttribute:: createCurveRamp("brushTiltRamp", "brtl");
-    st = addAttribute(aBrushTiltRamp);
-    er;
-    aBrushBankRamp  = MRampAttribute:: createCurveRamp("brushBankRamp", "brbk");
-    st = addAttribute(aBrushBankRamp);
-    er;
-    aBrushTwistRamp  = MRampAttribute:: createCurveRamp("brushTwistRamp", "brtw");
-    st = addAttribute(aBrushTwistRamp);
-    er;
-
-    aOutput = tAttr.create("output", "out", strokeGeometryData:: id);
-    tAttr.setReadable(true);
-    tAttr.setStorable(false);
-    tAttr.setCached(false);
-    addAttribute(aOutput);
-
-
     st = attributeAffects(aCurve, aOutput);
     st = attributeAffects(aSubcurve, aOutput);
-    st = attributeAffects(aPointDensity, aOutput);
-    st = attributeAffects(aStrokeLength, aOutput);
-    st = attributeAffects(aRandomLengthFactor, aOutput);
     st = attributeAffects(aRandomOverlapFactor, aOutput);
-    st = attributeAffects(aBackstroke, aOutput);
-    st = attributeAffects(aRepeats, aOutput);
-    st = attributeAffects(aRepeatOffset, aOutput);
-    st = attributeAffects(aRepeatMirror, aOutput);
-    st = attributeAffects(aRepeatOscillate, aOutput);
-    st = attributeAffects(aSeed, aOutput);
-    st = attributeAffects(aLift, aOutput);
-    st = attributeAffects(aStrokeProfileRamp, aOutput);
-    st = attributeAffects(aStrokeProfileScale, aOutput);
-    st = attributeAffects(aActive, aOutput);
-    st = attributeAffects(aStrokeCountFactor, aOutput);
     st = attributeAffects(aOverlap, aOutput);
-    st = attributeAffects(aPivotFraction, aOutput);
-    st = attributeAffects(aRepeatPivot, aOutput);
-
-
 
     st = attributeAffects(aBrushRampScope, aOutput);
-    st = attributeAffects(aBrushTiltRamp, aOutput);
-    st = attributeAffects(aBrushBankRamp, aOutput);
-    st = attributeAffects(aBrushTwistRamp, aOutput);
-    st = attributeAffects(aBrushFollowStroke, aOutput);
-    st = attributeAffects(aPlaneMatrix, aOutput);
-
-    st = attributeAffects(aApproachDistance, aOutput);
     st = attributeAffects(aForceDip, aOutput);
-    st = attributeAffects(aBrushId, aOutput);
-    st = attributeAffects(aPaintId, aOutput);
-
-
-
 
     return (MS::kSuccess );
 }
@@ -629,12 +343,28 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
 
     double pivotFraction = data.inputValue(aPivotFraction).asDouble();
 
-    bool follow = data.inputValue(aBrushFollowStroke).asBool();
+    // bool follow = data.inputValue(aBrushFollowStroke).asBool();
 
 
+    StrokeRotationSpec rotSpec;
+    rotSpec.tiltRampAtt =  strokeCurve::aBrushTiltRamp;
+    rotSpec.bankRampAtt =  strokeCurve::aBrushBankRamp;
+    rotSpec.twistRampAtt =  strokeCurve::aBrushTwistRamp;
 
-    Stroke::Scope brushRampScope =
-        Stroke:: Scope(data.inputValue(aBrushRampScope).asShort());
+    MDataHandle hRangeHandle = data.inputValue(aBrushTiltRange);
+    rotSpec.tiltRampMin = hRangeHandle.child(aBrushTiltRangeMin).asAngle().asRadians();
+    rotSpec.tiltRampMax = hRangeHandle.child(aBrushTiltRangeMax).asAngle().asRadians();
+
+    hRangeHandle = data.inputValue(aBrushBankRange);
+    rotSpec.bankRampMin = hRangeHandle.child(aBrushBankRangeMin).asAngle().asRadians();
+    rotSpec.bankRampMax = hRangeHandle.child(aBrushBankRangeMax).asAngle().asRadians();
+
+    hRangeHandle = data.inputValue(aBrushTwistRange);
+    rotSpec.twistRampMin = hRangeHandle.child(aBrushTwistRangeMin).asAngle().asRadians();
+    rotSpec.twistRampMax = hRangeHandle.child(aBrushTwistRangeMax).asAngle().asRadians();
+    rotSpec.rampScope = StrokeRotationSpec::Scope(data.inputValue(aBrushRampScope).asShort());
+    rotSpec.followStroke =  data.inputValue(aBrushFollowStroke).asBool();
+
 
     MObject thisObj = thisMObject();
 
@@ -657,11 +387,7 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
                                        strokeCurve:: aStrokeProfileRamp,
                                        strokeProfileScaleMin,
                                        strokeProfileScaleMax,
-                                       strokeCurve:: aBrushTiltRamp,
-                                       strokeCurve:: aBrushBankRamp,
-                                       strokeCurve:: aBrushTwistRamp,
-                                       brushRampScope,
-                                       follow,
+                                       rotSpec,
                                        backstroke,
                                        repeats,
                                        repeatOffset,
@@ -691,27 +417,6 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
 
 
     return MS::kSuccess;
-}
-
-MStatus strokeCurve::compute(const MPlug &plug, MDataBlock &data )
-{
-    MStatus st;
-    if (plug != aOutput) {
-        return (MS::kUnknownParameter );
-    }
-
-    MDataHandle hOutput = data.outputValue(aOutput);
-    MFnPluginData fnOut;
-    MTypeId kdid(strokeGeometryData:: id);
-
-    MObject dOut = fnOut.create(kdid, & st);
-    strokeGeometryData *newData = (strokeGeometryData * )fnOut.data(&st); er;
-    std::vector < strokeGeom > *geom = newData->fGeometry;
-    st = generateStrokeGeometry(data, geom); er;
-    hOutput.set(newData);
-    data.setClean(plug);
-
-    return MS:: kSuccess;
 }
 
 void strokeCurve:: postConstructor()

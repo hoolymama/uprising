@@ -151,20 +151,49 @@ def set_board_from_sheet(node):
         }
     }
 
-    data = sheets.get_raw_board_data()
+    data, offset = sheets.get_raw_board_data()
     validate_board_data(data)
+    offset = uput.numeric(offset) * 0.1
 
+
+    tmp_locs = {}
+    tmp_locs["BL"] = pm.spaceLocator()
+    tmp_locs["TL"] = pm.spaceLocator()
+    tmp_locs["TR"] = pm.spaceLocator()
 
     for row in data:
         row = [uput.numeric(s) for s in row]
         key = row[0]
         if key in corners:
-            print "%s is in corners" % key
             pos = [v*0.1 for v in row[1:4]]
             corners[key]["pos"] = tuple(pos)
 
+
     for k in corners:
         corners[k]["node"].attr("translate").set(*corners[k]["pos"])
+        tmp_locs[k].attr("translate").set(*corners[k]["pos"])
+
+    # move mainPainting into position and parent tmp_locs
+    top = assembly(node)
+    zppos = top.attr("zeroPosition").get()
+    top.attr("zeroPosition").set(False)
+    for k in corners:
+        parent_joint = "%s|jpos" % top
+        pm.parent(tmp_locs[k], parent_joint)
+        tmp_locs[k].attr("tz").set(offset)
+        pm.parent(tmp_locs[k], world=True)
+        off_pos = tmp_locs[k].attr("translate").get()
+        corners[k]["node"].attr("translate").set(off_pos)
+    top.attr("zeroPosition").set(zppos)
+
+
+
+
+
+    # pm.PyNode("mainPainting").attr("tz").set(offset)
+
+
+
 
 
 def validate_board_data(data):

@@ -38,3 +38,13 @@ class Target(object):
             program.addMoveL(rdk_target)
         else:
             program.addMoveJ(rdk_target)
+
+
+class StopTarget(Target):
+
+    def name(self, prefix):
+        return "%s_st%d" % (prefix, self.id)
+
+    def configure(self, robot):
+        self.joint_pose =  self.joint_poses[0]
+        self.linear = False  

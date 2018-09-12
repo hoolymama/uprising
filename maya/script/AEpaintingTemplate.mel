@@ -22,6 +22,7 @@
 	editorTemplate -addControl "linearSpeed";
 	editorTemplate -addControl "angularSpeed";
 	editorTemplate -addControl "approximationDistance";
+	editorTemplate -addControl "maxPointToPointDistance";
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Texture Attributes";
@@ -42,6 +43,8 @@
 	editorTemplate -addControl "displayApproach";
 	editorTemplate -addControl "displayArrows";
 	editorTemplate -addControl "displayClusterPath";
+	editorTemplate -addControl "displayStops";
+	
 	editorTemplate -addControl "stackGap"; 
 
 

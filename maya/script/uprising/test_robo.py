@@ -66,6 +66,35 @@ def draw_seg(verts, color, name):
 # robot = RL.Item('', ITEM_TYPE_ROBOT)
 
 
+
+
+import pymel.core as pm
+
+n_clusters = pm.paintingQuery("mainPaintingShape", cc=True)
+for j in range(n_clusters):
+    n_strokes = pm.paintingQuery("mainPaintingShape", ci=j, sc=True)
+    for k in range(n_strokes):
+        rots = pm.paintingQuery(
+            "mainPaintingShape",
+            clusterIndex=j, 
+            strokeIndex=k, 
+            strokeStopRotations=True,
+            rotateOrder="zyx",
+            rotateUnit="rad"
+        )
+        pos = pm.paintingQuery(
+            "mainPaintingShape",
+            clusterIndex=j, 
+            strokeIndex=k, 
+            strokeStopPositions=True
+        )
+        print "C=%s, S=%s" % (j, k)
+        if pos and rots:
+            print pos
+            print rots
+
+
+
 # RL.Item("geox_0000").Delete()
 
 # draw_seg([(155.29114253597766,

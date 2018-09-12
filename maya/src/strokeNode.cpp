@@ -57,6 +57,10 @@
 #include "errorMacros.h"
 
 const double rad_to_deg = (180 / 3.1415927);
+// const double deg_to_rad = (3.1415927 / 180);
+
+
+
 
 
 
@@ -91,10 +95,24 @@ MObject strokeNode::aStrokeCountFactor;
 MObject strokeNode::aPivotFraction;
 MObject strokeNode::aRepeatPivot;
 
-MObject strokeNode::aBrushRampScope;
+
 MObject strokeNode::aBrushTiltRamp;
+MObject strokeNode::aBrushTiltRangeMin;
+MObject strokeNode::aBrushTiltRangeMax;
+MObject strokeNode::aBrushTiltRange;
+
 MObject strokeNode::aBrushBankRamp;
+MObject strokeNode::aBrushBankRangeMin;
+MObject strokeNode::aBrushBankRangeMax;
+MObject strokeNode::aBrushBankRange;
+
 MObject strokeNode::aBrushTwistRamp;
+MObject strokeNode::aBrushTwistRangeMin;
+MObject strokeNode::aBrushTwistRangeMax;
+MObject strokeNode::aBrushTwistRange;
+
+
+
 
 MObject strokeNode::aBrushFollowStroke;
 
@@ -332,20 +350,6 @@ MStatus strokeNode::initialize()
   nAttr.setKeyable( true );
   st = addAttribute(aStrokeProfileScale); er;
 
-
-
-
-  aBrushRampScope = eAttr.create( "brushRampScope", "brsc",
-                                  Stroke::kStroke);
-  eAttr.addField("curve", Stroke::kCurve);
-  eAttr.addField("stroke", Stroke::kStroke);
-  eAttr.addField("travelStroke", Stroke::kTravelStroke);
-
-
-  eAttr.setKeyable(true);
-  eAttr.setHidden(false);
-  st = addAttribute( aBrushRampScope ); er;
-
   aBrushTiltRamp  = MRampAttribute::createCurveRamp("brushTiltRamp", "brtl");
   st = addAttribute( aBrushTiltRamp ); er;
   aBrushBankRamp  = MRampAttribute::createCurveRamp("brushBankRamp", "brbk");
@@ -354,12 +358,50 @@ MStatus strokeNode::initialize()
   st = addAttribute( aBrushTwistRamp ); er;
 
 
+  aBrushTiltRangeMin = uAttr.create( "brushTiltRangeMin", "btlrn",
+                                     MFnUnitAttribute::kAngle );
+  uAttr.setDefault(MAngle(-90, MAngle::kDegrees));
+  aBrushTiltRangeMax = uAttr.create( "brushTiltRangeMax", "btlrx",
+                                     MFnUnitAttribute::kAngle );
+  uAttr.setDefault(MAngle(90, MAngle::kDegrees));
+  aBrushTiltRange = nAttr.create("brushTiltRange", "btlr", aBrushTiltRangeMin,
+                                 aBrushTiltRangeMax);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  st = addAttribute(aBrushTiltRange); er;
+
+
+
+  aBrushBankRangeMin = uAttr.create( "brushBankRangeMin", "bbnrn",
+                                     MFnUnitAttribute::kAngle );
+  uAttr.setDefault(MAngle(-90, MAngle::kDegrees));
+  aBrushBankRangeMax = uAttr.create( "brushBankRangeMax", "bbnrx",
+                                     MFnUnitAttribute::kAngle );
+  uAttr.setDefault(MAngle(90, MAngle::kDegrees));
+  aBrushBankRange = nAttr.create("brushBankRange", "bbnr", aBrushBankRangeMin,
+                                 aBrushBankRangeMax);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  st = addAttribute(aBrushBankRange); er;
+
+
+
+  aBrushTwistRangeMin = uAttr.create( "brushTwistRangeMin", "btwrn",
+                                      MFnUnitAttribute::kAngle );
+  uAttr.setDefault(MAngle(-180, MAngle::kDegrees));
+  aBrushTwistRangeMax = uAttr.create( "brushTwistRangeMax", "btwrx",
+                                      MFnUnitAttribute::kAngle );
+  uAttr.setDefault(MAngle(180, MAngle::kDegrees));
+  aBrushTwistRange = nAttr.create("brushTwistRange", "btwr", aBrushTwistRangeMin,
+                                  aBrushTwistRangeMax);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  st = addAttribute(aBrushTwistRange); er;
 
 
   aOutput = tAttr.create("output", "out", strokeGeometryData::id);
   tAttr.setReadable(true);
   tAttr.setStorable(false);
-  // tAttr.setCached(false);
   addAttribute(aOutput);
 
 
@@ -381,19 +423,20 @@ MStatus strokeNode::initialize()
   st = attributeAffects(aPivotFraction, aOutput);
   st = attributeAffects(aRepeatPivot, aOutput);
 
-  st = attributeAffects(aBrushRampScope, aOutput);
   st = attributeAffects(aBrushTiltRamp, aOutput);
   st = attributeAffects(aBrushBankRamp, aOutput);
   st = attributeAffects(aBrushTwistRamp, aOutput);
+
+  st = attributeAffects(aBrushTiltRange, aOutput);
+  st = attributeAffects(aBrushBankRange, aOutput);
+  st = attributeAffects(aBrushTwistRange, aOutput);
+
   st = attributeAffects(aBrushFollowStroke, aOutput);
   st = attributeAffects(aPlaneMatrix, aOutput);
 
   st = attributeAffects(aApproachDistance, aOutput);
   st = attributeAffects(aBrushId, aOutput);
   st = attributeAffects(aPaintId, aOutput);
-
-
-
 
   return ( MS::kSuccess );
 

@@ -26,6 +26,9 @@ MStatus initializePlugin( MObject obj)
 	                          paintingData::creator ); er;
 
 
+	st = plugin.registerNode( "strokeNode", strokeNode::id, strokeNode::creator,
+	                          strokeNode::initialize); ert;
+
 	st = plugin.registerNode( "strokeCurve", strokeCurve::id, strokeCurve::creator,
 	                          strokeCurve::initialize); ert;
 
@@ -61,9 +64,11 @@ MStatus uninitializePlugin( MObject obj)
 
 	st = plugin.deregisterNode( strokeCurve::id ); er;
 
-	st = plugin.deregisterData( strokeGeometryData::id ); er;
+	st = plugin.deregisterNode( strokeNode::id ); er;
 
 	st = plugin.deregisterData( paintingData::id ); er;
+
+	st = plugin.deregisterData( strokeGeometryData::id ); er;
 
 
 	return st;

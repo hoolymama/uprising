@@ -16,6 +16,7 @@
 #include "stroke.h"
 
 
+
 class strokeNode : public MPxNode
 {
 public:
@@ -25,7 +26,6 @@ public:
 
   static void *creator();
   static MStatus initialize();
-  // virtual void postConstructor();
 
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
@@ -64,7 +64,6 @@ protected:
   static MObject aStrokeProfileScaleMax;
   static MObject aStrokeProfileScale;
 
-
   static MObject aBrushId;
   static MObject aPaintId;
   static MObject aActive;
@@ -73,11 +72,20 @@ protected:
   static MObject aPivotFraction;
   static MObject aRepeatPivot;
 
+  static MObject aBrushTiltRamp;
+  static MObject aBrushTiltRangeMin;
+  static MObject aBrushTiltRangeMax;
+  static MObject aBrushTiltRange;
 
-  static MObject  aBrushRampScope;
-  static MObject  aBrushTiltRamp;
-  static MObject  aBrushBankRamp;
-  static MObject  aBrushTwistRamp;
+  static MObject aBrushBankRamp;
+  static MObject aBrushBankRangeMin;
+  static MObject aBrushBankRangeMax;
+  static MObject aBrushBankRange;
+
+  static MObject aBrushTwistRamp;
+  static MObject aBrushTwistRangeMin;
+  static MObject aBrushTwistRangeMax;
+  static MObject aBrushTwistRange;
 
   static MObject  aBrushFollowStroke;
 

@@ -1,5 +1,5 @@
 
-from robolink import (  Robolink,  INSTRUCTION_SHOW_MESSAGE,  INSTRUCTION_COMMENT,  INSTRUCTION_CALL_PROGRAM)
+from robolink import (Robolink,  INSTRUCTION_SHOW_MESSAGE,  INSTRUCTION_COMMENT,  INSTRUCTION_CALL_PROGRAM)
 
 import robodk as rdk
 
@@ -70,6 +70,7 @@ class Cluster(object):
 
         for i, stroke in enumerate(self.strokes):
             stroke.write(cluster_name, program,  frame, studio)
+            last_target = stroke.targets[-1]
 
 
 class PaintingCluster(Cluster):

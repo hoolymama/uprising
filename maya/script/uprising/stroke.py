@@ -5,7 +5,7 @@ from robolink import (
     INSTRUCTION_COMMENT,
     INSTRUCTION_CALL_PROGRAM)
 
-from target import Target
+from target import Target, StopTarget
 import pymel.core as pm
 
 import uprising_util as uutl
@@ -29,6 +29,8 @@ class Stroke(object):
         
         self.set_stroke_params()
         self.build_targets()
+        self.build_stop_targets()
+        
         self.configure()
 
     def set_stroke_params(self):
@@ -49,17 +51,17 @@ class Stroke(object):
             clusterIndex=self.cluster_id,
             strokeIndex=self.id,
             strokeArcLength=True)
+
+        self.parent_id = pm.paintingQuery(
+            self.node,
+            clusterIndex=self.cluster_id,
+            strokeIndex=self.id,
+            strokeParentIndex=True)
+        print "PARENT: %s " % self.parent_id
  
     def build_targets(self):
 
         self.targets = []
- 
-        da = pm.paintingQuery(
-                self.node,
-                clusterIndex=self.cluster_id,
-                strokeIndex=self.id,
-                strokePositions=True)
-
  
         positions = uutl.to_point_array(
             pm.paintingQuery(
@@ -91,15 +93,52 @@ class Stroke(object):
                 "Length mismatch: positions, rotations, tangents")
 
         for i, (p, r, t) in enumerate(zip(positions, rotations, tangents)):
-            t = Target(i, (p * 10), r, t, self.robot, self.brush, self.normal)
-            self.targets.append(t)
+            tg = Target(i, (p * 10), r, t, self.robot, self.brush, self.normal)
+            self.targets.append(tg)
+
+
+
+
+    def build_stop_targets(self):
+
+        self.stop_targets = []
+
+        stop_positions = uutl.to_point_array(
+            pm.paintingQuery(
+                self.node,
+                clusterIndex=self.cluster_id,
+                strokeIndex=self.id,
+                strokeStopPositions=True))
+
+        stop_rotations = uutl.to_vector_array(
+            pm.paintingQuery(
+                self.node,
+                clusterIndex=self.cluster_id,
+                strokeIndex=self.id,
+                strokeStopRotations=True,
+                rotateOrder="zyx",
+                rotateUnit="rad"))
+
+        num_stop_targets = len(stop_positions)
+        if not (num_stop_targets == len(stop_rotations)  ):
+            raise StrokeError(
+                "Length mismatch: stop_positions, stop_rotations")
+
+        for i, (p, r) in enumerate(zip(stop_positions, stop_rotations)):
+            tg = StopTarget(i, (p * 10), r, None , self.robot, self.brush, self.normal)
+            self.stop_targets.append(tg)
+
 
     def name(self, prefix):
-        return "%s_s%d" % (prefix, self.id)
+        return "%s_p%d_s%d" % (prefix, self.parent_id, self.id)
 
     def write(self, prefix, program, frame, studio):
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
+
+        for t in self.stop_targets:
+            t.write(stroke_name, program,frame, studio)
+
         for t in self.targets:
             t.write(stroke_name, program,frame, studio)
 
@@ -125,7 +164,20 @@ class Stroke(object):
 
         # for config in self.common_configs:
         ref_pose = self.targets[0].joint_poses[0]
-        self.configure_targets(self.robot, ref_pose)
+        # self.configure_targets(self.robot, ref_pose)
+
+        last_mat = None
+        for target in self.targets:
+            target.configure(self.robot, last_mat, ref_pose)
+            ref_pose = target.joint_pose
+            last_mat = target.tool_pose
+
+
+        for stop_target in self.stop_targets:
+            stop_target.configure(self.robot)
+
+
+
             # if found:
             #     break
 
@@ -134,16 +186,16 @@ class Stroke(object):
         #         "Cannot find any stroke solution %s" %
         #         self.identifier())
 
-    def configure_targets(self, robot, ref_pose):
-        last_mat = None
-        for target in self.targets:
-            # try:
-            target.configure(robot, last_mat, ref_pose)
-            # except StrokeError:
-                # return False
-            ref_pose = target.joint_pose
-            last_mat = target.tool_pose
-        # return True
+    # def configure_targets(self, robot, ref_pose):
+    #     last_mat = None
+    #     for target in self.targets:
+    #         # try:
+    #         target.configure(robot, last_mat, ref_pose)
+    #         # except StrokeError:
+    #             # return False
+    #         ref_pose = target.joint_pose
+    #         last_mat = target.tool_pose
+    #     # return True
 
 
     # def __init__(

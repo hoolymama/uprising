@@ -9,6 +9,8 @@ from robolink import (Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TOOL)
 # RL = Robolink()
 
 def to_vector_array(arr):
+    if not arr:
+        return []
     in_len = len(arr)
     out_len = in_len / 3
     if out_len * 3 != in_len:
@@ -21,6 +23,8 @@ def to_vector_array(arr):
     return result
     
 def to_point_array(arr):
+    if not arr:
+        return []
     in_len = len(arr)
     out_len = in_len / 3
     if out_len * 3 != in_len:

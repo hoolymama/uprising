@@ -49,9 +49,17 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
 	editorTemplate -cl 0  -beginLayout "Target rotation";		
 	editorTemplate -addControl "followStroke" ;
  	editorTemplate -addControl "brushRampScope" ;
+ 	// editorTemplate -addSeparator;
 	AEaddRampControl("brushTiltRamp");
+ 	editorTemplate -addControl "brushTiltRange";
+
+	// editorTemplate -addSeparator;
 	AEaddRampControl("brushBankRamp");
+ 	editorTemplate -addControl "brushBankRange";
+
+	// editorTemplate -addSeparator;
 	AEaddRampControl("brushTwistRamp");
+ 	editorTemplate -addControl "brushTwistRange";
 	editorTemplate -endLayout;
 
 

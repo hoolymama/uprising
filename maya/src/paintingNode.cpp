@@ -74,98 +74,128 @@ const int RED_COLOR             = 12;
 // eAttr.addField("paintDownBrushUp", painting::kPaintDescBrushAsc);
 // eAttr.addField("paintDownBrushDown", painting::kPaintDescBrushDesc);
 
+
+
+
 class StrokeCompare
 {
 public:
-  StrokeCompare(painting::StrokeSort sortOrder = painting::kBrushAscPaintAsc)
-    : m_sortOrder(sortOrder)
-  {}
+  StrokeCompare() {}
+  virtual  bool operator()(const strokeGeom &a, const strokeGeom &b) = 0;
+};
 
-  bool operator()(const strokeGeom &a, const strokeGeom &b) {
-    if (m_sortOrder ==  painting::kBrushAscPaintAsc) {
-      if (a.brushId()  < b.brushId() ) { return true; }
-      if (b.brushId()  < a.brushId() ) { return false; }
-      if (a.paintId()  < b.paintId() ) { return true; }
-      if (b.paintId()  < a.paintId() ) { return false; }
-      if (a.id()  < b.id() ) { return true; }
-      if (b.id()  < a.id() ) { return false; }
-      return false;
-    }
 
-    if (m_sortOrder ==  painting::kBrushAscPaintDesc) {
-      if (a.brushId()  < b.brushId() ) { return true; }
-      if (b.brushId()  < a.brushId() ) { return false; }
-      if (a.paintId()  > b.paintId() ) { return true; }
-      if (b.paintId()  > a.paintId() ) { return false; }
-      if (a.id()  < b.id() ) { return true; }
-      if (b.id()  < a.id() ) { return false; }
-      return false;
-    }
-
-    if (m_sortOrder ==  painting::kBrushDescPaintAsc) {
-      if (a.brushId()  > b.brushId() ) { return true; }
-      if (b.brushId()  > a.brushId() ) { return false; }
-      if (a.paintId()  < b.paintId() ) { return true; }
-      if (b.paintId()  < a.paintId() ) { return false; }
-      if (a.id()  < b.id() ) { return true; }
-      if (b.id()  < a.id() ) { return false; }
-      return false;
-    }
-
-    if (m_sortOrder ==  painting::kBrushDescPaintDesc) {
-      if (a.brushId()  > b.brushId() ) { return true; }
-      if (b.brushId()  > a.brushId() ) { return false; }
-      if (a.paintId()  > b.paintId() ) { return true; }
-      if (b.paintId()  > a.paintId() ) { return false; }
-      if (a.id()  < b.id() ) { return true; }
-      if (b.id()  < a.id() ) { return false; }
-      return false;
-    }
-
-    if (m_sortOrder ==  painting::kPaintAscBrushAsc) {
-      if (a.paintId()  < b.paintId() ) { return true; }
-      if (b.paintId()  < a.paintId() ) { return false; }
-      if (a.brushId()  < b.brushId() ) { return true; }
-      if (b.brushId()  < a.brushId() ) { return false; }
-      if (a.id()  < b.id() ) { return true; }
-      if (b.id()  < a.id() ) { return false; }
-      return false;
-    }
-
-    if (m_sortOrder ==  painting::kPaintAscBrushDesc) {
-      if (a.paintId()  < b.paintId() ) { return true; }
-      if (b.paintId()  < a.paintId() ) { return false; }
-      if (a.brushId()  > b.brushId() ) { return true; }
-      if (b.brushId()  > a.brushId() ) { return false; }
-      if (a.id()  < b.id() ) { return true; }
-      if (b.id()  < a.id() ) { return false; }
-      return false;
-    }
-
-    if (m_sortOrder ==  painting::kPaintDescBrushAsc) {
-      if (a.paintId()  > b.paintId() ) { return true; }
-      if (b.paintId()  > a.paintId() ) { return false; }
-      if (a.brushId()  < b.brushId() ) { return true; }
-      if (b.brushId()  < a.brushId() ) { return false; }
-      if (a.id()  < b.id() ) { return true; }
-      if (b.id()  < a.id() ) { return false; }
-      return false;
-    }
-
-    if (m_sortOrder ==  painting::kPaintDescBrushDesc) {
-      if (a.paintId()  > b.paintId() ) { return true; }
-      if (b.paintId()  > a.paintId() ) { return false; }
-      if (a.brushId()  > b.brushId() ) { return true; }
-      if (b.brushId()  > a.brushId() ) { return false; }
-      if (a.id()  < b.id() ) { return true; }
-      if (b.id()  < a.id() ) { return false; }
-      return false;
-    }
+class StrokeCompareBrushAscPaintAsc : public StrokeCompare
+{
+public:
+  bool operator()(const strokeGeom &a, const strokeGeom &b)
+  {
+    if (a.brushId()  < b.brushId() ) { return true; }
+    if (b.brushId()  < a.brushId() ) { return false; }
+    if (a.paintId()  < b.paintId() ) { return true; }
+    if (b.paintId()  < a.paintId() ) { return false; }
+    if (a.id()  < b.id() ) { return true; }
+    if (b.id()  < a.id() ) { return false; }
     return false;
   }
-
-private:
-  painting::StrokeSort m_sortOrder;
+};
+class StrokeCompareBrushAscPaintDesc : public StrokeCompare
+{
+public:
+  bool operator()(const strokeGeom &a, const strokeGeom &b)
+  {
+    if (a.brushId()  < b.brushId() ) { return true; }
+    if (b.brushId()  < a.brushId() ) { return false; }
+    if (a.paintId()  > b.paintId() ) { return true; }
+    if (b.paintId()  > a.paintId() ) { return false; }
+    if (a.id()  < b.id() ) { return true; }
+    if (b.id()  < a.id() ) { return false; }
+    return false;
+  }
+};
+class StrokeCompareBrushDescPaintAsc : public StrokeCompare
+{
+public:
+  bool operator()(const strokeGeom &a, const strokeGeom &b)
+  {
+    if (a.brushId()  > b.brushId() ) { return true; }
+    if (b.brushId()  > a.brushId() ) { return false; }
+    if (a.paintId()  < b.paintId() ) { return true; }
+    if (b.paintId()  < a.paintId() ) { return false; }
+    if (a.id()  < b.id() ) { return true; }
+    if (b.id()  < a.id() ) { return false; }
+    return false;
+  }
+};
+class StrokeCompareBrushDescPaintDesc : public StrokeCompare
+{
+public:
+  bool operator()(const strokeGeom &a, const strokeGeom &b)
+  {
+    if (a.brushId()  > b.brushId() ) { return true; }
+    if (b.brushId()  > a.brushId() ) { return false; }
+    if (a.paintId()  > b.paintId() ) { return true; }
+    if (b.paintId()  > a.paintId() ) { return false; }
+    if (a.id()  < b.id() ) { return true; }
+    if (b.id()  < a.id() ) { return false; }
+    return false;
+  }
+};
+class StrokeComparePaintAscBrushAsc : public StrokeCompare
+{
+public:
+  bool operator()(const strokeGeom &a, const strokeGeom &b)
+  {
+    if (a.paintId()  < b.paintId() ) { return true; }
+    if (b.paintId()  < a.paintId() ) { return false; }
+    if (a.brushId()  < b.brushId() ) { return true; }
+    if (b.brushId()  < a.brushId() ) { return false; }
+    if (a.id()  < b.id() ) { return true; }
+    if (b.id()  < a.id() ) { return false; }
+    return false;
+  }
+};
+class StrokeComparePaintAscBrushDesc : public StrokeCompare
+{
+public:
+  bool operator()(const strokeGeom &a, const strokeGeom &b)
+  {
+    if (a.paintId()  < b.paintId() ) { return true; }
+    if (b.paintId()  < a.paintId() ) { return false; }
+    if (a.brushId()  > b.brushId() ) { return true; }
+    if (b.brushId()  > a.brushId() ) { return false; }
+    if (a.id()  < b.id() ) { return true; }
+    if (b.id()  < a.id() ) { return false; }
+    return false;
+  }
+};
+class StrokeComparePaintDescBrushAsc : public StrokeCompare
+{
+public:
+  bool operator()(const strokeGeom &a, const strokeGeom &b)
+  {
+    if (a.paintId()  > b.paintId() ) { return true; }
+    if (b.paintId()  > a.paintId() ) { return false; }
+    if (a.brushId()  < b.brushId() ) { return true; }
+    if (b.brushId()  < a.brushId() ) { return false; }
+    if (a.id()  < b.id() ) { return true; }
+    if (b.id()  < a.id() ) { return false; }
+    return false;
+  }
+};
+class StrokeComparePaintDescBrushDesc : public StrokeCompare
+{
+public:
+  bool operator()(const strokeGeom &a, const strokeGeom &b)
+  {
+    if (a.paintId()  > b.paintId() ) { return true; }
+    if (b.paintId()  > a.paintId() ) { return false; }
+    if (a.brushId()  > b.brushId() ) { return true; }
+    if (b.brushId()  > a.brushId() ) { return false; }
+    if (a.id()  < b.id() ) { return true; }
+    if (b.id()  < a.id() ) { return false; }
+    return false;
+  }
 };
 
 
@@ -206,8 +236,8 @@ MObject painting::aPlaneMatrix;
 MObject painting::aInMatrix;
 
 MObject painting::aStrokeCurves;
-MObject painting::aRotateOrder;
-MObject painting::aOutputUnit;
+// MObject painting::aRotateOrder;
+// MObject painting::aOutputUnit;
 
 
 MObject painting::aBrushIdTexture;
@@ -218,6 +248,7 @@ MObject painting::aStrokeSort;
 MObject painting::aLinearSpeed; // cm/sec
 MObject painting::aAngularSpeed; // per sec
 MObject painting::aApproximationDistance; // cm
+MObject painting::aMaxPointToPointDistance;
 
 MObject painting::aBrushMatrix;
 MObject painting::aBrushRetention;
@@ -243,6 +274,10 @@ MObject painting::aDisplayTargets;
 MObject painting::aDisplayLift;
 MObject painting::aDisplayApproach;
 MObject painting::aDisplayClusterPath;
+
+MObject painting::aDisplayStops;
+
+
 MObject painting::aStackGap;
 // MObject painting::aOutTargets; // local
 MObject painting::aOutput;
@@ -314,23 +349,34 @@ MStatus painting::initialize()
   nAttr.setKeyable(true);
   addAttribute(aApproximationDistance);
 
-  aRotateOrder = eAttr.create( "rotateOrder", "ro", MTransformationMatrix::kZYX);
-  eAttr.addField("xyz", MTransformationMatrix::kXYZ);
-  eAttr.addField("yzx", MTransformationMatrix::kYZX);
-  eAttr.addField("zxy", MTransformationMatrix::kZXY);
-  eAttr.addField("xzy", MTransformationMatrix::kXZY);
-  eAttr.addField("yxz", MTransformationMatrix::kYXZ);
-  eAttr.addField("zyx", MTransformationMatrix::kZYX);
-  eAttr.setKeyable(true);
-  eAttr.setHidden(false);
-  st = addAttribute( aRotateOrder ); er;
 
-  aOutputUnit = eAttr.create( "outAngularUnit", "oang", MAngle::kDegrees);
-  eAttr.addField("radians", MAngle::kRadians);
-  eAttr.addField("degrees", MAngle::kDegrees);
-  eAttr.setKeyable(true);
-  eAttr.setHidden(false);
-  st = addAttribute( aOutputUnit ); er;
+  aMaxPointToPointDistance =  nAttr.create( "maxPointToPointDistance", "mxptp",
+                              MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setMin(3.0);
+  nAttr.setSoftMax(100.00);
+  nAttr.setDefault(25.00);
+  nAttr.setKeyable(true);
+  addAttribute(aMaxPointToPointDistance);
+
+  // aRotateOrder = eAttr.create( "rotateOrder", "ro", MTransformationMatrix::kZYX);
+  // eAttr.addField("xyz", MTransformationMatrix::kXYZ);
+  // eAttr.addField("yzx", MTransformationMatrix::kYZX);
+  // eAttr.addField("zxy", MTransformationMatrix::kZXY);
+  // eAttr.addField("xzy", MTransformationMatrix::kXZY);
+  // eAttr.addField("yxz", MTransformationMatrix::kYXZ);
+  // eAttr.addField("zyx", MTransformationMatrix::kZYX);
+  // eAttr.setKeyable(true);
+  // eAttr.setHidden(false);
+  // st = addAttribute( aRotateOrder ); er;
+
+  // aOutputUnit = eAttr.create( "outAngularUnit", "oang", MAngle::kDegrees);
+  // eAttr.addField("radians", MAngle::kRadians);
+  // eAttr.addField("degrees", MAngle::kDegrees);
+  // eAttr.setKeyable(true);
+  // eAttr.setHidden(false);
+  // st = addAttribute( aOutputUnit ); er;
 
 
   aStrokeCurves = tAttr.create( "strokeCurves", "scrvs", strokeGeometryData::id );
@@ -529,6 +575,16 @@ MStatus painting::initialize()
   nAttr.setDefault(true);
   addAttribute(aDisplayClusterPath );
 
+  aDisplayStops = nAttr.create( "displayStops", "dstp",
+                                MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayStops );
+
+
+
   aStackGap = nAttr.create( "stackGap", "sgap", MFnNumericData::kDouble);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -550,6 +606,7 @@ MStatus painting::initialize()
   st = attributeAffects(aBrushIdTextureRange, aOutput);
   st = attributeAffects(aPaintIdTextureRange, aOutput);
   st = attributeAffects(aStrokeSort, aOutput);
+  st = attributeAffects(aMaxPointToPointDistance, aOutput);
 
   return ( MS::kSuccess );
 
@@ -568,6 +625,10 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   MMatrix planeMatrix = data.inputValue(painting::aPlaneMatrix).asMatrix();
   MMatrix inversePlaneMatrix = planeMatrix.inverse();
   MVector planeNormal = (MVector::zAxis * planeMatrix).normal();
+  double ptpThresh = data.inputValue(aMaxPointToPointDistance).asDouble();
+  if (ptpThresh < 3.0) {
+    ptpThresh = 3.0;
+  }
 
   painting::StrokeSort sortOrder = painting::StrokeSort(data.inputValue(
                                      aStrokeSort).asShort());
@@ -635,14 +696,44 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   }
 
 
-  if (sortOrder !=  painting::kNoSort)
-  {
-    std::sort(strokePool.begin(), strokePool.end(), StrokeCompare(sortOrder));
+  // faster - but probably not cleanest,
+  switch (sortOrder) {
+    case kBrushAscPaintAsc:
+      std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushAscPaintAsc());
+      break;
+    case kBrushAscPaintDesc:
+      std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushAscPaintDesc());
+      break;
+    case kBrushDescPaintAsc:
+      std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushDescPaintAsc());
+      break;
+    case kBrushDescPaintDesc:
+      std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushDescPaintDesc());
+      break;
+    case kPaintAscBrushAsc:
+      std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintAscBrushAsc());
+      break;
+    case kPaintAscBrushDesc:
+      std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintAscBrushDesc());
+      break;
+    case kPaintDescBrushAsc:
+      std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintDescBrushAsc());
+      break;
+    case kPaintDescBrushDesc:
+      std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintDescBrushDesc());
+      break;
+    default:
+      break;
   }
+
 
   for (citer = strokePool.begin(); citer != strokePool.end(); citer++) {
     pGeom->addStroke(*citer);
   }
+
+
+
+  pGeom->setPreStops(ptpThresh);
 
 
 
@@ -672,9 +763,9 @@ MStatus painting::populateStrokePool(MDataBlock &data,
   MStatus st;
   MArrayDataHandle hStrokeCurves = data.inputValue(aStrokeCurves, &st); ert;
   unsigned nCurves = hStrokeCurves.elementCount();
-  unsigned j = 0;
+  int j = 0;
   for (unsigned i = 0; i < nCurves; i++, hStrokeCurves.next()) {
-    short index = short(hStrokeCurves.elementIndex(&st));
+    int index = hStrokeCurves.elementIndex(&st);
     MDataHandle hStrokeCurve = hStrokeCurves.inputValue(&st);
     if (st.error()) {
       continue;
@@ -693,7 +784,8 @@ MStatus painting::populateStrokePool(MDataBlock &data,
 
     for (citer = scGeom->begin(); citer != scGeom->end(); citer++) {
       strokePool.push_back(*citer);
-      strokePool.back().setId(j);
+      strokePool.back().setIds(index, j);
+
       j++;
     }
   }
@@ -904,6 +996,153 @@ void painting::drawWireframeTargets(
   }
 }
 
+
+void painting::drawWireframeStops(
+  const paintingGeom &geom, M3dView &view,
+  const MDagPath &path,
+  M3dView:: DisplayStatus status )
+{
+  setWireDrawColor(view, status);
+
+  MObject thisObj = thisMObject();
+
+  bool displayStops;
+  MPlug(thisObj, aDisplayStops).getValue(displayStops);
+  if (! displayStops) {
+    return;
+  }
+
+  double pointSize;
+  MPlug(thisObj, aPointSize).getValue(pointSize);
+
+  double lineLength;
+  MPlug(thisObj, aLineLength).getValue(lineLength);
+
+  double lineThickness;
+  MPlug(thisObj, aLineThickness).getValue(lineThickness);
+
+  double stackGap;
+  MPlug(thisObj, aStackGap).getValue(stackGap);
+
+
+
+  short tmp;
+  MPlug(thisObj, aDisplayTargets).getValue(tmp);
+  TargetDisplay targetDisplayStyle = TargetDisplay(tmp);
+  if (targetDisplayStyle == painting::kTargetsPoint
+      || targetDisplayStyle == painting::kTargetsNone) {
+    double stackHeight = 0.0;
+    glPushAttrib(GL_CURRENT_BIT);
+    glPointSize(float(pointSize));
+
+    glBegin( GL_POINTS );
+
+    for (auto cluster : geom.clusters())
+    {
+      for (auto stroke : cluster.strokes())
+      {
+        stackHeight += stackGap;
+        MFloatPointArray points;
+        stroke.getStopPoints(points, stackHeight);
+        unsigned len = points.length();
+        for (int i = 0; i < len; ++i)
+        {
+          glVertex3f(points[i].x, points[i].y, points[i].z);
+        }
+      }
+    }
+    glEnd();
+    glPopAttrib();
+    return;
+  }
+
+  if (targetDisplayStyle == painting::kTargetsLine) {
+    double stackHeight = 0.0;
+    glPushAttrib(GL_LINE_BIT);
+    glLineWidth(GLfloat(lineThickness));
+    glBegin(GL_LINES);
+    for (auto cluster : geom.clusters())
+    {
+      for (auto stroke : cluster.strokes())
+      {
+        stackHeight += stackGap;
+        MFloatPointArray starts;
+        stroke.getStopPoints(starts, stackHeight);
+        MFloatVectorArray ends;
+        stroke.getStopZAxes(ends);
+
+        unsigned len = starts.length();
+        for (int i = 0; i < len; ++i)
+        {
+
+          const MFloatVector &startPoint = starts[i];
+          MFloatVector endPoint = startPoint - (ends[i] * lineLength);
+          glVertex3f( startPoint.x , startPoint.y , startPoint.z );
+          glVertex3f( endPoint.x , endPoint.y, endPoint.z);
+        }
+      }
+    }
+    glEnd();
+    glPopAttrib();
+    return;
+  }
+
+  if (targetDisplayStyle == painting::kTargetsMatrix) {
+    double stackHeight = 0.0;
+    glPushAttrib(GL_LINE_BIT);
+    glLineWidth(GLfloat(lineThickness));
+    glBegin(GL_LINES);
+    for (auto cluster : geom.clusters())
+    {
+      for (auto stroke : cluster.strokes())
+      {
+        stackHeight += stackGap;
+        MFloatPointArray starts;
+        stroke.getStopPoints(starts, stackHeight);
+
+        MFloatVectorArray xAxes;
+        stroke.getStopXAxes(xAxes);
+
+        MFloatVectorArray yAxes;
+        stroke.getStopYAxes(yAxes);
+
+        MFloatVectorArray zAxes;
+        stroke.getStopZAxes(zAxes);
+
+        unsigned len = starts.length();
+        for (int i = 0; i < len; ++i)
+        {
+
+          const MFloatVector &startPoint = starts[i];
+
+
+          MFloatVector xPoint = startPoint + (xAxes[i] * lineLength);
+          MFloatVector yPoint = startPoint + (yAxes[i] * lineLength);
+          MFloatVector zPoint = startPoint + (zAxes[i] * lineLength);
+
+
+          glColor3f(1.0f , 0.0f, 0.0f );
+          glVertex3f( startPoint.x , startPoint.y , startPoint.z );
+          glVertex3f( xPoint.x , xPoint.y, xPoint.z);
+
+          glColor3f(0.0f , 1.0f, 0.0f );
+          glVertex3f( startPoint.x , startPoint.y , startPoint.z );
+          glVertex3f( yPoint.x , yPoint.y, yPoint.z);
+
+          glColor3f(0.0f , 0.0f, 1.0f );
+          glVertex3f( startPoint.x , startPoint.y , startPoint.z );
+          glVertex3f( zPoint.x , zPoint.y, zPoint.z);
+        }
+      }
+    }
+    glEnd();
+    glPopAttrib();
+  }
+}
+
+
+
+
 void painting::drawWireframeBorders(
   const paintingGeom &geom, M3dView &view,
   const MDagPath &path,
@@ -1090,6 +1329,8 @@ void painting::drawWireframe(const paintingGeom &geom, M3dView &view,
   drawWireframeBorders(geom, view, path, status);
   drawWireframeApproach(geom, view, path, status);
   drawWireframeClusterPath(geom, view, path, status);
+  drawWireframeStops(geom, view, path, status);
+
   view.endGL();
 }
 

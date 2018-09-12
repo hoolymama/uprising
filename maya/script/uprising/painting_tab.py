@@ -188,16 +188,16 @@ class PaintingTab(gui.FormLayout):
     
 
     def on_propagate_profile_ramp(self):
-        cutl.propagate_ramp_attribute("strokeProfileRamp")
+        cutl.propagate_ramp_attribute("strokeProfileRamp","strokeProfileScale")
 
     def on_propagate_tilt_ramp(self):
-        cutl.propagate_ramp_attribute("brushTiltRamp")
+        cutl.propagate_ramp_attribute("brushTiltRamp","brushTiltRange")
 
     def on_propagate_bank_ramp(self):
-        cutl.propagate_ramp_attribute("brushBankRamp")
+        cutl.propagate_ramp_attribute("brushBankRamp","brushBankRange")
 
     def on_propagate_twist_ramp(self):
-        cutl.propagate_ramp_attribute("brushTwistRamp")
+        cutl.propagate_ramp_attribute("brushTwistRamp","brushTwistRange")
 
 
     # def on_generate_brush_dip_curves(self):

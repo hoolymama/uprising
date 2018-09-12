@@ -3,14 +3,6 @@
 #include "errorMacros.h"
 
 
-// clusterGeom::clusterGeom():
-// 	m_strokes(),
-// 	m_reason(clusterGeom::kNone),
-// 	m_name(),
-// 	m_paint(0),
-// 	m_brush(0)
-// {}
-
 clusterGeom::clusterGeom(
   short brushId,
   short paintId,
@@ -23,17 +15,6 @@ clusterGeom::clusterGeom(
 	m_travelCutoff(travelCutoff),
 	m_travel(0.0)
 {}
-
-// clusterGeom::clusterGeom(
-//   const clusterGeom &other):
-// 	m_strokes(),
-// 	m_reason(clusterGeom::kDip),
-// 	m_name(),
-// 	m_brushId(other.brushId()),
-// 	m_paintId(other.paintId()),
-// 	m_travelCutoff(other.travelCutoff()),
-// 	m_travel(0.0)
-// {}
 
 clusterGeom::~clusterGeom() {}
 
@@ -68,11 +49,48 @@ double clusterGeom::travel() const {
 	return m_travel;
 }
 
-
-
 const std::vector<strokeGeom> &clusterGeom::strokes() const {
 	return m_strokes;
 }
+
+void clusterGeom::setPreStops(double threshold)
+{
+	std::vector<strokeGeom>::iterator iter;
+	iter = m_strokes.begin();
+	MMatrix lastA = iter->endApproach();
+	MPoint lastPoint(lastA[3][0], lastA[3][1], lastA[3][2]);
+	iter++;
+	for (; iter != m_strokes.end(); iter++)
+	{
+		const MMatrix &currentA = iter->startApproach();
+
+
+		MPoint currentPoint(currentA[3][0], currentA[3][1], currentA[3][2]);
+
+		double dist = lastPoint.distanceTo(currentPoint);
+
+		if (dist > threshold) {
+			int num_inbetweens = int(dist / threshold);
+			for (int i = 0; i < num_inbetweens; ++i)
+			{
+				double fraction = (i + 1) / double(num_inbetweens + 1);
+				MPoint newPoint((lastPoint * (1.0 - fraction)) + (currentPoint * fraction));
+				MMatrix newMat(lastA);
+				if (fraction > 0.5) {
+					newMat = MMatrix(currentA);
+				}
+				newMat[3][0] = newPoint.x;
+				newMat[3][1] = newPoint.y;
+				newMat[3][2] = newPoint.z;
+				iter->addPreStop(newMat);
+			}
+		}
+		lastA = iter->endApproach();
+		lastPoint = MPoint(lastA[3][0], lastA[3][1], lastA[3][2]);
+	}
+}
+
+
 
 
 /* Is this assignment the same as default. If so remove it. */

@@ -8,6 +8,15 @@ import logging
 logger = logging.getLogger('uprising')
 
  
+def get_curve(stroke_curve):
+    conns = pm.listConnections(stroke_curve.attr("curve"), s=True, d=False, shapes=True)
+    if conns:
+        return conns[0]
+
+def get_stroke_curve(curve):
+    conns = pm.listConnections(curve.attr("worldSpace[0]"), d=True, s=False, type="strokeCurve")
+    if conns:
+        return conns[0]
 
 def connect_curve_to_painting(curve, painting_node, **kw):
 
@@ -64,9 +73,25 @@ def duplicate_grp_with_stroke_curves(src, full_name):
         plane.attr("worldMatrix[0]") >> stroke_curve.attr("planeMatrix")
     return grp
 
+def ensure_grp_has_stroke_curves(src, existing_curves_grp) :
+    plane = pm.PyNode("dipProjectionShape")
+    src_shapes =  pm.ls(src,  dag=True,ni=True, shapes=True, type="nurbsCurve", v=True)
+    shapes =  pm.ls(existing_curves_grp,  dag=True,ni=True, shapes=True, type="nurbsCurve", v=True)
+    # should be a 1:1 relationship
+    num = len(src_shapes) 
+    if not num == len(shapes):
+        raise ValueError("Different number of dip curves to source curves for this brush. Equalize or setup manually")
+    for src_shape, shape in zip(src_shapes, shapes):
+        if not get_stroke_curve(shape):
+            new_stroke_curve = pm.duplicate(get_stroke_curve(src_shape))[0]
+            shape.attr("worldSpace[0]") >> new_stroke_curve.attr("curve")
+            plane.attr("worldMatrix[0]") >> new_stroke_curve.attr("planeMatrix")
+    return existing_curves_grp
+
+
 
 def generate_brush_dip_curves(force):
-
+    pm.PyNode("brushes").attr("visibility").set(True)
     node = pm.PyNode("dipPaintingShape")
     if not node:
         raise IndexError("Can't find dipPaintingShape")
@@ -94,7 +119,7 @@ def generate_brush_dip_curves(force):
         if not pm.objExists(full_name):
             grp = duplicate_grp_with_stroke_curves(src, full_name)
         else:
-            grp = pm.PyNode(full_name)
+            grp = ensure_grp_has_stroke_curves(src, pm.PyNode(full_name)) 
 
     # for curve in curves:
     #     cutl.connect_curve_to_painting(curve, node, connect_to="next_available")
@@ -152,15 +177,6 @@ def assign_random_paints(node, set_key=False):
 def assign_random_brushes(node, set_key=False):
     _assign_random_resource(node, "brushes", "brushId", set_key)
 
-def get_curve(stroke_curve):
-    conns = pm.listConnections(stroke_curve.attr("curve"), s=True, d=False, shapes=True)
-    if conns:
-        return conns[0]
-
-def get_stroke_curve(curve):
-    conns = pm.listConnections(curve.attr("worldSpace[0]"), d=True, s=False, type="strokeCurve")
-    if conns:
-        return conns[0]
 
 
 def get_extent(node, stroke_curve, curve):
@@ -220,14 +236,16 @@ def arrange_rings_spine(node, dist, set_key=False):
 # setAttr "cShape0_SC1.brushTwistRamp[0].brushTwistRamp_FloatValue" 0.44;
 
 
-def propagate_ramp_attribute(att):
+def propagate_ramp_attribute(att, rangeAtt):
     curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve", ni=True)
     last_curve = curves[-1]
     last_sc = get_stroke_curve(last_curve)
     if last_sc:
+        rangeVals = last_sc.attr(rangeAtt).get()
         indices = last_sc.attr(att).getArrayIndices()
         for curve in curves[:-1]:
             sc = get_stroke_curve(curve)
+            sc.attr(rangeAtt).set(rangeVals)
             for index in indices:
                 pos_att_str = "%s[%d].%s_Position" % (att, index, att)
                 val_att_str = "%s[%d].%s_FloatValue" % (att, index, att)

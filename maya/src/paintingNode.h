@@ -93,6 +93,11 @@ private:
     const paintingGeom &geom, M3dView &view,
     const MDagPath &path, M3dView::DisplayStatus status );
 
+  void  drawWireframeStops(
+    const paintingGeom &geom, M3dView &view,
+    const MDagPath &path,
+    M3dView:: DisplayStatus status );
+
   void drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
                   M3dView::DisplayStatus status ) ;
 
@@ -141,6 +146,7 @@ private:
   static MObject aLinearSpeed; // cm/sec
   static MObject aAngularSpeed; // per sec
   static MObject aApproximationDistance; // cm
+  static MObject aMaxPointToPointDistance; // cm
 
 
   static MObject  aBrushMatrix;
@@ -165,6 +171,8 @@ private:
   static MObject  aDisplayLift;
   static MObject  aDisplayApproach;
   static MObject  aDisplayClusterPath;
+  static MObject  aDisplayStops;
+
   static MObject  aStackGap;
 
   // static MObject  aOutTargets; // local

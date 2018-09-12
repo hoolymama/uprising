@@ -42,14 +42,22 @@ public:
 	// void setForceDip(bool value);
 
 
-	unsigned id() const ;
-	void setId(unsigned val) ;
+	int id() const ;
+	int parentId() const;
+
+	void setIds(int parentId, int uid) ;
 
 	/* These functions return data used for drawing. */
 	void getPoints(MFloatPointArray &result, double stackHeight = 0.0) const;
 	void getXAxes(MFloatVectorArray &result) const;
 	void getYAxes(MFloatVectorArray &result) const;
 	void getZAxes(MFloatVectorArray &result) const;
+
+	void getStopPoints(MFloatPointArray &result, double stackHeight = 0.0) const;
+	void getStopXAxes(MFloatVectorArray &result) const;
+	void getStopYAxes(MFloatVectorArray &result) const;
+	void getStopZAxes(MFloatVectorArray &result) const;
+
 	void getBorders(MFloatPointArray &lefts, MFloatPointArray &rights,
 	                double brushWidth, bool withLift = false, double stackHeight = 0.0) const;
 
@@ -67,6 +75,18 @@ public:
 	  MAngle::Unit unit,
 	  MVectorArray &result ) const;
 
+
+
+	void getStopPositions(const MMatrix &worldMatrix, MPointArray &result) const;
+
+	void getStopRotations(
+	  const MMatrix &worldMatrix,
+	  MTransformationMatrix::RotationOrder order,
+	  MAngle::Unit unit,
+	  MVectorArray &result ) const;
+
+
+
 	void getAllTangents(const MMatrix &worldMatrix, MVectorArray &result) const;
 
 	void getPivotUVs(
@@ -76,8 +96,12 @@ public:
 
 	friend ostream &operator<<(ostream &os, const strokeGeom &geom);
 
+	void addPreStop(const MMatrix &mat);
+
+
 private:
 	unsigned m_id;
+	unsigned m_parentId;
 	MMatrix m_startApproach;
 	MMatrix m_endApproach;
 	MMatrixArray m_targets;
@@ -90,6 +114,7 @@ private:
 	MPoint m_pivot;
 	bool m_forceDip;
 
+	MMatrixArray m_preStops;
 
 };
 

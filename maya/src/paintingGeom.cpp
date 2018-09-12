@@ -1,4 +1,5 @@
 
+#include <set>
 #include "paintingGeom.h"
 #include "errorMacros.h"
 
@@ -116,6 +117,33 @@ clusterGeom &paintingGeom::prepCluster(
 	}
 
 	return m_clusters.back();
+}
+
+
+void paintingGeom::setPreStops(double threshold) {
+	std::vector<clusterGeom>::iterator iter;
+	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
+	{
+		iter->setPreStops(threshold);
+	}
+}
+
+void paintingGeom::dipCombinations(MIntArray &result) const
+{
+	std::set<std::pair <short, short> > combos;
+	std::vector<clusterGeom>::const_iterator iter;
+	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
+	{
+		std::pair <short, short> combo (iter->brushId(), iter->paintId()); ;
+		combos.insert(combo);
+	}
+	for (std::set<std::pair <short, short> >::const_iterator citer = combos.begin();
+	     citer != combos.end(); citer++)
+	{
+		result.append(citer->first);
+		result.append(citer->second);
+
+	}
 }
 
 // void paintingGeom::addStrokeCurve(const strokeCurveGeom &strokeCurve) {

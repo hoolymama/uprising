@@ -13,29 +13,29 @@
 #include "paintingNode.h"
 
 
-#define kClusterCountFlag				"-cc"
-#define kClusterCountFlagL 			"-clusterCount"
+#define kClusterCountFlag	 "-cc"
+#define kClusterCountFlagL "-clusterCount"
 
 #define kClusterIndexFlag "-ci"
 #define kClusterIndexFlagL "-clusterIndex"
 
-#define kStrokeCountFlag				"-sc"
-#define kStrokeCountFlagL 			"-strokeCount"
+#define kStrokeCountFlag "-sc"
+#define kStrokeCountFlagL "-strokeCount"
 
-#define kClusterReasonFlag				"-cr"
-#define kClusterReasonFlagL 			"-clusterReason"
+#define kClusterReasonFlag "-cr"
+#define kClusterReasonFlagL "-clusterReason"
 
-#define kClusterPaintIdFlag				"-cpi"
-#define kClusterPaintIdFlagL 			"-clusterPaintId"
+#define kClusterPaintIdFlag	 "-cpi"
+#define kClusterPaintIdFlagL "-clusterPaintId"
 
-#define kClusterBrushIdFlag				"-cbi"
-#define kClusterBrushIdFlagL 			"-clusterBrushId"
+#define kClusterBrushIdFlag	 "-cbi"
+#define kClusterBrushIdFlagL "-clusterBrushId"
 
 #define kClusterTravelCutoffFlag	"-ctc"
 #define kClusterTravelCutoffFlagL "-clusterTravelCutoff"
 
-#define kClusterTravelFlag				"-ct"
-#define kClusterTravelFlagL 			"-clusterTravel"
+#define kClusterTravelFlag "-ct"
+#define kClusterTravelFlagL "-clusterTravel"
 
 #define kStrokeIndexFlag  "-si"
 #define kStrokeIndexFlagL "-strokeIndex"
@@ -52,6 +52,13 @@
 #define kStrokeRotationsFlag "-sr"
 #define kStrokeRotationsFlagL "-strokeRotations"
 
+#define kStrokeStopPositionsFlag "-ssp"
+#define kStrokeStopPositionsFlagL "-strokeStopPositions"
+
+#define kStrokeStopRotationsFlag "-ssr"
+#define kStrokeStopRotationsFlagL "-strokeStopRotations"
+
+
 #define kStrokeTangentsFlag "-st"
 #define kStrokeTangentsFlagL "-strokeTangents"
 
@@ -61,8 +68,15 @@
 #define kStrokeArcLengthFlag "-sal"
 #define kStrokeArcLengthFlagL "-strokeArcLength"
 
+#define kStrokeParentIndexFlag "-spi"
+#define kStrokeParentIndexFlagL "-strokeParentIndex"
+
+
 #define kStrokeNormalFlag "-sn"
 #define kStrokeNormalFlagL "-strokeNormal"
+
+#define kDipCombinationsFlag "-dc"
+#define kDipCombinationsFlagL "-dipCombinations"
 
 
 /////////////////////////////////////////
@@ -97,10 +111,15 @@ private:
 	                MStatus *status);
 
 	MStatus handleClusterReasonFlag(const paintingGeom &geom, MArgDatabase &argData);
+
 	MStatus handleClusterNameFlag(const paintingGeom &geom, MArgDatabase &argData);
+
 	MStatus handleClusterPaintIdFlag(const paintingGeom &geom, MArgDatabase &argData);
+
 	MStatus handleClusterBrushIdFlag(const paintingGeom &geom, MArgDatabase &argData);
+
 	MStatus handleClusterTravelCutoffFlag(const paintingGeom &geom, MArgDatabase &argData);
+
 	MStatus handleClusterTravelFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus  handleStrokePositionsFlag(const paintingGeom &geom, MArgDatabase &argData,
@@ -108,16 +127,31 @@ private:
 
 	MStatus handleStrokeRotationsFlag(const paintingGeom &geom, MArgDatabase &argData,
 	                                  const MMatrix &worldMatrix);
+
+	MStatus  handleStrokeStopPositionsFlag(const paintingGeom &geom, MArgDatabase &argData,
+	                                       const MMatrix &worldMatrix);
+
+	MStatus handleStrokeStopRotationsFlag(const paintingGeom &geom, MArgDatabase &argData,
+	                                      const MMatrix &worldMatrix);
+
 	MStatus handleStrokeTangentsFlag(const paintingGeom &geom, MArgDatabase &argData,
 	                                 const MMatrix &worldMatrix);
+
 	MStatus handleStrokeDirectionFlag(const paintingGeom &geom, MArgDatabase &argData);
+
 	MStatus handleStrokeArcLengthFlag(const paintingGeom &geom, MArgDatabase &argData);
+
+	MStatus handleStrokeParentIndexFlag(const paintingGeom &geom, MArgDatabase &argData);
+
 	MStatus handleStrokeNormalFlag(const paintingGeom &geom, MArgDatabase &argData,
 	                               const MMatrix &worldMatrix);
 
+	MStatus handleDipCombinationsFlag(const paintingGeom &geom) ;
 
 	MMatrix getWorldMatrix(MObject &paintingObject, MStatus *st );
+
 	MTransformationMatrix::RotationOrder getRotationOrder(MArgDatabase &argData);
+
 	MAngle::Unit  getRotationUnit(MArgDatabase &argData);
 
 };

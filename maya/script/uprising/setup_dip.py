@@ -24,17 +24,13 @@ def dip_combinations(painting_node):
     result = {}
     brushes = Brush.brushes(painting_node)
     paints = Paint.paints(painting_node)
-    indices = painting_node.attr("strokeCurves").getArrayIndices()
-    for index in indices:
-        stroke_curves = painting_node.attr(
-            "strokeCurves[%d]" %
-            index).connections(
-            source=True, destination=False, plugs=False)
-        if not stroke_curves:
-            continue
+ 
+    combos = pm.paintingQuery(painting_node, dc=True)
 
-        brush_id = stroke_curves[0].attr("brushId").get()
-        paint_id = stroke_curves[0].attr("paintId").get()
+    for i in range(0, len(combos),2):
+        brush_id = int(combos[i])
+        paint_id = int(combos[i+1])
+
         key = "p%02d_b%02d" % (paint_id, brush_id)
         result[key] = {
             "brush": brushes[brush_id],

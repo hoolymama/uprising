@@ -42,6 +42,8 @@ public:
 
 	void pushStroke(const strokeGeom &s);
 
+
+	void setPreStops(double threshold);
 	// clusterGeom &operator=( const clusterGeom &other );
 
 	friend ostream &operator<<(ostream &os, const clusterGeom &geom);
@@ -56,7 +58,6 @@ private:
 	short m_brushId;
 	double m_travelCutoff;
 	double m_travel;
-
 
 };
 

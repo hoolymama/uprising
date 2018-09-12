@@ -57,16 +57,23 @@ MSyntax paintingCmd::newSyntax()
 
 	syn.addFlag(kStrokeRotationsFlag, kStrokeRotationsFlagL);
 
+
+	syn.addFlag(kStrokeStopPositionsFlag, kStrokeStopPositionsFlagL);
+
+	syn.addFlag(kStrokeStopRotationsFlag, kStrokeStopRotationsFlagL);
+
+
 	syn.addFlag(kStrokeTangentsFlag, kStrokeTangentsFlagL);
 
 	syn.addFlag(kStrokeDirectionFlag, kStrokeDirectionFlagL);
 
 	syn.addFlag(kStrokeArcLengthFlag, kStrokeArcLengthFlagL);
+	syn.addFlag(kStrokeParentIndexFlag, kStrokeParentIndexFlagL);
 
 	syn.addFlag(kStrokeNormalFlag, kStrokeNormalFlagL);
 
 
-
+	syn.addFlag(kDipCombinationsFlag, kDipCombinationsFlagL);
 
 
 
@@ -119,6 +126,10 @@ MStatus paintingCmd::doIt( const MArgList &args )
 		return MS::kUnknownParameter;
 	}
 
+	if (argData.isFlagSet(kDipCombinationsFlag)) {
+		return handleDipCombinationsFlag(*pGeom);
+	}
+
 	if (argData.isFlagSet(kClusterCountFlag)) {
 		return handleClusterCountFlag(*pGeom);
 	}
@@ -162,6 +173,17 @@ MStatus paintingCmd::doIt( const MArgList &args )
 		return handleStrokeRotationsFlag(*pGeom, argData, wm);
 	}
 
+	if ( argData.isFlagSet(kStrokeStopPositionsFlag)) {
+		MMatrix wm = getWorldMatrix(paintingObject, &st); ert;
+		return handleStrokeStopPositionsFlag(*pGeom, argData, wm);
+	}
+
+	if ( argData.isFlagSet(kStrokeStopRotationsFlag)) {
+		MMatrix wm = getWorldMatrix(paintingObject, &st); ert;
+		return handleStrokeStopRotationsFlag(*pGeom, argData, wm);
+	}
+
+
 	if ( argData.isFlagSet(kStrokeTangentsFlag)) {
 		MMatrix wm = getWorldMatrix(paintingObject, &st); ert;
 		return handleStrokeTangentsFlag(*pGeom, argData, wm);
@@ -173,6 +195,9 @@ MStatus paintingCmd::doIt( const MArgList &args )
 
 	if ( argData.isFlagSet(kStrokeArcLengthFlag)) {
 		return handleStrokeArcLengthFlag(*pGeom, argData);
+	}
+	if ( argData.isFlagSet(kStrokeParentIndexFlag)) {
+		return handleStrokeParentIndexFlag(*pGeom, argData);
 	}
 
 	if ( argData.isFlagSet(kStrokeNormalFlag)) {
@@ -345,6 +370,13 @@ int paintingCmd::getStrokeId(const paintingGeom &geom, MArgDatabase &argData,
 
 
 
+MStatus paintingCmd::handleDipCombinationsFlag(const paintingGeom &geom) {
+	MIntArray result;
+	geom.dipCombinations(result);
+	setResult(result);
+	return MS::kSuccess;
+}
+
 MStatus paintingCmd::handleClusterCountFlag(const paintingGeom &geom) {
 	int siz = geom.clusters().size();
 	setResult(siz);
@@ -478,6 +510,48 @@ MStatus paintingCmd::handleStrokeRotationsFlag(const paintingGeom &geom,
 	return MS::kSuccess;
 }
 
+
+MStatus paintingCmd::handleStrokeStopPositionsFlag(const paintingGeom &geom,
+    MArgDatabase &argData, const MMatrix &worldMatrix)
+{
+	MStatus st;
+	int strokeId = getStrokeId(geom, argData, &st);
+	if (st.error()) {
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	MPointArray pos;
+	geom.clusters()[clusterId].strokes()[strokeId].getStopPositions(worldMatrix, pos);
+	MDoubleArray result;
+	flatten(pos, result );
+	setResult(result);
+	return MS::kSuccess;
+}
+
+MStatus paintingCmd::handleStrokeStopRotationsFlag(const paintingGeom &geom,
+    MArgDatabase &argData, const MMatrix &worldMatrix)
+{
+	MStatus st;
+	MTransformationMatrix::RotationOrder order = getRotationOrder(argData);
+	MAngle::Unit unit = getRotationUnit(argData);
+
+	int strokeId = getStrokeId(geom, argData, &st);
+	if (st.error()) {
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	MVectorArray rot;
+	geom.clusters()[clusterId].strokes()[strokeId].getStopRotations(worldMatrix, order, unit,
+	    rot);
+	MDoubleArray result;
+	flatten(rot, result );
+	setResult(result);
+	return MS::kSuccess;
+}
+
+
+
+
 MStatus paintingCmd::handleStrokeTangentsFlag(const paintingGeom &geom,
     MArgDatabase &argData, const MMatrix &worldMatrix)
 {
@@ -521,6 +595,22 @@ MStatus paintingCmd::handleStrokeArcLengthFlag(const paintingGeom &geom,
 	setResult(geom.clusters()[clusterId].strokes()[strokeId].arcLength());
 	return MS::kSuccess;
 }
+
+MStatus paintingCmd::handleStrokeParentIndexFlag(const paintingGeom &geom,
+    MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(geom, argData, &st);
+	if (st.error()) {
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	int pid = geom.clusters()[clusterId].strokes()[strokeId].parentId();
+	setResult(pid);
+	return MS::kSuccess;
+}
+
+
 
 MStatus paintingCmd::handleStrokeNormalFlag(const paintingGeom &geom,
     MArgDatabase &argData, const MMatrix &worldMatrix)
