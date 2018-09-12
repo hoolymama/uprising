@@ -11,6 +11,7 @@
 
 
 #include "stroke.h"
+#include "brush.h"
 
 class strokeGeom
 {
@@ -59,7 +60,7 @@ public:
 	void getStopZAxes(MFloatVectorArray &result) const;
 
 	void getBorders(MFloatPointArray &lefts, MFloatPointArray &rights,
-	                double brushWidth, bool withLift = false, double stackHeight = 0.0) const;
+	                const Brush &brush, bool withLift = false, double stackHeight = 0.0) const;
 
 	void  getApproaches(MFloatPointArray &startApproachPoints,
 	                    MFloatPointArray &endApproachPoints, double stackHeight = 0.0) const;

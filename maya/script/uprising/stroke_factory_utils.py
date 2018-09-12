@@ -186,7 +186,7 @@ def set_board_from_sheet(node):
         corners[k]["node"].attr("translate").set(off_pos)
     top.attr("zeroPosition").set(zppos)
 
-
+    pm.delete([tmp_locs[k] for k in tmp_locs])
 
 
 

@@ -190,12 +190,14 @@ void strokeGeom::getStopZAxes(MFloatVectorArray &result) const {
 
 
 void strokeGeom::getBorders(MFloatPointArray &lefts, MFloatPointArray &rights,
-                            double brushWidth, bool withLift, double stackHeight) const {
+                            const Brush &brush,
+                            // double brushWidth,
+                            bool withLift, double stackHeight) const {
 	MFloatVector stackOffset = MFloatVector(m_planeNormal * stackHeight);
 	unsigned len = m_targets.length();
 	lefts.clear();
 	rights.clear();
-	double width = brushWidth * 0.5;
+	double width = brush.width * 0.5;
 	int first = 0;
 	int end = len;
 
@@ -204,16 +206,37 @@ void strokeGeom::getBorders(MFloatPointArray &lefts, MFloatPointArray &rights,
 		end = len - 1;
 	}
 
-	for (int i = first; i < end; ++i)
-	{
-		MFloatVector projectedX = MFloatVector(((MVector::xAxis * m_targets[i]) ^ m_planeNormal)^
-		                                       m_planeNormal).normal();
-		const MMatrix &m = m_targets[i];
-		MFloatPoint c = extractfPos(m_targets[i]) + stackOffset;
-		projectedX *= width;
-		lefts.append( c + projectedX);
-		rights.append(c - projectedX);
+
+	if (brush.shape == Brush::kFlat) {
+		for (int i = first; i < end; ++i)
+		{
+			MFloatVector projectedX = MFloatVector(((MVector::xAxis * m_targets[i]) ^ m_planeNormal)^
+			                                       m_planeNormal).normal();
+			const MMatrix &m = m_targets[i];
+			MFloatPoint c = extractfPos(m_targets[i]) + stackOffset;
+			projectedX *= width;
+			lefts.append( c + projectedX);
+			rights.append(c - projectedX);
+		}
 	}
+	else {
+		for (int i = first; i < end; ++i)
+		{
+
+			MFloatVector xAxis = MFloatVector(m_tangents[i] ^ m_planeNormal).normal();
+			const MMatrix &m = m_targets[i];
+			MFloatPoint c = extractfPos(m_targets[i]) + stackOffset;
+
+			xAxis *= width;
+			lefts.append( c + xAxis);
+			rights.append(c - xAxis);
+		}
+
+	}
+
+
+
+
 }
 
 

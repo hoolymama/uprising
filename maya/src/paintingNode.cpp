@@ -1167,7 +1167,7 @@ void painting::drawWireframeBorders(
   glBegin(GL_LINES);
   for (auto cluster : geom.clusters())
   {
-    double brushWidth = geom.brushFromId(cluster.brushId()).width;
+    const Brush &brush = geom.brushFromId(cluster.brushId());
     for (auto stroke : cluster.strokes())
     {
       stackHeight += stackGap;
@@ -1175,7 +1175,7 @@ void painting::drawWireframeBorders(
       MFloatPointArray lefts;
       MFloatPointArray rights;
 
-      stroke.getBorders(lefts, rights, brushWidth, displayLift, stackHeight);
+      stroke.getBorders(lefts, rights, brush, displayLift, stackHeight);
 
       unsigned len = lefts.length();
       if (! len) {
@@ -1356,7 +1356,8 @@ void painting::drawShaded(const paintingGeom &geom, M3dView &view,
 
   for (auto cluster : geom.clusters())
   {
-    double brushWidth = geom.brushFromId(cluster.brushId()).width;
+    // double brushWidth = geom.brushFromId(cluster.brushId()).width;
+    const Brush &brush = geom.brushFromId(cluster.brushId());
     MColor color = geom.paintFromId(cluster.paintId()).color;
     glColor4f(color.r , color.g , color.b, color.a);
 
@@ -1368,7 +1369,7 @@ void painting::drawShaded(const paintingGeom &geom, M3dView &view,
       MFloatPointArray lefts;
       MFloatPointArray rights;
 
-      stroke.getBorders(lefts, rights, brushWidth, displayLift, stackHeight);
+      stroke.getBorders(lefts, rights, brush, displayLift, stackHeight);
 
       unsigned len = lefts.length();
       if (! len) {

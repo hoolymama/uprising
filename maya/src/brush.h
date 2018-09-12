@@ -2,6 +2,7 @@
 #ifndef _brush_
 #define _brush_
 
+#include <map>
 #include <maya/MDataBlock.h>
 #include <maya/MVector.h>
 #include "mayaMath.h"
