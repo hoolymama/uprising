@@ -58,7 +58,6 @@
 #define kStrokeStopRotationsFlag "-ssr"
 #define kStrokeStopRotationsFlagL "-strokeStopRotations"
 
-
 #define kStrokeTangentsFlag "-st"
 #define kStrokeTangentsFlagL "-strokeTangents"
 

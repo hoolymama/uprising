@@ -32,36 +32,33 @@ class ExportTab(gui.FormLayout):
     def create_ui(self):
         pm.setParent(self.column)
 
+        pm.rowLayout(
+            numberOfColumns=4, columnWidth4=(
+                100, 80, 80, 80), adjustableColumn=1, columnAlign=(
+                1, 'right'), columnAttach=[
+                (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2)])
 
-
-        pm.rowLayout(numberOfColumns=4,
-                     columnWidth4=(100, 80, 80, 80),
-                     adjustableColumn=1,
-                     columnAlign=(1, 'right'),
-                     columnAttach=[(1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2)])
-        
-        pm.text( label='Export to RoboDK' )
+        pm.text(label='Export to RoboDK')
 
         pm.button(
-            label='Painting only' ,
+            label='Painting only',
             command=pm.Callback(self.on_create_painting))
-    
+
         pm.button(
-            label='Dips only' ,
+            label='Dips only',
             command=pm.Callback(self.on_create_dips))
-    
+
         pm.button(
-            label='All' ,
+            label='All',
             command=pm.Callback(self.on_create_all))
-    
-        
+
         pm.setParent('..')
 
+        self.description_ff = pm.scrollField(
+            wordWrap=True, text="Description...")
         pm.button(
-            label='Write program, station, simulation',
-            command=pm.Callback(write.write_program))
-
-
+            label='Write program package',
+            command=pm.Callback(self.write_program_package))
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -84,8 +81,6 @@ class ExportTab(gui.FormLayout):
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
-
-
     def write(self, painting_node, dip_node):
         RL = Robolink()
         RL.setWindowState(-1)
@@ -104,11 +99,13 @@ class ExportTab(gui.FormLayout):
 
     def on_create_dips(self):
         dip_node = pm.PyNode("dipPaintingShape")
-        self.write(None,dip_node)
-
+        self.write(None, dip_node)
 
     def on_create_all(self):
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
-        self.write(painting_node,dip_node)
+        self.write(painting_node, dip_node)
 
+    def write_program_package(self):
+        desc = pm.scrollField(self.description_ff, q=True, text=True)
+        write.export_package(desc)
