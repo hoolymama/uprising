@@ -128,6 +128,8 @@ private:
   static MObject aPaintIdTexture;
 
   static MObject aStrokeSort;
+  static MObject aStrokeGate;
+
   static MObject aBrushIdTextureRange;
   static MObject aPaintIdTextureRange;
 

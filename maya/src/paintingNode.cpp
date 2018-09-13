@@ -74,6 +74,9 @@ const int RED_COLOR             = 12;
 // eAttr.addField("paintDownBrushUp", painting::kPaintDescBrushAsc);
 // eAttr.addField("paintDownBrushDown", painting::kPaintDescBrushDesc);
 
+int clamp(int n, int lower, int upper) {
+  return std::max(lower, std::min(n, upper));
+}
 
 
 
@@ -245,6 +248,7 @@ MObject painting::aPaintIdTexture;
 MObject painting::aBrushIdTextureRange;
 MObject painting::aPaintIdTextureRange;
 MObject painting::aStrokeSort;
+MObject painting::aStrokeGate;
 MObject painting::aLinearSpeed; // cm/sec
 MObject painting::aAngularSpeed; // per sec
 MObject painting::aApproximationDistance; // cm
@@ -430,6 +434,15 @@ MStatus painting::initialize()
   eAttr.setHidden(false);
   st = addAttribute( aStrokeSort ); er;
 
+
+  aStrokeGate = nAttr.create("strokeGate", "stkg", MFnNumericData::k2Long);
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault( 0, 9999999);
+  st = addAttribute(aStrokeGate);
+
+
+
   aBrushWidth  = nAttr.create("brushWidth", "brwd", MFnNumericData::kDouble);
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
@@ -606,6 +619,8 @@ MStatus painting::initialize()
   st = attributeAffects(aBrushIdTextureRange, aOutput);
   st = attributeAffects(aPaintIdTextureRange, aOutput);
   st = attributeAffects(aStrokeSort, aOutput);
+  st = attributeAffects(aStrokeGate, aOutput);
+
   st = attributeAffects(aMaxPointToPointDistance, aOutput);
 
   return ( MS::kSuccess );
@@ -625,6 +640,12 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   MMatrix planeMatrix = data.inputValue(painting::aPlaneMatrix).asMatrix();
   MMatrix inversePlaneMatrix = planeMatrix.inverse();
   MVector planeNormal = (MVector::zAxis * planeMatrix).normal();
+
+
+  int2 &strokeGate  = data.inputValue(aStrokeGate).asLong2();
+
+  // cerr << "strokeGate: " << strokeGate[0] << " " << strokeGate[1] << endl;
+
   double ptpThresh = data.inputValue(aMaxPointToPointDistance).asDouble();
   if (ptpThresh < 3.0) {
     ptpThresh = 3.0;
@@ -726,8 +747,16 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
       break;
   }
 
+  // gate
 
-  for (citer = strokePool.begin(); citer != strokePool.end(); citer++) {
+  int strokeGateBegin = clamp(strokeGate[0], 0 ,  (nStrokes - 1));
+  int strokeGateEnd = clamp(strokeGate[1], strokeGateBegin ,  nStrokes);
+
+  std::vector<strokeGeom>::const_iterator sBegin =  strokePool.begin() + strokeGateBegin;
+  std::vector<strokeGeom>::const_iterator sEnd =  strokePool.begin() + strokeGateEnd;
+  // cerr << "strokeGateBeginEnd: " << strokeGateBegin << " " << strokeGateEnd << endl;
+
+  for (citer = sBegin;  citer != sEnd; citer++) {
     pGeom->addStroke(*citer);
   }
 

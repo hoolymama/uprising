@@ -29,6 +29,8 @@
 	editorTemplate -addControl "brushIdTextureRange";
 	editorTemplate -addControl "paintIdTextureRange";
 	editorTemplate -addControl "strokeSort";
+	editorTemplate -addControl "strokeGate";
+	
 	editorTemplate -endLayout;
 
 

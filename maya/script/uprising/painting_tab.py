@@ -4,7 +4,10 @@ import pymel.core as pm
 
 # import setup_dip
 import curve_utils as cutl
-import brush_utils as butl
+# import brush_utils as butl
+import culling
+
+
 # import paint_utils as putl
 
 # from setup_dip import setup_dip_factory
@@ -12,7 +15,7 @@ import brush_utils as butl
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
 # import painting as pnt
-from studio import Studio
+# from studio import Studio
 from robolink import (
     Robolink
 )
@@ -94,7 +97,21 @@ class PaintingTab(gui.FormLayout):
 
         pm.setParent('..')
 
- 
+
+        pm.rowLayout(numberOfColumns=3,
+                     columnWidth3=(120, 80, 80),
+                     adjustableColumn=1,
+                     columnAlign=(1, 'right'),
+                     columnAttach=[(1, 'both', 2), (2, 'both', 2), (3, 'both', 2)])
+
+        self.paint_brush_field =  pm.intFieldGrp(numberOfFields=2, label="Brush / Paint")
+        pm.button(
+            label='Cull before' ,
+            command=pm.Callback(self.on_cull_before))
+    
+        pm.button(
+            label='Cull after' ,
+            command=pm.Callback(self.on_cull_after))
 
         # pm.button(
         #     label='Create dip subroutines',
@@ -199,6 +216,19 @@ class PaintingTab(gui.FormLayout):
     def on_propagate_twist_ramp(self):
         cutl.propagate_ramp_attribute("brushTwistRamp","brushTwistRange")
 
+
+
+    def on_cull(self, after=False):
+        node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
+        brush_id = pm.intFieldGrp(self.paint_brush_field, q=True, value1=True) 
+        paint_id = pm.intFieldGrp(self.paint_brush_field, q=True, value2=True) 
+        culling.cull(node, brush_id, paint_id, after)
+
+    def on_cull_before(self):
+        self.on_cull(False)
+
+    def on_cull_after(self):
+        self.on_cull(True)
 
     # def on_generate_brush_dip_curves(self):
 

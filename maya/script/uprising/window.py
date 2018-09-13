@@ -28,6 +28,8 @@ import sheets
 import curve_utils
 import brush_utils
 import paint_utils
+import culling
+
 
 
 reload(studio)
@@ -53,6 +55,8 @@ reload(setup_tab)
 reload(props_tab)
 reload(export_tab)
 reload(rings_tab)
+reload(culling)
+
 class RobotWindow(gui.Window):
 
     def __init__(self):
