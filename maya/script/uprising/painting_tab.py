@@ -35,6 +35,11 @@ class PaintingTab(gui.FormLayout):
         pm.setParent(self.column)
 
         pm.button(
+            label='Duplicate curves with strokes',
+            ann="Duplicate selected curves and add to selected painting node",
+            command=pm.Callback(self.duplicate_curves_to_painting))
+
+        pm.button(
             label='Add curves to painting',
             ann="Add selected curves to selected painting node",
             command=pm.Callback(self.add_curves_to_painting))
@@ -172,6 +177,13 @@ class PaintingTab(gui.FormLayout):
                 curve, node, connect_to="next_available")
 
 
+    def duplicate_curves_to_painting(self):
+        node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
+        if not node:
+            raise IndexError("No painting node selected")
+        curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve", ni=True, ut=True, v=True )
+        for curve in curves:
+            cutl.duplicate_curve_to_painting( curve, node)
 
 
 
@@ -190,7 +202,7 @@ class PaintingTab(gui.FormLayout):
 
         curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve", ni=True, ut=True, v=True)
         if not curves:
-            curves = pm.listHistory(pm.PyNode("mainPaintingShape.strokeCurves"), type="nurbsCurve", ni=True, ut=True, v=True)
+            curves = pm.listHistory(pm.PyNode("mainPaintingShape.strokeCurves"), type="nurbsCurve")
         sfu.delete_curve_instances(node, curves, del_crvs)
 
 

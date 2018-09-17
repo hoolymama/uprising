@@ -29,21 +29,12 @@ public:
 
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
-  static  MTypeId   id;
-
+  static  MTypeId id;
 
 protected:
 
   virtual MStatus generateStrokeGeometry(MDataBlock &data,
                                          std::vector<strokeGeom> *geom) const;
-
-  // static MObject aCurve;
-  // static MObject aSubcurveMin;
-  // static MObject aSubcurveMax;
-  // static MObject aSubcurve;
-  // static MObject aOverlap;
-  // static MObject aRandomOverlapFactor;
-  // static MObject  aForceDip;
 
   static MObject aPointDensity;
   static MObject aStrokeLength;

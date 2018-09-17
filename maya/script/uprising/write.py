@@ -48,6 +48,8 @@ def export_package(description):
 
 
 def write_ref_image(ts_dir, timestamp):
+
+    # TODO - make sure its active panel and 
     f = pm.currentTime(q=True)
     fn = os.path.join(ts_dir, timestamp)
     pm.playblast(

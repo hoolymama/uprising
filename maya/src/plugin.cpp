@@ -8,6 +8,9 @@
 #include "paintingNode.h"
 #include "paintingCmd.h"
 
+#include "projectStrokeNode.h"
+#include "indexShader.h"
+
 MStatus initializePlugin( MObject obj)
 {
 
@@ -17,6 +20,7 @@ MStatus initializePlugin( MObject obj)
 
 	MFnPlugin plugin( obj, PLUGIN_VENDOR, PLUGIN_VERSION , MAYA_VERSION);
 
+	const MString UserClassifyindexShader("texture/2d:drawdb/shader/texture/2d/indexShader");
 
 	st = plugin.registerData( "strokeGeometryData", strokeGeometryData::id,
 	                          strokeGeometryData::creator ); er;
@@ -32,16 +36,18 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "strokeCurve", strokeCurve::id, strokeCurve::creator,
 	                          strokeCurve::initialize); ert;
 
+	st = plugin.registerNode( "projectStroke", projectStroke::id, projectStroke::creator,
+	                          projectStroke::initialize); ert;
+
+
 	st = plugin.registerNode( "painting", painting::id, painting::creator,
 	                          painting::initialize, MPxNode::kLocatorNode ); ert;
 
 	st = plugin.registerCommand( "paintingQuery", paintingCmd::creator ,
 	                             paintingCmd::newSyntax); er;
-	// strokeFactoryCallback::id = MDGMessage::addNodeAddedCallback (
-	//                               strokeFactoryCallback::makeDefaultConnections, "strokeFactory", NULL,  &st ); er;
 
-
-
+	st = plugin.registerNode( "indexShader", indexShader::id, &indexShader::creator,
+	                          &indexShader::initialize, MPxNode::kDependNode, &UserClassifyindexShader ); er;
 
 	MGlobal::executePythonCommand("import uprising;uprising.load()");
 
@@ -57,11 +63,12 @@ MStatus uninitializePlugin( MObject obj)
 
 	MFnPlugin plugin( obj );
 
+	st = plugin.deregisterNode( indexShader::id ); er;
 
 	st = plugin.deregisterCommand( "paintingCmd" ); er;
 
 	st = plugin.deregisterNode( painting::id ); er;
-
+	st = plugin.deregisterNode( projectStroke::id ); er;
 	st = plugin.deregisterNode( strokeCurve::id ); er;
 
 	st = plugin.deregisterNode( strokeNode::id ); er;

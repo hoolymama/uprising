@@ -65,6 +65,20 @@ public:
                     kPaintDescBrushDesc
                   };
 
+  // enum StrokeSort2 { kNoSort2,
+  //                    kBrushIdsc,
+  //                    kBrushIdesc,
+  //                    kPaintIdAsc,
+  //                    kPaintIdDesc,
+  //                    kParentIdAsc,
+  //                    kParentIdDesc,
+  //                    kRepeatIdAsc,
+  //                    kRepeatIdDesc
+  //                  };
+
+
+
+
 
   static MObject aInMatrix;
 
@@ -129,6 +143,10 @@ private:
 
   static MObject aStrokeSort;
   static MObject aStrokeGate;
+
+
+  // static MObject aStrokeSorts;
+
 
   static MObject aBrushIdTextureRange;
   static MObject aPaintIdTextureRange;

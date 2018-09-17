@@ -297,7 +297,6 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
         return MS::kSuccess;
     }
 
-
     MDataHandle hCurve = data.inputValue(aCurve, & st); ert;
     MObject  dCurve = data.inputValue(aCurve).asNurbsCurveTransformed();
 
@@ -305,14 +304,12 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
     MMatrix inversePlaneMatrix = planeMatrix.inverse();
     MVector planeNormal = (MVector:: zAxis * planeMatrix).normal();
 
-
     MFnNurbsCurve curveFn(dCurve, & st); ert;
     double curveLength = curveFn.length(epsilon);
     double pointDensity = data.inputValue(aPointDensity).asDouble();
     if (pointDensity < 0.001) {
         pointDensity = 0.001;
     }
-
 
     MDataHandle hLift = data.inputValue(aLift);
     double liftLength = hLift.child(aLiftLength).asDouble();
