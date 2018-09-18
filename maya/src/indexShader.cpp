@@ -207,7 +207,7 @@ MStatus indexShader::compute( const MPlug      &plug,  MDataBlock &data )
 				dist = currDist;
 				resultColor = indexColor;
 				resultAlpha = float(index) + 0.5;
-				cerr << "RESULT: " <<  resultColor << "indexCol: " << indexColor <<  endl;
+				// cerr << "RESULT: " <<  resultColor << "indexCol: " << indexColor <<  endl;
 			}
 
 		}

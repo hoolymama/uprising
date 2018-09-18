@@ -110,7 +110,7 @@ unsigned Stroke::factory(
 
 	std::vector<int> mirrorLoop = repeatMirror ?  std::vector<int> { -1, 1} :
 	                              std::vector<int> { 1} ;
-
+	int repeatId = 0;
 	for (int j = 0; j < repeats; ++j) {
 		for (int k : mirrorLoop) {
 
@@ -124,11 +124,12 @@ unsigned Stroke::factory(
 			else {
 				rstk = std::make_unique<Stroke>();
 			}
-			rstk->offsetFrom(mother, offset);
+			rstk->offsetFrom(mother, offset, repeatId);
 			if (rstk->overlapsPlane(inversePlaneMatrix)) {
 				strokes.push_back(std::move(rstk));
 				count++;
 			}
+			repeatId++;
 		}
 	}
 	return count;
@@ -137,7 +138,8 @@ unsigned Stroke::factory(
 
 void Stroke::offsetFrom(
   const Stroke &other,
-  double offset) {
+  double offset,
+  int repeatId) {
 
 	m_planeNormal = other.planeNormal();
 	m_targets = other.targets();
@@ -151,6 +153,7 @@ void Stroke::offsetFrom(
 		iter->offsetBy(offsetVec);
 	}
 	setArcLength();
+	m_repeatId = repeatId;
 }
 
 Stroke::Stroke()	:
@@ -223,7 +226,7 @@ void Stroke::initialize(
 	m_targets.push_back(endLiftTarget);
 
 	setArcLength();
-
+	m_repeatId = 0;
 }
 
 

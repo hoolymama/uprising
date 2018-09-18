@@ -111,7 +111,10 @@ def set_tray_colors(tray_geos, colors):
         ss.attr('outColor') >> sg.attr('surfaceShader')
         pm.sets(sg, edit=True, forceElement=geo)
         geo.attr("sfPaintColor") >> ss.attr('color')
-        geo.attr("sfPaintColor").set(col)
+        try:
+            geo.attr("sfPaintColor").set(col)
+        except RuntimeError:
+            pm.warning("Can't set tray color. Skipping")
 
 
 def connect_trays(painting_node, dip_node, tray_geos):

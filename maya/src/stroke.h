@@ -70,7 +70,8 @@ public:
 
 	void offsetFrom(
 	  const Stroke &other,
-	  double offset);
+	  double offset,
+	  int repeatId);
 
 
 	void initialize(
@@ -163,6 +164,7 @@ protected:
 	double m_approachDistStart;
 	double m_approachDistEnd;
 	MVector m_planeNormal;
+	int m_repeatId;
 	// short m_brushId;
 	// short m_paintId;
 

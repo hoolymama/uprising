@@ -30,8 +30,13 @@
 	editorTemplate -addControl "paintIdTextureRange";
 	editorTemplate -addControl "strokeSort";
 	editorTemplate -addControl "strokeGate";
+
+
+	editorTemplate -addControl "strokeSortList";
 	
 	editorTemplate -endLayout;
+
+
 
 
 	editorTemplate -cl 0 -beginLayout "Display Attributes";

@@ -65,17 +65,18 @@ public:
                     kPaintDescBrushDesc
                   };
 
-  // enum StrokeSort2 { kNoSort2,
-  //                    kBrushIdsc,
-  //                    kBrushIdesc,
-  //                    kPaintIdAsc,
-  //                    kPaintIdDesc,
-  //                    kParentIdAsc,
-  //                    kParentIdDesc,
-  //                    kRepeatIdAsc,
-  //                    kRepeatIdDesc
-  //                  };
+  enum StrokeSortKey {
+    kBrushId,
+    kPaintId,
+    kParentId,
+    kRepeatId,
+    kMapRed,
+    kMapGreen,
+    kMapBlue
+  };
 
+
+  enum StrokeSortDirection { kSortAsc,  kSortDesc};
 
 
 
@@ -84,6 +85,8 @@ public:
 
 private:
 
+  bool findInStrokeDefinition(StrokeSortKey key,
+                              const std::vector< std::pair <StrokeSortKey, StrokeSortDirection> > &sortDefinition);
 
 
   MStatus populateStrokePool(MDataBlock &data,
@@ -142,6 +145,14 @@ private:
   static MObject aPaintIdTexture;
 
   static MObject aStrokeSort;
+
+
+  static MObject aStrokeSortKey;
+  static MObject aStrokeSortDirection;
+  static MObject aStrokeSortList;
+  static MObject aStrokeSortTexture;
+
+
   static MObject aStrokeGate;
 
 

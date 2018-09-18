@@ -248,6 +248,14 @@ MObject painting::aPaintIdTexture;
 MObject painting::aBrushIdTextureRange;
 MObject painting::aPaintIdTextureRange;
 MObject painting::aStrokeSort;
+
+MObject painting::aStrokeSortKey;
+MObject painting::aStrokeSortDirection;
+MObject painting::aStrokeSortList;
+MObject painting::aStrokeSortTexture;
+
+
+
 MObject painting::aStrokeGate;
 MObject painting::aLinearSpeed; // cm/sec
 MObject painting::aAngularSpeed; // per sec
@@ -435,13 +443,40 @@ MStatus painting::initialize()
   st = addAttribute( aStrokeSort ); er;
 
 
+  aStrokeSortKey = eAttr.create("strokeSortKey", "stsk", painting::kBrushId);
+  eAttr.addField("Brush Id", painting::kBrushId);
+  eAttr.addField("Paint Id", painting::kPaintId);
+  eAttr.addField("Parent Id", painting::kParentId);
+  eAttr.addField("Repeat Id", painting::kRepeatId);
+  eAttr.addField("Map Red", painting::kMapRed);
+  eAttr.addField("Map Green", painting::kMapGreen);
+  eAttr.addField("Map Blue", painting::kMapBlue);
+
+  aStrokeSortDirection = eAttr.create("strokeSortDirection", "stsd", painting::kSortAsc);
+  eAttr.addField("Ascending",  painting::kSortAsc);
+  eAttr.addField("Descending", painting::kSortDesc);
+
+  aStrokeSortList = cAttr.create("strokeSortList", "stsl");
+  cAttr.addChild(aStrokeSortKey);
+  cAttr.addChild(aStrokeSortDirection);
+  cAttr.setArray(true);
+  st = addAttribute( aStrokeSortList ); er;
+
+
+
+  aStrokeSortTexture = nAttr.create( "strokeMapTexture", "smpt",
+                                     MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aStrokeSortTexture);
+
+
   aStrokeGate = nAttr.create("strokeGate", "stkg", MFnNumericData::k2Long);
   nAttr.setStorable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault( 0, 9999999);
   st = addAttribute(aStrokeGate);
-
-
 
   aBrushWidth  = nAttr.create("brushWidth", "brwd", MFnNumericData::kDouble);
   nAttr.setHidden( false );
@@ -458,16 +493,12 @@ MStatus painting::initialize()
   nAttr.setKeyable( true );
   nAttr.setDefault( 1.0 );
 
-
-
   aBrushShape = eAttr.create( "brushShape", "bshp", Brush::kRound);
   eAttr.addField("flat", Brush::kFlat);
   eAttr.addField("round", Brush::kRound);
   eAttr.setKeyable(true);
   eAttr.setHidden(false);
   st = addAttribute( aBrushShape ); er;
-
-
 
   aBrushes = cAttr.create("brushes", "bsh");
   cAttr.addChild(aBrushWidth);
@@ -619,14 +650,32 @@ MStatus painting::initialize()
   st = attributeAffects(aBrushIdTextureRange, aOutput);
   st = attributeAffects(aPaintIdTextureRange, aOutput);
   st = attributeAffects(aStrokeSort, aOutput);
+
   st = attributeAffects(aStrokeGate, aOutput);
 
+  st = attributeAffects(aStrokeSortKey, aOutput);
+  st = attributeAffects(aStrokeSortDirection, aOutput);
+  st = attributeAffects(aStrokeSortList, aOutput);
+  st = attributeAffects(aStrokeSortTexture, aOutput);
   st = attributeAffects(aMaxPointToPointDistance, aOutput);
 
   return ( MS::kSuccess );
 
 }
 
+bool painting::findInStrokeDefinition( StrokeSortKey key,
+                                       const std::vector< std::pair <StrokeSortKey, StrokeSortDirection> > &sortDefinition)
+{
+  std::vector< std::pair <StrokeSortKey, StrokeSortDirection> >::const_iterator it =
+    sortDefinition.begin();
+  while (it != sortDefinition.end())
+  {
+    if (it->first == key) {
+      return true;
+    }
+  }
+  return false;
+}
 
 MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 {
@@ -651,8 +700,9 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
     ptpThresh = 3.0;
   }
 
-  painting::StrokeSort sortOrder = painting::StrokeSort(data.inputValue(
-                                     aStrokeSort).asShort());
+  // painting::StrokeSort sortOrder = painting::StrokeSort(data.inputValue(
+  //                                    aStrokeSort).asShort());
+  // JPMDBG;
 
   MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); ert;
   std::map<short, Brush> brushes = Brush::factory(
@@ -694,13 +744,13 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
     citer->getPivotUVs(inversePlaneMatrix, u, v);
   }
 
+  JPMDBG;
 
   MIntArray brushIds;
   MIntArray paintIds;
   short rangeBrushId = data.inputValue(aBrushIdTextureRange).asShort();
   short rangePaintId = data.inputValue(aPaintIdTextureRange).asShort();
 
-  MFloatVectorArray translations;
   st = sampleUVTexture(painting::aBrushIdTexture, uVals, vVals, brushIds, rangeBrushId);
   if (! st.error()) {
     iter = strokePool.begin();
@@ -717,35 +767,78 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   }
 
 
-  // faster - but probably not cleanest,
-  switch (sortOrder) {
-    case kBrushAscPaintAsc:
-      std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushAscPaintAsc());
-      break;
-    case kBrushAscPaintDesc:
-      std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushAscPaintDesc());
-      break;
-    case kBrushDescPaintAsc:
-      std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushDescPaintAsc());
-      break;
-    case kBrushDescPaintDesc:
-      std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushDescPaintDesc());
-      break;
-    case kPaintAscBrushAsc:
-      std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintAscBrushAsc());
-      break;
-    case kPaintAscBrushDesc:
-      std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintAscBrushDesc());
-      break;
-    case kPaintDescBrushAsc:
-      std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintDescBrushAsc());
-      break;
-    case kPaintDescBrushDesc:
-      std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintDescBrushDesc());
-      break;
-    default:
-      break;
+  // LEGACY SORT
+
+  // switch (sortOrder) {
+  //   case kBrushAscPaintAsc:
+  //     std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushAscPaintAsc());
+  //     break;
+  //   case kBrushAscPaintDesc:
+  //     std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushAscPaintDesc());
+  //     break;
+  //   case kBrushDescPaintAsc:
+  //     std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushDescPaintAsc());
+  //     break;
+  //   case kBrushDescPaintDesc:
+  //     std::sort(strokePool.begin(), strokePool.end(), StrokeCompareBrushDescPaintDesc());
+  //     break;
+  //   case kPaintAscBrushAsc:
+  //     std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintAscBrushAsc());
+  //     break;
+  //   case kPaintAscBrushDesc:
+  //     std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintAscBrushDesc());
+  //     break;
+  //   case kPaintDescBrushAsc:
+  //     std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintDescBrushAsc());
+  //     break;
+  //   case kPaintDescBrushDesc:
+  //     std::sort(strokePool.begin(), strokePool.end(), StrokeComparePaintDescBrushDesc());
+  //     break;
+  //   default:
+  //     break;
+  // }
+  // JPMDBG;
+
+
+
+  /* Try the array based sort */
+  std::vector< std::pair <StrokeSortKey, StrokeSortDirection> > sortDefinition;
+  MArrayDataHandle hSortMulti = data.inputArrayValue(aStrokeSortList, &st ); er;
+
+  unsigned nPlugs = hSortMulti.elementCount();
+  for (unsigned i = 0; i < nPlugs; i++, hSortMulti.next()) {
+    unsigned index = hSortMulti.elementIndex(&st);
+    cerr << "index" << index << endl;
+
+
+    if (st.error()) {
+      continue;
+    }
+    JPMDBG;
+
+    MDataHandle hComp = hSortMulti.inputValue(&st);
+    if (st.error()) {
+      continue;
+    }
+
+    StrokeSortKey key =  StrokeSortKey(hComp.child(aStrokeSortKey).asShort());
+
+    StrokeSortDirection direction =  StrokeSortDirection(hComp.child(
+                                       aStrokeSortDirection).asShort());
+
+    // This is effectively a map with the order of insertion maintained
+    if (!findInStrokeDefinition(key, sortDefinition))
+    {
+      sortDefinition.push_back( std::make_pair(key, direction ) );
+    }
+
   }
+
+  if (sortDefinition.size())
+  {
+
+  }
+
 
   // gate
 
@@ -831,8 +924,6 @@ MStatus painting::getTextureName(const MObject &attribute,
   name = plugArray[0].name(&st);
   return MS::kSuccess;
 }
-
-
 
 
 MStatus painting::sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,

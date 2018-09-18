@@ -44,6 +44,11 @@ print [t.Name() for t in tools]
 #     c.setVisible(False)
 
 
+
+
+
+
+
 def draw_seg(verts, color, name):
     # print "color %s %s %s" % color
     # print "name %s" % name
@@ -68,30 +73,30 @@ def draw_seg(verts, color, name):
 
 
 
-import pymel.core as pm
+# import pymel.core as pm
 
-n_clusters = pm.paintingQuery("mainPaintingShape", cc=True)
-for j in range(n_clusters):
-    n_strokes = pm.paintingQuery("mainPaintingShape", ci=j, sc=True)
-    for k in range(n_strokes):
-        rots = pm.paintingQuery(
-            "mainPaintingShape",
-            clusterIndex=j, 
-            strokeIndex=k, 
-            strokeStopRotations=True,
-            rotateOrder="zyx",
-            rotateUnit="rad"
-        )
-        pos = pm.paintingQuery(
-            "mainPaintingShape",
-            clusterIndex=j, 
-            strokeIndex=k, 
-            strokeStopPositions=True
-        )
-        print "C=%s, S=%s" % (j, k)
-        if pos and rots:
-            print pos
-            print rots
+# n_clusters = pm.paintingQuery("mainPaintingShape", cc=True)
+# for j in range(n_clusters):
+#     n_strokes = pm.paintingQuery("mainPaintingShape", ci=j, sc=True)
+#     for k in range(n_strokes):
+#         rots = pm.paintingQuery(
+#             "mainPaintingShape",
+#             clusterIndex=j, 
+#             strokeIndex=k, 
+#             strokeStopRotations=True,
+#             rotateOrder="zyx",
+#             rotateUnit="rad"
+#         )
+#         pos = pm.paintingQuery(
+#             "mainPaintingShape",
+#             clusterIndex=j, 
+#             strokeIndex=k, 
+#             strokeStopPositions=True
+#         )
+#         print "C=%s, S=%s" % (j, k)
+#         if pos and rots:
+#             print pos
+#             print rots
 
 
 
