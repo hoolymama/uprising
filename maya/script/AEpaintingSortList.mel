@@ -1,0 +1,76 @@
+
+ global proc AEPaintingSortListAddMultiWidget(
+ 	string $plug, 
+ 	string $columnLayout,  
+ 	int $index) 
+{
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+
+ 	string $node = attr.nodeFromNodeAttr($plug);
+
+ 	string $label = ("Sort ctiteria: " + $index);
+
+ 	setParent $columnLayout;
+ 	string $rl = `rowLayout 
+ 	 -numberOfColumns 4 
+ 	 -adjustableColumn 4
+ 		-columnWidth4 $gTextColumnWidthIndex 120 120 40`;
+
+ 	// print( "PLUG: " + $plug + "   ---   " + $index + "\n");
+
+  string $removeCmd = ("deleteUI " + $rl+";removeMultiInstance -b 1 "+$plug+";" ) ;
+
+ 	text -l ("Sort ["+ $index +"]");
+  string $keyMenu = AEpaintingMakeOptionMenu($plug, "strokeSortKey");
+  string $dirMenu = AEpaintingMakeOptionMenu($plug, "strokeSortDirection");
+
+ 	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
+ 	setParent ..;
+ }
+
+ global proc AEpaintingSortListReplace (string $nodeAttr) {
+
+ 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $col = "AEaddPaintingSortListCol";
+
+ 	setParent ..;
+ 	int $numElements = `getAttr -size $nodeAttr`;
+
+ 	string $controls[] = `layout -q -ca $col`;
+ 	int $numExistingControls = size($controls);
+ 	for ($i = 0;$i<$numExistingControls;$i++) {
+ 		deleteUI $controls[$i];
+ 	}
+ 	int $indices[] = `getAttr -mi $nodeAttr`;
+ 	for ($i = 0;$i<$numElements;$i++) {
+ 		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
+ 		AEPaintingSortListAddMultiWidget ($plug, $col,  $indices[$i]) ;
+ 	}
+ 	setParent ..;
+
+ 	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+ 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].strokeSortKey  0" ) "AEaddPaintingSortListBtn";
+
+ }
+
+
+ global proc AEpaintingSortListNew (string $nodeAttr) {
+ 	global int $gTextColumnWidthIndex;
+
+ 	setUITemplate -pst attributeEditorTemplate;
+
+ 	string $col = "AEaddPaintingSortListCol";
+ 	rowLayout -numberOfColumns 3  -columnWidth3 $gTextColumnWidthIndex $gTextColumnWidthIndex $gTextColumnWidthIndex;
+ 	 text -label "";
+ 	button -width 210 -l "Add" "AEaddPaintingSortListBtn";
+ 	text -label "";
+ 	setParent ..;
+ 	columnLayout -adj 1 $col ;	
+ 	setParent ..;
+ 	setUITemplate -ppt;
+
+ 	AEpaintingSortListReplace($nodeAttr);
+
+ }

@@ -60,6 +60,11 @@ class ExportTab(gui.FormLayout):
             label='Write program package',
             command=pm.Callback(self.write_program_package))
 
+        pm.button(
+            label='Write maya package only',
+            command=pm.Callback(self.write_maya_package))
+
+
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
@@ -109,3 +114,7 @@ class ExportTab(gui.FormLayout):
     def write_program_package(self):
         desc = pm.scrollField(self.description_ff, q=True, text=True)
         write.export_package(desc)
+
+    def write_maya_package(self):
+        desc = pm.scrollField(self.description_ff, q=True, text=True)
+        write.export_maya_package_only(desc)

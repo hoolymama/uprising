@@ -65,11 +65,11 @@ MObject strokeCurve::aCurve;
 MObject strokeCurve::aSubcurveMin;
 MObject strokeCurve::aSubcurveMax;
 MObject strokeCurve::aSubcurve;
+MObject strokeCurve::aSubcurveMethod;
 
 MObject strokeCurve::aRandomOverlapFactor;
 MObject strokeCurve::aOverlap;
 MObject strokeCurve::aBrushRampScope;
-
 
 MTypeId strokeCurve:: id(k_strokeCurve );
 
@@ -153,6 +153,17 @@ MStatus strokeCurve:: initialize()
 
 
 
+    aSubcurveMethod = eAttr.create("subcurveMethod", "scmt",
+                                   strokeCurve::kLength);
+    eAttr.addField("length", strokeCurve::kLength);
+    eAttr.addField("bookends", strokeCurve::kBookends);
+    eAttr.setKeyable(true);
+    eAttr.setHidden(false);
+    st = addAttribute(aSubcurveMethod);
+    er;
+
+
+
 
     aBrushRampScope = eAttr.create("brushRampScope", "brsc",
                                    StrokeRotationSpec::kStroke);
@@ -168,6 +179,7 @@ MStatus strokeCurve:: initialize()
     st = attributeAffects(aSubcurve, aOutput);
     st = attributeAffects(aRandomOverlapFactor, aOutput);
     st = attributeAffects(aOverlap, aOutput);
+    st = attributeAffects(aSubcurveMethod, aOutput);
 
     st = attributeAffects(aBrushRampScope, aOutput);
     st = attributeAffects(aForceDip, aOutput);
@@ -231,11 +243,15 @@ unsigned int strokeCurve::getStrokeBoundaries(
     MDataHandle hSubcurve = data.inputValue(aSubcurve);
     double subcurveMin = hSubcurve.child( aSubcurveMin).asDouble();
     double subcurveMax = hSubcurve.child( aSubcurveMax).asDouble();
+    SubcurveMethod scMethod = SubcurveMethod(data.inputValue(aSubcurveMethod).asShort());
 
     MFnNurbsCurve curveFn(dCurve, &st);
     if (st.error()) { return 0; }
     double curveLen = curveFn.length(epsilon);
 
+    if (scMethod == strokeCurve::kBookends) {
+        subcurveMax = curveLen - subcurveMax;
+    }
     clampSubCurveValues(curveLen, subcurveMin, subcurveMax);
 
     randomLengthFactor = clamp(randomLengthFactor);
@@ -405,11 +421,13 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
 
 
     bool first = true;
+    int i = 0;
     for (auto &citer : strokes)
     {
         bool doForce = force && first;
-        geom ->push_back(strokeGeom(*citer, brushId, paintId, doForce));
+        geom ->push_back(strokeGeom(i, *citer, brushId, paintId, doForce));
         first = false;
+        i++;
     }
 
 

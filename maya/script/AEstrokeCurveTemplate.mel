@@ -11,6 +11,8 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
  	editorTemplate -addControl "overlap" ;
  	editorTemplate -addControl "randomOverlapFactor" ;
  	editorTemplate -addControl "subcurve" ;
+ 	editorTemplate -addControl "subcurveMethod" ;
+ 	
  	editorTemplate -addControl "reverseDirection" ;
  	editorTemplate -addControl "strokeCountFactor" ;
  	editorTemplate -addControl "seed" ;

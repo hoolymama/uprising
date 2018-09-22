@@ -1,0 +1,41 @@
+global proc string[] AEpaintingGetEnumStrings(string $node, string $att) {
+	string $enumStr[] = `attributeQuery -listEnum  -node $node $att`;
+	string $result[];
+	int $nt = tokenize($enumStr[0], ":", $result);
+	return $result;
+}
+
+ 
+
+global proc onPaintingOptionMenuChange(string $enum, string $plug) {
+	string $node = `match "^[^\.]*" $plug`;
+	string $att = `match "[^.]+$" $plug`;
+	string $itemNames[] = AEpaintingGetEnumStrings($node, $att);
+	int $num = `size $itemNames`;
+	int $index = 0;
+	for ($index=0 ; $index<$num; $index++)
+		if ($enum == $itemNames[$index])	break;
+	evalEcho("setAttr "+$plug+" "+$index);
+}
+
+global proc AEpaintingSetOptionMenuToAttrVal( string $menu, string $plug) 
+{
+	int $val = getAttr($plug);
+	int $curr = `optionMenu -q -sl $menu`;
+	optionMenu -e -sl ($val+1) $menu;
+}
+
+global proc string AEpaintingMakeOptionMenu(string $plug, string $att) {
+
+ 	string $node = attr.nodeFromNodeAttr($plug);
+	string $itemNames[] = AEpaintingGetEnumStrings($node, $att);
+
+	string $fullPlug = ($plug+"."+$att);
+ 	string $menu = `optionMenu -label "" -changeCommand ("onPaintingOptionMenuChange(\"#1\", \""+$fullPlug+"\")")`;
+ 	for ($item in $itemNames) {
+ 		menuItem -label $item;
+ 	}	
+
+ 	AEpaintingSetOptionMenuToAttrVal($menu,$fullPlug);
+ 	return $menu;	
+}

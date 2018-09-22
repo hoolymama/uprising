@@ -122,7 +122,7 @@ public:
 	void getCurveFractions(MDoubleArray &result) const ;
 
 
-	bool overlapsPlane(const MMatrix &inversePlaneMatrix) const;
+	// bool overlapsPlane(const MMatrix &inversePlaneMatrix) const;
 
 
 	const std::vector<Target> &targets() const;
@@ -149,6 +149,8 @@ public:
 	bool follow() const;
 
 	virtual short direction() const ;
+
+	int  repeatId() const ;
 
 	virtual	void  getApproachTargets( MMatrix &startApproach, MMatrix &endApproach) const;
 

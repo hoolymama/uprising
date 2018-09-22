@@ -6,6 +6,7 @@
 #include <maya/MVectorArray.h>
 #include <maya/MMatrixArray.h>
 
+#include <maya/MIntArray.h>
 #include <maya/MTransformationMatrix.h>
 #include <maya/MAngle.h>
 
@@ -17,8 +18,20 @@ class strokeGeom
 {
 public:
 
-	strokeGeom(const Stroke &src, short brushId, short paintId, bool force);
+
+	enum StrokeFilterOperator {
+		kGreaterThan,
+		kLessThan,
+		kEqualTo
+	};
+
+	// strokeGeom();
+	strokeGeom(int id, const Stroke &src, short brushId, short paintId, bool force);
 	~strokeGeom();
+
+
+
+
 
 	const MMatrix &startApproach() const ;
 	const MMatrix &endApproach() const ;
@@ -40,13 +53,26 @@ public:
 	void setBrushId(short val) ;
 	void setPaintId(short val) ;
 
-	// void setForceDip(bool value);
 
+	bool overlapsPlane(const MMatrix &inversePlaneMatrix) const;
+
+
+
+	void setSortColor(const MFloatVector &color);
+	void setFilterColor(const MFloatVector &color);
+
+	// void setForceDip(bool value);
 
 	int id() const ;
 	int parentId() const;
+	// int globalId() const;
 
-	void setIds(int parentId, int uid) ;
+	void setParentId(int parentId) ;
+	// void setGlobalId(int globalId) ;
+
+	const MIntArray &sortStack() const;
+	void clearSortStack();
+	// friend bool operator < (const strokeGeom &lhs, const strokeGeom &rhs);
 
 	/* These functions return data used for drawing. */
 	void getPoints(MFloatPointArray &result, double stackHeight = 0.0) const;
@@ -62,8 +88,8 @@ public:
 	void getBorders(MFloatPointArray &lefts, MFloatPointArray &rights,
 	                const Brush &brush, bool withLift = false, double stackHeight = 0.0) const;
 
-	void  getApproaches(MFloatPointArray &startApproachPoints,
-	                    MFloatPointArray &endApproachPoints, double stackHeight = 0.0) const;
+	void getApproaches(MFloatPointArray &startApproachPoints,
+	                   MFloatPointArray &endApproachPoints, double stackHeight = 0.0) const;
 
 	void getFullPath(MFloatPointArray &points, double stackHeight = 0.0) const;
 
@@ -86,8 +112,6 @@ public:
 	  MAngle::Unit unit,
 	  MVectorArray &result ) const;
 
-
-
 	void getAllTangents(const MMatrix &worldMatrix, MVectorArray &result) const;
 
 	void getPivotUVs(
@@ -95,29 +119,75 @@ public:
 	  float &u,
 	  float &v) const ;
 
-	friend ostream &operator<<(ostream &os, const strokeGeom &geom);
-
 	void addPreStop(const MMatrix &mat);
 
+	// strokeGeom &operator=( const strokeGeom &other );
+
+	friend ostream &operator<<(ostream &os, const strokeGeom &geom);
+
+	void appendIdToSortStack(bool ascending);
+	void appendParentIdToSortStack(bool ascending);
+	void appendBrushIdToSortStack(bool ascending);
+	void appendPaintIdToSortStack(bool ascending);
+	void appendRepeatIdToSortStack(bool ascending) ;
+	void appendMapRedIdToSortStack(bool ascending) ;
+	void appendMapGreenIdToSortStack(bool ascending) ;
+	void appendMapBlueIdToSortStack(bool ascending) ;
+
+	bool testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) const;
+
+	bool testId(StrokeFilterOperator op, int value) const;
+	bool testParentId(StrokeFilterOperator op, int value) const;
+	bool testBrushId(StrokeFilterOperator op, int value) const;
+	bool testPaintId(StrokeFilterOperator op, int value) const;
+	bool testRepeatId(StrokeFilterOperator op, int value) const;
+	bool testMapRedId(StrokeFilterOperator op, int value) const;
+	bool testMapGreenId(StrokeFilterOperator op, int value) const;
+	bool testMapBlueId(StrokeFilterOperator op, int value) const;
 
 private:
-	unsigned m_id;
-	unsigned m_parentId;
+	int m_id;
+	int m_parentId;
 	MMatrix m_startApproach;
 	MMatrix m_endApproach;
 	MMatrixArray m_targets;
 	MVectorArray m_tangents;
 	double m_arcLength;
-	short m_direction; // 1 or -1
+	short m_direction;
 	MVector m_planeNormal;
 	short m_brushId;
 	short m_paintId;
 	MPoint m_pivot;
 	bool m_forceDip;
+	MFloatVector m_sortColor;
+	MFloatVector m_filterColor;
 
 	MMatrixArray m_preStops;
-
+	MIntArray m_sortStack;
+	int m_repeatId;
+	// int m_globalId;
 };
+
+
+
+// inline bool operator < (const strokeGeom &lhs , const strokeGeom &rhs) {
+// 	const MIntArray &lstack = lhs.sortStack();
+// 	const MIntArray &rstack = rhs.sortStack();
+// 	int len = lstack.length();
+// 	if (len !=  rstack.length()) {
+// 		return false;
+// 	}
+// 	for (int i = 0; i < len; ++i)
+// 	{
+// 		if (lstack[i] < rstack[i]) {
+// 			return true;
+// 		}
+// 		if (lstack[i] > rstack[i]) {
+// 			return false;
+// 		}
+// 	}
+// 	return true;
+// }
 
 
 #endif

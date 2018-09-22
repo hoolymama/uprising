@@ -23,6 +23,27 @@ def mkdir_p(path):
         else:
             raise
 
+def export_maya_package_only(description):
+
+    export_dir = os.path.join(pm.workspace.getPath(), 'export')
+    entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
+                             dialogStyle=2, fileMode=3, dir=export_dir)
+    if not entries:
+        pm.displayWarning('Nothing Selected')
+        return
+
+    export_dir = entries[0]
+
+    timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
+    ts_dir = os.path.join(export_dir, timestamp)
+
+    session_dir = os.path.join(ts_dir, "sessions")
+    mkdir_p(session_dir)
+
+    write_log(ts_dir, timestamp, description)
+    write_maya_scene(ts_dir, timestamp)
+    write_ref_image(ts_dir, timestamp)
+
 
 def export_package(description):
     RL = Robolink()

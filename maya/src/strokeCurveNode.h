@@ -36,6 +36,7 @@ public:
 
   enum Spac { kParametric, kArcLen };
 
+  enum SubcurveMethod { kLength, kBookends };
 
 protected:
 
@@ -57,6 +58,8 @@ protected:
   static MObject aSubcurveMin;
   static MObject aSubcurveMax;
   static MObject aSubcurve;
+  static MObject aSubcurveMethod;
+
   static MObject aRandomOverlapFactor;
   static MObject aOverlap;
   static MObject aForceDip;

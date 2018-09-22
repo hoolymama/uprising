@@ -10,6 +10,7 @@
 
 #include "projectStrokeNode.h"
 #include "indexShader.h"
+#include "curveContainment.h"
 
 MStatus initializePlugin( MObject obj)
 {
@@ -49,6 +50,11 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "indexShader", indexShader::id, &indexShader::creator,
 	                          &indexShader::initialize, MPxNode::kDependNode, &UserClassifyindexShader ); er;
 
+	st = plugin.registerNode( "curveContainment", curveContainment::id,
+	                          curveContainment::creator,
+	                          curveContainment::initialize); ert;
+
+
 	MGlobal::executePythonCommand("import uprising;uprising.load()");
 
 	return st;
@@ -62,6 +68,8 @@ MStatus uninitializePlugin( MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin( obj );
+
+	st = plugin.deregisterNode( curveContainment::id ); er;
 
 	st = plugin.deregisterNode( indexShader::id ); er;
 

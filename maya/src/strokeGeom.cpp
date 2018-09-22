@@ -29,9 +29,15 @@ MVector extractRotation(const MMatrix &mat,
 	}
 	return MVector(rotValue[0], rotValue[1], rotValue[2]);
 }
-
-strokeGeom::strokeGeom(const Stroke &src, short brushId, short paintId, bool force):
-	m_id(0),
+// strokeGeom::strokeGeom():
+// 	m_id(-1),
+// 	m_parentId(-1),
+// 	hasSortStack(false),
+// 	m_pivot(MPoint(1, 2, 3))
+// {}
+strokeGeom::strokeGeom(int id, const Stroke &src, short brushId, short paintId,
+                       bool force):
+	m_id(id),
 	m_parentId(0),
 	m_startApproach(),
 	m_endApproach(),
@@ -41,10 +47,16 @@ strokeGeom::strokeGeom(const Stroke &src, short brushId, short paintId, bool for
 	m_direction(src.direction()),
 	m_arcLength(src.arcLength()),
 	m_pivot(src.pivot()),
+	m_repeatId(src.repeatId()),
 	m_brushId(brushId),
 	m_paintId(paintId),
 	m_forceDip(force),
-	m_preStops()
+	m_preStops(),
+	m_sortColor(),
+	m_sortStack()
+	// m_globalId()
+	// hasSortStack(false)
+
 {
 	src.appendTargets(m_targets);
 	src.appendTangents(m_tangents);
@@ -53,6 +65,21 @@ strokeGeom::strokeGeom(const Stroke &src, short brushId, short paintId, bool for
 
 strokeGeom::~strokeGeom() {}
 
+const MPoint &strokeGeom::pivot() const {
+	return m_pivot;
+}
+
+bool strokeGeom::overlapsPlane(const MMatrix &inversePlaneMatrix) const {
+	unsigned len = m_targets.length();
+	for (int i = 0; i < len; ++i)
+	{
+		MPoint pt = extractPos(m_targets[i]);
+		if (pt.x > -1 && pt.x < 1 && pt.y > -1 && pt.y < 1) {
+			return true;
+		}
+	}
+	return false;
+}
 
 const MMatrix &strokeGeom::startApproach() const {
 	return m_startApproach;
@@ -83,12 +110,93 @@ short strokeGeom::paintId() const {
 	return m_paintId;
 }
 
+
 void strokeGeom::setBrushId(short val) {
 	m_brushId = val;
 }
 void strokeGeom::setPaintId(short val) {
 	m_paintId = val;
 }
+
+void strokeGeom::setSortColor(const MFloatVector &color)
+{
+	m_sortColor = color;
+}
+void strokeGeom::setFilterColor(const MFloatVector &color)
+{
+	m_filterColor = color;
+}
+
+void strokeGeom::appendIdToSortStack(bool ascending) {
+	int val = ascending ? m_id : -m_id;
+	m_sortStack.append(val);
+	// this->hasSortStack = true;
+}
+
+void strokeGeom::appendParentIdToSortStack(bool ascending) {
+	int val = ascending ? m_parentId : -m_parentId;
+	m_sortStack.append(val);
+	// this->hasSortStack = true;
+}
+
+void strokeGeom::appendBrushIdToSortStack(bool ascending) {
+	int val = ascending ? int(m_brushId) : -int(m_brushId);
+	m_sortStack.append(val);
+	// this->hasSortStack = true;
+}
+
+void strokeGeom::appendPaintIdToSortStack(bool ascending) {
+	int val = ascending ? int(m_paintId) : -int(m_paintId);
+	m_sortStack.append(val);
+	// this->hasSortStack = true;
+}
+
+void strokeGeom::appendRepeatIdToSortStack(bool ascending) {
+	int val = ascending ? int(m_repeatId) : -int(m_repeatId);
+	m_sortStack.append(val);
+	// this->hasSortStack = true;
+}
+void strokeGeom::appendMapRedIdToSortStack(bool ascending) {
+	int val = ascending ? int(m_sortColor.x * 256) : -int(m_sortColor.x * 256);
+	m_sortStack.append(val);
+	// this->hasSortStack = true;
+}
+void strokeGeom::appendMapGreenIdToSortStack(bool ascending) {
+	int val = ascending ? int(m_sortColor.y * 256) : -int(m_sortColor.y * 256);
+	m_sortStack.append(val);
+	// this->hasSortStack = true;
+}
+void strokeGeom::appendMapBlueIdToSortStack(bool ascending) {
+	int val = ascending ? int(m_sortColor.z * 256) : -int(m_sortColor.z * 256);
+	m_sortStack.append(val);
+	// this->hasSortStack = true;
+}
+
+bool strokeGeom::testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) const
+{
+	switch (op)
+	{
+		case strokeGeom::kLessThan:
+			return lhs < rhs;
+		case strokeGeom::kGreaterThan:
+			return lhs > rhs;
+		case strokeGeom::kEqualTo:
+			return lhs == rhs;
+		default:
+			return false;
+	}
+}
+
+
+bool strokeGeom::testId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_id, op, value);}
+bool strokeGeom::testParentId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_parentId, op, value);}
+bool strokeGeom::testBrushId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_brushId, op, value);}
+bool strokeGeom::testPaintId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_paintId, op, value);}
+bool strokeGeom::testRepeatId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_repeatId, op, value);}
+bool strokeGeom::testMapRedId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_filterColor.x * 256), op, value);}
+bool strokeGeom::testMapGreenId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_filterColor.y * 256), op, value);}
+bool strokeGeom::testMapBlueId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_filterColor.z * 256), op, value);}
+
 
 bool strokeGeom::forceDip() const {
 	return m_forceDip;
@@ -103,12 +211,47 @@ int strokeGeom::parentId() const
 	return m_parentId;
 }
 
-void strokeGeom::setIds(int parentId, int uid)
+void strokeGeom::setParentId(int parentId)
 {
-	// cerr << "IDs: " << parentId << " -- " << uid << endl;
-	m_id = uid;
 	m_parentId = parentId;
 }
+
+
+// int strokeGeom: globalId() const {
+// 	return m_globalId;
+// }
+
+// void strokeGeom: setGlobalId(int globalId)  {
+// 	m_globalId = globalId;
+// }
+
+
+const MIntArray &strokeGeom::sortStack() const {
+	return m_sortStack;
+}
+
+void strokeGeom::clearSortStack()
+{
+	m_sortStack.clear();
+}
+
+// friend bool strokeGeom::operator < (const strokeGeom &rhs) const
+// {
+// 	int len = m_sortStack.length();
+// 	if (len !=  rhs.m_sortStack.length()) {
+// 		return false;
+// 	}
+// 	for (int i = 0; i < len; ++i)
+// 	{
+// 		if (m_sortStack[i] < rhs.m_sortStack[i]) {
+// 			return true;
+// 		}
+// 		if (m_sortStack[i] > rhs.m_sortStack[i]) {
+// 			return false;
+// 		}
+// 	}
+// 	return true;
+// }
 
 
 void strokeGeom::getPoints(MFloatPointArray &result, double stackHeight) const {
@@ -233,11 +376,8 @@ void strokeGeom::getBorders(MFloatPointArray &lefts, MFloatPointArray &rights,
 		}
 
 	}
-
-
-
-
 }
+
 
 
 void strokeGeom::getApproaches(MFloatPointArray &startApproachPoints,
@@ -357,6 +497,32 @@ void strokeGeom::addPreStop(const MMatrix &mat)
 {
 	m_preStops.append(mat);
 }
+
+// /* override */
+// strokeGeom &strokeGeom::operator=( const strokeGeom &other )
+// {
+// 	if ( &other != this ) {
+// 		m_id = other.m_id;
+// 		m_parentId = other.m_parentId;
+// 		m_startApproach = other.m_startApproach;
+// 		m_endApproach = other.m_endApproach;
+// 		m_targets = MMatrixArray(other.m_targets);
+// 		m_tangents = MVectorArray(other.m_tangents);
+// 		m_arcLength = other.m_arcLength;
+// 		m_direction = other.m_direction;;
+// 		m_planeNormal = other.m_planeNormal;
+// 		m_brushId = other.m_brushId;
+// 		m_paintId = other.m_paintId;
+// 		m_pivot = other.m_pivot;
+// 		m_forceDip = other.m_forceDip;
+// 		m_sortColor = other.m_sortColor;;
+// 		m_preStops = MMatrixArray(other.m_preStops);
+// 		m_sortStack = MIntArray(other.m_sortStack);
+// 		m_repeatId = other.m_repeatId;
+
+// 	}
+// 	return *this;
+// }
 
 ostream &operator<<(ostream &os, const strokeGeom &g)
 {

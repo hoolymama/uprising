@@ -103,14 +103,14 @@ unsigned Stroke::factory(
 	*/
 	unsigned count = 0;
 	const Stroke &mother = *stk;
-	if (stk->overlapsPlane(inversePlaneMatrix)) {
-		strokes.push_back( std::move(stk) );
-		count++;
-	}
+	// if (stk->overlapsPlane(inversePlaneMatrix)) {
+	// }
+	strokes.push_back( std::move(stk) );
+	count++;
 
 	std::vector<int> mirrorLoop = repeatMirror ?  std::vector<int> { -1, 1} :
 	                              std::vector<int> { 1} ;
-	int repeatId = 0;
+	int repeatId = 1;
 	for (int j = 0; j < repeats; ++j) {
 		for (int k : mirrorLoop) {
 
@@ -125,10 +125,10 @@ unsigned Stroke::factory(
 				rstk = std::make_unique<Stroke>();
 			}
 			rstk->offsetFrom(mother, offset, repeatId);
-			if (rstk->overlapsPlane(inversePlaneMatrix)) {
-				strokes.push_back(std::move(rstk));
-				count++;
-			}
+			// if (rstk->overlapsPlane(inversePlaneMatrix)) {
+			strokes.push_back(std::move(rstk));
+			count++;
+			// }
 			repeatId++;
 		}
 	}
@@ -261,11 +261,15 @@ void Stroke::setPivot(
 	double dist = startDist + (fraction * (endDist - startDist) );
 	double param = curveFn.findParamFromLength(dist);
 	curveFn.getPointAtParam(param, m_pivot, MSpace::kWorld);
-
-	// 	cerr << "Stroke::setPivot d:" << dist << " f:" << fraction  << " s: " << startDist <<
-	// 	     " e:" << endDist <<
-	// 	     " p:"  << param << " piv: " << m_pivot << endl;
 }
+int Stroke::repeatId() const {
+	return m_repeatId;
+}
+
+// 	cerr << "Stroke::setPivot d:" << dist << " f:" << fraction  << " s: " << startDist <<
+// 	     " e:" << endDist <<
+// 	     " p:"  << param << " piv: " << m_pivot << endl;
+
 
 void Stroke::setApproach(double start, double end)  {
 	m_approachDistStart = start;
@@ -374,7 +378,7 @@ void Stroke::setRotations(
 		iter->setRotation(outTilt[i], outBank[i], outTwist[i]);
 	}
 }
-
+/*
 bool Stroke::overlapsPlane(const MMatrix &inversePlaneMatrix) const {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
@@ -384,7 +388,7 @@ bool Stroke::overlapsPlane(const MMatrix &inversePlaneMatrix) const {
 		}
 	}
 	return false;
-}
+}*/
 
 unsigned Stroke::length() const {
 	return m_targets.size();

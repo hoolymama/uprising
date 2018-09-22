@@ -4,20 +4,6 @@
 
  	editorTemplate -beginScrollLayout;
 
-
-	// editorTemplate -cl 0 -beginLayout "General Attributes";
-	// editorTemplate -addControl "strokeCountFactor"; 
- // 	editorTemplate -addControl "rotateOrder"; 
- // 	editorTemplate -addControl "outAngularUnit"; 
- // 	editorTemplate -endLayout;
-
- 
-	editorTemplate -cl 0 -beginLayout "Approach Attributes";
-	editorTemplate -addControl "dipApproachObject";
-	editorTemplate -addControl "toolChangeApproachObject";
-	editorTemplate -addControl "homeApproachObject";
- 	editorTemplate -endLayout;
-
 	editorTemplate -cl 0 -beginLayout "Speed Attributes";
 	editorTemplate -addControl "linearSpeed";
 	editorTemplate -addControl "angularSpeed";
@@ -28,15 +14,19 @@
 	editorTemplate -cl 0 -beginLayout "Texture Attributes";
 	editorTemplate -addControl "brushIdTextureRange";
 	editorTemplate -addControl "paintIdTextureRange";
-	editorTemplate -addControl "strokeSort";
-	editorTemplate -addControl "strokeGate";
 
-
-	editorTemplate -addControl "strokeSortList";
-	
 	editorTemplate -endLayout;
 
 
+	editorTemplate -cl 0 -beginLayout "Filtering attributes";
+ 	editorTemplate -callCustom "AEpaintingFilterListNew" "AEpaintingFilterListReplace" "strokeFilterList";
+	editorTemplate -addControl "strokeFilterTexture"; 
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Sorting attributes";
+ 	editorTemplate -callCustom "AEpaintingSortListNew" "AEpaintingSortListReplace" "strokeSortList";
+	editorTemplate -addControl "strokeSortTexture"; 
+ 	editorTemplate -endLayout;
 
 
 	editorTemplate -cl 0 -beginLayout "Display Attributes";
@@ -77,9 +67,7 @@
 	editorTemplate -suppress "strokeCurves";
 
  	editorTemplate -suppress "outTargets";
- 	// editorTemplate -suppress "outTargetsWorld";
-  // editorTemplate -suppress "outNormalsLocal";
- 	// editorTemplate -suppress "outNormalsWorld";
+ 
  	editorTemplate -suppress "outCounts";
 
  	editorTemplate -suppress "inMatrix";

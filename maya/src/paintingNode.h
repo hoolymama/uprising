@@ -20,7 +20,7 @@
 #include "paintingData.h"
 #include "brush.h"
 #include "paint.h"
-
+#include "strokeGeom.h"
 
 
 class painting : public MPxLocatorNode
@@ -54,21 +54,22 @@ public:
   enum Spac { kParametric, kArcLen };
   enum TargetDisplay {kTargetsNone, kTargetsPoint, kTargetsLine, kTargetsMatrix };
 
-  enum StrokeSort { kNoSort,
-                    kBrushAscPaintAsc,
-                    kBrushAscPaintDesc,
-                    kBrushDescPaintAsc,
-                    kBrushDescPaintDesc,
-                    kPaintAscBrushAsc,
-                    kPaintAscBrushDesc,
-                    kPaintDescBrushAsc,
-                    kPaintDescBrushDesc
-                  };
+  // enum StrokeSort { kNoSort,
+  //                   kBrushAscPaintAsc,
+  //                   kBrushAscPaintDesc,
+  //                   kBrushDescPaintAsc,
+  //                   kBrushDescPaintDesc,
+  //                   kPaintAscBrushAsc,
+  //                   kPaintAscBrushDesc,
+  //                   kPaintDescBrushAsc,
+  //                   kPaintDescBrushDesc
+  //                 };
 
-  enum StrokeSortKey {
+  enum StrokeSortFilterKey {
+    kId,
+    kParentId,
     kBrushId,
     kPaintId,
-    kParentId,
     kRepeatId,
     kMapRed,
     kMapGreen,
@@ -76,18 +77,18 @@ public:
   };
 
 
-  enum StrokeSortDirection { kSortAsc,  kSortDesc};
-
-
-
+  enum StrokeSortDirection { kSortAscending,  kSortDescending};
 
   static MObject aInMatrix;
 
 private:
 
-  bool findInStrokeDefinition(StrokeSortKey key,
-                              const std::vector< std::pair <StrokeSortKey, StrokeSortDirection> > &sortDefinition);
-
+  bool findInSortDefinition(StrokeSortFilterKey key,
+                            const std::vector< std::pair <StrokeSortFilterKey, StrokeSortDirection> >
+                            &sortDefinition);
+  // bool  findInFilterDefinition( StrokeSortFilterKey key,
+  //                               const  std::vector< std::tuple <StrokeSortFilterKey, strokeGeom::StrokeFilterOperator, int> >
+  //                               &filterDefinition);
 
   MStatus populateStrokePool(MDataBlock &data,
                              std::vector<strokeGeom> &strokePool);
@@ -119,6 +120,15 @@ private:
                   M3dView::DisplayStatus status ) ;
 
 
+  MStatus overrideBrushIds(MDataBlock &data,  MFloatArray &uVals,
+                           MFloatArray &vVals, std::vector<strokeGeom> &strokePool);
+  MStatus  overridePaintIds(MDataBlock &data,  MFloatArray &uVals,
+                            MFloatArray &vVals, std::vector<strokeGeom> &strokePool);
+
+  MStatus filterStrokes(MDataBlock &data,  MFloatArray &uVals,
+                        MFloatArray &vVals, std::vector<strokeGeom> &strokePool);
+  MStatus sortStrokes(MDataBlock &data,  MFloatArray &uVals,
+                      MFloatArray &vVals, std::vector<strokeGeom> &strokePool);
   // MStatus setData(MDataBlock &block, MObject &attribute,
   //                 const MMatrixArray &data) ;
 
@@ -137,6 +147,8 @@ private:
   MStatus sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,
                           MFloatArray &vVals, MIntArray &result, short range) const;
 
+  MStatus sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,
+                          MFloatArray &vVals, MFloatVectorArray &result) const ;
 
   static MObject aStrokeCurves;
 
@@ -144,7 +156,7 @@ private:
   static MObject aBrushIdTexture;
   static MObject aPaintIdTexture;
 
-  static MObject aStrokeSort;
+  // static MObject aStrokeSort;
 
 
   static MObject aStrokeSortKey;
@@ -152,8 +164,14 @@ private:
   static MObject aStrokeSortList;
   static MObject aStrokeSortTexture;
 
+  static MObject aStrokeFilterKey;
+  static MObject aStrokeFilterOperator;
+  static MObject aStrokeFilterOperand;
+  static MObject aStrokeFilterList;
+  static MObject aStrokeFilterTexture;
 
-  static MObject aStrokeGate;
+
+  // static MObject aStrokeGate;
 
 
   // static MObject aStrokeSorts;
