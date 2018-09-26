@@ -167,16 +167,19 @@ MStatus strokeCurve:: initialize()
 
     aBrushRampScope = eAttr.create("brushRampScope", "brsc",
                                    StrokeRotationSpec::kStroke);
-    eAttr.addField("curve", StrokeRotationSpec::kCurve);
     eAttr.addField("stroke", StrokeRotationSpec::kStroke);
     eAttr.addField("travelStroke", StrokeRotationSpec::kTravelStroke);
+    eAttr.addField("curve", StrokeRotationSpec::kCurve);
     eAttr.setKeyable(true);
     eAttr.setHidden(false);
     st = addAttribute(aBrushRampScope);
     er;
 
     st = attributeAffects(aCurve, aOutput);
+    st = attributeAffects(aSubcurveMin, aOutput);
+    st = attributeAffects(aSubcurveMax, aOutput);
     st = attributeAffects(aSubcurve, aOutput);
+
     st = attributeAffects(aRandomOverlapFactor, aOutput);
     st = attributeAffects(aOverlap, aOutput);
     st = attributeAffects(aSubcurveMethod, aOutput);
@@ -316,9 +319,7 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
     MDataHandle hCurve = data.inputValue(aCurve, & st); ert;
     MObject  dCurve = data.inputValue(aCurve).asNurbsCurveTransformed();
 
-    MMatrix planeMatrix = data.inputValue(strokeCurve:: aPlaneMatrix).asMatrix();
-    MMatrix inversePlaneMatrix = planeMatrix.inverse();
-    MVector planeNormal = (MVector:: zAxis * planeMatrix).normal();
+    MVector planeNormal = data.inputValue(aPlaneNormal).asVector();
 
     MFnNurbsCurve curveFn(dCurve, & st); ert;
     double curveLength = curveFn.length(epsilon);
@@ -388,7 +389,7 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
         unsigned strokeGroupSize = Stroke::factory(
                                        thisObj,
                                        dCurve,
-                                       inversePlaneMatrix,
+                                       // inversePlaneMatrix,
                                        planeNormal,
                                        curveLength,
                                        startDist,

@@ -28,7 +28,7 @@ bool shouldMakeBackstroke(bool motherBackstroke, bool oscillate, int index )  {
 unsigned Stroke::factory(
   const MObject &thisObj,
   const MObject &dCurve,
-  const MMatrix &inversePlaneMatrix,
+  // const MMatrix &inversePlaneMatrix,
   const MVector &planeNormal,
   double curveLength,
   double startDist,
@@ -103,8 +103,7 @@ unsigned Stroke::factory(
 	*/
 	unsigned count = 0;
 	const Stroke &mother = *stk;
-	// if (stk->overlapsPlane(inversePlaneMatrix)) {
-	// }
+
 	strokes.push_back( std::move(stk) );
 	count++;
 
@@ -116,19 +115,26 @@ unsigned Stroke::factory(
 
 			double offset = repeatOffset * (j + 1) * k;
 			bool makeBackStroke = shouldMakeBackstroke(backstroke, repeatOscillate, j );
-
+			cerr << "makeBackStroke: " << makeBackStroke << endl;
 			std::unique_ptr<Stroke> rstk;
 			if (makeBackStroke) {
+				cerr << "making a backstroke" << endl;
 				rstk = std::make_unique<BackStroke>();
 			}
 			else {
+				cerr << "making a forward stroke" << endl;
 				rstk = std::make_unique<Stroke>();
 			}
 			rstk->offsetFrom(mother, offset, repeatId);
-			// if (rstk->overlapsPlane(inversePlaneMatrix)) {
+			rstk->setRotations(
+			  thisObj,
+			  rotSpec
+			);
+
+
 			strokes.push_back(std::move(rstk));
 			count++;
-			// }
+
 			repeatId++;
 		}
 	}
@@ -277,6 +283,7 @@ void Stroke::setApproach(double start, double end)  {
 }
 
 void Stroke::getTravelStrokeFractions(MDoubleArray &result) const {
+	cerr << "Stroke::getTravelStrokeFractions" << endl;
 	std::vector<Target>::const_iterator citer = m_targets.begin();
 	for (; citer != m_targets.end(); citer++) {
 		result.append(citer->strokeFraction());
@@ -345,13 +352,18 @@ void Stroke::setRotations(
 
 	MDoubleArray sampleVals;
 	if (rotSpec.rampScope ==  StrokeRotationSpec::kStroke) {
-		getStrokeFractions(sampleVals);
+		cerr << "StrokeRotationSpec is kStroke" << endl;
+		this->getStrokeFractions(sampleVals);
 	}
 	else if (rotSpec.rampScope ==  StrokeRotationSpec::kTravelStroke) {
-		getTravelStrokeFractions(sampleVals);
+		cerr << "StrokeRotationSpec is kTravelStroke" << endl;
+
+		this->getTravelStrokeFractions(sampleVals);
 	}
 	else {   // curve
-		getCurveFractions(sampleVals);
+		cerr << "StrokeRotationSpec is kCurve" << endl;
+
+		this->getCurveFractions(sampleVals);
 	}
 	unsigned nVals = sampleVals.length();
 	MDoubleArray outTilt(nVals);

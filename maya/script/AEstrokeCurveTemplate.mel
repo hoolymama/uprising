@@ -5,6 +5,7 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
 	
 	editorTemplate -cl 0  -beginLayout "Stroke generation";		
  	editorTemplate -addControl "active" ;
+ 	editorTemplate -addControl "planeNormal" ;
  	editorTemplate -addControl "pointDensity" ;
 	editorTemplate -addControl "strokeLength" ;
  	editorTemplate -addControl "randomLengthFactor" ;
@@ -67,9 +68,9 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
 
 	editorTemplate -cl 0  -beginLayout "Stroke transformation";		
 	editorTemplate -addControl "pivotFraction" ;
- 	editorTemplate -addControl "strokeRotationTexture" ;
- 	editorTemplate -addControl "strokeTranslationTexture" ;
- 	editorTemplate -addControl "strokeTranslationSampleDistance" ;
+ 	// editorTemplate -addControl "strokeRotationTexture" ;
+ 	// editorTemplate -addControl "strokeTranslationTexture" ;
+ 	// editorTemplate -addControl "strokeTranslationSampleDistance" ;
 	editorTemplate -endLayout;
 
 

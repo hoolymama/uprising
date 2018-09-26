@@ -47,6 +47,7 @@ class RingsTab(gui.FormLayout):
             field=True,
             minValue=-5.0,
             maxValue=5.0,
+            step=0.01,
             # fieldMinValue=0,
             # fieldMaxValue=5.0,
             value=0,
@@ -61,6 +62,7 @@ class RingsTab(gui.FormLayout):
             field=True,
             minValue=0.0,
             maxValue=10.0,
+               step=0.01,
             # fieldMinValue=0,
             # fieldMaxValue=5.0,
             value=2,
@@ -84,21 +86,23 @@ class RingsTab(gui.FormLayout):
 
         # pm.setParent('..')
 
-        pm.button(
-            label='Randomize paints assignments',
-            command=pm.Callback(self.on_random_paints))
+        self.random_paints_tf = pm.textFieldButtonGrp( label='Random paints', text='0-32', buttonLabel='Go' ,
+            buttonCommand=pm.Callback(self.on_random_paints))
 
-        pm.button(
-            label='Randomize brush assignments',
-            command=pm.Callback(self.on_random_brushes))
+        self.random_brushes_tf = pm.textFieldButtonGrp( label='Random brushes', text='0-32', buttonLabel='Go' ,
+            buttonCommand=pm.Callback(self.on_random_brushes))
 
         pm.button(
             label='Randomize and arrange sequence',
             command=pm.Callback(self.on_random_sequence))
 
         pm.button(
-            label='Randomize selected curve rotatioons',
+            label='Randomize selected curve rotations',
             command=pm.Callback(self.on_random_rotations))
+
+        pm.button(
+            label='Duplicate into gaps',
+            command=pm.Callback(self.on_duplicate_into_gaps))
 
 
         pm.frameLayout(label="Auto rings")
@@ -168,25 +172,73 @@ class RingsTab(gui.FormLayout):
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
+
+
+    def on_duplicate_into_gaps(self):
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True)
+        cutl.duplicate_into_gaps(curves)
+
+
     def on_arrange_rings_gap(self):
-        painting_node = pm.PyNode("mainPaintingShape")
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True)
+
+        # painting_node = pm.PyNode("mainPaintingShape")
         gap = pm.floatSliderButtonGrp(self.gap_ff, query=True, v=True)
-        cutl.arrange_rings_gap(painting_node, gap)
+        cutl.arrange_rings_gap(curves, gap)
 
     def on_arrange_rings_spine(self):
-        painting_node = pm.PyNode("mainPaintingShape")
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True)
+        # painting_node = pm.PyNode("mainPaintingShape")
         dist = pm.floatSliderButtonGrp(self.spine_ff, query=True, v=True)
-        cutl.arrange_rings_spine(painting_node, dist)
+        cutl.arrange_rings_spine(curves, dist)
 
     def on_random_paints(self):
-        painting_node = pm.PyNode("mainPaintingShape")
-        cutl.assign_random_paints(painting_node)
+        spec = pm.textFieldButtonGrp(self.random_paints_tf, query=True, text=True)
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True)
+
+        cutl.assign_random_paints(curves, spec, False)
 
     def on_random_brushes(self):
-        painting_node = pm.PyNode("mainPaintingShape")
-        cutl.assign_random_brushes(painting_node)
+        spec = pm.textFieldButtonGrp(self.random_brushes_tf, query=True, text=True)
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True,
+            v=True)
+
+        # painting_node = pm.PyNode("mainPaintingShape")
+        cutl.assign_random_brushes(curves, spec, False)
 
     def on_random_sequence(self):
+        paint_spec = pm.textFieldButtonGrp(self.random_paints_tf, query=True, text=True)
+        brush_spec = pm.textFieldButtonGrp(self.random_brushes_tf, query=True, text=True)
         start_frame = pm.currentTime(query=True)
         painting_node = pm.PyNode("mainPaintingShape")
         min_frame = int(pm.playbackOptions(min=True, query=True))
@@ -195,8 +247,8 @@ class RingsTab(gui.FormLayout):
         for f in range(min_frame, max_frame + 1):
             print "Randomizing frame: %s" % f
             pm.currentTime(f)
-            cutl.assign_random_paints(painting_node, True)
-            cutl.assign_random_brushes(painting_node, True)
+            cutl.assign_random_paints(painting_node, paint_spec, True)
+            cutl.assign_random_brushes(painting_node, brush_spec, True)
             cutl.arrange_rings(painting_node, gap, True)
         pm.currentTime(start_frame)
 

@@ -56,6 +56,7 @@ protected:
   static  MObject  aDensity;
   static  MObject  aDensityMap;
   static  MObject  aOutPoints;
+  static  MObject aProjectionMatrix;
   // static  MObject  aSeed;
 
   // static MObject aForceDip;

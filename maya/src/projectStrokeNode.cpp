@@ -60,6 +60,7 @@ const double rad_to_deg = (180 / 3.1415927);
 MObject projectStroke::aDensity;
 MObject projectStroke::aDensityMap;
 MObject projectStroke::aOutPoints;
+MObject projectStroke::aProjectionMatrix;
 
 MTypeId projectStroke:: id(k_projectStroke );
 
@@ -90,6 +91,16 @@ MStatus projectStroke:: initialize()
 
 	inheritAttributesFrom("strokeNode");
 
+
+	aProjectionMatrix = mAttr.create( "projectionMatrix", "pmat",
+	                                  MFnMatrixAttribute::kDouble );
+	mAttr.setStorable( false );
+	mAttr.setHidden( true );
+	mAttr.setDefault(identity);
+	addAttribute(aProjectionMatrix);
+
+
+
 	aDensity = nAttr.create("density", "den", MFnNumericData::kDouble);
 	nAttr.setHidden( false );
 	nAttr.setKeyable( true );
@@ -110,7 +121,7 @@ MStatus projectStroke:: initialize()
 	st = attributeAffects( aDensity, aOutPoints);
 	st = attributeAffects( aDensityMap, aOutPoints);
 	st = attributeAffects( aSeed, aOutPoints);
-	st = attributeAffects( aPlaneMatrix, aOutPoints);
+	st = attributeAffects( aProjectionMatrix, aOutPoints);
 
 	return (MS::kSuccess );
 }
@@ -129,13 +140,13 @@ MStatus projectStroke::compute(const MPlug &plug, MDataBlock &data )
 
 	MVectorArray result(numPoints);
 
-	MMatrix planeMatrix = data.inputValue(aPlaneMatrix).asMatrix();
+	MMatrix projectionMatrix = data.inputValue(aProjectionMatrix).asMatrix();
 	for (int i = 0; i < numPoints; ++i)
 	{
 		double x = (drand48() * 2.0) - 1.0;
 		double y = (drand48() * 2.0) - 1.0;
 
-		result[i] =  MVector(MPoint(x, y, 0.0) * planeMatrix);
+		result[i] =  MVector(MPoint(x, y, 0.0) * projectionMatrix);
 	}
 
 	MDataHandle hOutPoints = data.outputValue(aOutPoints);

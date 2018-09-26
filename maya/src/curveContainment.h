@@ -19,6 +19,10 @@ private:
 	enum ContainmentType {kFirst, kLongest};
 
 
+	MStatus getLengthsForCurve(ContainmentType ctype, MObject &dCurve,
+	                           MFnMesh &meshFn, MMeshIsectAccelParams &ap, double sampleDist, int maxIterations,
+	                           double tolerance, double &startLength, double &endLength);
+
 	void getLongestChainIterators(
 	  const std::vector<pointOnCurveInfo> &curvePoints,
 	  std::vector<pointOnCurveInfo>::const_iterator &longestChainStart,
@@ -41,13 +45,9 @@ private:
 	static MObject aContainmentType ;
 	static MObject aSampleDistance;
 	static MObject aMaxIterations ;
+
 	static MObject aTolerance ;
-
 	static MObject aOutLength;
-	// static MObject aOutParam;
-	static MObject aOutMinPoint;
-	static MObject aOutMaxPoint;
-
 
 };
 #endif

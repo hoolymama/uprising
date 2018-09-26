@@ -1,0 +1,26 @@
+
+global proc uprising.channelMenu(string $parent) {
+	
+	setParent -m $parent;
+
+	menuItem -label "Add channels to Wedgie"  -c "channel.channelBoxEnumerator \"wedgie.addChannel\"" wedgieRegisterChannelsItem;
+//	menuItem -label "Remove channels from Wedgie"  -c "channel.channelBoxEnumerator \"wedgie.deregisterChannel\""  wedgieDeregisterChannelsItem;
+
+	setParent -m $parent;
+	
+}
+
+	
+
+global proc insertMyMenuItemsToChannelBox(string $parent) {
+	
+	setParent -m $parent;
+
+	menuItem -label "Insert Offset"  -c "channel.channelBoxEnumerator \"insertOffset\"" insertOffsetItem;
+	menuItem -label "Insert Multiplier"  -c "channel.channelBoxEnumerator \"insertMultiplier\"" insertMultItem;
+	// maybe some nested
+	setParent -m $parent;
+	
+}
+
+	 

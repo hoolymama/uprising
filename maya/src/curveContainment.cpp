@@ -8,10 +8,13 @@
 
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFloatPointArray.h>
-
+#include <maya/MGlobal.h>
 
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MFnMesh.h>
+
+#include <maya/MArrayDataHandle.h>
+#include <maya/MArrayDataBuilder.h>
 
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MVectorArray.h>
@@ -35,8 +38,8 @@ MObject curveContainment::aTolerance ;
 
 MObject curveContainment::aOutLength;
 // MObject curveContainment::aOutParam;
-MObject curveContainment::aOutMinPoint;
-MObject curveContainment::aOutMaxPoint;
+// MObject curveContainment::aOutMinPoint;
+// MObject curveContainment::aOutMaxPoint;
 
 
 void *curveContainment::creator () {
@@ -49,7 +52,7 @@ curveContainment::postConstructor()
 {
 	MPxNode::postConstructor();
 
-	setExistWithoutInConnections(true);
+	setExistWithoutInConnections(false);
 	setExistWithoutOutConnections(true);
 }
 
@@ -65,6 +68,8 @@ MStatus curveContainment::initialize () {
 	aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve, & st); er;
 	tAttr.setReadable(false);
 	tAttr.setStorable(false);
+	tAttr.setArray(true);
+	tAttr.setIndexMatters(true);
 	st = addAttribute(aCurve); er;
 
 	aMesh = tAttr.create( "mesh", "msh", MFnData::kMesh, &st ); er
@@ -103,21 +108,23 @@ MStatus curveContainment::initialize () {
 	nAttr.setStorable (false);
 	nAttr.setWritable (false);
 	nAttr.setReadable (true);
+	nAttr.setArray(true);
+	nAttr.setUsesArrayDataBuilder( true );
 	addAttribute (aOutLength);
 
-	aOutMinPoint = nAttr.createPoint( "outMinPoint", "mnpt" );
-	nAttr.setStorable(false);
-	nAttr.setReadable(true);
-	nAttr.setHidden(false);
-	nAttr.setWritable(false);
-	st = addAttribute( aOutMinPoint ); er;
+	// aOutMinPoint = nAttr.createPoint( "outMinPoint", "mnpt" );
+	// nAttr.setStorable(false);
+	// nAttr.setReadable(true);
+	// nAttr.setHidden(false);
+	// nAttr.setWritable(false);
+	// st = addAttribute( aOutMinPoint ); er;
 
-	aOutMaxPoint = nAttr.createPoint( "outMaxPoint", "mxpt" );
-	nAttr.setStorable(false);
-	nAttr.setReadable(true);
-	nAttr.setHidden(false);
-	nAttr.setWritable(false);
-	st = addAttribute( aOutMaxPoint ); er;
+	// aOutMaxPoint = nAttr.createPoint( "outMaxPoint", "mxpt" );
+	// nAttr.setStorable(false);
+	// nAttr.setReadable(true);
+	// nAttr.setHidden(false);
+	// nAttr.setWritable(false);
+	// st = addAttribute( aOutMaxPoint ); er;
 
 	attributeAffects (aCurve, aOutLength);
 	attributeAffects (aMesh, aOutLength);
@@ -126,19 +133,19 @@ MStatus curveContainment::initialize () {
 	attributeAffects (aMaxIterations, aOutLength);
 	attributeAffects (aTolerance, aOutLength);
 
-	attributeAffects (aCurve, aOutMinPoint);
-	attributeAffects (aMesh, aOutMinPoint);
-	attributeAffects (aContainmentType, aOutMinPoint);
-	attributeAffects (aSampleDistance, aOutMinPoint);
-	attributeAffects (aMaxIterations, aOutMinPoint);
-	attributeAffects (aTolerance, aOutMinPoint);
+	// attributeAffects (aCurve, aOutMinPoint);
+	// attributeAffects (aMesh, aOutMinPoint);
+	// attributeAffects (aContainmentType, aOutMinPoint);
+	// attributeAffects (aSampleDistance, aOutMinPoint);
+	// attributeAffects (aMaxIterations, aOutMinPoint);
+	// attributeAffects (aTolerance, aOutMinPoint);
 
-	attributeAffects (aCurve, aOutMaxPoint);
-	attributeAffects (aMesh, aOutMaxPoint);
-	attributeAffects (aContainmentType, aOutMaxPoint);
-	attributeAffects (aSampleDistance, aOutMaxPoint);
-	attributeAffects (aMaxIterations, aOutMaxPoint);
-	attributeAffects (aTolerance, aOutMaxPoint);
+	// attributeAffects (aCurve, aOutMaxPoint);
+	// attributeAffects (aMesh, aOutMaxPoint);
+	// attributeAffects (aContainmentType, aOutMaxPoint);
+	// attributeAffects (aSampleDistance, aOutMaxPoint);
+	// attributeAffects (aMaxIterations, aOutMaxPoint);
+	// attributeAffects (aTolerance, aOutMaxPoint);
 	return MS::kSuccess;
 }
 
@@ -241,29 +248,24 @@ MStatus curveContainment::compute(const MPlug &plug, MDataBlock &data) {
 	//DBG;
 	if (!(
 	      plug == aOutLength ||
+	      plug.parent() == aOutLength
 	      // plug == aOutParam ||
-	      plug == aOutMinPoint ||
-	      plug == aOutMaxPoint
+	      // plug == aOutMinPoint ||
+	      // plug == aOutMaxPoint
 
 	    )) 	{ return MS::kUnknownParameter; }
+
+
 
 	MStatus st;
 	MFn::Type type = MFn::kInvalid;
 
-	MDataHandle hCurve = data.inputValue(aCurve, &st ); ert;
-	MObject  dCurve =  data.inputValue(aCurve).asNurbsCurveTransformed();
-	MFnNurbsCurve curveFn(dCurve, &st); ert;
 	curveContainment::ContainmentType ctype = curveContainment::ContainmentType(
 	      data.inputValue(aContainmentType).asShort());
-	double curveLen = curveFn.length(epsilon);
 	double sampleDist = data.inputValue(aSampleDistance).asDouble();
 	if (sampleDist < 0.01) {
 		sampleDist = 0.01;
 	}
-
-	int numChunks =  ceil(curveLen / sampleDist);
-	sampleDist = curveLen / double(numChunks);
-
 	double tolerance = data.inputValue(aTolerance).asDouble();
 	if (tolerance < 0.01) {
 		tolerance = 0.01;
@@ -276,11 +278,68 @@ MStatus curveContainment::compute(const MPlug &plug, MDataBlock &data) {
 	// Mesh and accelerator
 	MObject dMesh =  data.inputValue(aMesh).asMeshTransformed();
 	MFnMesh meshFn(dMesh, &st);
+
 	if (st.error()) { return MS::kUnknownParameter; }
 	MMeshIsectAccelParams ap = meshFn.autoUniformGridParams();
 
 
+	MArrayDataHandle hCurves = data.inputArrayValue(aCurve, &st ); ert;
+	unsigned nPlugs = hCurves.elementCount();
 
+	MArrayDataHandle     hOutput = data.outputArrayValue( aOutLength, &st ); er;
+	MArrayDataBuilder    bOutput = hOutput.builder();
+
+	for (unsigned i = 0; i < nPlugs; i++, hCurves.next()) {
+		unsigned index = hCurves.elementIndex(&st);
+
+		MDataHandle hCurve = hCurves.inputValue(&st);
+		if (st.error()) {
+			continue;
+		}
+		MObject  dCurve	= hCurve.asNurbsCurveTransformed();
+
+
+		double startPoint;
+		double endPoint;
+
+		st = getLengthsForCurve(ctype, dCurve, meshFn, ap, sampleDist, maxIterations, tolerance,
+		                        startPoint,
+		                        endPoint);
+		if (st.error()) {
+			startPoint =  0.0;
+			endPoint = 0.0;
+		}
+		MDataHandle hOut = bOutput.addElement(index);
+		double2 &outLength = hOut.asDouble2();
+		outLength[0] = startPoint;
+		outLength[1] = endPoint;
+
+	}
+	hOutput.setAllClean();
+
+	return MS::kSuccess;
+
+
+}
+
+
+
+MStatus curveContainment::getLengthsForCurve(ContainmentType ctype, MObject &dCurve,
+    MFnMesh &meshFn, MMeshIsectAccelParams &ap, double sampleDist, int maxIterations,
+    double tolerance, double &startLength, double &endLength)
+{
+
+	MStatus st;
+	MFnNurbsCurve curveFn(dCurve, &st);
+
+	if (st.error()) {
+		return st;
+	}
+	double curveLen = curveFn.length(epsilon);
+
+
+	int numChunks =  ceil(curveLen / sampleDist);
+	sampleDist = curveLen / double(numChunks);
 
 	std::vector<pointOnCurveInfo > curvePoints;
 
@@ -294,7 +353,7 @@ MStatus curveContainment::compute(const MPlug &plug, MDataBlock &data) {
 	{
 		double dist = (i * sampleDist);
 		curvePoints.push_back(
-		  pointOnCurveInfo(   curveFn, meshFn, ap, dist )
+		  pointOnCurveInfo( curveFn, meshFn, ap, dist )
 		);
 	}
 
@@ -311,6 +370,7 @@ MStatus curveContainment::compute(const MPlug &plug, MDataBlock &data) {
 	}
 
 	if (chainEnd ==  curvePoints.begin()) {
+		// MGlobal::displayWarning("Something wrong with curve in curveContainment node");
 		return MS::kUnknownParameter;
 	}
 
@@ -337,7 +397,6 @@ MStatus curveContainment::compute(const MPlug &plug, MDataBlock &data) {
 			}
 		}
 	}
-	/* Now we */
 
 	pointOnCurveInfo endInsidePoint = *(prev(chainEnd));
 	if (chainEnd != curvePoints.end())
@@ -363,24 +422,8 @@ MStatus curveContainment::compute(const MPlug &plug, MDataBlock &data) {
 	}
 
 
-
-	MDataHandle hOutLength = data.outputValue(aOutLength);
-	double2 &outLength = hOutLength.asDouble2();
-	outLength[0] = startInsidePoint.distance();
-	outLength[1] = endInsidePoint.distance();
-	st = data.setClean( aOutLength ); er;
-
-
-	MFloatVector &minPoint = data.outputValue(aOutMinPoint).asFloatVector();
-	MFloatVector &maxPoint = data.outputValue(aOutMaxPoint).asFloatVector();
-
-	minPoint = startInsidePoint.asFloatVector();
-	maxPoint = endInsidePoint.asFloatVector();
-
-	st = data.setClean( aOutMinPoint ); er;
-	st = data.setClean( aOutMaxPoint ); er;
+	startLength = startInsidePoint.distance();
+	endLength = endInsidePoint.distance();
 
 	return MS::kSuccess;
-
-
 }

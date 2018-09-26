@@ -122,7 +122,7 @@ MObject strokeNode::aApproachDistanceMid;
 MObject strokeNode::aApproachDistanceEnd;
 MObject strokeNode::aApproachDistance;
 
-MObject strokeNode::aPlaneMatrix;
+MObject strokeNode::aPlaneNormal;
 
 MObject strokeNode::aOutput;
 
@@ -149,18 +149,18 @@ MStatus strokeNode::initialize()
   MFnTypedAttribute tAttr;
   MFnUnitAttribute uAttr;
   MFnCompoundAttribute cAttr;
-  MFnMatrixAttribute mAttr;
+  // MFnMatrixAttribute mAttr;
   MFnEnumAttribute eAttr;
 
 
-  MMatrix identity;
-  identity.setToIdentity();
 
-  aPlaneMatrix = mAttr.create( "planeMatrix", "pmat",  MFnMatrixAttribute::kDouble );
-  mAttr.setStorable( false );
-  mAttr.setHidden( true );
-  mAttr.setDefault(identity);
-  st = addAttribute(aPlaneMatrix); er;
+
+  aPlaneNormal = nAttr.create( "planeNormal", "pnml",  MFnNumericData::k3Double );
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault( 0.0, 0.0, 1.0 );
+  st = addAttribute(aPlaneNormal); er;
 
   aStrokeCountFactor = nAttr.create( "strokeCountFactor",
                                      "stcf", MFnNumericData::kDouble);
@@ -432,7 +432,7 @@ MStatus strokeNode::initialize()
   st = attributeAffects(aBrushTwistRange, aOutput);
 
   st = attributeAffects(aBrushFollowStroke, aOutput);
-  st = attributeAffects(aPlaneMatrix, aOutput);
+  st = attributeAffects(aPlaneNormal, aOutput);
 
   st = attributeAffects(aApproachDistance, aOutput);
   st = attributeAffects(aBrushId, aOutput);

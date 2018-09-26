@@ -14,17 +14,17 @@ public:
 
 	~BackStroke();
 
-	void travelStrokeFractions(MDoubleArray &result) const;
+	void getTravelStrokeFractions(MDoubleArray &result) const override;
 
-	void appendTargets(MMatrixArray &result) const ;
+	void appendTargets(MMatrixArray &result) const override;
 
-	void appendTangents(MVectorArray &result) const ;
+	void appendTangents(MVectorArray &result) const override;
 
-	void appendPoints(MVectorArray &result) const ;
+	void appendPoints(MVectorArray &result) const override;
 
-	short direction() const;
+	short direction() const override;
 
-	void  getApproachTargets(MMatrix &startApproach, MMatrix &endApproach) const;
+	void  getApproachTargets(MMatrix &startApproach, MMatrix &endApproach) const override;
 
 private:
 

@@ -15,6 +15,13 @@ class Brush(object):
         self.name = name
                
 
+    def is_round(self):
+        return self.shape == 1
+        
+    def is_flat(self):
+        print self.shape 
+        return self.shape == 0
+        
     def write(self, studio):
         old_brush = studio.RL.Item(self.name)
         if old_brush.Valid():
@@ -49,8 +56,9 @@ class Brush(object):
         for att in [
             "brushMatrix",
             "brushWidth",
-            "brushShape",
-            "brushRetention"]:
+            "brushRetention",
+            "brushShape"
+            ]:
             vals.append(node.attr("brushes[%d].%s" % (index, att)).get())
 
         return Brush(*vals)

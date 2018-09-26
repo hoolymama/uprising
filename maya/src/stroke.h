@@ -33,7 +33,7 @@ public:
 	static unsigned factory(
 	  const MObject &thisObj,
 	  const MObject &dCurve,
-	  const MMatrix &inversePlaneMatrix,
+	  // const MMatrix &inversePlaneMatrix,
 	  const MVector &planeNormal,
 	  double curveLength,
 	  double startDist,

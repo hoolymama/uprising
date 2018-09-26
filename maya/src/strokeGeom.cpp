@@ -61,6 +61,7 @@ strokeGeom::strokeGeom(int id, const Stroke &src, short brushId, short paintId,
 	src.appendTargets(m_targets);
 	src.appendTangents(m_tangents);
 	src.getApproachTargets(m_startApproach, m_endApproach);
+	cerr << "stroke geom direction" << src.direction() << endl;
 }
 
 strokeGeom::~strokeGeom() {}

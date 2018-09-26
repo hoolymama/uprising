@@ -85,7 +85,7 @@ protected:
   static MObject  aApproachDistanceEnd;
   static MObject  aApproachDistance;
 
-  static MObject aPlaneMatrix;
+  static MObject aPlaneNormal;
 
   static MObject aOutput;
 };
