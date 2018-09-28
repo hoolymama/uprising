@@ -36,7 +36,7 @@ MVector extractRotation(const MMatrix &mat,
 // 	m_pivot(MPoint(1, 2, 3))
 // {}
 strokeGeom::strokeGeom(int id, const Stroke &src, short brushId, short paintId,
-                       bool force):
+                       int layerId, bool force):
 	m_id(id),
 	m_parentId(0),
 	m_startApproach(),
@@ -50,10 +50,13 @@ strokeGeom::strokeGeom(int id, const Stroke &src, short brushId, short paintId,
 	m_repeatId(src.repeatId()),
 	m_brushId(brushId),
 	m_paintId(paintId),
+	m_layerId(layerId),
 	m_forceDip(force),
 	m_preStops(),
 	m_sortColor(),
-	m_sortStack()
+	m_sortStack(),
+	m_u(0.0f),
+	m_v(0.0f)
 	// m_globalId()
 	// hasSortStack(false)
 
@@ -61,7 +64,7 @@ strokeGeom::strokeGeom(int id, const Stroke &src, short brushId, short paintId,
 	src.appendTargets(m_targets);
 	src.appendTangents(m_tangents);
 	src.getApproachTargets(m_startApproach, m_endApproach);
-	cerr << "stroke geom direction" << src.direction() << endl;
+	// cerr << "stroke geom direction" << src.direction() << endl;
 }
 
 strokeGeom::~strokeGeom() {}
@@ -131,46 +134,43 @@ void strokeGeom::setFilterColor(const MFloatVector &color)
 void strokeGeom::appendIdToSortStack(bool ascending) {
 	int val = ascending ? m_id : -m_id;
 	m_sortStack.append(val);
-	// this->hasSortStack = true;
 }
 
 void strokeGeom::appendParentIdToSortStack(bool ascending) {
 	int val = ascending ? m_parentId : -m_parentId;
 	m_sortStack.append(val);
-	// this->hasSortStack = true;
 }
 
 void strokeGeom::appendBrushIdToSortStack(bool ascending) {
 	int val = ascending ? int(m_brushId) : -int(m_brushId);
 	m_sortStack.append(val);
-	// this->hasSortStack = true;
 }
 
 void strokeGeom::appendPaintIdToSortStack(bool ascending) {
 	int val = ascending ? int(m_paintId) : -int(m_paintId);
 	m_sortStack.append(val);
-	// this->hasSortStack = true;
+}
+
+void strokeGeom::appendLayerIdToSortStack(bool ascending) {
+	int val = ascending ? int(m_layerId) : -int(m_layerId);
+	m_sortStack.append(val);
 }
 
 void strokeGeom::appendRepeatIdToSortStack(bool ascending) {
 	int val = ascending ? int(m_repeatId) : -int(m_repeatId);
 	m_sortStack.append(val);
-	// this->hasSortStack = true;
 }
 void strokeGeom::appendMapRedIdToSortStack(bool ascending) {
 	int val = ascending ? int(m_sortColor.x * 256) : -int(m_sortColor.x * 256);
 	m_sortStack.append(val);
-	// this->hasSortStack = true;
 }
 void strokeGeom::appendMapGreenIdToSortStack(bool ascending) {
 	int val = ascending ? int(m_sortColor.y * 256) : -int(m_sortColor.y * 256);
 	m_sortStack.append(val);
-	// this->hasSortStack = true;
 }
 void strokeGeom::appendMapBlueIdToSortStack(bool ascending) {
 	int val = ascending ? int(m_sortColor.z * 256) : -int(m_sortColor.z * 256);
 	m_sortStack.append(val);
-	// this->hasSortStack = true;
 }
 
 bool strokeGeom::testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) const
@@ -189,10 +189,12 @@ bool strokeGeom::testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) co
 }
 
 
+
 bool strokeGeom::testId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_id, op, value);}
 bool strokeGeom::testParentId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_parentId, op, value);}
 bool strokeGeom::testBrushId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_brushId, op, value);}
 bool strokeGeom::testPaintId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_paintId, op, value);}
+bool strokeGeom::testLayerId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_layerId, op, value);}
 bool strokeGeom::testRepeatId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_repeatId, op, value);}
 bool strokeGeom::testMapRedId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_filterColor.x * 256), op, value);}
 bool strokeGeom::testMapGreenId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_filterColor.y * 256), op, value);}
@@ -483,14 +485,16 @@ void strokeGeom::getAllTangents(const MMatrix &worldMatrix, MVectorArray &result
 	result.append(m_tangents[(len - 1)]*worldMatrix);
 }
 
-void strokeGeom::getPivotUVs(
-  const MMatrix &inversePlaneMatrix,
-  float &u,
-  float &v) const
+void strokeGeom::setUV(
+  const MMatrix &inversePlaneMatrix)
 {
 	MPoint p = ((m_pivot * inversePlaneMatrix) * 0.5) + MVector(0.5, 0.5, 0.0);
-	u = p.x;
-	v = p.y;
+	m_u = p.x;
+	m_v = p.y;
+}
+void strokeGeom::getUV( float &u, float &v) {
+	u = m_u;
+	v = m_v;
 }
 
 

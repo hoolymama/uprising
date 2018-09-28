@@ -54,6 +54,9 @@ class Studio(object):
 
     def write(self):
         """Clean up and make parent objects etc."""
+        uutl.delete_tools()
+        if self.painting and self.dip:
+            uutl.delete_programs()
         if self.painting:
             self.painting_program = uutl.create_program("px")
             self.painting_program.ShowInstructions(False)
@@ -61,6 +64,7 @@ class Studio(object):
         if self.dip:
             self.dip_frame = uutl.create_frame("dx_frame")
             self.trays_frame = uutl.create_frame("tx_frame")
+
         
         self.approaches_frame = uutl.create_frame("ax_frame")
 
@@ -71,7 +75,6 @@ class Studio(object):
         self.home_approach = self._create_approach(
             HOME_TARGET, "home_approach")
 
-        uutl.delete_tools()
         if self.dip:
             self.dip.write(self)
             with final_position(self.dip.node):

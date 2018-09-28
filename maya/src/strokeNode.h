@@ -55,8 +55,10 @@ protected:
   static MObject aStrokeProfileScaleMax;
   static MObject aStrokeProfileScale;
 
+
   static MObject aBrushId;
   static MObject aPaintId;
+  static MObject aLayerId;
   static MObject aActive;
   static MObject aStrokeCountFactor;
 

@@ -34,6 +34,7 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
  	editorTemplate -addControl "forceDip" ;
  	editorTemplate -addControl "brushId" ;
 	editorTemplate -addControl "paintId" ;
+	editorTemplate -addControl "layerId" ;
 	editorTemplate -endLayout;
 
 

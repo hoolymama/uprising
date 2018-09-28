@@ -153,6 +153,8 @@ MObject painting::aBrushIdTextureRange;
 MObject painting::aPaintIdTextureRange;
 // MObject painting::aStrokeSort;
 
+
+
 MObject painting::aStrokeSortKey;
 MObject painting::aStrokeSortDirection;
 MObject painting::aStrokeSortList;
@@ -163,6 +165,11 @@ MObject painting::aStrokeFilterOperator;
 MObject painting::aStrokeFilterOperand;
 MObject painting::aStrokeFilterList;
 MObject painting::aStrokeFilterTexture;
+
+
+
+MObject painting::aStartFrom;
+
 
 // MObject painting::aStrokeGate;
 MObject painting::aLinearSpeed; // cm/sec
@@ -327,6 +334,8 @@ MStatus painting::initialize()
   eAttr.addField("Map Red", painting::kMapRed);
   eAttr.addField("Map Green", painting::kMapGreen);
   eAttr.addField("Map Blue", painting::kMapBlue);
+  eAttr.addField("Layer Id", painting::kLayerId);
+
 
   aStrokeSortDirection = eAttr.create("strokeSortDirection", "stsd",
                                       painting::kSortAscending);
@@ -356,6 +365,7 @@ MStatus painting::initialize()
   eAttr.addField("Map Red", painting::kMapRed);
   eAttr.addField("Map Green", painting::kMapGreen);
   eAttr.addField("Map Blue", painting::kMapBlue);
+  eAttr.addField("Layer Id", painting::kLayerId);
 
   aStrokeFilterOperator = eAttr.create("strokeFilterOperator", "stfop",
                                        strokeGeom::kGreaterThan);
@@ -384,11 +394,11 @@ MStatus painting::initialize()
   addAttribute(aStrokeFilterTexture);
 
 
-  // aStrokeGate = nAttr.create("strokeGate", "stkg", MFnNumericData::k2Long);
-  // nAttr.setStorable(true);
-  // nAttr.setKeyable(true);
-  // nAttr.setDefault( 0, 9999999);
-  // st = addAttribute(aStrokeGate);
+  aStartFrom = nAttr.create("startFrom", "stfm", MFnNumericData::kInt);
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(0);
+  st = addAttribute(aStartFrom);
 
   aBrushWidth  = nAttr.create("brushWidth", "brwd", MFnNumericData::kDouble);
   nAttr.setHidden( false );
@@ -555,7 +565,7 @@ MStatus painting::initialize()
   st = attributeAffects(aPaintIdTextureRange, aOutput);
   // st = attributeAffects(aStrokeSort, aOutput);
 
-  // st = attributeAffects(aStrokeGate, aOutput);
+  st = attributeAffects(aStartFrom, aOutput);
 
   st = attributeAffects(aStrokeSortKey, aOutput);
   st = attributeAffects(aStrokeSortDirection, aOutput);
@@ -589,28 +599,36 @@ bool painting::findInSortDefinition( StrokeSortFilterKey key,
   return false;
 }
 
-// bool painting::findInFilterDefinition( StrokeSortFilterKey key,
-//                                        const  std::vector< std::tuple <StrokeSortFilterKey, strokeGeom::StrokeFilterOperator, int> >
-//                                        &filterDefinition)
-// {
-//   std::vector< std::tuple <StrokeSortFilterKey, strokeGeom::StrokeFilterOperator, int> >::const_iterator
-//   it =
-//     filterDefinition.begin();
-//   for (; it != filterDefinition.end(); ++it)
-//   {
-//     if (std::get<0>(*it) == key) {
-//       return true;
-//     }
-//   }
-//   return false;
-// }
-
-
-MStatus painting::overrideBrushIds(MDataBlock &data,  MFloatArray &uVals,
-                                   MFloatArray &vVals, std::vector<strokeGeom> &strokePool)
+void painting::getUVs(std::vector<strokeGeom> &strokePool, MFloatArray &uVals,
+                      MFloatArray &vVals)
 {
+  int len =  strokePool.size();
+  uVals.setLength(len);
+  vVals.setLength(len);
+
+  std::vector<strokeGeom>::iterator iter = strokePool.begin();
+  for (unsigned i = 0; iter != strokePool.end(); iter++, i++) {
+    float &u  = uVals[i];
+    float &v  = vVals[i];
+    iter->getUV(u, v);
+  }
+}
+
+
+MStatus painting::overrideBrushIds(MDataBlock &data,
+                                   std::vector<strokeGeom> &strokePool)
+{
+
+  if  (! hasTexture(painting::aBrushIdTexture)) {
+    return MS::kUnknownParameter;
+  }
+
   MIntArray brushIds;
   short rangeBrushId = data.inputValue(aBrushIdTextureRange).asShort();
+
+  MFloatArray uVals;
+  MFloatArray vVals;
+  getUVs(strokePool, uVals, vVals);
 
   MStatus st = sampleUVTexture(painting::aBrushIdTexture, uVals, vVals, brushIds,
                                rangeBrushId);
@@ -625,11 +643,19 @@ MStatus painting::overrideBrushIds(MDataBlock &data,  MFloatArray &uVals,
   return MS::kSuccess;
 }
 
-MStatus painting::overridePaintIds(MDataBlock &data,  MFloatArray &uVals,
-                                   MFloatArray &vVals, std::vector<strokeGeom> &strokePool)
+MStatus painting::overridePaintIds(MDataBlock &data,  std::vector<strokeGeom> &strokePool)
 {
+
+  if  (! hasTexture(painting::aPaintIdTexture)) {
+    return MS::kUnknownParameter;
+  }
+
   MIntArray paintIds;
   short rangePaintId = data.inputValue(aPaintIdTextureRange).asShort();
+
+  MFloatArray uVals;
+  MFloatArray vVals;
+  getUVs(strokePool, uVals, vVals);
 
   MStatus st = sampleUVTexture(painting::aPaintIdTexture, uVals, vVals, paintIds,
                                rangePaintId);
@@ -644,8 +670,7 @@ MStatus painting::overridePaintIds(MDataBlock &data,  MFloatArray &uVals,
   return MS::kSuccess;
 }
 
-MStatus painting::sortStrokes(MDataBlock &data,  MFloatArray &uVals,
-                              MFloatArray &vVals, std::vector<strokeGeom> &strokePool)
+MStatus painting::sortStrokes(MDataBlock &data,  std::vector<strokeGeom> &strokePool)
 
 {
   MStatus st;
@@ -690,15 +715,17 @@ MStatus painting::sortStrokes(MDataBlock &data,  MFloatArray &uVals,
   if (useSortMap)
   {
     MFloatVectorArray sortMapColors;
-    st = sampleUVTexture(painting::aStrokeSortTexture, uVals, vVals, sortMapColors);
-    if (! st.error()) {
-      iter = strokePool.begin();
-      for (unsigned i = 0; iter != strokePool.end(); iter++, i++) {
-        iter->setSortColor(sortMapColors[i]);
+    if  (hasTexture(painting::aStrokeSortTexture)) {
+      MFloatArray uVals;
+      MFloatArray vVals;
+      getUVs(strokePool, uVals, vVals);
+      st = sampleUVTexture(painting::aStrokeSortTexture, uVals, vVals, sortMapColors);
+      if (! st.error()) {
+        iter = strokePool.begin();
+        for (unsigned i = 0; iter != strokePool.end(); iter++, i++) {
+          iter->setSortColor(sortMapColors[i]);
+        }
       }
-    }
-    else {
-      MGlobal::displayWarning("Sort on map color specified, but no map exists");
     }
   }
 
@@ -727,6 +754,9 @@ MStatus painting::sortStrokes(MDataBlock &data,  MFloatArray &uVals,
           break;
         case kPaintId:
           for ( iter = strokePool.begin(); iter != strokePool.end(); iter++) {iter->appendPaintIdToSortStack(ascending);}
+          break;
+        case kLayerId:
+          for ( iter = strokePool.begin(); iter != strokePool.end(); iter++) {iter->appendLayerIdToSortStack(ascending);}
           break;
         case kRepeatId:
           for ( iter = strokePool.begin(); iter != strokePool.end(); iter++) {iter->appendRepeatIdToSortStack(ascending);}
@@ -758,8 +788,7 @@ MStatus painting::sortStrokes(MDataBlock &data,  MFloatArray &uVals,
 
 
 
-MStatus painting::filterStrokes(MDataBlock &data,  MFloatArray &uVals,
-                                MFloatArray &vVals, std::vector<strokeGeom> &strokePool)
+MStatus painting::filterStrokes(MDataBlock &data,  std::vector<strokeGeom> &strokePool)
 
 {
   MStatus st;
@@ -798,23 +827,24 @@ MStatus painting::filterStrokes(MDataBlock &data,  MFloatArray &uVals,
         aStrokeFilterOperator).asShort());
 
     filterDefinition.push_back( std::make_tuple(key, op,  value) );
-
-
   }
+
 
   /* Set the mapped colors so they may be used for filtering */
   if (useFilterMap)
   {
     MFloatVectorArray filterMapColors;
-    st = sampleUVTexture(painting::aStrokeFilterTexture, uVals, vVals, filterMapColors);
-    if (! st.error()) {
-      iter = strokePool.begin();
-      for (unsigned i = 0; iter != strokePool.end(); iter++, i++) {
-        iter->setFilterColor(filterMapColors[i]);
+    if  (hasTexture(painting::aStrokeFilterTexture)) {
+      MFloatArray uVals;
+      MFloatArray vVals;
+      getUVs(strokePool, uVals, vVals);
+      st = sampleUVTexture(painting::aStrokeFilterTexture, uVals, vVals, filterMapColors);
+      if (! st.error()) {
+        iter = strokePool.begin();
+        for (unsigned i = 0; iter != strokePool.end(); iter++, i++) {
+          iter->setFilterColor(filterMapColors[i]);
+        }
       }
-    }
-    else {
-      MGlobal::displayWarning("Filter on map color specified, but no map exists");
     }
   }
 
@@ -855,6 +885,11 @@ MStatus painting::filterStrokes(MDataBlock &data,  MFloatArray &uVals,
           new_end = std::remove_if(strokePool.begin(), strokePool.end(),
                                    [op, value](const strokeGeom & stroke)
           { return stroke.testPaintId(op, value) == false; }   );
+          break;
+        case kLayerId:
+          new_end = std::remove_if(strokePool.begin(), strokePool.end(),
+                                   [op, value](const strokeGeom & stroke)
+          { return stroke.testLayerId(op, value) == false; }   );
           break;
         case kRepeatId:
           new_end = std::remove_if(strokePool.begin(), strokePool.end(),
@@ -905,6 +940,9 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   MFloatVector strokeFilterTexture = data.inputValue(
                                        aStrokeFilterTexture ).asFloatVector();
 
+
+  int startFrom = data.inputValue(aStartFrom).asInt();
+
   MDataHandle mh = data.inputValue(aInMatrix, &st); er;
   MMatrix wm = mh.asMatrix();
   MMatrix planeMatrix = data.inputValue(painting::aPlaneMatrix).asMatrix();
@@ -947,27 +985,34 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   std::vector<strokeGeom>::const_iterator citer;
   std::vector<strokeGeom>::iterator iter;
 
-  unsigned nStrokes = strokePool.size();
-  MFloatArray uVals(nStrokes);
-  MFloatArray vVals(nStrokes);
+  // unsigned nStrokes = strokePool.size();
+  // MFloatArray uVals(nStrokes);
+  // MFloatArray vVals(nStrokes);
 
-  citer = strokePool.begin();
-  for (unsigned i = 0; citer != strokePool.end(); citer++, i++) {
-    float &u = uVals[i];
-    float &v = vVals[i];
-    citer->getPivotUVs(inversePlaneMatrix, u, v);
+  iter = strokePool.begin();
+  for (unsigned i = 0; iter != strokePool.end(); iter++, i++) {
+    iter->setUV(inversePlaneMatrix);
+    // float &u = uVals[i];
+    // float &v = vVals[i];
+    // citer->getPivotUVs(inversePlaneMatrix, u, v);
   }
 
-  overrideBrushIds( data, uVals, vVals, strokePool);
-  overridePaintIds( data, uVals, vVals, strokePool);
+  overrideBrushIds( data, strokePool);
+  overridePaintIds( data,  strokePool);
 
-  filterStrokes(data, uVals, vVals, strokePool);
+  filterStrokes(data,  strokePool);
 
-  sortStrokes(data, uVals, vVals, strokePool);
+  sortStrokes(data, strokePool);
 
+  int last = strokePool.size() - 1;
+  if (startFrom > last) {
+    startFrom = last;
+  }
 
+  cerr << "startFrom: " << startFrom << endl;
+  cerr << "last: " << last << endl;
 
-  for ( citer = strokePool.begin(); citer != strokePool.end(); citer++) {
+  for ( citer = strokePool.begin() + startFrom; citer != strokePool.end(); citer++) {
     pGeom->addStroke(*citer);
   }
 
@@ -1026,6 +1071,16 @@ MStatus painting::populateStrokePool(MDataBlock &data,
     }
   }
   return MS::kSuccess;
+}
+
+
+
+bool painting::hasTexture(const MObject &attribute)
+{
+  MString name;
+  MStatus st = getTextureName(attribute, name);
+  if (st.error()) {return false; }
+  return true;
 }
 
 MStatus painting::getTextureName(const MObject &attribute,

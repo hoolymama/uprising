@@ -17,7 +17,7 @@ BackStroke::BackStroke()	{ }
 BackStroke::~BackStroke() {}
 
 void BackStroke::getTravelStrokeFractions(MDoubleArray &result) const {
-	cerr << "BackStroke::getTravelStrokeFractions" << endl;
+	// cerr << "BackStroke::getTravelStrokeFractions" << endl;
 	std::vector<Target>::const_iterator citer = m_targets.begin();
 	for (; citer != m_targets.end(); citer++) {
 		result.append(citer->reverseStrokeFraction());

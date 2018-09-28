@@ -4,12 +4,7 @@ import datetime
 import pymel.core as pm
 
 
-from robolink import (
-    Robolink,
-    RUNMODE_MAKE_ROBOTPROG,
-    ITEM_TYPE_ROBOT,
-    RUNMODE_MAKE_ROBOTPROG)
-# RL = Robolink()
+from robolink import (Robolink, ITEM_TYPE_STATION)
 
 import setup_dip
 
@@ -23,8 +18,8 @@ def mkdir_p(path):
         else:
             raise
 
-def export_maya_package_only(description):
 
+def choose_export_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'export')
     entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
                              dialogStyle=2, fileMode=3, dir=export_dir)
@@ -32,10 +27,25 @@ def export_maya_package_only(description):
         pm.displayWarning('Nothing Selected')
         return
 
-    export_dir = entries[0]
+    return entries[0]
 
+
+def get_timestamp(suffix):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-    ts_dir = os.path.join(export_dir, timestamp)
+
+    if suffix:
+        timestamp = "%s_%s" % (timestamp, suffix)
+    return timestamp
+
+
+def get_ts_dir(export_dir, timestamp):
+    return os.path.join(export_dir, timestamp)
+
+
+def export_maya_package_only(export_dir, description, suffix=None):
+
+    timestamp = get_timestamp(suffix)
+    ts_dir = get_ts_dir(export_dir, timestamp)
 
     session_dir = os.path.join(ts_dir, "sessions")
     mkdir_p(session_dir)
@@ -45,22 +55,12 @@ def export_maya_package_only(description):
     write_ref_image(ts_dir, timestamp)
 
 
-def export_package(description):
+def export_package(export_dir, description, suffix=None):
     RL = Robolink()
-    robot = RL.Item('', ITEM_TYPE_ROBOT)
-    export_dir = os.path.join(pm.workspace.getPath(), 'export')
-    entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
-                             dialogStyle=2, fileMode=3, dir=export_dir)
-    if not entries:
-        pm.displayWarning('Nothing Selected')
-        return
 
-    export_dir = entries[0]
+    timestamp = get_timestamp(suffix)
+    ts_dir = get_ts_dir(export_dir, timestamp)
 
-    timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-    ts_dir = os.path.join(export_dir, timestamp)
-
-    # simulation = os.path.join(ts_dir, "%s.html" % timestamp)
     session_dir = os.path.join(ts_dir, "sessions")
     mkdir_p(session_dir)
 
@@ -69,11 +69,33 @@ def export_package(description):
     write_ref_image(ts_dir, timestamp)
     write_station(RL, ts_dir, timestamp)
     write_program(RL, ts_dir, timestamp)
+    write_csv(export_dir, timestamp, description)
+
+
+def write_csv(export_dir, timestamp, description):
+    fn = os.path.join(export_dir, "session_entries.csv")
+    export_root = os.path.join(pm.workspace.getPath(), 'export')
+    folder = export_dir.replace(export_root,"")
+
+    line = (",").join([folder,
+                       "ID",
+                       timestamp,
+                       description,
+                       "Gloss",
+                       "Dibond",
+                       "DATERUN",
+                       "LINK",
+                       "Waiting",
+                       "NOTES"])
+
+    with open(fn, 'a+') as the_file:
+        the_file.write(line)
+        the_file.write("\n")
 
 
 def write_ref_image(ts_dir, timestamp):
 
-    # TODO - make sure its active panel and 
+    # TODO - make sure its active panel and
     f = pm.currentTime(q=True)
     fn = os.path.join(ts_dir, timestamp)
     pm.playblast(
@@ -90,7 +112,7 @@ def write_ref_image(ts_dir, timestamp):
         percent=100,
         compression="tif",
         quality=100,
-        widthHeight=( 1024, 1024))
+        widthHeight=(1024, 1024))
 
 
 def write_program(RL, ts_dir, timestamp):
@@ -102,8 +124,9 @@ def write_program(RL, ts_dir, timestamp):
 
 
 def write_station(RL, ts_dir, timestamp):
-    station = os.path.join(ts_dir, "%s.rdk" % timestamp)
-    RL.Save(station)
+    station = RL.Item("", ITEM_TYPE_STATION)
+    station.setName(timestamp)
+    RL.Save(os.path.join(ts_dir, "%s.rdk" % timestamp))
 
 
 def write_maya_scene(ts_dir, timestamp):
@@ -114,7 +137,7 @@ def write_maya_scene(ts_dir, timestamp):
 
 
 def _painting_stats(node):
-    
+
     cluster_count = pm.paintingQuery(node, cc=True)
     stroke_count = 0
     for i in range(cluster_count):
@@ -123,24 +146,22 @@ def _painting_stats(node):
     strokes_per_cluster = stroke_count / float(cluster_count)
 
     result = {
-        "Cluster count" : cluster_count,
+        "Cluster count": cluster_count,
         "Stroke count": stroke_count,
         "Strokes per cluster": strokes_per_cluster
     }
     return result
- 
 
 
 def write_log(ts_dir, timestamp, description):
 
     painting_node = pm.PyNode("mainPaintingShape")
     dip_node = pm.PyNode("dipPaintingShape")
-    
+
     dip_combos = setup_dip.dip_combinations(painting_node)
 
     painting_stats = _painting_stats(painting_node)
     dip_stats = _painting_stats(dip_node)
-
 
     log_file = os.path.join(ts_dir, "log.txt")
     with open(log_file, 'w') as the_file:
@@ -150,21 +171,19 @@ def write_log(ts_dir, timestamp, description):
 
         the_file.write("Frame number: %s\n" % pm.currentTime(q=True))
 
-        
         the_file.write("Painting node stats:")
         for k in painting_stats:
             the_file.write("%s: %s\n" % (k, painting_stats[k]))
-        
+
         the_file.write("\n")
         the_file.write("Dip node stats:")
         for k in dip_stats:
             the_file.write("%s: %s\n" % (k, dip_stats[k]))
-        
+
         the_file.write("Dip combinations:")
         for k in dip_combos:
-            the_file.write(k)
-    
-     
+            the_file.write("%s\n" % k)
+
 
 # def publish_package():
 #     export_dir = os.path.join(pm.workspace.getPath(), 'export')
@@ -188,5 +207,3 @@ def write_log(ts_dir, timestamp, description):
 #     write_log(ts_dir, timestamp, description)
 #     write_station(RL, ts_dir, timestamp)
 #     write_program(RL, ts_dir, timestamp)
-
-

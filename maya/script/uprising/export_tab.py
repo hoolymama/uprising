@@ -8,8 +8,7 @@ import write
 # import brush_utils as butl
 # import paint_utils as putl
 
-# from setup_dip import setup_dip_factory
-
+import setup_dip
 # import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
 # import painting as pnt
@@ -65,6 +64,19 @@ class ExportTab(gui.FormLayout):
             command=pm.Callback(self.write_maya_package))
 
 
+        pm.rowLayout(
+            numberOfColumns=2, columnWidth2=(
+                150, 200), adjustableColumn=1, columnAlign=(
+                1, 'right'), columnAttach=[
+                (1, 'both', 2), (2, 'both', 2)])
+
+        self.frame_if = pm.intFieldGrp(label="Frames to run", numberOfFields=2, value1=1, value2=1 )
+    
+        pm.button(
+            label='Export and write packages',
+            command=pm.Callback(self.on_export_and_write_series))
+
+
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
@@ -113,8 +125,32 @@ class ExportTab(gui.FormLayout):
 
     def write_program_package(self):
         desc = pm.scrollField(self.description_ff, q=True, text=True)
-        write.export_package(desc)
+        export_dir = write.choose_export_dir()
+        if export_dir:
+            write.export_package(export_dir, desc)
 
     def write_maya_package(self):
         desc = pm.scrollField(self.description_ff, q=True, text=True)
-        write.export_maya_package_only(desc)
+        export_dir = write.choose_export_dir()
+        if export_dir:
+            write.export_maya_package_only(export_dir, desc)
+
+    def on_export_and_write_series(self):
+        start_frame =  pm.intFieldGrp(self.frame_if, query=True, value1=True)
+        end_frame =  pm.intFieldGrp(self.frame_if, query=True, value2=True)
+        print "%d %d" % (start_frame, end_frame)
+
+        export_dir = write.choose_export_dir()
+        if export_dir:
+            desc = pm.scrollField(self.description_ff, q=True, text=True)
+            painting_node = pm.PyNode("mainPaintingShape")
+            dip_node = pm.PyNode("dipPaintingShape")
+            for f in range(start_frame, end_frame+1):
+                pm.currentTime(f)
+                setup_dip.doit()
+                self.write(painting_node, dip_node)
+                write.export_package(export_dir, desc, f)
+
+
+
+

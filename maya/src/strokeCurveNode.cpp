@@ -96,21 +96,15 @@ MStatus strokeCurve:: initialize()
     MFnMatrixAttribute mAttr;
     MFnEnumAttribute eAttr;
 
-
     MMatrix identity;
     identity.setToIdentity();
 
-
     inheritAttributesFrom("strokeNode");
-
-
-
 
     aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve, & st); er;
     tAttr.setReadable(false);
     tAttr.setStorable(false);
     st = addAttribute(aCurve); er;
-
 
     aOverlap  = nAttr.create("overlap", "ovlp", MFnNumericData:: kDouble);
     nAttr.setHidden(false);
@@ -128,8 +122,6 @@ MStatus strokeCurve:: initialize()
     st = addAttribute(aRandomOverlapFactor);
     er;
 
-
-
     aForceDip = nAttr.create("forceDip", "fcdp", MFnNumericData::kBoolean);
     nAttr.setHidden(false);
     nAttr.setStorable(true);
@@ -138,7 +130,6 @@ MStatus strokeCurve:: initialize()
     nAttr.setDefault(false);
     st = addAttribute(aForceDip);
     er;
-
 
     aSubcurveMin = nAttr.create("subcurveMin", "scvn", MFnNumericData::kDouble, 0.0 );
     nAttr.setDefault(0.0);
@@ -151,8 +142,6 @@ MStatus strokeCurve:: initialize()
     st = addAttribute(aSubcurve);
     er;
 
-
-
     aSubcurveMethod = eAttr.create("subcurveMethod", "scmt",
                                    strokeCurve::kLength);
     eAttr.addField("length", strokeCurve::kLength);
@@ -161,9 +150,6 @@ MStatus strokeCurve:: initialize()
     eAttr.setHidden(false);
     st = addAttribute(aSubcurveMethod);
     er;
-
-
-
 
     aBrushRampScope = eAttr.create("brushRampScope", "brsc",
                                    StrokeRotationSpec::kStroke);
@@ -419,14 +405,14 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
     bool force = data.inputValue(aForceDip).asBool();
     short brushId = data.inputValue(aBrushId).asShort();
     short paintId = data.inputValue(aPaintId).asShort();
-
+    int layerId = data.inputValue(aLayerId).asInt();
 
     bool first = true;
     int i = 0;
     for (auto &citer : strokes)
     {
         bool doForce = force && first;
-        geom ->push_back(strokeGeom(i, *citer, brushId, paintId, doForce));
+        geom ->push_back(strokeGeom(i, *citer, brushId, paintId, layerId, doForce));
         first = false;
         i++;
     }

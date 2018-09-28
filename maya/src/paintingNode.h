@@ -54,17 +54,6 @@ public:
   enum Spac { kParametric, kArcLen };
   enum TargetDisplay {kTargetsNone, kTargetsPoint, kTargetsLine, kTargetsMatrix };
 
-  // enum StrokeSort { kNoSort,
-  //                   kBrushAscPaintAsc,
-  //                   kBrushAscPaintDesc,
-  //                   kBrushDescPaintAsc,
-  //                   kBrushDescPaintDesc,
-  //                   kPaintAscBrushAsc,
-  //                   kPaintAscBrushDesc,
-  //                   kPaintDescBrushAsc,
-  //                   kPaintDescBrushDesc
-  //                 };
-
   enum StrokeSortFilterKey {
     kId,
     kParentId,
@@ -73,7 +62,8 @@ public:
     kRepeatId,
     kMapRed,
     kMapGreen,
-    kMapBlue
+    kMapBlue,
+    kLayerId
   };
 
 
@@ -86,9 +76,6 @@ private:
   bool findInSortDefinition(StrokeSortFilterKey key,
                             const std::vector< std::pair <StrokeSortFilterKey, StrokeSortDirection> >
                             &sortDefinition);
-  // bool  findInFilterDefinition( StrokeSortFilterKey key,
-  //                               const  std::vector< std::tuple <StrokeSortFilterKey, strokeGeom::StrokeFilterOperator, int> >
-  //                               &filterDefinition);
 
   MStatus populateStrokePool(MDataBlock &data,
                              std::vector<strokeGeom> &strokePool);
@@ -120,15 +107,11 @@ private:
                   M3dView::DisplayStatus status ) ;
 
 
-  MStatus overrideBrushIds(MDataBlock &data,  MFloatArray &uVals,
-                           MFloatArray &vVals, std::vector<strokeGeom> &strokePool);
-  MStatus  overridePaintIds(MDataBlock &data,  MFloatArray &uVals,
-                            MFloatArray &vVals, std::vector<strokeGeom> &strokePool);
+  MStatus overrideBrushIds(MDataBlock &data,  std::vector<strokeGeom> &strokePool);
+  MStatus  overridePaintIds(MDataBlock &data, std::vector<strokeGeom> &strokePool);
 
-  MStatus filterStrokes(MDataBlock &data,  MFloatArray &uVals,
-                        MFloatArray &vVals, std::vector<strokeGeom> &strokePool);
-  MStatus sortStrokes(MDataBlock &data,  MFloatArray &uVals,
-                      MFloatArray &vVals, std::vector<strokeGeom> &strokePool);
+  MStatus filterStrokes(MDataBlock &data,  std::vector<strokeGeom> &strokePool);
+  MStatus sortStrokes(MDataBlock &data, std::vector<strokeGeom> &strokePool);
   // MStatus setData(MDataBlock &block, MObject &attribute,
   //                 const MMatrixArray &data) ;
 
@@ -140,6 +123,10 @@ private:
   // MStatus getData( MArrayDataHandle &ha,  strokeCurveGeom *result);
 
 
+  void getUVs(std::vector<strokeGeom> &strokePool, MFloatArray &uVals,
+              MFloatArray &vVals);
+
+  bool hasTexture(const MObject &attribute);
 
   MStatus getTextureName(const MObject &attribute,
                          MString &name) const ;
@@ -169,6 +156,11 @@ private:
   static MObject aStrokeFilterOperand;
   static MObject aStrokeFilterList;
   static MObject aStrokeFilterTexture;
+
+
+
+  static MObject aStartFrom;
+
 
 
   // static MObject aStrokeGate;

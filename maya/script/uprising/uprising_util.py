@@ -4,7 +4,7 @@ import pymel.core as pm
 PI = 3.14159265359
 
 
-from robolink import (Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TOOL)
+from robolink import (Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TOOL, ITEM_TYPE_PROGRAM)
 
 # RL = Robolink()
 
@@ -101,6 +101,11 @@ def create_frame(name):
 def delete_tools():
     RL = Robolink()
     for t in RL.ItemList(filter = ITEM_TYPE_TOOL):
+        t.Delete()
+
+def delete_programs():
+    RL = Robolink()
+    for t in RL.ItemList(filter = ITEM_TYPE_PROGRAM):
         t.Delete()
 
 def numeric(s):

@@ -66,7 +66,7 @@ const double rad_to_deg = (180 / 3.1415927);
 
 MObject strokeNode::aBrushId;
 MObject strokeNode::aPaintId;
-
+MObject strokeNode::aLayerId;
 MObject strokeNode::aPointDensity;
 MObject strokeNode::aStrokeLength;
 MObject strokeNode::aRandomLengthFactor;
@@ -287,6 +287,14 @@ MStatus strokeNode::initialize()
   nAttr.setWritable(true);
   st = addAttribute(aPaintId); er;
 
+  aLayerId = nAttr.create("layerId", "lyid", MFnNumericData::kInt); er;
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setWritable(true);
+  st = addAttribute(aLayerId); er;
+
+
   aActive = nAttr.create( "active", "act", MFnNumericData::kBoolean);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
@@ -437,6 +445,8 @@ MStatus strokeNode::initialize()
   st = attributeAffects(aApproachDistance, aOutput);
   st = attributeAffects(aBrushId, aOutput);
   st = attributeAffects(aPaintId, aOutput);
+  st = attributeAffects(aLayerId, aOutput);
+
 
   return ( MS::kSuccess );
 

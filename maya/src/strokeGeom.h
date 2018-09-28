@@ -26,7 +26,8 @@ public:
 	};
 
 	// strokeGeom();
-	strokeGeom(int id, const Stroke &src, short brushId, short paintId, bool force);
+	strokeGeom(int id, const Stroke &src, short brushId, short paintId, int layerId,
+	           bool force);
 	~strokeGeom();
 
 
@@ -114,10 +115,13 @@ public:
 
 	void getAllTangents(const MMatrix &worldMatrix, MVectorArray &result) const;
 
-	void getPivotUVs(
-	  const MMatrix &inversePlaneMatrix,
-	  float &u,
-	  float &v) const ;
+	/*	void getPivotUVs(
+		  const MMatrix &inversePlaneMatrix,
+		  float &u,
+		  float &v) const ;
+	*/
+	void setUV( const MMatrix &inversePlaneMatrix);
+	void getUV( float &u, float &v);
 
 	void addPreStop(const MMatrix &mat);
 
@@ -129,6 +133,8 @@ public:
 	void appendParentIdToSortStack(bool ascending);
 	void appendBrushIdToSortStack(bool ascending);
 	void appendPaintIdToSortStack(bool ascending);
+	void appendLayerIdToSortStack(bool ascending);
+
 	void appendRepeatIdToSortStack(bool ascending) ;
 	void appendMapRedIdToSortStack(bool ascending) ;
 	void appendMapGreenIdToSortStack(bool ascending) ;
@@ -140,6 +146,7 @@ public:
 	bool testParentId(StrokeFilterOperator op, int value) const;
 	bool testBrushId(StrokeFilterOperator op, int value) const;
 	bool testPaintId(StrokeFilterOperator op, int value) const;
+	bool testLayerId(StrokeFilterOperator op, int value) const;
 	bool testRepeatId(StrokeFilterOperator op, int value) const;
 	bool testMapRedId(StrokeFilterOperator op, int value) const;
 	bool testMapGreenId(StrokeFilterOperator op, int value) const;
@@ -157,6 +164,7 @@ private:
 	MVector m_planeNormal;
 	short m_brushId;
 	short m_paintId;
+	int m_layerId;
 	MPoint m_pivot;
 	bool m_forceDip;
 	MFloatVector m_sortColor;
@@ -165,6 +173,8 @@ private:
 	MMatrixArray m_preStops;
 	MIntArray m_sortStack;
 	int m_repeatId;
+	float m_u;
+	float m_v;
 	// int m_globalId;
 };
 

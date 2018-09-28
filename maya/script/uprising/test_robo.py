@@ -2,12 +2,14 @@ from robolink import (
     Robolink,
     ITEM_TYPE_ROBOT,
     ITEM_TYPE_TARGET,
+    ITEM_TYPE_STATION,
     ITEM_TYPE_PROGRAM,
     ITEM_TYPE_TOOL,
     INSTRUCTION_CALL_PROGRAM,
     INSTRUCTION_INSERT_CODE,
     INSTRUCTION_START_THREAD,
     INSTRUCTION_COMMENT,
+
     INSTRUCTION_SHOW_MESSAGE,
     RUNMODE_MAKE_ROBOTPROG,
     RUNMODE_SIMULATE
@@ -17,9 +19,17 @@ import robodk as rdk
 RL = Robolink()
 
 robot = RL.Item('', ITEM_TYPE_ROBOT)
-tools = RL.ItemList(filter = ITEM_TYPE_TOOL)
+stat = RL.Item("", ITEM_TYPE_STATION)
+stat.setName("678987")
+# print  [prog.Name() for prog in progs]
+# stat = RL.Item("", ITEM_TYPE_STATION)
+# print stat.Name()
+# RL.CloseStation(stat)
 
-print [t.Name() for t in tools]
+
+
+# stat = RL.Item("", ITEM_TYPE_STATION)
+# print [t.Name() for t in tools]
 
 
 # WINDOWSTATE_HIDDEN      = -1        # Hidden
