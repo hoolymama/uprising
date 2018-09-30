@@ -18,17 +18,27 @@ import robodk as rdk
 
 RL = Robolink()
 
-robot = RL.Item('', ITEM_TYPE_ROBOT)
+# robot = RL.Item('', ITEM_TYPE_ROBOT)
 stat = RL.Item("", ITEM_TYPE_STATION)
-stat.setName("678987")
+# stat.setName("678987")
 # print  [prog.Name() for prog in progs]
 # stat = RL.Item("", ITEM_TYPE_STATION)
 # print stat.Name()
 # RL.CloseStation(stat)
 
 
+print [s.Name() for s in RL.getOpenStations()]
+for  station in RL.getOpenStations():
+    station.Delete()
+
+RL.AddFile("/Users/julian/projects/robot/stations/clean.rdk")
+
+
 
 # stat = RL.Item("", ITEM_TYPE_STATION)
+# stat.Delete()
+
+
 # print [t.Name() for t in tools]
 
 

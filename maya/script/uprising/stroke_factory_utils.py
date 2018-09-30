@@ -16,14 +16,7 @@ def input_connections(attribute):
     conns = attribute.connections(source=True, destination=False, plugs=True)
     return conns
 
-def assembly(node):
-    top = node
-    p = node.getParent()
-    while p:
-        top = p
-        p = p.getParent()
-    return top
- 
+
 
  
 def get_index(node, att, connect_to):
@@ -174,7 +167,7 @@ def set_board_from_sheet(node):
         tmp_locs[k].attr("translate").set(*corners[k]["pos"])
 
     # move mainPainting into position and parent tmp_locs
-    top = assembly(node)
+    top = uput.assembly(node)
     zppos = top.attr("zeroPosition").get()
     top.attr("zeroPosition").set(False)
     for k in corners:

@@ -1,7 +1,7 @@
 
 import pymel.core as pm
 import pymel.core.uitypes as gui
-from  uprising import (painting_tab , setup_tab, props_tab, export_tab, rings_tab)
+from  uprising import (painting_tab , setup_tab, validate_tab, publish_tab, rings_tab)
 
 
 
@@ -29,6 +29,7 @@ import curve_utils
 import brush_utils
 import paint_utils
 import culling
+import props
 
 
 
@@ -52,8 +53,10 @@ reload(sheets)
 
 reload(painting_tab)
 reload(setup_tab)
-reload(props_tab)
-reload(export_tab)
+reload(props)
+reload(validate_tab)
+reload(publish_tab)
+
 reload(rings_tab)
 reload(culling)
 
@@ -79,20 +82,24 @@ class RobotWindow(gui.Window):
         self.painting_tab = painting_tab.PaintingTab()
         self.tabs.setTabLabel((self.painting_tab, "Painting"))
          
-        pm.setParent(self.tabs)
-        self.props_tab = props_tab.PropsTab()
-        self.tabs.setTabLabel((self.props_tab, "Props"))
+        # pm.setParent(self.tabs)
+        # self.props_tab = props_tab.PropsTab()
+        # self.tabs.setTabLabel((self.props_tab, "Props"))
 
-         
-        pm.setParent(self.tabs)
-        self.export_tab = export_tab.ExportTab()
-        self.tabs.setTabLabel((self.export_tab, "Export"))
-         
-
+                  
         pm.setParent(self.tabs)
         self.rings_tab = rings_tab.RingsTab()
         self.tabs.setTabLabel((self.rings_tab, "Rings"))
          
+
+        pm.setParent(self.tabs)
+        self.validate_tab = validate_tab.ValidateTab()
+        self.tabs.setTabLabel((self.validate_tab, "Validate"))
+         
+
+        pm.setParent(self.tabs)
+        self.publish_tab = publish_tab.PublishTab()
+        self.tabs.setTabLabel((self.publish_tab, "Publish"))
 
         self.show()
         self.setResizeToFitChildren()

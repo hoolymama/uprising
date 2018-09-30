@@ -1005,12 +1005,13 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   sortStrokes(data, strokePool);
 
   int last = strokePool.size() - 1;
+  if (startFrom < 0) {
+    startFrom = 0;
+  }
   if (startFrom > last) {
     startFrom = last;
   }
 
-  cerr << "startFrom: " << startFrom << endl;
-  cerr << "last: " << last << endl;
 
   for ( citer = strokePool.begin() + startFrom; citer != strokePool.end(); citer++) {
     pGeom->addStroke(*citer);

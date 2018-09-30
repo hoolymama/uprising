@@ -1,9 +1,10 @@
 
 import pymel.core as pm
-import stroke_factory_utils as sfu
+ 
 from paint import Paint
 from brush import Brush
 import curve_utils as cutl
+import uprising.uprising_util as uutl
 import logging
 logger = logging.getLogger('uprising')
 
@@ -88,7 +89,7 @@ def doit():
     painting_node = pm.PyNode("mainPaintingShape")
     dip_node = pm.PyNode("dipPaintingShape")
 
-    dip_assembly = sfu.assembly(dip_node)
+    dip_assembly = uutl.assembly(dip_node)
     logger.debug("dip_assembly: %s" % dip_assembly)
 
     zpos = dip_assembly.attr("zeroPosition").get()

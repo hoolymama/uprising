@@ -1,12 +1,106 @@
 import errno
 import os
+import sys
 import datetime
 import pymel.core as pm
-
+import uprising_util as uutl
 
 from robolink import (Robolink, ITEM_TYPE_STATION)
+from studio import Studio
 
 import setup_dip
+
+CLEAN_FILE = "/Users/julian/projects/robot/stations/clean.rdk"
+
+def split_desc(desc):
+    result = [None, None]
+    lines = desc.splitlines()
+    n = len(lines)
+    if n:
+        result[0] = lines[0]
+    if n > 1:
+        result[1] = "\n".join(lines[1:])
+    return result
+
+
+# class Publisher(object):
+
+#     def __init__():
+
+
+def publish_sequence(export_dir, painting_node, dip_node, description, frame_range, maya_only=False):
+    RL = Robolink()
+    for station in RL.getOpenStations():
+        station.Delete()
+    RL.AddFile(CLEAN_FILE)
+
+
+    session_dir = os.path.join(export_dir, "sessions")
+    mkdir_p(session_dir)
+    
+    for frame in range(frame_range[0], frame_range[1]+1):
+        pm.currentTime(frame)
+        timestamp = get_timestamp(frame)
+        ts_dir = get_ts_dir(export_dir, timestamp)
+        mkdir_p(ts_dir)
+        description, notes = split_desc(description.replace("#f", str(frame)))
+        
+        write_log( painting_node, dip_node, ts_dir, timestamp, description, notes, frame)
+        write_maya_scene(ts_dir, timestamp)
+        write_ref_image(ts_dir, timestamp)
+        write_csv(export_dir, timestamp, description)
+
+        if not maya_only:
+            setup_dip.doit()
+            with uutl.minimize_robodk():
+                studio = Studio(painting_node, dip_node)
+                studio.write()
+            write_station(RL, ts_dir, timestamp)
+            write_program(RL, ts_dir, timestamp)
+
+
+# def export_maya_package_only(export_dir, description, suffix=None):
+
+#     timestamp = get_timestamp(suffix)
+#     ts_dir = get_ts_dir(export_dir, timestamp)
+
+#     session_dir = os.path.join(ts_dir, "sessions")
+#     mkdir_p(session_dir)
+
+#     write_log(ts_dir, timestamp, description)
+#     write_maya_scene(ts_dir, timestamp)
+#     write_ref_image(ts_dir, timestamp)
+
+
+# def export_package(export_dir, description, suffix=None):
+#     RL = Robolink()
+
+#     timestamp = get_timestamp(suffix)
+#     ts_dir = get_ts_dir(export_dir, timestamp)
+
+#     session_dir = os.path.join(ts_dir, "sessions")
+#     mkdir_p(session_dir)
+
+#     write_log(ts_dir, timestamp, description)
+#     write_maya_scene(ts_dir, timestamp)
+#     write_ref_image(ts_dir, timestamp)
+#     write_station(RL, ts_dir, timestamp)
+#     write_program(RL, ts_dir, timestamp)
+#     write_csv(export_dir, timestamp, description)
+
+
+
+# def export_to_robodk(self, painting_node, dip_node):
+#     RL = Robolink()
+#     RL.setWindowState(-1)
+#     try:
+#         studio = Studio(painting_node, dip_node)
+#         studio.write()
+#     except Exception:
+#         t, v, tb = sys.exc_info()
+#         RL.setWindowState(2)
+#         raise t, v, tb
+#     RL.setWindowState(2)
 
 
 def mkdir_p(path):
@@ -18,8 +112,7 @@ def mkdir_p(path):
         else:
             raise
 
-
-def choose_export_dir():
+def choose_publish_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'export')
     entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
                              dialogStyle=2, fileMode=3, dir=export_dir)
@@ -41,35 +134,6 @@ def get_timestamp(suffix):
 def get_ts_dir(export_dir, timestamp):
     return os.path.join(export_dir, timestamp)
 
-
-def export_maya_package_only(export_dir, description, suffix=None):
-
-    timestamp = get_timestamp(suffix)
-    ts_dir = get_ts_dir(export_dir, timestamp)
-
-    session_dir = os.path.join(ts_dir, "sessions")
-    mkdir_p(session_dir)
-
-    write_log(ts_dir, timestamp, description)
-    write_maya_scene(ts_dir, timestamp)
-    write_ref_image(ts_dir, timestamp)
-
-
-def export_package(export_dir, description, suffix=None):
-    RL = Robolink()
-
-    timestamp = get_timestamp(suffix)
-    ts_dir = get_ts_dir(export_dir, timestamp)
-
-    session_dir = os.path.join(ts_dir, "sessions")
-    mkdir_p(session_dir)
-
-    write_log(ts_dir, timestamp, description)
-    write_maya_scene(ts_dir, timestamp)
-    write_ref_image(ts_dir, timestamp)
-    write_station(RL, ts_dir, timestamp)
-    write_program(RL, ts_dir, timestamp)
-    write_csv(export_dir, timestamp, description)
 
 
 def write_csv(export_dir, timestamp, description):
@@ -153,11 +217,9 @@ def _painting_stats(node):
     return result
 
 
-def write_log(ts_dir, timestamp, description):
+def write_log(painting_node, dip_node, ts_dir, timestamp, description, notes, frame):
 
-    painting_node = pm.PyNode("mainPaintingShape")
-    dip_node = pm.PyNode("dipPaintingShape")
-
+ 
     dip_combos = setup_dip.dip_combinations(painting_node)
 
     painting_stats = _painting_stats(painting_node)
@@ -166,10 +228,13 @@ def write_log(ts_dir, timestamp, description):
     log_file = os.path.join(ts_dir, "log.txt")
     with open(log_file, 'w') as the_file:
         the_file.write("Description:\n")
-        the_file.write("%s\n" % description)
-        the_file.write("Timestamp: %s\n" % timestamp)
+        the_file.write("%s\n\n" % description)
+        the_file.write("Notes:\n")
+        the_file.write("%s\n\n" % notes)
+        
+        the_file.write("Timestamp: %s\n\n" % timestamp)
 
-        the_file.write("Frame number: %s\n" % pm.currentTime(q=True))
+        the_file.write("Frame number: %s\n\n" % frame)
 
         the_file.write("Painting node stats:")
         for k in painting_stats:
@@ -183,6 +248,12 @@ def write_log(ts_dir, timestamp, description):
         the_file.write("Dip combinations:")
         for k in dip_combos:
             the_file.write("%s\n" % k)
+
+
+
+
+
+
 
 
 # def publish_package():

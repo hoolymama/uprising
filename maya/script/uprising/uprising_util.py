@@ -1,12 +1,52 @@
+import sys
 import robodk as rdk
 import pymel.core as pm
-
+from contextlib import contextmanager
 PI = 3.14159265359
 
 
 from robolink import (Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TOOL, ITEM_TYPE_PROGRAM)
 
 # RL = Robolink()
+
+def assembly(node):
+    top = node
+    p = node.getParent()
+    while p:
+        top = p
+        p = p.getParent()
+    return top
+ 
+# @contextmanager
+# def minimize_robodk():
+#     RL = Robolink()
+#     # RL.setWindowState(-1)
+#     RL.HideRoboDK()
+#     try:
+#         yield
+#     except Exception:
+#         t, v, tb = sys.exc_info()
+#         # RL.setWindowState(2)
+#         # RL.ShowRoboDK()
+#         raise t, v, tb
+#     # RL.setWindowState(2)
+#     RL.ShowRoboDK()
+
+@contextmanager
+def minimize_robodk():
+    RL = Robolink()
+    RL.HideRoboDK()
+    yield
+    RL.ShowRoboDK()
+
+@contextmanager
+def final_position(node):
+    asy = assembly(node)
+    zpos = asy.attr("zeroPosition").get()
+    asy.attr("zeroPosition").set(False)
+    yield
+    asy.attr("zeroPosition").set(zpos)
+
 
 def to_vector_array(arr):
     if not arr:

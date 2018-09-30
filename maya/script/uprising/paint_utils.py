@@ -81,7 +81,7 @@ def validate_paint_data(data):
 
 def set_rack_position(dip_node, locators):
 
-    top_node = sfu.assembly(dip_node)
+    top_node = uutl.assembly(dip_node)
 
     for key in locators:
         vals = [x*0.1 for x in locators[key]]
@@ -125,7 +125,7 @@ def connect_trays(painting_node, dip_node, tray_geos):
         connect_paint_to_node(geo, dip_node, i)
 
 def set_up_trays(painting_node, dip_node, colors):
-    top_node = sfu.assembly(dip_node)
+    top_node = uutl.assembly(dip_node)
     tray_geos = [x for x in pm.PyNode("%s|jpos|trays" % top_node ).getChildren() if x.startswith("tx")]
     connect_trays(painting_node, dip_node, tray_geos)
     set_tray_colors(tray_geos, colors)
