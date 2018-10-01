@@ -1,0 +1,77 @@
+
+ global proc AEPaintingFilterListAddMultiWidget(
+ 	string $plug, 
+ 	string $columnLayout,  
+ 	int $index) 
+{
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+
+ 	string $node = attr.nodeFromNodeAttr($plug);
+
+ 	string $label = ("Filters: " + $index);
+
+ 	setParent $columnLayout;
+ 	string $rl = `rowLayout 
+ 	 -numberOfColumns 5 
+ 	 -adjustableColumn 5
+ 		-columnWidth5 $gTextColumnWidthIndex 80 50 80 40`;
+
+ 	// print( "PLUG: " + $plug + "   ---   " + $index + "\n");
+
+  string $removeCmd = ("deleteUI " + $rl+";removeMultiInstance -b 1 "+$plug+";" ) ;
+
+ 	text -l ("Filter ["+ $index +"]");
+  string $keyMenu = AEpaintingMakeOptionMenu($plug, "strokeFilterKey");
+  string $operatorMenu = AEpaintingMakeOptionMenu($plug, "strokeFilterOperator");
+ 	string $operandField = `intField` ;
+ 	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
+ 	connectControl $operandField ($plug +".strokeFilterOperand");
+ 	setParent ..;
+ }
+
+ global proc AEpaintingFilterListReplace (string $nodeAttr) {
+
+ 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $col = "AEaddPaintingFilterListCol";
+
+ 	setParent ..;
+ 	int $numElements = `getAttr -size $nodeAttr`;
+
+ 	string $controls[] = `layout -q -ca $col`;
+ 	int $numExistingControls = size($controls);
+ 	for ($i = 0;$i<$numExistingControls;$i++) {
+ 		deleteUI $controls[$i];
+ 	}
+ 	int $indices[] = `getAttr -mi $nodeAttr`;
+ 	for ($i = 0;$i<$numElements;$i++) {
+ 		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
+ 		AEPaintingFilterListAddMultiWidget ($plug, $col,  $indices[$i]) ;
+ 	}
+ 	setParent ..;
+
+ 	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+ 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].strokeFilterKey  0" ) "AEaddPaintingFilterListBtn";
+
+ }
+
+
+ global proc AEpaintingFilterListNew (string $nodeAttr) {
+ 	global int $gTextColumnWidthIndex;
+
+ 	setUITemplate -pst attributeEditorTemplate;
+
+ 	string $col = "AEaddPaintingFilterListCol";
+ 	rowLayout -numberOfColumns 3  -columnWidth3 $gTextColumnWidthIndex $gTextColumnWidthIndex $gTextColumnWidthIndex;
+ 	 text -label "";
+ 	button -width 210 -l "Add" "AEaddPaintingFilterListBtn";
+ 	text -label "";
+ 	setParent ..;
+ 	columnLayout -adj 1 $col ;	
+ 	setParent ..;
+ 	setUITemplate -ppt;
+
+ 	AEpaintingFilterListReplace($nodeAttr);
+
+ }

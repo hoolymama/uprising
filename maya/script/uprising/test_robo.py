@@ -2,12 +2,14 @@ from robolink import (
     Robolink,
     ITEM_TYPE_ROBOT,
     ITEM_TYPE_TARGET,
+    ITEM_TYPE_STATION,
     ITEM_TYPE_PROGRAM,
     ITEM_TYPE_TOOL,
     INSTRUCTION_CALL_PROGRAM,
     INSTRUCTION_INSERT_CODE,
     INSTRUCTION_START_THREAD,
     INSTRUCTION_COMMENT,
+
     INSTRUCTION_SHOW_MESSAGE,
     RUNMODE_MAKE_ROBOTPROG,
     RUNMODE_SIMULATE
@@ -17,7 +19,28 @@ import datetime
 RL = Robolink()
 
 
+# robot = RL.Item('', ITEM_TYPE_ROBOT)
+stat = RL.Item("", ITEM_TYPE_STATION)
+# stat.setName("678987")
+# print  [prog.Name() for prog in progs]
+# stat = RL.Item("", ITEM_TYPE_STATION)
+# print stat.Name()
+# RL.CloseStation(stat)
 
+
+print [s.Name() for s in RL.getOpenStations()]
+for  station in RL.getOpenStations():
+    station.Delete()
+
+RL.AddFile("/Users/julian/projects/robot/stations/clean.rdk")
+
+
+
+# stat = RL.Item("", ITEM_TYPE_STATION)
+# stat.Delete()
+
+
+# print [t.Name() for t in tools]
 
 # WINDOWSTATE_HIDDEN      = -1        # Hidden
 # WINDOWSTATE_SHOW        = 0         # Visible
@@ -30,21 +53,15 @@ RL = Robolink()
 # toolbar and without the menu
 
 
-# RL.Render(False)
-# # RL.setWindowState(-1)
 
-# RL.setWindowState(2)
 
-# robot.Childs()
-# for c in robot.Childs():
-#     print c.Name()
-#     c.setVisible(False)
+
 
 
 def draw_seg(verts, color, name):
     # print "color %s %s %s" % color
     # print "name %s" % name
-
+    RL = Robolink()
     triangles = [
         list(verts[0]), list(verts[1]), list(verts[2]),
         list(verts[1]), list(verts[3]), list(verts[2])
@@ -103,6 +120,35 @@ save_prog()
 
     # shape.Delete()
 # robot = RL.Item('', ITEM_TYPE_ROBOT)
+
+
+
+
+# import pymel.core as pm
+
+# n_clusters = pm.paintingQuery("mainPaintingShape", cc=True)
+# for j in range(n_clusters):
+#     n_strokes = pm.paintingQuery("mainPaintingShape", ci=j, sc=True)
+#     for k in range(n_strokes):
+#         rots = pm.paintingQuery(
+#             "mainPaintingShape",
+#             clusterIndex=j, 
+#             strokeIndex=k, 
+#             strokeStopRotations=True,
+#             rotateOrder="zyx",
+#             rotateUnit="rad"
+#         )
+#         pos = pm.paintingQuery(
+#             "mainPaintingShape",
+#             clusterIndex=j, 
+#             strokeIndex=k, 
+#             strokeStopPositions=True
+#         )
+#         print "C=%s, S=%s" % (j, k)
+#         if pos and rots:
+#             print pos
+#             print rots
+
 
 
 # RL.Item("geox_0000").Delete()

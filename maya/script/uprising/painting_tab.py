@@ -1,51 +1,24 @@
-import os.path
+import sys
+# import os.path
 import pymel.core as pm
 
-import setup_dip
+# import setup_dip
 import curve_utils as cutl
-import brush_utils as butl
-import paint_utils as putl
+# import brush_utils as butl
+import culling
 
-from setup_dip import setup_dip_factory
+
+# import paint_utils as putl
+
+# from setup_dip import setup_dip_factory
 
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
-import painting as pnt
-
+# import painting as pnt
+# from studio import Studio
 from robolink import (
     Robolink
 )
-import robodk as rdk
-import paint
-import brush
-import stroke
-import cluster
-import target
-import write
-import uprising_util
-import const
-import sheets
-
-
-reload(uprising_util)
-reload(paint)
-reload(brush)
-reload(stroke)
-reload(cluster)
-reload(target)
-reload(write)
-reload(setup_dip)
-reload(const)
-
-reload(cutl)
-reload(butl)
-reload(putl)
-reload(pnt)
-reload(sfu)
-reload(sheets)
-
-
-RL = Robolink()
 
 
 
@@ -58,91 +31,141 @@ class PaintingTab(gui.FormLayout):
         pm.setParent(self)
         self.column = pm.columnLayout()
         self.column.adjustableColumn(True)
-        self.create_butttons()
+        self.create_buttons()
         self.create_action_buttons()
 
-    def create_butttons(self):
+    def create_buttons(self):
         pm.setParent(self.column)
 
         pm.button(
-            label='Create Stroke Factory',
-            command=pm.Callback(sfu.create_stroke_factory))
- 
-        pm.button(
-            label='Create painting',
-            command=pm.Callback(self.on_create_painting))
-
-        pm.button(
-            label='Create dip subroutines',
-            command=pm.Callback(self.on_create_dip_only))
-
-        pm.button(
-            label='Send brushes',
-            command=pm.Callback(self.on_send_brushes))
-
-        pm.button(
-            label='Create all',
-            command=pm.Callback(self.on_create_all))
-
-        pm.button(
-            label='Add curve to factory',
-            command=pm.Callback(cutl.add_curve_to_sf))
-
-        pm.button(
-            label='Update curve driver connections',
-            command=pm.Callback(cutl.update_curve_sf))
+            label='Select strokes from curves',
+            ann="Choose curves to select connected strokeCurves",
+            command=pm.Callback(self.on_select_strokes))
 
 
         pm.button(
-            label='Add brush to factory',
-            command=pm.Callback(butl.add_brush_to_sf))
+            label='Duplicate curves with strokes',
+            ann="Duplicate selected curves and add to selected painting node",
+            command=pm.Callback(self.duplicate_curves_to_painting))
 
         pm.button(
-            label='Add all paint trays to factory',
-            command=pm.Callback(putl.add_all_trays_to_sf))
+            label='Add curves to painting in order',
+            ann="Add selected curves to selected painting node. If they are already connected, disconnect and add in the order they are selected",
+            command=pm.Callback(self.add_curves_to_painting))
 
         pm.button(
-            label='Send paint trays',
-            command=pm.Callback(self.on_send_paint_trays))
+            label='Reverse order of selected curves',
+            command=pm.Callback(self.reverse_connection_order))
+
+
+        pm.rowLayout(numberOfColumns=2,
+                     columnWidth2=(
+                         (100), 100),
+                     adjustableColumn=1,
+                     columnAlign=(1, 'right'),
+                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+        pm.button(
+            label='Remove curves from painting',
+            ann="Break selected curve connections",
+            command=pm.Callback(self.on_remove_curve_instances))
+
+        delete_curves = 1
+        self.delete_curves_cb = pm.checkBox(
+            label='Force',
+            value=delete_curves,
+            annotation='Also delete curves')
+
+        pm.setParent('..')
 
         pm.button(
-            label='Delete curve instances',
-            ann="Select stroke factory",
-            command=pm.Callback(self.on_delete_curve_instances))
+            label='Remove unconnected strokeCurves',
+            ann="Delete strokeCurves that are connected to selected curves but which have no destination painting",
+            command=pm.Callback(
+                self.on_remove_hanging_stroke_curves))
+
+        pm.rowLayout(
+            numberOfColumns=6, columnWidth6=(
+                110, 60, 60, 60, 60, 80), columnAlign=(
+                1, 'right'), columnAttach=[
+                (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2), (5, 'both', 2), (6, 'both', 2)])
+
+
+        pm.text(label='Propagate ramps')
 
         pm.button(
-            label='Delete unconnected curve instances',
-            ann="Select stroke factory",
-            command=pm.Callback(self.on_delete_unconnected_curve_instances))
+            label='Profile',
+            command=pm.Callback(self.on_propagate_profile_ramp))
 
         pm.button(
-            label='Set up dip stroke factory',
-            command=pm.Callback(self.on_setup_dip))
+            label='Tilt',
+            command=pm.Callback(self.on_propagate_tilt_ramp))
 
         pm.button(
-            label='Write program, station, simulation',
-            command=pm.Callback(write.write_program))
+            label='Bank',
+            command=pm.Callback(self.on_propagate_bank_ramp))
 
         pm.button(
-            label='Randomize paints assignments',
-            command=pm.Callback(self.on_random_paints))
+            label='Twist',
+            command=pm.Callback(self.on_propagate_twist_ramp))
+
+        flat_only = 1
+        self.flat_only_cb = pm.checkBox(
+            label='Flat only',
+            value=flat_only,
+            annotation='Only propagate flat brush ramps')
+
+        pm.setParent('..')
 
         pm.button(
-            label='Randomize brush assignments',
-            command=pm.Callback(self.on_random_brushes))
+            label='Contain strokes to mesh',
+            ann="Choose a mesh and either some curves or strokeCurves",
+            command=pm.Callback(self.on_contain_strokes_in_mesh))
 
-        pm.button(
-            label='Export approach objects',
-            command=pm.Callback(self.on_send_approach_targets))
 
-        pm.button(
-            label='Create brushes from spreadsheet',
-            command=pm.Callback(self.create_brush_geo_from_sheet))
 
-        pm.button(
-            label='Set board transform from spreadsheet',
-            command=pm.Callback(self.set_board_transform_from_sheet))
 
+        # pm.rowLayout(numberOfColumns=3,
+        #              columnWidth3=(120, 80, 80),
+        #              adjustableColumn=1,
+        #              columnAlign=(1, 'right'),
+        # columnAttach=[(1, 'both', 2), (2, 'both', 2), (3, 'both', 2)])
+
+        # self.paint_brush_field =  pm.intFieldGrp(numberOfFields=2, label="Brush / Paint")
+        # pm.button(
+        #     label='Cull before' ,
+        #     command=pm.Callback(self.on_cull_before))
+
+        # pm.button(
+        #     label='Cull after' ,
+        #     command=pm.Callback(self.on_cull_after))
+
+        # pm.button(
+        #     label='Create dip subroutines',
+        #     command=pm.Callback(self.on_create_dip_only))
+
+        # pm.button(
+        #     label='Send brushes',
+        #     command=pm.Callback(self.on_send_brushes))
+
+        # pm.button(
+        #     label='Delete curve instances',
+        #     command=pm.Callback(self.on_delete_curve_instances))
+
+        # pm.button(
+        #     label='Set up dip stroke factory',
+        #     command=pm.Callback(self.on_setup_dip))
+
+        # pm.button(
+        #     label='Write program, station, simulation',
+        #     command=pm.Callback(write.write_program))
+
+        # pm.button(
+        #     label='Export approach objects',
+        #     command=pm.Callback(self.on_send_approach_targets))
+
+        # pm.button(
+        #     label='Set board transform from spreadsheet',
+        #     command=pm.Callback(self.set_board_transform_from_sheet))
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -165,100 +188,172 @@ class PaintingTab(gui.FormLayout):
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
-    def set_board_transform_from_sheet(self):
-        
-        node = pm.PyNode("paintingStrokeFactoryShape")
-        sfu.set_board_from_sheet(node)
+
+    def on_select_strokes(self):
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True,
+            v=True)
+        pm.select(pm.listHistory(curves, future=True,levels=1, type="strokeCurve"))
+
+    def add_curves_to_painting(self):
+        node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
+        if not node:
+            raise IndexError("No painting node selected")
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type=("nurbsCurve", "strokeCurve"),
+            ni=True,
+            ut=True,
+            v=True)
+
+        stroke_curves = pm.listConnections(
+            curves, d=True, 
+            s=False, 
+            type="strokeCurve")
+    
+        painting_conns = pm.listConnections(
+            stroke_curves, d=True, 
+            s=False, 
+            type="painting",
+            c=True, p=True)
+        for conn in painting_conns:
+            conn[0] // conn[1]
+
+        for curve in curves:
+            cutl.connect_curve_to_painting(
+                curve, node, connect_to="next_available")
+
+
+    def reverse_connection_order(self):
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type=("nurbsCurve", "strokeCurve"),
+            ni=True,
+            ut=True,
+            v=True)
+
+        stroke_curves = pm.listConnections(
+            curves, d=True, 
+            s=False, 
+            type="strokeCurve")
+
+        painting_conns = pm.listConnections(
+            stroke_curves, d=True, 
+            s=False, 
+            type="painting",
+            c=True, p=True)
+
+        for conn in painting_conns:
+            conn[0] // conn[1]
+
+        c1, c2 = zip(*painting_conns)
+        painting_conns = zip(list(c1),reversed(list(c2)))
+
+        for conn in painting_conns:
+            conn[0] >> conn[1]
 
 
 
+    def duplicate_curves_to_painting(self):
+        node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
+        if not node:
+            raise IndexError("No painting node selected")
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True,
+            v=True)
+        for curve in curves:
+            cutl.duplicate_curve_to_painting(curve, node)
 
-    def create_brush_geo_from_sheet(self):
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        butl.create_brush_geo_from_sheet(painting_factory)
-        
-    def on_send_paint_trays(self):
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        putl.send_paints(painting_factory)
+    def on_remove_curve_instances(self):
+        del_crvs = pm.checkBox(self.delete_curves_cb, query=True, v=True)
 
-    def on_random_paints(self):
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        cutl.assign_random_paints(painting_factory)
-        
-    def on_random_brushes(self):
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        cutl.assign_random_brushes(painting_factory)
+        node = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="painting")[0]
 
-    def on_send_brushes(self):
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        butl.send_brushes(painting_factory)
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True,
+            v=True)
+        if not curves:
+            curves = pm.listHistory(
+                pm.PyNode("mainPaintingShape.strokeCurves"),
+                type="nurbsCurve")
+        sfu.delete_curve_instances(node, curves, del_crvs)
 
-    def on_send_approach_targets(self):
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        sfu.send_aproach_objects(painting_factory)
+    def on_remove_hanging_stroke_curves(self):
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True,
+            v=True)
+        stroke_curves = pm.listConnections(
+            curves, d=True, s=False, type="strokeCurve")
+        for sc in stroke_curves:
+            paintings = pm.listConnections(
+                sc.attr("output"), d=True, s=False, type="painting")
+            if not paintings:
+                pm.delete(sc)
 
-    def on_create_all(self):
-        RL.setWindowState(-1)
-        RL.Render(False)
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        dip_factory = pm.PyNode("dipStrokeFactoryShape")
-       
-        butl.send_brushes(painting_factory)
+    def on_propagate_profile_ramp(self):
+        flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
+        cutl.propagate_ramp_attribute(
+            "strokeProfileRamp", "strokeProfileScale",flat)
 
-        dip = pnt.Painting(dip_factory, True)
-        dip.create_dip_subroutines()
+    def on_propagate_tilt_ramp(self):
+        flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
+        cutl.propagate_ramp_attribute("brushTiltRamp", "brushTiltRange",flat)
 
-        painting = pnt.Painting(painting_factory)
-        painting.create_painting_program()
-        RL.Render(True)
-        RL.setWindowState(2)
+    def on_propagate_bank_ramp(self):
+        flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
+        cutl.propagate_ramp_attribute("brushBankRamp", "brushBankRange",flat)
+
+    def on_propagate_twist_ramp(self):
+        flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
+        cutl.propagate_ramp_attribute("brushTwistRamp", "brushTwistRange",flat)
+
+    def on_contain_strokes_in_mesh(self):
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True,
+            v=True)
+
+        meshes = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="mesh",
+            ni=True,
+            ut=True,
+            v=True)
+
+        cutl.contain_strokes_in_mesh(curves, meshes[0])
+
  
-    def on_create_painting(self):
-        RL.setWindowState(-1)
-        RL.Render(False)
-        painting_factory = pm.PyNode("paintingStrokeFactoryShape")
-        painting = pnt.Painting(painting_factory)
-        painting.create_painting_program()
-        RL.Render(True)
-        RL.setWindowState(2)
-
-    def on_create_dip_only(self):
-        RL.setWindowState(-1)
-        RL.Render(False)
-        dip_factory = pm.PyNode("dipStrokeFactoryShape")
-        dip = pnt.Painting(dip_factory, True)
-        dip.create_dip_subroutines()
-        RL.Render(True)
-        RL.setWindowState(2)
- 
-
-
-
-    def on_delete_curve_instances(self):
-        for node in sfu.selected_stroke_factories():
-            sfu.delete_curve_instances(node)
-
-    def on_delete_unconnected_curve_instances(self):
-        for node in sfu.selected_stroke_factories():
-            sfu.delete_curve_instances(node, True)
-
-
-    def on_setup_dip(self):
-        painting = pm.PyNode("paintingStrokeFactoryShape")
-        dip = pm.PyNode("dipStrokeFactoryShape")
-        dip_curves_grp = pm.PyNode("dipCurves")
-
-        # curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve")
-        # if not curves:
-        #     raise TypeError("Need dip curves")
-        setup_dip_factory(painting, dip, dip_curves_grp)
-
-    def on_test_strokes(self):
-        node = pm.PyNode("paintingStrokeFactoryShape")
-        painting = pnt.Painting(node)
-        painting.test_strokes()
-
-    def on_show_painting(self):
-        node = pm.PyNode("paintingStrokeFactoryShape")
-        painting = pnt.Painting(node)
-        painting.show()

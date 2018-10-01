@@ -17,13 +17,13 @@ def _get_service():
     return service
 
 
-def get_raw_brushes_data():
-    service = _get_service()
-    result = service.spreadsheets().values().get(
-        spreadsheetId=SHEETS["Measurements"],
-        range='Brushes!A2:J18').execute()
-    values = result.get('values', [])
-    return values
+# def get_raw_brushes_data():
+#     service = _get_service()
+#     result = service.spreadsheets().values().get(
+#         spreadsheetId=SHEETS["Measurements"],
+#         range='Brushes!A2:J18').execute()
+#     values = result.get('values', [])
+#     return values
 
 
 def get_raw_board_data():
@@ -32,4 +32,22 @@ def get_raw_board_data():
         spreadsheetId=SHEETS["Measurements"],
         range='Board!A9:D12').execute()
     values = result.get('values', [])
-    return values
+
+    offset_result = service.spreadsheets().values().get(
+        spreadsheetId=SHEETS["Measurements"],
+        range='Board!E6').execute()
+    offset_values = offset_result.get('values')
+
+    offset = offset_values[0][0] if offset_values else 0
+
+
+    material_result = service.spreadsheets().values().get(
+        spreadsheetId=SHEETS["Measurements"],
+        range='Board!A1').execute()
+    material = material_result.get('values')[0][0]
+
+    offset = offset_values[0][0] if offset_values else 0
+
+
+
+    return (values, offset, material)

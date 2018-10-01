@@ -1,7 +1,15 @@
 
+BRUSH_SHAPES = ["flat", "round", "filbert"]
 
-CLUSTER_APPROACH =   "clusterApproachObject"
-TOOL_CHANGE_APPROACH =   "toolChangeApproachObject"
-HOME_APPROACH =      "homeApproachObject"
+
 
 HOME_JOINTS = [0, -90, 90, 0, 0, 0]
+
+
+PAINTING_START_JOINTS = [
+    -90.000000, -90.000000,
+    120.000000, 0.000000, -30.000000, 0.000000]
+
+DIP_START_JOINTS = [
+    -60.000000, -60.000000,
+    110.000000, 0.000000, 20.000000, 50.000000]

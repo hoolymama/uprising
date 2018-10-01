@@ -325,8 +325,8 @@ MStatus strokeFactory::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setMin(0.00);
-  nAttr.setSoftMax(100);
-  nAttr.setDefault(10);
+  nAttr.setSoftMax(100.0);
+  nAttr.setDefault(10.0);
   nAttr.setKeyable(true);
   addAttribute(aApproximationDistance);
 

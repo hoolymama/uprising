@@ -1,12 +1,80 @@
+import sys
 import robodk as rdk
 import pymel.core as pm
-
+from contextlib import contextmanager
 PI = 3.14159265359
 
 
-from robolink import (Robolink, ITEM_TYPE_ROBOT)
+from robolink import (Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TOOL, ITEM_TYPE_PROGRAM)
 
-RL = Robolink()
+# RL = Robolink()
+
+def assembly(node):
+    top = node
+    p = node.getParent()
+    while p:
+        top = p
+        p = p.getParent()
+    return top
+ 
+@contextmanager
+def minimize_robodk():
+    RL = Robolink()
+    RL.HideRoboDK()
+    try:
+        yield
+    except Exception:
+        t, v, tb = sys.exc_info()
+        RL.ShowRoboDK()
+        raise t, v, tb
+    RL.ShowRoboDK()
+
+@contextmanager
+def final_position(node):
+    asy = assembly(node)
+    zpos = asy.attr("zeroPosition").get()
+    asy.attr("zeroPosition").set(False)
+    yield
+    asy.attr("zeroPosition").set(zpos)
+
+@contextmanager
+def filters_off(node):
+    curr = node.attr("applyFilters").get()
+    node.attr("applyFilters").set(False)
+    yield
+    node.attr("applyFilters").set(curr)
+
+
+
+def to_vector_array(arr):
+    if not arr:
+        return []
+    in_len = len(arr)
+    out_len = in_len / 3
+    if out_len * 3 != in_len:
+        raise ValueError("Input array must be multiple of 3")
+    result = []
+
+    for i in range(out_len):
+        j = i * 3
+        result.append(pm.dt.Vector(arr[j], arr[j + 1], arr[j + 2]))
+    return result
+    
+def to_point_array(arr):
+    if not arr:
+        return []
+    in_len = len(arr)
+    out_len = in_len / 3
+    if out_len * 3 != in_len:
+        raise ValueError("Input array must be multiple of 3")
+    result = []
+
+    for i in range(out_len):
+        j = i * 3
+        result.append(pm.dt.Point(arr[j], arr[j + 1], arr[j + 2]))
+    return result
+    
+ 
 
 
 def rad2deg(rad):
@@ -17,12 +85,15 @@ def deg2rad(deg):
     return deg / (180 / PI)
 
 
-class StrokeError(Exception):
+class PaintingError(Exception):
     pass
-
 
 class ClusterError(Exception):
     pass
+    
+class StrokeError(Exception):
+    pass
+
 
 
 def maya_to_robodk_mat(rhs):
@@ -35,20 +106,21 @@ def maya_to_robodk_mat(rhs):
     return rdk.Mat(mat)
 
 
-def mat_from_connected(attribute, space):
-    conns = attribute.connections(
-        source=True, destination=False)
-    if not conns:
-        return None
-    mat = None
-    if space == "world":
-        mat = pm.PyNode(conns[0]).attr("worldMatrix[0]").get()
-    else:
-        mat = pm.PyNode(conns[0]).attr("matrix").get()
-    return maya_to_robodk_mat(mat)
+# def mat_from_connected(attribute, space):
+#     conns = attribute.connections(
+#         source=True, destination=False)
+#     if not conns:
+#         return None
+#     mat = None
+#     if space == "world":
+#         mat = pm.PyNode(conns[0]).attr("worldMatrix[0]").get()
+#     else:
+#         mat = pm.PyNode(conns[0]).attr("matrix").get()
+#     return maya_to_robodk_mat(mat)
 
 
 def create_program(name):
+    RL = Robolink()
     program = RL.Item(name)
     if program.Valid():
         program.Delete()
@@ -56,6 +128,7 @@ def create_program(name):
 
 
 def create_frame(name):
+    RL = Robolink()
     frame = RL.Item(name)
     if frame.Valid():
         frame.Delete()
@@ -63,6 +136,15 @@ def create_frame(name):
     frame.setPose(rdk.eye())
     return frame
 
+def delete_tools():
+    RL = Robolink()
+    for t in RL.ItemList(filter = ITEM_TYPE_TOOL):
+        t.Delete()
+
+def delete_programs():
+    RL = Robolink()
+    for t in RL.ItemList(filter = ITEM_TYPE_PROGRAM):
+        t.Delete()
 
 def numeric(s):
     try:
@@ -74,19 +156,21 @@ def config_key(config):
     if config:
         return "%d%d%d" % tuple(config.list2()[0][0:3])
 
-def config_map(pose, mask="000"):
+def config_000_poses(pose):
+    RL = Robolink()
     configs = {}
+    result = []
     robot = RL.Item('', ITEM_TYPE_ROBOT)
     ik = robot.SolveIK_All(pose)
     siz = ik.size()   
     if not (ik and  siz[0] and  siz[1] and (len(ik.list()) > 5)):
-        return None
+        return result
     joint_poses = [el[0:6] for el in ik.list2()]
     for joint_pose in joint_poses:
         key = config_key(robot.JointsConfig(joint_pose))
-        if key.startswith(mask):
-            configs.setdefault(key, []).append(joint_pose)
-    return configs
+        if key == "000":
+            result.append(joint_pose)
+    return result
 
 
 

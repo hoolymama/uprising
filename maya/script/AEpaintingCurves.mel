@@ -37,7 +37,7 @@
   attrControlGrp -attribute ($plug+".paintId");
   attrControlGrp -attribute ($plug+".active");
 
-  attrControlGrp -attribute  ($plug+".approachDistance");
+  attrControlGrp -attribute  ($plug+".approachDistance"); 
 
 
  
@@ -46,15 +46,15 @@
  	setParent ..;
 
  }
-global proc AEstrokeFactoryAddSelectedCurves(string $nodeAttr) {
-	string $curves[] = `ls -sl -dag -leaf -type "nurbsCurve"`;
-	for ($curve in $curves) {
-		int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
-		connectAttr -f ($curve+".worldSpace[0]") ($nodeAttr+"["+$nextIndex+"].curve");
-	}
-}
+// global proc AEstrokeFactoryAddSelectedCurves(string $nodeAttr) {
+// 	string $curves[] = `ls -sl -dag -leaf -type "nurbsCurve"`;
+// 	for ($curve in $curves) {
+// 		int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+// 		connectAttr -f ($curve+".worldSpace[0]") ($nodeAttr+"["+$nextIndex+"].curve");
+// 	}
+// }
 
- global proc AEmultiStrokeFactoryCurvesReplace (string $nodeAttr) {
+ global proc AEpaintingCurvesReplace (string $nodeAttr) {
 
  	string $node = attr.nodeFromNodeAttr($nodeAttr);
  	string $col = "AEaddStrokeFactoryCurvesCol";
@@ -75,21 +75,21 @@ global proc AEstrokeFactoryAddSelectedCurves(string $nodeAttr) {
  	setParent ..;
 
  
- 	button -e -c ( "AEstrokeFactoryAddSelectedCurves(\""+ $nodeAttr+"\")") "AEaddStrokeFactoryCurvesBtn";
+ 	// button -e -c ( "AEstrokeFactoryAddSelectedCurves(\""+ $nodeAttr+"\")") "AEaddStrokeFactoryCurvesBtn";
  	// button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].pointDensity 1" ) "AEaddStrokeFactoryCurvesBtn";
 
  }
 
 
- global proc AEmultiStrokeFactoryCurvesNew (string $nodeAttr) {
+ global proc AEpaintingCurvesNew (string $nodeAttr) {
  	setUITemplate -pst attributeEditorTemplate;
 
  	string $col = "AEaddStrokeFactoryCurvesCol";
- 	button -l "Add" "AEaddStrokeFactoryCurvesBtn";
+ 	// button -l "Add" "AEaddStrokeFactoryCurvesBtn";
  	columnLayout -adj 1 $col ;	
  	setParent ..;
  	setUITemplate -ppt;
 
- 	AEmultiStrokeFactoryCurvesReplace($nodeAttr);
+ 	AEpaintingCurvesReplace($nodeAttr);
 
  }

@@ -38,6 +38,7 @@ os_linux64:
     - '-ftemplate-depth-25'
     - '-pthread'
     - '-c'
+    - '-std=c++1y' # c++14 - unique_ptr and make_unique
     configuration_debug:
         compiler_options:
         -                   '-g3'
@@ -82,6 +83,7 @@ os_darwin64:
     -                       '-D_LANGUAGE_C_PLUS_PLUS'
     -                       '-Wno-trigraphs'
     -                       '-c'
+    -                       '-std=c++1y' # c++14 - unique_ptr and make_unique
     configuration_debug:
         compiler_options:
         -                   '-g3'

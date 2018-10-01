@@ -1,0 +1,114 @@
+
+ global proc     AEpaintingTemplate(string $nodeName)
+ {
+
+ 	editorTemplate -beginScrollLayout;
+
+	editorTemplate -cl 0 -beginLayout "Speed Attributes";
+	editorTemplate -addControl "linearSpeed";
+	editorTemplate -addControl "angularSpeed";
+	editorTemplate -addControl "approximationDistance";
+	editorTemplate -addControl "maxPointToPointDistance";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Texture Attributes";
+	editorTemplate -addControl "brushIdTextureRange";
+	editorTemplate -addControl "paintIdTextureRange";
+
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0 -beginLayout "Filtering attributes";
+	editorTemplate -addControl "applyFilters";
+ 	editorTemplate -callCustom "AEpaintingFilterListNew" "AEpaintingFilterListReplace" "strokeFilterList";
+	editorTemplate -addControl "strokeFilterTexture"; 
+	editorTemplate -addControl "startFrom";
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Sorting attributes";
+	 editorTemplate -addControl "applySort";
+ 	editorTemplate -callCustom "AEpaintingSortListNew" "AEpaintingSortListReplace" "strokeSortList";
+	editorTemplate -addControl "strokeSortTexture"; 
+ 	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0 -beginLayout "Display Attributes";
+	editorTemplate -addControl "pointSize"; 
+	editorTemplate -addControl "lineLength";
+	editorTemplate -addControl "lineThickness";
+	
+	editorTemplate -addControl "displayIds";
+	editorTemplate -addControl "displayTargets";
+	editorTemplate -addControl "displayLift";
+	editorTemplate -addControl "displayApproach";
+	editorTemplate -addControl "displayArrows";
+	editorTemplate -addControl "displayClusterPath";
+	editorTemplate -addControl "displayStops";
+	
+	editorTemplate -addControl "stackGap"; 
+
+
+ // 	editorTemplate -addControl "displayPoints"; 
+ // 	editorTemplate -addControl "displayIds";
+ 
+ editorTemplate -endLayout;
+
+
+	// editorTemplate -cl 0 -beginLayout "Curves";
+ // 	editorTemplate -callCustom "AEpaintingCurvesNew" "AEpaintingCurvesReplace" "curves";
+ // 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Paints";
+ 	editorTemplate -callCustom "AEpaintingPaintsNew" "AEpaintingPaintsReplace" "paints";
+ 	editorTemplate -endLayout;
+ 
+	editorTemplate -cl 0 -beginLayout "Brushes";
+ 	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
+ 	editorTemplate -endLayout;
+
+
+	editorTemplate -suppress "strokeCurves";
+
+ 	editorTemplate -suppress "outTargets";
+ 
+ 	editorTemplate -suppress "outCounts";
+
+ 	editorTemplate -suppress "inMatrix";
+
+	AElocatorInclude $nodeName;
+	
+
+	editorTemplate -suppress "values" ;
+	editorTemplate -suppress "useObjectColor" ;
+	editorTemplate -suppress "objectColor" ;
+	editorTemplate -suppress "nodeState"; 
+	editorTemplate -suppress "visibility"; 
+	editorTemplate -suppress "intermediateObject"; 
+	editorTemplate -suppress "lodVisibility"; 
+	editorTemplate -suppress "instObjGroups";  
+	editorTemplate -suppress "compInstObjGroups"; 
+	
+	editorTemplate -suppress "caching";
+	editorTemplate -suppress "template";
+	editorTemplate -suppress "drawOverride" ;
+	editorTemplate -suppress "renderInfo" ;
+	editorTemplate -suppress "motionBlur" ;
+	editorTemplate -suppress "visibleInReflections" ;
+	editorTemplate -suppress "visibleInRefractions" ; 
+	editorTemplate -suppress "castsShadows" ;
+	editorTemplate -suppress "maxVisibilitySamplesOverride";
+	editorTemplate -suppress "maxVisibilitySamples";
+	editorTemplate -suppress "geometryAntialiasingOverride";
+	editorTemplate -suppress "antialiasingLevel";
+	editorTemplate -suppress "shadingSamplesOverride";
+	editorTemplate -suppress "shadingSamples";
+	editorTemplate -suppress "maxShadingSamples";
+	editorTemplate -suppress "volumeSamplesOverride";
+	editorTemplate -suppress "volumeSamples";
+	editorTemplate -suppress "primaryVisibility";
+	
+	editorTemplate -suppress "localPosition";
+ 	editorTemplate -addExtraControls;
+
+ 	editorTemplate -endScrollLayout;
+ }

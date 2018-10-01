@@ -1,15 +1,23 @@
- global proc AEstrokeFactoryPaintsAddMultiWidget(string $plug, string $columnLayout, int $index) {
+ global proc AEPaintingPaintsAddMultiWidget(string $plug, string $columnLayout, int $index) {
+
+ 	string $label = ("No paint : " + $index);
+ 	string $input[] = `listConnections -s 1 -d 0 ($plug+".paintTravel")`;
+ 	if (`size $input`) {
+ 		 $label = ($index +": " + $input[0]);
+ 	}
 
  	setParent $columnLayout;
  	global int $gTextColumnWidthIndex;
- 	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label ("Paint: " + $index)`;
+
+
+ 	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label $label`;
 
  	attrControlGrp -attribute ($plug+".paintColor");
- 	attrControlGrp -attribute ($plug+".paintName");
  	attrControlGrp -attribute ($plug+".paintOpacity");
- 	attrControlGrp -attribute ($plug +".paintMaxArcLength");
+ 	attrControlGrp -attribute ($plug +".paintTravel");
  	
- 
+
+
  	string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
 
@@ -17,10 +25,10 @@
  	setParent ..;
  }
 
- global proc AEmultiStrokeFactoryPaintsReplace (string $nodeAttr) {
+ global proc AEpaintingPaintsReplace (string $nodeAttr) {
 
  	string $node = attr.nodeFromNodeAttr($nodeAttr);
- 	string $col = "AEaddStrokeFactoryPaintsCol";
+ 	string $col = "AEaddPaintingPaintsCol";
 
  	setParent ..;
  	int $numElements = `getAttr -size $nodeAttr`;
@@ -33,24 +41,24 @@
  	int $indices[] = `getAttr -mi $nodeAttr`;
  	for ($i = 0;$i<$numElements;$i++) {
  		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
- 		AEstrokeFactoryPaintsAddMultiWidget ($plug, $col, $indices[$i]) ;
+ 		AEPaintingPaintsAddMultiWidget ($plug, $col, $indices[$i]) ;
  	}
  	setParent ..;
 
- 	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
- 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].paintOpacity 0.5" ) "AEaddStrokeFactoryPaintsBtn";
+ 	// int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+ 	// button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].paintOpacity 0.5" ) "AEaddPaintingPaintsBtn";
 
  }
 
- global proc AEmultiStrokeFactoryPaintsNew (string $nodeAttr) {
+ global proc AEpaintingPaintsNew (string $nodeAttr) {
  	setUITemplate -pst attributeEditorTemplate;
 
- 	string $col = "AEaddStrokeFactoryPaintsCol";
- 	button -l "Add" "AEaddStrokeFactoryPaintsBtn";
+ 	string $col = "AEaddPaintingPaintsCol";
+ 	// button -l "Add" "AEaddPaintingPaintsBtn";
  	columnLayout -adj 1 $col ;	
  	setParent ..;
  	setUITemplate -ppt;
 
- 	AEmultiStrokeFactoryPaintsReplace($nodeAttr);
+ 	AEpaintingPaintsReplace($nodeAttr);
 
  }

@@ -4,9 +4,10 @@ from robolink import Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TARGET
 import robodk as rdk
 import uprising.maya_util as uut
 
-RL = Robolink()
+# RL = Robolink()
 
 def setup():
+    RL = Robolink()
     cp = pm.ls(sl=True, dag=True, leaf=True, type="curvePoints")[0]
     name = cp.name()
     points = pm.PyNode(cp).attr("outPointsWorld").get()
