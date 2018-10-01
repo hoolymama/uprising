@@ -192,8 +192,14 @@ bool strokeGeom::testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) co
 
 bool strokeGeom::testId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_id, op, value);}
 bool strokeGeom::testParentId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_parentId, op, value);}
-bool strokeGeom::testBrushId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_brushId, op, value);}
-bool strokeGeom::testPaintId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_paintId, op, value);}
+bool strokeGeom::testBrushId(StrokeFilterOperator op, int value) const {
+	// cerr << "m_brushId <> value " << m_brushId << " " << value << endl;
+	return  testAgainstValue(int(m_brushId), op, value);
+}
+bool strokeGeom::testPaintId(StrokeFilterOperator op, int value) const {
+	// cerr << "m_paintId <> value " << m_paintId << " " << value << endl;
+	return  testAgainstValue(int(m_paintId), op, value);
+}
 bool strokeGeom::testLayerId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_layerId, op, value);}
 bool strokeGeom::testRepeatId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_repeatId, op, value);}
 bool strokeGeom::testMapRedId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_filterColor.x * 256), op, value);}
@@ -213,6 +219,12 @@ int strokeGeom::parentId() const
 {
 	return m_parentId;
 }
+
+int strokeGeom::repeatId() const
+{
+	return m_repeatId;
+}
+
 
 void strokeGeom::setParentId(int parentId)
 {

@@ -136,7 +136,11 @@ def delete_paints(node):
         pm.removeMultiInstance(node.attr("paints[%d]" % i), b=True)
 
 def setup_paints_from_sheet(painting_node, dip_node):
-    data =  get_raw_paint_data()
+    (data, medium) =  get_raw_paint_data()
+ 
+    notes_att, ground_att, medium_att  = sfu.ensure_painting_has_notes()
+    medium_att.set(medium)
+
     validate_paint_data(data)
     colors = list(([],)*8)
     locators =  {}
@@ -159,7 +163,13 @@ def get_raw_paint_data():
         spreadsheetId=sheets.SHEETS["Measurements"],
         range='Paints!A2:I11').execute()
     values = result.get('values', [])
-    return values
+
+    medium_result = service.spreadsheets().values().get(
+        spreadsheetId=sheets.SHEETS["Measurements"],
+        range='Paints!J2').execute()
+    medium = medium_result.get('values', [])[0][0]
+
+    return (values, medium)
 
 
 

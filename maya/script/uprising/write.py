@@ -22,33 +22,38 @@ def split_desc(desc):
         result[1] = "\n".join(lines[1:])
     return result
 
+ 
 
-# class Publisher(object):
-
-#     def __init__():
-
-
-def publish_sequence(export_dir, painting_node, dip_node, description, frame_range, maya_only=False):
+def publish_sequence(export_dir, painting_node, dip_node, description, medium, ground, frame_range, maya_only, save_unfiltered_snapshot):
     RL = Robolink()
     for station in RL.getOpenStations():
         station.Delete()
     RL.AddFile(CLEAN_FILE)
 
 
-    session_dir = os.path.join(export_dir, "sessions")
-    mkdir_p(session_dir)
+    recordings_dir = os.path.join(export_dir, "recordings")
+    mkdir_p(recordings_dir)
+    design_dir = os.path.join(export_dir, "design")
+    mkdir_p(design_dir)
+
+    if save_unfiltered_snapshot:
+        with uutl.filters_off(painting_node):
+            ts = get_timestamp()
+            write_ref_image(design_dir, ts)
     
     for frame in range(frame_range[0], frame_range[1]+1):
         pm.currentTime(frame)
         timestamp = get_timestamp(frame)
         ts_dir = get_ts_dir(export_dir, timestamp)
         mkdir_p(ts_dir)
-        description, notes = split_desc(description.replace("#f", str(frame)))
-        
-        write_log( painting_node, dip_node, ts_dir, timestamp, description, notes, frame)
+        desc, notes = split_desc(description.replace("#f", str(frame)))
+        print "Desc: %s"  % desc
+        print "Notes: %s"  % notes
+         
+        write_log( painting_node, dip_node, ts_dir, timestamp, desc, notes, frame)
         write_maya_scene(ts_dir, timestamp)
         write_ref_image(ts_dir, timestamp)
-        write_csv(export_dir, timestamp, description)
+        write_csv(export_dir, timestamp, desc,notes,medium, ground)
 
         if not maya_only:
             setup_dip.doit()
@@ -58,51 +63,7 @@ def publish_sequence(export_dir, painting_node, dip_node, description, frame_ran
             write_station(RL, ts_dir, timestamp)
             write_program(RL, ts_dir, timestamp)
 
-
-# def export_maya_package_only(export_dir, description, suffix=None):
-
-#     timestamp = get_timestamp(suffix)
-#     ts_dir = get_ts_dir(export_dir, timestamp)
-
-#     session_dir = os.path.join(ts_dir, "sessions")
-#     mkdir_p(session_dir)
-
-#     write_log(ts_dir, timestamp, description)
-#     write_maya_scene(ts_dir, timestamp)
-#     write_ref_image(ts_dir, timestamp)
-
-
-# def export_package(export_dir, description, suffix=None):
-#     RL = Robolink()
-
-#     timestamp = get_timestamp(suffix)
-#     ts_dir = get_ts_dir(export_dir, timestamp)
-
-#     session_dir = os.path.join(ts_dir, "sessions")
-#     mkdir_p(session_dir)
-
-#     write_log(ts_dir, timestamp, description)
-#     write_maya_scene(ts_dir, timestamp)
-#     write_ref_image(ts_dir, timestamp)
-#     write_station(RL, ts_dir, timestamp)
-#     write_program(RL, ts_dir, timestamp)
-#     write_csv(export_dir, timestamp, description)
-
-
-
-# def export_to_robodk(self, painting_node, dip_node):
-#     RL = Robolink()
-#     RL.setWindowState(-1)
-#     try:
-#         studio = Studio(painting_node, dip_node)
-#         studio.write()
-#     except Exception:
-#         t, v, tb = sys.exc_info()
-#         RL.setWindowState(2)
-#         raise t, v, tb
-#     RL.setWindowState(2)
-
-
+ 
 def mkdir_p(path):
     try:
         os.makedirs(path)
@@ -123,7 +84,7 @@ def choose_publish_dir():
     return entries[0]
 
 
-def get_timestamp(suffix):
+def get_timestamp(suffix=None):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
 
     if suffix:
@@ -134,34 +95,34 @@ def get_timestamp(suffix):
 def get_ts_dir(export_dir, timestamp):
     return os.path.join(export_dir, timestamp)
 
-
-
-def write_csv(export_dir, timestamp, description):
+def write_csv(export_dir, timestamp, description, notes, medium, ground):
+    description = (" ").join(description.replace(",", " - ").splitlines())
+    notes = (" ").join(notes.replace(",", " - ").splitlines())
     fn = os.path.join(export_dir, "session_entries.csv")
     export_root = os.path.join(pm.workspace.getPath(), 'export')
     folder = export_dir.replace(export_root,"")
-
+    folder = folder.strip("/")
     line = (",").join([folder,
                        "ID",
                        timestamp,
                        description,
-                       "Gloss",
-                       "Dibond",
-                       "DATERUN",
+                       medium,
+                       ground,
+                       "",
                        "LINK",
                        "Waiting",
-                       "NOTES"])
+                       notes])
 
     with open(fn, 'a+') as the_file:
         the_file.write(line)
         the_file.write("\n")
 
 
-def write_ref_image(ts_dir, timestamp):
+def write_ref_image(dest_dir, timestamp):
 
     # TODO - make sure its active panel and
     f = pm.currentTime(q=True)
-    fn = os.path.join(ts_dir, timestamp)
+    fn = os.path.join(dest_dir, timestamp)
     pm.playblast(
         startTime=f,
         endTime=f,
@@ -236,18 +197,21 @@ def write_log(painting_node, dip_node, ts_dir, timestamp, description, notes, fr
 
         the_file.write("Frame number: %s\n\n" % frame)
 
-        the_file.write("Painting node stats:")
+        the_file.write("Painting node stats:\n")
         for k in painting_stats:
             the_file.write("%s: %s\n" % (k, painting_stats[k]))
+        the_file.write("\n")
 
         the_file.write("\n")
-        the_file.write("Dip node stats:")
+        the_file.write("Dip node stats:\n")
         for k in dip_stats:
             the_file.write("%s: %s\n" % (k, dip_stats[k]))
+        the_file.write("\n")
 
-        the_file.write("Dip combinations:")
+        the_file.write("Dip combinations:\n")
         for k in dip_combos:
-            the_file.write("%s\n" % k)
+            the_file.write("%s\n\n" % k)
+        the_file.write("\n")
 
 
 
@@ -270,8 +234,8 @@ def write_log(painting_node, dip_node, ts_dir, timestamp, description, notes, fr
 #     # ts_dir = os.path.join(export_dir, timestamp)
 
 #     # simulation = os.path.join(ts_dir, "%s.html" % timestamp)
-#     session_dir = os.path.join(ts_dir, "sessions")
-#     mkdir_p(session_dir)
+#     recordings_dir = os.path.join(ts_dir, "sessions")
+#     mkdir_p(recordings_dir)
 
 #     write_maya_scene(ts_dir, timestamp)
 #     write_ref_image(ts_dir, timestamp)

@@ -37,7 +37,17 @@ def get_raw_board_data():
         spreadsheetId=SHEETS["Measurements"],
         range='Board!E6').execute()
     offset_values = offset_result.get('values')
-    print offset_values
+
     offset = offset_values[0][0] if offset_values else 0
 
-    return (values, offset)
+
+    material_result = service.spreadsheets().values().get(
+        spreadsheetId=SHEETS["Measurements"],
+        range='Board!A1').execute()
+    material = material_result.get('values')[0][0]
+
+    offset = offset_values[0][0] if offset_values else 0
+
+
+
+    return (values, offset, material)

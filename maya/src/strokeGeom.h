@@ -66,6 +66,7 @@ public:
 
 	int id() const ;
 	int parentId() const;
+	int repeatId() const;
 	// int globalId() const;
 
 	void setParentId(int parentId) ;

@@ -150,6 +150,7 @@ private:
   static MObject aStrokeSortDirection;
   static MObject aStrokeSortList;
   static MObject aStrokeSortTexture;
+  static MObject aApplySort;
 
   static MObject aStrokeFilterKey;
   static MObject aStrokeFilterOperator;
@@ -157,6 +158,7 @@ private:
   static MObject aStrokeFilterList;
   static MObject aStrokeFilterTexture;
 
+  static MObject aApplyFilters;
 
 
   static MObject aStartFrom;

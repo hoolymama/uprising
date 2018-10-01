@@ -17,26 +17,16 @@ def assembly(node):
         p = p.getParent()
     return top
  
-# @contextmanager
-# def minimize_robodk():
-#     RL = Robolink()
-#     # RL.setWindowState(-1)
-#     RL.HideRoboDK()
-#     try:
-#         yield
-#     except Exception:
-#         t, v, tb = sys.exc_info()
-#         # RL.setWindowState(2)
-#         # RL.ShowRoboDK()
-#         raise t, v, tb
-#     # RL.setWindowState(2)
-#     RL.ShowRoboDK()
-
 @contextmanager
 def minimize_robodk():
     RL = Robolink()
     RL.HideRoboDK()
-    yield
+    try:
+        yield
+    except Exception:
+        t, v, tb = sys.exc_info()
+        RL.ShowRoboDK()
+        raise t, v, tb
     RL.ShowRoboDK()
 
 @contextmanager
@@ -46,6 +36,14 @@ def final_position(node):
     asy.attr("zeroPosition").set(False)
     yield
     asy.attr("zeroPosition").set(zpos)
+
+@contextmanager
+def filters_off(node):
+    curr = node.attr("applyFilters").get()
+    node.attr("applyFilters").set(False)
+    yield
+    node.attr("applyFilters").set(curr)
+
 
 
 def to_vector_array(arr):

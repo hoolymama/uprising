@@ -9,7 +9,7 @@ import write
 # import paint_utils as putl
 
 import setup_dip
-# import stroke_factory_utils as sfu
+import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
 # import painting as pnt
 from studio import Studio
@@ -18,14 +18,27 @@ from robolink import (
 )
 
 
-def ensure_painting_has_notes():
-    top_node = pm.PyNode("mainPaintingGroup")
-    try:
-        notes_att = top_node.attr("notes")
-    except pm.MayaAttributeError:
-        pm.addAttr(top_node, dt="string", ln="notes")
-        notes_att = top_node.attr("notes")
-    return notes_att
+# def ensure_painting_has_notes():
+#     top_node = pm.PyNode("mainPaintingGroup")
+#     try:
+#         notes_att = top_node.attr("notes")
+#     except pm.MayaAttributeError:
+#         pm.addAttr(top_node, dt="string", ln="notes")
+#         notes_att = top_node.attr("notes")
+
+#     try:
+#         ground_att = top_node.attr("ground")
+#     except pm.MayaAttributeError:
+#         pm.addAttr(top_node, dt="string", ln="ground")
+#         ground_att = top_node.attr("ground")
+
+#     try:
+#         medium_att = top_node.attr("medium")
+#     except pm.MayaAttributeError:
+#         pm.addAttr(top_node, dt="string", ln="medium")
+#         medium_att = top_node.attr("medium")
+
+#     return (notes_att, ground_att, medium_att)
 
 
 
@@ -58,6 +71,11 @@ class PublishTab(gui.FormLayout):
         self.save_maya_only_cb = pm.checkBoxGrp(
             label='Skip RoboDK',
             ann="Save Maya files only",
+            value1=False)
+
+        self.save_unfiltered_snapshot = pm.checkBoxGrp(
+            label='Save unfiltered snapshot',
+            ann="This will switch off filtering temporarily",
             value1=False)
 
         # self.send_paintings_cb = pm.checkBoxGrp(
@@ -127,6 +145,9 @@ class PublishTab(gui.FormLayout):
         self.description_tf = pm.scrollField(
             nl=5, wordWrap=True, text="Description...")
 
+        self.ground_tf = pm.textField()
+        self.medium_tf = pm.textField()
+
         load_but = pm.button(
             width=100,
             label="Load",
@@ -136,30 +157,54 @@ class PublishTab(gui.FormLayout):
             label="Save",
             command=pm.Callback(self.on_save_notes))
 
+
+
+
         form.attachForm(load_but, 'top', 2)
-        form.attachNone(load_but, 'left')
+        form.attachPosition(load_but, 'left', 2, 80)
         form.attachPosition(load_but, 'bottom', 2, 50)
         form.attachForm(load_but, 'right', 2)
 
         form.attachPosition(save_but, 'top', 2, 50)
-        form.attachNone(save_but, 'left')
+        form.attachPosition(save_but, 'left', 2, 80)
         form.attachForm(save_but, 'bottom', 2)
         form.attachForm(save_but, 'right', 2)
+
+        form.attachNone(self.medium_tf, 'top')
+        form.attachForm(self.medium_tf, 'left', 2)
+        form.attachForm(self.medium_tf, 'bottom', 2)
+        form.attachPosition(self.medium_tf, 'right', 2, 40)
+
+        form.attachNone(self.ground_tf, 'top')
+        form.attachControl(self.ground_tf, 'left', 2, self.medium_tf)
+        form.attachForm(self.ground_tf, 'bottom', 2)
+        form.attachControl(self.ground_tf, 'right', 2, save_but)
 
         form.attachForm(self.description_tf, 'left', 2)
         form.attachControl(self.description_tf, 'right', 2, load_but)
         form.attachForm(self.description_tf, 'top', 2)
-        form.attachForm(self.description_tf, 'bottom', 2)
+        form.attachControl(self.description_tf, 'bottom', 2, self.medium_tf)
 
     def on_load_notes(self):
-        notes_att = ensure_painting_has_notes()
+        notes_att, ground_att, medium_att = sfu.ensure_painting_has_notes()
         notes = notes_att.get()
+        ground = ground_att.get()
+        medium = medium_att.get()
+        
         pm.scrollField(self.description_tf, edit=True, text=notes)
+        pm.textField(self.ground_tf, edit=True, text=ground)
+        pm.textField(self.medium_tf, edit=True, text=medium)
+
+
 
     def on_save_notes(self):
         notes = pm.scrollField(self.description_tf, query=True, text=True)
-        notes_att = ensure_painting_has_notes()
+        medium = pm.textField(self.medium_tf, query=True, text=True)
+        ground = pm.textField(self.ground_tf, query=True, text=True)
+        notes_att, ground_att, medium_att  = sfu.ensure_painting_has_notes()
         notes_att.set(notes)
+        ground_att.set(ground)
+        medium_att.set(medium)
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -239,6 +284,10 @@ class PublishTab(gui.FormLayout):
         dip_node = pm.PyNode("dipPaintingShape")
 
         maya_only = pm.checkBoxGrp(self.save_maya_only_cb, query=True, value1=True)
+        save_unfiltered_snapshot = pm.checkBoxGrp(self.save_unfiltered_snapshot, query=True, value1=True)
 
-        write.publish_sequence(export_dir, painting_node, dip_node, desc, frames, maya_only)
+        medium = pm.textField(self.medium_tf, query=True, text=True)
+        ground = pm.textField(self.ground_tf, query=True, text=True)
+
+        write.publish_sequence(export_dir, painting_node, dip_node, desc,medium, ground, frames, maya_only, save_unfiltered_snapshot)
 
