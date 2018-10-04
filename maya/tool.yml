@@ -29,5 +29,5 @@ templates:
 - maya_plugin
 - gl
 source_files:
-- src/*.cpp
+- src/*cpp
 - ../../kettle/src/maya/mayaMath.cpp

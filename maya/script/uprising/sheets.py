@@ -30,9 +30,9 @@ def get_raw_board_data():
     service = _get_service()
     result = service.spreadsheets().values().get(
         spreadsheetId=SHEETS["Measurements"],
-        range='Board!A9:D12').execute()
+        range='Board!A2:D5').execute()
     values = result.get('values', [])
-
+    print(values)
     offset_result = service.spreadsheets().values().get(
         spreadsheetId=SHEETS["Measurements"],
         range='Board!E6').execute()
@@ -41,13 +41,13 @@ def get_raw_board_data():
     offset = offset_values[0][0] if offset_values else 0
 
 
-    material_result = service.spreadsheets().values().get(
+    ground_result = service.spreadsheets().values().get(
         spreadsheetId=SHEETS["Measurements"],
         range='Board!A1').execute()
-    material = material_result.get('values')[0][0]
+    ground = ground_result.get('values')[0][0]
 
     offset = offset_values[0][0] if offset_values else 0
 
 
 
-    return (values, offset, material)
+    return (values, offset, ground)

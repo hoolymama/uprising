@@ -77,10 +77,11 @@ public:
 	// friend bool operator < (const strokeGeom &lhs, const strokeGeom &rhs);
 
 	/* These functions return data used for drawing. */
-	void getPoints(MFloatPointArray &result, double stackHeight = 0.0) const;
-	void getXAxes(MFloatVectorArray &result) const;
-	void getYAxes(MFloatVectorArray &result) const;
-	void getZAxes(MFloatVectorArray &result) const;
+	void getPoints(MFloatPointArray &result, bool withLift = false,
+	               double stackHeight = 0.0) const;
+	void getXAxes(MFloatVectorArray &result, bool withLift = false) const;
+	void getYAxes(MFloatVectorArray &result, bool withLift = false) const;
+	void getZAxes(MFloatVectorArray &result, bool withLift = false) const;
 
 	void getStopPoints(MFloatPointArray &result, double stackHeight = 0.0) const;
 	void getStopXAxes(MFloatVectorArray &result) const;

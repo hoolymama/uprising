@@ -29,74 +29,6 @@ import logging
 logger = logging.getLogger('uprising')
 
 
-# Synopsis: paintingQuery [flags] [String]
-# Flags:
-#  -cbi -clusterBrushId
-#   -cc -clusterCount
-#   -ci -clusterIndex         Int
-#  -cpi -clusterPaintId
-#   -cr -clusterReason
-#   -ct -clusterTravel
-#  -ctc -clusterTravelCutoff
-#   -ro -rotateOrder          String
-#   -ru -rotateUnit           String
-#  -sal -strokeArcLength
-#   -sc -strokeCount
-#   -sd -strokeDirection
-#   -si -strokeIndex          Int
-#   -sn -strokeNormal
-#   -sp -strokePositions
-#   -sr -strokeRotations
-#   -st -strokeTangents
-
-
-# vals = pm.paintingQuery("mainPaintingShape",clusterIndex=0, strokeIndex=0, strokePositions=True)
-
-# vals = pm.paintingQuery(
-#     "mainPaintingShape",
-#     clusterIndex=0,
-#     strokeIndex=0,
-#     strokeRotations=True,
-#     rotateOrder="zyx",
-#     rotateUnit="rad"
-# )
-
-# vals = pm.paintingQuery(
-#     "mainPaintingShape",
-#     clusterIndex=0,
-#     strokeIndex=0,
-#     strokeTangents=True
-# )
-
-# vals = pm.paintingQuery(
-#     "mainPaintingShape",
-#     clusterIndex=0,
-#     strokeIndex=0,
-#     strokeNormal=True
-# )
-
-def progressStart(name, maxValue):
-    pm.progressWindow(
-        title=name,
-        progress=0,
-        maxValue=maxValue,
-        status="Generating: %d/%d" % (0, maxValue),
-        isInterruptable=True)
-
-
-def progressUpdate(amount, maxValue):
-    pm.progressWindow(
-        edit=True,
-        progress=amount,
-        status="Generating: %d/%d" % (amount, maxValue))
-    if pm.progressWindow(query=True, isCancelled=True):
-        raise SystemExit("Cancelled by user")
-
-
-def progressEnd():
-    pm.progressWindow(endProgress=1)
-
-
 def paint_and_brush_name(paint, brush):
     return "%s_%d_%s_%d" % (paint.name, paint.id, brush.name, brush.id)
 
@@ -160,7 +92,35 @@ class Painting(object):
 
         for cluster in self.clusters:
             cluster.write(studio, self.motion)
-            
+       
+
+
+
+
+# def progressStart(name, maxValue):
+#     pm.progressWindow(
+#         title=name,
+#         progress=0,
+#         maxValue=maxValue,
+#         status="Generating: %d/%d" % (0, maxValue),
+#         isInterruptable=True)
+
+
+# def progressUpdate(amount, maxValue):
+#     pm.progressWindow(
+#         edit=True,
+#         progress=amount,
+#         status="Generating: %d/%d" % (amount, maxValue))
+#     if pm.progressWindow(query=True, isCancelled=True):
+#         raise SystemExit("Cancelled by user")
+
+
+# def progressEnd():
+#     pm.progressWindow(endProgress=1)
+
+
+
+     
     # def create_dip_subroutines(self):
     #     RL = Robolink()
     #     RL.Render(False)

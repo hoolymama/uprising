@@ -90,6 +90,9 @@ class Studio(object):
         if self.painting:
             self.painting.write(self)
 
+        self.painting_program.addMoveJ(self.home_approach)
+
+
     def _create_approach(self, object_name, name):
         mat = pm.PyNode(object_name).attr("worldMatrix[0]").get()
         mat = uutl.maya_to_robodk_mat(mat)

@@ -22,13 +22,17 @@ def split_desc(desc):
         result[1] = "\n".join(lines[1:])
     return result
 
- 
-
-def publish_sequence(export_dir, painting_node, dip_node, description, medium, ground, frame_range, maya_only, save_unfiltered_snapshot):
+def clean_rdk():
     RL = Robolink()
     for station in RL.getOpenStations():
         station.Delete()
     RL.AddFile(CLEAN_FILE)
+
+
+
+def publish_sequence(export_dir, painting_node, dip_node, description, medium, ground, frame_range, maya_only, save_unfiltered_snapshot):
+    RL = Robolink()
+    clean_rdk()
 
 
     recordings_dir = os.path.join(export_dir, "recordings")

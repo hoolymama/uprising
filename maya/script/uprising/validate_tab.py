@@ -1,6 +1,7 @@
 
 # import os.path
 import pymel.core as pm
+from robolink import (Robolink, ITEM_TYPE_STATION)
 import write
 import props
 import uprising_util as uutl
@@ -71,6 +72,7 @@ class ValidateTab(gui.FormLayout):
             "mainPaintingShape") if send_painting else None
         dip_node = pm.PyNode("dipPaintingShape") if send_dips else None
 
+ 
         with uutl.minimize_robodk():
             studio = Studio(painting_node, dip_node)
             studio.write()

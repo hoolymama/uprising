@@ -269,40 +269,45 @@ void strokeGeom::clearSortStack()
 // }
 
 
-void strokeGeom::getPoints(MFloatPointArray &result, double stackHeight) const {
+void strokeGeom::getPoints(MFloatPointArray &result, bool withLift,
+                           double stackHeight) const {
 	MFloatVector stackOffset = MFloatVector(m_planeNormal * stackHeight);
 	unsigned len = m_targets.length();
-	result.setLength(len);
-	for (int i = 0; i < len; ++i)
+	int first = withLift ? 0 : 1;
+	int end = withLift ? len : len - 1;
+	for (int i = first; i < end; ++i)
 	{
-		result.set(extractfPos(m_targets[i]) + stackOffset , i);
+		result.append(extractfPos(m_targets[i]) + stackOffset);
 	}
 }
 
-void strokeGeom::getXAxes(MFloatVectorArray &result) const {
+void strokeGeom::getXAxes(MFloatVectorArray &result, bool withLift) const {
 	unsigned len = m_targets.length();
-	result.setLength(len);
-	for (int i = 0; i < len; ++i)
+	int first = withLift ? 0 : 1;
+	int end = withLift ? len : len - 1;
+	for (int i = first; i < end; ++i)
 	{
-		result.set( (MFloatVector(MVector::xAxis * m_targets[i])) , i);
+		result.append( (MFloatVector(MVector::xAxis * m_targets[i])) );
 	}
 }
 
-void strokeGeom::getYAxes(MFloatVectorArray &result) const {
+void strokeGeom::getYAxes(MFloatVectorArray &result, bool withLift) const {
 	unsigned len = m_targets.length();
-	result.setLength(len);
-	for (int i = 0; i < len; ++i)
+	int first = withLift ? 0 : 1;
+	int end = withLift ? len : len - 1;
+	for (int i = first; i < end; ++i)
 	{
-		result.set( (MFloatVector(MVector::yAxis * m_targets[i])) , i);
+		result.append( (MFloatVector(MVector::yAxis * m_targets[i])) );
 	}
 }
 
-void strokeGeom::getZAxes(MFloatVectorArray &result) const {
+void strokeGeom::getZAxes(MFloatVectorArray &result, bool withLift) const {
 	unsigned len = m_targets.length();
-	result.setLength(len);
-	for (int i = 0; i < len; ++i)
+	int first = withLift ? 0 : 1;
+	int end = withLift ? len : len - 1;
+	for (int i = first; i < end; ++i)
 	{
-		result.set( (MFloatVector(MVector::zAxis * m_targets[i])) , i);
+		result.append( (MFloatVector(MVector::zAxis * m_targets[i])));
 	}
 }
 

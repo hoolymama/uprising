@@ -1173,12 +1173,6 @@ MStatus painting::sampleUVTexture(const MObject &attribute,   MFloatArray &uVals
 
   st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat,
         0, &uVals, &vVals, 0, 0, 0, 0, 0, result, transparencies); ert;
-
-  // result.setLength(n);
-  // for (int i = 0; i < n; ++i)
-  // {
-  //   result.set(  int(colors[i].x * float(range)), i);
-  // }
   return MS::kSuccess;
 }
 
@@ -1244,6 +1238,9 @@ void painting::drawWireframeTargets(
 
   MObject thisObj = thisMObject();
 
+  bool displayLift;
+  MPlug(thisObj, aDisplayLift).getValue(displayLift);
+
   double pointSize;
   MPlug(thisObj, aPointSize).getValue(pointSize);
 
@@ -1276,7 +1273,7 @@ void painting::drawWireframeTargets(
       {
         stackHeight += stackGap;
         MFloatPointArray points;
-        stroke.getPoints(points, stackHeight);
+        stroke.getPoints(points, displayLift, stackHeight);
         unsigned len = points.length();
         for (int i = 0; i < len; ++i)
         {
@@ -1300,9 +1297,9 @@ void painting::drawWireframeTargets(
       {
         stackHeight += stackGap;
         MFloatPointArray starts;
-        stroke.getPoints(starts, stackHeight);
+        stroke.getPoints(starts, displayLift, stackHeight);
         MFloatVectorArray ends;
-        stroke.getZAxes(ends);
+        stroke.getZAxes(ends, displayLift);
 
         unsigned len = starts.length();
         for (int i = 0; i < len; ++i)
@@ -1331,16 +1328,16 @@ void painting::drawWireframeTargets(
       {
         stackHeight += stackGap;
         MFloatPointArray starts;
-        stroke.getPoints(starts, stackHeight);
+        stroke.getPoints(starts, displayLift, stackHeight);
 
         MFloatVectorArray xAxes;
-        stroke.getXAxes(xAxes);
+        stroke.getXAxes(xAxes, displayLift);
 
         MFloatVectorArray yAxes;
-        stroke.getYAxes(yAxes);
+        stroke.getYAxes(yAxes, displayLift);
 
         MFloatVectorArray zAxes;
-        stroke.getZAxes(zAxes);
+        stroke.getZAxes(zAxes, displayLift);
 
         unsigned len = starts.length();
         for (int i = 0; i < len; ++i)

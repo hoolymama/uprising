@@ -1,5 +1,5 @@
 import sys
-# import os.path
+import re
 import pymel.core as pm
 
 # import setup_dip
@@ -121,6 +121,8 @@ class PaintingTab(gui.FormLayout):
             ann="Choose a mesh and either some curves or strokeCurves",
             command=pm.Callback(self.on_contain_strokes_in_mesh))
 
+        self.rename_inputs_tf = pm.textFieldButtonGrp( label='Rename', text='ring_%d_crv, ring_%d_sc', buttonLabel='Go' ,
+            buttonCommand=pm.Callback(self.on_rename_inputs))
 
 
 
@@ -356,4 +358,52 @@ class PaintingTab(gui.FormLayout):
 
         cutl.contain_strokes_in_mesh(curves, meshes[0])
 
- 
+    def on_rename_inputs(self):
+
+        templates = [ x.strip() for x in pm.textFieldButtonGrp(self.rename_inputs_tf, query=True, text=True).split(",")]
+        if len(templates) ==2:
+            crv_t, sc_t = templates
+        elif  len(templates) ==1:
+            crv_t = templates[0]
+            sc_t = "sc_%s" %templates[0]
+        else:
+            pm.error("Invalid templates")
+
+        # make sure templates are okay
+        test = crv_t % 3
+        test = sc_t % 3
+
+
+
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True)
+        for curve in curves:
+            try:
+                stroke_curve = pm.listHistory(curve, future=True, levels=1, type="strokeCurve")[0]
+            except IndexError:
+                pm.warning("Skipping: %s not connected to a strokeCurve" % curve)
+                continue
+
+            conns = pm.listConnections(stroke_curve, d=True, s=False, c=True, p=True, type="painting")
+            if not conns:
+                pm.warning("Skipping: %s and %s not connected to a painting" % (curve, stroke_curve))
+                continue
+            
+            index = int(re.compile(r".*\[(\d+)]$").match(conns[0][1].name()).groups()[0])
+            curve.getParent().rename(crv_t % index)
+            stroke_curve.rename(sc_t % index)
+
+
+
+
+
+
+
+
+
+
+
