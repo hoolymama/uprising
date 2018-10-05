@@ -339,14 +339,14 @@ MStatus strokeFactory::initialize()
   eAttr.addField("zyx", MTransformationMatrix::kZYX);
   eAttr.setKeyable(true);
   eAttr.setHidden(false);
-  st = addAttribute( aRotateOrder ); er;
+  st = addAttribute( aRotateOrder ); mser;
 
   aOutputUnit = eAttr.create( "outAngularUnit", "oang", MAngle::kDegrees);
   eAttr.addField("radians", MAngle::kRadians);
   eAttr.addField("degrees", MAngle::kDegrees);
   eAttr.setKeyable(true);
   eAttr.setHidden(false);
-  st = addAttribute( aOutputUnit ); er;
+  st = addAttribute( aOutputUnit ); mser;
 
 
   aInMatrix = mAttr.create( "inMatrix", "imat",  MFnMatrixAttribute::kDouble );
@@ -355,7 +355,7 @@ MStatus strokeFactory::initialize()
   mAttr.setDefault(identity);
   addAttribute(aInMatrix);
 
-  aCurve = tAttr.create( "curve", "crv", MFnNurbsCurveData::kNurbsCurve, &st); er;
+  aCurve = tAttr.create( "curve", "crv", MFnNurbsCurveData::kNurbsCurve, &st); mser;
   tAttr.setReadable(false);
   tAttr.setStorable(false);
 
@@ -455,19 +455,19 @@ MStatus strokeFactory::initialize()
   nAttr.setMax(1.0);
   nAttr.setDefault(0.5);
 
-  aBrushId = nAttr.create("brushId", "brid", MFnNumericData::kShort); er;
+  aBrushId = nAttr.create("brushId", "brid", MFnNumericData::kShort); mser;
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setWritable(true);
-  st = addAttribute(aBrushId); er;
+  st = addAttribute(aBrushId); mser;
 
-  aPaintId = nAttr.create("paintId", "ptid", MFnNumericData::kShort); er;
+  aPaintId = nAttr.create("paintId", "ptid", MFnNumericData::kShort); mser;
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setWritable(true);
-  st = addAttribute(aPaintId); er;
+  st = addAttribute(aPaintId); mser;
 
   aActive = nAttr.create( "active", "act", MFnNumericData::kBoolean);
   nAttr.setHidden(false);
@@ -565,7 +565,7 @@ MStatus strokeFactory::initialize()
   cAttr.setArray( true );
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   cAttr.setReadable(false);
-  st = addAttribute( aCurves ); er;
+  st = addAttribute( aCurves ); mser;
 
   // brushes
 
@@ -603,7 +603,7 @@ MStatus strokeFactory::initialize()
   cAttr.setArray( true );
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   cAttr.setReadable(false);
-  st = addAttribute( aBrushes ); er;
+  st = addAttribute( aBrushes ); mser;
 
   aPaintColorR = nAttr.create( "paintColorR", "pcr", MFnNumericData::kFloat);
   aPaintColorG = nAttr.create( "paintColorG", "pcg", MFnNumericData::kFloat);
@@ -641,7 +641,7 @@ MStatus strokeFactory::initialize()
   cAttr.setArray( true );
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   cAttr.setReadable(false);
-  st = addAttribute( aPaints ); er;
+  st = addAttribute( aPaints ); mser;
 
 
   aDisplayPoints = nAttr.create( "displayPoints", "dps", MFnNumericData::kBoolean);
@@ -747,93 +747,95 @@ MStatus strokeFactory::initialize()
   nAttr.setConnectable(false);
   addAttribute(aWireColor);
 
-  aOutBrushIds  = tAttr.create("outBrushIds", "obids", MFnData::kIntArray, &st); er;
+  aOutBrushIds  = tAttr.create("outBrushIds", "obids", MFnData::kIntArray, &st); mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutBrushIds ); er;
+  st = addAttribute(aOutBrushIds ); mser;
 
-  aOutPaintIds  = tAttr.create("outPaintIds", "opids", MFnData::kIntArray, &st); er;
+  aOutPaintIds  = tAttr.create("outPaintIds", "opids", MFnData::kIntArray, &st); mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutPaintIds ); er;
+  st = addAttribute(aOutPaintIds ); mser;
 
-  aOutCurveIds  = tAttr.create("outCurveIds", "ocvids", MFnData::kIntArray, &st); er;
+  aOutCurveIds  = tAttr.create("outCurveIds", "ocvids", MFnData::kIntArray, &st); mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutCurveIds ); er;
+  st = addAttribute(aOutCurveIds ); mser;
 
 
-  aOutCounts  = tAttr.create("outCounts", "octs", MFnData::kIntArray, &st); er;
+  aOutCounts  = tAttr.create("outCounts", "octs", MFnData::kIntArray, &st); mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutCounts ); er;
+  st = addAttribute(aOutCounts ); mser;
 
 
   aOutTargets = tAttr.create("outTargets", "otg", MFnData::kMatrixArray, &st);
-  er;
+  mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutTargets ); er;
+  st = addAttribute(aOutTargets ); mser;
 
   aOutTangents = tAttr.create("outTangents", "otan", MFnData::kVectorArray, &st);
-  er;
+  mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutTangents ); er;
+  st = addAttribute(aOutTangents ); mser;
 
 
   aOutPosition = tAttr.create("outPosition", "opos", MFnData::kVectorArray, &st);
-  er;
+  mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutPosition ); er;
+  st = addAttribute(aOutPosition ); mser;
 
 
   aOutRotation = tAttr.create("outRotation", "orot", MFnData::kVectorArray, &st);
-  er;
+  mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutRotation ); er;
+  st = addAttribute(aOutRotation ); mser;
 
-  aOutBrushWidths = tAttr.create("outBrushWidths", "obrw", MFnData::kDoubleArray, &st); er;
+  aOutBrushWidths = tAttr.create("outBrushWidths", "obrw", MFnData::kDoubleArray, &st);
+  mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutBrushWidths ); er;
+  st = addAttribute(aOutBrushWidths ); mser;
 
-  aOutPaintColors = tAttr.create("outPaintColors", "optc", MFnData::kVectorArray, &st); er;
+  aOutPaintColors = tAttr.create("outPaintColors", "optc", MFnData::kVectorArray, &st);
+  mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutPaintColors ); er;
+  st = addAttribute(aOutPaintColors ); mser;
 
   aOutPaintOpacities = tAttr.create("outPaintOpacities", "opop", MFnData::kDoubleArray,
-                                    &st); er;
+                                    &st); mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutPaintOpacities ); er;
+  st = addAttribute(aOutPaintOpacities ); mser;
 
-  aOutForceDips  = tAttr.create("outForceDips", "ofd", MFnData::kIntArray, &st); er;
+  aOutForceDips  = tAttr.create("outForceDips", "ofd", MFnData::kIntArray, &st); mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutForceDips ); er;
+  st = addAttribute(aOutForceDips ); mser;
 
 
   aOutArcLengths = tAttr.create("outArcLengths", "oarc", MFnData::kDoubleArray,
-                                &st); er;
+                                &st); mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutArcLengths ); er;
+  st = addAttribute(aOutArcLengths ); mser;
 
   aOutApproachStarts = tAttr.create("outApproachStarts", "oaps", MFnData::kDoubleArray,
-                                    &st); er;
+                                    &st); mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutApproachStarts ); er;
+  st = addAttribute(aOutApproachStarts ); mser;
 
   aOutApproachEnds = tAttr.create("outApproachEnds", "oape", MFnData::kDoubleArray,
-                                  &st); er;
+                                  &st); mser;
   tAttr.setStorable(false);
   tAttr.setReadable(true);
-  st = addAttribute(aOutApproachEnds ); er;
+  st = addAttribute(aOutApproachEnds ); mser;
 
 
 
@@ -1271,9 +1273,9 @@ MStatus strokeFactory::getData( MObject &attribute,  MIntArray &array) {
   MFnIntArrayData fn;
   MPlug plug(thisMObject(), attribute);
   MObject d;
-  st = plug.getValue(d); ert;
+  st = plug.getValue(d); msert;
   fn.setObject(d);
-  array = fn.array(&st); ert;
+  array = fn.array(&st); msert;
   return MS::kSuccess;
 }
 
@@ -1283,9 +1285,9 @@ MStatus strokeFactory::getData( MObject &attribute,  MDoubleArray &array) {
   MFnDoubleArrayData fn;
   MPlug plug(thisMObject(), attribute);
   MObject d;
-  st = plug.getValue(d); ert;
+  st = plug.getValue(d); msert;
   fn.setObject(d);
-  array = fn.array(&st); ert;
+  array = fn.array(&st); msert;
   return MS::kSuccess;
 
 }
@@ -1295,9 +1297,9 @@ MStatus strokeFactory::getData( MObject &attribute,  MVectorArray &array) {
   MFnVectorArrayData fn;
   MPlug plug(thisMObject(), attribute);
   MObject d;
-  st = plug.getValue(d); ert;
+  st = plug.getValue(d); msert;
   fn.setObject(d);
-  array = fn.array(&st); ert;
+  array = fn.array(&st); msert;
   return MS::kSuccess;
 
 }
@@ -1375,7 +1377,7 @@ MStatus strokeFactory::getBrushes(MDataBlock &data,
   Generate a std::map of Brushes
   */
   MStatus st;
-  MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); ert;
+  MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); msert;
   unsigned nPlugs = hBrushes.elementCount();
   for (unsigned i = 0; i < nPlugs; i++, hBrushes.next()) {
     short index = short(hBrushes.elementIndex(&st));
@@ -1403,7 +1405,7 @@ MStatus strokeFactory::getBrushes(MDataBlock &data,
 MStatus strokeFactory::getPaints(MDataBlock &data,
                                  std::map<short, Paint> &paints ) const {
   MStatus st;
-  MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); ert;
+  MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); msert;
   unsigned nPlugs = hPaints.elementCount();
 
   for (unsigned i = 0; i < nPlugs; i++, hPaints.next()) {
@@ -1441,7 +1443,7 @@ MStatus strokeFactory::getStrokes(MDataBlock &data,
   // // JPMDBG;
   // cerr << "planeNormal: " << planeNormal << endl;
   MStatus st;
-  MArrayDataHandle hCurves = data.inputArrayValue(aCurves, &st ); ert;
+  MArrayDataHandle hCurves = data.inputArrayValue(aCurves, &st ); msert;
   unsigned nPlugs = hCurves.elementCount();
 
 
@@ -1786,31 +1788,31 @@ MStatus strokeFactory::compute( const MPlug &plug, MDataBlock &data )
   }
 
 
-  st = setData(data, strokeFactory::aOutTargets, outTargets); er;
-  st = setData(data, strokeFactory::aOutTangents, outTangents); er;
-  st = setData(data, strokeFactory::aOutPosition, outPosition); er;
-  st = setData(data, strokeFactory::aOutRotation, outRotation); er;
-  st = setData(data, strokeFactory::aOutCounts, outCounts); er;
-  st = setData(data, strokeFactory::aOutBrushIds, outBrushIds); er;
-  st = setData(data, strokeFactory::aOutPaintIds, outPaintIds); er;
-  st = setData(data, strokeFactory::aOutCurveIds, outCurveIds); er;
+  st = setData(data, strokeFactory::aOutTargets, outTargets); mser;
+  st = setData(data, strokeFactory::aOutTangents, outTangents); mser;
+  st = setData(data, strokeFactory::aOutPosition, outPosition); mser;
+  st = setData(data, strokeFactory::aOutRotation, outRotation); mser;
+  st = setData(data, strokeFactory::aOutCounts, outCounts); mser;
+  st = setData(data, strokeFactory::aOutBrushIds, outBrushIds); mser;
+  st = setData(data, strokeFactory::aOutPaintIds, outPaintIds); mser;
+  st = setData(data, strokeFactory::aOutCurveIds, outCurveIds); mser;
 
-  st = setData(data, strokeFactory::aOutBrushWidths, outBrushWidths); er;
-  st = setData(data, strokeFactory::aOutPaintColors, outPaintColors); er;
-  st = setData(data, strokeFactory::aOutPaintOpacities, outPaintOpacities); er;
-  st = setData(data, strokeFactory::aOutForceDips, outForceDips); er;
-  st = setData(data, strokeFactory::aOutArcLengths, outArcLengths); er;
+  st = setData(data, strokeFactory::aOutBrushWidths, outBrushWidths); mser;
+  st = setData(data, strokeFactory::aOutPaintColors, outPaintColors); mser;
+  st = setData(data, strokeFactory::aOutPaintOpacities, outPaintOpacities); mser;
+  st = setData(data, strokeFactory::aOutForceDips, outForceDips); mser;
+  st = setData(data, strokeFactory::aOutArcLengths, outArcLengths); mser;
 
 
-  st = setData(data, strokeFactory::aOutApproachStarts, outApproachStarts); er;
-  st = setData(data, strokeFactory::aOutApproachEnds, outApproachEnds); er;
+  st = setData(data, strokeFactory::aOutApproachStarts, outApproachStarts); mser;
+  st = setData(data, strokeFactory::aOutApproachEnds, outApproachEnds); mser;
 
-  st = setData(data, strokeFactory::aOutPlaneMatrixWorld, outPlaneMatrixWorld); er;
+  st = setData(data, strokeFactory::aOutPlaneMatrixWorld, outPlaneMatrixWorld); mser;
 
 
   // MDataHandle hOutMat = data.outputValue(aOutPlaneMatrixWorld);
   // hOutMat.set(outPlaneMatrixWorld);
-  // st = data.setClean( aOutPlaneMatrixWorld ); er;
+  // st = data.setClean( aOutPlaneMatrixWorld ); mser;
 
 
 
@@ -1864,9 +1866,9 @@ void strokeFactory::draw( M3dView &view,
   // get sample positions from output
   MPlug targetsPlug(thisObj, aOutTargets);
   MObject dTargets;
-  st = targetsPlug.getValue(dTargets); er;
+  st = targetsPlug.getValue(dTargets); mser;
   fnXA.setObject(dTargets);
-  MMatrixArray tmpTargets = fnXA.array(&st); er;
+  MMatrixArray tmpTargets = fnXA.array(&st); mser;
   unsigned pl = tmpTargets.length();
 
   double stackGap;
@@ -1877,34 +1879,34 @@ void strokeFactory::draw( M3dView &view,
 
   MPlug tangentsPlug(thisObj, aOutTangents);
   MObject dTangents;
-  st = tangentsPlug.getValue(dTangents); er;
+  st = tangentsPlug.getValue(dTangents); mser;
   fnV.setObject(dTangents);
-  MVectorArray tangents = fnV.array(&st); er;
+  MVectorArray tangents = fnV.array(&st); mser;
 
   MPlug countsPlug(thisObj, aOutCounts);
   MObject dCounts;
-  st = countsPlug.getValue(dCounts); er;
+  st = countsPlug.getValue(dCounts); mser;
   fnI.setObject(dCounts);
-  MIntArray counts = fnI.array(&st); er;
+  MIntArray counts = fnI.array(&st); mser;
   unsigned numStrokes = counts.length();
 
   MPlug widthsPlug(thisObj, aOutBrushWidths);
   MObject dBrushWidths;
-  st = widthsPlug.getValue(dBrushWidths); er;
+  st = widthsPlug.getValue(dBrushWidths); mser;
   fnD.setObject(dBrushWidths);
-  MDoubleArray brushWidths = fnD.array(&st); er;
+  MDoubleArray brushWidths = fnD.array(&st); mser;
 
   MPlug paintColorsPlug(thisObj, aOutPaintColors);
   MObject dPaintColors;
-  st = paintColorsPlug.getValue(dPaintColors); er;
+  st = paintColorsPlug.getValue(dPaintColors); mser;
   fnV.setObject(dPaintColors);
-  MVectorArray paintColors = fnV.array(&st); er;
+  MVectorArray paintColors = fnV.array(&st); mser;
 
   MPlug paintOpacitiesPlug(thisObj, aOutPaintOpacities);
   MObject dPaintOpacities;
-  st = paintOpacitiesPlug.getValue(dPaintOpacities); er;
+  st = paintOpacitiesPlug.getValue(dPaintOpacities); mser;
   fnD.setObject(dPaintOpacities);
-  MDoubleArray paintOpacities = fnD.array(&st); er;
+  MDoubleArray paintOpacities = fnD.array(&st); mser;
 
 
 
@@ -2317,7 +2319,7 @@ MStatus strokeFactory::getTextureName(const MObject &attribute,
   MStatus st;
   MPlugArray plugArray;
   MPlug plug(thisMObject(), attribute);
-  bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st); ert;
+  bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st); msert;
   if (! hasConnection) { return MS::kUnknownParameter; }
   name = plugArray[0].name(&st);
   return MS::kSuccess;
@@ -2340,7 +2342,7 @@ MStatus strokeFactory::sampleUVTexture(const MObject &attribute,  MFloatArray &u
   int n = uVals.length();
 
   st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat,
-        0, &uVals, &vVals, 0, 0, 0, 0, 0, colors, transparencies); ert;
+        0, &uVals, &vVals, 0, 0, 0, 0, 0, colors, transparencies); msert;
 
   result.setLength(n);
   for (int i = 0; i < n; ++i)
@@ -2387,11 +2389,11 @@ MStatus strokeFactory::sampleUVGradient(const MObject &attribute, float sampleDi
   MFloatVectorArray vOffsetColors;
 
   st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat, 0, &uVals,
-        &vVals, 0, 0, 0, 0, 0, colors, transparencies); ert;
+        &vVals, 0, 0, 0, 0, 0, colors, transparencies); msert;
   st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat, 0,
-        &uOffsetVals, &vVals, 0, 0, 0, 0, 0, uOffsetColors, transparencies); ert;
+        &uOffsetVals, &vVals, 0, 0, 0, 0, 0, uOffsetColors, transparencies); msert;
   st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat, 0, &uVals,
-        &vOffsetVals, 0, 0, 0, 0, 0, vOffsetColors, transparencies); ert;
+        &vOffsetVals, 0, 0, 0, 0, 0, vOffsetColors, transparencies); msert;
 
   for (unsigned i = 0; i < n; i++) {
     MFloatVector grad( (uOffsetColors[i].x - colors[i].x) ,
@@ -2437,9 +2439,9 @@ MBoundingBox strokeFactory::boundingBox() const
   // get sample positions from output
   MPlug targetsPlug(thisObj, aOutTargets);
   MObject dTargets;
-  st = targetsPlug.getValue(dTargets); er;
+  st = targetsPlug.getValue(dTargets); mser;
   fnXA.setObject(dTargets);
-  MMatrixArray targets = fnXA.array(&st); er;
+  MMatrixArray targets = fnXA.array(&st); mser;
   unsigned pl = targets.length();
   if (! pl ) {
     return MBoundingBox();
@@ -2450,9 +2452,9 @@ MBoundingBox strokeFactory::boundingBox() const
 
   MPlug countsPlug(thisObj, aOutCounts);
   MObject dCounts;
-  st = countsPlug.getValue(dCounts); er;
+  st = countsPlug.getValue(dCounts); mser;
   fnI.setObject(dCounts);
-  MIntArray counts = fnI.array(&st); er;
+  MIntArray counts = fnI.array(&st); mser;
   unsigned numStrokes = counts.length();
 
 

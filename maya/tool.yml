@@ -20,14 +20,20 @@ maya_modules_erb_files:
 include_paths:
 - ../../kettle/src
 - ../../kettle/src/maya
+- /opt/X11/include
+- ../../../CImg-2.4.0
 libs:
 - OpenMayaUI
 - OpenMayaRender
+- X11
 templates:
 - cpp
 - maya
 - maya_plugin
 - gl
 source_files:
-- src/*cpp
+- src/**/*.cpp
 - ../../kettle/src/maya/mayaMath.cpp
+
+lib_paths:
+-  /opt/X11/lib

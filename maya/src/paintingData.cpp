@@ -48,7 +48,7 @@ void	paintingData::clear() {
 // 	m_pGeometry->setPaints(paints);
 
 
-// 	MArrayDataHandle hStrokeCurves = data.inputValue(strokeCurvesAtt, &st); ert;
+// 	MArrayDataHandle hStrokeCurves = data.inputValue(strokeCurvesAtt, &st); msert;
 // 	unsigned nCurves = hStrokeCurves.elementCount();
 // 	// cerr << "nCurves: " << nCurves << endl;
 // 	for (unsigned i = 0; i < nCurves; i++, hStrokeCurves.next()) {
@@ -56,7 +56,7 @@ void	paintingData::clear() {
 
 // 		MDataHandle hStrokeCurve = hStrokeCurves.inputValue(&st );
 // 		MObject dStrokeCurve = hStrokeCurve.data();
-// 		MFnPluginData fnStrokeCurves( dStrokeCurve , &st); ert;
+// 		MFnPluginData fnStrokeCurves( dStrokeCurve , &st); msert;
 // 		strokeGeometryData *scData = (strokeGeometryData *)fnStrokeCurves.data();
 // 		strokeCurveGeom *scGeom = scData->fGeometry;
 // 		m_pGeometry->addStrokeCurve(*scGeom);
@@ -88,7 +88,7 @@ void	paintingData::clear() {
 // 	m_pGeometry->setBrushes(brushes);
 // 	m_pGeometry->setPaints(paints);
 
-// 	MArrayDataHandle hStrokeCurves = data.inputValue(strokeCurvesAtt, &st); ert;
+// 	MArrayDataHandle hStrokeCurves = data.inputValue(strokeCurvesAtt, &st); msert;
 // 	unsigned nCurves = hStrokeCurves.elementCount();
 // 	// cerr << "nCurves: " << nCurves << endl;
 // 	for (unsigned i = 0; i < nCurves; i++, hStrokeCurves.next()) {
@@ -96,7 +96,7 @@ void	paintingData::clear() {
 
 // 		MDataHandle hStrokeCurve = hStrokeCurves.inputValue(&st );
 // 		MObject dStrokeCurve = hStrokeCurve.data();
-// 		MFnPluginData fnStrokeCurves( dStrokeCurve , &st); ert;
+// 		MFnPluginData fnStrokeCurves( dStrokeCurve , &st); msert;
 // 		strokeGeometryData *scData = (strokeGeometryData *)fnStrokeCurves.data();
 // 		strokeCurveGeom *scGeom = scData->fGeometry;
 

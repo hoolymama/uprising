@@ -6,7 +6,7 @@
 #include <maya/MFloatMatrix.h>
 #include <maya/MRenderUtil.h>
 
-#include "errorMacros.h"
+// #include "errorMacros.h"
 
 
 
@@ -24,8 +24,10 @@ MStatus getTextureName(const MObject &node, const MObject &attribute,
 
   MPlugArray plugArray;
   MPlug plug(node, attribute);
-  bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st); ert;
-  if (! hasConnection) { return MS::kUnknownParameter; }
+  bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st);
+  if (st.error() or (! hasConnection)) {
+    return  MS::kUnknownParameter;
+  }
   name = plugArray[0].name(&st);
   return MS::kSuccess;
 }
@@ -47,7 +49,10 @@ MStatus sampleUVTexture(const MObject &node, const MObject &attribute,
   int n = uVals.length();
 
   st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat,
-        0, &uVals, &vVals, 0, 0, 0, 0, 0, result, transparencies); ert;
+        0, &uVals, &vVals, 0, 0, 0, 0, 0, result, transparencies);
+  if (st.error()) {
+    return  MS::kUnknownParameter;
+  }
   return MS::kSuccess;
 }
 
@@ -67,7 +72,10 @@ MStatus sampleUVTexture(const MObject &node, const MObject &attribute,
   int n = uVals.length();
 
   st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat,
-        0, &uVals, &vVals, 0, 0, 0, 0, 0, colors, transparencies); ert;
+        0, &uVals, &vVals, 0, 0, 0, 0, 0, colors, transparencies);
+  if (st.error()) {
+    return  MS::kUnknownParameter;
+  }
 
   result.setLength(n);
   for (int i = 0; i < n; ++i)
@@ -76,3 +84,7 @@ MStatus sampleUVTexture(const MObject &node, const MObject &attribute,
   }
   return MS::kSuccess;
 }
+
+
+
+

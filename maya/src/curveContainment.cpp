@@ -65,23 +65,23 @@ MStatus curveContainment::initialize () {
 	MFnNumericAttribute nAttr;
 	MFnEnumAttribute eAttr;
 
-	aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve, & st); er;
+	aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve, & st); mser;
 	tAttr.setReadable(false);
 	tAttr.setStorable(false);
 	tAttr.setArray(true);
 	tAttr.setIndexMatters(true);
-	st = addAttribute(aCurve); er;
+	st = addAttribute(aCurve); mser;
 
-	aMesh = tAttr.create( "mesh", "msh", MFnData::kMesh, &st ); er
+	aMesh = tAttr.create( "mesh", "msh", MFnData::kMesh, &st ); mser
 	tAttr.setReadable(false);
-	st = addAttribute(aMesh);	er;
+	st = addAttribute(aMesh);	mser;
 
 	aContainmentType = eAttr.create( "containmentType", "cty", curveContainment::kFirst);
 	eAttr.addField("first", curveContainment::kFirst);
 	eAttr.addField("longest", curveContainment::kLongest);
 	eAttr.setKeyable(true);
 	eAttr.setHidden(false);
-	st = addAttribute( aContainmentType ); er;
+	st = addAttribute( aContainmentType ); mser;
 
 	aSampleDistance = nAttr.create( "sampleDistance", "sdc",
 	                                MFnNumericData::kDouble);
@@ -117,14 +117,14 @@ MStatus curveContainment::initialize () {
 	// nAttr.setReadable(true);
 	// nAttr.setHidden(false);
 	// nAttr.setWritable(false);
-	// st = addAttribute( aOutMinPoint ); er;
+	// st = addAttribute( aOutMinPoint ); mser;
 
 	// aOutMaxPoint = nAttr.createPoint( "outMaxPoint", "mxpt" );
 	// nAttr.setStorable(false);
 	// nAttr.setReadable(true);
 	// nAttr.setHidden(false);
 	// nAttr.setWritable(false);
-	// st = addAttribute( aOutMaxPoint ); er;
+	// st = addAttribute( aOutMaxPoint ); mser;
 
 	attributeAffects (aCurve, aOutLength);
 	attributeAffects (aMesh, aOutLength);
@@ -283,10 +283,10 @@ MStatus curveContainment::compute(const MPlug &plug, MDataBlock &data) {
 	MMeshIsectAccelParams ap = meshFn.autoUniformGridParams();
 
 
-	MArrayDataHandle hCurves = data.inputArrayValue(aCurve, &st ); ert;
+	MArrayDataHandle hCurves = data.inputArrayValue(aCurve, &st ); msert;
 	unsigned nPlugs = hCurves.elementCount();
 
-	MArrayDataHandle     hOutput = data.outputArrayValue( aOutLength, &st ); er;
+	MArrayDataHandle     hOutput = data.outputArrayValue( aOutLength, &st ); mser;
 	MArrayDataBuilder    bOutput = hOutput.builder();
 
 	for (unsigned i = 0; i < nPlugs; i++, hCurves.next()) {

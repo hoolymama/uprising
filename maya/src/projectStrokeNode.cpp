@@ -106,17 +106,17 @@ MStatus projectStroke:: initialize()
 	nAttr.setKeyable( true );
 	nAttr.setDefault( 100 );
 
-	st = addAttribute( aDensity ); er;
+	st = addAttribute( aDensity ); mser;
 
 	aDensityMap = nAttr.create("densityMap", "denm", MFnNumericData::kDouble);
 	nAttr.setHidden( false );
 	nAttr.setKeyable( true );
-	st = addAttribute( aDensityMap ); er;
+	st = addAttribute( aDensityMap ); mser;
 
-	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st); er;
+	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st); mser;
 	tAttr.setStorable( false);
 	tAttr.setReadable( true);
-	st = addAttribute( aOutPoints ); er;
+	st = addAttribute( aOutPoints ); mser;
 
 	st = attributeAffects( aDensity, aOutPoints);
 	st = attributeAffects( aDensityMap, aOutPoints);
@@ -153,7 +153,7 @@ MStatus projectStroke::compute(const MPlug &plug, MDataBlock &data )
 	MFnVectorArrayData fnOutPoints;
 	MObject dOutPoints = fnOutPoints.create(result);
 	hOutPoints.set(dOutPoints);
-	st = data.setClean( aOutPoints ); er;
+	st = data.setClean( aOutPoints ); mser;
 
 	return MS:: kSuccess;
 }

@@ -164,28 +164,28 @@ MStatus paintingCmd::doIt( const MArgList &args )
 	}
 
 	if ( argData.isFlagSet(kStrokePositionsFlag)) {
-		MMatrix wm = getWorldMatrix(paintingObject, &st); ert;
+		MMatrix wm = getWorldMatrix(paintingObject, &st); msert;
 		return handleStrokePositionsFlag(*pGeom, argData, wm);
 	}
 
 	if ( argData.isFlagSet(kStrokeRotationsFlag)) {
-		MMatrix wm = getWorldMatrix(paintingObject, &st); ert;
+		MMatrix wm = getWorldMatrix(paintingObject, &st); msert;
 		return handleStrokeRotationsFlag(*pGeom, argData, wm);
 	}
 
 	if ( argData.isFlagSet(kStrokeStopPositionsFlag)) {
-		MMatrix wm = getWorldMatrix(paintingObject, &st); ert;
+		MMatrix wm = getWorldMatrix(paintingObject, &st); msert;
 		return handleStrokeStopPositionsFlag(*pGeom, argData, wm);
 	}
 
 	if ( argData.isFlagSet(kStrokeStopRotationsFlag)) {
-		MMatrix wm = getWorldMatrix(paintingObject, &st); ert;
+		MMatrix wm = getWorldMatrix(paintingObject, &st); msert;
 		return handleStrokeStopRotationsFlag(*pGeom, argData, wm);
 	}
 
 
 	if ( argData.isFlagSet(kStrokeTangentsFlag)) {
-		MMatrix wm = getWorldMatrix(paintingObject, &st); ert;
+		MMatrix wm = getWorldMatrix(paintingObject, &st); msert;
 		return handleStrokeTangentsFlag(*pGeom, argData, wm);
 	}
 
@@ -201,7 +201,7 @@ MStatus paintingCmd::doIt( const MArgList &args )
 	}
 
 	if ( argData.isFlagSet(kStrokeNormalFlag)) {
-		MMatrix wm = getWorldMatrix(paintingObject, &st); ert;
+		MMatrix wm = getWorldMatrix(paintingObject, &st); msert;
 		return handleStrokeNormalFlag(*pGeom, argData, wm);
 	}
 

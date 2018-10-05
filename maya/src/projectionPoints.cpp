@@ -12,6 +12,7 @@
 
 #include <maya/MFloatMatrix.h>
 #include <maya/MFnTypedAttribute.h>
+#include <maya/MFnVectorArrayData.h>
 
 
 
@@ -25,18 +26,18 @@
 
 #include <maya/MFnMatrixAttribute.h>
 
-#include "strokeGeometryData.h"
 #include "projectionPoints.h"
 
 #include <jMayaIds.h>
 #include "mayaMath.h"
-#include "errorMacros.h"
 
 #include "dot_data.h"
 #include "dot_tree.h"
 
 #include "textureSampling.h"
 
+// #include "CImg.h"
+// using namespace cimg_library;
 
 const double rad_to_deg = (180 / 3.1415927);
 MObject projectionPoints::aDensity;
@@ -94,13 +95,13 @@ MStatus projectionPoints:: initialize()
 	nAttr.setKeyable( true );
 	nAttr.setDefault( 100 );
 
-	st = addAttribute( aDensity ); er;
+	st = addAttribute( aDensity );
 
 	aRadius = nAttr.create("radius", "rad", MFnNumericData::kFloat);
 	nAttr.setHidden( false );
 	nAttr.setKeyable( true );
 	nAttr.setDefault( 100 );
-	st = addAttribute(  aRadius ); er;
+	st = addAttribute(  aRadius );
 
 	aDensityMap = nAttr.createColor( "densityMap", "denm");
 	nAttr.setHidden(false);
@@ -116,7 +117,7 @@ MStatus projectionPoints:: initialize()
 	nAttr.setReadable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(0);
-	st = addAttribute(aSeed); er;
+	st = addAttribute(aSeed);
 
 	aIterations = nAttr.create( "iterations", "it", MFnNumericData::kInt);
 	nAttr.setHidden(false);
@@ -124,24 +125,24 @@ MStatus projectionPoints:: initialize()
 	nAttr.setReadable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(1);
-	st = addAttribute(aIterations); er;
+	st = addAttribute(aIterations);
 
 	aNeighbors = nAttr.create( "neighbors", "nbs", MFnNumericData::kInt);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
-	st = addAttribute(aNeighbors); er;
+	st = addAttribute(aNeighbors);
 
 	aMagnitude = nAttr.create("magnitude", "mag", MFnNumericData::kFloat);
 	nAttr.setHidden( false );
 	nAttr.setKeyable( true );
 	nAttr.setDefault( 100 );
-	st = addAttribute(  aMagnitude ); er;
+	st = addAttribute(  aMagnitude );
 
-	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st); er;
+	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st);
 	tAttr.setStorable( false);
 	tAttr.setReadable( true);
-	st = addAttribute( aOutPoints ); er;
+	st = addAttribute( aOutPoints );
 
 	st = attributeAffects( aDensity, aOutPoints);
 	st = attributeAffects( aRadius, aOutPoints);
@@ -267,7 +268,7 @@ MStatus projectionPoints::compute(const MPlug &plug, MDataBlock &data )
 	MFnVectorArrayData fnOutPoints;
 	MObject dOutPoints = fnOutPoints.create(result);
 	hOutPoints.set(dOutPoints);
-	st = data.setClean( aOutPoints ); er;
+	st = data.setClean( aOutPoints );
 
 
 	return MS:: kSuccess;

@@ -113,9 +113,9 @@ MBoundingBox paintingShape::boundingBox() const
 	// get sample positions from output
 	MPlug positionPlug(thisObj, aOutPointsLocal);
 	MObject dPositions;
-	st = positionPlug.getValue(dPositions); er;
+	st = positionPlug.getValue(dPositions); mser;
 	MFnVectorArrayData fnV(dPositions);
-	MVectorArray positions = fnV.array(&st); er;
+	MVectorArray positions = fnV.array(&st); mser;
 	unsigned pl = positions.length();
 	MBoundingBox bb;
 	if (pl > 0) {
@@ -144,9 +144,9 @@ MStatus paintingShape::initialize()
 	MFnTypedAttribute	tAttr;
 	MFnMatrixAttribute	mAttr;
 
-	aInMesh = tAttr.create( "inMesh", "inm", MFnData::kMesh, &st ); er
+	aInMesh = tAttr.create( "inMesh", "inm", MFnData::kMesh, &st ); mser
 	tAttr.setReadable(false);
-	st = addAttribute(aInMesh);	er;
+	st = addAttribute(aInMesh);	mser;
 
 	////////////////////////////////////////////////////////////////////
 	aVoxelMatrix = mAttr.create("voxelMatrix", "vm");
@@ -164,14 +164,14 @@ MStatus paintingShape::initialize()
 	nAttr.setWritable( true );
 	nAttr.setKeyable( true );
 	nAttr.setDefault(1.0);
-	st = addAttribute(aScale);	er;
+	st = addAttribute(aScale);	mser;
 
 	aColor = nAttr.createColor( "cubeColor", "ccol");
 	nAttr.setStorable( true );
 	nAttr.setKeyable( true );
 	nAttr.setReadable( true );
 	nAttr.setWritable( true );
-	st = addAttribute( aColor); er;
+	st = addAttribute( aColor); mser;
 
 	aDiffuseWeight = nAttr.create( "diffuseWeight", "dfw", MFnNumericData::kFloat);
 	nAttr.setStorable( true );
@@ -181,7 +181,7 @@ MStatus paintingShape::initialize()
 	nAttr.setMin(0.0f);
 	nAttr.setMax( 1.0f );
 	nAttr.setDefault( 1.0f );
-	st = addAttribute( aDiffuseWeight); er;
+	st = addAttribute( aDiffuseWeight); mser;
 
 	aIncandescentWeight = nAttr.create( "incandescentWeight", "icw", MFnNumericData::kFloat);
 	nAttr.setStorable( true );
@@ -191,7 +191,7 @@ MStatus paintingShape::initialize()
 	nAttr.setMin(0.0f);
 	nAttr.setMax( 1.0f );
 	nAttr.setDefault( 0.0f );
-	st = addAttribute( aIncandescentWeight); er;
+	st = addAttribute( aIncandescentWeight); mser;
 
 	aDrawEdges = nAttr.create( "drawEdges", "dwe", MFnNumericData::kBoolean);
 	nAttr.setStorable( true );
@@ -199,14 +199,14 @@ MStatus paintingShape::initialize()
 	nAttr.setReadable( true );
 	nAttr.setWritable( true );
 	nAttr.setDefault(false );
-	st = addAttribute( aDrawEdges); er;
+	st = addAttribute( aDrawEdges); mser;
 
 	aEdgeColor = nAttr.createColor( "edgeColor", "ecol");
 	nAttr.setStorable( true );
 	nAttr.setKeyable( true );
 	nAttr.setReadable( true );
 	nAttr.setWritable( true );
-	st = addAttribute( aEdgeColor); er;
+	st = addAttribute( aEdgeColor); mser;
 
 	aEdgeThickness = nAttr.create( "edgeThickness", "etk", MFnNumericData::kFloat);
 	nAttr.setStorable( true );
@@ -216,7 +216,7 @@ MStatus paintingShape::initialize()
 	nAttr.setMin(0.0f);
 	nAttr.setMax( 10.0f );
 	nAttr.setDefault( 0.0f );
-	st = addAttribute( aEdgeThickness); er;
+	st = addAttribute( aEdgeThickness); mser;
 
 	aRaySeed = nAttr.create( "raySeed", "rsd", MFnNumericData::kInt);
 	nAttr.setStorable( true );
@@ -224,7 +224,7 @@ MStatus paintingShape::initialize()
 	nAttr.setReadable( true );
 	nAttr.setWritable( true );
 	nAttr.setDefault(1 );
-	st = addAttribute( aRaySeed); er;
+	st = addAttribute( aRaySeed); mser;
 
 
 	aNumberOfRays = nAttr.create( "numberOfRays", "nrays", MFnNumericData::kInt);
@@ -233,43 +233,43 @@ MStatus paintingShape::initialize()
 	nAttr.setReadable( true );
 	nAttr.setWritable( true );
 	nAttr.setDefault(1 );
-	st = addAttribute( aNumberOfRays); er;
+	st = addAttribute( aNumberOfRays); mser;
 
 
 	aOutPositions = tAttr.create("outPositions", "opos", MFnData::kVectorArray);
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);
-	st = addAttribute(aOutPositions); er;
+	st = addAttribute(aOutPositions); mser;
 
 	aOutNormals = tAttr.create("outNormals", "onrm", MFnData::kVectorArray);
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);
-	st = addAttribute(aOutNormals); er;
+	st = addAttribute(aOutNormals); mser;
 
 	aOutColors = tAttr.create("outColors", "ocol", MFnData::kVectorArray);
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);
-	st = addAttribute(aOutColors); er;
+	st = addAttribute(aOutColors); mser;
 
 	aOutScales = tAttr.create("outScales", "oscl", MFnData::kDoubleArray);
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);
-	st = addAttribute(aOutScales); er;
+	st = addAttribute(aOutScales); mser;
 
 	aOutEdges = tAttr.create("outEdges", "oedg", MFnData::kIntArray);
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);
-	st = addAttribute(aOutEdges); er;
+	st = addAttribute(aOutEdges); mser;
 
 	aOutBoundsMin = nAttr.create("outBoundsMin", "oibmn", MFnNumericData::k3Float);
 	nAttr.setReadable(true);
 	nAttr.setStorable(false);
-	st = addAttribute(aOutBoundsMin); er;
+	st = addAttribute(aOutBoundsMin); mser;
 
 	aOutBoundsMax = nAttr.create("outBoundsMax", "oibmx", MFnNumericData::k3Float);
 	nAttr.setReadable(true);
 	nAttr.setStorable(false);
-	st = addAttribute(aOutBoundsMax); er;
+	st = addAttribute(aOutBoundsMax); mser;
 
 
 
@@ -330,7 +330,7 @@ MStatus paintingShape::compute( const MPlug &plug, MDataBlock &data  )
 	        || ( plug == aOutBoundsMax )
 	     )) { return MS::kUnknownParameter; }
 
-	MDataHandle hMat = data.inputValue( aVoxelMatrix, &st ); ert;
+	MDataHandle hMat = data.inputValue( aVoxelMatrix, &st ); msert;
 	MMatrix mat(hMat.asMatrix());
 
 	if (
@@ -354,8 +354,8 @@ MStatus paintingShape::compute( const MPlug &plug, MDataBlock &data  )
 		MPointArray verts;
 		MIntArray faceCounts;
 		MIntArray connectivity;
-		st = meshFn.getPoints(verts, MSpace::kWorld); er;
-		st = meshFn.getVertices(faceCounts, connectivity); er;
+		st = meshFn.getPoints(verts, MSpace::kWorld); mser;
+		st = meshFn.getVertices(faceCounts, connectivity); mser;
 		int numVerts = meshFn.numVertices();
 		int numFaces = faceCounts.length();
 		MBoundingBox meshBound;
@@ -372,10 +372,10 @@ MStatus paintingShape::compute( const MPlug &plug, MDataBlock &data  )
 
 		MFnMesh newMeshFn;
 		MFnMeshData dataCreator;
-		MObject newMeshData = dataCreator.create( &st ); er;
+		MObject newMeshData = dataCreator.create( &st ); mser;
 		newMeshFn.create( numVerts,  numFaces,
 		                  verts, faceCounts, connectivity,
-		                  newMeshData, &st );  er;
+		                  newMeshData, &st );  mser;
 		/////////////////////////////////////////////
 
 		// The mesh bounding box is optimal for generating our points,
@@ -511,15 +511,15 @@ MStatus paintingShape::compute( const MPlug &plug, MDataBlock &data  )
 		MDataHandle h;
 		MObject d;
 		unsigned pl = 0;
-		h = data.inputValue(aOutPositions, &st); ert;
+		h = data.inputValue(aOutPositions, &st); msert;
 		d = h.data();
-		st = fnV.setObject(d); ert;
+		st = fnV.setObject(d); msert;
 		pl = fnV.length();
 		const MVectorArray &pos = fnV.array();
 
-		h = data.inputValue(aOutNormals, &st); ert;
+		h = data.inputValue(aOutNormals, &st); msert;
 		d = h.data();
-		st = fnV.setObject(d); ert;
+		st = fnV.setObject(d); msert;
 		unsigned nl = fnV.length();
 		const MVectorArray &nrm = fnV.array();
 
@@ -610,7 +610,7 @@ MStatus paintingShape::getTextureName(const MObject &attribute, MString &name) c
 	MStatus st;
 	MPlugArray plugArray;
 	MPlug plug(thisMObject(), attribute);
-	bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st); ert;
+	bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st); msert;
 	if (! hasConnection) { return MS::kUnknownParameter; }
 	name = plugArray[0].name(&st);
 	return MS::kSuccess;

@@ -101,16 +101,16 @@ MStatus strokeCurve:: initialize()
 
     inheritAttributesFrom("strokeNode");
 
-    aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve, & st); er;
+    aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve, & st); mser;
     tAttr.setReadable(false);
     tAttr.setStorable(false);
-    st = addAttribute(aCurve); er;
+    st = addAttribute(aCurve); mser;
 
     aOverlap  = nAttr.create("overlap", "ovlp", MFnNumericData:: kDouble);
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
     st = addAttribute(aOverlap);
-    er;
+    mser;
 
     aRandomOverlapFactor = nAttr.create("randomOverlapFactor", "rofc",
                                         MFnNumericData::kDouble);
@@ -120,7 +120,7 @@ MStatus strokeCurve:: initialize()
     nAttr.setMin(0.00);
     nAttr.setMax(1.0);
     st = addAttribute(aRandomOverlapFactor);
-    er;
+    mser;
 
     aForceDip = nAttr.create("forceDip", "fcdp", MFnNumericData::kBoolean);
     nAttr.setHidden(false);
@@ -129,7 +129,7 @@ MStatus strokeCurve:: initialize()
     nAttr.setKeyable(true);
     nAttr.setDefault(false);
     st = addAttribute(aForceDip);
-    er;
+    mser;
 
     aSubcurveMin = nAttr.create("subcurveMin", "scvn", MFnNumericData::kDouble, 0.0 );
     nAttr.setDefault(0.0);
@@ -140,7 +140,7 @@ MStatus strokeCurve:: initialize()
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
     st = addAttribute(aSubcurve);
-    er;
+    mser;
 
     aSubcurveMethod = eAttr.create("subcurveMethod", "scmt",
                                    strokeCurve::kLength);
@@ -149,7 +149,7 @@ MStatus strokeCurve:: initialize()
     eAttr.setKeyable(true);
     eAttr.setHidden(false);
     st = addAttribute(aSubcurveMethod);
-    er;
+    mser;
 
     aBrushRampScope = eAttr.create("brushRampScope", "brsc",
                                    StrokeRotationSpec::kStroke);
@@ -159,7 +159,7 @@ MStatus strokeCurve:: initialize()
     eAttr.setKeyable(true);
     eAttr.setHidden(false);
     st = addAttribute(aBrushRampScope);
-    er;
+    mser;
 
     st = attributeAffects(aCurve, aOutput);
     st = attributeAffects(aSubcurveMin, aOutput);
@@ -218,7 +218,7 @@ unsigned int strokeCurve::getStrokeBoundaries(
 
 
 
-    MDataHandle hCurve = data.inputValue(aCurve, &st ); ert;
+    MDataHandle hCurve = data.inputValue(aCurve, &st ); msert;
     MObject  dCurve =  data.inputValue(aCurve).asNurbsCurveTransformed();
     double countFactor = data.inputValue(aStrokeCountFactor).asDouble();
     int seed = data.inputValue(aSeed).asInt();
@@ -302,12 +302,12 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
         return MS::kSuccess;
     }
 
-    MDataHandle hCurve = data.inputValue(aCurve, & st); ert;
+    MDataHandle hCurve = data.inputValue(aCurve, & st); msert;
     MObject  dCurve = data.inputValue(aCurve).asNurbsCurveTransformed();
 
     MVector planeNormal = data.inputValue(aPlaneNormal).asVector();
 
-    MFnNurbsCurve curveFn(dCurve, & st); ert;
+    MFnNurbsCurve curveFn(dCurve, & st); msert;
     double curveLength = curveFn.length(epsilon);
     double pointDensity = data.inputValue(aPointDensity).asDouble();
     if (pointDensity < 0.001) {

@@ -18,7 +18,7 @@ const float epsilon = 0.00000001;
 #include <map>
 
 #include <dot_data.h>
-#include "errorMacros.h"
+// #include "errorMacros.h"
 #include "mayaMath.h"
 #include "vec2d.h"
 

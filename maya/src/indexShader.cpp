@@ -70,7 +70,7 @@ MStatus indexShader::initialize()
 	nAttr.setWritable(true);
 	nAttr.setArray(true);
 	nAttr.setIndexMatters(true);
-	st = addAttribute( aInputs ); er;
+	st = addAttribute( aInputs ); mser;
 
 	aColor = nAttr.createColor( "color", "c" );
 	nAttr.setDefault(1.0f, 0.0f, 0.0f);
@@ -79,7 +79,7 @@ MStatus indexShader::initialize()
 	nAttr.setUsedAsColor(true);
 	nAttr.setReadable(true);
 	nAttr.setWritable(true);
-	st = addAttribute( aColor ); er;
+	st = addAttribute( aColor ); mser;
 
 
 
@@ -109,7 +109,7 @@ MStatus indexShader::initialize()
 	eAttr.setKeyable(true);
 	eAttr.setStorable(true);
 	eAttr.setHidden(false);
-	st = addAttribute( aColorSpace ); er;
+	st = addAttribute( aColorSpace ); mser;
 
 	// aDefaultColor = nAttr.createColor( "defaultColor", "dc" );
 	// nAttr.setDefault(1.0f, 0.0f, 0.0f);
@@ -118,7 +118,7 @@ MStatus indexShader::initialize()
 	// nAttr.setUsedAsColor(true);
 	// nAttr.setReadable(true);
 	// nAttr.setWritable(true);
-	// st = addAttribute( aDefaultColor ); er;
+	// st = addAttribute( aDefaultColor ); mser;
 
 
 
@@ -127,7 +127,7 @@ MStatus indexShader::initialize()
 	nAttr.setKeyable( false );
 	nAttr.setReadable( true);
 	nAttr.setStorable( false);
-	st = addAttribute( aOutColor ); er;
+	st = addAttribute( aOutColor ); mser;
 
 	aOutAlpha = nAttr.create( "outAlpha", "oa", MFnNumericData::kFloat);
 	nAttr.setKeyable(false);

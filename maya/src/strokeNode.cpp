@@ -160,7 +160,7 @@ MStatus strokeNode::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault( 0.0, 0.0, 1.0 );
-  st = addAttribute(aPlaneNormal); er;
+  st = addAttribute(aPlaneNormal); mser;
 
   aStrokeCountFactor = nAttr.create( "strokeCountFactor",
                                      "stcf", MFnNumericData::kDouble);
@@ -170,7 +170,7 @@ MStatus strokeNode::initialize()
   nAttr.setMin(0.00);
   nAttr.setMax(1.0);
   nAttr.setDefault(1.0);
-  st = addAttribute(aStrokeCountFactor); er;
+  st = addAttribute(aStrokeCountFactor); mser;
 
 
   aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData::kDouble);
@@ -178,7 +178,7 @@ MStatus strokeNode::initialize()
   nAttr.setKeyable( true );
   nAttr.setStorable(true);
   nAttr.setDefault( 1.0 );
-  st = addAttribute(aPointDensity); er;
+  st = addAttribute(aPointDensity); mser;
 
   aStrokeLength = nAttr.create( "strokeLength", "stl", MFnNumericData::kDouble);
   nAttr.setStorable(true);
@@ -186,7 +186,7 @@ MStatus strokeNode::initialize()
   nAttr.setKeyable(true);
   nAttr.setMin(0.01);
   nAttr.setDefault(10.0);
-  st = addAttribute(aStrokeLength); er;
+  st = addAttribute(aStrokeLength); mser;
 
   aRandomLengthFactor = nAttr.create( "randomLengthFactor", "rlfc",
                                       MFnNumericData::kDouble);
@@ -195,7 +195,7 @@ MStatus strokeNode::initialize()
   nAttr.setKeyable(true);
   nAttr.setMin(0.00);
   nAttr.setMax(1.0);
-  st = addAttribute(aRandomLengthFactor); er;
+  st = addAttribute(aRandomLengthFactor); mser;
 
 
 
@@ -205,7 +205,7 @@ MStatus strokeNode::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(false);
-  st = addAttribute(aBackstroke); er;
+  st = addAttribute(aBackstroke); mser;
 
 
 
@@ -214,7 +214,7 @@ MStatus strokeNode::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  st = addAttribute(aRepeats); er;
+  st = addAttribute(aRepeats); mser;
 
   aRepeatOffset = nAttr.create("repeatOffset", "rpof", MFnNumericData::kDouble);
   nAttr.setHidden( false );
@@ -250,7 +250,7 @@ MStatus strokeNode::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(0);
-  st = addAttribute(aSeed); er;
+  st = addAttribute(aSeed); mser;
 
 
   aPivotFraction = nAttr.create("pivotFraction", "pfrc", MFnNumericData::kDouble);
@@ -273,26 +273,26 @@ MStatus strokeNode::initialize()
 
 
 
-  aBrushId = nAttr.create("brushId", "brid", MFnNumericData::kShort); er;
+  aBrushId = nAttr.create("brushId", "brid", MFnNumericData::kShort); mser;
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setWritable(true);
-  st = addAttribute(aBrushId); er;
+  st = addAttribute(aBrushId); mser;
 
-  aPaintId = nAttr.create("paintId", "ptid", MFnNumericData::kShort); er;
+  aPaintId = nAttr.create("paintId", "ptid", MFnNumericData::kShort); mser;
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setWritable(true);
-  st = addAttribute(aPaintId); er;
+  st = addAttribute(aPaintId); mser;
 
-  aLayerId = nAttr.create("layerId", "lyid", MFnNumericData::kInt); er;
+  aLayerId = nAttr.create("layerId", "lyid", MFnNumericData::kInt); mser;
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setWritable(true);
-  st = addAttribute(aLayerId); er;
+  st = addAttribute(aLayerId); mser;
 
 
   aActive = nAttr.create( "active", "act", MFnNumericData::kBoolean);
@@ -301,7 +301,7 @@ MStatus strokeNode::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(true);
-  st = addAttribute(aActive); er;
+  st = addAttribute(aActive); mser;
 
 
   aBrushFollowStroke = nAttr.create( "followStroke", "fst", MFnNumericData::kBoolean);
@@ -310,7 +310,7 @@ MStatus strokeNode::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(true);
-  st = addAttribute(aBrushFollowStroke); er;
+  st = addAttribute(aBrushFollowStroke); mser;
 
 
   aApproachDistanceStart = nAttr.create( "approachDistanceStart",
@@ -340,11 +340,11 @@ MStatus strokeNode::initialize()
   nAttr.setReadable(true);
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
-  st = addAttribute(aLift); er;
+  st = addAttribute(aLift); mser;
 
 
   aStrokeProfileRamp = MRampAttribute::createCurveRamp("strokeProfileRamp", "spr");
-  st = addAttribute( aStrokeProfileRamp ); er;
+  st = addAttribute( aStrokeProfileRamp ); mser;
 
 
 
@@ -356,14 +356,14 @@ MStatus strokeNode::initialize()
                                       aStrokeProfileScaleMin, aStrokeProfileScaleMax);
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
-  st = addAttribute(aStrokeProfileScale); er;
+  st = addAttribute(aStrokeProfileScale); mser;
 
   aBrushTiltRamp  = MRampAttribute::createCurveRamp("brushTiltRamp", "brtl");
-  st = addAttribute( aBrushTiltRamp ); er;
+  st = addAttribute( aBrushTiltRamp ); mser;
   aBrushBankRamp  = MRampAttribute::createCurveRamp("brushBankRamp", "brbk");
-  st = addAttribute( aBrushBankRamp ); er;
+  st = addAttribute( aBrushBankRamp ); mser;
   aBrushTwistRamp  = MRampAttribute::createCurveRamp("brushTwistRamp", "brtw");
-  st = addAttribute( aBrushTwistRamp ); er;
+  st = addAttribute( aBrushTwistRamp ); mser;
 
 
   aBrushTiltRangeMin = uAttr.create( "brushTiltRangeMin", "btlrn",
@@ -376,7 +376,7 @@ MStatus strokeNode::initialize()
                                  aBrushTiltRangeMax);
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
-  st = addAttribute(aBrushTiltRange); er;
+  st = addAttribute(aBrushTiltRange); mser;
 
 
 
@@ -390,7 +390,7 @@ MStatus strokeNode::initialize()
                                  aBrushBankRangeMax);
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
-  st = addAttribute(aBrushBankRange); er;
+  st = addAttribute(aBrushBankRange); mser;
 
 
 
@@ -404,7 +404,7 @@ MStatus strokeNode::initialize()
                                   aBrushTwistRangeMax);
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
-  st = addAttribute(aBrushTwistRange); er;
+  st = addAttribute(aBrushTwistRange); mser;
 
 
   aOutput = tAttr.create("output", "out", strokeGeometryData::id);
@@ -470,9 +470,10 @@ MStatus strokeNode::compute(const MPlug &plug, MDataBlock &data )
   MTypeId kdid(strokeGeometryData:: id);
 
   MObject dOut = fnOut.create(kdid, & st);
-  strokeGeometryData *newData = (strokeGeometryData * )fnOut.data(&st); er;
+  strokeGeometryData *newData = (strokeGeometryData * )fnOut.data(&st); mser;
+
   std::vector < strokeGeom > *geom = newData->fGeometry;
-  st = generateStrokeGeometry(data, geom); er;
+  st = generateStrokeGeometry(data, geom); mser;
   hOutput.set(newData);
   data.setClean(plug);
 

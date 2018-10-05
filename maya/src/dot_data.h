@@ -9,7 +9,7 @@
 #include <maya/MFloatVector.h>
 #include <maya/MFloatMatrix.h>
 
-#include "errorMacros.h"
+// #include "errorMacros.h"
 #include "mayaMath.h"
 #include "vec2d.h"
 

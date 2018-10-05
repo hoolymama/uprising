@@ -349,7 +349,7 @@ MStatus painting::initialize()
   cAttr.addChild(aStrokeSortKey);
   cAttr.addChild(aStrokeSortDirection);
   cAttr.setArray(true);
-  st = addAttribute( aStrokeSortList ); er;
+  st = addAttribute( aStrokeSortList ); mser;
 
 
   aStrokeSortTexture = nAttr.createColor( "strokeSortTexture", "stst");
@@ -396,7 +396,7 @@ MStatus painting::initialize()
   cAttr.addChild(aStrokeFilterOperator);
   cAttr.addChild(aStrokeFilterOperand);
   cAttr.setArray(true);
-  st = addAttribute( aStrokeFilterList ); er;
+  st = addAttribute( aStrokeFilterList ); mser;
 
 
   aStrokeFilterTexture = nAttr.createColor( "strokeFilterTexture", "stft");
@@ -442,7 +442,7 @@ MStatus painting::initialize()
   eAttr.addField("round", Brush::kRound);
   eAttr.setKeyable(true);
   eAttr.setHidden(false);
-  st = addAttribute( aBrushShape ); er;
+  st = addAttribute( aBrushShape ); mser;
 
   aBrushes = cAttr.create("brushes", "bsh");
   cAttr.addChild(aBrushWidth);
@@ -452,7 +452,7 @@ MStatus painting::initialize()
   cAttr.setArray( true );
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   cAttr.setReadable(false);
-  st = addAttribute( aBrushes ); er;
+  st = addAttribute( aBrushes ); mser;
 
   aPaintColorR = nAttr.create( "paintColorR", "pcr", MFnNumericData::kFloat);
   aPaintColorG = nAttr.create( "paintColorG", "pcg", MFnNumericData::kFloat);
@@ -485,7 +485,7 @@ MStatus painting::initialize()
   cAttr.setArray( true );
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   cAttr.setReadable(false);
-  st = addAttribute( aPaints ); er;
+  st = addAttribute( aPaints ); mser;
 
 
   aOutput = tAttr.create("output", "out", paintingData::id);
@@ -710,7 +710,7 @@ MStatus painting::sortStrokes(MDataBlock &data,  std::vector<strokeGeom> &stroke
 
   // vector<pair>: This is effectively a map with the order of insertion maintained
   std::vector< std::pair <StrokeSortFilterKey, StrokeSortDirection> > sortDefinition;
-  MArrayDataHandle hSortMulti = data.inputArrayValue(aStrokeSortList, &st ); ert;
+  MArrayDataHandle hSortMulti = data.inputArrayValue(aStrokeSortList, &st ); msert;
 
   unsigned nPlugs = hSortMulti.elementCount();
   bool useSortMap = false;
@@ -836,7 +836,7 @@ MStatus painting::filterStrokes(MDataBlock &data,  std::vector<strokeGeom> &stro
   // vector<pair>: This is effectively a map with the order of insertion maintained
   std::vector< std::tuple <StrokeSortFilterKey, strokeGeom::StrokeFilterOperator, int> >
   filterDefinition;
-  MArrayDataHandle hFilterMulti = data.inputArrayValue(aStrokeFilterList, &st ); ert;
+  MArrayDataHandle hFilterMulti = data.inputArrayValue(aStrokeFilterList, &st ); msert;
 
 
   unsigned nPlugs = hFilterMulti.elementCount();
@@ -1006,7 +1006,7 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
   int startFrom = data.inputValue(aStartFrom).asInt();
 
-  MDataHandle mh = data.inputValue(aInMatrix, &st); er;
+  MDataHandle mh = data.inputValue(aInMatrix, &st); mser;
   MMatrix wm = mh.asMatrix();
   MMatrix planeMatrix = data.inputValue(painting::aPlaneMatrix).asMatrix();
   MMatrix inversePlaneMatrix = planeMatrix.inverse();
@@ -1020,7 +1020,7 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
 
 
-  MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); ert;
+  MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); msert;
   std::map<short, Brush> brushes = Brush::factory(
                                      hBrushes,
                                      painting::aBrushWidth,
@@ -1028,7 +1028,7 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
                                      painting::aBrushShape
                                    );
 
-  MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); ert;
+  MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); msert;
   std::map<short, Paint> paints = Paint::factory(
                                     hPaints,
                                     painting::aPaintColor,
@@ -1082,15 +1082,15 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
   MFnPluginData fnOut;
   MTypeId kdid(paintingData::id);
-  MObject dOut = fnOut.create(kdid , &st ); er;
-  paintingData *outGeometryData = (paintingData *)fnOut.data(&st); er;
+  MObject dOut = fnOut.create(kdid , &st ); mser;
+  paintingData *outGeometryData = (paintingData *)fnOut.data(&st); mser;
   if (m_pd) {
     *outGeometryData = (*m_pd);
   }
 
 
-  MDataHandle outputHandle = data.outputValue(aOutput, &st ); er;
-  st = outputHandle.set(outGeometryData); er;
+  MDataHandle outputHandle = data.outputValue(aOutput, &st ); mser;
+  st = outputHandle.set(outGeometryData); mser;
   data.setClean( plug );
 
 
@@ -1104,7 +1104,7 @@ MStatus painting::populateStrokePool(MDataBlock &data,
                                      std::vector<strokeGeom> &strokePool)
 {
   MStatus st;
-  MArrayDataHandle hStrokeCurves = data.inputValue(aStrokeCurves, &st); ert;
+  MArrayDataHandle hStrokeCurves = data.inputValue(aStrokeCurves, &st); msert;
   unsigned nCurves = hStrokeCurves.elementCount();
   // int gid = 0;
   for (unsigned i = 0; i < nCurves; i++, hStrokeCurves.next()) {
@@ -1150,7 +1150,7 @@ MStatus painting::getTextureName(const MObject &attribute,
   MStatus st;
   MPlugArray plugArray;
   MPlug plug(thisMObject(), attribute);
-  bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st); ert;
+  bool hasConnection = plug.connectedTo(plugArray, 1, 0, &st); msert;
   if (! hasConnection) { return MS::kUnknownParameter; }
   name = plugArray[0].name(&st);
   return MS::kSuccess;
@@ -1172,7 +1172,7 @@ MStatus painting::sampleUVTexture(const MObject &attribute,   MFloatArray &uVals
   int n = uVals.length();
 
   st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat,
-        0, &uVals, &vVals, 0, 0, 0, 0, 0, result, transparencies); ert;
+        0, &uVals, &vVals, 0, 0, 0, 0, 0, result, transparencies); msert;
   return MS::kSuccess;
 }
 
@@ -1192,7 +1192,7 @@ MStatus painting::sampleUVTexture(const MObject &attribute,   MFloatArray &uVals
   int n = uVals.length();
 
   st =  MRenderUtil::sampleShadingNetwork (plugName, n, false, false, cameraMat,
-        0, &uVals, &vVals, 0, 0, 0, 0, 0, colors, transparencies); ert;
+        0, &uVals, &vVals, 0, 0, 0, 0, 0, colors, transparencies); msert;
 
   result.setLength(n);
   for (int i = 0; i < n; ++i)
@@ -1839,9 +1839,9 @@ MBoundingBox painting::boundingBox() const
   //   // get sample positions from output
   //   MPlug targetsPlug(thisObj, aOutTargets);
   //   MObject dTargets;
-  //   st = targetsPlug.getValue(dTargets); er;
+  //   st = targetsPlug.getValue(dTargets); mser;
   //   fnXA.setObject(dTargets);
-  //   MMatrixArray targets = fnXA.array(&st); er;
+  //   MMatrixArray targets = fnXA.array(&st); mser;
   //   unsigned pl = targets.length();
   //   if (! pl ) {
   //     return MBoundingBox();
@@ -1852,9 +1852,9 @@ MBoundingBox painting::boundingBox() const
 
   //   MPlug countsPlug(thisObj, aOutCounts);
   //   MObject dCounts;
-  //   st = countsPlug.getValue(dCounts); er;
+  //   st = countsPlug.getValue(dCounts); mser;
   //   fnI.setObject(dCounts);
-  //   MIntArray counts = fnI.array(&st); er;
+  //   MIntArray counts = fnI.array(&st); mser;
   //   unsigned numStrokes = counts.length();
 
 

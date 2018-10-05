@@ -605,7 +605,7 @@ The two points that describe entry and exit at the boundaries of the stroke
 // for (unsigned i = 0; i < numPoints; i++) {
 // 	double fraction =  (double(i) * recip);
 // 	double dist = startDist + (fraction * curveSpan);
-// 	double param = curveFn.findParamFromLength(dist, &st); er;
+// 	double param = curveFn.findParamFromLength(dist, &st); mser;
 // 	params.set(param, i);
 // }
 
@@ -633,7 +633,7 @@ The two points that describe entry and exit at the boundaries of the stroke
 // 		// MVector boundaryTangent = backstroke ? tangent : -tangent;
 // 		st = calcBoundaryPositions(curvePoint, -tangent, planeNormal, brush ,
 // 		                           boundaryPositions);
-// 		er;
+// 		mser;
 
 
 
@@ -656,7 +656,7 @@ The two points that describe entry and exit at the boundaries of the stroke
 // 		// MVector boundaryTangent = backstroke ? -tangent : tangent;
 // 		st = calcBoundaryPositions(curvePoint, tangent, planeNormal, brush,
 // 		                           boundaryPositions);
-// 		er;
+// 		mser;
 
 // 		st = calcBrushMatrix(boundaryPositions[1], curveTangent, planeNormal, brushRotate,
 // 		                     brushMatrix, follow, backstroke);
@@ -685,7 +685,7 @@ The two points that describe entry and exit at the boundaries of the stroke
 // For now, set pivot halfway along stroke.
 
 // double dist = startDist + (pivotFraction * curveSpan );
-// double param = curveFn.findParamFromLength(dist, &st); er;
+// double param = curveFn.findParamFromLength(dist, &st); mser;
 // st = curveFn.getPointAtParam(param, m_pivot, MSpace::kObject);
 // }
 
