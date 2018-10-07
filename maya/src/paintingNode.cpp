@@ -199,7 +199,7 @@ MObject painting::aPointSize;
 MObject painting::aLineLength;
 MObject painting::aLineThickness;
 
-MObject painting::aDisplayIds;
+
 MObject painting::aDisplayTargets;
 MObject painting::aDisplayLift;
 MObject painting::aDisplayApproach;
@@ -207,6 +207,13 @@ MObject painting::aDisplayClusterPath;
 
 MObject painting::aDisplayStops;
 
+MObject painting::aDisplayIds;
+MObject painting::aDisplayParentIds;
+MObject painting::aDisplayLayerIds;
+MObject painting::aDisplayBrushIds;
+MObject painting::aDisplayPaintIds;
+MObject painting::aDisplayRepeatIds;
+MObject painting::aArrowheadSize;
 
 MObject painting::aStackGap;
 // MObject painting::aOutTargets; // local
@@ -517,12 +524,16 @@ MStatus painting::initialize()
   nAttr.setDefault(5.0);
   addAttribute(aLineThickness);
 
-  aDisplayIds = nAttr.create( "displayIds", "dids", MFnNumericData::kBoolean);
-  nAttr.setHidden(false);
+  aArrowheadSize = nAttr.create( "arrowheadSize", "arsz", MFnNumericData::kDouble);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  nAttr.setDefault(true);
-  addAttribute(aDisplayIds );
+  nAttr.setMin(0.00);
+  nAttr.setSoftMax(20.0);
+  nAttr.setDefault(5.0);
+  addAttribute(aArrowheadSize);
+
+
+
 
   aDisplayTargets = eAttr.create( "displayTargets", "dtg");
   eAttr.addField( "none",    painting::kTargetsNone);
@@ -564,6 +575,60 @@ MStatus painting::initialize()
   nAttr.setReadable(true);
   nAttr.setDefault(true);
   addAttribute(aDisplayStops );
+
+
+  aDisplayIds = nAttr.create( "displayIds", "did",
+                              MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayIds);
+
+  aDisplayParentIds = nAttr.create( "displayParentIds", "dprid",
+                                    MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayParentIds);
+
+
+  aDisplayLayerIds = nAttr.create( "displayLayerIds", "dlyid",
+                                   MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayLayerIds);
+
+  aDisplayBrushIds = nAttr.create( "displayBrushIds", "dbid",
+                                   MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayBrushIds);
+
+  aDisplayPaintIds = nAttr.create( "displayPaintIds", "dptid",
+                                   MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayPaintIds);
+
+  aDisplayRepeatIds = nAttr.create( "displayRepeatIds", "drpid",
+                                    MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayRepeatIds);
+
+
+
+
 
   aStackGap = nAttr.create( "stackGap", "sgap", MFnNumericData::kDouble);
   nAttr.setStorable(true);
@@ -1514,8 +1579,108 @@ void painting::drawWireframeStops(
   }
 }
 
+void painting::drawWireframeArrows(
+  const paintingGeom &geom, M3dView &view,
+  const MDagPath &path,
+  M3dView:: DisplayStatus status )
+{
 
 
+
+  setWireDrawColor(view, status);
+  MObject thisObj = thisMObject();
+
+  double arrowheadSize;
+  MPlug(thisObj, aArrowheadSize).getValue(arrowheadSize);
+
+  if (arrowheadSize < 0.000001) {
+    return;
+  }
+
+
+
+  MFloatPoint head(MFloatVector::xAxis * arrowheadSize);
+  MFloatPoint right(MVector(0.5f, 0.5f, 0.0f) * arrowheadSize );
+  MFloatPoint left(MVector(0.5f, -0.5f, 0.0f) * arrowheadSize);
+
+
+
+
+  double lineThickness;
+  MPlug(thisObj, aLineThickness).getValue(lineThickness);
+
+  bool displayLift;
+  MPlug(thisObj, aDisplayLift).getValue(displayLift);
+
+  double stackGap;
+  MPlug(thisObj, aStackGap).getValue(stackGap);
+  double stackHeight = 0.0;
+
+
+
+
+
+  glPushAttrib(GL_LINE_BIT);
+  glLineWidth(GLfloat(lineThickness));
+  glBegin(GL_LINES);
+  for (auto cluster : geom.clusters())
+  {
+    for (auto stroke : cluster.strokes())
+    {
+      stackHeight += stackGap;
+      MMatrixArray mats;
+      stroke.getDirectionMatrices(mats, displayLift, stackHeight);
+
+
+
+      unsigned len = mats.length();
+      if (! len) {
+        continue;
+      }
+
+      MFloatPoint hdir = head  * float(stroke.direction());
+      MFloatPoint ldir = left  * float(stroke.direction());
+      MFloatPoint rdir = right * float(stroke.direction());
+
+
+
+
+
+
+      for (unsigned i = 0; i < len; ++i)
+      {
+        float floats[4][4];
+        mats[i].get(floats);
+        MFloatMatrix fmat(floats);
+
+        MFloatPoint c(fmat[3][0], fmat[3][1], fmat[3][2]);
+        MFloatPoint h = hdir * fmat;
+        MFloatPoint l = ldir * fmat;
+        MFloatPoint r = rdir * fmat;
+
+
+        glVertex3f( c.x , c.y , c.z );
+        glVertex3f( h.x , h.y , h.z );
+
+
+        glVertex3f( h.x , h.y , h.z );
+        glVertex3f( l.x , l.y , l.z );
+
+        glVertex3f( l.x , l.y , l.z );
+        glVertex3f( r.x , r.y , r.z );
+
+        glVertex3f( r.x , r.y , r.z );
+        glVertex3f( h.x , h.y , h.z );
+
+
+      }
+
+    }
+  }
+
+  glEnd();
+  glPopAttrib();
+}
 
 void painting::drawWireframeBorders(
   const paintingGeom &geom, M3dView &view,
@@ -1701,6 +1866,8 @@ void painting::drawWireframe(const paintingGeom &geom, M3dView &view,
   view.beginGL();
   drawWireframeTargets(geom, view, path, status);
   drawWireframeBorders(geom, view, path, status);
+  drawWireframeArrows(geom, view, path, status);
+
   drawWireframeApproach(geom, view, path, status);
   drawWireframeClusterPath(geom, view, path, status);
   drawWireframeStops(geom, view, path, status);
@@ -1762,6 +1929,118 @@ void painting::drawShaded(const paintingGeom &geom, M3dView &view,
   }
   glPopAttrib();
 }
+
+
+
+void painting::drawIds(const paintingGeom &geom, M3dView &view,
+                       const MDagPath &path,
+                       M3dView:: DisplayStatus status )
+{
+
+  MObject thisObj = thisMObject();
+
+  bool displayIds, displayParentIds, displayLayerIds, displayBrushIds, displayPaintIds,
+       displayRepeatIds, displayLift;
+  MPlug(thisObj, aDisplayLift).getValue(displayLift);
+  MPlug(thisObj, aDisplayIds).getValue(displayIds);
+  MPlug(thisObj, aDisplayParentIds).getValue(displayParentIds);
+  MPlug(thisObj, aDisplayLayerIds).getValue(displayLayerIds);
+  MPlug(thisObj, aDisplayBrushIds).getValue(displayBrushIds);
+  MPlug(thisObj, aDisplayPaintIds).getValue(displayPaintIds);
+  MPlug(thisObj, aDisplayRepeatIds).getValue(displayRepeatIds);
+
+
+  double stackGap;
+  MPlug(thisObj, aStackGap).getValue(stackGap);
+
+
+  if (! (
+        displayIds ||
+        displayParentIds ||
+        displayLayerIds ||
+        displayBrushIds ||
+        displayPaintIds ||
+        displayRepeatIds
+      )) { return; }
+
+
+  { double stackGap; }
+  MPlug(thisObj, aStackGap).getValue(stackGap);
+  double stackHeight = 0.0;
+
+  glPushAttrib(GL_CURRENT_BIT);
+
+
+
+  for (auto cluster : geom.clusters())
+  {
+    // const Brush &brush = geom.brushFromId(cluster.brushId());
+    for (auto stroke : cluster.strokes())
+    {
+      stackHeight += stackGap;
+
+      MString text("");
+      if (displayIds) { text = text + "Id:" + stroke.id() + "\n" ;}
+      if (displayParentIds) { text = text + "Pr:" + stroke.parentId() + "\n" ;}
+      if (displayBrushIds) { text = text + "Br:" + stroke.brushId() + "\n" ;}
+      if (displayPaintIds) { text = text + "Pt:" + stroke.paintId() + "\n" ;}
+      if (displayLayerIds) { text = text + "Ly:" + stroke.layerId() + "\n" ;}
+      if (displayRepeatIds) { text = text + "Rp:" + stroke.repeatId() + "\n" ;}
+
+
+      MFloatPoint head;
+      stroke.getHead(head, displayLift, stackHeight);
+      MPoint textPos =  MPoint( head);
+
+      view.drawText( text , textPos,  M3dView::kRight);
+    }
+  }
+
+  glPopAttrib();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //   if (doDisplayIds)
+  //   {
+  //     glPushAttrib(GL_CURRENT_BIT);
+
+  //     view.setDrawColor(wireColor );
+  //     unsigned i = 0;
+  //     for (int j = 0; j < numStrokes; ++j)
+  //     {
+  //       int k = i + 1;
+  //       MString txt  = "";
+  //       txt += j;
+  //       MPoint textPos =  MPoint( targets[k][3][0], targets[k][3][1], targets[k][3][2]);
+  //       view.drawText( txt , textPos,  M3dView::kRight);
+  //       i +=  counts[j];
+  //     }
+  //     glPopAttrib();
+
+  //   }
+
+
+}
+
+
+
+
 void painting::draw( M3dView &view,
                      const MDagPath &path,
                      M3dView::DisplayStyle style,
@@ -1802,6 +2081,10 @@ void painting::draw( M3dView &view,
       drawWireframe(geom, view, path, status);
     }
   }
+  drawIds(geom, view, path, status);
+
+
+
 }
 
 bool painting::isBounded() const

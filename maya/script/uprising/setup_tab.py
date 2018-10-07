@@ -132,7 +132,7 @@ class SetupTab(gui.FormLayout):
         node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
         if not node:
             raise IndexError("No painting node selected")
-        curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve", ni=True, ut=True, v=True)
+        curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve", ni=True)
         for curve in curves:
             cutl.connect_curve_to_painting(curve, node, connect_to="next_available")
 

@@ -21,9 +21,6 @@ from robolink import (
 )
 
 
-
-
-
 class PaintingTab(gui.FormLayout):
 
     def __init__(self):
@@ -42,6 +39,9 @@ class PaintingTab(gui.FormLayout):
             ann="Choose curves to select connected strokeCurves",
             command=pm.Callback(self.on_select_strokes))
 
+        pm.button(
+            label='Select curves below',
+            command=pm.Callback(self.on_select_curves_below))
 
         pm.button(
             label='Duplicate curves with strokes',
@@ -51,12 +51,12 @@ class PaintingTab(gui.FormLayout):
         pm.button(
             label='Add curves to painting in order',
             ann="Add selected curves to selected painting node. If they are already connected, disconnect and add in the order they are selected",
-            command=pm.Callback(self.add_curves_to_painting))
+            command=pm.Callback(
+                self.add_curves_to_painting))
 
         pm.button(
             label='Reverse order of selected curves',
             command=pm.Callback(self.reverse_connection_order))
-
 
         pm.rowLayout(numberOfColumns=2,
                      columnWidth2=(
@@ -78,6 +78,16 @@ class PaintingTab(gui.FormLayout):
         pm.setParent('..')
 
         pm.button(
+            label='Connect curve visibility',
+            ann="Connect curve visibility to stroke active",
+            command=pm.Callback(self.on_connect_curve_vis_active))
+
+        pm.button(
+            label='Disconnect curve visibility',
+            ann="Disconnect curve visibility from stroke active",
+            command=pm.Callback(self.on_disconnect_curve_vis_active))
+
+        pm.button(
             label='Remove unconnected strokeCurves',
             ann="Delete strokeCurves that are connected to selected curves but which have no destination painting",
             command=pm.Callback(
@@ -88,7 +98,6 @@ class PaintingTab(gui.FormLayout):
                 110, 60, 60, 60, 60, 80), columnAlign=(
                 1, 'right'), columnAttach=[
                 (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2), (5, 'both', 2), (6, 'both', 2)])
-
 
         pm.text(label='Propagate ramps')
 
@@ -121,10 +130,12 @@ class PaintingTab(gui.FormLayout):
             ann="Choose a mesh and either some curves or strokeCurves",
             command=pm.Callback(self.on_contain_strokes_in_mesh))
 
-        self.rename_inputs_tf = pm.textFieldButtonGrp( label='Rename', text='ring_%d_crv, ring_%d_sc', buttonLabel='Go' ,
-            buttonCommand=pm.Callback(self.on_rename_inputs))
-
-
+        self.rename_inputs_tf = pm.textFieldButtonGrp(
+            label='Rename',
+            text='ring_%d_crv, ring_%d_sc',
+            buttonLabel='Go',
+            buttonCommand=pm.Callback(
+                self.on_rename_inputs))
 
         # pm.rowLayout(numberOfColumns=3,
         #              columnWidth3=(120, 80, 80),
@@ -190,7 +201,6 @@ class PaintingTab(gui.FormLayout):
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
-
     def on_select_strokes(self):
         curves = pm.ls(
             selection=True,
@@ -198,9 +208,22 @@ class PaintingTab(gui.FormLayout):
             leaf=True,
             type="nurbsCurve",
             ni=True,
-            ut=True,
-            v=True)
-        pm.select(pm.listHistory(curves, future=True,levels=1, type="strokeCurve"))
+            ut=True)
+        pm.select(
+            pm.listHistory(
+                curves,
+                future=True,
+                levels=1,
+                type="strokeCurve"))
+
+    def on_select_curves_below(self):
+        pm.select(pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True,
+            ut=True))
 
     def add_curves_to_painting(self):
         node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
@@ -211,18 +234,16 @@ class PaintingTab(gui.FormLayout):
             dag=True,
             leaf=True,
             type=("nurbsCurve", "strokeCurve"),
-            ni=True,
-            ut=True,
-            v=True)
+            ni=True)
 
         stroke_curves = pm.listConnections(
-            curves, d=True, 
-            s=False, 
+            curves, d=True,
+            s=False,
             type="strokeCurve")
-    
+
         painting_conns = pm.listConnections(
-            stroke_curves, d=True, 
-            s=False, 
+            stroke_curves, d=True,
+            s=False,
             type="painting",
             c=True, p=True)
         for conn in painting_conns:
@@ -232,25 +253,22 @@ class PaintingTab(gui.FormLayout):
             cutl.connect_curve_to_painting(
                 curve, node, connect_to="next_available")
 
-
     def reverse_connection_order(self):
         curves = pm.ls(
             selection=True,
             dag=True,
             leaf=True,
             type=("nurbsCurve", "strokeCurve"),
-            ni=True,
-            ut=True,
-            v=True)
+            ni=True)
 
         stroke_curves = pm.listConnections(
-            curves, d=True, 
-            s=False, 
+            curves, d=True,
+            s=False,
             type="strokeCurve")
 
         painting_conns = pm.listConnections(
-            stroke_curves, d=True, 
-            s=False, 
+            stroke_curves, d=True,
+            s=False,
             type="painting",
             c=True, p=True)
 
@@ -258,12 +276,10 @@ class PaintingTab(gui.FormLayout):
             conn[0] // conn[1]
 
         c1, c2 = zip(*painting_conns)
-        painting_conns = zip(list(c1),reversed(list(c2)))
+        painting_conns = zip(list(c1), reversed(list(c2)))
 
         for conn in painting_conns:
             conn[0] >> conn[1]
-
-
 
     def duplicate_curves_to_painting(self):
         node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
@@ -274,9 +290,7 @@ class PaintingTab(gui.FormLayout):
             dag=True,
             leaf=True,
             type="nurbsCurve",
-            ni=True,
-            ut=True,
-            v=True)
+            ni=True)
         for curve in curves:
             cutl.duplicate_curve_to_painting(curve, node)
 
@@ -294,9 +308,7 @@ class PaintingTab(gui.FormLayout):
             dag=True,
             leaf=True,
             type="nurbsCurve",
-            ni=True,
-            ut=True,
-            v=True)
+            ni=True)
         if not curves:
             curves = pm.listHistory(
                 pm.PyNode("mainPaintingShape.strokeCurves"),
@@ -323,19 +335,20 @@ class PaintingTab(gui.FormLayout):
     def on_propagate_profile_ramp(self):
         flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
         cutl.propagate_ramp_attribute(
-            "strokeProfileRamp", "strokeProfileScale",flat)
+            "strokeProfileRamp", "strokeProfileScale", flat)
 
     def on_propagate_tilt_ramp(self):
         flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
-        cutl.propagate_ramp_attribute("brushTiltRamp", "brushTiltRange",flat)
+        cutl.propagate_ramp_attribute("brushTiltRamp", "brushTiltRange", flat)
 
     def on_propagate_bank_ramp(self):
         flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
-        cutl.propagate_ramp_attribute("brushBankRamp", "brushBankRange",flat)
+        cutl.propagate_ramp_attribute("brushBankRamp", "brushBankRange", flat)
 
     def on_propagate_twist_ramp(self):
         flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
-        cutl.propagate_ramp_attribute("brushTwistRamp", "brushTwistRange",flat)
+        cutl.propagate_ramp_attribute(
+            "brushTwistRamp", "brushTwistRange", flat)
 
     def on_contain_strokes_in_mesh(self):
         curves = pm.ls(
@@ -343,37 +356,35 @@ class PaintingTab(gui.FormLayout):
             dag=True,
             leaf=True,
             type="nurbsCurve",
-            ni=True,
-            ut=True,
-            v=True)
+            ni=True)
 
         meshes = pm.ls(
             selection=True,
             dag=True,
             leaf=True,
             type="mesh",
-            ni=True,
-            ut=True,
-            v=True)
+            ni=True)
 
         cutl.contain_strokes_in_mesh(curves, meshes[0])
 
     def on_rename_inputs(self):
 
-        templates = [ x.strip() for x in pm.textFieldButtonGrp(self.rename_inputs_tf, query=True, text=True).split(",")]
-        if len(templates) ==2:
+        templates = [
+            x.strip() for x in pm.textFieldButtonGrp(
+                self.rename_inputs_tf,
+                query=True,
+                text=True).split(",")]
+        if len(templates) == 2:
             crv_t, sc_t = templates
-        elif  len(templates) ==1:
+        elif len(templates) == 1:
             crv_t = templates[0]
-            sc_t = "sc_%s" %templates[0]
+            sc_t = "sc_%s" % templates[0]
         else:
             pm.error("Invalid templates")
 
         # make sure templates are okay
         test = crv_t % 3
         test = sc_t % 3
-
-
 
         curves = pm.ls(
             selection=True,
@@ -383,27 +394,47 @@ class PaintingTab(gui.FormLayout):
             ni=True)
         for curve in curves:
             try:
-                stroke_curve = pm.listHistory(curve, future=True, levels=1, type="strokeCurve")[0]
+                stroke_curve = pm.listHistory(
+                    curve, future=True, levels=1, type="strokeCurve")[0]
             except IndexError:
-                pm.warning("Skipping: %s not connected to a strokeCurve" % curve)
+                pm.warning(
+                    "Skipping: %s not connected to a strokeCurve" %
+                    curve)
                 continue
 
-            conns = pm.listConnections(stroke_curve, d=True, s=False, c=True, p=True, type="painting")
+            conns = pm.listConnections(
+                stroke_curve,
+                d=True,
+                s=False,
+                c=True,
+                p=True,
+                type="painting")
             if not conns:
-                pm.warning("Skipping: %s and %s not connected to a painting" % (curve, stroke_curve))
+                pm.warning(
+                    "Skipping: %s and %s not connected to a painting" %
+                    (curve, stroke_curve))
                 continue
-            
-            index = int(re.compile(r".*\[(\d+)]$").match(conns[0][1].name()).groups()[0])
+
+            index = int(re.compile(
+                r".*\[(\d+)]$").match(conns[0][1].name()).groups()[0])
             curve.getParent().rename(crv_t % index)
             stroke_curve.rename(sc_t % index)
 
+    def on_connect_curve_vis_active(self):
+        curves_xfs = pm.listRelatives(pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True), parent=True)
+        print curves_xfs
+        cutl.curve_vis_active_connection(curves_xfs, True)
 
-
-
-
-
-
-
-
-
-
+    def on_disconnect_curve_vis_active(self):
+        curves_xfs = pm.listRelatives(pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True), parent=True)
+        cutl.curve_vis_active_connection(curves_xfs, False)

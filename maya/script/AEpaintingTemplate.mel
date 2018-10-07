@@ -36,14 +36,23 @@
 	editorTemplate -addControl "pointSize"; 
 	editorTemplate -addControl "lineLength";
 	editorTemplate -addControl "lineThickness";
+	editorTemplate -addControl "arrowheadSize";
 	
-	editorTemplate -addControl "displayIds";
+	editorTemplate -beginNoOptimize;
 	editorTemplate -addControl "displayTargets";
 	editorTemplate -addControl "displayLift";
 	editorTemplate -addControl "displayApproach";
 	editorTemplate -addControl "displayArrows";
 	editorTemplate -addControl "displayClusterPath";
 	editorTemplate -addControl "displayStops";
+	editorTemplate -addControl "displayIds";
+	editorTemplate -addControl "displayParentIds";
+	editorTemplate -addControl "displayLayerIds";
+	editorTemplate -addControl "displayBrushIds";
+	editorTemplate -addControl "displayPaintIds";
+	editorTemplate -addControl "displayRepeatIds";
+	editorTemplate -endNoOptimize;
+
 	
 	editorTemplate -addControl "stackGap"; 
 

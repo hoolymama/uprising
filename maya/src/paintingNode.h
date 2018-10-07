@@ -94,6 +94,11 @@ private:
   void drawWireframeApproach( const paintingGeom &geom, M3dView &view, const MDagPath &path,
                               M3dView:: DisplayStatus status );
 
+  void drawWireframeArrows(
+    const paintingGeom &geom, M3dView &view,
+    const MDagPath &path,
+    M3dView:: DisplayStatus status );
+
   void drawWireframeClusterPath(
     const paintingGeom &geom, M3dView &view,
     const MDagPath &path, M3dView::DisplayStatus status );
@@ -102,6 +107,10 @@ private:
     const paintingGeom &geom, M3dView &view,
     const MDagPath &path,
     M3dView:: DisplayStatus status );
+
+  void drawIds(const paintingGeom &geom, M3dView &view,
+               const MDagPath &path,
+               M3dView:: DisplayStatus status );
 
   void drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
                   M3dView::DisplayStatus status ) ;
@@ -209,12 +218,22 @@ private:
   static MObject  aPointSize;
   static MObject  aLineLength;
   static MObject  aLineThickness;
-  static MObject  aDisplayIds;
   static MObject  aDisplayTargets;
   static MObject  aDisplayLift;
   static MObject  aDisplayApproach;
   static MObject  aDisplayClusterPath;
   static MObject  aDisplayStops;
+
+  static MObject  aDisplayIds;
+  static MObject  aDisplayParentIds;
+  static MObject  aDisplayLayerIds;
+  static MObject  aDisplayBrushIds;
+  static MObject  aDisplayPaintIds;
+  static MObject  aDisplayRepeatIds;
+
+  static MObject  aArrowheadSize;
+
+
 
   static MObject  aStackGap;
 

@@ -21,6 +21,13 @@ def get_curve(stroke_curve):
 
 
 def get_stroke_curve(curve):
+    if curve.type() != "nurbsCurve":
+        curve = pm.ls(
+            curve, dag=True,
+            ni=True,
+            shapes=True,
+            type="nurbsCurve")[0]
+        
     conns = pm.listConnections(
         curve.attr("worldSpace[0]"),
         d=True,
@@ -47,8 +54,10 @@ def connect_curve_to_painting(curve, painting_node, **kw):
 
             stroke_curve.attr(
                 "strokeProfileRamp[0].strokeProfileRamp_FloatValue").set(0.5)
-            stroke_curve.attr("brushTiltRamp[0].brushTiltRamp_FloatValue").set(0.5)
-            stroke_curve.attr("brushBankRamp[0].brushBankRamp_FloatValue").set(0.5)
+            stroke_curve.attr(
+                "brushTiltRamp[0].brushTiltRamp_FloatValue").set(0.5)
+            stroke_curve.attr(
+                "brushBankRamp[0].brushBankRamp_FloatValue").set(0.5)
             stroke_curve.attr(
                 "brushTwistRamp[0].brushTwistRamp_FloatValue").set(0.5)
 
@@ -104,15 +113,13 @@ def ensure_grp_has_stroke_curves(src, existing_curves_grp):
         dag=True,
         ni=True,
         shapes=True,
-        type="nurbsCurve",
-        v=True)
+        type="nurbsCurve")
     shapes = pm.ls(
         existing_curves_grp,
         dag=True,
         ni=True,
         shapes=True,
-        type="nurbsCurve",
-        v=True)
+        type="nurbsCurve")
     # should be a 1:1 relationship
     num = len(src_shapes)
     if not num == len(shapes):
@@ -292,19 +299,27 @@ def duplicate_into_gaps(curves):
     painting = pm.listHistory(curves[0], future=True, type="painting")[0]
 
     for curve_pair in zip(curves, curves[1:]):
-        curve_tf, curve_shape, stroke_curve = duplicate_curve_to_painting(curve_pair[0], painting)
+        curve_tf, curve_shape, stroke_curve = duplicate_curve_to_painting(
+            curve_pair[0], painting)
         inner_stroke_curve = get_stroke_curve(curve_pair[0])
         outer_stroke_curve = get_stroke_curve(curve_pair[1])
-        
-        first_edge = get_extent(painting, inner_stroke_curve, curve_pair[0], side="outer")
-        second_edge = get_extent(painting, outer_stroke_curve, curve_pair[1], side="inner")
-        new_radius = (first_edge + second_edge) *0.5
+
+        first_edge = get_extent(
+            painting,
+            inner_stroke_curve,
+            curve_pair[0],
+            side="outer")
+        second_edge = get_extent(
+            painting,
+            outer_stroke_curve,
+            curve_pair[1],
+            side="inner")
+        new_radius = (first_edge + second_edge) * 0.5
         curve_tf.attr("sx").set(new_radius)
         curve_tf.attr("sy").set(new_radius)
         stroke_curve.attr("brushId").set(0)
         stroke_curve.attr("paintId").set(7)
-               
- 
+
 
 # setAttr "cShape0_SC1.strokeProfileRamp[0].strokeProfileRamp_Position" 0;
 # setAttr "cShape0_SC1.strokeProfileRamp[0].strokeProfileRamp_FloatValue" 0.48;
@@ -335,13 +350,16 @@ def propagate_ramp_attribute(att, rangeAtt, flat_only):
             stroke_curve = get_stroke_curve(curve)
 
             brushId = stroke_curve.attr("brushId").get()
-            is_flat = Brush.brush_at_index(painting, brushId).is_flat() 
+            is_flat = Brush.brush_at_index(painting, brushId).is_flat()
             print is_flat
-            if  is_flat or (not flat_only):
+            if is_flat or (not flat_only):
                 print curve
                 indices_to_clear = stroke_curve.attr(att).getArrayIndices()
                 for itc in indices_to_clear:
-                    pm.removeMultiInstance(stroke_curve.attr("%s[%d]" % (att, itc)), b=True)
+                    pm.removeMultiInstance(
+                        stroke_curve.attr(
+                            "%s[%d]" %
+                            (att, itc)), b=True)
                 stroke_curve.attr(rangeAtt).set(rangeVals)
                 for index in indices:
                     pos_att_str = "%s[%d].%s_Position" % (att, index, att)
@@ -417,6 +435,19 @@ def contain_strokes_in_mesh(curves, mesh):
     for curve in curves:
         if not _is_connected(curve, ctn):
             connect_to_containment(curve, ctn)
+
+
+def curve_vis_active_connection(curves, connect):
+    for curve in curves:
+        try:
+            stroke_curve = get_stroke_curve(curve)
+            if connect:
+                curve.attr("visibility") >> stroke_curve.attr("active")
+            else:
+                curve.attr("visibility") // stroke_curve.attr("active")
+        except BaseException as ex:
+            print ex
+            
 
 
 # def get_index(node, att, connect_to):

@@ -5,7 +5,6 @@
 #include <vector>
 #include <maya/MVectorArray.h>
 #include <maya/MMatrixArray.h>
-
 #include <maya/MIntArray.h>
 #include <maya/MTransformationMatrix.h>
 #include <maya/MAngle.h>
@@ -49,6 +48,9 @@ public:
 
 	short brushId() const;
 	short paintId() const;
+
+	int  layerId() const;
+
 	bool forceDip() const;
 
 	void setBrushId(short val) ;
@@ -77,11 +79,18 @@ public:
 	// friend bool operator < (const strokeGeom &lhs, const strokeGeom &rhs);
 
 	/* These functions return data used for drawing. */
+
+	void getHead(MFloatPoint &result, bool withLift,
+	             double stackHeight) const;
+
 	void getPoints(MFloatPointArray &result, bool withLift = false,
 	               double stackHeight = 0.0) const;
 	void getXAxes(MFloatVectorArray &result, bool withLift = false) const;
 	void getYAxes(MFloatVectorArray &result, bool withLift = false) const;
 	void getZAxes(MFloatVectorArray &result, bool withLift = false) const;
+
+	void getDirectionMatrices(MMatrixArray &result, bool withLift,
+	                          double stackHeight) const;
 
 	void getStopPoints(MFloatPointArray &result, double stackHeight = 0.0) const;
 	void getStopXAxes(MFloatVectorArray &result) const;

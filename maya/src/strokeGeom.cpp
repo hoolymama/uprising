@@ -224,6 +224,10 @@ int strokeGeom::repeatId() const
 {
 	return m_repeatId;
 }
+int strokeGeom::layerId() const
+{
+	return m_layerId;
+}
 
 
 void strokeGeom::setParentId(int parentId)
@@ -267,6 +271,41 @@ void strokeGeom::clearSortStack()
 // 	}
 // 	return true;
 // }
+
+void strokeGeom::getHead(MFloatPoint &result, bool withLift,
+                         double stackHeight) const {
+	MFloatVector stackOffset = MFloatVector(m_planeNormal * stackHeight);
+	int first = withLift ? 0 : 1;
+	result = extractfPos(m_targets[first]) + stackOffset;
+}
+
+
+
+void strokeGeom::getDirectionMatrices(MMatrixArray &result, bool withLift,
+                                      double stackHeight) const {
+	MVector stackOffset = m_planeNormal * stackHeight;
+	unsigned len = m_targets.length();
+	int first = withLift ? 0 : 1;
+	int end = withLift ? len : len - 1;
+	for (int i = first; i < end; ++i)
+	{
+		const MVector &front = m_tangents[i];
+		const MVector &up = m_planeNormal;
+		MVector side = (up ^ front).normal();
+		MPoint p = extractPos(m_targets[i]) + stackOffset;
+
+		MMatrix res;
+		res[0][0] = front.x; res[0][1] = front.y; res[0][2] = front.z; res[0][3] = 0.0;
+		res[1][0] = side.x; res[1][1] = side.y; res[1][2] = side.z; res[1][3] = 0.0;
+		res[2][0] = up.x; res[2][1] = up.y; res[2][2] = up.z; res[2][3] = 0.0;
+		res[3][0] = p.x; res[3][1] = p.y; res[3][2] = p.z; res[3][3] = 1.0;
+
+
+
+		result.append(res);
+	}
+}
+
 
 
 void strokeGeom::getPoints(MFloatPointArray &result, bool withLift,

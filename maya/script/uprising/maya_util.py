@@ -128,7 +128,6 @@ def insert_identity():
         sl=True,
         dag=True,
         shapes=True,
-        v=True,
         ut=True,
         io=False,
         type="mesh")
