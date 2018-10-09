@@ -112,6 +112,8 @@ def create_brush_geo(height, bristle_height, tip, width, name, profile):
 
     geo = pm.polyUnite(head, handle, ch=0, mergeUVSets=1, name=name)[0]
     geo.attr("tz").set(tcp)
+    # pm.addAttr(geo, at="float", ln="tipLength")
+    # geo.attr("tipLength").set(tip)
     return geo
 
 
@@ -150,6 +152,7 @@ def create_and_connect_single_brush_geo(
 
     connect_brush_to_node(tf, node)
     tf.attr("sfBrushWidth").set(width)
+    tf.attr("sfBrushTip").set(tip)
 
     tf.attr("sfBrushShape").set(profile_shape)
 
@@ -251,8 +254,15 @@ def get_raw_brushes_data():
         range='Brushes!A2:L18').execute()
     values = result.get('values', [])
     return values
+ 
 
-    # delete existing brushes
+
+def set_stroke_curve_att_from_brush_tip(attribute, mult=1, offset=0):
+    sc = attribute.node()
+    painting = pm.listConnections(sc, destination=True, source=False, shapes=True, type="painting")[0]
+    index = sc.attr("brushId").get()
+    brush = Brush.brush_at_index(painting, index)
+    val = (brush.tip * mult) + offset
+    attribute.set(val)
 
 
-# (self, the_id, name, matrix, width, lift, retention):

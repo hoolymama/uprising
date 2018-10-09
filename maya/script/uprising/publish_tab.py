@@ -1,8 +1,8 @@
 import sys
-# import os.path
+import os
 import pymel.core as pm
 import write
-
+import datetime
 # import setup_dip
 # import curve_utils as cutl
 # import brush_utils as butl
@@ -41,7 +41,6 @@ from robolink import (
 #     return (notes_att, ground_att, medium_att)
 
 
-
 class PublishTab(gui.FormLayout):
 
     def __init__(self):
@@ -51,8 +50,11 @@ class PublishTab(gui.FormLayout):
         self.column.adjustableColumn(True)
         self.create_ui()
         self.create_action_buttons()
-        self.on_load_notes()
 
+        try:
+            self.on_load_notes()
+        except:
+            pass
     def create_ui(self):
         pm.setParent(self.column)
 
@@ -76,7 +78,19 @@ class PublishTab(gui.FormLayout):
         self.save_unfiltered_snapshot = pm.checkBoxGrp(
             label='Save unfiltered snapshot',
             ann="This will switch off filtering temporarily",
-            value1=False)
+            value1=True)
+
+        self.snap_now_if = pm.floatSliderButtonGrp(
+            label='Make snapshot now',
+            field=True,
+            maxValue=4096,
+            step=1,
+            value=1024,
+            symbolButtonDisplay=False,
+            buttonLabel="Go",
+            buttonCommand=pm.Callback(self.on_make_snapshot),
+            columnWidth=(4, 60)
+        )
 
         # self.send_paintings_cb = pm.checkBoxGrp(
         #     numberOfCheckBoxes=2,
@@ -157,9 +171,6 @@ class PublishTab(gui.FormLayout):
             label="Save",
             command=pm.Callback(self.on_save_notes))
 
-
-
-
         form.attachForm(load_but, 'top', 2)
         form.attachPosition(load_but, 'left', 2, 80)
         form.attachPosition(load_but, 'bottom', 2, 50)
@@ -186,22 +197,22 @@ class PublishTab(gui.FormLayout):
         form.attachControl(self.description_tf, 'bottom', 2, self.medium_tf)
 
     def on_load_notes(self):
-        notes_att, ground_att, medium_att = sfu.ensure_painting_has_notes()
+        assembly= pm.PyNode("mainPaintingGroup")
+        notes_att, ground_att, medium_att = sfu.ensure_painting_has_notes(assembly)
         notes = notes_att.get()
         ground = ground_att.get()
         medium = medium_att.get()
-        
+
         pm.scrollField(self.description_tf, edit=True, text=notes)
         pm.textField(self.ground_tf, edit=True, text=ground)
         pm.textField(self.medium_tf, edit=True, text=medium)
 
-
-
     def on_save_notes(self):
+        assembly= pm.PyNode("mainPaintingGroup")
         notes = pm.scrollField(self.description_tf, query=True, text=True)
         medium = pm.textField(self.medium_tf, query=True, text=True)
         ground = pm.textField(self.ground_tf, query=True, text=True)
-        notes_att, ground_att, medium_att  = sfu.ensure_painting_has_notes()
+        notes_att, ground_att, medium_att = sfu.ensure_painting_has_notes(assembly)
         notes_att.set(notes)
         ground_att.set(ground)
         medium_att.set(medium)
@@ -283,11 +294,33 @@ class PublishTab(gui.FormLayout):
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
 
-        maya_only = pm.checkBoxGrp(self.save_maya_only_cb, query=True, value1=True)
-        save_unfiltered_snapshot = pm.checkBoxGrp(self.save_unfiltered_snapshot, query=True, value1=True)
+        maya_only = pm.checkBoxGrp(
+            self.save_maya_only_cb, query=True, value1=True)
+        save_unfiltered_snapshot = pm.checkBoxGrp(
+            self.save_unfiltered_snapshot, query=True, value1=True)
 
         medium = pm.textField(self.medium_tf, query=True, text=True)
         ground = pm.textField(self.ground_tf, query=True, text=True)
 
-        write.publish_sequence(export_dir, painting_node, dip_node, desc,medium, ground, frames, maya_only, save_unfiltered_snapshot)
+        write.publish_sequence(
+            export_dir,
+            painting_node,
+            dip_node,
+            desc,
+            medium,
+            ground,
+            frames,
+            maya_only,
+            save_unfiltered_snapshot)
 
+    def on_make_snapshot(self):
+        res = pm.floatSliderButtonGrp(self.snap_now_if, query=True, value=True)
+        res = int(res)
+        export_dir = os.path.join(pm.workspace.getPath(), 'export')
+        entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
+                                 dialogStyle=2, fileMode=3, dir=export_dir)
+        if not entries:
+            pm.displayWarning('Nothing Selected')
+            return
+        timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
+        write.write_ref_image(entries[0], timestamp, res)

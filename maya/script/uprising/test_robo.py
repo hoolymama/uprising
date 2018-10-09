@@ -18,9 +18,11 @@ import robodk as rdk
 import datetime
 RL = Robolink()
 
+timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
+print timestamp
 
 # robot = RL.Item('', ITEM_TYPE_ROBOT)
-stat = RL.Item("", ITEM_TYPE_STATION)
+# stat = RL.Item("", ITEM_TYPE_STATION)
 # stat.setName("678987")
 # print  [prog.Name() for prog in progs]
 # stat = RL.Item("", ITEM_TYPE_STATION)
@@ -28,11 +30,11 @@ stat = RL.Item("", ITEM_TYPE_STATION)
 # RL.CloseStation(stat)
 
 
-print [s.Name() for s in RL.getOpenStations()]
-for  station in RL.getOpenStations():
-    station.Delete()
+# print [s.Name() for s in RL.getOpenStations()]
+# for  station in RL.getOpenStations():
+#     station.Delete()
 
-RL.AddFile("/Users/julian/projects/robot/stations/clean.rdk")
+# RL.AddFile("/Users/julian/projects/robot/stations/clean.rdk")
 
 
 
@@ -92,7 +94,6 @@ def save_prog():
     RL.Finish()
 
 
-save_prog()
 
 
 # RL.ProgramStart("px_file", folder, "KUKA_KRC4_RN", robot)

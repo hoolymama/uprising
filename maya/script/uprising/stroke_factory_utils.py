@@ -5,7 +5,7 @@ from brush import Brush
 
 import sheets
 
-import uprising.uprising_util as uput
+import uprising.uprising_util as uutl
 
 def input_connection(attribute):
     conns = attribute.connections(source=True, destination=False, plugs=True)
@@ -19,25 +19,25 @@ def input_connections(attribute):
 
 
 
-def ensure_painting_has_notes():
-    top_node = pm.PyNode("mainPaintingGroup")
+def ensure_painting_has_notes(assembly):
+    
     try:
-        notes_att = top_node.attr("notes")
+        notes_att = assembly.attr("notes")
     except pm.MayaAttributeError:
-        pm.addAttr(top_node, dt="string", ln="notes")
-        notes_att = top_node.attr("notes")
+        pm.addAttr(assembly, dt="string", ln="notes")
+        notes_att = assembly.attr("notes")
 
     try:
-        ground_att = top_node.attr("ground")
+        ground_att = assembly.attr("ground")
     except pm.MayaAttributeError:
-        pm.addAttr(top_node, dt="string", ln="ground")
-        ground_att = top_node.attr("ground")
+        pm.addAttr(assembly, dt="string", ln="ground")
+        ground_att = assembly.attr("ground")
 
     try:
-        medium_att = top_node.attr("medium")
+        medium_att = assembly.attr("medium")
     except pm.MayaAttributeError:
-        pm.addAttr(top_node, dt="string", ln="medium")
-        medium_att = top_node.attr("medium")
+        pm.addAttr(assembly, dt="string", ln="medium")
+        medium_att = assembly.attr("medium")
 
     return (notes_att, ground_att, medium_att)
 
@@ -153,7 +153,11 @@ def delete_curve_instances(node, curves, delete_curves):
     if delete_curves:
         parents = pm.listRelatives(curves, p=True)
         pm.delete(parents)
-        pm.delete(stroke_curves)
+        for sc in stroke_curves:
+            try:
+                pm.delete(stroke_curves)
+            except:
+                print "Can't delete %s. Maybe it doesn't exist anymore"
     else:
         for stroke_curve in stroke_curves:
             print "SC: " % stroke_curve
@@ -182,8 +186,9 @@ def delete_curve_instances(node, curves, delete_curves):
 
 def set_board_from_sheet(node):
     #   get top node, then find corner locators
+    assembly = uutl.assembly(node)
     notes_att, ground_att, medium_att  =ensure_painting_has_notes()
-    top = uput.assembly(node)
+    top = uutl.assembly(node)
 
 
 
@@ -209,7 +214,7 @@ def set_board_from_sheet(node):
     ground_att.set(ground)
 
     validate_board_data(data)
-    offset = uput.numeric(offset) * 0.1
+    offset = uutl.numeric(offset) * 0.1
 
     tmp_locs = {}
     tmp_locs["BL"] = pm.spaceLocator()
@@ -217,7 +222,7 @@ def set_board_from_sheet(node):
     tmp_locs["TR"] = pm.spaceLocator()
 
     for row in data:
-        row = [uput.numeric(s) for s in row]
+        row = [uutl.numeric(s) for s in row]
         key = row[0]
         if key in corners:
             pos = [v * 0.1 for v in row[1:4]]

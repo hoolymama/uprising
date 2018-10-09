@@ -61,8 +61,12 @@ def send_object(node, parent):
 
 def send(objects, frame=None):
     transforms = pm.ls(objects, transforms=True)
+    print transforms
     dups = pm.duplicate(transforms)
-    pm.parent(dups, world=True)
+    print dups
+    for dup in dups:
+        if dup.getParent():
+            pm.parent(dup, world=True)
     pm.makeIdentity( dups, apply=True, t=False, r=False, s=True, pn=True)
     for dup in dups:
         send_object(dup, frame)

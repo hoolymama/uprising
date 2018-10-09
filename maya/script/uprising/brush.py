@@ -6,12 +6,13 @@ import uprising.maya_util as mut
 import robodk as rdk
 
 class Brush(object):
-    def __init__(self, the_id, name, matrix, width, retention, shape):
+    def __init__(self, the_id, name, matrix, width, retention, tip, shape):
         self.id = the_id
         self.matrix = uutl.maya_to_robodk_mat(matrix)
         self.width = width * 10
         self.shape = shape
         self.retention = retention
+        self.tip = tip
         self.name = name
                
 
@@ -57,6 +58,7 @@ class Brush(object):
             "brushMatrix",
             "brushWidth",
             "brushRetention",
+            "brushTip",
             "brushShape"
             ]:
             vals.append(node.attr("brushes[%d].%s" % (index, att)).get())

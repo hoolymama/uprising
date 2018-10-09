@@ -122,7 +122,7 @@ def write_csv(export_dir, timestamp, description, notes, medium, ground):
         the_file.write("\n")
 
 
-def write_ref_image(dest_dir, timestamp):
+def write_ref_image(dest_dir, timestamp, res=1024):
 
     # TODO - make sure its active panel and
     f = pm.currentTime(q=True)
@@ -141,8 +141,7 @@ def write_ref_image(dest_dir, timestamp):
         percent=100,
         compression="tif",
         quality=100,
-        widthHeight=(1024, 1024))
-
+        widthHeight=(res, res))
 
 def write_program(RL, ts_dir, timestamp):
     prog_filename = "PX_%s" % timestamp

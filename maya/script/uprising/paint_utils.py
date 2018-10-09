@@ -137,8 +137,8 @@ def delete_paints(node):
 
 def setup_paints_from_sheet(painting_node, dip_node):
     (data, medium) =  get_raw_paint_data()
- 
-    notes_att, ground_att, medium_att  = sfu.ensure_painting_has_notes()
+    assembly= uutl.assembly(painting_node)
+    notes_att, ground_att, medium_att  = sfu.ensure_painting_has_notes(assembly)
     medium_att.set(medium)
 
     validate_paint_data(data)

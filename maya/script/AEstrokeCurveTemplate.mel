@@ -44,8 +44,8 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
 	editorTemplate -cl 0  -beginLayout "Height profile";		
 	editorTemplate -addControl "approachDistance" ;
  	editorTemplate -addControl "lift" ;
-	editorTemplate -addControl "strokeProfileScale" ;
 	AEaddRampControl ("strokeProfileRamp");	
+	editorTemplate -addControl "strokeProfileScale" ;
 	editorTemplate -endLayout;
 
 

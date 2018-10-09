@@ -19,6 +19,7 @@
 
  	attrControlGrp -attribute ($plug+".brushWidth");
  	attrControlGrp -attribute ($plug+".brushRetention");
+ 	attrControlGrp -attribute ($plug+".brushTip");
  	attrControlGrp -attribute ($plug+".brushShape");
 
   string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;

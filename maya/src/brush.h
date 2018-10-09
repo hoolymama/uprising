@@ -19,6 +19,7 @@ public:
 	  short id,
 	  double width,
 	  double retention,
+	  double tip,
 	  Shape shape
 	);
 
@@ -29,6 +30,7 @@ public:
 	  MArrayDataHandle &ha,
 	  MObject &widthAttribute,
 	  MObject &retentionAttribute,
+	  MObject &tipAttribute,
 	  MObject &shapeAttribute);
 
 
@@ -39,6 +41,7 @@ public:
 	double width;
 	double retention;
 	Shape shape;
+	double tip;
 
 };
 #endif

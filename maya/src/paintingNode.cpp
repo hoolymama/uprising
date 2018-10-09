@@ -184,6 +184,7 @@ MObject painting::aBrushMatrix;
 MObject painting::aBrushRetention;
 MObject painting::aBrushWidth;
 MObject painting::aBrushShape;
+MObject painting::aBrushTip;
 MObject painting::aBrushes;
 
 MObject painting::aPaintColorR;
@@ -451,10 +452,17 @@ MStatus painting::initialize()
   eAttr.setHidden(false);
   st = addAttribute( aBrushShape ); mser;
 
+  aBrushTip  = nAttr.create("brushTip", "brtp", MFnNumericData::kDouble);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  nAttr.setDefault( 0.0 );
+
+
   aBrushes = cAttr.create("brushes", "bsh");
   cAttr.addChild(aBrushWidth);
   cAttr.addChild(aBrushShape);
   cAttr.addChild(aBrushRetention);
+  cAttr.addChild(aBrushTip);
   cAttr.addChild(aBrushMatrix);
   cAttr.setArray( true );
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
@@ -1090,6 +1098,7 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
                                      hBrushes,
                                      painting::aBrushWidth,
                                      painting::aBrushRetention,
+                                     painting::aBrushTip,
                                      painting::aBrushShape
                                    );
 
@@ -1384,6 +1393,8 @@ void painting::drawWireframeTargets(
 
   if (targetDisplayStyle == painting::kTargetsMatrix) {
     double stackHeight = 0.0;
+
+    glPushAttrib(GL_CURRENT_BIT);
     glPushAttrib(GL_LINE_BIT);
     glLineWidth(GLfloat(lineThickness));
     glBegin(GL_LINES);
@@ -1431,6 +1442,7 @@ void painting::drawWireframeTargets(
       }
     }
     glEnd();
+    glPopAttrib();
     glPopAttrib();
   }
 }
@@ -1600,8 +1612,8 @@ void painting::drawWireframeArrows(
 
 
   MFloatPoint head(MFloatVector::xAxis * arrowheadSize);
-  MFloatPoint right(MVector(0.5f, 0.5f, 0.0f) * arrowheadSize );
-  MFloatPoint left(MVector(0.5f, -0.5f, 0.0f) * arrowheadSize);
+  MFloatPoint right(MVector(0.5f, 0.3f, 0.0f) * arrowheadSize );
+  MFloatPoint left(MVector(0.5f, -0.3f, 0.0f) * arrowheadSize);
 
 
 
@@ -1937,6 +1949,7 @@ void painting::drawIds(const paintingGeom &geom, M3dView &view,
                        M3dView:: DisplayStatus status )
 {
 
+  setWireDrawColor(view, status);
   MObject thisObj = thisMObject();
 
   bool displayIds, displayParentIds, displayLayerIds, displayBrushIds, displayPaintIds,
@@ -2073,14 +2086,36 @@ void painting::draw( M3dView &view,
   if (style ==  M3dView::kWireFrame ) {
     drawWireframe(geom, view, path, status);
   }
+
   else if ((style ==  M3dView::kGouraudShaded) || (style ==  M3dView::kFlatShaded)) {
-    drawShaded(geom, view, path, status);
+
     bool wfos = view.wireframeOnShaded() ;
-    if (status == M3dView::kActive || status == M3dView::kLead
-        || status == M3dView::kHilite || wfos ) {
+
+    bool active =  (status == M3dView::kActive  || status == M3dView::kLead
+                    || status == M3dView::kHilite );
+
+    if (active) {
+      drawShaded(geom, view, path, status);
       drawWireframe(geom, view, path, status);
     }
+    else if (wfos) {   // not active
+      drawWireframe(geom, view, path, status);
+      drawShaded(geom, view, path, status);
+    }
+    else {   // not wfos
+      drawShaded(geom, view, path, status);
+    }
+
+
+    // drawShaded(geom, view, path, status);
+    // if (status == M3dView::kActive || status == M3dView::kLead
+    //     || status == M3dView::kHilite || wfos ) {
+    //   drawWireframe(geom, view, path, status);
+    // }
+
+
   }
+  // always draw any IDs that are enabled
   drawIds(geom, view, path, status);
 
 

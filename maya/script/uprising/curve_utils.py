@@ -27,7 +27,7 @@ def get_stroke_curve(curve):
             ni=True,
             shapes=True,
             type="nurbsCurve")[0]
-        
+
     conns = pm.listConnections(
         curve.attr("worldSpace[0]"),
         d=True,
@@ -134,7 +134,7 @@ def ensure_grp_has_stroke_curves(src, existing_curves_grp):
     return existing_curves_grp
 
 
-def generate_brush_dip_curves(force):
+def generate_brush_dip_curves(lift, force):
 
     src = "brushes|dipCurves|defaultSource"
 
@@ -176,8 +176,12 @@ def generate_brush_dip_curves(force):
         else:
             grp = ensure_grp_has_stroke_curves(src, pm.PyNode(full_name))
 
+
+        # lift higher if weight is low so wipes off less paint.
         wipe_offset = painting_brush.getParent().attr(
             "tz").get() - dip_brush.getParent().attr("tz").get()
+        wipe_offset = wipe_offset *   lift
+
         for wipe_curve in grp.getChildren()[1:]:
             wipe_curve.attr("tz").set(wipe_offset)
 
@@ -362,12 +366,10 @@ def propagate_ramp_attribute(att, rangeAtt, flat_only):
                             (att, itc)), b=True)
                 stroke_curve.attr(rangeAtt).set(rangeVals)
                 for index in indices:
-                    pos_att_str = "%s[%d].%s_Position" % (att, index, att)
-                    val_att_str = "%s[%d].%s_FloatValue" % (att, index, att)
-                    pos = last_stroke_curve.attr(pos_att_str).get()
-                    val = last_stroke_curve.attr(val_att_str).get()
-                    stroke_curve.attr(pos_att_str).set(pos)
-                    stroke_curve.attr(val_att_str).set(val)
+                    for suffix in ["Position", "FloatValue", "Interp"]:
+                        att_str = "%s[%d].%s_%s" % (att, index, att, suffix)
+                        val = last_stroke_curve.attr(att_str).get()
+                        stroke_curve.attr(att_str).set(val)
 
 
 def auto_set_rings(curves, min_strokes, max_length, overlap):
@@ -447,7 +449,6 @@ def curve_vis_active_connection(curves, connect):
                 curve.attr("visibility") // stroke_curve.attr("active")
         except BaseException as ex:
             print ex
-            
 
 
 # def get_index(node, att, connect_to):

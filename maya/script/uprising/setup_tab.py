@@ -60,10 +60,30 @@ class SetupTab(gui.FormLayout):
                      adjustableColumn=1,
                      columnAlign=(1, 'right'),
                      columnAttach=[(1, 'both', 2), (2, 'both', 2)])
-        pm.button(
-            label='Generate brush dip curves from default curves',
-            ann="Add selected curves to selected painting node",
-            command=pm.Callback(self.on_generate_brush_dip_curves))
+        
+
+
+        self.gen_dip_curves_ff = pm.floatSliderButtonGrp(
+            label='Create brush dip curves',
+            ann="Set the wipe height: 0=low (more wipe), 1.0=high (less wipe)",
+            field=True,
+            maxValue=1.0,
+            step=0.01,
+            value=0.0,
+            symbolButtonDisplay=False,
+            buttonLabel="Go",
+            buttonCommand=pm.Callback(self.on_generate_brush_dip_curves),
+            columnWidth=(4, 60)
+        )
+
+ 
+
+        # pm.button(
+        #     label='Generate brush dip curves from default curves',
+        #     ann="Add selected curves to selected painting node",
+        #     command=pm.Callback(self.on_generate_brush_dip_curves))
+
+
 
         force_gen_bc  = 1
         self.force_gen_brush_curves_cb = pm.checkBox(
@@ -137,8 +157,9 @@ class SetupTab(gui.FormLayout):
             cutl.connect_curve_to_painting(curve, node, connect_to="next_available")
 
     def on_generate_brush_dip_curves(self):
+        lift = pm.floatSliderButtonGrp(self.gen_dip_curves_ff, query=True, value=True)
         force = pm.checkBox(self.force_gen_brush_curves_cb, query=True, v=True)
-        cutl.generate_brush_dip_curves(force )
+        cutl.generate_brush_dip_curves(lift, force )
 
     def visualize_brush_dips(self):
         painting_dip = pm.PyNode("mainPaintingShape")

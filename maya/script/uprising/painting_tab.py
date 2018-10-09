@@ -4,7 +4,7 @@ import pymel.core as pm
 
 # import setup_dip
 import curve_utils as cutl
-# import brush_utils as butl
+import brush_utils as butl
 import culling
 
 
@@ -136,6 +136,57 @@ class PaintingTab(gui.FormLayout):
             buttonLabel='Go',
             buttonCommand=pm.Callback(
                 self.on_rename_inputs))
+
+
+
+        self.lift_length_ff = pm.floatSliderButtonGrp(
+            label='Tip length to lift length',
+            field=True,
+            maxValue=5.0,
+            step=0.01,
+            value=1.1,
+            symbolButtonDisplay=False,
+            buttonLabel="Go",
+            buttonCommand=pm.Callback(self.on_tip_length_to_lift_length),
+            columnWidth=(4, 60)
+        )
+
+        self.lift_height_ff = pm.floatSliderButtonGrp(
+            label='Tip length to lift height',
+            field=True,
+            maxValue=5.0,
+            step=0.01,
+            value=1.1,
+            symbolButtonDisplay=False,
+            buttonLabel="Go",
+            buttonCommand=pm.Callback(self.on_tip_length_to_lift_height),
+            columnWidth=(4, 60)
+        )
+
+        self.lift_bias_ff = pm.floatSliderButtonGrp(
+            label='Tip length to lift bias',
+            field=True,
+            maxValue=5.0,
+            step=0.01,
+            value=1.1,
+            symbolButtonDisplay=False,
+            buttonLabel="Go",
+            buttonCommand=pm.Callback(self.on_tip_length_to_lift_bias),
+            columnWidth=(4, 60)
+        )
+
+        self.profile_height_max_ff = pm.floatSliderButtonGrp(
+            label='Tip length to profile max',
+            field=True,
+            maxValue=5.0,
+            step=0.01,
+            value=1.0,
+            symbolButtonDisplay=False,
+            buttonLabel="Go",
+            buttonCommand=pm.Callback(self.on_tip_length_to_profile_max),
+            columnWidth=(4, 60)
+        )
+
 
         # pm.rowLayout(numberOfColumns=3,
         #              columnWidth3=(120, 80, 80),
@@ -438,3 +489,42 @@ class PaintingTab(gui.FormLayout):
             type="nurbsCurve",
             ni=True), parent=True)
         cutl.curve_vis_active_connection(curves_xfs, False)
+
+
+    def on_tip_length_to_attr(self, attr_name, mult=1, offset=0):
+        curves = pm.ls(
+            selection=True,
+            dag=True,
+            leaf=True,
+            type="nurbsCurve",
+            ni=True)
+
+        for curve in curves:
+            stroke_curve=cutl.get_stroke_curve(curve)
+            print stroke_curve
+            attr = stroke_curve.attr(attr_name)
+            butl.set_stroke_curve_att_from_brush_tip(attr, mult, offset)
+
+# setAttr "cShape9_SC1.liftLength" 2.65;
+# setAttr "cShape9_SC1.liftHeight" 1.09;
+# setAttr "cShape9_SC1.liftBias" 1.2;
+
+
+    def on_tip_length_to_lift_length(self):
+        mult = pm.floatSliderButtonGrp(self.lift_length_ff, query=True, value=True)
+        self.on_tip_length_to_attr("liftLength", mult)
+        
+
+    def on_tip_length_to_lift_height(self):
+        mult = pm.floatSliderButtonGrp(self.lift_height_ff, query=True, value=True)
+        self.on_tip_length_to_attr("liftHeight", mult)
+        
+    def on_tip_length_to_lift_bias(self):
+        mult = pm.floatSliderButtonGrp(self.lift_bias_ff, query=True, value=True)
+        self.on_tip_length_to_attr("liftBias", mult)
+        
+
+    def on_tip_length_to_profile_max(self):
+        mult = pm.floatSliderButtonGrp(self.profile_height_max_ff, query=True, value=True)
+        self.on_tip_length_to_attr("strokeProfileScaleMax", mult)
+        

@@ -11,6 +11,7 @@ Brush::Brush() :
 	id(-1),
 	width(1.0),
 	retention(1.0),
+	tip(0),
 	shape(Brush::kRound)
 {}
 
@@ -18,10 +19,12 @@ Brush::Brush(
   short id,
   double width,
   double retention,
+  double tip,
   Shape shape) :
 	id(id),
 	width(width),
 	retention(retention),
+	tip(tip),
 	shape(shape)
 {}
 
@@ -31,6 +34,7 @@ std::map<short, Brush> Brush::factory(
   MArrayDataHandle &ha,
   MObject &widthAttribute,
   MObject &retentionAttribute,
+  MObject &tipAttribute,
   MObject &shapeAttribute)
 {
 	MStatus st;
@@ -51,9 +55,11 @@ std::map<short, Brush> Brush::factory(
 
 		double width =  hComp.child(widthAttribute).asDouble() ;
 		double retention = hComp.child(retentionAttribute).asDouble() ;
+		double tip = hComp.child(tipAttribute).asDouble() ;
+
 		Shape shape = Shape(hComp.child(shapeAttribute).asShort()) ;
 
-		result[index] = Brush(index, width, retention, shape);
+		result[index] = Brush(index, width, retention, tip, shape);
 	}
 	return result;
 }
@@ -71,6 +77,7 @@ ostream &operator<<(ostream &os, const Brush &b)
 	os << " id:" << b.id;
 	os << " width:" << b.width;
 	os << " retention:" << b.retention;
+	os << " tip:" << b.tip;
 	os << " shape:" << shapeStr;
 	return os;
 }
