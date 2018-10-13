@@ -153,66 +153,59 @@ MStatus cImgShader::compute( const MPlug  &plug,  MDataBlock &data )
 	float2 &uv = data.inputValue(aUVCoord).asFloat2();
 
 	MDataHandle hImageData = data.inputValue(aImageData, &st); msert;
-
 	MObject dImageData = hImageData.data();
-	MFnPluginData fnImageData( dImageData , &st); msert;
+	MFnPluginData fnImageData( dImageData , &st);
 
-	float valX = 0.0f;
-	float valY = 0.0f;
-	float valZ = 0.0f;
-	cImgData *imageData = (cImgData *)fnImageData.data();
-	CImg<unsigned char> *image = imageData->fImg;
-	float w = image->width();
-	float h = image->height();
-	int channels = image->spectrum();
+	float valX = defaultColor.x;
+	float valY = defaultColor.y;
+	float valZ = defaultColor.z;
 
+	if (! st.error()) {
 
+		cImgData *imageData = (cImgData *)fnImageData.data();
+		CImg<unsigned char> *image = imageData->fImg;
+		float w = image->width();
+		float h = image->height();
+		int channels = image->spectrum();
 
-	if (w > 0 && h > 0) {
-		float u = uv[0] * w;
-		float v = (1.0 - uv[1]) * h;
-		if (interp ==  kNearest) {
-			valX = image->atXY(int(u),  int(v), 0, 0);
-			if (channels == 3) {
-				valY = image->atXY(int(u),  int(v), 0, 1);
-				valZ = image->atXY(int(u),  int(v), 0, 2);
+		if (w > 0 && h > 0) {
+			float u = uv[0] * w;
+			float v = (1.0 - uv[1]) * h;
+
+			if (interp ==  kNearest) {
+				valX = image->atXY(int(u),  int(v), 0, 0);
+				if (channels == 3) {
+					valY = image->atXY(int(u),  int(v), 0, 1);
+					valZ = image->atXY(int(u),  int(v), 0, 2);
+				}
 			}
-			else {
+			else if (interp ==  kBilinear) {
+				valX = image->linear_atXY(u, v, 0, 0);
+				if (channels == 3) {
+					valY = image->linear_atXY(int(u),  int(v), 0, 1);
+					valZ = image->linear_atXY(int(u),  int(v), 0, 2);
+				}
+			}
+			else {   // bicubic
+				valX = image->cubic_atXY(u, v, 0, 0);
+				if (channels == 3) {
+					valY = image->cubic_atXY(int(u),  int(v), 0, 1);
+					valZ = image->cubic_atXY(int(u),  int(v), 0, 2);
+				}
+			}
+			if (channels != 3) {
 				valY = valX;
 				valZ = valX;
 			}
+			valX = valX / 255.0;
+			valY = valY / 255.0;
+			valZ = valZ / 255.0;
+			resultColor =  MFloatVector(valX, valY, valZ);
 		}
-		else if (interp ==  kBilinear) {
-			valX = image->linear_atXY(u, v, 0, 0);
-			if (channels == 3) {
-				valY = image->linear_atXY(int(u),  int(v), 0, 1);
-				valZ = image->linear_atXY(int(u),  int(v), 0, 2);
-			}
-			else {
-				valY = valX;
-				valZ = valX;
-			}
-		}
-		else {   // bicubic
-			valX = image->cubic_atXY(u, v, 0, 0);
-			if (channels == 3) {
-				valY = image->cubic_atXY(int(u),  int(v), 0, 1);
-				valZ = image->cubic_atXY(int(u),  int(v), 0, 2);
-			}
-			else {
-				valY = valX;
-				valZ = valX;
-			}
-		}
-		valX = valX / 255.0;
-		valY = valY / 255.0;
-		valZ = valZ / 255.0;
-
 	}
 
-	resultColor =  MFloatVector(valX, valY, valZ);
-	resultAlpha = (valX + valY + valZ ) * 0.33333333;
 
+	resultAlpha = (valX + valY + valZ ) * 0.33333333;
 
 	///////////////////////////////////////////////////////////////
 	MDataHandle outAlphaHandle = data.outputValue( aOutAlpha );

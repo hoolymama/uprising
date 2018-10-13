@@ -214,6 +214,9 @@ MObject painting::aDisplayLayerIds;
 MObject painting::aDisplayBrushIds;
 MObject painting::aDisplayPaintIds;
 MObject painting::aDisplayRepeatIds;
+
+MObject painting::aIdDisplayOffset;
+
 MObject painting::aArrowheadSize;
 
 MObject painting::aStackGap;
@@ -635,6 +638,12 @@ MStatus painting::initialize()
   addAttribute(aDisplayRepeatIds);
 
 
+  aIdDisplayOffset = nAttr.create( "idDisplayOffset", "iddo",  MFnNumericData::k3Float );
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault( 0.0f, 0.0f, 1.0f );
+  addAttribute(aIdDisplayOffset);
 
 
 
@@ -1949,8 +1958,20 @@ void painting::drawIds(const paintingGeom &geom, M3dView &view,
                        M3dView:: DisplayStatus status )
 {
 
+
+
+
   setWireDrawColor(view, status);
   MObject thisObj = thisMObject();
+
+  MFloatVector offset;
+
+  MPlug offPlug(thisObj, aIdDisplayOffset);
+
+  offPlug.child(0).getValue(offset[0]);
+  offPlug.child(1).getValue(offset[1]);
+  offPlug.child(2).getValue(offset[2]);
+
 
   bool displayIds, displayParentIds, displayLayerIds, displayBrushIds, displayPaintIds,
        displayRepeatIds, displayLift;
@@ -2003,7 +2024,7 @@ void painting::drawIds(const paintingGeom &geom, M3dView &view,
 
       MFloatPoint head;
       stroke.getHead(head, displayLift, stackHeight);
-      MPoint textPos =  MPoint( head);
+      MPoint textPos =  MPoint(head) + MVector(offset);
 
       view.drawText( text , textPos,  M3dView::kRight);
     }
@@ -2130,70 +2151,7 @@ bool painting::isBounded() const
 MBoundingBox painting::boundingBox() const
 {
   return MBoundingBox();
-  //   MStatus st;
 
-  //   MObject thisObj = thisMObject();
-
-  //   MFnMatrixData fnX;
-
-  //   MObject dX;
-  //   MPlug plugX( thisObj, aPlaneMatrix );
-  //   st = plugX.getValue(dX);
-  //   MMatrix pmat;
-  //   if (st.error()) {
-  //     pmat.setToIdentity();
-  //   }
-  //   else {
-  //     fnX.setObject(dX);
-  //     pmat = fnX.matrix(&st);
-  //     if (st.error()) {
-  //       pmat.setToIdentity();
-  //     }
-  //   }
-  //   MVector planeNormal = (MVector::zAxis * pmat).normal();
-
-  //   MFnMatrixArrayData fnXA;
-  //   MFnIntArrayData fnI;
-  //   // get sample positions from output
-  //   MPlug targetsPlug(thisObj, aOutTargets);
-  //   MObject dTargets;
-  //   st = targetsPlug.getValue(dTargets); mser;
-  //   fnXA.setObject(dTargets);
-  //   MMatrixArray targets = fnXA.array(&st); mser;
-  //   unsigned pl = targets.length();
-  //   if (! pl ) {
-  //     return MBoundingBox();
-  //   }
-
-  //   double stackGap;
-  //   MPlug(thisObj, aStackGap).getValue(stackGap);
-
-  //   MPlug countsPlug(thisObj, aOutCounts);
-  //   MObject dCounts;
-  //   st = countsPlug.getValue(dCounts); mser;
-  //   fnI.setObject(dCounts);
-  //   MIntArray counts = fnI.array(&st); mser;
-  //   unsigned numStrokes = counts.length();
-
-
-  //   MVector zn(planeNormal * stackGap);
-  //   MVector z = MPoint(targets[0][3][0], targets[0][3][1], targets[0][3][2]);
-  //   MBoundingBox bb(z, z);
-
-  //   unsigned i = 0;
-  //   for (int j = 0; j < numStrokes; ++j)
-  //   {
-  //     MVector zj(zn * j);
-  //     unsigned numPoints = counts[j];
-  //     z = MPoint(targets[i][3][0], targets[i][3][1], targets[i][3][2]) + zj;
-  //     bb.expand(z);
-  //     i += numPoints - 1;
-  //     z = MPoint(targets[i][3][0], targets[i][3][1], targets[i][3][2]) + zj;
-  //     bb.expand(z);
-  //     i++;
-  //   }
-
-  //   return bb;
 }
 
 void painting::postConstructor()

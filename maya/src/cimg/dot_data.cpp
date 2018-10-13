@@ -15,11 +15,15 @@
 // {}
 
 
-dotData::dotData(const MFloatMatrix &projection, float u, float v, float radius,
-                 const  MFloatVector &densityVals, int id)
+dotData::dotData(const MFloatMatrix &projection, float u, float v, float density,
+                 float radius, int id):
+	m_u(u),
+	m_v(v),
+	m_density(density),
+	m_radius(radius),
+	m_id(id)
+
 {
-	m_u = u;
-	m_v = v;
 
 	MFloatPoint p = MFloatPoint(
 	                  (m_u * 2.0f) - 1.0f,
@@ -28,15 +32,25 @@ dotData::dotData(const MFloatMatrix &projection, float u, float v, float radius,
 	                ) * projection;
 
 	m_p = JPoint2D(p.x, p.y);
-	m_radius = radius * densityVals.y;
-	m_density = densityVals.x;
-	m_aux =  densityVals.z;
-	m_id = id;
+
 	JPoint2D rad2d(m_radius, m_radius);
 	m_min = m_p - rad2d;
 	m_max = m_p + rad2d;
 }
 
+
+
+bool dotData::isInProjection(const MFloatMatrix &projectionInverse) const
+{
+
+	MFloatPoint p = MFloatPoint(m_p.x, m_p.y, 0.0f) * projectionInverse;
+
+	if (p.x < -1.0) { return false;}
+	if (p.y < -1.0) { return false;}
+	if (p.x >  1.0) { return false;}
+	if (p.y >  1.0) { return false;}
+	return true;
+}
 // dotData::dotData(const JPoint2D &c, float r, int id)
 // 	: m_p(c.x, c.y),
 // 	  m_radius(r),
@@ -53,8 +67,6 @@ dotData::dotData(const dotData &rhs)
 	m_p = rhs.m_p;
 	m_radius = rhs.m_radius;
 	m_density = rhs.m_density;
-	m_aux = rhs.m_aux;
-
 	m_id = rhs.m_id;
 	m_u =  rhs.m_u;
 	m_v =  rhs.m_v;

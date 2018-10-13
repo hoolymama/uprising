@@ -1,6 +1,6 @@
 
-#ifndef _cImgNode
-#define _cImgNode
+#ifndef _cImgGradSampler
+#define _cImgGradSampler
 
 #include <maya/MPxNode.h>
 #include <maya/MTypeId.h>
@@ -9,29 +9,35 @@
 
 #include "cImgData.h"
 
-class cImgNode : public MPxNode
+class cImgGradSampler : public MPxNode
 {
 public:
 
-	cImgNode();
+	cImgGradSampler();
 
-	virtual				~cImgNode();
+	virtual				~cImgGradSampler();
 
 	virtual MStatus		compute( const MPlug &plug, MDataBlock &data );
 
 	static  void		*creator();
 
 	static MStatus initialize();
-	static MObject aImageFilename;
 
+	static MObject aInputImage;
 	static MObject aSamplePoints;
-	static MObject aOutput;
+	static MObject aProjectionMatrix;
+	static MObject aChannel;
+	static MObject aDirection;
 
 	static  MObject		aOutPoints;
 	static  MObject		aOutDirections;
 
 
 	static MTypeId	id;
+
+	enum Channel { kAll, kRed, kGreen , kBlue, kAverage};
+
+	enum Direction { kDown, kUp, kLeft , kRight};
 
 
 private:

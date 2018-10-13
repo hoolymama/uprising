@@ -51,6 +51,8 @@
 	editorTemplate -addControl "displayBrushIds";
 	editorTemplate -addControl "displayPaintIds";
 	editorTemplate -addControl "displayRepeatIds";
+	editorTemplate -addControl "idDisplayOffset";
+	
 	editorTemplate -endNoOptimize;
 
 	

@@ -24,8 +24,8 @@ public:
 	// dotData(const JPoint2D &c, float r, int id);
 
 
-	dotData(const MFloatMatrix &projection, float u, float v, float radius,
-	        const  MFloatVector &densityVals, int id);
+	dotData(const MFloatMatrix &projection, float u, float v, float density,
+	        float radius, int id);
 	dotData(const dotData &rhs);
 
 	~dotData();
@@ -39,7 +39,7 @@ public:
 
 
 	void setId(int id);
-
+	bool isInProjection(const MFloatMatrix &projectionInverse) const;
 
 	const JPoint2D &position() const;
 	const float &position(axis a) const;
@@ -64,8 +64,6 @@ private:
 	JPoint2D m_max;
 	float m_radius;
 	float m_density;
-	float m_aux;
-
 	float m_u;
 	float m_v;
 	int m_id;

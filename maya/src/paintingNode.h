@@ -232,6 +232,8 @@ private:
   static MObject  aDisplayPaintIds;
   static MObject  aDisplayRepeatIds;
 
+  static MObject  aIdDisplayOffset;
+
   static MObject  aArrowheadSize;
 
 

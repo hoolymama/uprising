@@ -14,8 +14,14 @@
 #include "projectionPoints.h"
 #include "imgTestCmd.h"
 #include "cImgData.h"
+
+#include "cImgFile.h"
 #include "cImgNode.h"
+#include "cImgDetail.h"
+#include "cImgProcess.h"
 #include "cImgShader.h"
+#include "cImgGradSampler.h"
+
 
 
 MStatus initializePlugin( MObject obj)
@@ -37,11 +43,34 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerData( "paintingData", paintingData::id,
 	                          paintingData::creator ); mser;
 
+
+
 	st = plugin.registerData( "cImgData", cImgData::id,
 	                          cImgData::creator ); mser;
 
+	st = plugin.registerNode( "cImgFile", cImgFile::id, cImgFile::creator,
+	                          cImgFile::initialize); msert;
+
+	st = plugin.registerNode( "cImgProcess", cImgProcess::id, cImgProcess::creator,
+	                          cImgProcess::initialize); msert;
+
+
+	st = plugin.registerNode( "cImgDetail", cImgDetail::id, cImgDetail::creator,
+	                          cImgDetail::initialize); msert;
+
 	st = plugin.registerNode( "cImgNode", cImgNode::id, cImgNode::creator,
 	                          cImgNode::initialize); msert;
+
+	st = plugin.registerNode( "cImgGradSampler", cImgGradSampler::id,
+	                          cImgGradSampler::creator,
+	                          cImgGradSampler::initialize); msert;
+
+
+	st = plugin.registerNode( "cImgShader", cImgShader::id, &cImgShader::creator,
+	                          &cImgShader::initialize, MPxNode::kDependNode, &UserClassifycImgShader ); mser;
+
+
+
 
 	st = plugin.registerNode( "strokeNode", strokeNode::id, strokeNode::creator,
 	                          strokeNode::initialize); msert;
@@ -66,9 +95,6 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "indexShader", indexShader::id, &indexShader::creator,
 	                          &indexShader::initialize, MPxNode::kDependNode, &UserClassifyindexShader ); mser;
 
-	st = plugin.registerNode( "cImgShader", cImgShader::id, &cImgShader::creator,
-	                          &cImgShader::initialize, MPxNode::kDependNode, &UserClassifycImgShader ); mser;
-
 
 	st = plugin.registerNode( "curveContainment", curveContainment::id,
 	                          curveContainment::creator,
@@ -76,7 +102,8 @@ MStatus initializePlugin( MObject obj)
 
 	st = plugin.registerNode( "projectionPoints", projectionPoints::id,
 	                          projectionPoints::creator,
-	                          projectionPoints::initialize); msert;
+	                          projectionPoints::initialize, MPxNode::kLocatorNode); msert;
+
 
 	MGlobal::executePythonCommand("import uprising;uprising.load()");
 
@@ -96,8 +123,6 @@ MStatus uninitializePlugin( MObject obj)
 
 	st = plugin.deregisterNode( curveContainment::id ); mser;
 
-	st = plugin.deregisterNode( cImgShader::id ); mser;
-
 	st = plugin.deregisterNode( indexShader::id ); mser;
 
 	st = plugin.deregisterCommand( "imgTestCmd" ); mser;
@@ -109,7 +134,17 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterNode( strokeCurve::id ); mser;
 
 	st = plugin.deregisterNode( strokeNode::id ); mser;
+
+
+	st = plugin.deregisterNode( cImgShader::id ); mser;
+
+	st = plugin.deregisterNode( cImgGradSampler::id ); mser;
+
 	st = plugin.deregisterNode( cImgNode::id ); mser;
+	st = plugin.deregisterNode( cImgDetail::id); mser;
+	st = plugin.deregisterNode( cImgProcess::id); mser;
+
+	st = plugin.deregisterNode( cImgFile::id); mser;
 	st = plugin.deregisterData( cImgData::id); mser;
 
 

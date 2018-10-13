@@ -1,6 +1,6 @@
 
-#ifndef _cImgNode
-#define _cImgNode
+#ifndef _cImgFile
+#define _cImgFile
 
 #include <maya/MPxNode.h>
 #include <maya/MTypeId.h>
@@ -9,13 +9,13 @@
 
 #include "cImgData.h"
 
-class cImgNode : public MPxNode
+class cImgFile : public MPxNode
 {
 public:
 
-	cImgNode();
+	cImgFile();
 
-	virtual				~cImgNode();
+	virtual				~cImgFile();
 
 	virtual MStatus		compute( const MPlug &plug, MDataBlock &data );
 
@@ -23,20 +23,17 @@ public:
 
 	static MStatus initialize();
 	static MObject aImageFilename;
+	static MObject aResize;
+	static MObject aResolution;
 
-	static MObject aSamplePoints;
+
+
 	static MObject aOutput;
-
-	static  MObject		aOutPoints;
-	static  MObject		aOutDirections;
-
 
 	static MTypeId	id;
 
 
 private:
-
-	cImgData *m_data;
 
 };
 

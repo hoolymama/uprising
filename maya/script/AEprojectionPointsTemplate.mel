@@ -1,0 +1,46 @@
+global proc AEprojectionPointsTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+	
+ 
+
+	editorTemplate -cl 0  -beginLayout "Point generation";
+ 	editorTemplate -addControl"densityImage";
+ 	editorTemplate -addControl"radiusImage";
+ 	editorTemplate -addControl"seed";
+	editorTemplate -endLayout;	
+
+	editorTemplate -cl 0  -beginLayout "Density";		
+	AEaddRampControl ("densityRamp");	
+	editorTemplate -addControl "densityRange" ;
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Radius";		
+	AEaddRampControl ("radiusRamp");	
+	editorTemplate -addControl "radiusRange" ;
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Relax";
+ 	editorTemplate -addControl"iterations";
+ 	editorTemplate -addControl"neighbors";
+ 	editorTemplate -addControl"magnitude";
+	editorTemplate -endLayout;	
+
+	editorTemplate -cl 0  -beginLayout "Display";
+ 	editorTemplate -addControl "lineThickness";
+ 	editorTemplate -addControl "pointSize";
+ 	editorTemplate -addControl "drawColor";
+
+ 	editorTemplate -addControl "displayPoints";
+ 	editorTemplate -addControl "displayCircles";
+ 	editorTemplate -addControl "circleDisplaySize";
+	editorTemplate -endLayout;	
+ 
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
