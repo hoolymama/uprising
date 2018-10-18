@@ -22,6 +22,7 @@ void *cImgProcess::creator()
 	return new cImgProcess();
 }
 
+
 MStatus cImgProcess::initialize()
 {
 	MStatus st;
@@ -29,7 +30,7 @@ MStatus cImgProcess::initialize()
 	MFnTypedAttribute tAttr;
 
 	aInput = tAttr.create("input", "in", cImgData::id ) ;
-	tAttr.setStorable(false);
+	tAttr.setReadable(false);
 	st = addAttribute( aInput ); mser;
 
 	aOutput = tAttr.create("output", "out", cImgData::id);
@@ -42,43 +43,55 @@ MStatus cImgProcess::initialize()
 	return MS::kSuccess;
 }
 
+
+// MStatus cImgProcess::checkPlug(const MPlug &plug)
+// {
+// 	if ( plug != aOutput) {
+// 		return ( MS::kUnknownParameter );
+// 	}
+// 	return MS::kSuccess;
+// }
+
+
 MStatus cImgProcess::compute( const MPlug &plug, MDataBlock &data ) {
 
 	if ( plug != aOutput) { return ( MS::kUnknownParameter ); }
-
-	MStatus st = MS::kSuccess;
+	MStatus st;
 
 	MDataHandle hImageData = data.inputValue(aInput, &st); msert;
 	MObject dImageData = hImageData.data();
 	MFnPluginData fnImageData( dImageData , &st);
-	if (! st.error()) {
-
-		cImgData *imageData = (cImgData *)fnImageData.data();
-		CImg<unsigned char> *inImage = imageData->fImg;
-
-
-
-		MDataHandle hOutput = data.outputValue(aOutput);
-		MFnPluginData fnOut;
-		MTypeId kdid(cImgData::id);
-		MObject dOut = fnOut.create(kdid , &st ); mser;
-
-		cImgData *newData = (cImgData *)fnOut.data(&st); mser;
-
-		CImg<unsigned char> *outImage = newData->fImg;
-
-
-		// ((*image) *= -1) += 255;
-
-		process(data, *inImage, *outImage);
-
-		// outImage->assign(*image);
-
-		hOutput.set(newData);
-		data.setClean( plug );
-		return MS::kSuccess;
+	if (st.error()) {
+		return MS::kUnknownParameter;
 	}
-	return MS::kUnknownParameter;
+
+
+
+	cImgData *imageData = (cImgData *)fnImageData.data();
+	CImg<unsigned char> *inImage = imageData->fImg;
+
+
+
+	MDataHandle hOutput = data.outputValue(aOutput);
+	MFnPluginData fnOut;
+	MTypeId kdid(cImgData::id);
+	MObject dOut = fnOut.create(kdid , &st ); mser;
+
+	cImgData *newData = (cImgData *)fnOut.data(&st); mser;
+
+	CImg<unsigned char> *outImage = newData->fImg;
+
+	if (! data.inputValue( state).asShort()) {
+		process(data, *inImage, *outImage);
+	}
+	else {
+		outImage->assign(*inImage);
+	}
+
+	hOutput.set(newData);
+	data.setClean( plug );
+	return MS::kSuccess;
+
 
 }
 

@@ -28,6 +28,23 @@ public:
 	CImg<unsigned char> *fImg;
 
 
+	enum Interpolation { kNearest, kBilinear, kBicubic };
+	enum Channel { kAll, kRed, kGreen , kBlue, kAverage};
+
+
+	enum ResizeInterpolation {
+		kNoInterpolation,
+		kNearestNeighbor ,
+		kMovingAverage ,
+		kLinear ,
+		kGrid ,
+		kCubic ,
+		kLanczos
+	};
+
+
+
+
 };
 
 #endif

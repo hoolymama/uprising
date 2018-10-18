@@ -112,8 +112,6 @@ MStatus cImgNode::compute( const MPlug &plug, MDataBlock &data ) {
 	MString imageFilename = data.inputValue(aImageFilename).asString();
 
 
-
-
 	image->assign(imageFilename.asChar());
 	CImg<unsigned char> small_image = image->get_resize(32, 32, -100, -100, 5 );
 
@@ -122,30 +120,13 @@ MStatus cImgNode::compute( const MPlug &plug, MDataBlock &data ) {
 	int h = image->height();
 	int channels = image->spectrum();
 
-
-	// cerr << "Set image to " << imageFilename << " Dims are now: " << w << "X" << h << endl;
-	// CImg<unsigned char> col( );
 	CImgList<float> gradList = small_image.get_gradient("xy", 0);
-	// const unsigned char redCol[3] = {0, 0, 0};
 
-
-	// CImg<unsigned char> col( w, h, 1, 3);
-	// col.fill(255, 1, 1);
-	// if (gradList.size() == 2) {
-	// 	gradList(1).channels(0, 1);
-	// 	gradList(1).get_shared_channel(1).assign(gradList(0));
-
-	// 	image->draw_quiver(gradList(1), col, 0.5f, 10, -100, 0);
-
-	// 	int channels = image->spectrum();
-	// 	cerr << "channels: "  << channels << endl;
-	// }
 	gradList(0).resize(w, h, -100, -100, 5);
 	gradList(1).resize(w, h, -100, -100, 5);
 
-	float wg = gradList(0).width();
-	float hg = gradList(0).height();
-	// int channelsg = gradList(0).spectrum();
+	int wg = gradList(0).width();
+	int hg = gradList(0).height();
 
 
 	MVectorArray points;
@@ -160,34 +141,9 @@ MStatus cImgNode::compute( const MPlug &plug, MDataBlock &data ) {
 			;
 			for (int x = 0; x < w ; x += 2)
 			{
-				// float u = (x+0.5) / w;
+
 				float gx = gradList(0).atXY(x, y);
 				float gy = gradList(1).atXY(x, y);
-				// float length = 2;
-				// float lengthrecip = sqrt((gx * gx) + (gy * gy) );
-
-				//				cerr << "gx,gy: " << gx << " " << gy << endl;					// gx /= length;
-				// normalize
-				// gx /= length;
-				// gy /= length;
-				// int newx = x + int(gx);
-				// int newy = y + int(gy);
-
-				// if (newx >= 0 && newx < w && newy >= 0 && newy < h)
-				// {
-				// 	image->draw_line	(	x, y, newx, newy, redCol, 1.0f, 0x11111111, false);
-				// }
-
-				// points.append(
-				//   MVector(
-				//     ((x + 0.5) / w),
-				//     (1.0 - (y + 0.5) / h),
-				//     0));
-				// directions.append(
-				//   MVector(
-				//     gx ,
-				//     -gy,
-				//     0).normal());
 
 				points.append(
 				  MVector(
@@ -222,65 +178,7 @@ MStatus cImgNode::compute( const MPlug &plug, MDataBlock &data ) {
 	st = data.setClean( aOutDirections );
 
 
-	// image->assign(  imageFilename.asChar()  );
-
-
-
-	// CImgList<Tfloat> get_gradient	(	const char *const 	axes = 0,
-	//                                 const int 	scheme = 3
-	//                               )		const
-
-
-
 	hOutput.set(newData);
 	data.setClean( plug );
 	return MS::kSuccess;
 }
-
-// unsigned int numgrad = gradList.size();
-// cerr << "Num grad images:" << numgrad << endl;
-// cerr << "wg:" << wg << endl;
-// cerr << "hg:" << hg << endl;
-// cerr << "channelsg:" << channelsg << endl;
-
-
-
-// MObject thisObj = thisMObject();
-
-// int numPixels = resolution * resolution;
-
-// MFloatArray uVals(numPixels);
-// MFloatArray vVals(numPixels);
-
-// for ( int i = 0, y = (resolution - 1); y >= 0; y--) {
-// 	float vVal =  (y + 0.5) / resolution;
-// 	for (int x = 0; x < resolution; x++) {
-// 		float uVal = (x + 0.5) / resolution;
-// 		uVals.set( uVal, i );
-// 		vVals.set( vVal, i );
-// 		i++;
-// 	}
-// }
-
-// MFloatVectorArray colors;
-// st = sampleUVTexture(thisObj, cImgNode::aTexture, uVals, vVals,
-//                      colors) ;
-
-// if (! st.error()) {
-
-// 	unsigned char col;
-// 	unsigned char *vals = new unsigned char[numPixels * 3];
-// 	unsigned char *cPtr = vals;
-
-// 	for (int i = 0; i < 3; i++)
-// 	{
-// 		for (int j = 0; j < numPixels; j++)
-// 		{
-// 			col = (unsigned char)(colors[j][i] * 255);
-// 			*cPtr = col; cPtr++;
-// 		}
-// 	}
-
-// cerr << "about to make image: "  << endl;
-// CImg<unsigned char> image(vals, resolution, resolution, 1, 3);
-

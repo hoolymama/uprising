@@ -8,7 +8,7 @@
 #include "paintingNode.h"
 #include "paintingCmd.h"
 
-#include "projectStrokeNode.h"
+#include "flowStrokeNode.h"
 #include "indexShader.h"
 #include "curveContainment.h"
 #include "projectionPoints.h"
@@ -18,10 +18,14 @@
 #include "cImgFile.h"
 #include "cImgNode.h"
 #include "cImgDetail.h"
+#include "cImgIndex.h"
+#include "cImgQuantize.h"
+#include "cImgDistinct.h"
+
 #include "cImgProcess.h"
 #include "cImgShader.h"
 #include "cImgGradSampler.h"
-
+#include "cImgUVSampler.h"
 
 
 MStatus initializePlugin( MObject obj)
@@ -58,12 +62,25 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "cImgDetail", cImgDetail::id, cImgDetail::creator,
 	                          cImgDetail::initialize); msert;
 
+	st = plugin.registerNode( "cImgIndex", cImgIndex::id, cImgIndex::creator,
+	                          cImgIndex::initialize); msert;
+
+	st = plugin.registerNode( "cImgQuantize", cImgQuantize::id, cImgQuantize::creator,
+	                          cImgQuantize::initialize); msert;
+
+	st = plugin.registerNode( "cImgDistinct", cImgDistinct::id, cImgDistinct::creator,
+	                          cImgDistinct::initialize); msert;
+
 	st = plugin.registerNode( "cImgNode", cImgNode::id, cImgNode::creator,
 	                          cImgNode::initialize); msert;
 
 	st = plugin.registerNode( "cImgGradSampler", cImgGradSampler::id,
 	                          cImgGradSampler::creator,
 	                          cImgGradSampler::initialize); msert;
+
+	st = plugin.registerNode( "cImgUVSampler", cImgUVSampler::id,
+	                          cImgUVSampler::creator,
+	                          cImgUVSampler::initialize); msert;
 
 
 	st = plugin.registerNode( "cImgShader", cImgShader::id, &cImgShader::creator,
@@ -78,8 +95,8 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "strokeCurve", strokeCurve::id, strokeCurve::creator,
 	                          strokeCurve::initialize); msert;
 
-	st = plugin.registerNode( "projectStroke", projectStroke::id, projectStroke::creator,
-	                          projectStroke::initialize); msert;
+	st = plugin.registerNode( "flowStroke", flowStroke::id, flowStroke::creator,
+	                          flowStroke::initialize); msert;
 
 
 	st = plugin.registerNode( "painting", painting::id, painting::creator,
@@ -130,17 +147,23 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterCommand( "paintingCmd" ); mser;
 
 	st = plugin.deregisterNode( painting::id ); mser;
-	st = plugin.deregisterNode( projectStroke::id ); mser;
+	st = plugin.deregisterNode( flowStroke::id ); mser;
 	st = plugin.deregisterNode( strokeCurve::id ); mser;
 
 	st = plugin.deregisterNode( strokeNode::id ); mser;
 
 
 	st = plugin.deregisterNode( cImgShader::id ); mser;
+	st = plugin.deregisterNode( cImgUVSampler::id ); mser;
 
 	st = plugin.deregisterNode( cImgGradSampler::id ); mser;
 
 	st = plugin.deregisterNode( cImgNode::id ); mser;
+
+	st = plugin.deregisterNode( cImgQuantize::id); mser;
+
+	st = plugin.deregisterNode( cImgDistinct::id); mser;
+	st = plugin.deregisterNode( cImgIndex::id); mser;
 	st = plugin.deregisterNode( cImgDetail::id); mser;
 	st = plugin.deregisterNode( cImgProcess::id); mser;
 

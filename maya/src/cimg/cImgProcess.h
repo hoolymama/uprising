@@ -19,6 +19,7 @@ public:
 	virtual MStatus		compute( const MPlug &plug, MDataBlock &data );
 	virtual bool    isAbstractClass() const {return true;}
 
+
 	virtual MStatus process(MDataBlock &data, const CImg<unsigned char> &image,
 	                        CImg<unsigned char> &result);
 

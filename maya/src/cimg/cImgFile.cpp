@@ -26,6 +26,7 @@ MTypeId     cImgFile::id( k_cImgFile );
 MObject 	cImgFile::aImageFilename;
 MObject 	cImgFile::aResize;
 MObject 	cImgFile::aResolution;
+MObject cImgFile::aInterpolation;
 
 MObject 	cImgFile::aOutput;
 
@@ -58,7 +59,7 @@ MStatus cImgFile::initialize()
 	nAttr.setHidden(false);
 	nAttr.setStorable(true);
 	nAttr.setReadable(true);
-	nAttr.setDefault(true);
+	nAttr.setDefault(false);
 	st = addAttribute(aResize);
 
 	aResolution = nAttr.create("resolution", "rrg", MFnNumericData::k2Int);
@@ -66,6 +67,19 @@ MStatus cImgFile::initialize()
 	nAttr.setKeyable(true);
 	st = addAttribute(aResolution);
 
+
+
+	aInterpolation = eAttr.create("interpolation", "int", cImgData::kNearestNeighbor);
+	eAttr.addField("noInterpolation", cImgData::kNoInterpolation);
+	eAttr.addField("nearestNeighbor", cImgData::kNearestNeighbor);
+	eAttr.addField("movingAverage", cImgData::kMovingAverage);
+	eAttr.addField("linear", cImgData::kLinear);
+	eAttr.addField("grid", cImgData::kGrid);
+	eAttr.addField("cubic", cImgData::kCubic);
+	eAttr.addField("lanczos", cImgData::kLanczos);
+	eAttr.setHidden(false);
+	eAttr.setStorable(true);
+	st = addAttribute( aInterpolation );
 
 
 	aOutput = tAttr.create("output", "out", cImgData::id);
@@ -76,6 +90,8 @@ MStatus cImgFile::initialize()
 	st = attributeAffects(aImageFilename, aOutput ); mser;
 	st = attributeAffects(aResize, aOutput ); mser;
 	st = attributeAffects(aResolution, aOutput ); mser;
+	st = attributeAffects(aInterpolation, aOutput ); mser;
+
 
 	return MS::kSuccess;
 }
@@ -87,7 +103,7 @@ MStatus cImgFile::compute( const MPlug &plug, MDataBlock &data ) {
 	MStatus st = MS::kSuccess;
 
 	bool resize = data.inputValue(aResize).asBool();
-	const int2 &resolution = data.inputValue( aResolution ).asInt2();
+
 
 	MDataHandle hOutput = data.outputValue(aOutput);
 	MFnPluginData fnOut;
@@ -101,16 +117,23 @@ MStatus cImgFile::compute( const MPlug &plug, MDataBlock &data ) {
 	MString imageFilename = data.inputValue(aImageFilename).asString();
 
 	image->assign(imageFilename.asChar());
+
 	if (resize) {
+		const int2 &resolution = data.inputValue( aResolution ).asInt2();
+
+
+		cImgData::ResizeInterpolation interp = cImgData::ResizeInterpolation(data.inputValue(
+		    aInterpolation).asShort());
+
 		int xres = resolution[0];
 		int yres = resolution[1];
-		if (xres > 2048) {
-			xres = 2048;
+		if (xres > 4096) {
+			xres = 4096;
 		}
-		if (yres > 2048) {
-			yres = 2048;
+		if (yres > 4096) {
+			yres = 4096;
 		}
-		image->resize(xres, yres, -100, -100, 3);
+		image->resize(xres, yres, -100, -100, interp);
 	}
 
 

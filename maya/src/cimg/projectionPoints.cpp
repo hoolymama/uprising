@@ -93,6 +93,11 @@ MObject projectionPoints::aProjectionMatrix;
 MObject projectionPoints::aSeed;
 MObject projectionPoints::aOutPoints;
 MObject projectionPoints::aOutRadius;
+MObject projectionPoints::aOutU;
+MObject projectionPoints::aOutV;
+
+
+
 MObject projectionPoints::aLineThickness;
 MObject projectionPoints::aPointSize;
 MObject projectionPoints::aColor;
@@ -136,27 +141,13 @@ MStatus projectionPoints::initialize()
 	mAttr.setDefault(identity);
 	addAttribute(aProjectionMatrix);
 
-	// aDensityImage = tAttr.create("densityImage", "dim", MFnData::kString);
-	// tAttr.setStorable(true);
-	// tAttr.setUsedAsFilename(true);
-	// addAttribute( aDensityImage );
-
-
 	aDensityImage = tAttr.create("densityImage", "dim", cImgData::id ) ;
 	tAttr.setStorable(false);
 	st = addAttribute( aDensityImage ); mser;
 
-
-	// aRadiusImage = tAttr.create("radiusImage", "rim", MFnData::kString);
-	// tAttr.setStorable(true);
-	// tAttr.setUsedAsFilename(true);
-	// addAttribute( aRadiusImage );
-
 	aRadiusImage = tAttr.create("radiusImage", "rim", cImgData::id ) ;
 	tAttr.setStorable(false);
 	st = addAttribute( aRadiusImage ); mser;
-
-
 
 	aDensityRamp  = MRampAttribute::createCurveRamp("densityRamp", "drmp");
 	st = addAttribute( aDensityRamp ); mser;
@@ -220,6 +211,19 @@ MStatus projectionPoints::initialize()
 	tAttr.setReadable( true);
 	st = addAttribute( aOutRadius );
 
+	aOutU = tAttr.create("outU", "ou", MFnData::kDoubleArray, &st);
+	tAttr.setStorable( false);
+	tAttr.setReadable( true);
+	st = addAttribute( aOutU );
+
+
+	aOutV = tAttr.create("outV", "ov", MFnData::kDoubleArray, &st);
+	tAttr.setStorable( false);
+	tAttr.setReadable( true);
+	st = addAttribute( aOutV );
+
+
+
 
 
 
@@ -260,10 +264,6 @@ MStatus projectionPoints::initialize()
 	nAttr.setKeyable( true );
 	st = addAttribute( aCircleDisplaySize ); mser
 
-
-
-	// st = attributeAffects( aDensity, aOutPoints);
-	// st = attributeAffects( aRadius, aOutPoints);
 	st = attributeAffects( aDensityImage, aOutPoints);
 	st = attributeAffects( aRadiusImage, aOutPoints);
 	st = attributeAffects( aSeed, aOutPoints);
@@ -271,46 +271,48 @@ MStatus projectionPoints::initialize()
 	st = attributeAffects( aIterations, aOutPoints);
 	st = attributeAffects( aNeighbors, aOutPoints);
 	st = attributeAffects( aMagnitude, aOutPoints);
-	// st = attributeAffects( aInvertDensityImage, aOutPoints);
 	st = attributeAffects( aDensityRamp, aOutPoints);
 	st = attributeAffects( aDensityRange, aOutPoints);
 	st = attributeAffects( aRadiusRamp, aOutPoints);
 	st = attributeAffects( aRadiusRange, aOutPoints);
 
-
-	// st = attributeAffects( aDensity, aOutRadius);
-	// st = attributeAffects( aRadius, aOutRadius);
 	st = attributeAffects( aDensityImage, aOutRadius);
 	st = attributeAffects( aRadiusImage, aOutRadius);
 	st = attributeAffects( aSeed, aOutRadius);
 	st = attributeAffects( aProjectionMatrix, aOutRadius);
-	// st = attributeAffects( aInvertDensityImage, aOutRadius);
 	st = attributeAffects( aDensityRamp, aOutRadius);
 	st = attributeAffects( aDensityRange, aOutRadius);
 	st = attributeAffects( aRadiusRamp, aOutRadius);
 	st = attributeAffects( aRadiusRange, aOutRadius);
 
-	// st = attributeAffects(aIterations, aOutRadius);
-	// st = attributeAffects(aNeighbors, aOutRadius);
-	// st = attributeAffects(aMagnitude, aOutRadius);
+	st = attributeAffects( aDensityImage, aOutU);
+	st = attributeAffects( aRadiusImage, aOutU);
+	st = attributeAffects( aSeed, aOutU);
+	st = attributeAffects( aProjectionMatrix, aOutU);
+	st = attributeAffects( aIterations, aOutU);
+	st = attributeAffects( aNeighbors, aOutU);
+	st = attributeAffects( aMagnitude, aOutU);
+	st = attributeAffects( aDensityRamp, aOutU);
+	st = attributeAffects( aDensityRange, aOutU);
+	st = attributeAffects( aRadiusRamp, aOutU);
+	st = attributeAffects( aRadiusRange, aOutU);
 
 
-
+	st = attributeAffects( aDensityImage, aOutV);
+	st = attributeAffects( aRadiusImage, aOutV);
+	st = attributeAffects( aSeed, aOutV);
+	st = attributeAffects( aProjectionMatrix, aOutV);
+	st = attributeAffects( aIterations, aOutV);
+	st = attributeAffects( aNeighbors, aOutV);
+	st = attributeAffects( aMagnitude, aOutV);
+	st = attributeAffects( aDensityRamp, aOutV);
+	st = attributeAffects( aDensityRange, aOutV);
+	st = attributeAffects( aRadiusRamp, aOutV);
+	st = attributeAffects( aRadiusRange, aOutV);
 
 	return (MS::kSuccess );
 }
 
-// MStatus projectionPoints::getImage(MDataBlock &data, MObject &attribute,
-//                                    CImg<unsigned char> *image )
-// {
-// 	MStatus st;
-// 	MDataHandle hImageData = data.inputValue(attribute, &st); msert;
-// 	MObject dImageData = hImageData.data();
-// 	MFnPluginData fnImageData( dImageData , &st); msert;
-// 	cImgData *imageData = (cImgData *)fnImageData.data();
-// 	image = imageData->fImg;
-// 	return MS::kSuccess ;
-// }
 
 CImg<unsigned char> *projectionPoints::getImage(MDataBlock &data, MObject &attribute )
 {
@@ -329,7 +331,7 @@ void projectionPoints::makeDots(MDataBlock &data, std::vector<dotData> &dots)
 	MStatus st;
 	long seedVal = data.inputValue( aSeed).asLong()  ;
 	srand48(seedVal);
-	JPMDBG;
+
 	MDataHandle hDensityRange = data.inputValue(aDensityRange);
 	double densityRangeMin = hDensityRange.child( aDensityRangeMin).asDouble();
 	double densityRangeMax = hDensityRange.child( aDensityRangeMax).asDouble();
@@ -340,16 +342,12 @@ void projectionPoints::makeDots(MDataBlock &data, std::vector<dotData> &dots)
 	double densityRange = densityRangeMax - densityRangeMin;
 
 	MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
-	JPMDBG;
+
 	CImg<unsigned char>  *pDensityImage = getImage(data, projectionPoints::aDensityImage );
 	CImg<unsigned char>  *pRadiusImage = getImage(data, projectionPoints::aRadiusImage);
-	JPMDBG;
-	CImg<unsigned char> densityImage ; //= pDensityImage->get_channel(0).mirror("y");
-	CImg<unsigned char>  radiusImage ; //= pRadiusImage->get_channel(0).mirror("y");
-	JPMDBG;
 
-	// st = getImage(data, projectionPoints::aDensityImage, pDensityImage );
-	// st = getImage(data, projectionPoints::aRadiusImage, pRadiusImage );
+	CImg<unsigned char> densityImage ;
+	CImg<unsigned char>  radiusImage ;
 
 	bool densityMapped = false;
 	bool radiusMapped = false;
@@ -375,30 +373,24 @@ void projectionPoints::makeDots(MDataBlock &data, std::vector<dotData> &dots)
 			radiusImage = pRadiusImage->get_channel(0).mirror("y");
 		}
 	}
-	JPMDBG;
 
-	// // CImg<unsigned char> densityImage(densityImageName.asChar());
-	// CImg<unsigned char> densityImage = pDensityImage->get_channel(0).mirror("y");
-	// // CImg<unsigned char> radiusImage(radiusImageName.asChar());
-	// CImg<unsigned char>  radiusImage = pRadiusImage->get_channel(0).mirror("y");
-	JPMDBG;
 
 	MObject thisObj = thisMObject();
 	MRampAttribute densityAttr( thisObj, aDensityRamp ); mser;
 	MRampAttribute radiusAttr( thisObj, aRadiusRamp ); mser;
-	JPMDBG;
+
 
 	MDataHandle hRadiusRange = data.inputValue(aRadiusRange);
 	double radiusRangeMin = hRadiusRange.child( aRadiusRangeMin).asDouble();
 	double radiusRangeMax = hRadiusRange.child( aRadiusRangeMax).asDouble();
-	JPMDBG;
+
 	double radiusRange = radiusRangeMax - radiusRangeMin;
 
 	float normalizer  = 1.0 / 255.0;
 
 	int j = 0;
-	JPMDBG;
-	cerr << "count: " << count << endl;
+
+	// cerr << "count: " << count << endl;
 	for (int i = 0; i < count; ++i)
 	{
 		float u = float(drand48()) ;
@@ -421,7 +413,7 @@ void projectionPoints::makeDots(MDataBlock &data, std::vector<dotData> &dots)
 			j++;
 		}
 	}
-	JPMDBG;
+
 }
 
 void projectionPoints::relaxDots(MDataBlock &data, std::vector<dotData> &dots)
@@ -432,6 +424,10 @@ void projectionPoints::relaxDots(MDataBlock &data, std::vector<dotData> &dots)
 	float magnitude = data.inputValue(aMagnitude).asFloat();
 	MFloatMatrix invmat = data.inputValue(aProjectionMatrix).asFloatMatrix().inverse();
 
+
+	if (! iterations) { return; }
+
+	magnitude = magnitude / float(iterations);
 
 
 	const int numPoints = dots.size();
@@ -444,9 +440,6 @@ void projectionPoints::relaxDots(MDataBlock &data, std::vector<dotData> &dots)
 
 		for (unsigned i = 0; i < numPoints; i++ ) {
 
-			if (!dots[i].isInProjection(invmat)) {
-				continue;
-			}
 
 			KNN_PD_QUEUE *q = new KNN_PD_QUEUE;
 			for (int n = 0; n < neighbors; n++) {
@@ -471,11 +464,16 @@ void projectionPoints::relaxDots(MDataBlock &data, std::vector<dotData> &dots)
 				q->pop();
 			}
 			repulsion *= magnitude;
-			dots[i].push(repulsion);
+			dots[i].push(repulsion, invmat);
 			delete q;
 		}
 		if (pTree) {delete pTree; pTree = 0;}
 	}
+	for (auto dot : dots)
+	{
+		dot.setUV(invmat);
+	}
+
 
 }
 
@@ -485,10 +483,13 @@ MStatus projectionPoints::compute(const MPlug &plug, MDataBlock &data )
 	MStatus st;
 	if (! (
 	      plug == aOutPoints ||
-	      plug == aOutRadius))
+	      plug == aOutRadius ||
+	      plug == aOutU ||
+	      plug == aOutV ))
 	{
 		return (MS::kUnknownParameter );
 	}
+
 
 	std::vector<dotData> dots;
 	makeDots(data, dots);
@@ -496,15 +497,23 @@ MStatus projectionPoints::compute(const MPlug &plug, MDataBlock &data )
 
 	MVectorArray resultPoints;
 	MDoubleArray resultRadii;
+	MDoubleArray resultU;
+	MDoubleArray resultV;
+
 	std::vector<dotData>::const_iterator citer;
 	for (citer = dots.begin(); citer != dots.end(); citer++)
 	{
 		resultPoints.append(citer->asVector());
 		resultRadii.append(citer->radius());
+		resultU.append(citer->u());
+		resultV.append(citer->v());
+
 	}
 
 	st = outputData(projectionPoints::aOutPoints, data, resultPoints ); mser;
 	st = outputData(projectionPoints::aOutRadius, data, resultRadii ); mser;
+	st = outputData(projectionPoints::aOutU, data, resultU ); mser;
+	st = outputData(projectionPoints::aOutV, data, resultV ); mser;
 
 	return MS:: kSuccess;
 }

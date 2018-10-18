@@ -30,7 +30,7 @@ public:
 
 
 
-	static unsigned factory(
+	static unsigned createFromCurve(
 	  const MObject &thisObj,
 	  const MObject &dCurve,
 	  // const MMatrix &inversePlaneMatrix,

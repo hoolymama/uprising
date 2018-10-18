@@ -82,10 +82,10 @@ protected:
 
   static MObject  aBrushFollowStroke;
 
-  static MObject  aApproachDistanceStart;
-  static MObject  aApproachDistanceMid;
-  static MObject  aApproachDistanceEnd;
-  static MObject  aApproachDistance;
+  // static MObject  aApproachDistanceStart;
+  // static MObject  aApproachDistanceMid;
+  // static MObject  aApproachDistanceEnd;
+  // static MObject  aApproachDistance;
 
   static MObject aPlaneNormal;
 

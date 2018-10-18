@@ -112,7 +112,7 @@ def write_csv(export_dir, timestamp, description, notes, medium, ground):
                        description,
                        medium,
                        ground,
-                       "",
+                       "1",
                        "LINK",
                        "Waiting",
                        notes])

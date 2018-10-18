@@ -85,11 +85,11 @@ MStatus cImgShader::initialize()
 
 
 	aInterpolation = eAttr.create("interpolation", "itp");
-	eAttr.addField("Nearest", cImgShader::kNearest);
-	eAttr.addField("Bilinear", cImgShader::kBilinear);
-	eAttr.addField("Bicubic", cImgShader::kBicubic);
+	eAttr.addField("Nearest", cImgData::kNearest);
+	eAttr.addField("Bilinear", cImgData::kBilinear);
+	eAttr.addField("Bicubic", cImgData::kBicubic);
 
-	eAttr.setDefault( cImgShader::kBilinear );
+	eAttr.setDefault( cImgData::kBilinear );
 	eAttr.setKeyable(true);
 	eAttr.setWritable(true);
 	addAttribute(aInterpolation);
@@ -141,8 +141,8 @@ MStatus cImgShader::compute( const MPlug  &plug,  MDataBlock &data )
 	if ((plug != aOutColor) && (plug.parent() != aOutColor)
 	    && (plug != aOutAlpha)) 	{ return MS::kUnknownParameter; }
 
-	cImgShader::Interpolation interp = cImgShader::Interpolation(data.inputValue(
-	                                     aInterpolation).asShort());
+	cImgData::Interpolation interp = cImgData::Interpolation(data.inputValue(
+	                                   aInterpolation).asShort());
 
 
 	MFloatVector &defaultColor = data.inputValue(aDefaultColor).asFloatVector();
@@ -172,14 +172,14 @@ MStatus cImgShader::compute( const MPlug  &plug,  MDataBlock &data )
 			float u = uv[0] * w;
 			float v = (1.0 - uv[1]) * h;
 
-			if (interp ==  kNearest) {
+			if (interp ==  cImgData::kNearest) {
 				valX = image->atXY(int(u),  int(v), 0, 0);
 				if (channels == 3) {
 					valY = image->atXY(int(u),  int(v), 0, 1);
 					valZ = image->atXY(int(u),  int(v), 0, 2);
 				}
 			}
-			else if (interp ==  kBilinear) {
+			else if (interp ==  cImgData::kBilinear) {
 				valX = image->linear_atXY(u, v, 0, 0);
 				if (channels == 3) {
 					valY = image->linear_atXY(int(u),  int(v), 0, 1);

@@ -71,6 +71,11 @@ MObject strokeCurve::aRandomOverlapFactor;
 MObject strokeCurve::aOverlap;
 MObject strokeCurve::aBrushRampScope;
 
+MObject strokeCurve::aApproachDistanceStart;
+MObject strokeCurve::aApproachDistanceMid;
+MObject strokeCurve::aApproachDistanceEnd;
+MObject strokeCurve::aApproachDistance;
+
 MTypeId strokeCurve:: id(k_strokeCurve );
 
 strokeCurve:: strokeCurve() {}
@@ -161,6 +166,27 @@ MStatus strokeCurve:: initialize()
     st = addAttribute(aBrushRampScope);
     mser;
 
+
+
+    aApproachDistanceStart = nAttr.create( "approachDistanceStart",
+                                           "apds", MFnNumericData::kDouble);
+    nAttr.setDefault(5.0);
+    aApproachDistanceMid = nAttr.create( "approachDistanceMid",
+                                         "apdm", MFnNumericData::kDouble);
+    nAttr.setDefault(3.0);
+    aApproachDistanceEnd = nAttr.create( "approachDistanceEnd",
+                                         "apde", MFnNumericData::kDouble);
+    nAttr.setDefault(5.0);
+    aApproachDistance = nAttr.create( "approachDistance",
+                                      "apd", aApproachDistanceStart, aApproachDistanceMid, aApproachDistanceEnd);
+
+    nAttr.setKeyable(true);
+    nAttr.setStorable(true);
+    nAttr.setReadable(true);
+    addAttribute(aApproachDistance);
+
+
+
     st = attributeAffects(aCurve, aOutput);
     st = attributeAffects(aSubcurveMin, aOutput);
     st = attributeAffects(aSubcurveMax, aOutput);
@@ -172,6 +198,8 @@ MStatus strokeCurve:: initialize()
 
     st = attributeAffects(aBrushRampScope, aOutput);
     st = attributeAffects(aForceDip, aOutput);
+
+    st = attributeAffects(aApproachDistance, aOutput);
 
     return (MS::kSuccess );
 }
@@ -372,7 +400,7 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
         const double &startDist = boundaries[i].x;
         const double &endDist = boundaries[i].y;
 
-        unsigned strokeGroupSize = Stroke::factory(
+        unsigned strokeGroupSize = Stroke::createFromCurve(
                                        thisObj,
                                        dCurve,
                                        // inversePlaneMatrix,

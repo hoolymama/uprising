@@ -103,7 +103,7 @@ class RobotWindow(gui.Window):
 
         self.show()
         self.setResizeToFitChildren()
-        self.tabs.setSelectTabIndex(5)
+        self.tabs.setSelectTabIndex(4)
 
     def onTabChanged(self):
         print ""

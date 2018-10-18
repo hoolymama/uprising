@@ -117,11 +117,6 @@ MObject strokeNode::aBrushTwistRange;
 MObject strokeNode::aBrushFollowStroke;
 
 
-MObject strokeNode::aApproachDistanceStart;
-MObject strokeNode::aApproachDistanceMid;
-MObject strokeNode::aApproachDistanceEnd;
-MObject strokeNode::aApproachDistance;
-
 MObject strokeNode::aPlaneNormal;
 
 MObject strokeNode::aOutput;
@@ -313,23 +308,6 @@ MStatus strokeNode::initialize()
   st = addAttribute(aBrushFollowStroke); mser;
 
 
-  aApproachDistanceStart = nAttr.create( "approachDistanceStart",
-                                         "apds", MFnNumericData::kDouble);
-  nAttr.setDefault(5.0);
-  aApproachDistanceMid = nAttr.create( "approachDistanceMid",
-                                       "apdm", MFnNumericData::kDouble);
-  nAttr.setDefault(3.0);
-  aApproachDistanceEnd = nAttr.create( "approachDistanceEnd",
-                                       "apde", MFnNumericData::kDouble);
-  nAttr.setDefault(5.0);
-  aApproachDistance = nAttr.create( "approachDistance",
-                                    "apd", aApproachDistanceStart, aApproachDistanceMid, aApproachDistanceEnd);
-
-  nAttr.setKeyable(true);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  addAttribute(aApproachDistance);
-
 
   aLiftLength = nAttr.create( "liftLength", "llg", MFnNumericData::kDouble, 2.0 );
   aLiftHeight = nAttr.create( "liftHeight", "lht", MFnNumericData::kDouble, 2.0 );
@@ -442,7 +420,7 @@ MStatus strokeNode::initialize()
   st = attributeAffects(aBrushFollowStroke, aOutput);
   st = attributeAffects(aPlaneNormal, aOutput);
 
-  st = attributeAffects(aApproachDistance, aOutput);
+
   st = attributeAffects(aBrushId, aOutput);
   st = attributeAffects(aPaintId, aOutput);
   st = attributeAffects(aLayerId, aOutput);
@@ -451,6 +429,18 @@ MStatus strokeNode::initialize()
   return ( MS::kSuccess );
 
 }
+
+
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+
 
 MStatus strokeNode::generateStrokeGeometry(MDataBlock &data,
     std::vector<strokeGeom> *geom) const

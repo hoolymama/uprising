@@ -187,17 +187,9 @@ def delete_curve_instances(node, curves, delete_curves):
 def set_board_from_sheet(node):
     #   get top node, then find corner locators
     assembly = uutl.assembly(node)
-    notes_att, ground_att, medium_att  =ensure_painting_has_notes()
-    top = uutl.assembly(node)
+    notes_att, ground_att, medium_att  =ensure_painting_has_notes(assembly)
 
-
-
-    p = node.getParent()
-    while p:
-        node = p
-        p = node.getParent()
-
-    top_name = node.name()
+    top_name = assembly.name()
     corners = {
         "BL": {
             "node": pm.PyNode("%s|BL" % top_name)
@@ -236,16 +228,16 @@ def set_board_from_sheet(node):
 
 
 
-    zppos = top.attr("zeroPosition").get()
-    top.attr("zeroPosition").set(False)
+    zppos = assembly.attr("zeroPosition").get()
+    assembly.attr("zeroPosition").set(False)
     for k in corners:
-        parent_joint = "%s|jpos" % top
+        parent_joint = "%s|jpos" % assembly
         pm.parent(tmp_locs[k], parent_joint)
         tmp_locs[k].attr("tz").set(offset)
         pm.parent(tmp_locs[k], world=True)
         off_pos = tmp_locs[k].attr("translate").get()
         corners[k]["node"].attr("translate").set(off_pos)
-    top.attr("zeroPosition").set(zppos)
+    assembly.attr("zeroPosition").set(zppos)
 
     pm.delete([tmp_locs[k] for k in tmp_locs])
  

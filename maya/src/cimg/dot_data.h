@@ -28,6 +28,9 @@ public:
 	        float radius, int id);
 	dotData(const dotData &rhs);
 
+	// sets the UVs based on points in 0->1
+	void setUV(const MFloatMatrix &imat);
+
 	~dotData();
 
 
@@ -39,7 +42,7 @@ public:
 
 
 	void setId(int id);
-	bool isInProjection(const MFloatMatrix &projectionInverse) const;
+	// bool isInProjection(const MFloatMatrix &projectionInverse) const;
 
 	const JPoint2D &position() const;
 	const float &position(axis a) const;
@@ -47,12 +50,14 @@ public:
 	const float &min(axis a)  const;
 	const float &max(axis a)  const;
 
+	const float &u()  const;
+	const float &v()  const;
 
 	MVector asVector() const;
 
 	bool contains(const dotData *other) const;
 
-	void push(const JVector2D &force);
+	void push(const JVector2D &force, const MFloatMatrix &imat);
 
 
 	const int &id() const;

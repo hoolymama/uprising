@@ -67,11 +67,14 @@ private:
 
   static  MObject aOutPoints;
   static  MObject aOutRadius;
+  static  MObject aOutU;
+  static  MObject aOutV;
+
+
 
   static  MObject aLineThickness;
   static  MObject aPointSize;
   static  MObject aCircleDisplaySize;
-
   static  MObject aColor;
   static  MObject aDisplayPoints;
   static  MObject aDisplayCircles;

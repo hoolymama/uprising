@@ -71,21 +71,14 @@ def validate_paint_data(data):
     if not len(data):
         raise ValueError("No paint data from Google sheets")
     for row in data:
-        if row[0].startswith("rack"):
-            if not len(row) > 3:
-                raise ValueError("Invalid rack corner data from Google sheets")
-        elif uutl.numeric(row[0]) in range(8):
-            if not len(row) > 7:
-                raise ValueError("Invalid paint data from Google sheets")
+        # if row[0].startswith("rack"):
+        #     if not len(row) > 3:
+        #         raise ValueError("Invalid rack corner data from Google sheets")
+        # if uutl.numeric(row[0]) in range(8):
+        if not len(row) > 9:
+            raise ValueError("Invalid paint data from Google sheets")
 
 
-def set_rack_position(dip_node, locators):
-
-    top_node = uutl.assembly(dip_node)
-
-    for key in locators:
-        vals = [x*0.1 for x in locators[key]]
-        pm.PyNode("%s|%s" % (top_node, key) ).attr("translate").set(*vals)
 
 def delete_shaders():
     if pm.ls("sx_*"):
@@ -93,28 +86,29 @@ def delete_shaders():
 
 
 def set_tray_colors(tray_geos, colors):
-
+    tray_cols = zip(tray_geos, colors)
     delete_shaders()
-
-    for i,color in enumerate(colors):
-        geo = tray_geos[i]
-        col = color[0:3]
-        name = color[3]
-        geo.rename("tx_%s_%s" % (i, name))
-
-        ss = pm.shadingNode('lambert', asShader=True, name=("sx_%s" % name))
+    for geo, color in tray_cols:
+        geo.rename("tx_%s_%s" % (color["index"], color["name"]))
+        ss = pm.shadingNode('lambert', asShader=True, name=("sx_%s" % color["name"]))
         sg = pm.sets(
             renderable=True,
             noSurfaceShader=True,
             empty=True,
-            name=("sx_%s_SG" % name))
+            name=("sx_%s_SG" % color["name"]))
         ss.attr('outColor') >> sg.attr('surfaceShader')
         pm.sets(sg, edit=True, forceElement=geo)
         geo.attr("sfPaintColor") >> ss.attr('color')
         try:
-            geo.attr("sfPaintColor").set(col)
+            geo.attr("sfPaintColor").set([color["r"],color["g"],color["b"]])
         except RuntimeError:
             pm.warning("Can't set tray color. Skipping")
+        try:
+            geo.attr("sfPaintCode")
+        except pm.MayaAttributeError:
+            pm.addAttr(geo, dt="string", ln="sfPaintCode")
+        code_att = geo.attr("sfPaintCode")
+        code_att.set(color["code"])
 
 
 def connect_trays(painting_node, dip_node, tray_geos):
@@ -142,26 +136,33 @@ def setup_paints_from_sheet(painting_node, dip_node):
     medium_att.set(medium)
 
     validate_paint_data(data)
-    colors = list(([],)*8)
-    locators =  {}
-    for row in data:
-        row = [uutl.numeric(s) for s in row]
-        if row[0] in range(8):
-            colors[int(row[0])] = row[5:9]
-        elif str(row[0]).startswith("rack"):
-            locators[row[0]] = row[1:4]
-        if row[0] == 7:
-            locators["rack_P7"] = row[1:4]
-
-    set_rack_position(dip_node, locators)
-
+    colors = []
+    for i, row in enumerate(data):
+        color = {
+            "index": i,
+            "r": uutl.numeric(row[5]) / 255.0,
+            "g": uutl.numeric(row[6]) / 255.0,
+            "b": uutl.numeric(row[7]) / 255.0,
+            "name": row[8],
+            "code": row[9]
+        }
+        colors.append(color)
     set_up_trays(painting_node, dip_node, colors)
+
+def set_up_rack_from_sheet(dip_node):
+    top_node = uutl.assembly(dip_node)
+    data = get_raw_rack_data()
+    for row in data:
+        loc_name = row[0]
+        vals = [x*0.1 for x in row[1:4]]
+        pm.PyNode("%s|%s" % (top_node, loc_name) ).attr("translate").set(*vals)
+
 
 def get_raw_paint_data():
     service = sheets._get_service()
     result = service.spreadsheets().values().get(
         spreadsheetId=sheets.SHEETS["Measurements"],
-        range='Paints!A2:I11').execute()
+        range='Paints!A14:J29').execute()
     values = result.get('values', [])
 
     medium_result = service.spreadsheets().values().get(
@@ -172,5 +173,12 @@ def get_raw_paint_data():
     return (values, medium)
 
 
+
+def get_raw_rack_data():
+    service = sheets._get_service()
+    result = service.spreadsheets().values().get(
+        spreadsheetId=sheets.SHEETS["Measurements"],
+        range='Rack!A1:D3').execute()
+    return result.get('values', [])
 
 

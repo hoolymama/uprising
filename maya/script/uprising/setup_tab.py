@@ -27,7 +27,7 @@ class SetupTab(gui.FormLayout):
         pm.columnLayout(adj=True, rowSpacing=2 )
         pm.button(
             label='Setup board from spreadsheet',
-            ann="Read board coordinates from spreadsheet and set the rig",
+            ann="Read board coordinates from spreadsheet and sand align board IK",
             command=pm.Callback(self.set_board_transform_from_sheet))
 
         pm.button(
@@ -38,9 +38,13 @@ class SetupTab(gui.FormLayout):
 
         pm.button(
             label='Setup paints from spreadsheet',
-            ann="Read paint and rack parameters from spreadsheet. Create new shaders and positions",
+            ann="Read paint parameters from spreadsheet. Set connections and make new shaders",
             command=pm.Callback(self.setup_paints_from_sheet))
 
+        pm.button(
+            label='Setup rack from spreadsheet',
+            ann="Read rack parameters from spreadsheet and align rack IK",
+            command=pm.Callback(self.setup_rack_from_sheet))
 
         pm.button(
             label='Setup all from spreadsheet',
@@ -141,11 +145,18 @@ class SetupTab(gui.FormLayout):
         dip_node = pm.PyNode("dipPaintingShape")
         putl.setup_paints_from_sheet(painting_node, dip_node)
 
+    def setup_rack_from_sheet(self):
+        dip_node = pm.PyNode("dipPaintingShape")
+        putl.setup_rack_from_sheet(dip_node)
+
+
     def setup_all_from_spreadsheet(self):
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
         butl.create_brush_geo_from_sheet(painting_node, dip_node)
         putl.setup_paints_from_sheet(painting_node, dip_node)
+        putl.setup_rack_from_sheet(dip_node)
+        
         sfu.set_board_from_sheet(painting_node)
    
     def add_curves_to_painting(self):

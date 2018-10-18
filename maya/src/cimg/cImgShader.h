@@ -23,7 +23,7 @@ public:
 private:
 
 
-	enum Interpolation { kNearest, kBilinear, kBicubic };
+	// enum Interpolation { kNearest, kBilinear, kBicubic };
 
 
 

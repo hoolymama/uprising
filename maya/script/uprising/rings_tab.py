@@ -86,11 +86,45 @@ class RingsTab(gui.FormLayout):
 
         # pm.setParent('..')
 
+
+        pm.rowLayout(numberOfColumns=2,
+             columnWidth2=(
+                 (390), 100),
+             # adjustableColumn=1,
+             columnAlign=(1, 'right'),
+             columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+
         self.random_paints_tf = pm.textFieldButtonGrp( label='Random paints', text='0-32', buttonLabel='Go' ,
+            columnWidth3=(140,200,50),
             buttonCommand=pm.Callback(self.on_random_paints))
 
+        self.random_paints_anim_cb = pm.checkBox(
+            label='Animate',
+            value=0,
+            annotation='Animate over frame range')
+
+        pm.setParent('..')
+
+
+        pm.rowLayout(numberOfColumns=2,
+             columnWidth2=(
+                 (390), 100),
+             # adjustableColumn=1,
+             columnAlign=(1, 'right'),
+             columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+
         self.random_brushes_tf = pm.textFieldButtonGrp( label='Random brushes', text='0-32', buttonLabel='Go' ,
+            columnWidth3=(140,200,50),
             buttonCommand=pm.Callback(self.on_random_brushes))
+
+        self.random_brushes_anim_cb = pm.checkBox(
+            label='Animate',
+            value=0,
+            annotation='Animate over frame range')
+
+        pm.setParent('..')
+
+
 
         pm.button(
             label='Randomize and arrange sequence',
@@ -211,6 +245,7 @@ class RingsTab(gui.FormLayout):
         cutl.arrange_rings_spine(curves, dist)
 
     def on_random_paints(self):
+        anim = pm.checkBox(self.random_paints_anim_cb, q=True, value=True)
         spec = pm.textFieldButtonGrp(self.random_paints_tf, query=True, text=True)
         curves = pm.ls(
             selection=True,
@@ -219,10 +254,17 @@ class RingsTab(gui.FormLayout):
             type="nurbsCurve",
             ni=True,
             ut=True)
-
-        cutl.assign_random_paints(curves, spec, False)
+        if (anim):
+            min_frame = int(pm.playbackOptions(min=True, query=True))
+            max_frame = int(pm.playbackOptions(max=True, query=True))
+            for f in range(min_frame, max_frame + 1):
+                pm.currentTime(f)
+                cutl.assign_random_paints(curves, spec, True)
+        else:
+            cutl.assign_random_paints(curves, spec, False)
 
     def on_random_brushes(self):
+        anim = pm.checkBox(self.random_brushes_tf, q=True, value=True)
         spec = pm.textFieldButtonGrp(self.random_brushes_tf, query=True, text=True)
         curves = pm.ls(
             selection=True,
@@ -232,9 +274,14 @@ class RingsTab(gui.FormLayout):
             ni=True,
             ut=True,
             v=True)
-
-        # painting_node = pm.PyNode("mainPaintingShape")
-        cutl.assign_random_brushes(curves, spec, False)
+        if (anim):
+            min_frame = int(pm.playbackOptions(min=True, query=True))
+            max_frame = int(pm.playbackOptions(max=True, query=True))
+            for f in range(min_frame, max_frame + 1):
+                pm.currentTime(f)
+                cutl.assign_random_brushes(curves, spec, True)
+        else:
+            cutl.assign_random_brushes(curves, spec, False)
 
     def on_random_sequence(self):
         paint_spec = pm.textFieldButtonGrp(self.random_paints_tf, query=True, text=True)

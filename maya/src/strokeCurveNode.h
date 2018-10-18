@@ -65,6 +65,11 @@ protected:
   static MObject aForceDip;
   static MObject aBrushRampScope;
 
+
+  static MObject  aApproachDistanceStart;
+  static MObject  aApproachDistanceMid;
+  static MObject  aApproachDistanceEnd;
+  static MObject  aApproachDistance;
 };
 
 #endif

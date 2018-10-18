@@ -9,7 +9,7 @@ from robolink import (
     INSTRUCTION_INSERT_CODE,
     INSTRUCTION_START_THREAD,
     INSTRUCTION_COMMENT,
-
+    COLLISION_OFF,
     INSTRUCTION_SHOW_MESSAGE,
     RUNMODE_MAKE_ROBOTPROG,
     RUNMODE_SIMULATE
@@ -18,8 +18,30 @@ import robodk as rdk
 import datetime
 RL = Robolink()
 
-timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
-print timestamp
+
+
+program = RL.Item('px', ITEM_TYPE_PROGRAM)
+
+# Update the path (can take some time if collision checking is active)
+update_result = program.Update(COLLISION_OFF)
+# Retrieve the result
+n_insok = update_result[0]
+time = update_result[1]
+distance = update_result[2]
+percent_ok = update_result[3]*100
+str_problems = update_result[4]
+if percent_ok < 100.0:
+    msg_str = "WARNING! Problems with <strong>%s</strong> (%.1f):<br>%s" % (program.Name(), percent_ok, str_problems)                
+else:
+    msg_str = "No problems found for program %s" % program.Name()
+
+print msg_str
+
+
+
+
+# timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
+# print timestamp
 
 # robot = RL.Item('', ITEM_TYPE_ROBOT)
 # stat = RL.Item("", ITEM_TYPE_STATION)

@@ -25,6 +25,7 @@ public:
 	static MObject aImageFilename;
 	static MObject aResize;
 	static MObject aResolution;
+	static MObject aInterpolation;
 
 
 

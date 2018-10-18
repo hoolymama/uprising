@@ -91,7 +91,7 @@ class Studio(object):
             self.painting.write(self)
 
         self.painting_program.addMoveJ(self.home_approach)
-
+        
 
     def _create_approach(self, object_name, name):
         mat = pm.PyNode(object_name).attr("worldMatrix[0]").get()

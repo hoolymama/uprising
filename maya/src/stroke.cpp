@@ -25,7 +25,46 @@ bool shouldMakeBackstroke(bool motherBackstroke, bool oscillate, int index )  {
 	}
 }
 
-unsigned Stroke::factory(
+// unsigned Stroke::createFromPoints(
+//   const MObject     &thisObj,
+//   const MFloatPointArray  flowPoints,
+//   const MVector   &planeNormal,
+//   double  liftLength,
+//   double  liftHeight,
+//   double  liftBias,
+//   const MObject &profileRampAttribute,
+//   double strokeProfileScaleMin,
+//   double strokeProfileScaleMax,
+//   const StrokeRotationSpec &rotSpec,
+//   bool backstroke,
+//   int repeats,
+//   double repeatOffset,
+//   bool repeatMirror,
+//   bool repeatOscillate,
+//   double pivotFraction,
+//   std::vector<std::unique_ptr<Stroke> > &strokes)
+// {
+// 	std::unique_ptr<Stroke> stk;
+// 	if (backstroke) {
+// 		stk = std::make_unique<BackStroke>();
+// 	}
+// 	else {
+// 		stk = std::make_unique<Stroke>();
+// 	}
+
+// 	stk->initialize(
+// 	  flowPoints,
+// 	  planeNormal,
+// 	  liftLength,
+// 	  liftBias
+// 	  // , brushId, paintId
+// 	);
+
+// }
+
+
+
+unsigned Stroke::createFromCurve(
   const MObject &thisObj,
   const MObject &dCurve,
   // const MMatrix &inversePlaneMatrix,
@@ -142,6 +181,13 @@ unsigned Stroke::factory(
 }
 
 
+
+
+
+
+
+
+
 void Stroke::offsetFrom(
   const Stroke &other,
   double offset,
@@ -234,6 +280,56 @@ void Stroke::initialize(
 	setArcLength();
 	m_repeatId = 0;
 }
+
+
+// void Stroke::initialize(
+//   const MFloatPointArray &points ,
+//   const MVector &planeNormal,
+//   double curveLength,
+//   double liftLength,
+//   double liftBias)
+// {
+
+// 	m_planeNormal = planeNormal;
+// 	double liftOffset  = liftLength - liftBias;
+// 	double startLiftDist = startDist - liftOffset;
+// 	double startBiasDist = startDist + liftBias;
+
+// 	double endLiftDist = endDist + liftOffset;
+// 	double endBiasDist = endDist - liftBias;
+
+// 	if (endBiasDist < startBiasDist) {
+// 		double centerDist = (endDist + startDist) * 0.5;
+// 		endBiasDist = centerDist + 0.1;
+// 		startBiasDist = centerDist - 0.1;
+// 	}
+
+
+// 	Target startLiftTarget = Target(curveObject, curveLength, startDist, endDist,
+// 	                                startLiftDist );
+// 	m_targets.push_back(startLiftTarget);
+
+// 	double contactDist = endBiasDist - startBiasDist;
+
+// 	unsigned numPoints = unsigned(density * contactDist);
+// 	if (numPoints < 2) { numPoints = 2; }
+// 	double recip = 1.0 / (numPoints - 1);
+
+// 	for (unsigned i = 0; i < numPoints; i++) {
+// 		double fraction =  (double(i) * recip);
+// 		double dist = startBiasDist + (fraction * contactDist);
+// 		Target target = Target(curveObject, curveLength, startDist, endDist, dist );
+// 		m_targets.push_back(target);
+// 	}
+
+// 	Target endLiftTarget = Target(curveObject, curveLength, startDist, endDist,
+// 	                              endLiftDist );
+// 	m_targets.push_back(endLiftTarget);
+
+// 	setArcLength();
+// 	m_repeatId = 0;
+// }
+
 
 
 void Stroke::setHeights( const MObject &thisObj,

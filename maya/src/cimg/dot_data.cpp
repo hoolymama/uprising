@@ -39,18 +39,24 @@ dotData::dotData(const MFloatMatrix &projection, float u, float v, float density
 }
 
 
-
-bool dotData::isInProjection(const MFloatMatrix &projectionInverse) const
+void dotData::setUV(const MFloatMatrix &imat)
 {
-
-	MFloatPoint p = MFloatPoint(m_p.x, m_p.y, 0.0f) * projectionInverse;
-
-	if (p.x < -1.0) { return false;}
-	if (p.y < -1.0) { return false;}
-	if (p.x >  1.0) { return false;}
-	if (p.y >  1.0) { return false;}
-	return true;
+	MFloatPoint p = MFloatPoint(m_p.x, m_p.y, 0.0) * imat;
+	m_u = ((p.x * 0.5) + 0.5);
+	m_v = ((p.y * 0.5) + 0.5);
 }
+
+// bool dotData::isInProjection(const MFloatMatrix &projectionInverse) const
+// {
+
+// 	MFloatPoint p = MFloatPoint(m_p.x, m_p.y, 0.0f) * projectionInverse;
+
+// 	if (p.x < -1.0) { return false;}
+// 	if (p.y < -1.0) { return false;}
+// 	if (p.x >  1.0) { return false;}
+// 	if (p.y >  1.0) { return false;}
+// 	return true;
+// }
 // dotData::dotData(const JPoint2D &c, float r, int id)
 // 	: m_p(c.x, c.y),
 // 	  m_radius(r),
@@ -112,9 +118,20 @@ dotData::~dotData() {}
 // }
 
 
-void dotData::push(const JVector2D &force)
+void dotData::push(const JVector2D &force, const MFloatMatrix &imat)
 {
-	m_p += force;
+
+	// m_p += force;
+	JPoint2D p = m_p + force;
+	MFloatPoint pnorm = MFloatPoint(p.x, p.y, 0.0f) * imat;
+	bool apply = true;
+	if (pnorm.x < -1.0) {apply = false;}
+	if (pnorm.y < -1.0) {apply = false;}
+	if (pnorm.x >  1.0) {apply = false;}
+	if (pnorm.y >  1.0) {apply = false;}
+
+	if (!apply) {	return;}
+	m_p = p;
 	JVector2D rad2d(m_radius, m_radius);
 	m_min = m_p - rad2d;
 	m_max = m_p + rad2d;
@@ -134,6 +151,15 @@ const float &dotData::position(axis a) const {
 }
 
 const float &dotData::radius()  const {return m_radius; }
+
+const float &dotData::u()  const {
+	return m_u;
+}
+const float &dotData::v()  const {
+	return m_v;
+}
+
+
 
 const float &dotData::min(axis a)  const {
 	return m_min[a];

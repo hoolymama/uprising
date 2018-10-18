@@ -3,6 +3,8 @@
 #define _cImgGradSampler
 
 #include <maya/MPxNode.h>
+
+#include <maya/MFloatPointArray.h>
 #include <maya/MTypeId.h>
 #include <maya/MTime.h>
 
@@ -24,25 +26,43 @@ public:
 	static MStatus initialize();
 
 	static MObject aInputImage;
+	static MObject aInterpolation;
 	static MObject aSamplePoints;
 	static MObject aProjectionMatrix;
 	static MObject aChannel;
-	static MObject aDirection;
+	static MObject aBlur;
+	static MObject aRotation;
 
-	static  MObject		aOutPoints;
-	static  MObject		aOutDirections;
+
+
+	static MObject aStrokeLength;
+	static MObject aPointDensity;
+
+	static MObject aOutPoints;
+	static MObject aOutDirections;
 
 
 	static MTypeId	id;
 
-	enum Channel { kAll, kRed, kGreen , kBlue, kAverage};
+	// enum Channel { kAll, kRed, kGreen , kBlue, kAverage};
 
-	enum Direction { kDown, kUp, kLeft , kRight};
 
 
 private:
 
-	cImgData *m_data;
+
+	MStatus getImageChannel(MDataBlock &data,
+	                        cImgData::Channel channel, CImg<unsigned char> &result);
+
+	MFloatMatrix  getFullProjection(float angle,
+	                                const MFloatMatrix &projection);
+
+
+	int  calcFlowPoints(const MFloatPoint &point, const CImgList<float> &grad,
+	                    const MFloatMatrix &mat, const MFloatMatrix &imat, int count, float gap,
+	                    MFloatPointArray &resultPoints, cImgData::Interpolation interp = cImgData::kBilinear);
+
+	// cImgData *m_data;
 
 };
 

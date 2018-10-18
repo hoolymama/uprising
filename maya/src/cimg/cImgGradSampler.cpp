@@ -1,3 +1,4 @@
+#include <math.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnUnitAttribute.h>
 #include <maya/MFnTypedAttribute.h>
@@ -17,6 +18,7 @@
 #include <maya/MPlugArray.h>
 
 #include "errorMacros.h"
+#include "cImgUtils.h"
 #include "cImgData.h"
 #include "cImgGradSampler.h"
 #include "jMayaIds.h"
@@ -31,32 +33,35 @@ MObject 	cImgGradSampler::aSamplePoints;
 
 MObject 	cImgGradSampler::aInputImage;
 MObject 	cImgGradSampler::aChannel;
-MObject 	cImgGradSampler::aDirection;
+// MObject 	cImgGradSampler::aDirection;
+MObject 	cImgGradSampler::aBlur;
+MObject   cImgGradSampler::aInterpolation;
+
+MObject   cImgGradSampler::aRotation;
 
 
-// MObject 	cImgGradSampler::aOutput;
+
+MObject   cImgGradSampler::aStrokeLength;
+MObject   cImgGradSampler::aPointDensity;
+
 MObject 	cImgGradSampler::aOutPoints;
 MObject 	cImgGradSampler::aOutDirections;
 MObject   cImgGradSampler::aProjectionMatrix;
 
-// MObject 	cImgGradSampler::aNormalizeOutput;
+// void toImageCoords(const MFloatPoint &point, const MFloatMatrix &inverseProjection, int w,
+//                    int h,  float &x, float &y, bool clamp = true)
+// {
+// 	// puts p  in -1 -> 1
+// 	MFloatPoint p = point * inverseProjection;
+// 	// if (verbose) { cerr << "point in proj: " << p << endl; }
 
-
-
-void toImageCoords(const MFloatPoint &point, const MFloatMatrix &inverseProjection, int w,
-                   int h,
-                   float &x, float &y, bool clamp = true)
-{
-	// puts p  in -1 -> 1
-	MFloatPoint p = point * inverseProjection;
-	x = ((p.x * 0.5f) + 0.5f) * w;
-	y = (1.0f - ((p.y * 0.5f) + 0.5f)) * h;
-	if (clamp) {
-		x = std::max(0.0f, std::min(x, float(w)));
-		y = std::max(0.0f, std::min(y, float(h)));
-	}
-}
-
+// 	x = ((p.x * 0.5f) + 0.5f) * w;
+// 	y = (1.0f - ((p.y * 0.5f) + 0.5f)) * h;
+// 	if (clamp) {
+// 		x = std::max(0.0f, std::min(x, float(w)));
+// 		y = std::max(0.0f, std::min(y, float(h)));
+// 	}
+// }
 
 cImgGradSampler::cImgGradSampler() {}
 
@@ -74,7 +79,8 @@ MStatus cImgGradSampler::initialize()
 	MFnTypedAttribute tAttr;
 	MFnMatrixAttribute mAttr;
 	MFnEnumAttribute eAttr;
-
+	MFnNumericAttribute nAttr;
+	MFnUnitAttribute uAttr;
 
 	aInputImage = tAttr.create("inputImage", "ini", cImgData::id ) ;
 	tAttr.setStorable(false);
@@ -99,23 +105,59 @@ MStatus cImgGradSampler::initialize()
 	st = addAttribute( aSamplePoints );
 
 
-	aChannel = eAttr.create("channel", "ch", cImgGradSampler::kAverage);
-	eAttr.addField( "red",   cImgGradSampler::kRed);
-	eAttr.addField( "green",   cImgGradSampler::kGreen);
-	eAttr.addField( "blue",   cImgGradSampler::kBlue);
-	eAttr.addField( "average",   cImgGradSampler::kAverage);
+	aChannel = eAttr.create("channel", "ch", cImgData::kAverage);
+	eAttr.addField( "red",   cImgData::kRed);
+	eAttr.addField( "green",   cImgData::kGreen);
+	eAttr.addField( "blue",   cImgData::kBlue);
+	eAttr.addField( "average",   cImgData::kAverage);
 	eAttr.setHidden(false);
 	eAttr.setStorable(true);
 	st = addAttribute( aChannel );
 
-	aDirection = eAttr.create("direction", "dir", cImgGradSampler::kUp);
-	eAttr.addField( "up",   cImgGradSampler::kUp);
-	eAttr.addField( "down",   cImgGradSampler::kDown);
-	eAttr.addField( "left",   cImgGradSampler::kLeft);
-	eAttr.addField( "right",   cImgGradSampler::kRight);
-	eAttr.setHidden(false);
-	eAttr.setStorable(true);
-	st = addAttribute( aDirection );
+
+	aBlur = nAttr.create( "blur", "blr", MFnNumericData::kFloat);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setReadable(true);
+	nAttr.setDefault(1.0);
+	st = addAttribute(aBlur);
+
+	aRotation = uAttr.create( "rotation", "rot",
+	                          MFnUnitAttribute::kAngle );
+	uAttr.setHidden( false );
+	uAttr.setKeyable( true );
+	uAttr.setStorable(true);
+	st = addAttribute(aRotation); mser;
+
+	aInterpolation = eAttr.create("interpolation", "itp");
+	eAttr.addField("Nearest", cImgData::kNearest);
+	eAttr.addField("Bilinear", cImgData::kBilinear);
+	eAttr.addField("Bicubic", cImgData::kBicubic);
+
+	eAttr.setDefault( cImgData::kBilinear );
+	eAttr.setKeyable(true);
+	eAttr.setWritable(true);
+	addAttribute(aInterpolation);
+
+
+
+
+	aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData::kDouble);
+	nAttr.setHidden( false );
+	nAttr.setKeyable( true );
+	nAttr.setStorable(true);
+	nAttr.setDefault( 1.0 );
+	st = addAttribute(aPointDensity); mser;
+
+	aStrokeLength = nAttr.create( "strokeLength", "stl", MFnNumericData::kDouble);
+	nAttr.setStorable(true);
+	nAttr.setReadable(true);
+	nAttr.setKeyable(true);
+	nAttr.setMin(0.01);
+	nAttr.setDefault(10.0);
+	st = addAttribute(aStrokeLength); mser;
+
+
 
 	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st);
 	tAttr.setStorable( false);
@@ -139,16 +181,123 @@ MStatus cImgGradSampler::initialize()
 	st = attributeAffects(aChannel, aOutPoints ); mser;
 	st = attributeAffects(aChannel, aOutDirections ); mser;
 
-	st = attributeAffects(aDirection, aOutPoints ); mser;
-	st = attributeAffects(aDirection, aOutDirections ); mser;
+	st = attributeAffects(aBlur, aOutPoints ); mser;
+	st = attributeAffects(aBlur, aOutDirections ); mser;
 
+	st = attributeAffects(aInterpolation, aOutPoints ); mser;
+	st = attributeAffects(aInterpolation, aOutDirections ); mser;
+
+	st = attributeAffects(aPointDensity, aOutPoints ); mser;
+	st = attributeAffects(aPointDensity, aOutDirections ); mser;
+
+	st = attributeAffects(aStrokeLength, aOutPoints ); mser;
+	st = attributeAffects(aStrokeLength, aOutDirections ); mser;
+
+	st = attributeAffects(aRotation, aOutPoints ); mser;
+	st = attributeAffects(aRotation, aOutDirections ); mser;
 
 
 	return MS::kSuccess;
 }
 
+MStatus cImgGradSampler::getImageChannel(MDataBlock &data,
+    cImgData::Channel channel, CImg<unsigned char> &result)
+{
+	MStatus st;
+	MDataHandle hImageData = data.inputValue(aInputImage, &st); msert;
+	MObject dImageData = hImageData.data();
+	MFnPluginData fnImageData( dImageData , &st); msert;
+	cImgData *imageData = (cImgData *)fnImageData.data();
+	CImg<unsigned char> *image = imageData->fImg;
+
+	int nChannels = image->spectrum();
+	if (! nChannels) {return MS::kFailure;}
+
+	if (channel == cImgData::kRed || nChannels  < 3 ) {
+		result = image->get_channel(0);
+	}
+	else if (channel == cImgData::kGreen) {
+		result =  image->get_channel(1);
+	}
+	else if (channel == cImgData::kBlue) {
+		result = image->get_channel(2);
+	}
+	else   // average
+	{
+		result =  image->get_norm();
+	}
+	return MS::kSuccess;
+}
+
+MFloatMatrix  cImgGradSampler::getFullProjection(float angle,
+    const MFloatMatrix &projection)
+{
+
+	float cz = cos(angle);
+	float sz = sin(angle);
+
+	MFloatMatrix rot;
+	rot.setToIdentity();
+	rot[0][0] = cz;	rot[0][1] = sz;
+	rot[1][0] = -sz;	rot[1][1] = cz;
+
+	MFloatMatrix flip;
+	flip.setToIdentity();
+	flip[1][1] = -1;
+
+	return flip * (rot * projection)  ;
+
+}
 
 
+
+int cImgGradSampler::calcFlowPoints(const MFloatPoint &point, const CImgList<float> &grad,
+                                    const MFloatMatrix &mat, const MFloatMatrix &imat, int count, float gap,
+                                    MFloatPointArray &resultPoints, cImgData::Interpolation interp)
+{
+
+
+	MFloatPoint p = point;
+	int w = grad(0).width();
+	int h = grad(0).height();
+
+
+	// if (verbose)  { cerr << "count: " << count << " gap:" << gap << endl; }
+	for (int i = 0; i < count; ++i)
+	{
+		resultPoints.append(p);
+
+		float x, y;
+		cImgUtils::toImageCoords(p, imat, w, h, x, y, false);
+
+		// if (verbose) {cerr << "w:" << w << " h:" << h << " x:" << x << " y:" << y << endl;}
+		if (x < 0 || x > w || y < 0 || y > h) {
+			break;
+		}
+		float gx ;
+		float gy ;
+
+		if (interp ==  cImgData::kNearest) {
+			gx = grad(0).atXY(x, y);
+			gy = grad(1).atXY(x, y);
+		}
+		else if (interp ==  cImgData::kBilinear) {
+			gx = grad(0).linear_atXY(x, y);
+			gy = grad(1).linear_atXY(x, y);
+		}
+		else {    // bicubic
+			gx = grad(0).cubic_atXY(x, y);
+			gy = grad(1).cubic_atXY(x, y);
+		}
+		MFloatVector gradient = MFloatVector(gx, gy, 0)  * mat;
+		p += (gradient.normal() * gap);
+
+	}
+
+	// if (verbose)	{ cerr << "flow points length:" << resultPoints.length() << endl; }
+
+	return resultPoints.length();
+}
 
 
 MStatus cImgGradSampler::compute( const MPlug &plug, MDataBlock &data ) {
@@ -165,112 +314,70 @@ MStatus cImgGradSampler::compute( const MPlug &plug, MDataBlock &data ) {
 	MVectorArray directions;
 
 
-	cImgGradSampler::Channel channel = cImgGradSampler::Channel(data.inputValue(
-	                                     aChannel).asShort());
+	float blur = data.inputValue(aBlur).asFloat();
+
+	cImgData::Channel channel = cImgData::Channel(data.inputValue(
+	                              aChannel).asShort());
+
+	float angle = float(data.inputValue(aRotation).asAngle().asRadians());
 
 
-	cImgGradSampler::Direction direction = cImgGradSampler::Direction(data.inputValue(
-	    aDirection).asShort());
-
-
+	cImgData::Interpolation interp = cImgData::Interpolation(data.inputValue(
+	                                   aInterpolation).asShort());
 
 	MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
 	MFloatMatrix imat = projection.inverse();
 
 
+	float density = float(data.inputValue(aPointDensity).asDouble());
+	float length = float(data.inputValue(aStrokeLength).asDouble());
+	if (length < 0.001) { length = 0.001; }
+	if (density > length) { density = length; }
+	int count = int(length / density) + 1;
+	float  gap = length / int(length / density);
 
-	MDataHandle hImageData = data.inputValue(aInputImage, &st); msert;
-	MObject dImageData = hImageData.data();
-	MFnPluginData fnImageData( dImageData , &st);
-
-
-
+	CImg<unsigned char> single;
+	st = getImageChannel(data, channel, single);
 	if (! st.error()) {
-		// cerr << "MFnPluginData NO ERROR" << endl;
-		cImgData *imageData = (cImgData *)fnImageData.data();
-		CImg<unsigned char> *image = imageData->fImg;
-		CImg<unsigned char> single(*image) ;
-
-		// int nChannels = image->spectrum();
-		// if (nChannels > 2) {
-		// 	if (channel == cImgGradSampler::kRed) {
-		// 		single = image->get_channel(0);
-		// 	}
-		// 	else if (channel == cImgGradSampler::kGreen) {
-		// 		single = image->get_channel(1);
-		// 	}
-		// 	else if (channel == cImgGradSampler::kBlue) {
-		// 		single = image->get_channel(2);
-		// 	}
-		// 	else   // average
-		// 	{
-		// 		single = image->get_norm();
-		// 	}
-
-		// }
-		// else {
-		// 	single = image->get_channel(0);
-		// }
 
 
 		int w = single.width();
 		int h = single.height();
 
-		// cerr << "w: " << w << " h:" << h << endl;
-
-
 
 		MDataHandle hPts = data.inputValue( aSamplePoints , &st);
 		MObject dPts = hPts.data();
-		points = MFnVectorArrayData( dPts ).array( &st );
-		// cerr << "points: " << points << endl;;
+		const MVectorArray samplePoints = MFnVectorArrayData( dPts ).array( &st );
 		CImgList<float> grad = single.get_gradient("xy", 0);
 
 
-		// float cz = 1.0f;
-		// float sz = 0.0f;
-		// if (direction == cImgGradSampler::kDown) {
-		// 	cz = -1.0f;
-		// 	sz = 0.0f;
-		// }
-		// else if (direction == cImgGradSampler::kLeft) {
-		// 	cz = 0.0f;
-		// 	sz = 1.0f;
-		// }
-		// else if (direction == cImgGradSampler::kRight) {  // right
-		// 	cz = 0.0f;
-		// 	sz = -1.0f;
-		// }
+		projection = getFullProjection(angle, projection);
 
-		// MFloatMatrix rot;
-		// rot.setToIdentity();
-		// rot[0][0] = cz;	rot[0][1] = sz;
-		// rot[1][0] = -sz;	rot[1][1] = cz;
-
-		// MFloatMatrix rprojection =  rot * projection  ;
-		// RZ = |  cz   sz   0    0 |     sx = sin(rx), cx = cos(rx)
-		//    | -sz   cz   0    0 |     sy = sin(ry), cx = cos(ry)
-		//    |  0    0    1    0 |     sz = sin(rz), cz = cos(rz)
-		//    |  0    0    0    1 |
+		grad(0).blur(blur);
+		grad(1).blur(blur);
 
 
-		unsigned len = points.length();
+		unsigned len = samplePoints.length();
 		for (int i = 0; i < len; ++i)
 		{
 			// local (-1 to +1)
-			float x, y;
-			MFloatPoint point = MFloatPoint(points[i]);
-			toImageCoords(point, imat, w, h, x, y);
+			MFloatPoint point = MFloatPoint(samplePoints[i]);
 
-			// cerr << point << " -- " << x << " " << y << endl;
-			MFloatVector gradient = MFloatVector(
-			                          grad(0).atXY(x, y),
-			                          -grad(1).atXY(x, y),
-			                          0.0) * projection;
-			// directions.append(MVector(gradient.x, gradient.y, 0.0));
+			MFloatPointArray flowPoints;
+			// bool verbose = (i == 0);
 
-			directions.append(MVector(gradient.y, -gradient.x, 0.0));
+			int flowCount = calcFlowPoints(point, grad, projection, imat, count, gap, flowPoints,
+			                               interp);
 
+
+			if (flowCount > 1)
+			{
+				for (int j = 0; j < (flowCount - 1); ++j)
+				{
+					points.append(MVector(flowPoints[j]));
+					directions.append( MVector(flowPoints[j + 1] - flowPoints[j]) );
+				}
+			}
 		}
 	}
 
@@ -291,172 +398,4 @@ MStatus cImgGradSampler::compute( const MPlug &plug, MDataBlock &data ) {
 
 	return MS::kSuccess;
 
-
-	// MDataHandle hPts = data.inputValue( aSamplePoints , &st);
-	// MObject dPts = hPts.data();
-	// MVectorArray samplePts = MFnVectorArrayData( dPts ).array( &st );
-
-
-	// CImgList<float> grad = image.get_gradient("xy", 0);
-
-
-
 }
-
-
-
-// // CImg<unsigned char> col( w, h, 1, 3);
-// // col.fill(255, 1, 1);
-// // if (gradList.size() == 2) {
-// // 	gradList(1).channels(0, 1);
-// // 	gradList(1).get_shared_channel(1).assign(gradList(0));
-
-// // 	image->draw_quiver(gradList(1), col, 0.5f, 10, -100, 0);
-
-// // 	int channels = image->spectrum();
-// // 	cerr << "channels: "  << channels << endl;
-// // }
-// gradList(0).resize(w, h, -100, -100, 5);
-// gradList(1).resize(w, h, -100, -100, 5);
-
-// float wg = gradList(0).width();
-// float hg = gradList(0).height();
-// // int channelsg = gradList(0).spectrum();
-
-
-// MVectorArray points;
-// MVectorArray directions;
-
-
-// if (gradList.size() == 2 && wg > 0 && hg > 0) {
-
-
-// 	for (int y = 0; y < h; y += 2)
-// 	{
-// 		;
-// 		for (int x = 0; x < w ; x += 2)
-// 		{
-// 			// float u = (x+0.5) / w;
-// 			float gx = gradList(0).atXY(x, y);
-// 			float gy = gradList(1).atXY(x, y);
-// 			// float length = 2;
-// 			// float lengthrecip = sqrt((gx * gx) + (gy * gy) );
-
-// 			//				cerr << "gx,gy: " << gx << " " << gy << endl;					// gx /= length;
-// 			// normalize
-// 			// gx /= length;
-// 			// gy /= length;
-// 			int newx = x + int(gx);
-// 			int newy = y + int(gy);
-
-// 			// if (newx >= 0 && newx < w && newy >= 0 && newy < h)
-// 			// {
-// 			// 	image->draw_line	(	x, y, newx, newy, redCol, 1.0f, 0x11111111, false);
-// 			// }
-
-// 			// points.append(
-// 			//   MVector(
-// 			//     ((x + 0.5) / w),
-// 			//     (1.0 - (y + 0.5) / h),
-// 			//     0));
-// 			// directions.append(
-// 			//   MVector(
-// 			//     gx ,
-// 			//     -gy,
-// 			//     0).normal());
-
-// 			points.append(
-// 			  MVector(
-// 			    ((x + 0.5) / w),
-// 			    (1.0 - (y + 0.5) / h),
-// 			    0));
-
-
-// 			/* gy is normally */
-// 			directions.append(
-// 			  MVector(
-// 			    gy ,
-// 			    gx,
-// 			    0).normal());
-
-// 		}
-// 	}
-// }
-
-
-
-// MDataHandle hOutPoints = data.outputValue(aOutPoints);
-// MFnVectorArrayData fnOutPoints;
-// MObject dOutPoints = fnOutPoints.create(points);
-// hOutPoints.set(dOutPoints);
-// st = data.setClean( aOutPoints );
-
-// MDataHandle hOutDirections = data.outputValue(aOutDirections);
-// MFnVectorArrayData fnOutDirections;
-// MObject dOutDirections = fnOutDirections.create(directions);
-// hOutDirections.set(dOutDirections);
-// st = data.setClean( aOutDirections );
-
-
-// // image->assign(  imageFilename.asChar()  );
-
-
-
-// // CImgList<Tfloat> get_gradient	(	const char *const 	axes = 0,
-// //                                 const int 	scheme = 3
-// //                               )		const
-
-
-
-// hOutput.set(newData);
-// data.setClean( plug );
-// return MS::kSuccess;
-// }
-
-// unsigned int numgrad = gradList.size();
-// cerr << "Num grad images:" << numgrad << endl;
-// cerr << "wg:" << wg << endl;
-// cerr << "hg:" << hg << endl;
-// cerr << "channelsg:" << channelsg << endl;
-
-
-
-// MObject thisObj = thisMObject();
-
-// int numPixels = resolution * resolution;
-
-// MFloatArray uVals(numPixels);
-// MFloatArray vVals(numPixels);
-
-// for ( int i = 0, y = (resolution - 1); y >= 0; y--) {
-// 	float vVal =  (y + 0.5) / resolution;
-// 	for (int x = 0; x < resolution; x++) {
-// 		float uVal = (x + 0.5) / resolution;
-// 		uVals.set( uVal, i );
-// 		vVals.set( vVal, i );
-// 		i++;
-// 	}
-// }
-
-// MFloatVectorArray colors;
-// st = sampleUVTexture(thisObj, cImgGradSampler::aTexture, uVals, vVals,
-//                      colors) ;
-
-// if (! st.error()) {
-
-// 	unsigned char col;
-// 	unsigned char *vals = new unsigned char[numPixels * 3];
-// 	unsigned char *cPtr = vals;
-
-// 	for (int i = 0; i < 3; i++)
-// 	{
-// 		for (int j = 0; j < numPixels; j++)
-// 		{
-// 			col = (unsigned char)(colors[j][i] * 255);
-// 			*cPtr = col; cPtr++;
-// 		}
-// 	}
-
-// cerr << "about to make image: "  << endl;
-// CImg<unsigned char> image(vals, resolution, resolution, 1, 3);
-
