@@ -32,13 +32,13 @@ public:
 	static MObject aInput;
 	static MObject aOutput;
 
-	static MObject aPaletteSize; \
-
-	static MObject aPaletteR;
-	static MObject aPaletteG;
-	static MObject aPaletteB;
-
+	static MObject aPaletteSize;
 	static MObject aPalette;
+
+
+	// static MObject aPaletteR;
+	// static MObject aPaletteG;
+	// static MObject aPaletteB;
 
 
 

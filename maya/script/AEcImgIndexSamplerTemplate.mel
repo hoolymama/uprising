@@ -1,0 +1,26 @@
+global proc AEcImgIndexSamplerTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+	
+ 
+
+	editorTemplate -cl 0  -beginLayout "Image attributes";
+ 	editorTemplate -addControl "inputImage";
+ 	editorTemplate -addControl "interpolation";
+ 	editorTemplate -addControl "channel";
+	editorTemplate -endLayout;	
+	
+	editorTemplate -cl 0  -beginLayout "Index attributes";		
+	AEaddRampControl ("indexRamp");	
+	editorTemplate -addControl "numIndices" ;
+	editorTemplate -endLayout;
+
+ 	editorTemplate -suppress "sampleU";
+ 	editorTemplate -suppress "sampleV";
+ 	editorTemplate -suppress "outIndex";
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}

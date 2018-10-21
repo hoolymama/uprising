@@ -6,6 +6,7 @@
 #include <maya/MFloatVector.h>
 #include <maya/MFnPluginData.h>
 
+#include <maya/MVectorArray.h>
 #include <maya/MArrayDataHandle.h>
 #include <maya/MArrayDataBuilder.h>
 
@@ -14,6 +15,8 @@
 #include "cImgData.h"
 #include "cImgDistinct.h"
 #include "jMayaIds.h"
+
+#include <attrUtils.h>
 
 
 struct colorPixel  {
@@ -29,9 +32,6 @@ struct colorPixel  {
 MTypeId     cImgDistinct::id( k_cImgDistinct );
 MObject 	cImgDistinct::aInput;
 MObject 	cImgDistinct::aOutput;
-MObject 	cImgDistinct::aPaletteR;
-MObject 	cImgDistinct::aPaletteG;
-MObject 	cImgDistinct::aPaletteB;
 
 MObject 	cImgDistinct::aPalette;
 MObject 	cImgDistinct::aPaletteSize;
@@ -66,41 +66,18 @@ MStatus cImgDistinct::initialize()
 	addAttribute(aOutput);
 
 
-	// aPalette = nAttr.create( "palette", "plt", MFnNumericData::k3Float);
-
-	// nAttr.setReadable( true );
-	// nAttr.setStorable( false );
-	// nAttr.setArray( true );
-	// nAttr.setUsesArrayDataBuilder( true );
-	// st = addAttribute(aPalette);
-
-
 	aPaletteSize = nAttr.create( "paletteSize", "psz", MFnNumericData::kInt);
-	nAttr.setStorable (false);
-	nAttr.setWritable (false);
 	nAttr.setReadable (true);
 	nAttr.setHidden (false);
 	st = addAttribute(aPaletteSize);
 
-	///////////////////////////////////////////////////////////////////////
-	aPaletteR = nAttr.create("paletteR", "pltr", MFnNumericData::kFloat);
-	aPaletteG = nAttr.create("paletteG", "pltg", MFnNumericData::kFloat);
-	aPaletteB = nAttr.create("paletteB", "pltb", MFnNumericData::kFloat);
-	aPalette = nAttr.create("palette", "plt", aPaletteR, aPaletteG, aPaletteB);
-	nAttr.setReadable( true );
-	nAttr.setStorable( false );
-	nAttr.setArray( true );
-	nAttr.setUsesArrayDataBuilder( true );
-	st = addAttribute( aPalette ); mser;
+
+	aPalette = tAttr.create("palette", "plt", MFnData::kVectorArray, &st);
+	tAttr.setStorable( false);
+	tAttr.setReadable( true);
+	st = addAttribute( aPalette );
 
 
-
-
-
-
-	// st = attributeAffects(aInput, aPaletteR);
-	// st = attributeAffects(aInput, aPaletteG);
-	// st = attributeAffects(aInput, aPaletteB);
 	st = attributeAffects(aInput, aPalette);
 	st = attributeAffects(aInput, aPaletteSize);
 	st = attributeAffects(aInput, aOutput );
@@ -115,8 +92,7 @@ MStatus cImgDistinct::compute( const MPlug &plug, MDataBlock &data ) {
 	if (!
 	    ( plug == aOutput) ||
 	    ( plug == aPaletteSize) ||
-	    ( plug == aPalette) ||
-	    ( plug.parent() == aPalette)
+	    ( plug == aPalette)
 	   )
 	{
 		return ( MS::kUnknownParameter );
@@ -152,13 +128,17 @@ MStatus cImgDistinct::compute( const MPlug &plug, MDataBlock &data ) {
 
 }
 
+
+
+
+
+
 MStatus cImgDistinct::process(MDataBlock &data, const CImg<unsigned char> &image,
                               CImg<unsigned char> &result)
 
 {
 	MStatus st;
 
-	cerr << "cImgDistinct::process:" << endl;;
 	std::vector<colorPixel> pixelList;
 
 	int spectrum = image.spectrum() ;
@@ -179,6 +159,23 @@ MStatus cImgDistinct::process(MDataBlock &data, const CImg<unsigned char> &image
 			pixelList.push_back(pixel);
 		}
 	}
+
+
+
+
+	// std::map< std::vector<unsigned char> , int > idxMap;
+	// unsigned char index = 0;
+	// for (auto pixel : pixelList)
+	// {
+	// 	auto el = idxMap.insert(std::pair<std::vector<unsigned char>, unsigned int>(pixel.color,
+	// 	                        1));
+	// 	if (! el.second) // failure, therefore its been seen
+	// 	{
+	// 		el->first->second++;
+	// 	}
+	// }
+
+
 
 	std::map< std::vector<unsigned char>, unsigned char > idxMap;
 	unsigned char index = 0;
@@ -210,34 +207,24 @@ MStatus cImgDistinct::process(MDataBlock &data, const CImg<unsigned char> &image
 	}
 
 
-	MArrayDataHandle  hPalette = data.outputArrayValue( aPalette, &st); mser;
-	MArrayDataBuilder bPalette = hPalette.builder(&st); mser;
-
+	MVectorArray palette;
 	for (auto el : idxMap ) {
-		// cerr << "int(el.second)" << int(el.second) << endl;
+
 		int index = int(el.second);
-		MDataHandle hColor = bPalette.addElement(index, &st); mser;
-		float3 &out = hColor.asFloat3();
-		// MFloatVector &outColor = hColor.asFloatVector();
-		float red = float(el.first[0]) / 255.0;
-		float green;
-		float blue  ;
+
+		double red = double(el.first[0]) / 255.0;
+		double green;
+		double blue  ;
 		if (spectrum == 3) {
-			green = float(el.first[1]) / 255.0;
-			blue = float(el.first[2]) / 255.0;
+			green = double(el.first[1]) / 255.0;
+			blue = double(el.first[2]) / 255.0;
 		}
 		else {
-			green = blue =  red;
+			green = blue = red;
 		}
-		// cerr << "Col-" << int(el.second) << " --: " << red << " " << green << " " << blue << endl;
-		// hColor.set(MFloatVector(red, green, blue));
-		out[0] = red;
-		out[1] = green;
-		out[2] = blue;
-
+		palette.append(MVector(red, green, blue));
 	}
-	hPalette.setAllClean();
-
+	st = outputData(cImgDistinct::aPalette, data, palette ); mser;
 
 	MDataHandle hSize = data.outputValue(aPaletteSize);
 	hSize.set(int(idxMap.size()));
@@ -249,3 +236,99 @@ MStatus cImgDistinct::process(MDataBlock &data, const CImg<unsigned char> &image
 	return MS::kSuccess;
 
 }
+
+
+
+
+
+// MStatus cImgDistinct::process(MDataBlock &data, const CImg<unsigned char> &image,
+//                               CImg<unsigned char> &result)
+
+// {
+// 	MStatus st;
+
+// 	cerr << "cImgDistinct::process:" << endl;;
+// 	std::vector<colorPixel> pixelList;
+
+// 	int spectrum = image.spectrum() ;
+// 	int w = image.width() ;
+// 	int h = image.height() ;
+
+// 	for (int x = 0; x < w; ++x)
+// 	{
+// 		for (int y = 0; y < h; ++y)
+// 		{
+// 			std::vector<unsigned char> color;
+// 			for (int c = 0; c < spectrum; ++c)
+// 			{
+// 				unsigned char val = image(x, y, c);
+// 				color.push_back(val);
+// 			}
+// 			colorPixel pixel = { .color = color, .index = 255, .x = x, .y = y};
+// 			pixelList.push_back(pixel);
+// 		}
+// 	}
+
+
+
+
+
+// 	std::map< std::vector<unsigned char>, unsigned char > idxMap;
+// 	unsigned char index = 0;
+// 	for (auto pixel : pixelList)
+// 	{
+// 		if (index == 255) {
+// 			cerr << "Index went to 255 - breaking out of the rest" << endl;
+// 			break;
+// 		}
+// 		auto el = idxMap.insert(std::pair<std::vector<unsigned char>, unsigned char>(pixel.color,
+// 		                        index));
+// 		if (el.second) // success - therefore its not been seen before
+// 		{
+// 			index++;
+// 		}
+// 	}
+
+
+// 	result.assign(w, h);
+// 	// assign all white
+// 	result = 255;
+
+// 	for (auto pixel : pixelList)
+// 	{
+// 		auto it = idxMap.find(pixel.color);
+// 		if (it != idxMap.end()) {
+// 			result(pixel.x, pixel.y) = it->second;
+// 		}
+// 	}
+
+
+// 	MVectorArray palette;
+// 	for (auto el : idxMap ) {
+
+// 		int index = int(el.second);
+
+// 		double red = double(el.first[0]) / 255.0;
+// 		double green;
+// 		double blue  ;
+// 		if (spectrum == 3) {
+// 			green = double(el.first[1]) / 255.0;
+// 			blue = double(el.first[2]) / 255.0;
+// 		}
+// 		else {
+// 			green = blue = red;
+// 		}
+// 		palette.append(MVector(red, green, blue));
+// 	}
+// 	st = outputData(cImgDistinct::aPalette, data, palette ); mser;
+
+// 	MDataHandle hSize = data.outputValue(aPaletteSize);
+// 	hSize.set(int(idxMap.size()));
+// 	hSize.setClean();
+
+
+
+
+// 	return MS::kSuccess;
+
+// }

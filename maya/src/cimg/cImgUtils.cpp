@@ -22,6 +22,87 @@ void cImgUtils::toImageCoords(
 
 
 
+void cImgUtils::getImageChannel(const CImg<unsigned char> &image,
+                                cImgData::Channel channel, CImg<unsigned char> &result)
+{
+
+	int nChannels = image.spectrum();
+
+	if (channel == cImgData::kRed || nChannels  < 3 ) {
+		result = image.get_channel(0);
+	}
+	else if (channel == cImgData::kGreen) {
+		result =  image.get_channel(1);
+	}
+	else if (channel == cImgData::kBlue) {
+		result = image.get_channel(2);
+	}
+	else   // average
+	{
+		result =  image.get_norm();
+	}
+}
+
+void cImgUtils::sampleNearest(
+  const CImg<unsigned char> &image,
+  const MDoubleArray &uVals,
+  const MDoubleArray &vVals,
+  MFloatArray &result )
+{
+	unsigned len = uVals.length();
+	if  ( vVals.length() != len) {return;}
+	int w = image.width();
+	int h = image.height();
+	if  ( ! (w && h)) {	return;}
+	for (int i = 0; i < len; ++i)
+	{
+		float x, y;
+		unsigned char val;
+		cImgUtils::toImageCoords(float(uVals[i]), float(vVals[i]), w, h, x, y);
+		val = result.append(image(int(x + 0.5), int(y + 0.5))  / 255.0) ;
+	}
+}
+
+void cImgUtils::sampleLinear(
+  const CImg<unsigned char> &image,
+  const MDoubleArray &uVals,
+  const MDoubleArray &vVals,
+  MFloatArray &result )
+{
+	unsigned len = uVals.length();
+	if  ( vVals.length() != len) {return;}
+	int w = image.width();
+	int h = image.height();
+	if  ( ! (w && h)) {	return;}
+	for (int i = 0; i < len; ++i)
+	{
+		float x, y;
+		unsigned char val;
+		cImgUtils::toImageCoords(float(uVals[i]), float(vVals[i]), w, h, x, y);
+		val = result.append( float(image.linear_atXY(x, y, 0, 0)) / 255.0) ;
+	}
+}
+
+void cImgUtils::sampleCubic(
+  const CImg<unsigned char> &image,
+  const MDoubleArray &uVals,
+  const MDoubleArray &vVals,
+  MFloatArray &result )
+{
+	unsigned len = uVals.length();
+	if  ( vVals.length() != len) {return;}
+	int w = image.width();
+	int h = image.height();
+	if  ( ! (w && h)) {	return;}
+	for (int i = 0; i < len; ++i)
+	{
+		float x, y;
+		unsigned char val;
+		cImgUtils::toImageCoords(float(uVals[i]), float(vVals[i]), w, h, x, y);
+		val = result.append( float(image.cubic_atXY(x, y, 0, 0)) / 255.0) ;
+	}
+}
+
 
 
 

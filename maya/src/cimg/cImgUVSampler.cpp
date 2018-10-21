@@ -180,7 +180,7 @@ int cImgUVSampler::calcFlowPoints(const MFloatPoint &point, const CImgList<float
 		float x, y;
 		cImgUtils::toImageCoords(p, imat, w, h, x, y, false);
 
-		// if (verbose) {cerr << "w:" << w << " h:" << h << " x:" << x << " y:" << y << endl;}
+		// if (verbose) {cerr << "w:" << w << " h:" <<  h<< " x:" << x << " y:" << y << endl;}
 		if (x < 0 || x > w || y < 0 || y > h) {
 			break;
 		}

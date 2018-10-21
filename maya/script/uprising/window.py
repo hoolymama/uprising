@@ -1,8 +1,13 @@
 
 import pymel.core as pm
 import pymel.core.uitypes as gui
-from  uprising import (painting_tab , setup_tab, validate_tab, publish_tab, rings_tab)
-
+from uprising import (
+    painting_tab,
+    setup_tab,
+    validate_tab,
+    publish_tab,
+    rings_tab,
+    images_tab)
 
 
 # import uprising.logger_setup
@@ -15,7 +20,7 @@ import stroke_factory_utils
 
 import studio
 
-import painting 
+import painting
 import paint
 import brush
 import stroke
@@ -30,7 +35,7 @@ import brush_utils
 import paint_utils
 import culling
 import props
-
+import images
 
 
 reload(studio)
@@ -43,6 +48,7 @@ reload(target)
 reload(write)
 reload(setup_dip)
 reload(const)
+reload(images)
 
 reload(curve_utils)
 reload(brush_utils)
@@ -56,9 +62,11 @@ reload(setup_tab)
 reload(props)
 reload(validate_tab)
 reload(publish_tab)
+reload(images_tab)
 
 reload(rings_tab)
 reload(culling)
+
 
 class RobotWindow(gui.Window):
 
@@ -67,7 +75,7 @@ class RobotWindow(gui.Window):
         for win in others:
             if pm.window(win, q=True, title=True) == "Robot Tools":
                 pm.deleteUI(win)
-            
+
         self.setTitle('Robot Tools')
         self.setIconName('Robot Tools')
         self.setWidthHeight([500, 500])
@@ -75,27 +83,28 @@ class RobotWindow(gui.Window):
         self.tabs = pm.tabLayout()
 
         pm.setParent(self.tabs)
+        self.images_tab = images_tab.ImagesTab()
+        self.tabs.setTabLabel((self.images_tab, "Images"))
+
+        pm.setParent(self.tabs)
         self.setup_tab = setup_tab.SetupTab()
         self.tabs.setTabLabel((self.setup_tab, "Setup"))
-         
+
         pm.setParent(self.tabs)
         self.painting_tab = painting_tab.PaintingTab()
         self.tabs.setTabLabel((self.painting_tab, "Painting"))
-         
+
         # pm.setParent(self.tabs)
         # self.props_tab = props_tab.PropsTab()
         # self.tabs.setTabLabel((self.props_tab, "Props"))
 
-                  
         pm.setParent(self.tabs)
         self.rings_tab = rings_tab.RingsTab()
         self.tabs.setTabLabel((self.rings_tab, "Rings"))
-         
 
         pm.setParent(self.tabs)
         self.validate_tab = validate_tab.ValidateTab()
         self.tabs.setTabLabel((self.validate_tab, "Validate"))
-         
 
         pm.setParent(self.tabs)
         self.publish_tab = publish_tab.PublishTab()
@@ -103,8 +112,7 @@ class RobotWindow(gui.Window):
 
         self.show()
         self.setResizeToFitChildren()
-        self.tabs.setSelectTabIndex(4)
+        self.tabs.setSelectTabIndex(1)
 
     def onTabChanged(self):
         print ""
- 

@@ -43,7 +43,8 @@ MSyntax paintingCmd::newSyntax()
 
 	syn.addFlag(kClusterBrushIdFlag, kClusterBrushIdFlagL);
 
-	syn.addFlag(kClusterTravelCutoffFlag, kClusterTravelCutoffFlagL);
+	syn.addFlag(kClusterTravelCutoffFlag, kClusterTravelCutoffFlagL); \
+
 	syn.addFlag(kClusterTravelFlag, kClusterTravelFlagL);
 
 

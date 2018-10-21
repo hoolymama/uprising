@@ -32,6 +32,8 @@ public:
 
 	static MObject aMapIndices;
 
+	// static MObject aSampleRamp;
+	// static MObject aSamples;
 
 
 private:

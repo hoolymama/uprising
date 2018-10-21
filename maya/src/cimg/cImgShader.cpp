@@ -119,6 +119,8 @@ MStatus cImgShader::initialize()
 	nAttr.setWritable(false);
 	addAttribute(aOutAlpha);
 
+
+
 	attributeAffects (aInterpolation, aOutColor);
 	attributeAffects (aUVCoord, aOutColor);
 	attributeAffects (aImageData, aOutColor);
@@ -138,8 +140,10 @@ MStatus cImgShader::compute( const MPlug  &plug,  MDataBlock &data )
 	MStatus st;
 
 
-	if ((plug != aOutColor) && (plug.parent() != aOutColor)
-	    && (plug != aOutAlpha)) 	{ return MS::kUnknownParameter; }
+	if (!
+	    ((plug == aOutColor) ||
+	     (plug.parent() == aOutColor) ||
+	     (plug == aOutAlpha))) 	{ return MS::kUnknownParameter; }
 
 	cImgData::Interpolation interp = cImgData::Interpolation(data.inputValue(
 	                                   aInterpolation).asShort());

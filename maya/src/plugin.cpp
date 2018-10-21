@@ -27,7 +27,10 @@
 #include "cImgGradSampler.h"
 #include "cImgUVSampler.h"
 
+#include "cImgIndexSampler.h"
 
+#include "cImgPngFile.h"
+#include "pngInfo.h"
 MStatus initializePlugin( MObject obj)
 {
 
@@ -39,6 +42,11 @@ MStatus initializePlugin( MObject obj)
 
 	const MString UserClassifyindexShader("texture/2d:drawdb/shader/texture/2d/indexShader");
 	const MString UserClassifycImgShader("texture/2d:drawdb/shader/texture/2d/cImgShader");
+
+
+
+
+
 
 	st = plugin.registerData( "strokeGeometryData", strokeGeometryData::id,
 	                          strokeGeometryData::creator ); mser;
@@ -54,6 +62,12 @@ MStatus initializePlugin( MObject obj)
 
 	st = plugin.registerNode( "cImgFile", cImgFile::id, cImgFile::creator,
 	                          cImgFile::initialize); msert;
+
+	st = plugin.registerNode( "cImgPngFile", cImgPngFile::id, cImgPngFile::creator,
+	                          cImgPngFile::initialize); msert;
+
+
+
 
 	st = plugin.registerNode( "cImgProcess", cImgProcess::id, cImgProcess::creator,
 	                          cImgProcess::initialize); msert;
@@ -106,8 +120,8 @@ MStatus initializePlugin( MObject obj)
 	                             paintingCmd::newSyntax); mser;
 
 
-	st = plugin.registerCommand( "imgTest", imgTestCmd::creator ,
-	                             imgTestCmd::newSyntax); mser;
+	st = plugin.registerCommand( "pngInfo", pngInfo::creator ,
+	                             pngInfo::newSyntax); mser;
 
 	st = plugin.registerNode( "indexShader", indexShader::id, &indexShader::creator,
 	                          &indexShader::initialize, MPxNode::kDependNode, &UserClassifyindexShader ); mser;
@@ -120,6 +134,15 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "projectionPoints", projectionPoints::id,
 	                          projectionPoints::creator,
 	                          projectionPoints::initialize, MPxNode::kLocatorNode); msert;
+
+
+
+
+	st = plugin.registerNode( "cImgIndexSampler", cImgIndexSampler::id,
+	                          cImgIndexSampler::creator,
+	                          cImgIndexSampler::initialize); msert;
+
+
 
 
 	MGlobal::executePythonCommand("import uprising;uprising.load()");
@@ -135,14 +158,13 @@ MStatus uninitializePlugin( MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin( obj );
-
-	st = plugin.deregisterNode( projectionPoints::id ); mser;
+	st = plugin.deregisterNode( cImgIndexSampler::id ); mser;
 
 	st = plugin.deregisterNode( curveContainment::id ); mser;
 
 	st = plugin.deregisterNode( indexShader::id ); mser;
 
-	st = plugin.deregisterCommand( "imgTestCmd" ); mser;
+	st = plugin.deregisterCommand( "pngInfo" ); mser;
 
 	st = plugin.deregisterCommand( "paintingCmd" ); mser;
 
@@ -167,6 +189,9 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterNode( cImgDetail::id); mser;
 	st = plugin.deregisterNode( cImgProcess::id); mser;
 
+
+
+	st = plugin.deregisterNode( cImgPngFile::id); mser;
 	st = plugin.deregisterNode( cImgFile::id); mser;
 	st = plugin.deregisterData( cImgData::id); mser;
 

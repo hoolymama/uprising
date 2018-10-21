@@ -75,7 +75,7 @@ def validate_paint_data(data):
         #     if not len(row) > 3:
         #         raise ValueError("Invalid rack corner data from Google sheets")
         # if uutl.numeric(row[0]) in range(8):
-        if not len(row) > 9:
+        if not len(row) > 4:
             raise ValueError("Invalid paint data from Google sheets")
 
 
@@ -129,26 +129,6 @@ def delete_paints(node):
     for i in indices:
         pm.removeMultiInstance(node.attr("paints[%d]" % i), b=True)
 
-def setup_paints_from_sheet(painting_node, dip_node):
-    (data, medium) =  get_raw_paint_data()
-    assembly= uutl.assembly(painting_node)
-    notes_att, ground_att, medium_att  = sfu.ensure_painting_has_notes(assembly)
-    medium_att.set(medium)
-
-    validate_paint_data(data)
-    colors = []
-    for i, row in enumerate(data):
-        color = {
-            "index": i,
-            "r": uutl.numeric(row[5]) / 255.0,
-            "g": uutl.numeric(row[6]) / 255.0,
-            "b": uutl.numeric(row[7]) / 255.0,
-            "name": row[8],
-            "code": row[9]
-        }
-        colors.append(color)
-    set_up_trays(painting_node, dip_node, colors)
-
 def set_up_rack_from_sheet(dip_node):
     top_node = uutl.assembly(dip_node)
     data = get_raw_rack_data()
@@ -158,19 +138,84 @@ def set_up_rack_from_sheet(dip_node):
         pm.PyNode("%s|%s" % (top_node, loc_name) ).attr("translate").set(*vals)
 
 
-def get_raw_paint_data():
-    service = sheets._get_service()
+
+
+def get_measurements_values(cell_range, service, dimension="ROWS"):
     result = service.spreadsheets().values().get(
-        spreadsheetId=sheets.SHEETS["Measurements"],
-        range='Paints!A14:J29').execute()
-    values = result.get('values', [])
+            spreadsheetId=sheets.SHEETS["Measurements"],
+            range=cell_range,majorDimension=dimension).execute()
+    return result.get('values', [])
 
-    medium_result = service.spreadsheets().values().get(
-        spreadsheetId=sheets.SHEETS["Measurements"],
-        range='Paints!J2').execute()
-    medium = medium_result.get('values', [])[0][0]
+def get_palette_header(search_str, service):
+    batch_size = 100
+    batches = 10
+    total_rows = batch_size * batches
+    for r,x in [("Paints!A%d:A%d" % (x+1, x+batch_size) , x) for x in xrange(0,total_rows,batch_size) ]:
+        values = get_measurements_values(r,service, "COLUMNS")
+        if values:
+            for i, v in enumerate(values[0]):
+                if v == search_str:
+                    row = (x+i+1)
+                    cell_range = "Paints!A%d:B%d"  % (row,row)
+                    header_values = get_measurements_values(cell_range,service)[0]
+                    header_values.append(row)
+                    return tuple(header_values)
 
-    return (values, medium)
+
+
+def get_palette_by_name(name):
+    service = sheets._get_service()
+    # name, medium, row = get_palette_header(name, service)
+    header =  get_palette_header(name, service)
+    if header:
+        name, medium, row = header
+        cell_range = "Paints!A%d:E%d"  % (row+1,row+64)
+        palette = get_measurements_values(cell_range,service)
+        new_palette = []
+        for  entry in palette:
+            if len(entry) == 0:
+                break
+            new_palette.append(entry)
+
+        # new_palette = [entry for entry in palette if len(entry) >= 5]
+        return tuple([medium, new_palette])
+
+
+
+def setup_paints_from_sheet(painting_node, dip_node, palette_name):
+    (medium, palette) =  get_palette_by_name(palette_name)
+    assembly= uutl.assembly(painting_node)
+    _, _, medium_att  = sfu.ensure_painting_has_notes(assembly)
+    medium_att.set(medium)
+
+    validate_paint_data(palette)
+    colors = []
+    for i, row in enumerate(palette):
+        color = {
+            "index": i,
+            "r": uutl.numeric(row[0]) / 255.0,
+            "g": uutl.numeric(row[1]) / 255.0,
+            "b": uutl.numeric(row[2]) / 255.0,
+            "name": row[3],
+            "code": row[4]
+        }
+        colors.append(color)
+    set_up_trays(painting_node, dip_node, colors)
+
+# def get_raw_paint_data():
+#     service = sheets._get_service()
+
+#     result = service.spreadsheets().values().get(
+#         spreadsheetId=sheets.SHEETS["Measurements"],
+#         range='Paints!A14:J29').execute()
+#     values = result.get('values', [])
+
+#     medium_result = service.spreadsheets().values().get(
+#         spreadsheetId=sheets.SHEETS["Measurements"],
+#         range='Paints!J2').execute()
+#     medium = medium_result.get('values', [])[0][0]
+
+#     return (values, medium)
 
 
 

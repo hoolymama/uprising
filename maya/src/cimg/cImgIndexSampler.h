@@ -1,6 +1,6 @@
 
-#ifndef _cImgUVSampler
-#define _cImgUVSampler
+#ifndef _cImgIndexSampler
+#define _cImgIndexSampler
 
 #include <maya/MPxNode.h>
 
@@ -11,13 +11,13 @@
 
 #include "cImgData.h"
 
-class cImgUVSampler : public MPxNode
+class cImgIndexSampler : public MPxNode
 {
 public:
 
-	cImgUVSampler();
+	cImgIndexSampler();
 
-	virtual				~cImgUVSampler();
+	virtual				~cImgIndexSampler();
 
 	virtual MStatus		compute( const MPlug &plug, MDataBlock &data );
 
@@ -27,17 +27,15 @@ public:
 
 	static MObject aInputImage;
 	static MObject aInterpolation;
+	static MObject aChannel;
+
 	static MObject aSampleU;
 	static MObject aSampleV;
 
+	static MObject aIndexRamp;
+	static MObject aNumIndices;
 
-
-
-
-	// static MObject aAlphaCalc;
-
-	static MObject aOutColors;
-	static MObject aOutAlphas;
+	static MObject aOutIndex;
 
 	static MTypeId	id;
 
@@ -47,8 +45,8 @@ public:
 private:
 
 
-	// MStatus getImageChannel(MDataBlock &data,
-	//                         cImgData::Channel channel, CImg<unsigned char> &result);
+	MStatus getImageChannel(MDataBlock &data,
+	                        cImgData::Channel channel, CImg<unsigned char> &result);
 
 
 

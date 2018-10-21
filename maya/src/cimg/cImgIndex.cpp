@@ -13,6 +13,12 @@ MObject 	cImgIndex::aDithering;
 
 MObject 	cImgIndex::aMapIndices;
 
+// MObject cImgIndex::aSampleRangeMin;
+// MObject cImgIndex::aSampleRangeMax;
+// MObject cImgIndex::aSampleRange;
+// MObject cImgIndex::aSampleRamp;
+// MObject cImgIndex::aSamples;
+
 
 cImgIndex::cImgIndex() {}
 
@@ -50,6 +56,29 @@ MStatus cImgIndex::initialize()
 
 
 
+	// aSampleRamp  = MRampAttribute::createCurveRamp("sampleRamp", "srmp");
+	// st = addAttribute( aSampleRamp ); mser;
+
+	// aSampleRangeMin = nAttr.create( "sampleRangeMin", "srn", MFnNumericData::kDouble);
+	// nAttr.setDefault(0.0);
+	// aSampleRangeMax = nAttr.create( "sampleRangeMax", "srx", MFnNumericData::kDouble );
+	// nAttr.setDefault(0.0);
+	// aSampleRange = nAttr.create("sampleRange", "sr", aSampleRangeMin,  aSampleRangeMax);
+	// nAttr.setHidden( false );
+	// nAttr.setKeyable( true );
+	// st = addAttribute(aSampleRange); mser;
+
+	// aSamples = nAttr.create( "samples", "smp", MFnNumericData::kInt);
+	// nAttr.setHidden(false);
+	// nAttr.setStorable(true);
+	// nAttr.setReadable(true);
+	// nAttr.setKeyable(true);
+	// nAttr.setDefault(8);
+	// st = addAttribute(aSamples);
+
+	// st = attributeAffects(aSampleRamp, aOutput );
+	// // st = attributeAffects(aSampleRange, aOutput );
+	// st = attributeAffects(aSamples, aOutput );
 
 
 	st = attributeAffects(aDithering, aOutput );
@@ -64,9 +93,37 @@ MStatus cImgIndex::process(MDataBlock &data, const CImg<unsigned char> &image,
 
 {
 
+	// MObject thisObj = thisMObject();
+	// MRampAttribute rampAttr( thisObj, aSampleRamp ); mser;
+
+	// int nSamples = data.inputValue(aSamples).asInt();
+	// if (nSamples < 2) {
+	// 	nSamples = 2;
+	// }
+	// float gap = 1.0f / nSamples - 1;
+
+
+	// unsigned char *buffer = new unsigned char[nSamples];
+	// for (int i = 0; i < nSamples; ++i)
+	// {
+	// 	// unsigned char *result = buffer + size_t(i);
+
+	// 	float rpos = (gap * i);
+	// 	float val;
+	// 	rampAttr.getValueAtPosition( rpos, val, &st ); mser;
+	// 	val = std::max(0.0f, std::min(val, 1.0f));
+	// 	buffer[i] = unsigned char(val * 255);
+	// }
+
+
+
+
+
 
 	bool dithering = data.inputValue(aDithering).asBool();
 	bool mapIndices = !data.inputValue(aMapIndices).asBool();
+
+
 
 
 	int spectrum = image.spectrum();

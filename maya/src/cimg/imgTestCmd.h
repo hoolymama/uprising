@@ -28,8 +28,9 @@ public:
 	static void *creator();
 	static MSyntax      newSyntax();
 
-	void intensityProfile( MString &filename) ;
+	// void intensityProfile( MString &filename) ;
 
+	void pngInfo(const MString &mayaFn);
 };
 
 #endif

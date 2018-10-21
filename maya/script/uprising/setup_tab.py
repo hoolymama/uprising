@@ -36,10 +36,15 @@ class SetupTab(gui.FormLayout):
             command=pm.Callback(self.create_brushes_from_sheet))
 
 
-        pm.button(
-            label='Setup paints from spreadsheet',
-            ann="Read paint parameters from spreadsheet. Set connections and make new shaders",
-            command=pm.Callback(self.setup_paints_from_sheet))
+        # pm.button(
+        #     label='Setup paints from spreadsheet',
+        #     ann="Read paint parameters from spreadsheet. Set connections and make new shaders",
+        #     command=pm.Callback(self.setup_paints_from_sheet))
+
+        self.setup_paints_tf = pm.textFieldButtonGrp( label='Setup paints', text='palette name', buttonLabel='Go' ,
+            columnWidth3=(140,200,50),
+            buttonCommand=pm.Callback(self.setup_paints_from_sheet))
+
 
         pm.button(
             label='Setup rack from spreadsheet',
@@ -113,8 +118,8 @@ class SetupTab(gui.FormLayout):
     def create_action_buttons_and_layout(self):
         pm.setParent(self)  # form
 
-        cancel_but = pm.button(label='Cancel', enable=False)
-        go_but = pm.button(label='Go', enable=False)
+        cancel_but = pm.button(label='Cancel', manage=False)
+        go_but = pm.button(label='Go', manage=False)
 
         self.attachForm(self.column, 'left', 2)
         self.attachForm(self.column, 'right', 2)
@@ -143,7 +148,8 @@ class SetupTab(gui.FormLayout):
     def setup_paints_from_sheet(self):
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
-        putl.setup_paints_from_sheet(painting_node, dip_node)
+        palette_name = pm.textFieldButtonGrp(self.setup_paints_tf, query=True, text=True)
+        putl.setup_paints_from_sheet(painting_node, dip_node, palette_name)
 
     def setup_rack_from_sheet(self):
         dip_node = pm.PyNode("dipPaintingShape")
@@ -154,7 +160,9 @@ class SetupTab(gui.FormLayout):
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
         butl.create_brush_geo_from_sheet(painting_node, dip_node)
-        putl.setup_paints_from_sheet(painting_node, dip_node)
+
+        palette_name = pm.textFieldButtonGrp(self.setup_paints_tf, query=True, text=True)
+        putl.setup_paints_from_sheet(painting_node, dip_node, palette_name)
         putl.setup_rack_from_sheet(dip_node)
         
         sfu.set_board_from_sheet(painting_node)

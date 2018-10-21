@@ -1,45 +1,86 @@
-from robolink import (
-    Robolink,
-    ITEM_TYPE_ROBOT,
-    ITEM_TYPE_TARGET,
-    ITEM_TYPE_STATION,
-    ITEM_TYPE_PROGRAM,
-    ITEM_TYPE_TOOL,
-    INSTRUCTION_CALL_PROGRAM,
-    INSTRUCTION_INSERT_CODE,
-    INSTRUCTION_START_THREAD,
-    INSTRUCTION_COMMENT,
-    COLLISION_OFF,
-    INSTRUCTION_SHOW_MESSAGE,
-    RUNMODE_MAKE_ROBOTPROG,
-    RUNMODE_SIMULATE
-)
-import robodk as rdk
-import datetime
-RL = Robolink()
+# from robolink import (
+#     Robolink,
+#     ITEM_TYPE_ROBOT,
+#     ITEM_TYPE_TARGET,
+#     ITEM_TYPE_STATION,
+#     ITEM_TYPE_PROGRAM,
+#     ITEM_TYPE_TOOL,
+#     INSTRUCTION_CALL_PROGRAM,
+#     INSTRUCTION_INSERT_CODE,
+#     INSTRUCTION_START_THREAD,
+#     INSTRUCTION_COMMENT,
+#     COLLISION_OFF,
+#     INSTRUCTION_SHOW_MESSAGE,
+#     RUNMODE_MAKE_ROBOTPROG,
+#     RUNMODE_SIMULATE
+# )
+# import robodk as rdk
+# import datetime
+import sheets
+
+# RL = Robolink()
 
 
 
-program = RL.Item('px', ITEM_TYPE_PROGRAM)
+# program = RL.Item('px', ITEM_TYPE_PROGRAM)
 
 # Update the path (can take some time if collision checking is active)
-update_result = program.Update(COLLISION_OFF)
-# Retrieve the result
-n_insok = update_result[0]
-time = update_result[1]
-distance = update_result[2]
-percent_ok = update_result[3]*100
-str_problems = update_result[4]
-if percent_ok < 100.0:
-    msg_str = "WARNING! Problems with <strong>%s</strong> (%.1f):<br>%s" % (program.Name(), percent_ok, str_problems)                
-else:
-    msg_str = "No problems found for program %s" % program.Name()
+# update_result = program.Update(COLLISION_OFF)
+# # Retrieve the result
+# n_insok = update_result[0]
+# time = update_result[1]
+# distance = update_result[2]
+# percent_ok = update_result[3]*100
+# str_problems = update_result[4]
+# if percent_ok < 100.0:
+#     msg_str = "WARNING! Problems with <strong>%s</strong> (%.1f):<br>%s" % (program.Name(), percent_ok, str_problems)                
+# else:
+#     msg_str = "No problems found for program %s" % program.Name()
 
-print msg_str
-
-
+# print msg_str
 
 
+def get_measurements_values(cell_range, service, dimension="ROWS"):
+    result = service.spreadsheets().values().get(
+            spreadsheetId=sheets.SHEETS["Measurements"],
+            range=cell_range,majorDimension=dimension).execute()
+    return result.get('values', [])
+
+def get_palette_header(search_str, service):
+    batch_size = 100
+    batches = 10
+    total_rows = batch_size * batches
+    for r,x in [("Paints!A%d:A%d" % (x+1, x+batch_size) , x) for x in xrange(0,total_rows,batch_size) ]:
+        values = get_measurements_values(r,service, "COLUMNS")
+        if values:
+            for i, v in enumerate(values[0]):
+                if v == search_str:
+                    row = (x+i+1)
+                    cell_range = "Paints!A%d:B%d"  % (row,row)
+                    header_values = get_measurements_values(cell_range,service)[0]
+                    header_values.append(row)
+                    return tuple(header_values)
+
+
+def get_palette_by_name(name):
+    service = sheets._get_service()
+    # name, medium, row = get_palette_header(name, service)
+    header =  get_palette_header(name, service)
+    if header:
+        name, medium, row = header
+        cell_range = "Paints!A%d:E%d"  % (row+1,row+64)
+        palette = get_measurements_values(cell_range,service)
+        new_palette = []
+        for  entry in palette:
+            if len(entry) == 0:
+                break
+            new_palette.append(entry)
+
+        # new_palette = [entry for entry in palette if len(entry) >= 5]
+        return tuple([name, medium, new_palette])
+
+
+print get_palette_by_name("ben_test28palette")
 # timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
 # print timestamp
 

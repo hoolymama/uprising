@@ -4,8 +4,15 @@
 
 #include <math.h>
 
+#include "CImg.h"
 #include <maya/MFloatMatrix.h>
 #include <maya/MFloatPoint.h>
+#include <maya/MDoubleArray.h>
+#include <maya/MFloatArray.h>
+
+#include "cImgData.h"
+
+using namespace cimg_library;
 
 
 
@@ -17,6 +24,28 @@ public:
 	  const MFloatPoint &point,
 	  const MFloatMatrix &inverseProjection,
 	  int w, int h,  float &x, float &y, bool clamp = true);
+
+
+	static void  getImageChannel(const CImg<unsigned char> &image,
+	                             cImgData::Channel channel, CImg<unsigned char> &result);
+
+	static void sampleNearest(
+	  const CImg<unsigned char> &image,
+	  const MDoubleArray &uVals,
+	  const MDoubleArray &vVals,
+	  MFloatArray &result );
+
+	static void sampleLinear(
+	  const CImg<unsigned char> &image,
+	  const MDoubleArray &uVals,
+	  const MDoubleArray &vVals,
+	  MFloatArray &result );
+
+	static void sampleCubic(
+	  const CImg<unsigned char> &image,
+	  const MDoubleArray &uVals,
+	  const MDoubleArray &vVals,
+	  MFloatArray &result );
 
 
 
