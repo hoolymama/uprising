@@ -39,7 +39,14 @@ def ensure_painting_has_notes(assembly):
         pm.addAttr(assembly, dt="string", ln="medium")
         medium_att = assembly.attr("medium")
 
-    return (notes_att, ground_att, medium_att)
+    try:
+        palette_att = assembly.attr("palette")
+    except pm.MayaAttributeError:
+        pm.addAttr(assembly, dt="string", ln="palette")
+        palette_att = assembly.attr("palette")
+
+
+    return (notes_att, ground_att, medium_att, palette_att)
 
 
 # def ensure_node_has_att(node, att, att_type):
@@ -146,48 +153,10 @@ def create_and_connect_driver(driver_node, att):
 #     crvs_grp = pm.group(empty=True, name="curves")
 #     pm.group(plane_transform, pos_grp, crvs_grp, name="strokeFactoryGroup")
 
-def delete_curve_instances(node, curves, delete_curves):
-
-    stroke_curves = pm.listConnections(
-        curves, d=True, s=False, type="strokeCurve")
-    if delete_curves:
-        parents = pm.listRelatives(curves, p=True)
-        pm.delete(parents)
-        for sc in stroke_curves:
-            try:
-                pm.delete(stroke_curves)
-            except:
-                print "Can't delete %s. Maybe it doesn't exist anymore"
-    else:
-        for stroke_curve in stroke_curves:
-            print "SC: " % stroke_curve
-            painting_plug = pm.listConnections(stroke_curve.attr(
-                "output"), d=True, s=False, plugs=True, type="painting")
-            print painting_plug
-            if painting_plug:
-                pm.removeMultiInstance(painting_plug, b=True)
-
-    # now remove stroke curves that have no curve inputs
-    stroke_curves = pm.listConnections(
-        node.attr("strokeCurves"), s=True, d=False)
-    for stroke_curve in stroke_curves:
-        print stroke_curve
-        conns = pm.listConnections(stroke_curve.attr("curve"), s=True, d=False)
-        if not conns:
-            pm.delete(stroke_curve)
-
-    # now remove plugs that have no connections
-    for i in node.attr("strokeCurves").getArrayIndices():
-        plug = node.attr("strokeCurves[%d]" % i)
-        conns = pm.listConnections(plug, s=True, d=False)
-        if not conns:
-            pm.removeMultiInstance(plug, b=True)
-
-
 def set_board_from_sheet(node):
     #   get top node, then find corner locators
     assembly = uutl.assembly(node)
-    notes_att, ground_att, medium_att  =ensure_painting_has_notes(assembly)
+    _, ground_att, _, _  =ensure_painting_has_notes(assembly)
 
     top_name = assembly.name()
     corners = {

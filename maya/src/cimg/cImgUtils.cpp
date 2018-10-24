@@ -59,9 +59,29 @@ void cImgUtils::sampleNearest(
 		float x, y;
 		unsigned char val;
 		cImgUtils::toImageCoords(float(uVals[i]), float(vVals[i]), w, h, x, y);
-		val = result.append(image(int(x + 0.5), int(y + 0.5))  / 255.0) ;
+		result.append(image(int(x + 0.5), int(y + 0.5))  / 255.0) ;
 	}
 }
+
+void cImgUtils::sampleNearest(
+  const CImg<unsigned char> &image,
+  const MDoubleArray &uVals,
+  const MDoubleArray &vVals,
+  MIntArray &result )
+{
+	unsigned len = uVals.length();
+	if  ( vVals.length() != len) {return;}
+	int w = image.width();
+	int h = image.height();
+	if  ( ! (w && h)) {	return;}
+	for (int i = 0; i < len; ++i)
+	{
+		float x, y;
+		cImgUtils::toImageCoords(float(uVals[i]), float(vVals[i]), w, h, x, y);
+		result.append(  int(image(int(x + 0.5), int(y + 0.5))) ) ;
+	}
+}
+
 
 void cImgUtils::sampleLinear(
   const CImg<unsigned char> &image,

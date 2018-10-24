@@ -2,90 +2,19 @@ global proc AEstrokeCurveTemplate ( string $nodeName )
 {
 
 	editorTemplate -beginScrollLayout;
-	
-	editorTemplate -cl 0  -beginLayout "Stroke generation";		
- 	editorTemplate -addControl "active" ;
- 	editorTemplate -addControl "planeNormal" ;
- 	editorTemplate -addControl "pointDensity" ;
-	editorTemplate -addControl "strokeLength" ;
- 	editorTemplate -addControl "randomLengthFactor" ;
- 	editorTemplate -addControl "overlap" ;
- 	editorTemplate -addControl "randomOverlapFactor" ;
- 	editorTemplate -addControl "subcurve" ;
- 	editorTemplate -addControl "subcurveMethod" ;
- 	
- 	editorTemplate -addControl "reverseDirection" ;
- 	editorTemplate -addControl "strokeCountFactor" ;
- 	editorTemplate -addControl "seed" ;
-	editorTemplate -endLayout;
 
 
-	
-	editorTemplate -cl 0  -beginLayout "Stroke repeats";		
- 	editorTemplate -addControl "repeats" ;
-	editorTemplate -addControl "repeatOffset" ;
- 	editorTemplate -addControl "repeatMirror" ;
- 	editorTemplate -addControl "repeatOscillate" ;
-	editorTemplate -endLayout;
-
-
-	
-	editorTemplate -cl 0  -beginLayout "Paint and brush";		
- 	editorTemplate -addControl "forceDip" ;
- 	editorTemplate -addControl "brushId" ;
-	editorTemplate -addControl "paintId" ;
-	editorTemplate -addControl "layerId" ;
-	editorTemplate -endLayout;
-
-
-
-
-	
-	editorTemplate -cl 0  -beginLayout "Height profile";		
+	editorTemplate -cl 0  -beginLayout "Curve Attributes";		
+	editorTemplate -addControl "subcurve" ;
+	editorTemplate -addControl "subcurveMethod" ;
+	editorTemplate -addControl "randomOverlapFactor" ;
+	editorTemplate -addControl "overlap" ;
+	editorTemplate -addControl "forceDip" ;
+	editorTemplate -addControl "brushRampScope" ;
 	editorTemplate -addControl "approachDistance" ;
- 	editorTemplate -addControl "lift" ;
-	AEaddRampControl ("strokeProfileRamp");	
-	editorTemplate -addControl "strokeProfileScale" ;
 	editorTemplate -endLayout;
 
-
-
-	editorTemplate -cl 0  -beginLayout "Target rotation";		
-	editorTemplate -addControl "followStroke" ;
- 	editorTemplate -addControl "brushRampScope" ;
- 	// editorTemplate -addSeparator;
-	AEaddRampControl("brushTiltRamp");
- 	editorTemplate -addControl "brushTiltRange";
-
-	// editorTemplate -addSeparator;
-	AEaddRampControl("brushBankRamp");
- 	editorTemplate -addControl "brushBankRange";
-
-	// editorTemplate -addSeparator;
-	AEaddRampControl("brushTwistRamp");
- 	editorTemplate -addControl "brushTwistRange";
-	editorTemplate -endLayout;
-
-
-	editorTemplate -cl 0  -beginLayout "Stroke transformation";		
-	editorTemplate -addControl "pivotFraction" ;
- 	// editorTemplate -addControl "strokeRotationTexture" ;
- 	// editorTemplate -addControl "strokeTranslationTexture" ;
- 	// editorTemplate -addControl "strokeTranslationSampleDistance" ;
-	editorTemplate -endLayout;
-
-
-
-	editorTemplate -suppress "values" ;
-	editorTemplate -suppress "values" ;
-	editorTemplate -suppress "values" ;
-	editorTemplate -suppress "values" ;
-	editorTemplate -suppress "values" ;
-	editorTemplate -suppress "values" ;
-	editorTemplate -suppress "values" ;
-	editorTemplate -suppress "values" ;
-	editorTemplate -suppress "values" ;
-	editorTemplate -suppress "values" ;
+	AEstrokeNodeInclude( $nodeName);
 
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;

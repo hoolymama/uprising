@@ -83,6 +83,10 @@ MObject flowStroke::aChannel;
 MObject flowStroke::aBlur;
 MObject flowStroke::aRotation;
 MObject flowStroke::aSampleDistance;
+MObject flowStroke::aBrushIdImage;
+MObject flowStroke::aPaintIdImage;
+MObject flowStroke::aBrushIdRemapRamp;
+MObject flowStroke::aBrushIdRemapRange;
 
 MObject flowStroke::aBrushRampScope;
 MObject flowStroke::aApproachDistance;
@@ -183,6 +187,20 @@ MStatus flowStroke:: initialize()
 	addAttribute(aInterpolation);
 
 
+	// aBrushIds = tAttr.create("brushIds", "bids", MFnData::kIntArray, &st);
+	// tAttr.setStorable( false);
+	// tAttr.setReadable( false);
+	// tAttr.setHidden( false );
+	// tAttr.setWritable(true);
+	// st = addAttribute( aBrushIds );
+
+
+	// aPaintIds = tAttr.create("paintIds", "pids", MFnData::kIntArray, &st);
+	// tAttr.setStorable( false);
+	// tAttr.setReadable( false);
+	// tAttr.setHidden( false );
+	// tAttr.setWritable(true);
+	// st = addAttribute( aPaintIds );
 
 	aBrushRampScope = eAttr.create("brushRampScope", "brsc",
 	                               StrokeRotationSpec::kStroke);
@@ -200,6 +218,27 @@ MStatus flowStroke:: initialize()
 	nAttr.setHidden(false);
 	st = addAttribute(aApproachDistance);
 
+
+
+
+	aBrushIdImage = tAttr.create("brushIdImage", "bidi", cImgData::id ) ;
+	tAttr.setStorable(false);
+	st = addAttribute( aBrushIdImage ); mser;
+
+	aPaintIdImage = tAttr.create("paintIdImage", "pidi", cImgData::id ) ;
+	tAttr.setStorable(false);
+	st = addAttribute( aPaintIdImage ); mser;
+
+	aBrushIdRemapRamp  = MRampAttribute::createCurveRamp("brushIdRemapRamp", "brrp");
+	st = addAttribute( aBrushIdRemapRamp ); mser;
+
+	aBrushIdRemapRange = nAttr.create("brushIdRemapRange", "brrg", MFnNumericData::k2Int);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aBrushIdRemapRange);
+
+
+
 	st = attributeAffects(aInputImage, aOutput ); mser;
 	st = attributeAffects(aSamplePoints, aOutput ); mser;
 	st = attributeAffects(aProjectionMatrix, aOutput ); mser;
@@ -209,6 +248,13 @@ MStatus flowStroke:: initialize()
 	st = attributeAffects(aRotation, aOutput ); mser;
 	st = attributeAffects(aSampleDistance, aOutput); mser;
 	st = attributeAffects(aBrushRampScope, aOutput ); mser;
+
+	st = attributeAffects(aBrushIdImage, aOutput);
+	st = attributeAffects(aPaintIdImage, aOutput);
+
+
+	st = attributeAffects(aBrushIdRemapRamp, aOutput);
+	st = attributeAffects(aBrushIdRemapRange, aOutput);
 
 	st = attributeAffects(aApproachDistance, aOutput ); mser;
 
@@ -227,22 +273,8 @@ MStatus flowStroke::getImageChannel(MDataBlock &data,
 	cImgData *imageData = (cImgData *)fnImageData.data();
 	CImg<unsigned char> *image = imageData->fImg;
 
-	int nChannels = image->spectrum();
-	if (! nChannels) {return MS::kFailure;}
+	cImgUtils::getImageChannel(*image , channel, result);
 
-	if (channel == cImgData::kRed || nChannels  < 3 ) {
-		result = image->get_channel(0);
-	}
-	else if (channel == cImgData::kGreen) {
-		result =  image->get_channel(1);
-	}
-	else if (channel == cImgData::kBlue) {
-		result = image->get_channel(2);
-	}
-	else   // average
-	{
-		result =  image->get_norm();
-	}
 	return MS::kSuccess;
 }
 
@@ -421,15 +453,6 @@ MStatus flowStroke::generateStrokeGeometry(MDataBlock &data,
 	MObject thisObj = thisMObject();
 
 
-
-	/////
-
-
-
-
-
-
-
 	unsigned len = samplePoints.length();
 	for (int i = 0; i < len; ++i)
 	{
@@ -478,49 +501,141 @@ MStatus flowStroke::generateStrokeGeometry(MDataBlock &data,
 			                             pivotFraction,
 			                             strokes);
 		}
-		// unsigned strokeGroupSize = Stroke::createFromPoints(
-		//                              thisObj,
-		//                              flowPoints,
-		//                              planeNormal,
-		//                              liftLength,
-		//                              liftHeight,
-		//                              liftBias,
-		//                              aStrokeProfileRamp,
-		//                              strokeProfileScaleMin,
-		//                              strokeProfileScaleMax,
-		//                              rotSpec,
-		//                              backstroke,
-		//                              repeats,
-		//                              repeatOffset,
-		//                              repeatMirror,
-		//                              repeatOscillate,
-		//                              pivotFraction,
-		//                              strokes);
-
 	}
 
 	setApproach(  strokes, approachDistance);
 
-
+	int layerId = data.inputValue(aLayerId).asInt();
 
 	// these will ultimately be mapped
 	short brushId = data.inputValue(aBrushId).asShort();
 	short paintId = data.inputValue(aPaintId).asShort();
-	int layerId = data.inputValue(aLayerId).asInt();
 
+	float matfloats[4][4];
+	imat.get(matfloats);
+	MMatrix mImat(matfloats);
 
 	int i = 0;
 	for (auto &citer : strokes)
 	{
-		geom->push_back(strokeGeom(i, *citer, brushId, paintId, layerId, false));
+		strokeGeom g(i, *citer, brushId, paintId, layerId, false);
+		g.setUV(mImat);
+		geom->push_back(g);
 		i++;
 	}
+
+	setBrushIds(data, geom);
+	setPaintIds(data, geom);
+
+
 
 
 	return MS::kSuccess;
 }
 
-void flowStroke:: postConstructor()
+void flowStroke::setBrushIds(MDataBlock &data, std::vector<strokeGeom> *geom) const
+{
+
+	MStatus st;
+	MDataHandle hImageData = data.inputValue(aBrushIdImage, &st);
+
+	if (st.error()) {return;}
+
+	MObject dImageData = hImageData.data();
+	MFnPluginData fnImageData( dImageData , &st);
+
+	if (st.error()) {return;}
+
+	cImgData *imageData = (cImgData *)fnImageData.data();
+	const CImg<unsigned char> *image = imageData->fImg;
+	int w = image->width();
+	int h = image->height();
+
+	if (!(w && h )) {return;}
+
+	MObject thisObj = thisMObject();
+	MRampAttribute remapRamp( thisObj, aBrushIdRemapRamp ); mser;
+	const int2 &range = data.inputValue( aBrushIdRemapRange ).asInt2();
+	int low = range[0];
+	int high = range[1];
+	int span = high - low;
+
+	float normalizer = 1.0f / 255.0f;
+
+	std::vector<strokeGeom>::iterator iter;
+	for (iter = geom->begin(); iter !=  geom->end(); iter++)
+	{
+		float u, v;
+		iter->getUV(u, v);
+		float x, y;
+
+		cImgUtils::toImageCoords(u, v, w, h, x, y);
+
+		// int pixelValue = (*image)(int(x + 0.5), int(y + 0.5) , 0, 0);
+		float value = float( image->atXY(int(x), int(y) , 0, 0)) * normalizer;
+		// cerr << "Pixel Val: " << pixelValue << " - value " << value << endl;
+
+		float remappedVal;
+		remapRamp.getValueAtPosition( value, remappedVal, &st );
+		if (st.error()) {
+			remappedVal =  value;
+		}
+		int ival = int((remappedVal * span) + low);
+		// cerr << "Normalized: " << value <<   " - remapped to: " << remappedVal << " - int val: " << ival <<  endl;
+		ival = std::max(low, std::min(ival, high));
+		iter->setBrushId(ival);
+	}
+}
+
+
+void flowStroke::setPaintIds(MDataBlock &data, std::vector<strokeGeom> *geom) const
+{
+	// cerr << "flowStroke::setPaintIds" << endl;
+
+	MStatus st;
+	MDataHandle hImageData = data.inputValue(aPaintIdImage, &st);
+
+	if (st.error()) {return;}
+
+	MObject dImageData = hImageData.data();
+	MFnPluginData fnImageData( dImageData , &st);
+
+	if (st.error()) {return;}
+
+	cImgData *imageData = (cImgData *)fnImageData.data();
+	const CImg<unsigned char> *image = imageData->fImg;
+	int w = image->width();
+	int h = image->height();
+
+	if (!(w && h )) {return;}
+
+	// cerr << "geom->size():" << geom->size() << endl;
+	std::vector<strokeGeom>::iterator iter;
+	// cerr << "got iter" << endl;
+	// cerr << "w:"  << w << "h:" << h << endl;
+
+	for (iter = geom->begin(); iter !=  geom->end(); iter++)
+	{
+		float u, v;
+
+		iter->getUV(u, v);
+		// cerr << "u:"  << u << "v:" << v << endl;
+
+		float x, y;
+		// unsigned char val;
+		cImgUtils::toImageCoords(u, v, w, h, x, y);
+		// cerr << "x:"  << x << "y:" << y << endl;
+
+		iter->setPaintId(short(image->atXY(int(x),  int(y), 0, 0)));
+
+	}
+	// cerr << "Done" << endl;
+
+
+}
+
+
+void flowStroke::postConstructor()
 {
 	// setExistWithoutInConnections(true);
 	// setExistWithoutOutConnections(true);

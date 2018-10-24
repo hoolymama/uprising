@@ -58,24 +58,24 @@ class PaintingTab(gui.FormLayout):
             label='Reverse order of selected curves',
             command=pm.Callback(self.reverse_connection_order))
 
-        pm.rowLayout(numberOfColumns=2,
-                     columnWidth2=(
-                         (100), 100),
-                     adjustableColumn=1,
-                     columnAlign=(1, 'right'),
-                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+        # pm.rowLayout(numberOfColumns=2,
+        #              columnWidth2=(
+        #                  (100), 100),
+        #              adjustableColumn=1,
+        #              columnAlign=(1, 'right'),
+        #              columnAttach=[(1, 'both', 2), (2, 'both', 2)])
         pm.button(
             label='Remove curves from painting',
             ann="Break selected curve connections",
             command=pm.Callback(self.on_remove_curve_instances))
 
-        delete_curves = 1
-        self.delete_curves_cb = pm.checkBox(
-            label='Force',
-            value=delete_curves,
-            annotation='Also delete curves')
+        # delete_curves = 1
+        # self.delete_curves_cb = pm.checkBox(
+        #     label='Force',
+        #     value=delete_curves,
+        #     annotation='Also delete curves')
 
-        pm.setParent('..')
+        # pm.setParent('..')
 
         pm.button(
             label='Connect curve visibility',
@@ -93,6 +93,15 @@ class PaintingTab(gui.FormLayout):
             command=pm.Callback(
                 self.on_remove_hanging_stroke_curves))
 
+
+        pm.button(
+            label='Cleanup curve plugs',
+            ann="Remove unconnected strokeCurve plugs on selected painting",
+            command=pm.Callback(
+                self.on_cleanup_curve_plugs))
+
+
+        
         pm.rowLayout(
             numberOfColumns=6, columnWidth6=(
                 110, 60, 60, 60, 60, 80), columnAlign=(
@@ -333,9 +342,9 @@ class PaintingTab(gui.FormLayout):
             conn[0] >> conn[1]
 
     def duplicate_curves_to_painting(self):
-        node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
-        if not node:
-            raise IndexError("No painting node selected")
+        # node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
+        # if not node:
+        #     raise IndexError("No painting node selected")
         curves = pm.ls(
             selection=True,
             dag=True,
@@ -343,16 +352,16 @@ class PaintingTab(gui.FormLayout):
             type="nurbsCurve",
             ni=True)
         for curve in curves:
-            cutl.duplicate_curve_to_painting(curve, node)
+            cutl.duplicate_curve_to_painting(curve)
+
+
+
+    def on_cleanup_curve_plugs(self):
+        paintings = pm.ls(selection=True, type="painting")
+        for p in paintings:
+           cutl.remove_unconnected_curve_plugs(p)
 
     def on_remove_curve_instances(self):
-        del_crvs = pm.checkBox(self.delete_curves_cb, query=True, v=True)
-
-        node = pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type="painting")[0]
 
         curves = pm.ls(
             selection=True,
@@ -360,11 +369,8 @@ class PaintingTab(gui.FormLayout):
             leaf=True,
             type="nurbsCurve",
             ni=True)
-        if not curves:
-            curves = pm.listHistory(
-                pm.PyNode("mainPaintingShape.strokeCurves"),
-                type="nurbsCurve")
-        sfu.delete_curve_instances(node, curves, del_crvs)
+
+        cutl.delete_curve_instances(curves)
 
     def on_remove_hanging_stroke_curves(self):
         curves = pm.ls(

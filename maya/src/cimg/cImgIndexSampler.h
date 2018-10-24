@@ -26,14 +26,14 @@ public:
 	static MStatus initialize();
 
 	static MObject aInputImage;
-	static MObject aInterpolation;
-	static MObject aChannel;
+	// static MObject aInterpolation;
+	// static MObject aChannel;
 
 	static MObject aSampleU;
 	static MObject aSampleV;
 
-	static MObject aIndexRamp;
-	static MObject aNumIndices;
+	// static MObject aIndexRamp;
+	// static MObject aNumIndices;
 
 	static MObject aOutIndex;
 
@@ -45,8 +45,8 @@ public:
 private:
 
 
-	MStatus getImageChannel(MDataBlock &data,
-	                        cImgData::Channel channel, CImg<unsigned char> &result);
+	// MStatus getImageChannel(MDataBlock &data,
+	//                         cImgData::Channel channel, CImg<unsigned char> &result);
 
 
 

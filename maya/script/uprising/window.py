@@ -6,7 +6,8 @@ from uprising import (
     setup_tab,
     validate_tab,
     publish_tab,
-    rings_tab,
+    rings_design_tab,
+    rings_setup_tab,
     images_tab)
 
 
@@ -64,7 +65,8 @@ reload(validate_tab)
 reload(publish_tab)
 reload(images_tab)
 
-reload(rings_tab)
+reload(rings_design_tab)
+reload(rings_setup_tab)
 reload(culling)
 
 
@@ -93,14 +95,14 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.painting_tab = painting_tab.PaintingTab()
         self.tabs.setTabLabel((self.painting_tab, "Painting"))
-
-        # pm.setParent(self.tabs)
-        # self.props_tab = props_tab.PropsTab()
-        # self.tabs.setTabLabel((self.props_tab, "Props"))
+ 
+        pm.setParent(self.tabs)
+        self.rings_design_tab = rings_design_tab.RingsDesignTab()
+        self.tabs.setTabLabel((self.rings_design_tab, "Ring design"))
 
         pm.setParent(self.tabs)
-        self.rings_tab = rings_tab.RingsTab()
-        self.tabs.setTabLabel((self.rings_tab, "Rings"))
+        self.rings_setup_tab = rings_setup_tab.RingsSetupTab()
+        self.tabs.setTabLabel((self.rings_setup_tab, "Ring setup"))
 
         pm.setParent(self.tabs)
         self.validate_tab = validate_tab.ValidateTab()
@@ -112,7 +114,7 @@ class RobotWindow(gui.Window):
 
         self.show()
         self.setResizeToFitChildren()
-        self.tabs.setSelectTabIndex(1)
+        self.tabs.setSelectTabIndex(5)
 
     def onTabChanged(self):
         print ""

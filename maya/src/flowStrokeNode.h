@@ -48,6 +48,11 @@ protected:
   void setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
                    double approachDist) const;
 
+
+  void setBrushIds(MDataBlock &data, std::vector<strokeGeom> *geom) const;
+
+
+  void setPaintIds(MDataBlock &data, std::vector<strokeGeom> *geom) const;
   // MFloatMatrix  getFullProjection(float angle,
   //                                 const MFloatMatrix &projection);
 
@@ -65,7 +70,13 @@ protected:
   static  MObject aBlur;
   static  MObject aRotation;
   static  MObject aSampleDistance;
+  // static  MObject aBrushIds;
+  // static  MObject aPaintIds;
 
+  static  MObject aBrushIdImage;
+  static  MObject aPaintIdImage;
+  static  MObject aBrushIdRemapRamp;
+  static  MObject aBrushIdRemapRange;
 
   static  MObject aBrushRampScope;
   static  MObject aApproachDistance;

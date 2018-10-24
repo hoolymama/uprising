@@ -16,30 +16,7 @@ from studio import Studio
 from robolink import (
     Robolink
 )
-
-
-# def ensure_painting_has_notes():
-#     top_node = pm.PyNode("mainPaintingGroup")
-#     try:
-#         notes_att = top_node.attr("notes")
-#     except pm.MayaAttributeError:
-#         pm.addAttr(top_node, dt="string", ln="notes")
-#         notes_att = top_node.attr("notes")
-
-#     try:
-#         ground_att = top_node.attr("ground")
-#     except pm.MayaAttributeError:
-#         pm.addAttr(top_node, dt="string", ln="ground")
-#         ground_att = top_node.attr("ground")
-
-#     try:
-#         medium_att = top_node.attr("medium")
-#     except pm.MayaAttributeError:
-#         pm.addAttr(top_node, dt="string", ln="medium")
-#         medium_att = top_node.attr("medium")
-
-#     return (notes_att, ground_att, medium_att)
-
+ 
 
 class PublishTab(gui.FormLayout):
 
@@ -55,6 +32,9 @@ class PublishTab(gui.FormLayout):
             self.on_load_notes()
         except:
             pass
+
+        self.on_current_frame_cb_change()
+
     def create_ui(self):
         pm.setParent(self.column)
 
@@ -64,11 +44,36 @@ class PublishTab(gui.FormLayout):
         min_frame = int(pm.playbackOptions(min=True, query=True))
         max_frame = int(pm.playbackOptions(max=True, query=True))
 
+
+
+
+
+
+        pm.rowLayout(numberOfColumns=2,
+             columnWidth2=(
+                 (390), 100),
+             # adjustableColumn=1,
+             columnAlign=(1, 'right'),
+             columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+
         self.frame_if = pm.intFieldGrp(
             label="Frames to run",
             numberOfFields=2,
             value1=min_frame,
             value2=max_frame)
+
+        self.current_frame_cb = pm.checkBox(
+            label='Current',
+            value=1,
+            annotation='Use current frame only',
+            changeCommand=pm.Callback(self.on_current_frame_cb_change)
+            )
+
+        pm.setParent('..')
+
+
+
+    
 
         self.save_maya_only_cb = pm.checkBoxGrp(
             label='Skip RoboDK',
@@ -152,6 +157,11 @@ class PublishTab(gui.FormLayout):
         #     label='Export and write packages',
         #     command=pm.Callback(self.on_export_and_write_series))
 
+
+    def on_current_frame_cb_change(self):
+        state = pm.checkBox(self.current_frame_cb, query=True, value=True)
+        pm.intFieldGrp(self.frame_if, edit=True, enable=(not state))
+
     def create_description_ui(self):
 
         form = pm.formLayout()
@@ -161,6 +171,7 @@ class PublishTab(gui.FormLayout):
 
         self.ground_tf = pm.textField()
         self.medium_tf = pm.textField()
+        self.palette_name_tf = pm.textField()
 
         load_but = pm.button(
             width=100,
@@ -184,10 +195,15 @@ class PublishTab(gui.FormLayout):
         form.attachNone(self.medium_tf, 'top')
         form.attachForm(self.medium_tf, 'left', 2)
         form.attachForm(self.medium_tf, 'bottom', 2)
-        form.attachPosition(self.medium_tf, 'right', 2, 40)
+        form.attachPosition(self.medium_tf, 'right', 2, 27)
+
+        form.attachNone(self.palette_name_tf, 'top')
+        form.attachControl(self.palette_name_tf, 'left', 2, self.medium_tf)
+        form.attachForm(self.palette_name_tf, 'bottom', 2)
+        form.attachPosition(self.palette_name_tf, 'right', 2, 54)
 
         form.attachNone(self.ground_tf, 'top')
-        form.attachControl(self.ground_tf, 'left', 2, self.medium_tf)
+        form.attachControl(self.ground_tf, 'left', 2, self.palette_name_tf)
         form.attachForm(self.ground_tf, 'bottom', 2)
         form.attachControl(self.ground_tf, 'right', 2, save_but)
 
@@ -198,24 +214,28 @@ class PublishTab(gui.FormLayout):
 
     def on_load_notes(self):
         assembly= pm.PyNode("mainPaintingGroup")
-        notes_att, ground_att, medium_att = sfu.ensure_painting_has_notes(assembly)
+        notes_att, ground_att, medium_att, palette_name_att = sfu.ensure_painting_has_notes(assembly)
         notes = notes_att.get()
         ground = ground_att.get()
         medium = medium_att.get()
+        palette_name =  palette_name_att.get()
 
         pm.scrollField(self.description_tf, edit=True, text=notes)
         pm.textField(self.ground_tf, edit=True, text=ground)
         pm.textField(self.medium_tf, edit=True, text=medium)
+        pm.textField(self.palette_name_tf, edit=True, text=palette_name)
 
     def on_save_notes(self):
         assembly= pm.PyNode("mainPaintingGroup")
         notes = pm.scrollField(self.description_tf, query=True, text=True)
         medium = pm.textField(self.medium_tf, query=True, text=True)
         ground = pm.textField(self.ground_tf, query=True, text=True)
-        notes_att, ground_att, medium_att = sfu.ensure_painting_has_notes(assembly)
+        palette_name = pm.textField(self.palette_name_tf, query=True, text=True)
+        notes_att, ground_att, medium_att, palette_name_att = sfu.ensure_painting_has_notes(assembly)
         notes_att.set(notes)
         ground_att.set(ground)
         medium_att.set(medium)
+        palette_name_att.set(palette_name)
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -278,18 +298,27 @@ class PublishTab(gui.FormLayout):
     #         write.export_maya_package_only(export_dir, desc)
 
     def on_export_and_write_series(self):
+
         export_dir = write.choose_publish_dir()
         if not export_dir:
             return
-        frames = (
-            pm.intFieldGrp(
-                self.frame_if,
-                query=True,
-                value1=True),
-            pm.intFieldGrp(
-                self.frame_if,
-                query=True,
-                value2=True))
+
+        current_only = pm.checkBox(self.current_frame_cb, query=True, value=True)
+
+        if current_only:
+            frame = int(pm.currentTime(query=True))
+            frames = (frame, frame)
+        else:
+            frames = (
+                pm.intFieldGrp(
+                    self.frame_if,
+                    query=True,
+                    value1=True),
+                pm.intFieldGrp(
+                    self.frame_if,
+                    query=True,
+                    value2=True))
+
         desc = pm.scrollField(self.description_tf, q=True, text=True)
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")

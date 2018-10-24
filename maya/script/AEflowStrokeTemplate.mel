@@ -1,0 +1,40 @@
+global proc AEflowStrokeTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Flow image attributes";		
+	editorTemplate -addControl "channel" ;
+	editorTemplate -addControl "interpolation" ;
+	editorTemplate -addControl "sampleDistance" ;
+	editorTemplate -addControl "blur" ;
+	editorTemplate -addControl "rotation" ;
+	editorTemplate -endLayout;
+
+
+
+	editorTemplate -cl 0  -beginLayout "Brush Id remap attributes";	
+	AEaddRampControl("brushIdRemapRamp");		
+	editorTemplate -addControl "brushIdRemapRange" ;
+	editorTemplate -endLayout;
+
+
+
+
+	editorTemplate -cl 0  -beginLayout "Extra rotation attributes";		
+	editorTemplate -addControl "brushRampScope" ;
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Approach attributes";		
+	editorTemplate -addControl "approachDistance" ;
+	editorTemplate -endLayout;
+
+	AEstrokeNodeInclude( $nodeName);
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
+

@@ -167,6 +167,8 @@ def get_palette_by_name(name):
     service = sheets._get_service()
     # name, medium, row = get_palette_header(name, service)
     header =  get_palette_header(name, service)
+    print "HEADER"
+    print header
     if header:
         name, medium, row = header
         cell_range = "Paints!A%d:E%d"  % (row+1,row+64)
@@ -178,15 +180,16 @@ def get_palette_by_name(name):
             new_palette.append(entry)
 
         # new_palette = [entry for entry in palette if len(entry) >= 5]
-        return tuple([medium, new_palette])
+        return tuple([name, medium, new_palette])
 
 
 
 def setup_paints_from_sheet(painting_node, dip_node, palette_name):
-    (medium, palette) =  get_palette_by_name(palette_name)
+    (palette_name, medium, palette) =  get_palette_by_name(palette_name)
     assembly= uutl.assembly(painting_node)
-    _, _, medium_att  = sfu.ensure_painting_has_notes(assembly)
+    _, _, medium_att, palette_name_att = sfu.ensure_painting_has_notes(assembly)
     medium_att.set(medium)
+    palette_name_att.set(palette_name)
 
     validate_paint_data(palette)
     colors = []

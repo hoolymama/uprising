@@ -9,6 +9,8 @@
 #include <maya/MFloatPoint.h>
 #include <maya/MDoubleArray.h>
 #include <maya/MFloatArray.h>
+#include <maya/MIntArray.h>
+
 
 #include "cImgData.h"
 
@@ -48,7 +50,11 @@ public:
 	  MFloatArray &result );
 
 
-
+	static void sampleNearest(
+	  const CImg<unsigned char> &image,
+	  const MDoubleArray &uVals,
+	  const MDoubleArray &vVals,
+	  MIntArray &result );
 
 	static void toImageCoords(float u, float v, int w, int h,  float &x, float &y);
 

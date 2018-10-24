@@ -45,6 +45,37 @@ def filters_off(node):
     node.attr("applyFilters").set(curr)
 
 
+def _on_active_cb_change(ctrl, cb_ctrl):
+    state = pm.checkBox(cb_ctrl, q=True, v=True)
+    pm.control(ctrl, edit=True, en=state)
+
+@contextmanager
+def activatable(**kw):
+    label = kw.get("label", "Active")
+    state=kw.get("state", True)
+    form = pm.formLayout(nd=100)
+    yield
+    cb = pm.checkBox( label=label, value=state)
+
+    children = pm.formLayout(form, query=True, childArray=True)
+
+    ctrl = children[0]
+    pm.checkBox( cb, edit=True, changeCommand=pm.Callback(_on_active_cb_change, ctrl, cb ))
+
+    form.attachForm(cb, 'top', 2)
+    form.attachForm(cb, 'bottom', 2)
+    form.attachForm(cb, 'right', 2)
+    form.attachNone(cb, 'left')
+
+    form.attachForm(ctrl, 'left', 2)
+    form.attachForm(ctrl, 'top', 2)
+    form.attachForm(ctrl, 'bottom', 2)
+    form.attachControl(ctrl, 'right', 2, cb )
+
+    _on_active_cb_change(ctrl, cb)
+
+    pm.setParent('..')
+
 
 def to_vector_array(arr):
     if not arr:

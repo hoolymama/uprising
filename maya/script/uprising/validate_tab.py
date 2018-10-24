@@ -33,13 +33,6 @@ class ValidateTab(gui.FormLayout):
             collapse=True)
         pm.frameLayout(self.simple_frame_wg, edit=True, en=state)
 
-    # def on_step_type_change(self):
-    #     step_type = pm.radioButtonGrp(
-    #         self.varying_step_type_wg, query=True, sl=True)
-    #     pm.floatSliderGrp(
-    #         self.varying_step_wg, edit=True, en=(
-    #             step_type is not 1))
-
     def create_ui(self):
         pm.setParent(self.column)
 
@@ -138,7 +131,6 @@ class ValidateTab(gui.FormLayout):
         self.attachForm(go_but, 'bottom', 2)
 
     def on_go(self):
-
         do_simple = pm.frameLayout(self.simple_frame_wg, query=True, en=True)
         if do_simple:
             self.do_simple_validation()
@@ -340,17 +332,24 @@ class ValidateTab(gui.FormLayout):
         #     studio.write()
     def do_retries_for_object(self, o, attribute, step_type, low, high, count):
         result = -1
+
+        curr = o.attr(attribute).get()
+
         if step_type is "random":
-            vals = [random.uniform(low, high) for x in range(count)]
+            vals = [curr] + [random.uniform(low, high) for x in range(count)]
         else:
             valrange = high - low
             gap = valrange / (count-1)
-            vals = [low+(gap*x) for x in range(count)]
+            vals = [curr] + [low+(gap*x) for x in range(count)]
+
+        # prepend the current val, because if it works then nothing needs to change. 
+
 
         painting_node = pm.PyNode("mainPaintingShape")
         msg = ""
         for i, val in enumerate(vals):
-            self.setParams([o], attribute, val)
+            self.setParam(o, attribute, val)
+            pm.refresh()
             with uutl.minimize_robodk():
                 studio = Studio(painting_node, None)
                 studio.write()
@@ -372,12 +371,11 @@ class ValidateTab(gui.FormLayout):
 
 
 
-    def setParams(self, obs, attribute, val):
-        for o in obs:
-            try:
-                att = o.attr(attribute).set(val)
-            except (pm.MayaAttributeError, RuntimeError) as e:
-                pm.warning("Error with : %s.%s - Skipping"  % (o , attribute) )
+    def setParam(self, ob, attribute, val):
+        try:
+            att = ob.attr(attribute).set(val)
+        except (pm.MayaAttributeError, RuntimeError) as e:
+            pm.warning("Error with : %s.%s - Skipping"  % (ob , attribute) )
 
 
         # print "-" * 22

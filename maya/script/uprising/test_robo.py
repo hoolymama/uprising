@@ -18,7 +18,22 @@
 # import datetime
 import sheets
 
-# RL = Robolink()
+from contextlib import contextmanager
+
+
+# @contextmanager
+# def smth():
+#     print "start"
+#     yield
+#     print midd
+#     print "end"
+
+
+# with smth():
+#     midd =  "middle"
+
+
+# # RL = Robolink()
 
 
 
@@ -80,7 +95,13 @@ def get_palette_by_name(name):
         return tuple([name, medium, new_palette])
 
 
-print get_palette_by_name("ben_test28palette")
+# print get_palette_by_name("ben_test28palette")
+
+
+
+
+
+
 # timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
 # print timestamp
 

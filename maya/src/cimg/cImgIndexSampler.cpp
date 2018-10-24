@@ -33,16 +33,8 @@ MTypeId     cImgIndexSampler::id( k_cImgIndexSampler );
 
 
 MObject 	cImgIndexSampler::aInputImage;
-MObject 	cImgIndexSampler::aInterpolation;
-MObject 	cImgIndexSampler::aChannel;
 MObject 	cImgIndexSampler::aSampleU;
 MObject 	cImgIndexSampler::aSampleV;
-
-
-MObject 	cImgIndexSampler::aIndexRamp;
-MObject 	cImgIndexSampler::aNumIndices;
-
-
 MObject 	cImgIndexSampler::aOutIndex;
 
 
@@ -83,37 +75,6 @@ MStatus cImgIndexSampler::initialize()
 	tAttr.setWritable(true);
 	st = addAttribute( aSampleV );
 
-	aInterpolation = eAttr.create("interpolation", "itp");
-	eAttr.addField("Nearest", cImgData::kNearest);
-	eAttr.addField("Bilinear", cImgData::kBilinear);
-	eAttr.addField("Bicubic", cImgData::kBicubic);
-
-	eAttr.setDefault( cImgData::kBilinear );
-	eAttr.setKeyable(true);
-	eAttr.setWritable(true);
-	addAttribute(aInterpolation);
-
-	aIndexRamp  = MRampAttribute::createCurveRamp("indexRamp", "idxr");
-	st = addAttribute( aIndexRamp ); mser;
-
-	aNumIndices = nAttr.create( "numIndices", "nmi", MFnNumericData::kInt);
-	nAttr.setHidden(false);
-	nAttr.setStorable(true);
-	nAttr.setReadable(true);
-	nAttr.setKeyable(true);
-	nAttr.setDefault(8);
-	st = addAttribute(aNumIndices);
-
-	aChannel = eAttr.create("channel", "ch", cImgData::kAverage);
-	eAttr.addField( "red",   cImgData::kRed);
-	eAttr.addField( "green",   cImgData::kGreen);
-	eAttr.addField( "blue",   cImgData::kBlue);
-	eAttr.addField( "average",   cImgData::kAverage);
-	eAttr.setHidden(false);
-	eAttr.setStorable(true);
-	st = addAttribute( aChannel );
-
-
 	aOutIndex = tAttr.create("outIndex", "oi", MFnData::kIntArray, &st);
 	tAttr.setStorable( false);
 	tAttr.setReadable( true);
@@ -122,10 +83,7 @@ MStatus cImgIndexSampler::initialize()
 	st = attributeAffects(aInputImage, aOutIndex);
 	st = attributeAffects(aSampleU, aOutIndex);
 	st = attributeAffects(aSampleV, aOutIndex);
-	st = attributeAffects(aInterpolation, aOutIndex);
-	st = attributeAffects(aChannel, aOutIndex);
-	st = attributeAffects(aIndexRamp, aOutIndex);
-	st = attributeAffects(aNumIndices, aOutIndex);
+
 
 	return MS::kSuccess;
 }
@@ -140,24 +98,11 @@ MStatus cImgIndexSampler::compute( const MPlug &plug, MDataBlock &data ) {
 
 	MStatus st = MS::kSuccess;
 
-	cImgData::Channel channel = cImgData::Channel(data.inputValue(
-	                              aChannel).asShort());
-
-	MIntArray indices;
-
-	int numIndices =  std::max(1, data.inputValue(aNumIndices).asInt() );
-
 	MDataHandle hImageData = data.inputValue(aInputImage, &st); msert;
 	MObject dImageData = hImageData.data();
 	MFnPluginData fnImageData( dImageData , &st); msert;
 	cImgData *imageData = (cImgData *)fnImageData.data();
-	CImg<unsigned char> *colimage = imageData->fImg;
-
-	// int w = colimage->width();
-	// int h = colimage->height();
-
-	cImgData::Interpolation interp = cImgData::Interpolation(data.inputValue(
-	                                   aInterpolation).asShort());
+	CImg<unsigned char> *image = imageData->fImg;
 
 	MDataHandle hSampleU = data.inputValue( aSampleU , &st);
 	MObject dSampleU = hSampleU.data();
@@ -167,54 +112,14 @@ MStatus cImgIndexSampler::compute( const MPlug &plug, MDataBlock &data ) {
 	MObject dSampleV = hSampleV.data();
 	const MDoubleArray sampleV = MFnDoubleArrayData( dSampleV ).array( &st );
 
-	MFloatArray fVals;
-	// get one channel image.
-	CImg<unsigned char> image;
-	cImgUtils::getImageChannel(*colimage , channel, image);
-
-	if (interp == cImgData::kNearest)
-	{
-		cImgUtils::sampleNearest(image, sampleU, sampleV, fVals);
-	}
-	else if (interp == cImgData::kBilinear)
-	{
-		cImgUtils::sampleLinear(image, sampleU, sampleV, fVals);
-	}
-	else if (interp == cImgData::kBicubic)
-	{
-		cImgUtils::sampleCubic(image, sampleU, sampleV, fVals);
-	}
-
-	unsigned len = fVals.length();
-	if (! (len && len == sampleU.length() )) {
-		return MS::kUnknownParameter;
-	}
-
-
-	MObject thisObj = thisMObject();
-	MRampAttribute indexRamp( thisObj, aIndexRamp ); mser;
-
-
-	for (int i = 0; i < len; ++i)
-	{
-		float result;
-		indexRamp.getValueAtPosition( fVals[i], result, &st ); mser;
-		int index = int(result * numIndices);
-		index = std::max(0, std::min(index, (numIndices - 1)));
-		indices.append( index );
-	}
-
-
-
-
+	MIntArray indices;
+	cImgUtils::sampleNearest( *image, sampleU, sampleV, indices);
 
 	MDataHandle hOutIndex = data.outputValue(aOutIndex);
 	MFnIntArrayData fnOutIndex;
 	MObject dOutIndex = fnOutIndex.create(indices);
 	hOutIndex.set(dOutIndex);
 	st = data.setClean( aOutIndex);
-
-
 
 	return MS::kSuccess;
 

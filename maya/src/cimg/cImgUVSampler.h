@@ -27,29 +27,19 @@ public:
 
 	static MObject aInputImage;
 	static MObject aInterpolation;
+	static MObject aChannel;
 	static MObject aSampleU;
 	static MObject aSampleV;
 
+	static MObject aRemapRamp;
+	static MObject aRemapRange;
 
 
-
-
-	// static MObject aAlphaCalc;
-
-	static MObject aOutColors;
-	static MObject aOutAlphas;
+	static MObject aOutput;
 
 	static MTypeId	id;
 
-
-
-
 private:
-
-
-	// MStatus getImageChannel(MDataBlock &data,
-	//                         cImgData::Channel channel, CImg<unsigned char> &result);
-
 
 
 };
