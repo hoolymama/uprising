@@ -252,7 +252,7 @@ def write_image_sequence(painting_node, media_dir, timestamp , frame_range, clea
 
 
 def setup_clean_top(painting_node):
-    
+    pass
 
 
 

@@ -26,6 +26,50 @@ def _get_service():
 #     return values
 
 
+
+def get_measurements_values(cell_range, service, dimension="ROWS"):
+    result = service.spreadsheets().values().get(
+            spreadsheetId=SHEETS["Measurements"],
+            range=cell_range,majorDimension=dimension).execute()
+    return result.get('values', [])
+
+
+
+
+def get_named_header(search_str, sheet_name,  service):
+    batch_size = 100
+    batches = 10
+    total_rows = batch_size * batches
+    for r,x in [("%s!A%d:A%d" % (sheet_name, x+1, x+batch_size) , x) for x in xrange(0,total_rows,batch_size) ]:
+        values = get_measurements_values(r,service, "COLUMNS")
+        if values:
+            for i, v in enumerate(values[0]):
+                if v == search_str:
+                    row = (x+i+1)
+                    cell_range = "%s!A%d:B%d"  % (sheet_name,row,row)
+                    header_values = get_measurements_values(cell_range,service)[0]
+                    header_values.append(row)
+                    return tuple(header_values)
+
+
+def get_resource_by_name(name, resource):
+    service = _get_service()
+    header = get_named_header(name, resource, service)
+    if header:
+        name, desc, row = header
+        cell_range = "%s!A%d:E%d"  % (resource, row+1,row+64)
+        data =  get_measurements_values(cell_range,service)
+        new_data = []
+        for  entry in data:
+            if len(entry) == 0:
+                break
+            new_data.append(entry)
+        return tuple([name, desc, new_data])
+
+
+
+
+
 def get_raw_board_data():
     service = _get_service()
     result = service.spreadsheets().values().get(

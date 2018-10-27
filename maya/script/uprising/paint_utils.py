@@ -6,15 +6,6 @@ import uprising.uprising_util as uutl
 import robodk as rdk
 import sheets
 
-# RL = Robolink()
-
-
-# def add_all_trays_to_sf():
-#     node = pm.ls(selection=True, dag=True, leaf=True, type="strokeFactory")[0]
-#     paints = pm.ls(selection=True, dag=True, leaf=True, type="mesh")
-#     for i, paint in enumerate(paints):
-#         paint_tf = paint.getParent()
-#         connect_paint_to_node(paint_tf, node, i)
 
 
 def connect_paint_to_node(paint_tf, node, connect_to="next_available"):
@@ -25,45 +16,6 @@ def connect_paint_to_node(paint_tf, node, connect_to="next_available"):
         att_type = att.type()
         if att_type in whitelist:
             sfu.create_and_connect_driver(paint_tf, att)
-
-
-
-
-# def send_paint_trays(dip_node):
-#     RL = Robolink()
-#     robot = RL.Item('', ITEM_TYPE_ROBOT)
-#     p_indices = dip_node.attr("paints").getArrayIndices()
-#     for i in p_indices:
-#         att = sfu.input_connection(dip_node.attr("paints[%d].paintTravel" % i))
-#         if att:
-#             tray = att.node()
-#             send_paint_tray(robot, tray)
-
-
-# def send_paint_tray(robot, tray):
-#     RL = Robolink()
-#     geo = tray.getShapes()
-
-#     triangles = []
-#     for g in geo:
-#         points = g.getPoints(space='world')
-#         _, vids = g.getTriangles()
-#         for vid in vids:
-#             triangles.append(
-#                 [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
-
-#     name = "tx_%s" % str(tray)
-
-#     tray_item = RL.Item(name)
-#     if tray_item.Valid():
-#         tray_item.Delete()
-
-#     cR = tray.attr("sfPaintColorR").get()
-#     cG = tray.attr("sfPaintColorG").get()
-#     cB = tray.attr("sfPaintColorB").get()
-#     shape = RL.AddShape(triangles)
-#     shape.setName(name)
-#     shape.setColor([cR, cG, cB])
 
 
 ################# SETUP ##################
@@ -140,52 +92,54 @@ def set_up_rack_from_sheet(dip_node):
 
 
 
-def get_measurements_values(cell_range, service, dimension="ROWS"):
-    result = service.spreadsheets().values().get(
-            spreadsheetId=sheets.SHEETS["Measurements"],
-            range=cell_range,majorDimension=dimension).execute()
-    return result.get('values', [])
+# def get_measurements_values(cell_range, service, dimension="ROWS"):
+#     result = service.spreadsheets().values().get(
+#             spreadsheetId=sheets.SHEETS["Measurements"],
+#             range=cell_range,majorDimension=dimension).execute()
+#     return result.get('values', [])
 
-def get_palette_header(search_str, service):
-    batch_size = 100
-    batches = 10
-    total_rows = batch_size * batches
-    for r,x in [("Paints!A%d:A%d" % (x+1, x+batch_size) , x) for x in xrange(0,total_rows,batch_size) ]:
-        values = get_measurements_values(r,service, "COLUMNS")
-        if values:
-            for i, v in enumerate(values[0]):
-                if v == search_str:
-                    row = (x+i+1)
-                    cell_range = "Paints!A%d:B%d"  % (row,row)
-                    header_values = get_measurements_values(cell_range,service)[0]
-                    header_values.append(row)
-                    return tuple(header_values)
+# def get_palette_header(search_str, service):
+#     batch_size = 100
+#     batches = 10
+#     total_rows = batch_size * batches
+#     for r,x in [("Paints!A%d:A%d" % (x+1, x+batch_size) , x) for x in xrange(0,total_rows,batch_size) ]:
+#         values = sheets.get_measurements_values(r,service, "COLUMNS")
+#         if values:
+#             for i, v in enumerate(values[0]):
+#                 if v == search_str:
+#                     row = (x+i+1)
+#                     cell_range = "Paints!A%d:B%d"  % (row,row)
+#                     header_values = sheets.get_measurements_values(cell_range,service)[0]
+#                     header_values.append(row)
+#                     return tuple(header_values)
 
 
 
-def get_palette_by_name(name):
-    service = sheets._get_service()
-    # name, medium, row = get_palette_header(name, service)
-    header =  get_palette_header(name, service)
-    print "HEADER"
-    print header
-    if header:
-        name, medium, row = header
-        cell_range = "Paints!A%d:E%d"  % (row+1,row+64)
-        palette = get_measurements_values(cell_range,service)
-        new_palette = []
-        for  entry in palette:
-            if len(entry) == 0:
-                break
-            new_palette.append(entry)
+# def get_palette_by_name(name):
+#     service = sheets._get_service()
+#     # name, medium, row = get_palette_header(name, service)
 
-        # new_palette = [entry for entry in palette if len(entry) >= 5]
-        return tuple([name, medium, new_palette])
+#     header =  sheets.get_named_header(name, "Paints", service)
+#     print "HEADER"
+#     print header
+#     if header:
+#         name, medium, row = header
+#         cell_range = "Paints!A%d:E%d"  % (row+1,row+64)
+#         palette = sheets.get_measurements_values(cell_range,service)
+#         new_palette = []
+#         for  entry in palette:
+#             if len(entry) == 0:
+#                 break
+#             new_palette.append(entry)
+
+#         # new_palette = [entry for entry in palette if len(entry) >= 5]
+#         return tuple([name, medium, new_palette])
 
 
 
 def setup_paints_from_sheet(painting_node, dip_node, palette_name):
-    (palette_name, medium, palette) =  get_palette_by_name(palette_name)
+    # (palette_name, medium, palette) =  get_palette_by_name(palette_name)
+    (palette_name, medium, palette) = sheets.get_resource_by_name(palette_name, "Paints")
     assembly= uutl.assembly(painting_node)
     _, _, medium_att, palette_name_att = sfu.ensure_painting_has_notes(assembly)
     medium_att.set(medium)
@@ -205,6 +159,20 @@ def setup_paints_from_sheet(painting_node, dip_node, palette_name):
         colors.append(color)
     set_up_trays(painting_node, dip_node, colors)
 
+
+
+def get_raw_rack_data():
+    service = sheets._get_service()
+    result = service.spreadsheets().values().get(
+        spreadsheetId=sheets.SHEETS["Measurements"],
+        range='Rack!A1:D3').execute()
+    return result.get('values', [])
+
+
+
+
+
+# RL = Robolink()
 # def get_raw_paint_data():
 #     service = sheets._get_service()
 
@@ -222,11 +190,47 @@ def setup_paints_from_sheet(painting_node, dip_node, palette_name):
 
 
 
-def get_raw_rack_data():
-    service = sheets._get_service()
-    result = service.spreadsheets().values().get(
-        spreadsheetId=sheets.SHEETS["Measurements"],
-        range='Rack!A1:D3').execute()
-    return result.get('values', [])
+# def add_all_trays_to_sf():
+#     node = pm.ls(selection=True, dag=True, leaf=True, type="strokeFactory")[0]
+#     paints = pm.ls(selection=True, dag=True, leaf=True, type="mesh")
+#     for i, paint in enumerate(paints):
+#         paint_tf = paint.getParent()
+#         connect_paint_to_node(paint_tf, node, i)
 
 
+
+# def send_paint_trays(dip_node):
+#     RL = Robolink()
+#     robot = RL.Item('', ITEM_TYPE_ROBOT)
+#     p_indices = dip_node.attr("paints").getArrayIndices()
+#     for i in p_indices:
+#         att = sfu.input_connection(dip_node.attr("paints[%d].paintTravel" % i))
+#         if att:
+#             tray = att.node()
+#             send_paint_tray(robot, tray)
+
+
+# def send_paint_tray(robot, tray):
+#     RL = Robolink()
+#     geo = tray.getShapes()
+
+#     triangles = []
+#     for g in geo:
+#         points = g.getPoints(space='world')
+#         _, vids = g.getTriangles()
+#         for vid in vids:
+#             triangles.append(
+#                 [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
+
+#     name = "tx_%s" % str(tray)
+
+#     tray_item = RL.Item(name)
+#     if tray_item.Valid():
+#         tray_item.Delete()
+
+#     cR = tray.attr("sfPaintColorR").get()
+#     cG = tray.attr("sfPaintColorG").get()
+#     cB = tray.attr("sfPaintColorB").get()
+#     shape = RL.AddShape(triangles)
+#     shape.setName(name)
+#     shape.setColor([cR, cG, cB])

@@ -8,8 +8,6 @@ import uprising.uprising_util as uput
 import robodk as rdk
 import sheets
 
-# RL = Robolink()
-
 
 def add_brush_to_painting():
     node = pm.ls(selection=True, dag=True, leaf=True, type="strokeFactory")[0]
@@ -33,54 +31,6 @@ def connect_brush_to_node(brush_tf, node, connect_to="next_available"):
             for c_att in child_atts:
                 sfu.create_and_connect_driver(brush_tf, c_att)
     return index
-
-
-# def send_brushes(factory):
-#     RL = Robolink()
-#     robot = RL.Item('', ITEM_TYPE_ROBOT)
-#     base = pm.PyNode("brushes|base")
-#     brushes = Brush.used_brushes(factory)
-#     for _id in brushes:
-#         send_brush(robot, brushes[_id], base)
-
-
-# def send_brush(robot, brush, base):
-#     """Send a node to robodk.
-
-#     If the node is a locator, it becomes a target in robodk
-#     and exists in world space. If it is a transform, it is
-#     added as a reference frame to the hierarchy. If it is a
-#     mesh, we rebuild triangles in robodk and add it to the
-#     hierarchy.
-#     """
-#     RL = Robolink()
-#     geo = pm.PyNode(brush.name).getShapes() + base.getShapes()
-#     # print brush.name
-#     triangles = []
-#     for g in geo:
-#         points = g.getPoints(space='world')
-#         _, vids = g.getTriangles()
-#         for vid in vids:
-#             triangles.append(
-#                 [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
-
-#     tool_item = RL.Item(brush.name)
-#     if tool_item.Valid():
-#         tool_item.Delete()
-
-#     color = uut.shape_color(g)
-#     tool_item = robot.AddTool(brush.matrix, brush.name)
-#     shape = RL.AddShape(triangles)
-#     shape.setColor(list(color))
-#     tool_item.AddGeometry(shape, rdk.eye())
-#     robot.setPoseTool(tool_item)
-#     shape.Delete()
-
-######################################
-######################################
-######################################
-######################################
-
 
 def create_brush_geo(height, bristle_height, tip, width, name, profile):
 
@@ -112,8 +62,7 @@ def create_brush_geo(height, bristle_height, tip, width, name, profile):
 
     geo = pm.polyUnite(head, handle, ch=0, mergeUVSets=1, name=name)[0]
     geo.attr("tz").set(tcp)
-    # pm.addAttr(geo, at="float", ln="tipLength")
-    # geo.attr("tipLength").set(tip)
+
     return geo
 
 
@@ -137,7 +86,6 @@ def create_and_connect_single_brush_geo(
         height,
         bristle_height,
         tip,
-
         width,
         parent):
     if not node:
@@ -222,16 +170,6 @@ def delete_brushes(painting_node, dip_node):
         pass
     remove_brush_multi_atts(painting_node, dip_node)
 
-
-def create_brush_geo_from_sheet(painting_node, dip_node):
-    data = get_raw_brushes_data()
-    data = validate_brush_data(data)
-    delete_brushes(painting_node, dip_node)
-    for row in data:
-
-        row = [uput.numeric(s) for s in row]
-        create_and_connect_both_brushes_geo(painting_node, dip_node, *row)
-
 def validate_brush_data(data):
     result = []
     if not len(data):
@@ -247,6 +185,26 @@ def validate_brush_data(data):
         result.append(row)
     return result
 
+
+# def create_brush_geo_from_sheet(painting_node, dip_node):
+#     data = get_raw_brushes_data()
+#     data = validate_brush_data(data)
+#     delete_brushes(painting_node, dip_node)
+#     for row in data:
+#         row = [uput.numeric(s) for s in row]
+#         create_and_connect_both_brushes_geo(painting_node, dip_node, *row)
+
+
+def setup_brushes_from_sheet(painting_node, dip_node, pouch_name):
+    (name, desc, pouch) = sheets.get_resource_by_name(pouch_name, "Brushes")
+    pouch = validate_brush_data(pouch)
+    delete_brushes(painting_node, dip_node)
+
+    for row in pouch:
+        row = [uput.numeric(s) for s in row]
+        create_and_connect_both_brushes_geo(painting_node, dip_node, *row)
+
+
 def get_raw_brushes_data():
     service = sheets._get_service()
     result = service.spreadsheets().values().get(
@@ -254,7 +212,6 @@ def get_raw_brushes_data():
         range='Brushes!A2:L18').execute()
     values = result.get('values', [])
     return values
- 
 
 
 def set_stroke_curve_att_from_brush_tip(attribute, mult=1, offset=0):
@@ -266,3 +223,55 @@ def set_stroke_curve_att_from_brush_tip(attribute, mult=1, offset=0):
     attribute.set(val)
 
 
+
+
+
+
+
+
+
+# def send_brushes(factory):
+#     RL = Robolink()
+#     robot = RL.Item('', ITEM_TYPE_ROBOT)
+#     base = pm.PyNode("brushes|base")
+#     brushes = Brush.used_brushes(factory)
+#     for _id in brushes:
+#         send_brush(robot, brushes[_id], base)
+
+
+# def send_brush(robot, brush, base):
+#     """Send a node to robodk.
+
+#     If the node is a locator, it becomes a target in robodk
+#     and exists in world space. If it is a transform, it is
+#     added as a reference frame to the hierarchy. If it is a
+#     mesh, we rebuild triangles in robodk and add it to the
+#     hierarchy.
+#     """
+#     RL = Robolink()
+#     geo = pm.PyNode(brush.name).getShapes() + base.getShapes()
+#     # print brush.name
+#     triangles = []
+#     for g in geo:
+#         points = g.getPoints(space='world')
+#         _, vids = g.getTriangles()
+#         for vid in vids:
+#             triangles.append(
+#                 [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
+
+#     tool_item = RL.Item(brush.name)
+#     if tool_item.Valid():
+#         tool_item.Delete()
+
+#     color = uut.shape_color(g)
+#     tool_item = robot.AddTool(brush.matrix, brush.name)
+#     shape = RL.AddShape(triangles)
+#     shape.setColor(list(color))
+#     tool_item.AddGeometry(shape, rdk.eye())
+#     robot.setPoseTool(tool_item)
+#     shape.Delete()
+
+######################################
+######################################
+######################################
+######################################

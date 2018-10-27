@@ -30,10 +30,12 @@ class SetupTab(gui.FormLayout):
             ann="Read board coordinates from spreadsheet and sand align board IK",
             command=pm.Callback(self.set_board_transform_from_sheet))
 
-        pm.button(
-            label='Setup brushes from spreadsheet',
-            ann="Read brushes parameters from spreadsheet and generate dip and painting geometry",
-            command=pm.Callback(self.create_brushes_from_sheet))
+ 
+        self.setup_brushes_tf = pm.textFieldButtonGrp( label='Setup brushes', text='pouch name', buttonLabel='Go' ,
+            columnWidth3=(140,200,50),
+            buttonCommand=pm.Callback(self.setup_brushes_from_sheet))
+
+
 
         self.setup_paints_tf = pm.textFieldButtonGrp( label='Setup paints', text='palette name', buttonLabel='Go' ,
             columnWidth3=(140,200,50),
@@ -149,7 +151,8 @@ class SetupTab(gui.FormLayout):
     def create_brushes_from_sheet(self):
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
-        butl.create_brush_geo_from_sheet(painting_node, dip_node)
+        pouch_name = pm.textFieldButtonGrp(self.setup_brushes_tf, query=True, text=True)
+        butl.setup_brushes_from_sheet(painting_node, dip_node, pouch_name)
 
     def setup_paints_from_sheet(self):
         painting_node = pm.PyNode("mainPaintingShape")
