@@ -507,7 +507,6 @@ class PaintingTab(gui.FormLayout):
 
         for curve in curves:
             stroke_curve=cutl.get_stroke_curve(curve)
-            print stroke_curve
             attr = stroke_curve.attr(attr_name)
             butl.set_stroke_curve_att_from_brush_tip(attr, mult, offset)
 

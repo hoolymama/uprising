@@ -7,16 +7,18 @@ import datetime
 # import curve_utils as cutl
 # import brush_utils as butl
 # import paint_utils as putl
-
+import uprising_util as uutl
 import setup_dip
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
 # import painting as pnt
 from studio import Studio
+
+import callbacks
 from robolink import (
     Robolink
 )
- 
+
 
 class PublishTab(gui.FormLayout):
 
@@ -30,7 +32,7 @@ class PublishTab(gui.FormLayout):
 
         try:
             self.on_load_notes()
-        except:
+        except BaseException:
             pass
 
         self.on_current_frame_cb_change()
@@ -44,17 +46,28 @@ class PublishTab(gui.FormLayout):
         min_frame = int(pm.playbackOptions(min=True, query=True))
         max_frame = int(pm.playbackOptions(max=True, query=True))
 
+        with uutl.activatable(state=False):
+            # self.pre_frame_py_tf = pm.textFieldGrp(
+            #     label="Pre-frame python"
+            # )
 
-
-
-
+            self.pre_frame_py_tf = pm.textFieldButtonGrp(
+                label='Pre-frame python',
+                text='load_numbered_brush_pouch,test_set',
+                buttonLabel='Go',
+                columnWidth3=(
+                    140,
+                    200,
+                    50),
+                buttonCommand=pm.Callback(
+                    self.test_python_callback))
 
         pm.rowLayout(numberOfColumns=2,
-             columnWidth2=(
-                 (390), 100),
-             # adjustableColumn=1,
-             columnAlign=(1, 'right'),
-             columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+                     columnWidth2=(
+                         (390), 100),
+                     # adjustableColumn=1,
+                     columnAlign=(1, 'right'),
+                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
 
         self.frame_if = pm.intFieldGrp(
             label="Frames to run",
@@ -67,13 +80,9 @@ class PublishTab(gui.FormLayout):
             value=1,
             annotation='Use current frame only',
             changeCommand=pm.Callback(self.on_current_frame_cb_change)
-            )
+        )
 
         pm.setParent('..')
-
-
-
-    
 
         self.save_maya_only_cb = pm.checkBoxGrp(
             label='Skip RoboDK',
@@ -157,7 +166,6 @@ class PublishTab(gui.FormLayout):
         #     label='Export and write packages',
         #     command=pm.Callback(self.on_export_and_write_series))
 
-
     def on_current_frame_cb_change(self):
         state = pm.checkBox(self.current_frame_cb, query=True, value=True)
         pm.intFieldGrp(self.frame_if, edit=True, enable=(not state))
@@ -213,12 +221,13 @@ class PublishTab(gui.FormLayout):
         form.attachControl(self.description_tf, 'bottom', 2, self.medium_tf)
 
     def on_load_notes(self):
-        assembly= pm.PyNode("mainPaintingGroup")
-        notes_att, ground_att, medium_att, palette_name_att = sfu.ensure_painting_has_notes(assembly)
+        assembly = pm.PyNode("mainPaintingGroup")
+        notes_att, ground_att, medium_att, palette_name_att = sfu.ensure_painting_has_notes(
+            assembly)
         notes = notes_att.get()
         ground = ground_att.get()
         medium = medium_att.get()
-        palette_name =  palette_name_att.get()
+        palette_name = palette_name_att.get()
 
         pm.scrollField(self.description_tf, edit=True, text=notes)
         pm.textField(self.ground_tf, edit=True, text=ground)
@@ -226,12 +235,14 @@ class PublishTab(gui.FormLayout):
         pm.textField(self.palette_name_tf, edit=True, text=palette_name)
 
     def on_save_notes(self):
-        assembly= pm.PyNode("mainPaintingGroup")
+        assembly = pm.PyNode("mainPaintingGroup")
         notes = pm.scrollField(self.description_tf, query=True, text=True)
         medium = pm.textField(self.medium_tf, query=True, text=True)
         ground = pm.textField(self.ground_tf, query=True, text=True)
-        palette_name = pm.textField(self.palette_name_tf, query=True, text=True)
-        notes_att, ground_att, medium_att, palette_name_att = sfu.ensure_painting_has_notes(assembly)
+        palette_name = pm.textField(
+            self.palette_name_tf, query=True, text=True)
+        notes_att, ground_att, medium_att, palette_name_att = sfu.ensure_painting_has_notes(
+            assembly)
         notes_att.set(notes)
         ground_att.set(ground)
         medium_att.set(medium)
@@ -297,13 +308,37 @@ class PublishTab(gui.FormLayout):
     #     if export_dir:
     #         write.export_maya_package_only(export_dir, desc)
 
+
+    def test_python_callback(self):
+
+        pre_frame_py = pm.textFieldButtonGrp(
+            self.pre_frame_py_tf,
+            q=True,
+            text=True)
+
+        kw = {
+            "frame": pm.currentTime(q=True),
+            "painting_node" : pm.PyNode("mainPaintingShape"),
+            "dip_node": pm.PyNode("dipPaintingShape")
+        }
+
+        args = pre_frame_py.split(",")
+        cmd = args[0]
+        args = [uutl.numeric(a.strip()) for a in args[1:]]
+        method = getattr(callbacks, cmd)
+        res = method(*args, **kw)
+        print res
+
+
+
     def on_export_and_write_series(self):
 
         export_dir = write.choose_publish_dir()
         if not export_dir:
             return
 
-        current_only = pm.checkBox(self.current_frame_cb, query=True, value=True)
+        current_only = pm.checkBox(
+            self.current_frame_cb, query=True, value=True)
 
         if current_only:
             frame = int(pm.currentTime(query=True))
@@ -331,6 +366,13 @@ class PublishTab(gui.FormLayout):
         medium = pm.textField(self.medium_tf, query=True, text=True)
         ground = pm.textField(self.ground_tf, query=True, text=True)
 
+        do_pre_frame_py = pm.textFieldButtonGrp(
+            self.pre_frame_py_tf, q=True, en=True)
+        pre_frame_py = pm.textFieldButtonGrp(
+            self.pre_frame_py_tf,
+            q=True,
+            text=True) if do_pre_frame_py else None
+
         write.publish_sequence(
             export_dir,
             painting_node,
@@ -340,7 +382,9 @@ class PublishTab(gui.FormLayout):
             ground,
             frames,
             maya_only,
-            save_unfiltered_snapshot)
+            save_unfiltered_snapshot,
+            pre_frame_py
+        )
 
     def on_make_snapshot(self):
         res = pm.floatSliderButtonGrp(self.snap_now_if, query=True, value=True)

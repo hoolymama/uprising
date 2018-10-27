@@ -37,6 +37,7 @@ def get_measurements_values(cell_range, service, dimension="ROWS"):
 
 
 def get_named_header(search_str, sheet_name,  service):
+    print "Looking for header with name %s in %s" % (search_str, sheet_name)
     batch_size = 100
     batches = 10
     total_rows = batch_size * batches
@@ -55,9 +56,11 @@ def get_named_header(search_str, sheet_name,  service):
 def get_resource_by_name(name, resource):
     service = _get_service()
     header = get_named_header(name, resource, service)
+    print "In get_resource_by_name - "
     if header:
         name, desc, row = header
-        cell_range = "%s!A%d:E%d"  % (resource, row+1,row+64)
+        print "name, desc %s %s" % (name, desc)
+        cell_range = "%s!A%d:Z%d"  % (resource, row+1,row+64)
         data =  get_measurements_values(cell_range,service)
         new_data = []
         for  entry in data:

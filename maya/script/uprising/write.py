@@ -9,6 +9,8 @@ from robolink import (Robolink, ITEM_TYPE_STATION)
 from studio import Studio
 from paint import Paint
 import setup_dip
+import callbacks
+
 
 CLEAN_FILE = "/Users/julian/projects/robot/stations/clean.rdk"
 
@@ -73,6 +75,24 @@ def publish_proposal(
         # write_ref_image(ts_dir, timestamp)
  
 
+def run_hook(code):
+    if not code:
+        return
+    kw = {
+        "frame": pm.currentTime(q=True),
+        "painting_node" : pm.PyNode("mainPaintingShape"),
+        "dip_node": pm.PyNode("dipPaintingShape")
+    }
+
+    args = code.split(",")
+    cmd = args[0]
+    args = [uutl.numeric(a.strip()) for a in args[1:]]
+    method = getattr(callbacks, cmd)
+    res = method(*args, **kw)
+    print res
+
+
+
 
 def publish_sequence(
         export_dir,
@@ -83,9 +103,16 @@ def publish_sequence(
         ground,
         frame_range,
         maya_only,
-        save_unfiltered_snapshot):
+        save_unfiltered_snapshot,
+        pre_frame_py):
     # RL = Robolink()
     # clean_rdk()
+    print "x" * 20
+    print "painting_node: %s" % painting_node
+    print "dip_node: %s" % dip_node
+
+
+
 
     recordings_dir = os.path.join(export_dir, "recordings")
     mkdir_p(recordings_dir)
@@ -99,12 +126,21 @@ def publish_sequence(
 
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
+        run_hook(pre_frame_py)
         timestamp = get_timestamp(frame)
         ts_dir = get_ts_dir(export_dir, timestamp)
         mkdir_p(ts_dir)
         desc, notes = split_desc(description.replace("#f", str(frame)))
         print "Desc: %s" % desc
         print "Notes: %s" % notes
+
+
+        write_maya_scene(ts_dir, timestamp)
+        write_ref_image(ts_dir, timestamp)
+        write_csv(export_dir, timestamp, desc, notes, medium, ground)
+
+        if not maya_only:
+            publish_robodk_parts(painting_node, dip_node, ts_dir, timestamp)
 
         write_log(
             painting_node,
@@ -114,13 +150,7 @@ def publish_sequence(
             desc,
             notes,
             frame)
-        write_maya_scene(ts_dir, timestamp)
-        write_ref_image(ts_dir, timestamp)
-        write_csv(export_dir, timestamp, desc, notes, medium, ground)
-
-        if not maya_only:
-            publish_robodk_parts(painting_node, dip_node, ts_dir, timestamp)
-
+        
             # setup_dip.doit()
             # with uutl.minimize_robodk():
             #     studio = Studio(painting_node, dip_node)
@@ -278,8 +308,10 @@ def write_maya_scene(ts_dir, timestamp):
 
 
 def _painting_stats(node):
-
+    print "_painting_stats %s" % node
+    pm.refresh()
     cluster_count = pm.paintingQuery(node, cc=True)
+    print "GIT HERE %s" % cluster_count
     stroke_count = 0
     for i in range(cluster_count):
         stroke_count += pm.paintingQuery(node, ci=i, sc=True)

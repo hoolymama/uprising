@@ -41,7 +41,7 @@ class RingsSetupTab(gui.FormLayout):
         #     command=pm.Callback(self.on_duplicate_into_gaps))
 
         # self.subcurvemin_ctl  = pm.checkBoxGrp(label="Lift over curve", value1=False)
-        with uutl.activatable(state=True):
+        with uutl.activatable(state=False):
             self.distribution_frame = pm.frameLayout(
                 borderVisible=True,
                 collapsable=False,

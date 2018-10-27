@@ -31,7 +31,7 @@ class SetupTab(gui.FormLayout):
             command=pm.Callback(self.set_board_transform_from_sheet))
 
  
-        self.setup_brushes_tf = pm.textFieldButtonGrp( label='Setup brushes', text='pouch name', buttonLabel='Go' ,
+        self.setup_brushes_tf = pm.textFieldButtonGrp( label='Setup brushes', text='test_set_A', buttonLabel='Go' ,
             columnWidth3=(140,200,50),
             buttonCommand=pm.Callback(self.setup_brushes_from_sheet))
 
@@ -68,18 +68,18 @@ class SetupTab(gui.FormLayout):
         
 
 
-        self.gen_dip_curves_ff = pm.floatSliderButtonGrp(
-            label='Create brush dip curves',
-            ann="Set the wipe height: 0=low (more wipe), 1.0=high (less wipe)",
-            field=True,
-            maxValue=1.0,
-            step=0.01,
-            value=0.0,
-            symbolButtonDisplay=False,
-            buttonLabel="Go",
-            buttonCommand=pm.Callback(self.on_generate_brush_dip_curves),
-            columnWidth=(4, 60)
-        )
+        # self.gen_dip_curves_ff = pm.floatSliderButtonGrp(
+        #     label='Create brush dip curves',
+        #     ann="Set the wipe height: 0=low (more wipe), 1.0=high (less wipe)",
+        #     field=True,
+        #     maxValue=1.0,
+        #     step=0.01,
+        #     value=0.0,
+        #     symbolButtonDisplay=False,
+        #     buttonLabel="Go",
+        #     buttonCommand=pm.Callback(self.on_generate_brush_dip_curves),
+        #     columnWidth=(4, 60)
+        # )
 
  
 
@@ -90,13 +90,13 @@ class SetupTab(gui.FormLayout):
 
 
 
-        force_gen_bc  = 1
-        self.force_gen_brush_curves_cb = pm.checkBox(
-            label='Force',
-            value=force_gen_bc,
-            annotation='Force generate brush curves')
+        # force_gen_bc  = 1
+        # self.force_gen_brush_curves_cb = pm.checkBox(
+        #     label='Force',
+        #     value=force_gen_bc,
+        #     annotation='Force generate brush curves')
     
-        pm.setParent('..')
+        # pm.setParent('..')
 
         pm.button(
             label='Set up dip combination curves',
@@ -148,7 +148,7 @@ class SetupTab(gui.FormLayout):
         painting_node = pm.PyNode("mainPaintingShape")
         sfu.set_board_from_sheet(painting_node)
 
-    def create_brushes_from_sheet(self):
+    def setup_brushes_from_sheet(self):
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
         pouch_name = pm.textFieldButtonGrp(self.setup_brushes_tf, query=True, text=True)
@@ -184,10 +184,10 @@ class SetupTab(gui.FormLayout):
         for curve in curves:
             cutl.connect_curve_to_painting(curve, node, connect_to="next_available")
 
-    def on_generate_brush_dip_curves(self):
-        lift = pm.floatSliderButtonGrp(self.gen_dip_curves_ff, query=True, value=True)
-        force = pm.checkBox(self.force_gen_brush_curves_cb, query=True, v=True)
-        cutl.generate_brush_dip_curves(lift, force )
+    # def on_generate_brush_dip_curves(self):
+    #     lift = pm.floatSliderButtonGrp(self.gen_dip_curves_ff, query=True, value=True)
+    #     force = pm.checkBox(self.force_gen_brush_curves_cb, query=True, v=True)
+    #     cutl.generate_brush_dip_curves(lift, force )
 
     # def visualize_brush_dips(self):
     #     painting_dip = pm.PyNode("mainPaintingShape")

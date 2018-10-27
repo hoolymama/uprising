@@ -87,6 +87,7 @@ def set_dip_curve_defaults(stroke_curve, first, brush_id, paint_id):
 
 
 def doit():
+    print "!!!!!!!!!!!!!!!!! SETUP DIP !!!!!!!!!!!!!!!!!!!!!!!!"
     painting_node = pm.PyNode("mainPaintingShape")
     dip_node = pm.PyNode("dipPaintingShape")
 
@@ -110,6 +111,9 @@ def doit():
 
     # before making new dip curves, delete the old ones
     pm.delete(pm.PyNode("%s|curves|" % dip_assembly ).getChildren() )
+
+ 
+
     for dip in combinations:
         paint_id = combinations[dip]["paint"].id
         brush_id = combinations[dip]["brush"].id

@@ -1,5 +1,6 @@
 import pymel.core as pm
 import stroke_factory_utils as sfu
+import curve_utils as cutl
 from brush import Brush
 from robolink import (Robolink, ITEM_TYPE_ROBOT)
 import uprising.maya_util as uut
@@ -31,6 +32,7 @@ def connect_brush_to_node(brush_tf, node, connect_to="next_available"):
             for c_att in child_atts:
                 sfu.create_and_connect_driver(brush_tf, c_att)
     return index
+
 
 def create_brush_geo(height, bristle_height, tip, width, name, profile):
 
@@ -72,7 +74,7 @@ def brush_name(idx, unsplay_width, desc, profile, prefix):
         str(int(idx)),
         "%smm" % str(int(unsplay_width * 10)),
         profile.lower(),
-        desc.lower() 
+        desc.lower()
     ])
 
 
@@ -108,56 +110,44 @@ def create_and_connect_single_brush_geo(
     tf.attr("sfBrushRetention").set(retention)
 
     pm.parent(tf, parent)
+    return tf
 
+ 
+def create_and_connect_both_brushes_geo( painting_node, dip_node, **kw):
 
-def create_and_connect_both_brushes_geo(
+    painting_brush_tf = create_and_connect_single_brush_geo(
         painting_node,
-        dip_node,
-        idx,
-        _1,
-        height,
-        bristle_height,
-        tip,
-        _2,
-        unsplay_width,
-        width,
-        desc,
-        profile,
-        dip_tip,
-        _4
-):
-
-    create_and_connect_single_brush_geo(
-        painting_node,
-        idx,
-        unsplay_width,
-        desc,
-        profile,
+        kw["id"],
+        kw["unsplay_width"],
+        kw["desc"],
+        kw["profile"],
         "bpx",
-        height,
-        bristle_height,
-        tip,
-        width,
+        kw["height"],
+        kw["bristle_height"],
+        kw["tip"],
+        kw["splay_width"],
         '|brushes|paintingBrushes')
 
-    create_and_connect_single_brush_geo(
+    dip_brush_tf = create_and_connect_single_brush_geo(
         dip_node,
-        idx,
-        unsplay_width,
-        desc,
-        profile,
+        kw["id"],
+        kw["unsplay_width"],
+        kw["desc"],
+        kw["profile"],
         "bdx",
-        height,
-        bristle_height,
-        dip_tip,
-        width,
+        kw["height"],
+        kw["bristle_height"],
+        kw["dip_tip"],
+        kw["splay_width"],
         '|brushes|dipBrushes')
+    return (painting_brush_tf, dip_brush_tf)
 
 def remove_brush_multi_atts(*nodes):
     for node in nodes:
         indices = node.attr("brushes").getArrayIndices()
         for i in indices:
             pm.removeMultiInstance(node.attr("brushes[%d]" % i), b=True)
+
 
 def delete_brushes(painting_node, dip_node):
     try:
@@ -170,6 +160,7 @@ def delete_brushes(painting_node, dip_node):
         pass
     remove_brush_multi_atts(painting_node, dip_node)
 
+
 def validate_brush_data(data):
     result = []
     if not len(data):
@@ -178,7 +169,7 @@ def validate_brush_data(data):
     for row in data:
         if not len(row) > 9:
             continue
-        try: 
+        try:
             int(row[0])
         except ValueError:
             continue
@@ -196,38 +187,115 @@ def validate_brush_data(data):
 
 
 def setup_brushes_from_sheet(painting_node, dip_node, pouch_name):
+    print "%s %s %s" % (painting_node, dip_node, pouch_name)
     (name, desc, pouch) = sheets.get_resource_by_name(pouch_name, "Brushes")
+
     pouch = validate_brush_data(pouch)
     delete_brushes(painting_node, dip_node)
 
+
+    # prepare for dip curves
+    dip_curves_src = "brushes|dipCurves|defaultSource"
+    pm.makeIdentity(dip_curves_src, t=True, r=True, s=True)
+    pm.delete("brushes|dipCurves|bdcx*")
+
+
     for row in pouch:
         row = [uput.numeric(s) for s in row]
-        create_and_connect_both_brushes_geo(painting_node, dip_node, *row)
+
+        kwargs = {
+            "id": row[0],
+            "height": row[2],
+            "bristle_height": row[3],
+            "tip": row[4],
+            "unsplay_width": row[6],
+            "splay_width": row[7],
+            "desc": row[8],
+            "profile": row[9],
+            "dip_tip": row[10],
+            "wipe_tip":  row[12]
+        }
+
+        p_brush_tf, d_brush_tf = create_and_connect_both_brushes_geo(painting_node, dip_node, **kwargs)
+        wipe_offset = kwargs["dip_tip"] - kwargs["wipe_tip"] 
+
+        generate_brush_dip_curves(p_brush_tf, d_brush_tf, wipe_offset)
 
 
-def get_raw_brushes_data():
-    service = sheets._get_service()
-    result = service.spreadsheets().values().get(
-        spreadsheetId=sheets.SHEETS["Measurements"],
-        range='Brushes!A2:L18').execute()
-    values = result.get('values', [])
-    return values
+# def get_raw_brushes_data():
+#     service = sheets._get_service()
+#     result = service.spreadsheets().values().get(
+#         spreadsheetId=sheets.SHEETS["Measurements"],
+#         range='Brushes!A2:L18').execute()
+#     values = result.get('values', [])
+#     return values
+
+def generate_brush_dip_curves(
+    painting_brush_tf, 
+    dip_brush_tf, 
+    wipe_offset):
+
+
+
+    src = "brushes|dipCurves|defaultSource"
+    pm.PyNode("brushes").attr("visibility").set(True)
+    # node = pm.PyNode("dipPaintingShape")
+    
+
+    painting_brush = painting_brush_tf.getChildren()[0]
+    dip_brush = dip_brush_tf.getChildren()[0]
+    
+    # dip_brushes = pm.ls("brushes|dipBrushes|bdx*", dag=True, leaf=True)
+    # painting_brushes = pm.ls(
+    #     "brushes|paintingBrushes|bpx*",
+    #     dag=True,
+    #     leaf=True)
+
+    # brushes = zip(dip_brushes, painting_brushes)
+
+    
+
+    # for dip_brush, painting_brush in brushes:
+        # brush_tf = dip_brush.getParent()
+    name = "_".join(["bdcx"] + dip_brush_tf.name().split("|")
+                    [-1].split("_")[1:])
+
+    # logger.debug("name: %s" % name)
+    full_name = "brushes|dipCurves|%s" % name
+    # logger.debug("full_name: %s" % full_name)
+
+        # if force:
+        #     if pm.objExists(full_name):
+        #         pm.delete(full_name)
+        # if not pm.objExists(full_name):
+    grp = cutl.duplicate_grp_with_stroke_curves(src, full_name)
+        # else:
+        # grp = cutl.ensure_grp_has_stroke_curves(src, pm.PyNode(full_name))
+
+        # lift higher if weight is low so wipes off less paint.
+        # wipe_offset = painting_brush.getParent().attr(
+        #     "tz").get() - dip_brush.getParent().attr("tz").get()
+        # wipe_offset = wipe_offset * lift
+
+    for wipe_curve in grp.getChildren()[1:]:
+        wipe_curve.attr("tz").set(wipe_offset)
+    pm.PyNode("brushes").attr("visibility").set(False)
+
+
 
 
 def set_stroke_curve_att_from_brush_tip(attribute, mult=1, offset=0):
     sc = attribute.node()
-    painting = pm.listConnections(sc, destination=True, source=False, shapes=True, type="painting")[0]
+    painting = pm.listConnections(
+        sc,
+        destination=True,
+        source=False,
+        shapes=True,
+        type="painting")[0]
     index = sc.attr("brushId").get()
     brush = Brush.brush_at_index(painting, index)
     val = (brush.tip * mult) + offset
     attribute.set(val)
-
-
-
-
-
-
-
 
 
 # def send_brushes(factory):

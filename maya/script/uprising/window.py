@@ -38,6 +38,7 @@ import paint_utils
 import culling
 import props
 import images
+import callbacks
 
 
 reload(studio)
@@ -51,6 +52,7 @@ reload(write)
 reload(setup_dip)
 reload(const)
 reload(images)
+reload(callbacks)
 
 reload(curve_utils)
 reload(brush_utils)
@@ -120,7 +122,7 @@ class RobotWindow(gui.Window):
 
         self.show()
         self.setResizeToFitChildren()
-        self.tabs.setSelectTabIndex(8)
+        self.tabs.setSelectTabIndex(7)
 
     def onTabChanged(self):
         print ""
