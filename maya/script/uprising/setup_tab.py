@@ -35,12 +35,6 @@ class SetupTab(gui.FormLayout):
             ann="Read brushes parameters from spreadsheet and generate dip and painting geometry",
             command=pm.Callback(self.create_brushes_from_sheet))
 
-
-        # pm.button(
-        #     label='Setup paints from spreadsheet',
-        #     ann="Read paint parameters from spreadsheet. Set connections and make new shaders",
-        #     command=pm.Callback(self.setup_paints_from_sheet))
-
         self.setup_paints_tf = pm.textFieldButtonGrp( label='Setup paints', text='palette name', buttonLabel='Go' ,
             columnWidth3=(140,200,50),
             buttonCommand=pm.Callback(self.setup_paints_from_sheet))
@@ -107,10 +101,10 @@ class SetupTab(gui.FormLayout):
             ann="Create dip curves for all brush and paint combinations used in the painting. Typically do this after setting up brush dip curve shapes",
             command=pm.Callback(setup_dip.doit))
 
-        pm.button(
-            label='Visualize brush dip motions',
-            ann="See how brushes will move when dipping in the trays",
-            command=pm.Callback(self.visualize_brush_dips))
+        # pm.button(
+        #     label='Visualize brush dip motions',
+        #     ann="See how brushes will move when dipping in the trays",
+        #     command=pm.Callback(self.visualize_brush_dips))
 
         pm.setParent('..')   
         pm.setParent('..')
@@ -135,6 +129,18 @@ class SetupTab(gui.FormLayout):
         self.attachForm(go_but, 'right', 2)
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
+
+
+    def populate(self):
+        val = "default"
+        if pm.optionVar.has_key("up_setup_palette_name"):
+            val = pm.optionVar["up_setup_palette_name"]
+        pm.textFieldButtonGrp(self.setup_paints_tf, e=True, text=val)
+
+    def save(self):
+        val =  pm.textFieldButtonGrp(self.setup_paints_tf, q=True, text=True)
+        pm.optionVar["up_setup_palette_name"] = val
+
 
     def set_board_transform_from_sheet(self):
         painting_node = pm.PyNode("mainPaintingShape")
@@ -180,7 +186,7 @@ class SetupTab(gui.FormLayout):
         force = pm.checkBox(self.force_gen_brush_curves_cb, query=True, v=True)
         cutl.generate_brush_dip_curves(lift, force )
 
-    def visualize_brush_dips(self):
-        painting_dip = pm.PyNode("mainPaintingShape")
-        dip_dip = pm.PyNode("dipPaintingShape")
+    # def visualize_brush_dips(self):
+    #     painting_dip = pm.PyNode("mainPaintingShape")
+    #     dip_dip = pm.PyNode("dipPaintingShape")
         

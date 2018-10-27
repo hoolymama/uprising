@@ -11,6 +11,7 @@ import curve_utils as cutl
 import uprising_util as uutl
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
+# from uprising.sequence import Sequence
 # import painting as pnt
 from studio import Studio
 from robolink import (
@@ -28,49 +29,100 @@ class RingsDesignTab(gui.FormLayout):
         self.create_buttons()
         self.create_action_buttons()
 
+    def get_random_resource_values(self, row):
+        if not pm.rowLayout(row, q=True, en=True):
+            return None
+
+        spec_ctl, steps_ctl, pow_ctl = pm.rowLayout(
+            row, q=True, childArray=True)
+
+        return(
+            pm.textFieldGrp(spec_ctl, q=True, text=True),
+            pm.intFieldGrp(steps_ctl, q=True, value1=True),
+            pm.floatFieldGrp(pow_ctl, q=True, value1=True)
+        )
+
+    def random_res_control(self, label, default_text):
+
+        with uutl.activatable():
+            row = pm.rowLayout(numberOfColumns=3,
+                               columnWidth3=(250, 90, 90),
+                               columnAlign=(1, 'right'))
+            #, columnAttach=[(1, 'both', 2), (2, 'both', 2), (3, 'both', 2)])
+            text_ctrl = pm.textFieldGrp(
+                label=label,
+                text=default_text
+            )
+            steps_ctrl = pm.intFieldGrp(
+                columnWidth2=(30, 60,),
+                numberOfFields=1, value1=-1, label='steps'
+            )
+            power_ctrl = pm.floatFieldGrp(
+                columnWidth2=(30, 60,),
+                numberOfFields=1, value1=0, label='pow'
+            )
+            pm.setParent("..")
+        return row
+
     def create_buttons(self):
         pm.setParent(self.column)
 
-        pm.rowLayout(numberOfColumns=2,
-                     columnWidth2=( 350, 150),
-                     columnAlign=(1, 'right'),
-                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
 
-        self.spacing_type_ctl = pm.radioButtonGrp(
-            label='Spacing',
-            sl=1,
-            labelArray2=[
-                'Spines',
-                'Gaps'],
-            numberOfRadioButtons=2)
 
-        self.spacing_ctl = pm.floatFieldGrp(numberOfFields=1, value1=1, extraLabel='cm')
-        pm.setParent("..")
- 
+        with uutl.activatable():
+            self.spacing_row =  pm.rowLayout(numberOfColumns=2,
+             columnWidth2=(350, 150),
+             columnAlign=(1, 'right'),
+             columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+            self.spacing_type_ctl = pm.radioButtonGrp(
+                label='Spacing',
+                sl=1,
+                labelArray2=[
+                    'Spines',
+                    'Gaps'],
+                numberOfRadioButtons=2)
+
+            self.spacing_ctl = pm.floatFieldGrp(
+                numberOfFields=1, value1=1, extraLabel='cm')
+            pm.setParent("..")
+
         with uutl.activatable():
             self.max_extent_ctrl = pm.floatFieldGrp(
-            label='Max extent',
-            value1=50
+                label='Max extent',
+                value1=50
             )
 
-        with uutl.activatable():
-            self.random_paints_ctrl = pm.textFieldGrp(
-            label='Random paints',
-            text='0-32'
-            )
+ 
 
-        with uutl.activatable():
-            self.random_brushes_ctrl = pm.textFieldGrp(
-            label='Random brushesbrushes',
-            text='0-16'
-            )
+        self.random_paints_row = self.random_res_control(
+            "Random paints", "0-32")
+        self.random_brushes_row = self.random_res_control(
+            "Random brushes", "0-16")
+
+        # with uutl.activatable():
+        #     self.random_brushes_ctrl = pm.textFieldGrp(
+        #         label='Rando brushes',
+        #         text='0-16'
+        #     )
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        set_button = pm.button(label='Set value' , command=pm.Callback(self.on_apply, False ))
-        key_button = pm.button(label='Keyframe range' , command=pm.Callback(self.on_apply, True ))
-        key_button = pm.button(label='Keyframe range' , command=pm.Callback(self.on_apply, True ))
+        set_button = pm.button(
+            label='Set value',
+            command=pm.Callback(
+                self.on_apply,
+                False))
+        key_button = pm.button(
+            label='Keyframe range',
+            command=pm.Callback(
+                self.on_apply,
+                True))
+        # key_button = pm.button(
+        #     label='Keyframe range',
+        #     command=pm.Callback(
+        #         self.on_apply,
+        #         True))
 
         self.attachForm(self.column, 'left', 2)
         self.attachForm(self.column, 'right', 2)
@@ -88,17 +140,31 @@ class RingsDesignTab(gui.FormLayout):
         self.attachForm(key_button, 'bottom', 2)
 
     def on_apply(self, do_keys):
-        do_paints = pm.textFieldGrp(self.random_paints_ctrl, query=True, en=True)
-        do_brushes = pm.textFieldGrp(self.random_brushes_ctrl, query=True, en=True)
+
+        random_paint_params = self.get_random_resource_values(
+            self.random_paints_row)
+        random_brush_params = self.get_random_resource_values(
+            self.random_brushes_row)
+
         do_max = pm.floatFieldGrp(self.max_extent_ctrl, query=True, en=True)
 
-        spacing_type = "spine" if (pm.radioButtonGrp(self.spacing_type_ctl, query=True, sl=True) == 1) else "gap"
-        spacing = pm.floatFieldGrp(self.spacing_ctl, query=True, value1=True)
-        paint_spec = pm.textFieldGrp(self.random_paints_ctrl, query=True,  text=True) if do_paints else None
-        brush_spec = pm.textFieldGrp(self.random_brushes_ctrl, query=True,  text=True) if do_brushes else None
-        max_extent = pm.floatFieldGrp(self.max_extent_ctrl, query=True, value1=True) if do_max else None
+        spacing_type = "none"
+        if pm.rowLayout(
+                self.spacing_row,
+                query=True, en=True):
+            spacing_type = "spine" if (
+                pm.radioButtonGrp(
+                    self.spacing_type_ctl,
+                    query=True,
+                    sl=True) == 1) else "gap"
 
-        print "max_extent : %s" % max_extent
+        spacing = pm.floatFieldGrp(self.spacing_ctl, query=True, value1=True)
+        max_extent = pm.floatFieldGrp(
+            self.max_extent_ctrl,
+            query=True,
+            value1=True) if do_max else None
+
+        # print "max_extent : %s" % max_extent
         curves = pm.ls(
             selection=True,
             dag=True,
@@ -108,15 +174,47 @@ class RingsDesignTab(gui.FormLayout):
         if not curves:
             pm.error("No curves selected")
             return
+
+        paint_ids = []
+        brush_ids = []
+        if random_paint_params and random_paint_params[0] == "":
+            for curve in curves:
+                sc = cutl.get_stroke_curve(curve)
+                paint_ids.append(sc.attr("paintId").get())
+
+        if random_brush_params and random_brush_params[0] == "":
+            for curve in curves:
+                sc = cutl.get_stroke_curve(curve)
+                paint_ids.append(sc.attr("brushId").get())
+
+        curves_packs = map(None, curves, brush_ids, paint_ids)
+
         if do_keys:
             start_frame = int(pm.playbackOptions(q=True, min=True))
             end_frame = int(pm.playbackOptions(q=True, max=True))
-            for f in range(start_frame, end_frame+1):
+            for f in range(start_frame, end_frame + 1):
                 pm.currentTime(f)
-                cutl._randomize(curves, paint_spec, brush_spec, max_extent, spacing, spacing_type, True)
+                cutl._randomize(
+                    curves_packs,
+                    random_paint_params,
+                    random_brush_params,
+                    max_extent,
+                    spacing,
+                    spacing_type,
+                    paint_ids,
+                    brush_ids,
+                    True)
         else:
-            cutl._randomize(curves, paint_spec, brush_spec, max_extent, spacing, spacing_type, False)
- 
+            cutl._randomize(
+                curves_packs,
+                random_paint_params,
+                random_brush_params,
+                max_extent,
+                spacing,
+                spacing_type,
+                paint_ids,
+                brush_ids,
+                False)
 
     # def on_duplicate_into_gaps(self):
     #     curves = pm.ls(

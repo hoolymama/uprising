@@ -1,0 +1,10 @@
+
+// get the playblast resolution as set in the clapper node
+global proc string uprisingRainbowRampStats(string $node) {
+	float $noise = `getAttr ("rainbowRamp.valNoise")`;
+	$noise = trunc( $noise*1000) /1000;
+	int $rev =  `getAttr ("rainbowRamp.invert")`;
+	string $revstr = $rev ? "Yes" : "No";
+	return ("Noise:"+ $noise + " - Reverse:" + $revstr) ;
+}
+

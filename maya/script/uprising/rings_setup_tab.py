@@ -92,10 +92,20 @@ class RingsSetupTab(gui.FormLayout):
                     value3=0)
 
         with uutl.activatable(state=False):
+            pm.rowLayout(numberOfColumns=2,
+                 columnWidth2=(350, 150),
+                 columnAlign=(1, 'right'),
+                 columnAttach=[(1, 'both', 2), (2, 'both', 2)])
             self.twist_ctl = pm.floatFieldGrp(
                 numberOfFields=2,
                 label='Twist angle/dist',
                 value1=0, value2=1)
+            self.flat_only_cb = pm.checkBox(
+                label='Flat only',
+                value=1,
+                annotation='Only set flat brush ramps')
+
+            pm.setParent("..")
 
         with uutl.activatable(state=False):
             self.profile_ctl = pm.floatFieldGrp(
@@ -199,6 +209,8 @@ class RingsSetupTab(gui.FormLayout):
             lift = pm.floatFieldGrp(self.lift_ctl, q=True, v=True)
         if do_twist:
             twist = pm.floatFieldGrp(self.twist_ctl, q=True, v=True)
+            flat_only =  pm.checkBox(self.flat_only_cb, q=True, v=True)
+            twist.append(flat_only)
         if do_profile:
             profile = pm.floatFieldGrp(self.profile_ctl, q=True, v=True)
         if do_subcurve:

@@ -5,6 +5,7 @@ import uprising_util as uutl
 import uprising.maya_util as mut
 import robodk as rdk
 
+
 class Brush(object):
     def __init__(self, the_id, name, matrix, width, retention, tip, shape):
         self.id = the_id
@@ -14,21 +15,20 @@ class Brush(object):
         self.retention = retention
         self.tip = tip
         self.name = name
-               
 
     def is_round(self):
         return self.shape == 1
-        
+
     def is_flat(self):
-        print self.shape 
         return self.shape == 0
-        
+
     def write(self, studio):
         old_brush = studio.RL.Item(self.name)
         if old_brush.Valid():
             old_brush.Delete()
- 
-        geo = pm.PyNode(self.name).getShapes() + pm.PyNode("brushes|brushBase").getShapes()
+
+        geo = pm.PyNode(self.name).getShapes() + \
+            pm.PyNode("brushes|brushBase").getShapes()
         triangles = []
         for g in geo:
             points = g.getPoints(space='world')
@@ -44,14 +44,14 @@ class Brush(object):
         tool_item.AddGeometry(shape, rdk.eye())
         studio.robot.setPoseTool(tool_item)
         shape.Delete()
- 
+
     @classmethod
     def brush_at_index(cls, node, index):
         vals = [index]
         conns = node.attr(
-                "brushes[%d].brushMatrix" %index).connections(
-                source=True,
-                destination=False)
+            "brushes[%d].brushMatrix" % index).connections(
+            source=True,
+            destination=False)
         vals.append(str(conns[0]))
 
         for att in [
@@ -60,12 +60,11 @@ class Brush(object):
             "brushRetention",
             "brushTip",
             "brushShape"
-            ]:
+        ]:
             vals.append(node.attr("brushes[%d].%s" % (index, att)).get())
 
         return Brush(*vals)
 
-    
     @classmethod
     def brushes(cls, node):
         result = {}
@@ -82,8 +81,7 @@ class Brush(object):
             brush_id = node.attr("curves[%d].brushId" % index).get()
             if brush_id not in result:
                 result[brush_id] = Brush.brush_at_index(node, brush_id)
-                found_brushes +=1
+                found_brushes += 1
                 if found_brushes == num_brushes:
                     break
         return result
-

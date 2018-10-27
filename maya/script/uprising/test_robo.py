@@ -1,3 +1,74 @@
+
+import random
+import math
+class WeightedRandomizer:
+    def __init__ (self, weights):
+        self.__max = .0
+        self.__weights = []
+        for value, weight in weights.items ():
+            self.__max += weight
+            self.__weights.append ( (self.__max, value) )
+
+    def random (self):
+        r = random.random () * self.__max
+        for ceil, value in self.__weights:
+            if ceil > r: return value
+
+
+
+max_steps = 4
+power = 1
+
+
+sentinel = max_steps+1
+w = {}
+results = {}
+for i in range(sentinel):
+    j=1.0-(i / float(sentinel))
+    w[i] =   pow(j, power)
+    w[-i] = w[i]
+    results[i] = 0
+    results[-i] = 0
+       
+
+print w 
+
+arr = []
+for key, value in w.iteritems():
+    temp = [key,value]
+    arr.append(temp)
+
+
+
+arr =  sorted(arr, key=lambda tup: tup[0])
+arr = [x[1] for x in arr]
+
+tot = sum(arr)
+# print arr
+# siz = len(arr)
+# for a in arr:
+#     print "%d%%" % int((a / tot) *100)
+arr = ["%.1f%%" %  ((a / tot) *100) for a in arr ]
+
+print "\t".join(arr)
+
+    # print "%d" % ((float(a[1]) / float(siz))  )
+
+# w = {'A': 1.0, 'B': 1.0, 'C': 18.0}
+#or w = {'A': 5, 'B': 5, 'C': 90}
+#or w = {'A': 1.0/18, 'B': 1.0/18, 'C': 1.0}
+#or or or
+
+# wr = WeightedRandomizer (w)
+
+# # results = {'A': 0, 'B': 0, 'C': 0}
+# for i in range (10000):
+#     results [wr.random () ] += 1
+
+# print ('After 10000 rounds the distribution is:')
+# print (results)
+
+
 # from robolink import (
 #     Robolink,
 #     ITEM_TYPE_ROBOT,
@@ -16,9 +87,9 @@
 # )
 # import robodk as rdk
 # import datetime
-import sheets
+# import sheets
 
-from contextlib import contextmanager
+# from contextlib import contextmanager
 
 
 # @contextmanager

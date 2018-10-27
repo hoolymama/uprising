@@ -8,6 +8,9 @@ import random
 import logging
 
 from uprising.sequence import Sequence
+from wrandom import StepRandomizer
+
+
 logger = logging.getLogger('uprising')
 
 
@@ -269,36 +272,168 @@ def delete_curve_instances(curves):
 #             print "%s not connected - "
 
 
-
-def _assign_random_resource(curves, resource_attr, id_attr, spec, set_key):
-
-    seq = Sequence.create(spec)
-    # print list(seq)
-    painting = pm.listHistory(curves[0], future=True, type="painting")[0]
-    r_indices = painting.attr(resource_attr).getArrayIndices()
-    r_indices = list(seq.intersection(r_indices))
+def do_random_all(curves, r_indices, id_attr, set_key):
     num = len(r_indices)
-    if num:
-        last = num - 1
-        for curve in curves:
-            stroke_curve = get_stroke_curve(curve)
-            rand_int = random.randint(0, last)
-            index = r_indices[rand_int]
-            attr = stroke_curve.attr(id_attr)
-            try:
-                attr.set(index)
-                if set_key:
-                    attr.setKey(value=index)
-            except RuntimeError:
-                pm.warning("Skipping locked attribute %s" % attr)
+    if not num:
+        return
+
+    last = num - 1
+    for curve in curves:
+        stroke_curve = get_stroke_curve(curve)
+        attr = stroke_curve.attr(id_attr)
+        rand_int = random.randint(0, last)
+        index = r_indices[rand_int]
+        try:
+            attr.set(index)
+            if set_key:
+                attr.setKey(value=index)
+        except RuntimeError:
+            pm.warning("Skipping locked attribute %s" % attr)
 
 
-def assign_random_paints(curves, spec, set_key=False):
-    _assign_random_resource(curves, "paints", "paintId", spec, set_key)
+def do_random_last(curves, r_indices, id_attr, steps, power, set_key):
+    num = len(r_indices)
+    if not num:
+        return
+    last = num - 1
+
+    randomizer = StepRandomizer(steps, power)
+
+    prev_index = None
+    for curve in curves:
+        stroke_curve = get_stroke_curve(curve)
+        attr = stroke_curve.attr(id_attr)
+        if prev_index is None:
+            rand_index = random.randint(0, last)
+        else:
+            rand_index = (prev_index + randomizer.random()) % num
+        resource_id = r_indices[rand_index]
+        try:
+            attr.set(resource_id)
+            if set_key:
+                attr.setKey(value=resource_id)
+            prev_index = rand_index  # only set prev is we successfully set the resource
+        except RuntimeError:
+            pm.warning("Skipping locked attribute %s" % attr)
 
 
-def assign_random_brushes(curves, spec, set_key=False):
-    _assign_random_resource(curves, "brushes", "brushId", spec, set_key)
+def do_random_existing(curves, orig_ids, r_indices, id_attr, steps, power, set_key):
+    
+        
+    num = len(r_indices)
+    if not num:
+        return
+    last = num - 1
+    randomizer = StepRandomizer(steps, power)
+
+    curve_packs = zip(curves, orig_ids)
+
+    for c in curve_packs:
+        curve, orig_index = c
+        stroke_curve = get_stroke_curve(curve)
+        attr = stroke_curve.attr(id_attr)
+        rand_index = (orig_index + randomizer.random()) % num
+        resource_id = r_indices[rand_index]
+        try:
+            attr.set(resource_id)
+            if set_key:
+                attr.setKey(value=resource_id)
+            prev_index = rand_index  # only set prev is we successfully set the resource
+        except RuntimeError:
+            pm.warning("Skipping locked attribute %s" % attr)
+
+
+def _assign_random_resource(
+        curves,
+        orig_ids,
+        resource_attr,
+        id_attr,
+        random_params,
+        set_key):
+
+    
+    painting = pm.listHistory(curves[0] , future=True, type="painting")[0]
+    r_indices = painting.attr(resource_attr).getArrayIndices()
+    spec, steps, power = random_params
+    # mode can be "random_all", "random_existing", "random_last"
+    # mode = None
+
+    try:
+        seq = Sequence.create(spec)
+        r_indices = list(seq.intersection(r_indices))
+        if steps < 1:  # mode = random_all
+            do_random_all(curves, r_indices, id_attr, set_key)
+        else:
+            do_random_last(curves, r_indices, id_attr, set_key)
+    except TypeError:
+        if steps < 1:  # mode = random_all
+            do_random_all(curves, r_indices, id_attr, set_key)
+        else:
+            do_random_existing(curves, orig_ids, r_indices, id_attr, steps, power, set_key)
+
+#          mode = "random_existing"
+
+
+#     if steps < 1:  # mode = random_all
+#         r_indices = list(seq.intersection(r_indices))
+#         do_random_all(curves, r_indices, id_attr,set_key)
+
+#     else:
+#         try:
+#             seq = Sequence.create(spec)
+#             do_random_last(curves, r_indices, id_attr,set_key)
+#             mode = "random_last"
+#         except RuntimeError:
+
+    # r_indices = list(seq.intersection(r_indices))
+
+    # num = len(r_indices)
+    # if steps > num:
+    #     steps = num
+    # randomizer = StepRandomizer(steps, power)
+    # if num:
+    #     last = num - 1
+    #     if steps > 0: # do step_randomizer
+
+    #         prev_index = None
+    #         for curve in curves:
+    #             stroke_curve = get_stroke_curve(curve)
+    #             attr = stroke_curve.attr(id_attr)
+    #             if prev_index is None:
+    #                 rand_index = random.randint(0, last)
+    #             else:
+    #                 rand_index = (prev_index + randomizer.random()) % num
+    #             resource_id = r_indices[rand_index]
+    #             try:
+    #                 attr.set(resource_id)
+    #                 if set_key:
+    #                     attr.setKey(value=resource_id)
+    #                 prev_index = rand_index # only set prev is we successfully set the resource
+    #             except RuntimeError:
+    #                 pm.warning("Skipping locked attribute %s" % attr)
+
+    #     else: # do naive randomizer
+    #         for curve in curves:
+    #             stroke_curve = get_stroke_curve(curve)
+    #             attr = stroke_curve.attr(id_attr)
+    #             rand_int = random.randint(0, last)
+    #             index = r_indices[rand_int]
+    #             try:
+    #                 attr.set(index)
+    #                 if set_key:
+    #                     attr.setKey(value=index)
+    #             except RuntimeError:
+    #                 pm.warning("Skipping locked attribute %s" % attr)
+
+    
+# def assign_random_paints(curve_packs, spec, set_key=False):
+#     curves, _, orig_ids = zip(*curve_packs)
+#     _assign_random_resource(curves, orig_ids, "paints", "paintId", spec, set_key)
+
+
+# def assign_random_brushes(curve_packs, spec, set_key=False):
+#      curves, orig_ids , _= zip(*curve_packs)
+#     _assign_random_resource(curves, orig_ids, "brushes", "brushId", spec, set_key)
 
 
 def get_extent(node, stroke_curve, curve, side="outer"):
@@ -350,44 +485,58 @@ def arrange_rings_spine(curves, dist, set_key=False):
             curve_tf.attr("sx").setKey(value=curveRadius)
             curve_tf.attr("sy").setKey(value=curveRadius)
 
+
 def set_max_extent_visibility(curves, max_extent, set_key=False):
     node = pm.listHistory(curves[0], future=True, levels=0, type="painting")[0]
     for curve in curves:
         tf = curve.getParent()
-        stroke_curve =  get_stroke_curve(curve)
+        stroke_curve = get_stroke_curve(curve)
         extent = get_extent(node, stroke_curve, curve, "outer")
-        # print "extent %s - max %s" % (extent, max_extent) 
+        # print "extent %s - max %s" % (extent, max_extent)
         vis = not (extent > max_extent)
-        tf.attr("visibility").set(vis )
+        tf.attr("visibility").set(vis)
         if set_key:
             tf.attr("visibility").setKey(value=vis)
- 
-
-
-
-
 
 
 def _randomize(
-        curves,
-        paint_spec,
-        brush_spec,
+        curve_packs,
+        random_paint_params,
+        random_brush_params,
         max_extent,
         spacing,
         spacing_type,
+        paint_ids,
+        brush_ids,
         do_keys):
-    if paint_spec:
-        _assign_random_resource(curves, "paints", "paintId", paint_spec, do_keys)
-    if brush_spec:
-        _assign_random_resource(curves, "brushes", "brushId", brush_spec, do_keys)
+
+    curves, brush_ids, paint_ids = zip(*curve_packs)
+ 
+
+    if random_paint_params:
+        _assign_random_resource(
+            curves,
+            paint_ids,
+            "paints",
+            "paintId",
+            random_paint_params,
+            do_keys)
+    if random_brush_params:
+        _assign_random_resource(
+            curves,
+            brush_ids,
+            "brushes",
+            "brushId",
+            random_brush_params,
+            do_keys)
+
     if spacing_type == "spine":
         arrange_rings_spine(curves, spacing, do_keys)
-    else: # gap
+    elif spacing_type == "gap":  # gap
         arrange_rings_gap(curves, spacing, do_keys)
-    
-    set_max_extent_visibility(curves, max_extent, do_keys)
 
-
+    if max_extent is not None:
+        set_max_extent_visibility(curves, max_extent, do_keys)
 
 
 def duplicate_into_gaps(curves):
@@ -484,8 +633,6 @@ def _clamp(minval, val, maxval):
     """Clamp value to min and max."""
     return sorted([minval, val, maxval])[1]
 
- 
-
 
 def auto_set_rings(
         curves,
@@ -497,24 +644,23 @@ def auto_set_rings(
         rand_rotate,
         density):
 
-    
     pi = 3.14159265359
 
     subcurvemin = 0
-
 
     for curve in curves:
         painting = get_painting(curve)
         stroke_curve = get_stroke_curve(curve)
 
         if subcurve_factor is not None:
-            subcurvemin = stroke_curve.attr("liftLength").get() * subcurve_factor
+            subcurvemin = stroke_curve.attr(
+                "liftLength").get() * subcurve_factor
         xf = curve.getParent()
         radius = xf.attr("sx").get()
 
         strokelength = stroke_curve.attr("strokeLength").get()
         overlap = stroke_curve.attr("overlap").get()
-         
+
         if distribution:
             overlap = distribution["overlap"]
             max_length = distribution["max_length"]
@@ -541,42 +687,45 @@ def auto_set_rings(
             pass
 
         brushId = stroke_curve.attr("brushId").get()
-        brush=Brush.brush_at_index(painting, brushId)
-        tip_height = brush.tip 
+        brush = Brush.brush_at_index(painting, brushId)
+        tip_height = brush.tip
 
         if lift:
-            stroke_curve.attr("liftLength").set(tip_height*lift[0])
-            stroke_curve.attr("liftHeight").set(tip_height*lift[1])
-            stroke_curve.attr("liftBias").set(tip_height*lift[2])
+            stroke_curve.attr("liftLength").set(tip_height * lift[0])
+            stroke_curve.attr("liftHeight").set(tip_height * lift[1])
+            stroke_curve.attr("liftBias").set(tip_height * lift[2])
 
+        # now set twist, maybe only on flat brushes
+        if twist:
+            flat_only = twist[2]
+            is_flat = Brush.brush_at_index(painting, brushId).is_flat()
+            if is_flat or not flat_only:
+                twist_range_atts = ("brushTwistRangeMin", "brushTwistRangeMax")
+                stroke_curve.attr(twist_range_atts[0]).set(-90)
+                stroke_curve.attr(twist_range_atts[1]).set(90)
 
-        is_flat = Brush.brush_at_index(painting, brushId).is_flat()
-        # now set twist, only on flat brushes
-        if twist and is_flat:
-            twist_range_atts = ("brushTwistRangeMin", "brushTwistRangeMax")
-            stroke_curve.attr(twist_range_atts[0]).set(-90)
-            stroke_curve.attr(twist_range_atts[1]).set(90)
+                # print "twist_distance: %s - tist_angle: %s" % (
+                #     twist_distance, twist_angle)
 
-            # print "twist_distance: %s - tist_angle: %s" % (
-            #     twist_distance, twist_angle)
+                twist_stop_pos = _clamp(0.0, (twist[1] / strokelength), 1.0)
+                twist_stop_val = _clamp(0.0, (twist[0] / 180.0) + 0.5, 1.0)
 
-            twist_stop_pos = _clamp(0.0, (twist[1] / strokelength), 1.0)
-            twist_stop_val = _clamp(0.0, (twist[0] / 180.0) + 0.5, 1.0)
-
-            attribute = stroke_curve.attr("brushTwistRamp")
-            values = [(0.0, twist_stop_val), (twist_stop_pos, 0.5)]
-            set_ramp(attribute, values, 2)
+                attribute = stroke_curve.attr("brushTwistRamp")
+                values = [(0.0, twist_stop_val), (twist_stop_pos, 0.5)]
+                set_ramp(attribute, values, 2)
 
         # now set profile
         if profile:
-            
+
             # print "brush: %d tip is %f" % (brush.id,brush.tip)
-            profile_range_atts = ("strokeProfileScaleMin", "strokeProfileScaleMax")
+            profile_range_atts = (
+                "strokeProfileScaleMin",
+                "strokeProfileScaleMax")
             stroke_curve.attr(profile_range_atts[0]).set(0)
             stroke_curve.attr(profile_range_atts[1]).set(1)
 
             profile_stop_pos = _clamp(0.0, (profile[1] / strokelength), 1.0)
-            profile_stop_val = _clamp(0.0, (profile[0]  * tip_height )  , 1.0)
+            profile_stop_val = _clamp(0.0, (profile[0] * tip_height), 1.0)
 
             attribute = stroke_curve.attr("strokeProfileRamp")
             values = [(0.0, profile_stop_val), (profile_stop_pos, 0.0)]
@@ -591,16 +740,12 @@ def auto_set_rings(
             denmin = density[0][1]
             radmax = density[1][0]
             denmax = density[1][1]
-            power  = density[2]
+            power = density[2]
             val = (radius - radmin) / (radmax - radmin)
             val = _clamp(0, val, 1)
-            val = math.pow(val, power) 
-            val = denmin + (val*(denmax - denmin))
+            val = math.pow(val, power)
+            val = denmin + (val * (denmax - denmin))
             stroke_curve.attr("pointDensity").set(val)
-            
-
-
-
 
 
 def connect_to_containment(curve, containment):

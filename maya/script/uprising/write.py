@@ -30,6 +30,49 @@ def clean_rdk():
         station.Delete()
     RL.AddFile(CLEAN_FILE)
 
+def publish_proposal(
+            proposals_dir,
+            painting_node,
+            description,
+            frame_range,
+            clean_top):
+    maya_scenes_dir =   os.path.join(proposals_dir, "maya", "scenes")
+    mkdir_p(maya_scenes_dir)
+    timestamp = get_timestamp()
+    
+    write_maya_scene(maya_scenes_dir, timestamp)
+    
+    media_dir = os.path.join(proposals_dir, "media", timestamp)
+    mkdir_p(media_dir)
+    # title, body = split_desc(description)
+
+    write_info(painting_node, proposals_dir, timestamp, frame_range, description)
+
+
+
+    write_image_sequence(painting_node, media_dir, timestamp , frame_range, clean_top)
+
+    # for frame in range(frame_range[0], frame_range[1] + 1):
+    #     pm.currentTime(frame)
+    #     timestamp = get_timestamp(frame)
+    #     ts_dir = get_ts_dir(export_dir, timestamp)
+    #     mkdir_p(ts_dir)
+    #     desc, notes = split_desc(description.replace("#f", str(frame)))
+    #     print "Desc: %s" % desc
+    #     print "Notes: %s" % notes
+
+    #     write_log(
+    #         painting_node,
+    #         dip_node,
+    #         ts_dir,
+    #         timestamp,
+    #         desc,
+    #         notes,
+    #         frame)
+        # write_maya_scene(ts_dir, timestamp)
+        # write_ref_image(ts_dir, timestamp)
+ 
+
 
 def publish_sequence(
         export_dir,
@@ -114,8 +157,18 @@ def choose_publish_dir():
     if not entries:
         pm.displayWarning('Nothing Selected')
         return
-
     return entries[0]
+
+
+def choose_proposal_dir():
+    export_dir = os.path.join(pm.workspace.getPath(), 'proposals')
+    entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
+                             dialogStyle=2, fileMode=3, dir=export_dir)
+    if not entries:
+        pm.displayWarning('Nothing Selected')
+        return
+    return entries[0]
+
 
 
 def get_timestamp(suffix=None):
@@ -126,8 +179,8 @@ def get_timestamp(suffix=None):
     return timestamp
 
 
-def get_ts_dir(export_dir, timestamp):
-    return os.path.join(export_dir, timestamp)
+def get_ts_dir(containing_dir, timestamp):
+    return os.path.join(containing_dir, timestamp)
 
 
 def write_csv(export_dir, timestamp, description, notes, medium, ground):
@@ -179,6 +232,28 @@ def write_ref_image(dest_dir, timestamp, res=1024):
         compression="tif",
         quality=100,
         widthHeight=(res, res))
+
+
+ 
+def write_image_sequence(painting_node, media_dir, timestamp , frame_range, clean_top, **kw):
+    # f = pm.currentTime(q=True) 
+    # frame_range = kw.get("frame_range",  (f,f))
+    resolution = kw.get("resolution", 1024)
+    resolutionX = kw.get("resolutionX", resolution)
+    resolutionY = kw.get("resolutionY", resolution)
+
+    print "painting_node %s" % painting_node
+    print "media_dir %s" % media_dir
+    print "timestamp %s" % timestamp
+    print "clean_top %s" % clean_top
+    print "resolutionX %d" % resolutionX
+    print "resolutionY %d" % resolutionY
+
+
+
+def setup_clean_top(painting_node):
+    
+
 
 
 def write_program(RL, ts_dir, timestamp):
@@ -279,6 +354,19 @@ def write_log(
         the_file.write("\n")
 
 
+
+
+def write_info(painting_node, proposals_dir, timestamp, frame_range, description):
+    info_file = os.path.join(proposals_dir, ("%s.txt" % timestamp))
+    title, body = split_desc(description)
+
+    start, end = frame_range
+
+    with open(info_file, 'w') as the_file:
+        the_file.write("%s\n\n" % title)
+        the_file.write("%s\n\n" % body)
+        the_file.write("Timestamp: %s\n\n" % timestamp)
+        the_file.write("Frame range: %d to %d\n\n" % (start, end))
 
 
 

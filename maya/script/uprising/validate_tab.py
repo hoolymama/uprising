@@ -88,7 +88,7 @@ class ValidateTab(gui.FormLayout):
                  "Selected", "Shape", "StrokeCurve"], sl=1, numberOfRadioButtons=3)
         self.varying_attrib_wg = pm.textFieldGrp(label='Attribute', text='rz')
         self.varying_range_wg = pm.floatFieldGrp(
-            numberOfFields=2, label='Range', value1=0, value2=1.0)
+            numberOfFields=2, label='Range', value1=0, value2=360.0)
 
         self.varying_step_type_wg = pm.radioButtonGrp(
             label='Step type',
@@ -282,6 +282,13 @@ class ValidateTab(gui.FormLayout):
             results.append({"node": o, "status": status, "attempts": attempts})
             self.hide_objects([o])
         print results
+        print "-" * 30
+        for res in results:
+            if res["status"] == "FAILURE":
+                print res
+
+
+
         self.show_objects(obs)
 
         # if step_type is "random":
@@ -347,28 +354,27 @@ class ValidateTab(gui.FormLayout):
 
         painting_node = pm.PyNode("mainPaintingShape")
         msg = ""
-        for i, val in enumerate(vals):
-            self.setParam(o, attribute, val)
-            pm.refresh()
-            with uutl.minimize_robodk():
+
+        with uutl.minimize_robodk():
+            for i, val in enumerate(vals):
+                self.setParam(o, attribute, val)
+                pm.refresh()
+                
                 studio = Studio(painting_node, None)
                 studio.write()
+                path_result = self.validate_path(studio.painting_program)
 
-            path_result = self.validate_path(studio.painting_program)
-
-            metadata = {
-                "iteration": i,
-                "attribute": attribute,
-                "value": val
-            }
-            msg += self.format_path_result(path_result, metadata)
-            if path_result["completion"] == 1.0:
-                result =i+1
-                break
-        print msg
-        return result
-            
-
+                metadata = {
+                    "iteration": i,
+                    "attribute": attribute,
+                    "value": val
+                }
+                msg += self.format_path_result(path_result, metadata)
+                if path_result["completion"] == 1.0:
+                    result =i+1
+                    break
+            print msg
+            return result
 
 
     def setParam(self, ob, attribute, val):

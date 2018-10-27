@@ -8,6 +8,7 @@ from uprising import (
     publish_tab,
     rings_design_tab,
     rings_setup_tab,
+    proposal_tab,
     images_tab)
 
 
@@ -64,7 +65,7 @@ reload(props)
 reload(validate_tab)
 reload(publish_tab)
 reload(images_tab)
-
+reload(proposal_tab)
 reload(rings_design_tab)
 reload(rings_setup_tab)
 reload(culling)
@@ -112,9 +113,14 @@ class RobotWindow(gui.Window):
         self.publish_tab = publish_tab.PublishTab()
         self.tabs.setTabLabel((self.publish_tab, "Publish"))
 
+        pm.setParent(self.tabs)
+        self.proposal_tab = proposal_tab.ProposalTab()
+        self.tabs.setTabLabel((self.proposal_tab, "Proposal"))
+
+
         self.show()
         self.setResizeToFitChildren()
-        self.tabs.setSelectTabIndex(5)
+        self.tabs.setSelectTabIndex(8)
 
     def onTabChanged(self):
         print ""
