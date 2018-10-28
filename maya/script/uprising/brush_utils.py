@@ -89,6 +89,7 @@ def create_and_connect_single_brush_geo(
         bristle_height,
         tip,
         width,
+        physical_id,
         parent):
     if not node:
         pm.warning("No destination node. Skipping brush gen")
@@ -103,8 +104,9 @@ def create_and_connect_single_brush_geo(
     connect_brush_to_node(tf, node)
     tf.attr("sfBrushWidth").set(width)
     tf.attr("sfBrushTip").set(tip)
-
     tf.attr("sfBrushShape").set(profile_shape)
+    tf.attr("sfBrushPhysicalId").set(physical_id)
+
 
     retention = 1 if prefix == "bpx" else 1000
     tf.attr("sfBrushRetention").set(retention)
@@ -126,6 +128,7 @@ def create_and_connect_both_brushes_geo( painting_node, dip_node, **kw):
         kw["bristle_height"],
         kw["tip"],
         kw["splay_width"],
+        kw["physical_id"],
         '|brushes|paintingBrushes')
 
     dip_brush_tf = create_and_connect_single_brush_geo(
@@ -139,6 +142,7 @@ def create_and_connect_both_brushes_geo( painting_node, dip_node, **kw):
         kw["bristle_height"],
         kw["dip_tip"],
         kw["splay_width"],
+        kw["physical_id"],
         '|brushes|dipBrushes')
     return (painting_brush_tf, dip_brush_tf)
 
@@ -177,15 +181,6 @@ def validate_brush_data(data):
     return result
 
 
-# def create_brush_geo_from_sheet(painting_node, dip_node):
-#     data = get_raw_brushes_data()
-#     data = validate_brush_data(data)
-#     delete_brushes(painting_node, dip_node)
-#     for row in data:
-#         row = [uput.numeric(s) for s in row]
-#         create_and_connect_both_brushes_geo(painting_node, dip_node, *row)
-
-
 def setup_brushes_from_sheet(painting_node, dip_node, pouch_name):
     print "%s %s %s" % (painting_node, dip_node, pouch_name)
     (name, desc, pouch) = sheets.get_resource_by_name(pouch_name, "Brushes")
@@ -213,7 +208,8 @@ def setup_brushes_from_sheet(painting_node, dip_node, pouch_name):
             "desc": row[8],
             "profile": row[9],
             "dip_tip": row[10],
-            "wipe_tip":  row[12]
+            "wipe_tip":  row[12],
+            "physical_id": row[16]
         }
 
         p_brush_tf, d_brush_tf = create_and_connect_both_brushes_geo(painting_node, dip_node, **kwargs)

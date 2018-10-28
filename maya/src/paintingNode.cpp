@@ -185,6 +185,7 @@ MObject painting::aBrushRetention;
 MObject painting::aBrushWidth;
 MObject painting::aBrushShape;
 MObject painting::aBrushTip;
+MObject painting::aBrushPhysicalId;
 MObject painting::aBrushes;
 
 MObject painting::aPaintColorR;
@@ -448,6 +449,16 @@ MStatus painting::initialize()
   nAttr.setKeyable( true );
   nAttr.setDefault( 1.0 );
 
+
+  aBrushPhysicalId  = nAttr.create("brushPhysicalId", "bpid", MFnNumericData::kShort);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  nAttr.setDefault( -1);
+
+
+
+
+
   aBrushShape = eAttr.create( "brushShape", "bshp", Brush::kRound);
   eAttr.addField("flat", Brush::kFlat);
   eAttr.addField("round", Brush::kRound);
@@ -466,6 +477,7 @@ MStatus painting::initialize()
   cAttr.addChild(aBrushShape);
   cAttr.addChild(aBrushRetention);
   cAttr.addChild(aBrushTip);
+  cAttr.addChild(aBrushPhysicalId);
   cAttr.addChild(aBrushMatrix);
   cAttr.setArray( true );
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
@@ -1108,6 +1120,7 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
                                      painting::aBrushWidth,
                                      painting::aBrushRetention,
                                      painting::aBrushTip,
+                                     painting::aBrushPhysicalId,
                                      painting::aBrushShape
                                    );
 

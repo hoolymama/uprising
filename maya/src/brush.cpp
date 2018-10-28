@@ -9,6 +9,7 @@
 
 Brush::Brush() :
 	id(-1),
+	physicalId(-1),
 	width(1.0),
 	retention(1.0),
 	tip(0),
@@ -17,11 +18,13 @@ Brush::Brush() :
 
 Brush::Brush(
   short id,
+  short physicalId,
   double width,
   double retention,
   double tip,
   Shape shape) :
 	id(id),
+	physicalId(physicalId),
 	width(width),
 	retention(retention),
 	tip(tip),
@@ -35,6 +38,7 @@ std::map<short, Brush> Brush::factory(
   MObject &widthAttribute,
   MObject &retentionAttribute,
   MObject &tipAttribute,
+  MObject &physicalIdAttribute,
   MObject &shapeAttribute)
 {
 	MStatus st;
@@ -52,14 +56,13 @@ std::map<short, Brush> Brush::factory(
 		if (st.error()) {
 			continue;
 		}
-
+		short physicalId = hComp.child(physicalIdAttribute).asShort();
 		double width =  hComp.child(widthAttribute).asDouble() ;
 		double retention = hComp.child(retentionAttribute).asDouble() ;
 		double tip = hComp.child(tipAttribute).asDouble() ;
-
 		Shape shape = Shape(hComp.child(shapeAttribute).asShort()) ;
 
-		result[index] = Brush(index, width, retention, tip, shape);
+		result[index] = Brush(index, physicalId, width, retention, tip, shape);
 	}
 	return result;
 }
@@ -78,6 +81,8 @@ ostream &operator<<(ostream &os, const Brush &b)
 	os << " width:" << b.width;
 	os << " retention:" << b.retention;
 	os << " tip:" << b.tip;
+	os << " physicalId:" << b.physicalId;
+
 	os << " shape:" << shapeStr;
 	return os;
 }

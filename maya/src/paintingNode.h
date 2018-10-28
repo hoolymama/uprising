@@ -206,6 +206,7 @@ private:
   static MObject  aBrushWidth;
   static MObject  aBrushShape;
   static MObject  aBrushTip;
+  static MObject  aBrushPhysicalId;
   static MObject  aBrushes;
 
   static MObject  aPaintColorR;

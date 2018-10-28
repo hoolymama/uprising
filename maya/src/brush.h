@@ -17,6 +17,7 @@ public:
 
 	Brush(
 	  short id,
+	  short physicalId,
 	  double width,
 	  double retention,
 	  double tip,
@@ -31,6 +32,7 @@ public:
 	  MObject &widthAttribute,
 	  MObject &retentionAttribute,
 	  MObject &tipAttribute,
+	  MObject &physicalIdAttribute,
 	  MObject &shapeAttribute);
 
 
@@ -38,6 +40,7 @@ public:
 
 
 	short id;
+	short physicalId;
 	double width;
 	double retention;
 	Shape shape;
