@@ -44,6 +44,7 @@ private:
 	clusterGeom &prepCluster(
 	  bool force,
 	  short brushId,
+	  short phisicalId,
 	  short paintId);
 
 	std::vector<clusterGeom> m_clusters;

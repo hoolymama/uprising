@@ -2,6 +2,7 @@
 #ifndef _cImgData
 #define _cImgData
 
+#define cimg_display 0
 
 #include <maya/MPxData.h>
 #include <maya/MTypeId.h>

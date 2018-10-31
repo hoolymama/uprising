@@ -14,7 +14,7 @@ class clusterGeom
 {
 public:
 
-	enum Reason {kNone, kTool, kDip };
+	enum Reason {kNone, kTool, kDip, kTcp };
 
 	clusterGeom(
 	  short brushId,

@@ -55,11 +55,11 @@ class Cluster(object):
         tool = studio.RL.Item(self.brush.name)
         if not tool.Valid():
             raise ClusterError(
-                "Serious risk of damage! Can't find valid tool!")
+                "SERIOUS RISK OF DAMAGE! Can't find valid tool!")
         program.setPoseTool(tool)
 
         cluster_name = self.name()
-        program.RunInstruction(
+        program.RunInstruction( 
             "Cluster %s" %
             cluster_name,
             INSTRUCTION_COMMENT)
@@ -84,18 +84,23 @@ class PaintingCluster(Cluster):
     def write(self, studio, motion):
         """Write the cluster to roboDK.
 
-        Always do a dip before writing the strokes. If the 
-        cluster is also a tool change then offer up the flange
+        Always do a dip before writing the strokes. 
+
+        If the cluster is also a tool change then offer up the flange
+        to the user first.
+
+        If the  cluster is a tcp change then offer up the flange
         to the user first."""
+
         program = studio.painting_program
         frame = studio.painting_frame
 
         if self.reason == "tool":
             program.addMoveJ(studio.tool_approach)
             program.RunInstruction(
-                "Change Tool: %s ID:(%d) - paint ID:(%d)" %
+                "Change Tool: %s PID:(%d) - paint ID:(%d)" %
                 (self.brush.name,
-                 self.brush.id,
+                 self.brush.physical_id,
                  self.paint.id),
                 INSTRUCTION_SHOW_MESSAGE)
             program.Pause()

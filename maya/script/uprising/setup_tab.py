@@ -1,15 +1,12 @@
 
 import pymel.core as pm
-
-import setup_dip
-import curve_utils as cutl
 import brush_utils as butl
 import paint_utils as putl
-
-
-import stroke_factory_utils as sfu
+import board_utils as bdutl
+import uprising_util as uutl
 import pymel.core.uitypes as gui
- 
+
+
 class SetupTab(gui.FormLayout):
 
     def __init__(self):
@@ -23,99 +20,40 @@ class SetupTab(gui.FormLayout):
     def create_butttons(self):
         pm.setParent(self.column)
 
-        pm.frameLayout(collapsable=False, labelVisible=True, label="Set up from Sheets")
-        pm.columnLayout(adj=True, rowSpacing=2 )
-        pm.button(
-            label='Setup board from spreadsheet',
-            ann="Read board coordinates from spreadsheet and sand align board IK",
-            command=pm.Callback(self.set_board_transform_from_sheet))
+        with uutl.activatable(state=False):
+            self.setup_board_row = pm.rowLayout(
+                adjustableColumn=2,
+                numberOfColumns=2, columnWidth2=(
+                    350, 150), columnAlign=(
+                    1, 'right'), columnAttach=[
+                    (1, 'both', 2), (2, 'both', 2)])
 
- 
-        self.setup_brushes_tf = pm.textFieldButtonGrp( label='Setup brushes', text='test_set_A', buttonLabel='Go' ,
-            columnWidth3=(140,200,50),
-            buttonCommand=pm.Callback(self.setup_brushes_from_sheet))
+            self.setup_board_tf = pm.textFieldGrp(
+                label='Setup board', text='board_name')
 
+            self.depth_only_cb = pm.checkBox(
+                label='Depth only',
+                value=0,
+                annotation='Only set depth of the board')
+            pm.setParent("..")
 
+        with uutl.activatable(state=False):
+            self.setup_brushes_tf = pm.textFieldGrp(
+                label='Setup brushes', text='pouch_name')
 
-        self.setup_paints_tf = pm.textFieldButtonGrp( label='Setup paints', text='palette name', buttonLabel='Go' ,
-            columnWidth3=(140,200,50),
-            buttonCommand=pm.Callback(self.setup_paints_from_sheet))
+        with uutl.activatable(state=False):
+            self.setup_paints_tf = pm.textFieldGrp(
+                label='Setup paints', text='palette_name')
 
-
-        pm.button(
-            label='Setup rack from spreadsheet',
-            ann="Read rack parameters from spreadsheet and align rack IK",
-            command=pm.Callback(self.setup_rack_from_sheet))
-
-        pm.button(
-            label='Setup all from spreadsheet',
-            ann="Read and connect paints and brushes and board from the spreadsheet",
-            command=pm.Callback(self.setup_all_from_spreadsheet))
-
-        pm.setParent('..')
-        pm.setParent('..')
-
-        pm.frameLayout(collapsable=False, labelVisible=True, label="Dip curves")
-        pm.columnLayout(adj=True)
-
-
-        pm.rowLayout(numberOfColumns=2,
-                     columnWidth2=(
-                         (100), 100),
-                     adjustableColumn=1,
-                     columnAlign=(1, 'right'),
-                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
-        
-
-
-        # self.gen_dip_curves_ff = pm.floatSliderButtonGrp(
-        #     label='Create brush dip curves',
-        #     ann="Set the wipe height: 0=low (more wipe), 1.0=high (less wipe)",
-        #     field=True,
-        #     maxValue=1.0,
-        #     step=0.01,
-        #     value=0.0,
-        #     symbolButtonDisplay=False,
-        #     buttonLabel="Go",
-        #     buttonCommand=pm.Callback(self.on_generate_brush_dip_curves),
-        #     columnWidth=(4, 60)
-        # )
-
- 
-
-        # pm.button(
-        #     label='Generate brush dip curves from default curves',
-        #     ann="Add selected curves to selected painting node",
-        #     command=pm.Callback(self.on_generate_brush_dip_curves))
-
-
-
-        # force_gen_bc  = 1
-        # self.force_gen_brush_curves_cb = pm.checkBox(
-        #     label='Force',
-        #     value=force_gen_bc,
-        #     annotation='Force generate brush curves')
-    
-        # pm.setParent('..')
-
-        pm.button(
-            label='Set up dip combination curves',
-            ann="Create dip curves for all brush and paint combinations used in the painting. Typically do this after setting up brush dip curve shapes",
-            command=pm.Callback(setup_dip.doit))
-
-        # pm.button(
-        #     label='Visualize brush dip motions',
-        #     ann="See how brushes will move when dipping in the trays",
-        #     command=pm.Callback(self.visualize_brush_dips))
-
-        pm.setParent('..')   
-        pm.setParent('..')
+        with uutl.activatable(state=False):
+            self.setup_rack_tf = pm.textFieldGrp(
+                label='Setup rack', text='rack_name')
 
     def create_action_buttons_and_layout(self):
         pm.setParent(self)  # form
 
-        cancel_but = pm.button(label='Cancel', manage=False)
-        go_but = pm.button(label='Go', manage=False)
+        cancel_but = pm.button(label='Cancel')
+        go_but = pm.button(label='Go', command=pm.Callback(self.on_go))
 
         self.attachForm(self.column, 'left', 2)
         self.attachForm(self.column, 'right', 2)
@@ -132,64 +70,37 @@ class SetupTab(gui.FormLayout):
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
-
     def populate(self):
         val = "default"
-        if pm.optionVar.has_key("up_setup_palette_name"):
+        if "up_setup_palette_name" in pm.optionVar:
             val = pm.optionVar["up_setup_palette_name"]
         pm.textFieldButtonGrp(self.setup_paints_tf, e=True, text=val)
 
     def save(self):
-        val =  pm.textFieldButtonGrp(self.setup_paints_tf, q=True, text=True)
+        val = pm.textFieldButtonGrp(self.setup_paints_tf, q=True, text=True)
         pm.optionVar["up_setup_palette_name"] = val
 
-
-    def set_board_transform_from_sheet(self):
-        painting_node = pm.PyNode("mainPaintingShape")
-        sfu.set_board_from_sheet(painting_node)
-
-    def setup_brushes_from_sheet(self):
-        painting_node = pm.PyNode("mainPaintingShape")
-        dip_node = pm.PyNode("dipPaintingShape")
-        pouch_name = pm.textFieldButtonGrp(self.setup_brushes_tf, query=True, text=True)
-        butl.setup_brushes_from_sheet(painting_node, dip_node, pouch_name)
-
-    def setup_paints_from_sheet(self):
+    def on_go(self):
+        do_board = pm.rowLayout(self.setup_board_row, q=True, en=True)
+        do_brushes = pm.textFieldGrp(self.setup_brushes_tf, q=True, en=True)
+        do_paints = pm.textFieldGrp(self.setup_paints_tf, q=True, en=True)
+        do_rack = pm.textFieldGrp(self.setup_rack_tf, q=True, en=True)
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
-        palette_name = pm.textFieldButtonGrp(self.setup_paints_tf, query=True, text=True)
-        putl.setup_paints_from_sheet(painting_node, dip_node, palette_name)
 
-    def setup_rack_from_sheet(self):
-        dip_node = pm.PyNode("dipPaintingShape")
-        putl.setup_rack_from_sheet(dip_node)
+        if do_board:
+            name = pm.textFieldGrp(self.setup_board_tf, q=True, text=True)
+            depth_only = pm.checkBox(self.depth_only_cb, q=True, v=True)
+            bdutl.setup_board_from_sheet(painting_node, name, depth_only)
 
+        if do_brushes:
+            name = pm.textFieldGrp(self.setup_brushes_tf, q=True, text=True)
+            butl.setup_brushes_from_sheet(painting_node, dip_node, name)
 
-    def setup_all_from_spreadsheet(self):
-        painting_node = pm.PyNode("mainPaintingShape")
-        dip_node = pm.PyNode("dipPaintingShape")
-        butl.create_brush_geo_from_sheet(painting_node, dip_node)
+        if do_paints:
+            name = pm.textFieldGrp(self.setup_paints_tf, q=True, text=True)
+            putl.setup_paints_from_sheet(painting_node, dip_node, name)
 
-        palette_name = pm.textFieldButtonGrp(self.setup_paints_tf, query=True, text=True)
-        putl.setup_paints_from_sheet(painting_node, dip_node, palette_name)
-        putl.setup_rack_from_sheet(dip_node)
-        
-        sfu.set_board_from_sheet(painting_node)
-   
-    def add_curves_to_painting(self):
-        node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
-        if not node:
-            raise IndexError("No painting node selected")
-        curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve", ni=True)
-        for curve in curves:
-            cutl.connect_curve_to_painting(curve, node, connect_to="next_available")
-
-    # def on_generate_brush_dip_curves(self):
-    #     lift = pm.floatSliderButtonGrp(self.gen_dip_curves_ff, query=True, value=True)
-    #     force = pm.checkBox(self.force_gen_brush_curves_cb, query=True, v=True)
-    #     cutl.generate_brush_dip_curves(lift, force )
-
-    # def visualize_brush_dips(self):
-    #     painting_dip = pm.PyNode("mainPaintingShape")
-    #     dip_dip = pm.PyNode("dipPaintingShape")
-        
+        if do_rack:
+            name = pm.textFieldGrp(self.setup_rack_tf, q=True, text=True)
+            putl.setup_rack_from_sheet(dip_node)

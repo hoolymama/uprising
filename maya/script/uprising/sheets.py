@@ -38,8 +38,8 @@ def get_measurements_values(cell_range, service, dimension="ROWS"):
 
 def get_named_header(search_str, sheet_name,  service):
     print "Looking for header with name %s in %s" % (search_str, sheet_name)
-    batch_size = 100
-    batches = 10
+    batch_size = 200
+    batches = 5
     total_rows = batch_size * batches
     for r,x in [("%s!A%d:A%d" % (sheet_name, x+1, x+batch_size) , x) for x in xrange(0,total_rows,batch_size) ]:
         values = get_measurements_values(r,service, "COLUMNS")

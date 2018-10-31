@@ -38,7 +38,7 @@
 #include "dot_data.h"
 #include "dot_tree.h"
 #include "cImgData.h"
-
+#include "cImgUtils.h"
 // #include "textureSampling.h"
 
 // #include "CImg.h"
@@ -78,6 +78,8 @@ static float circle[][4] = {
 
 MObject projectionPoints::aDensityImage;
 MObject projectionPoints::aRadiusImage;
+MObject projectionPoints::aMask;
+
 MObject projectionPoints::aDensityRamp;
 MObject projectionPoints::aDensityRangeMin;
 MObject projectionPoints::aDensityRangeMax;
@@ -148,6 +150,11 @@ MStatus projectionPoints::initialize()
 	aRadiusImage = tAttr.create("radiusImage", "rim", cImgData::id ) ;
 	tAttr.setStorable(false);
 	st = addAttribute( aRadiusImage ); mser;
+
+	aMask = tAttr.create("mask", "msk", cImgData::id ) ;
+	tAttr.setStorable(false);
+	st = addAttribute( aMask ); mser;
+
 
 	aDensityRamp  = MRampAttribute::createCurveRamp("densityRamp", "drmp");
 	st = addAttribute( aDensityRamp ); mser;
@@ -266,6 +273,7 @@ MStatus projectionPoints::initialize()
 
 	st = attributeAffects( aDensityImage, aOutPoints);
 	st = attributeAffects( aRadiusImage, aOutPoints);
+	st = attributeAffects( aMask, aOutPoints);
 	st = attributeAffects( aSeed, aOutPoints);
 	st = attributeAffects( aProjectionMatrix, aOutPoints);
 	st = attributeAffects( aIterations, aOutPoints);
@@ -278,6 +286,7 @@ MStatus projectionPoints::initialize()
 
 	st = attributeAffects( aDensityImage, aOutRadius);
 	st = attributeAffects( aRadiusImage, aOutRadius);
+	st = attributeAffects( aMask, aOutRadius);
 	st = attributeAffects( aSeed, aOutRadius);
 	st = attributeAffects( aProjectionMatrix, aOutRadius);
 	st = attributeAffects( aDensityRamp, aOutRadius);
@@ -287,6 +296,7 @@ MStatus projectionPoints::initialize()
 
 	st = attributeAffects( aDensityImage, aOutU);
 	st = attributeAffects( aRadiusImage, aOutU);
+	st = attributeAffects( aMask, aOutU);
 	st = attributeAffects( aSeed, aOutU);
 	st = attributeAffects( aProjectionMatrix, aOutU);
 	st = attributeAffects( aIterations, aOutU);
@@ -300,6 +310,7 @@ MStatus projectionPoints::initialize()
 
 	st = attributeAffects( aDensityImage, aOutV);
 	st = attributeAffects( aRadiusImage, aOutV);
+	st = attributeAffects( aMask, aOutV);
 	st = attributeAffects( aSeed, aOutV);
 	st = attributeAffects( aProjectionMatrix, aOutV);
 	st = attributeAffects( aIterations, aOutV);
@@ -469,13 +480,57 @@ void projectionPoints::relaxDots(MDataBlock &data, std::vector<dotData> &dots)
 		}
 		if (pTree) {delete pTree; pTree = 0;}
 	}
+
 	for (auto dot : dots)
 	{
 		dot.setUV(invmat);
 	}
 
+}
+
+
+bool shouldCull(const dotData &dot,
+                const CImg<unsigned char>   &maskImage )
+{
+
+	int w = maskImage.width();
+	int h = maskImage.height();
+	float u = dot.u();
+	float v = dot.v();
+	float x, y;
+
+	cImgUtils::toImageCoords(u, v, w, h, x, y);
+	float val  = float(maskImage.atXY(x, y))  ; /* 0 -> 255 */
+	return ( float(drand48() * 255.0) >  val );
+}
+
+void projectionPoints::cullDots(MDataBlock &data, std::vector<dotData> &dots)
+{
+	CImg<unsigned char>  *pMaskImage = getImage(data, projectionPoints::aMask );
+
+	if (!pMaskImage) {
+		return ;
+	}
+
+
+
+	int w = pMaskImage->width();
+	int h = pMaskImage->height();
+
+	if (! (w && h)) {
+		return ;
+	}
+
+	std::vector<dotData>::iterator new_end  = std::remove_if(dots.begin(), dots.end(),
+	    [pMaskImage](const dotData & dot)
+	{
+		return  shouldCull(dot, *pMaskImage);
+	}   );
+
+	dots.erase(new_end, dots.end());
 
 }
+
 
 
 MStatus projectionPoints::compute(const MPlug &plug, MDataBlock &data )
@@ -494,6 +549,9 @@ MStatus projectionPoints::compute(const MPlug &plug, MDataBlock &data )
 	std::vector<dotData> dots;
 	makeDots(data, dots);
 	relaxDots(data, dots);
+	cullDots(data, dots);
+
+
 
 	MVectorArray resultPoints;
 	MDoubleArray resultRadii;
@@ -507,7 +565,6 @@ MStatus projectionPoints::compute(const MPlug &plug, MDataBlock &data )
 		resultRadii.append(citer->radius());
 		resultU.append(citer->u());
 		resultV.append(citer->v());
-
 	}
 
 	st = outputData(projectionPoints::aOutPoints, data, resultPoints ); mser;

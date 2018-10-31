@@ -45,12 +45,12 @@ class ValidateTab(gui.FormLayout):
         )
 
         self.send_paintings_cb = pm.checkBoxGrp(
-            numberOfCheckBoxes=2,
+            numberOfCheckBoxes=3,
             height=30,
-            label='Send clusters for',
-            labelArray2=['Painting', 'Dips'],
-            valueArray2=[True, False],
-            columnWidth3=(180, 120, 120)
+            label='Create components',
+            labelArray3=['Painting', 'Dips', "Calibration"],
+            valueArray3=[True, False, False],
+            columnWidth4=(180, 120, 120, 120)
         )
 
         self.send_selected_props_cb = pm.checkBoxGrp(
@@ -179,6 +179,8 @@ class ValidateTab(gui.FormLayout):
             self.send_paintings_cb, query=True, value1=True)
         send_dips = pm.checkBoxGrp(
             self.send_paintings_cb, query=True, value2=True)
+        send_calibration = pm.checkBoxGrp(
+            self.send_paintings_cb, query=True, value3=True)
         send_selected_props = pm.checkBoxGrp(
             self.send_selected_props_cb, query=True, value1=True)
 
@@ -188,7 +190,7 @@ class ValidateTab(gui.FormLayout):
 
         if painting_node or dip_node:
             with uutl.minimize_robodk():
-                studio = Studio(painting_node, dip_node)
+                studio = Studio(painting_node, dip_node, calibration=send_calibration)
                 studio.write()
 
         if painting_node:
@@ -205,32 +207,32 @@ class ValidateTab(gui.FormLayout):
         if send_selected_props:
             props.send(pm.ls(selection=True))
 
-    def hide_objects(self, obs):
-        for o in obs:
-            if o.type() == "strokeCurve":
-                xf = cutl.get_curve(o).getParent()
-            elif  o.type() == "nurbsCurve":
-                xf = o.getParent()
-            elif o.type() == "transform":
-                xf = o
-            else:
-                pm.warning("Cant get transform")
-                return
-            xf.attr("visibility").set(0)
+    # def hide_objects(self, obs):
+    #     for o in obs:
+    #         if o.type() == "strokeCurve":
+    #             xf = cutl.get_curve(o).getParent()
+    #         elif  o.type() == "nurbsCurve":
+    #             xf = o.getParent()
+    #         elif o.type() == "transform":
+    #             xf = o
+    #         else:
+    #             pm.warning("Cant get transform")
+    #             return
+    #         xf.attr("visibility").set(0)
 
 
-    def show_objects(self, obs):
-        for o in obs:
-            if o.type() == "strokeCurve":
-                xf = cutl.get_curve(o).getParent()
-            elif  o.type() == "nurbsCurve":
-                xf = o.getParent()
-            elif o.type() == "transform":
-                xf = o
-            else:
-                pm.warning("Cant get transform")
-                return
-            xf.attr("visibility").set(1)
+    # def show_objects(self, obs):
+    #     for o in obs:
+    #         if o.type() == "strokeCurve":
+    #             xf = cutl.get_curve(o).getParent()
+    #         elif  o.type() == "nurbsCurve":
+    #             xf = o.getParent()
+    #         elif o.type() == "transform":
+    #             xf = o
+    #         else:
+    #             pm.warning("Cant get transform")
+    #             return
+    #         xf.attr("visibility").set(1)
 
 
     def do_retries_validation(self):
@@ -272,15 +274,15 @@ class ValidateTab(gui.FormLayout):
                 type="strokeCurve")
             obs += conns
 
-        self.hide_objects(obs)
+        cutl.hide_objects(obs)
 
         results = []
         for o in obs:
-            self.show_objects([o])
+            cutl.show_objects([o])
             attempts = self.do_retries_for_object(o,attribute,  step_type, low, high, count)
             status = "SUCCESS" if (attempts > -1) else "FAILURE"
             results.append({"node": o, "status": status, "attempts": attempts})
-            self.hide_objects([o])
+            cutl.hide_objects([o])
         print results
         print "-" * 30
         for res in results:
@@ -289,7 +291,7 @@ class ValidateTab(gui.FormLayout):
 
 
 
-        self.show_objects(obs)
+        cutl.show_objects(obs)
 
         # if step_type is "random":
         #     vals = [random.uniform(low, high) for x in range(count)]
@@ -360,7 +362,7 @@ class ValidateTab(gui.FormLayout):
                 self.setParam(o, attribute, val)
                 pm.refresh()
                 
-                studio = Studio(painting_node, None)
+                studio = Studio(painting_node, None, calibration=False)
                 studio.write()
                 path_result = self.validate_path(studio.painting_program)
 

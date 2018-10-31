@@ -2,27 +2,27 @@
 
 import pymel.core as pm
 
-from robolink import (
-    Robolink,
-    ITEM_TYPE_ROBOT,
-    INSTRUCTION_CALL_PROGRAM,
-    INSTRUCTION_SHOW_MESSAGE,
-    RUNMODE_MAKE_ROBOTPROG,
-    COLLISION_ON,
-    COLLISION_OFF
-)
-import robodk as rdk
+# from robolink import (
+#     Robolink,
+#     ITEM_TYPE_ROBOT,
+#     INSTRUCTION_CALL_PROGRAM,
+#     INSTRUCTION_SHOW_MESSAGE,
+#     RUNMODE_MAKE_ROBOTPROG,
+#     COLLISION_ON,
+#     COLLISION_OFF
+# )
+# import robodk as rdk
 
 from paint import Paint
 from brush import Brush
-from stroke import Stroke
+# from stroke import Stroke
 from cluster import (PaintingCluster, DipCluster)
 # from studio import Studio
 
-from uprising_util import PaintingError
+# from uprising_util import PaintingError
 
-import uprising_util as uutl
-import const as k
+# import uprising_util as uutl
+# import const as k
 
 
 import logging

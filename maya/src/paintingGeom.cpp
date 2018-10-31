@@ -71,6 +71,7 @@ double paintingGeom::travelCutoff(  short brushId, short paintId) const {
 clusterGeom &paintingGeom::prepCluster(
   bool force,
   short brushId,
+  short phisicalId,
   short paintId)
 {
 
@@ -87,16 +88,29 @@ clusterGeom &paintingGeom::prepCluster(
 	// therefore safe to call back()
 	const clusterGeom &back = m_clusters.back();
 
-	// CHANGE PAINT OR BRUSH (tool change)
-	if (! (back.brushId() == brushId && back.paintId() == paintId)) {
-		// cerr << "CHANGE PAINT OR BRUSH (tool change)" << endl;
 
+	short lastBrushId = back.brushId();
+	short lastPaintId = back.paintId();
+
+	// CHANGE PAINT OR BRUSH (tool change)
+	if (! (lastBrushId == brushId && lastPaintId == paintId)) {
 		double cutoff = travelCutoff(brushId, paintId);
+		clusterGeom::Reason reason = clusterGeom::kTool;
+		if (lastPaintId == paintId) { // brush Id changed - but is it the same physical brush?
+			short lastPhysicalId =  brushFromId(lastBrushId).physicalId;
+			if (lastPhysicalId == phisicalId) {
+				reason = clusterGeom::kTcp;
+			}
+		}
 		m_clusters.push_back(
-		  clusterGeom(brushId, paintId, cutoff, clusterGeom::kTool)
+		  clusterGeom(brushId, paintId, cutoff, reason)
 		);
 		return m_clusters.back();
 	}
+
+
+
+
 
 	// RAN OUT PAINT (dip only)
 	// FORCE DIP ON FIRST STROKE OF CURVE
@@ -165,10 +179,12 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 
 void paintingGeom::addStroke(const strokeGeom &stroke) {
 
-	short paintId = stroke.paintId();
+	// short paintId = stroke.paintId();
 	short brushId = stroke.brushId();
+	const  Brush &b = brushFromId(brushId);
+	// short physicalId = b.physicalId;
 	bool force = stroke.forceDip();
-	clusterGeom &g = prepCluster(force, brushId , paintId );
+	clusterGeom &g = prepCluster(force, brushId , b.physicalId, stroke.paintId() );
 	g.pushStroke(stroke);
 
 }

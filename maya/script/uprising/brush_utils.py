@@ -68,11 +68,21 @@ def create_brush_geo(height, bristle_height, tip, width, name, profile):
     return geo
 
 
-def brush_name(idx, unsplay_width, desc, profile, prefix):
+# def brush_name(idx, unsplay_width, desc, profile, prefix):
+#     return "_".join([
+#         prefix,
+#         str(int(idx)),
+#         "%smm" % str(int(unsplay_width * 10)),
+#         profile.lower(),
+#         desc.lower()
+#     ])
+
+def brush_name(prefix, idx, width, physical_id, profile,desc):
     return "_".join([
         prefix,
         str(int(idx)),
-        "%smm" % str(int(unsplay_width * 10)),
+        "%dmm" % int(width * 10),
+        "p%d"%int(physical_id),
         profile.lower(),
         desc.lower()
     ])
@@ -95,7 +105,9 @@ def create_and_connect_single_brush_geo(
         pm.warning("No destination node. Skipping brush gen")
         return
 
-    name = brush_name(idx, unsplay_width, desc, profile, prefix)
+    # name = brush_name(idx, unsplay_width, desc, profile, prefix)
+    name = brush_name(prefix, idx, width, physical_id, profile,desc)
+    
     tf = create_brush_geo(height, bristle_height, tip, width, name, profile)
     profile_shape = 0
     if profile.lower() == "round":

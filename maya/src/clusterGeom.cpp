@@ -116,6 +116,8 @@ ostream &operator<<(ostream &os, const clusterGeom &g)
 	}
 	else if (g.m_reason == clusterGeom::kDip) {
 		reason = "Dip";
+	} if (g.m_reason == clusterGeom::kTcp) {
+		reason = "Tcp";
 	}
 	else {
 		reason = "NONE!!";

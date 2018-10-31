@@ -416,6 +416,9 @@ MStatus paintingCmd::handleClusterReasonFlag(const paintingGeom &geom,
 		case clusterGeom::kDip:
 			setResult(MString("dip"));
 			break;
+		case clusterGeom::kTcp:
+			setResult(MString("tcp"));
+			break;
 		default:
 			setResult(MString("none"));
 			break;

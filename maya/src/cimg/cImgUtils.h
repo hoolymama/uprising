@@ -1,7 +1,7 @@
 
 #ifndef cImgUtils_H
 #define cImgUtils_H
-
+#define cimg_display 0
 #include <math.h>
 
 #include "CImg.h"

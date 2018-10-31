@@ -7,8 +7,9 @@ import robodk as rdk
 
 
 class Brush(object):
-    def __init__(self, the_id, name, matrix, width, retention, tip, shape):
+    def __init__(self, the_id, name, matrix, width, retention, tip, physical_id, shape):
         self.id = the_id
+        self.physical_id= physical_id
         self.matrix = uutl.maya_to_robodk_mat(matrix)
         self.width = width * 10
         self.shape = shape
@@ -59,6 +60,7 @@ class Brush(object):
             "brushWidth",
             "brushRetention",
             "brushTip",
+            "brushPhysicalId",
             "brushShape"
         ]:
             vals.append(node.attr("brushes[%d].%s" % (index, att)).get())

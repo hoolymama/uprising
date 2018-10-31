@@ -17,7 +17,7 @@ public:
 
 	Brush(
 	  short id,
-	  short physicalId,
+	  short physicalId, /* physicalID might be redundant - if so remove it */
 	  double width,
 	  double retention,
 	  double tip,

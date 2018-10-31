@@ -29,20 +29,14 @@ public:
 	  const std::map<short, Brush> &brushes,
 	  const std::map<short, Paint> &paints);
 
-
 	virtual void copy ( const MPxData &other );
 	paintingData &operator=(const paintingData &otherData ) ;
 	paintingGeom	*geometry() const ;
-
-
 
 	virtual MTypeId         typeId() const;
 	virtual MString         name() const;
 
 	static void *creator();
-
-
-
 
 public:
 

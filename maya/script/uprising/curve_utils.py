@@ -14,6 +14,11 @@ from wrandom import StepRandomizer
 logger = logging.getLogger('uprising')
 
 
+
+
+def get_curves_from_painting(painting):
+    return pm.listHistory(painting.attr("strokeCurves") , type="nurbsCurve")
+
 def get_painting(curve):
     if curve.type() != "nurbsCurve":
         curve = pm.ls(
@@ -796,6 +801,36 @@ def curve_vis_active_connection(curves, connect):
                 curve.attr("visibility") // stroke_curve.attr("active")
         except BaseException as ex:
             print ex
+
+
+
+def hide_objects( obs):
+    for o in obs:
+        if o.type() == "strokeCurve":
+            xf = get_curve(o).getParent()
+        elif  o.type() == "nurbsCurve":
+            xf = o.getParent()
+        elif o.type() == "transform":
+            xf = o
+        else:
+            pm.warning("Cant get transform")
+            return
+        xf.attr("visibility").set(0)
+
+
+def show_objects( obs):
+    for o in obs:
+        if o.type() == "strokeCurve":
+            xf = get_curve(o).getParent()
+        elif  o.type() == "nurbsCurve":
+            xf = o.getParent()
+        elif o.type() == "transform":
+            xf = o
+        else:
+            pm.warning("Cant get transform")
+            return
+        xf.attr("visibility").set(1)
+
 
 
 # def get_index(node, att, connect_to):

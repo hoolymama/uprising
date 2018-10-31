@@ -83,7 +83,7 @@ class RingsDesignTab(gui.FormLayout):
                 numberOfRadioButtons=2)
 
             self.spacing_ctl = pm.floatFieldGrp(
-                numberOfFields=1, value1=1, extraLabel='cm')
+                numberOfFields=1, value1=1, pre=2, extraLabel='cm')
             pm.setParent("..")
 
         with uutl.activatable():

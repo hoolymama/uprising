@@ -153,67 +153,67 @@ def create_and_connect_driver(driver_node, att):
 #     crvs_grp = pm.group(empty=True, name="curves")
 #     pm.group(plane_transform, pos_grp, crvs_grp, name="strokeFactoryGroup")
 
-def set_board_from_sheet(node):
-    #   get top node, then find corner locators
-    assembly = uutl.assembly(node)
-    _, ground_att, _, _  =ensure_painting_has_notes(assembly)
+# def set_board_from_sheet(node):
+#     #   get top node, then find corner locators
+#     assembly = uutl.assembly(node)
+#     _, ground_att, _, _  =ensure_painting_has_notes(assembly)
 
-    top_name = assembly.name()
-    corners = {
-        "BL": {
-            "node": pm.PyNode("%s|BL" % top_name)
-        },
-        "TL": {
-            "node": pm.PyNode("%s|TL" % top_name)
-        },
-        "TR": {
-            "node": pm.PyNode("%s|TR" % top_name)
-        }
-    }
+#     top_name = assembly.name()
+#     corners = {
+#         "BL": {
+#             "node": pm.PyNode("%s|BL" % top_name)
+#         },
+#         "TL": {
+#             "node": pm.PyNode("%s|TL" % top_name)
+#         },
+#         "TR": {
+#             "node": pm.PyNode("%s|TR" % top_name)
+#         }
+#     }
 
-    data, offset, ground = sheets.get_raw_board_data()
-    ground_att.set(ground)
+#     data, offset, ground = sheets.get_raw_board_data()
+#     ground_att.set(ground)
 
-    validate_board_data(data)
-    offset = uutl.numeric(offset) * 0.1
+#     validate_board_data(data)
+#     offset = uutl.numeric(offset) * 0.1
 
-    tmp_locs = {}
-    tmp_locs["BL"] = pm.spaceLocator()
-    tmp_locs["TL"] = pm.spaceLocator()
-    tmp_locs["TR"] = pm.spaceLocator()
+#     tmp_locs = {}
+#     tmp_locs["BL"] = pm.spaceLocator()
+#     tmp_locs["TL"] = pm.spaceLocator()
+#     tmp_locs["TR"] = pm.spaceLocator()
 
-    for row in data:
-        row = [uutl.numeric(s) for s in row]
-        key = row[0]
-        if key in corners:
-            pos = [v * 0.1 for v in row[1:4]]
-            corners[key]["pos"] = tuple(pos)
+#     for row in data:
+#         row = [uutl.numeric(s) for s in row]
+#         key = row[0]
+#         if key in corners:
+#             pos = [v * 0.1 for v in row[1:4]]
+#             corners[key]["pos"] = tuple(pos)
 
-    for k in corners:
-        corners[k]["node"].attr("translate").set(*corners[k]["pos"])
-        tmp_locs[k].attr("translate").set(*corners[k]["pos"])
+#     for k in corners:
+#         corners[k]["node"].attr("translate").set(*corners[k]["pos"])
+#         tmp_locs[k].attr("translate").set(*corners[k]["pos"])
 
     # move mainPainting into position and parent tmp_locs
 
 
 
-    zppos = assembly.attr("zeroPosition").get()
-    assembly.attr("zeroPosition").set(False)
-    for k in corners:
-        parent_joint = "%s|jpos" % assembly
-        pm.parent(tmp_locs[k], parent_joint)
-        tmp_locs[k].attr("tz").set(offset)
-        pm.parent(tmp_locs[k], world=True)
-        off_pos = tmp_locs[k].attr("translate").get()
-        corners[k]["node"].attr("translate").set(off_pos)
-    assembly.attr("zeroPosition").set(zppos)
+    # zppos = assembly.attr("zeroPosition").get()
+    # assembly.attr("zeroPosition").set(False)
+    # for k in corners:
+    #     parent_joint = "%s|jpos" % assembly
+    #     pm.parent(tmp_locs[k], parent_joint)
+    #     tmp_locs[k].attr("tz").set(offset)
+    #     pm.parent(tmp_locs[k], world=True)
+    #     off_pos = tmp_locs[k].attr("translate").get()
+    #     corners[k]["node"].attr("translate").set(off_pos)
+    # assembly.attr("zeroPosition").set(zppos)
 
-    pm.delete([tmp_locs[k] for k in tmp_locs])
+    # pm.delete([tmp_locs[k] for k in tmp_locs])
  
 
-def validate_board_data(data):
-    if not len(data):
-        raise ValueError("No board data from Google sheets")
-    for row in data:
-        if len(row) < 4:
-            raise ValueError("Invalid board data from Google sheets")
+# def validate_board_data(data):
+#     if not len(data):
+#         raise ValueError("No board data from Google sheets")
+#     for row in data:
+#         if len(row) < 4:
+#             raise ValueError("Invalid board data from Google sheets")

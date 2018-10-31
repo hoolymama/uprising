@@ -32,27 +32,36 @@ def clean_rdk():
         station.Delete()
     RL.AddFile(CLEAN_FILE)
 
+
 def publish_proposal(
-            proposals_dir,
-            painting_node,
-            description,
-            frame_range,
-            clean_top):
-    maya_scenes_dir =   os.path.join(proposals_dir, "maya", "scenes")
+        proposals_dir,
+        painting_node,
+        description,
+        frame_range,
+        clean_top):
+    maya_scenes_dir = os.path.join(proposals_dir, "maya", "scenes")
     mkdir_p(maya_scenes_dir)
     timestamp = get_timestamp()
-    
+
     write_maya_scene(maya_scenes_dir, timestamp)
-    
+
     media_dir = os.path.join(proposals_dir, "media", timestamp)
     mkdir_p(media_dir)
     # title, body = split_desc(description)
 
-    write_info(painting_node, proposals_dir, timestamp, frame_range, description)
+    write_info(
+        painting_node,
+        proposals_dir,
+        timestamp,
+        frame_range,
+        description)
 
-
-
-    write_image_sequence(painting_node, media_dir, timestamp , frame_range, clean_top)
+    write_image_sequence(
+        painting_node,
+        media_dir,
+        timestamp,
+        frame_range,
+        clean_top)
 
     # for frame in range(frame_range[0], frame_range[1] + 1):
     #     pm.currentTime(frame)
@@ -71,16 +80,16 @@ def publish_proposal(
     #         desc,
     #         notes,
     #         frame)
-        # write_maya_scene(ts_dir, timestamp)
-        # write_ref_image(ts_dir, timestamp)
- 
+    # write_maya_scene(ts_dir, timestamp)
+    # write_ref_image(ts_dir, timestamp)
+
 
 def run_hook(code):
     if not code:
         return
     kw = {
         "frame": pm.currentTime(q=True),
-        "painting_node" : pm.PyNode("mainPaintingShape"),
+        "painting_node": pm.PyNode("mainPaintingShape"),
         "dip_node": pm.PyNode("dipPaintingShape")
     }
 
@@ -90,8 +99,6 @@ def run_hook(code):
     method = getattr(callbacks, cmd)
     res = method(*args, **kw)
     print res
-
-
 
 
 def publish_sequence(
@@ -110,9 +117,6 @@ def publish_sequence(
     print "x" * 20
     print "painting_node: %s" % painting_node
     print "dip_node: %s" % dip_node
-
-
-
 
     recordings_dir = os.path.join(export_dir, "recordings")
     mkdir_p(recordings_dir)
@@ -134,13 +138,10 @@ def publish_sequence(
         print "Desc: %s" % desc
         print "Notes: %s" % notes
 
-
+        setup_dip.doit()
         write_maya_scene(ts_dir, timestamp)
         write_ref_image(ts_dir, timestamp)
         write_csv(export_dir, timestamp, desc, notes, medium, ground)
-
-        if not maya_only:
-            publish_robodk_parts(painting_node, dip_node, ts_dir, timestamp)
 
         write_log(
             painting_node,
@@ -150,7 +151,13 @@ def publish_sequence(
             desc,
             notes,
             frame)
-        
+
+        if not maya_only:
+            # try:
+            publish_robodk_parts(painting_node, dip_node, ts_dir, timestamp)
+            # except:
+            #     write_error = True
+
             # setup_dip.doit()
             # with uutl.minimize_robodk():
             #     studio = Studio(painting_node, dip_node)
@@ -162,12 +169,13 @@ def publish_sequence(
 def publish_robodk_parts(painting_node, dip_node, ts_dir, timestamp):
     RL = Robolink()
     clean_rdk()
-    setup_dip.doit()
+
     with uutl.minimize_robodk():
-        studio = Studio(painting_node, dip_node)
+        studio = Studio(painting_node, dip_node, calibration=True)
         studio.write()
     write_station(RL, ts_dir, timestamp)
-    write_program(RL, ts_dir, timestamp)
+    write_program(RL, ts_dir, "xx", timestamp)
+    write_program(RL, ts_dir, "px", timestamp)
 
 
 def mkdir_p(path):
@@ -198,7 +206,6 @@ def choose_proposal_dir():
         pm.displayWarning('Nothing Selected')
         return
     return entries[0]
-
 
 
 def get_timestamp(suffix=None):
@@ -264,9 +271,14 @@ def write_ref_image(dest_dir, timestamp, res=1024):
         widthHeight=(res, res))
 
 
- 
-def write_image_sequence(painting_node, media_dir, timestamp , frame_range, clean_top, **kw):
-    # f = pm.currentTime(q=True) 
+def write_image_sequence(
+        painting_node,
+        media_dir,
+        timestamp,
+        frame_range,
+        clean_top,
+        **kw):
+    # f = pm.currentTime(q=True)
     # frame_range = kw.get("frame_range",  (f,f))
     resolution = kw.get("resolution", 1024)
     resolutionX = kw.get("resolutionX", resolution)
@@ -280,18 +292,17 @@ def write_image_sequence(painting_node, media_dir, timestamp , frame_range, clea
     print "resolutionY %d" % resolutionY
 
 
-
 def setup_clean_top(painting_node):
     pass
 
 
-
-def write_program(RL, ts_dir, timestamp):
-    prog_filename = "PX_%s" % timestamp
-    program = RL.Item("px")
-    program.setName(prog_filename)
-    program.MakeProgram(ts_dir)
-    program.setName("px")
+def write_program(RL, ts_dir, progname, timestamp):
+    prog_filename = "%s_%s" % (progname.upper(), timestamp)
+    program = RL.Item(progname)
+    if program.Valid():
+        program.setName(prog_filename)
+        program.MakeProgram(ts_dir)
+        program.setName(progname)
 
 
 def write_station(RL, ts_dir, timestamp):
@@ -308,20 +319,25 @@ def write_maya_scene(ts_dir, timestamp):
 
 
 def _painting_stats(node):
-    print "_painting_stats %s" % node
+    # print "_painting_stats %s" % node
     pm.refresh()
     cluster_count = pm.paintingQuery(node, cc=True)
-    print "GIT HERE %s" % cluster_count
+    # print "GIT HERE %s" % cluster_count
     stroke_count = 0
+    reason_result = {"dip": 0, "tool": 0, "tcp": 0}
     for i in range(cluster_count):
         stroke_count += pm.paintingQuery(node, ci=i, sc=True)
-
+        reason = pm.paintingQuery(node, ci=i, clusterReason=True)
+        reason_result[reason] += 1
     strokes_per_cluster = stroke_count / float(cluster_count)
 
     result = {
         "Cluster count": cluster_count,
         "Stroke count": stroke_count,
-        "Strokes per cluster": strokes_per_cluster
+        "Strokes per cluster": strokes_per_cluster,
+        "Tool changes": reason_result["tool"],
+        "Dip only changes": reason_result["dip"],
+        "Tcp only changes": reason_result["tcp"]
     }
     return result
 
@@ -331,7 +347,6 @@ def _used_paints(painting_node):
     ids = sorted(set(ids))
     paints = Paint.paints(painting_node)
     return [paints[_id] for _id in ids]
-
 
 
 def write_log(
@@ -349,8 +364,6 @@ def write_log(
     dip_stats = _painting_stats(dip_node)
 
     paints_in_use = _used_paints(painting_node)
-
-
 
     log_file = os.path.join(ts_dir, "log.txt")
     with open(log_file, 'w') as the_file:
@@ -374,21 +387,26 @@ def write_log(
             the_file.write("%s: %s\n" % (k, dip_stats[k]))
         the_file.write("\n")
 
-
         the_file.write("Paints in use:\n")
         for paint in paints_in_use:
-            the_file.write("%s\t:%s\n" % (paint.id, paint.name) )
+            the_file.write("%s\t:%s\n" % (paint.id, paint.name))
         the_file.write("\n")
-        
+
         the_file.write("Dip combinations:\n")
         for k in dip_combos:
             the_file.write("%s\n" % k)
         the_file.write("\n")
 
+        # err_str = "TRUE" if write_error else "FALSE"
+        # the_file.write("Errors while writing: %s\n" % err_str)
 
 
-
-def write_info(painting_node, proposals_dir, timestamp, frame_range, description):
+def write_info(
+        painting_node,
+        proposals_dir,
+        timestamp,
+        frame_range,
+        description):
     info_file = os.path.join(proposals_dir, ("%s.txt" % timestamp))
     title, body = split_desc(description)
 
@@ -399,7 +417,6 @@ def write_info(painting_node, proposals_dir, timestamp, frame_range, description
         the_file.write("%s\n\n" % body)
         the_file.write("Timestamp: %s\n\n" % timestamp)
         the_file.write("Frame range: %d to %d\n\n" % (start, end))
-
 
 
 # def publish_package():

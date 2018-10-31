@@ -9,7 +9,8 @@ from uprising import (
     rings_design_tab,
     rings_setup_tab,
     proposal_tab,
-    images_tab)
+    images_tab,
+    tools_menu)
 
 
 # import uprising.logger_setup
@@ -35,6 +36,8 @@ import sheets
 import curve_utils
 import brush_utils
 import paint_utils
+import board_utils
+
 import culling
 import props
 import images
@@ -57,6 +60,7 @@ reload(callbacks)
 reload(curve_utils)
 reload(brush_utils)
 reload(paint_utils)
+reload(board_utils)
 reload(painting)
 reload(stroke_factory_utils)
 reload(sheets)
@@ -72,6 +76,7 @@ reload(rings_design_tab)
 reload(rings_setup_tab)
 reload(culling)
 
+reload(tools_menu)
 
 class RobotWindow(gui.Window):
 
@@ -81,10 +86,12 @@ class RobotWindow(gui.Window):
             if pm.window(win, q=True, title=True) == "Robot Tools":
                 pm.deleteUI(win)
 
+        
         self.setTitle('Robot Tools')
         self.setIconName('Robot Tools')
         self.setWidthHeight([500, 500])
 
+        self.menuBarLayout = pm.menuBarLayout()
         self.tabs = pm.tabLayout()
 
         pm.setParent(self.tabs)
@@ -118,6 +125,9 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.proposal_tab = proposal_tab.ProposalTab()
         self.tabs.setTabLabel((self.proposal_tab, "Proposal"))
+ 
+        pm.setParent(self.menuBarLayout)
+        self.tools_menu = tools_menu.Menu()
 
 
         self.show()

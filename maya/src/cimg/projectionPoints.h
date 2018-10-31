@@ -1,6 +1,9 @@
 
 #ifndef _projectionPoints_H
 #define _projectionPoints_H
+
+#define cimg_display 0
+
 #include <maya/MPxLocatorNode.h>
 #include <maya/MDGMessage.h>
 #include <maya/MDGModifier.h>
@@ -41,6 +44,9 @@ private:
 
   void makeDots(MDataBlock &data, std::vector<dotData> &dots);
   void relaxDots(MDataBlock &data, std::vector<dotData> &dots);
+  void cullDots(MDataBlock &data, std::vector<dotData> &dots);
+  // bool shouldCull(const dotData &dot,
+  //                 const CImg<unsigned char>   &maskImage );
 
   // MStatus getImage(MDataBlock &data, MObject &attribute,
   //                  CImg<unsigned char> *image );
@@ -49,6 +55,7 @@ private:
 
   static  MObject aDensityImage;
   static  MObject aRadiusImage;
+  static  MObject aMask;
 
   static  MObject aDensityRamp;
   static  MObject aDensityRangeMin;

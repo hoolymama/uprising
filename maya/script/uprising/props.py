@@ -4,7 +4,7 @@ import uprising.maya_util as mutil
 
 from robolink import Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TARGET
 import robodk as rdk
- 
+
 
 def get_targets_frame():
     RL = Robolink()
@@ -65,9 +65,12 @@ def send(objects, frame=None):
     dups = pm.duplicate(transforms)
     print dups
     for dup in dups:
+        for att in ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]:
+            dup.attr(att).setLocked(False)
         if dup.getParent():
             pm.parent(dup, world=True)
-    pm.makeIdentity( dups, apply=True, t=False, r=False, s=True, pn=True)
+
+    pm.makeIdentity(dups, apply=True, t=False, r=False, s=True, pn=True)
     for dup in dups:
         send_object(dup, frame)
     pm.delete(dups)
