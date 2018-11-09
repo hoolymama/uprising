@@ -1,18 +1,10 @@
 import sys
-# import os.path
 import pymel.core as pm
-
-# import setup_dip
 import curve_utils as cutl
-# import brush_utils as butl
 import uprising_util as uutl
-# from contextlib import contextmanager
-
-# from setup_dip import setup_dip_factory
 
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
-# import painting as pnt
 from studio import Studio
 from robolink import (
     Robolink
@@ -28,19 +20,11 @@ class RingsSetupTab(gui.FormLayout):
         self.column.adjustableColumn(True)
         self.create_buttons()
         self.create_action_buttons()
+        self.populate()
 
     def create_buttons(self):
         pm.setParent(self.column)
 
-        # pm.button(
-        #     label='Randomize selected curve rotations',
-        #     command=pm.Callback(self.on_random_rotations))
-
-        # pm.button(
-        #     label='Duplicate into gaps',
-        #     command=pm.Callback(self.on_duplicate_into_gaps))
-
-        # self.subcurvemin_ctl  = pm.checkBoxGrp(label="Lift over curve", value1=False)
         with uutl.activatable(state=False):
             self.distribution_frame = pm.frameLayout(
                 borderVisible=True,
@@ -84,18 +68,19 @@ class RingsSetupTab(gui.FormLayout):
 
         with uutl.activatable(state=False):
             self.lift_ctl = pm.floatFieldGrp(
-                 numberOfFields=3,
-                    label='Tip relative lift l/h/b',
-                    ann="Set lift parameters relative to brush tip length",
-                    value1=1.3,
-                    value2=1.3,
-                    value3=0)
+                numberOfFields=3,
+                label='Tip relative lift l/h/b',
+                ann="Set lift parameters relative to brush tip length",
+                value1=1.3,
+                value2=1.3,
+                value3=0)
 
         with uutl.activatable(state=False):
-            pm.rowLayout(numberOfColumns=2,
-                 columnWidth2=(350, 150),
-                 columnAlign=(1, 'right'),
-                 columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+            self.twist_row = pm.rowLayout(
+                numberOfColumns=2, columnWidth2=(
+                    350, 150), columnAlign=(
+                    1, 'right'), columnAttach=[
+                    (1, 'both', 2), (2, 'both', 2)])
             self.twist_ctl = pm.floatFieldGrp(
                 numberOfFields=2,
                 label='Twist angle/dist',
@@ -139,24 +124,23 @@ class RingsSetupTab(gui.FormLayout):
                 value1=1)
             pm.setParent("..")
 
-
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        cancel_but = pm.button(label='Cancel')
+        save_but = pm.button(label='Save', command=pm.Callback(self.save))
         go_but = pm.button(
             label='Go', command=pm.Callback(
-                self.on_auto_stroke_setup))
+                self.on_go))
 
         self.attachForm(self.column, 'left', 2)
         self.attachForm(self.column, 'right', 2)
         self.attachForm(self.column, 'top', 2)
-        self.attachControl(self.column, 'bottom', 2, cancel_but)
+        self.attachControl(self.column, 'bottom', 2, save_but)
 
-        self.attachNone(cancel_but, 'top')
-        self.attachForm(cancel_but, 'left', 2)
-        self.attachPosition(cancel_but, 'right', 2, 50)
-        self.attachForm(cancel_but, 'bottom', 2)
+        self.attachNone(save_but, 'top')
+        self.attachForm(save_but, 'left', 2)
+        self.attachPosition(save_but, 'right', 2, 50)
+        self.attachForm(save_but, 'bottom', 2)
 
         self.attachNone(go_but, 'top')
         self.attachForm(go_but, 'right', 2)
@@ -174,8 +158,7 @@ class RingsSetupTab(gui.FormLayout):
             v=True)
         cutl.randomize_ring_rotation(curves)
 
-    def on_auto_stroke_setup(self):
-        # subcurve_min_lift = pm.checkBoxGrp(self.subcurve_ctl, q=True, value1=True)
+    def on_go(self):
 
         do_twist = pm.floatFieldGrp(self.twist_ctl, q=True, en=True)
         do_profile = pm.floatFieldGrp(self.profile_ctl, q=True, en=True)
@@ -186,10 +169,7 @@ class RingsSetupTab(gui.FormLayout):
             self.distribution_frame, q=True, en=True)
         do_lift = pm.floatFieldGrp(self.lift_ctl, q=True, en=True)
 
-
         do_density = pm.frameLayout(self.density_frame, q=True, en=True)
-
-
 
         density = None
         distribution = None
@@ -201,15 +181,15 @@ class RingsSetupTab(gui.FormLayout):
 
         if do_distribution:
             distribution = {
-                "min_strokes": pm.intSliderGrp( self.min_strokes_ctl, q=True, v=True), 
-                "max_length": pm.floatSliderGrp(self.max_length_ctl, q=True, v=True), 
-                "overlap": pm.floatSliderGrp(self.overlap_ctl, q=True, v=True)
-            }
+                "min_strokes": pm.intSliderGrp(
+                    self.min_strokes_ctl, q=True, v=True), "max_length": pm.floatSliderGrp(
+                    self.max_length_ctl, q=True, v=True), "overlap": pm.floatSliderGrp(
+                    self.overlap_ctl, q=True, v=True)}
         if do_lift:
             lift = pm.floatFieldGrp(self.lift_ctl, q=True, v=True)
         if do_twist:
             twist = pm.floatFieldGrp(self.twist_ctl, q=True, v=True)
-            flat_only =  pm.checkBox(self.flat_only_cb, q=True, v=True)
+            flat_only = pm.checkBox(self.flat_only_cb, q=True, v=True)
             twist.append(flat_only)
         if do_profile:
             profile = pm.floatFieldGrp(self.profile_ctl, q=True, v=True)
@@ -222,8 +202,8 @@ class RingsSetupTab(gui.FormLayout):
 
         if do_density:
             dmin = pm.floatFieldGrp(self.density_min_ctl, q=True, v=True)
-            dmax= pm.floatFieldGrp(self.density_max_ctl, q=True, v=True)
-            power = pm.floatFieldGrp(self.density_pow_ctl, q=True, v1=True)  
+            dmax = pm.floatFieldGrp(self.density_max_ctl, q=True, v=True)
+            power = pm.floatFieldGrp(self.density_pow_ctl, q=True, v1=True)
             density = [dmin, dmax, power]
 
         curves = pm.ls(
@@ -245,3 +225,241 @@ class RingsSetupTab(gui.FormLayout):
             subcurve_factor,
             rand_rotate,
             density)
+
+
+    def populate(self):
+
+        var = ("upov_distribution_frame_en", True)
+        pm.frameLayout(
+            self.distribution_frame,
+            e=True,
+            en=pm.optionVar.get(
+                var[0],
+                var[1]))
+        uutl.conform_activatable_checkbox(self.distribution_frame)
+
+        var = ("upov_min_strokes_ctl", 1)
+        pm.intSliderGrp(
+            self.min_strokes_ctl,
+            e=True,
+            value=pm.optionVar.get(
+                var[0],
+                var[1]))
+
+        var = ("upov_max_length_ctl", 1)
+        pm.floatSliderGrp(
+            self.max_length_ctl,
+            e=True,
+            value=pm.optionVar.get(
+                var[0],
+                var[1]))
+
+        var = ("upov_overlap_ctl", 1)
+        pm.floatSliderGrp(
+            self.overlap_ctl,
+            e=True,
+            value=pm.optionVar.get(
+                var[0],
+                var[1]))
+
+        var = ("upov_subcurve_ctl_en", True)
+        pm.floatFieldGrp(
+            self.subcurve_ctl,
+            e=True,
+            en=pm.optionVar.get(
+                var[0],
+                var[1]))
+        uutl.conform_activatable_checkbox(self.subcurve_ctl)
+
+        var = ("upov_subcurve_ctl", 1)
+        pm.floatFieldGrp(
+            self.subcurve_ctl,
+            e=True,
+            value1=pm.optionVar.get(
+                var[0],
+                var[1]))
+
+        var = ("upov_lift_ctl_en", True)
+        pm.floatFieldGrp(
+            self.lift_ctl,
+            e=True,
+            en=pm.optionVar.get(
+                var[0],
+                var[1]))
+        uutl.conform_activatable_checkbox(self.lift_ctl)
+
+        var = ("upov_lift_ctl", 1.3, 1.3, 0.0)
+        vals = pm.optionVar.get(var[0], var[1:])
+        pm.floatFieldGrp(self.lift_ctl,
+                         e=True,
+                         value1=vals[0],
+                         value2=vals[1],
+                         value3=vals[2]
+                         )
+
+        var = ("upov_twist_row_en", True)
+        pm.rowLayout(
+            self.twist_row,
+            e=True,
+            en=pm.optionVar.get(
+                var[0],
+                var[1]))
+        uutl.conform_activatable_checkbox(self.twist_row)
+
+        var = ("upov_twist_ctl", 0, 1)
+        vals = pm.optionVar.get(var[0], var[1:])
+        pm.floatFieldGrp(
+            self.twist_ctl,
+            e=True,
+            value1=vals[0],
+            value2=vals[1])
+
+        var = ("upov_flat_only_cb", False)
+        pm.checkBox(
+            self.flat_only_cb,
+            e=True,
+            value=pm.optionVar.get(
+                var[0],
+                var[1]))
+
+        var = ("upov_profile_ctl_en", True)
+        pm.floatFieldGrp(
+            self.profile_ctl,
+            e=True,
+            en=pm.optionVar.get(
+                var[0],
+                var[1]))
+        uutl.conform_activatable_checkbox(self.profile_ctl)
+
+        var = ("upov_profile_ctl", 0, 1)
+        vals = pm.optionVar.get(var[0], var[1:])
+        pm.floatFieldGrp(
+            self.profile_ctl,
+            e=True,
+            value1=vals[0],
+            value2=vals[1])
+
+        var = ("upov_rand_rotation_ctl_en", True)
+        pm.floatFieldGrp(
+            self.rand_rotation_ctl,
+            e=True,
+            en=pm.optionVar.get(
+                var[0],
+                var[1]))
+        uutl.conform_activatable_checkbox(self.rand_rotation_ctl)
+
+        var = ("upov_rand_rotation_ctl", 0, 1)
+        vals = pm.optionVar.get(var[0], var[1:])
+        pm.floatFieldGrp(
+            self.rand_rotation_ctl,
+            e=True,
+            value1=vals[0],
+            value2=vals[1])
+
+        var = ("upov_density_frame_en", True)
+        pm.frameLayout(
+            self.density_frame,
+            e=True,
+            en=pm.optionVar.get(
+                var[0],
+                var[1]))
+        uutl.conform_activatable_checkbox(self.density_frame)
+
+        var = ("upov_density_min_ctl", 1, 2)
+        vals = pm.optionVar.get(var[0], var[1:])
+        pm.floatFieldGrp(
+            self.density_min_ctl,
+            e=True,
+            value1=vals[0],
+            value2=vals[1])
+
+        var = ("upov_density_max_ctl", 1, 2)
+        vals = pm.optionVar.get(var[0], var[1:])
+        pm.floatFieldGrp(
+            self.density_max_ctl,
+            e=True,
+            value1=vals[0],
+            value2=vals[1])
+
+        var = ("upov_density_pow_ctl", 1)
+        pm.floatFieldGrp(
+            self.density_pow_ctl,
+            e=True,
+            value1=pm.optionVar.get(var[0], var[1]))
+
+    def save(self):
+        # board
+        var = "upov_distribution_frame_en"
+        pm.optionVar[var] = pm.frameLayout(
+            self.distribution_frame, q=True, en=True)
+
+        var = "upov_min_strokes_ctl"
+        pm.optionVar[var] = pm.intSliderGrp(
+            self.min_strokes_ctl, q=True, value=True)
+
+        var = "upov_max_length_ctl"
+        pm.optionVar[var] = pm.floatSliderGrp(
+            self.max_length_ctl, q=True, value=True)
+
+        var = "upov_overlap_ctl"
+        pm.optionVar[var] = pm.floatSliderGrp(
+            self.overlap_ctl, q=True, value=True)
+
+        var = "upov_subcurve_ctl_en"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.subcurve_ctl, q=True, en=True)
+
+        var = "upov_subcurve_ctl"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.subcurve_ctl, q=True, value1=True)
+
+        var = "upov_lift_ctl_en"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.lift_ctl, q=True, en=True)
+
+        var = "upov_lift_ctl"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.lift_ctl, q=True, value=True)
+
+        var = "upov_twist_row_en"
+        pm.optionVar[var] = pm.rowLayout(self.twist_row, q=True, en=True)
+
+        var = "upov_twist_ctl"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.twist_ctl, q=True, value=True)
+
+        var = "upov_flat_only_cb"
+        pm.optionVar[var] = pm.checkBox(self.flat_only_cb, q=True, value=True)
+
+        var = "upov_profile_ctl_en"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.profile_ctl, q=True, en=True)
+
+        var = "upov_profile_ctl"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.profile_ctl, q=True, value=True)
+
+        var = "upov_rand_rotation_ctl_en"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.rand_rotation_ctl, q=True, en=True)
+
+        var = "upov_rand_rotation_ctl"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.rand_rotation_ctl, q=True, value=True)
+
+        var = "upov_density_frame_en"
+        pm.optionVar[var] = pm.frameLayout(
+            self.density_frame, q=True, en=True)
+
+        var = "upov_density_min_ctl"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.density_min_ctl, q=True, value=True)
+
+        var = "upov_density_max_ctl"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.density_max_ctl, q=True, value=True)
+
+        var = "upov_density_pow_ctl"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.density_pow_ctl, q=True, value1=True)
+

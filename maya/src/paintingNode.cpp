@@ -68,7 +68,7 @@ int clamp(int n, int lower, int upper) {
   return std::max(lower, std::min(n, upper));
 }
 
-
+// TODO - set this up as strokeGeom::operator <
 bool StrokeCompare(const strokeGeom &a, const strokeGeom &b)
 {
 
@@ -146,6 +146,7 @@ MObject painting::aInMatrix;
 
 MObject painting::aStrokeCurves;
 
+MObject painting::aDisplacementMesh;
 
 MObject painting::aBrushIdTexture;
 MObject painting::aPaintIdTexture;
@@ -172,6 +173,8 @@ MObject painting::aApplyFilters;
 
 
 MObject painting::aStartFrom;
+MObject painting::aEndAt;
+
 
 
 // MObject painting::aStrokeGate;
@@ -186,6 +189,7 @@ MObject painting::aBrushWidth;
 MObject painting::aBrushShape;
 MObject painting::aBrushTip;
 MObject painting::aBrushPhysicalId;
+MObject painting::aBrushCustomId;
 MObject painting::aBrushes;
 
 MObject painting::aPaintColorR;
@@ -194,6 +198,7 @@ MObject painting::aPaintColorB;
 MObject painting::aPaintColor;
 MObject painting::aPaintOpacity;
 MObject painting::aPaintTravel;
+MObject painting::aPaintCustomId;
 MObject painting::aPaints;
 
 
@@ -253,6 +258,12 @@ MStatus painting::initialize()
   mAttr.setHidden( true );
   mAttr.setDefault(identity);
   addAttribute(aPlaneMatrix);
+
+  aDisplacementMesh = tAttr.create( "displacementMesh", "dmsh", MFnData::kMesh, &st ); mser
+  tAttr.setReadable(false);
+  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+  st = addAttribute(aDisplacementMesh); mser;
+
 
   // // APPROACH OBJECTS
   // aDipApproachObject =  msgAttr.create("dipApproachObject", "dao");
@@ -350,6 +361,9 @@ MStatus painting::initialize()
   eAttr.addField("Map Green", painting::kMapGreen);
   eAttr.addField("Map Blue", painting::kMapBlue);
   eAttr.addField("Layer Id", painting::kLayerId);
+  eAttr.addField("Custom Brush Id", painting::kCustomBrushId);
+  eAttr.addField("Custom Paint Id", painting::kCustomPaintId);
+
 
 
   aStrokeSortDirection = eAttr.create("strokeSortDirection", "stsd",
@@ -371,15 +385,12 @@ MStatus painting::initialize()
   nAttr.setConnectable(true);
   addAttribute(aStrokeSortTexture);
 
-
-
   aApplySort = nAttr.create( "applySort", "apst", MFnNumericData::kBoolean);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
   addAttribute(aApplySort );
-
 
   aStrokeFilterKey = eAttr.create("strokeFilterKey", "stfk", painting::kBrushId);
   eAttr.addField("Id", painting::kId);
@@ -391,6 +402,8 @@ MStatus painting::initialize()
   eAttr.addField("Map Green", painting::kMapGreen);
   eAttr.addField("Map Blue", painting::kMapBlue);
   eAttr.addField("Layer Id", painting::kLayerId);
+  eAttr.addField("Custom Brush Id", painting::kCustomBrushId);
+  eAttr.addField("Custom Paint Id", painting::kCustomPaintId);
 
   aStrokeFilterOperator = eAttr.create("strokeFilterOperator", "stfop",
                                        strokeGeom::kGreaterThan);
@@ -425,6 +438,13 @@ MStatus painting::initialize()
   nAttr.setDefault(0);
   st = addAttribute(aStartFrom);
 
+  aEndAt = nAttr.create("endAt", "edat", MFnNumericData::kInt);
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(-1);
+  st = addAttribute(aEndAt);
+
+
 
 
   aApplyFilters = nAttr.create( "applyFilters", "apfl", MFnNumericData::kBoolean);
@@ -455,9 +475,10 @@ MStatus painting::initialize()
   nAttr.setKeyable( true );
   nAttr.setDefault( -1);
 
-
-
-
+  aBrushCustomId  = nAttr.create("brushCustomId", "bcid", MFnNumericData::kShort);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  nAttr.setDefault( -1);
 
   aBrushShape = eAttr.create( "brushShape", "bshp", Brush::kRound);
   eAttr.addField("flat", Brush::kFlat);
@@ -478,6 +499,7 @@ MStatus painting::initialize()
   cAttr.addChild(aBrushRetention);
   cAttr.addChild(aBrushTip);
   cAttr.addChild(aBrushPhysicalId);
+  cAttr.addChild(aBrushCustomId);
   cAttr.addChild(aBrushMatrix);
   cAttr.setArray( true );
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
@@ -508,10 +530,18 @@ MStatus painting::initialize()
   nAttr.setDefault(5.0);
   addAttribute(aPaintTravel);
 
+
+  aPaintCustomId  = nAttr.create("paintCustomId", "pcid", MFnNumericData::kShort);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  nAttr.setDefault( -1);
+
+
   aPaints = cAttr.create("paints", "pts");
   cAttr.addChild(aPaintColor);
   cAttr.addChild(aPaintOpacity);
   cAttr.addChild(aPaintTravel);
+  cAttr.addChild(aPaintCustomId);
   cAttr.setArray( true );
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   cAttr.setReadable(false);
@@ -554,9 +584,6 @@ MStatus painting::initialize()
   nAttr.setSoftMax(20.0);
   nAttr.setDefault(5.0);
   addAttribute(aArrowheadSize);
-
-
-
 
   aDisplayTargets = eAttr.create( "displayTargets", "dtg");
   eAttr.addField( "none",    painting::kTargetsNone);
@@ -679,7 +706,7 @@ MStatus painting::initialize()
   st = attributeAffects(aPaintIdTexture, aOutput);
   st = attributeAffects(aBrushIdTextureRange, aOutput);
   st = attributeAffects(aPaintIdTextureRange, aOutput);
-  // st = attributeAffects(aStrokeSort, aOutput);
+  st = attributeAffects(aDisplacementMesh, aOutput);
 
 
   st = attributeAffects(aStrokeSortKey, aOutput);
@@ -694,6 +721,9 @@ MStatus painting::initialize()
   st = attributeAffects(aStrokeFilterTexture, aOutput);
 
   st = attributeAffects(aStartFrom, aOutput);
+  st = attributeAffects(aEndAt, aOutput);
+
+
   st = attributeAffects(aApplyFilters, aOutput);
   st = attributeAffects(aApplySort, aOutput);
 
@@ -777,13 +807,15 @@ MStatus painting::overridePaintIds(MDataBlock &data,  std::vector<strokeGeom> &s
 
   MStatus st = sampleUVTexture(painting::aPaintIdTexture, uVals, vVals, paintIds,
                                rangePaintId);
+
+  // cerr << paintIds << endl;
   if (st.error()) {
     return MS::kUnknownParameter;
   }
 
   std::vector<strokeGeom>::iterator iter = strokePool.begin();
   for (unsigned i = 0; iter != strokePool.end(); iter++, i++) {
-    iter->setPaintId(short(paintIds[i]));
+    iter->setPaintId(short( paintIds[i]));
   }
   return MS::kSuccess;
 }
@@ -886,6 +918,12 @@ MStatus painting::sortStrokes(MDataBlock &data,  std::vector<strokeGeom> &stroke
           break;
         case kRepeatId:
           for ( iter = strokePool.begin(); iter != strokePool.end(); iter++) {iter->appendRepeatIdToSortStack(ascending);}
+          break;
+        case kCustomBrushId:
+          for ( iter = strokePool.begin(); iter != strokePool.end(); iter++) {iter->appendCustomBrushIdToSortStack(ascending);}
+          break;
+        case kCustomPaintId:
+          for ( iter = strokePool.begin(); iter != strokePool.end(); iter++) {iter->appendCustomPaintIdToSortStack(ascending);}
           break;
         case kMapRed:
           if (useSortMap) {
@@ -1010,43 +1048,54 @@ MStatus painting::filterStrokes(MDataBlock &data,  std::vector<strokeGeom> &stro
       switch  (key)
       {
         case kId:
-
           new_end = std::remove_if(strokePool.begin(), strokePool.end(),
                                    [op, value](const strokeGeom & stroke)
           { return stroke.testId(op, value) == false; }   );
           break;
         case kParentId:
-
           new_end = std::remove_if(strokePool.begin(), strokePool.end(),
                                    [op, value](const strokeGeom & stroke)
           { return stroke.testParentId(op, value) == false; }   );
           break;
         case kBrushId:
-
           new_end = std::remove_if(strokePool.begin(), strokePool.end(),
                                    [op, value](const strokeGeom & stroke)
           { return stroke.testBrushId(op, value) == false; }   );
           break;
         case kPaintId:
-
           new_end = std::remove_if(strokePool.begin(), strokePool.end(),
                                    [op, value](const strokeGeom & stroke)
           { return stroke.testPaintId(op, value) == false; }   );
           break;
         case kLayerId:
-
           new_end = std::remove_if(strokePool.begin(), strokePool.end(),
                                    [op, value](const strokeGeom & stroke)
           { return stroke.testLayerId(op, value) == false; }   );
           break;
         case kRepeatId:
-
           new_end = std::remove_if(strokePool.begin(), strokePool.end(),
                                    [op, value](const strokeGeom & stroke)
           { return stroke.testRepeatId(op, value) == false; }   );
           break;
-        case kMapRed:
 
+        case kCustomBrushId:
+          new_end = std::remove_if(strokePool.begin(), strokePool.end(),
+                                   [op, value](const strokeGeom & stroke)
+          {
+            return stroke.testCustomBrushId(op, value) == false;
+          }   );
+          break;
+
+        case kCustomPaintId:
+          new_end = std::remove_if(strokePool.begin(), strokePool.end(),
+                                   [op, value](const strokeGeom & stroke)
+          {
+            return stroke.testCustomPaintId(op, value) == false;
+          }   );
+          break;
+
+
+        case kMapRed:
           if (useFilterMap) {
             new_end = std::remove_if(strokePool.begin(), strokePool.end(),
                                      [op, value](const strokeGeom & stroke)
@@ -1054,7 +1103,6 @@ MStatus painting::filterStrokes(MDataBlock &data,  std::vector<strokeGeom> &stro
           }
           break;
         case kMapGreen:
-
           if (useFilterMap) {
             new_end = std::remove_if(strokePool.begin(), strokePool.end(),
                                      [op, value](const strokeGeom & stroke)
@@ -1062,7 +1110,6 @@ MStatus painting::filterStrokes(MDataBlock &data,  std::vector<strokeGeom> &stro
           }
           break;
         case kMapBlue:
-
           if (useFilterMap) {
             new_end = std::remove_if(strokePool.begin(), strokePool.end(),
                                      [op, value](const strokeGeom & stroke)
@@ -1098,7 +1145,6 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   MFloatVector strokeFilterTexture = data.inputValue(
                                        aStrokeFilterTexture ).asFloatVector();
 
-  int startFrom = data.inputValue(aStartFrom).asInt();
 
   MDataHandle mh = data.inputValue(aInMatrix, &st); mser;
   MMatrix wm = mh.asMatrix();
@@ -1121,7 +1167,8 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
                                      painting::aBrushRetention,
                                      painting::aBrushTip,
                                      painting::aBrushPhysicalId,
-                                     painting::aBrushShape
+                                     painting::aBrushShape,
+                                     painting::aBrushCustomId
                                    );
 
   MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); msert;
@@ -1129,8 +1176,12 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
                                     hPaints,
                                     painting::aPaintColor,
                                     painting::aPaintOpacity,
-                                    painting::aPaintTravel
+                                    painting::aPaintTravel,
+                                    painting::aPaintCustomId
                                   );
+
+
+
 
   m_pd->create();
   paintingGeom *pGeom = m_pd->geometry();
@@ -1144,36 +1195,71 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   std::vector<strokeGeom>::const_iterator citer;
   std::vector<strokeGeom>::iterator iter;
 
-  // unsigned nStrokes = strokePool.size();
-  // MFloatArray uVals(nStrokes);
-  // MFloatArray vVals(nStrokes);
-
   iter = strokePool.begin();
-  for (unsigned i = 0; iter != strokePool.end(); iter++, i++) {
+  for (; iter != strokePool.end(); iter++) {
     iter->setUV(inversePlaneMatrix);
   }
 
   overrideBrushIds( data, strokePool);
   overridePaintIds( data,  strokePool);
 
+  unsigned i = 0;
+  for (iter = strokePool.begin(); iter != strokePool.end(); iter++,  i++) {
+    const Brush &brush = pGeom->brushFromId(iter->brushId());
+    const Paint &paint = pGeom->paintFromId(iter->paintId());
+    // if (i % 20 == 0) {
+    //   cerr << i <<  paint << endl;
+    // }
+    iter->setCustomSortData(brush, paint);
+  }
+
   filterStrokes(data,  strokePool);
 
 
+
   if (strokePool.size()) {
+
     sortStrokes(data, strokePool);
 
+    int startFrom = data.inputValue(aStartFrom).asInt();
+    int endAt = data.inputValue(aEndAt).asInt();
+
     int last = strokePool.size() - 1;
+    if (endAt > -1 && endAt < strokePool.size()) {
+      last = endAt;
+    }
+
+
     if (startFrom < 0) {
       startFrom = 0;
     }
     if (startFrom > last) {
       startFrom = last;
     }
-    for ( citer = strokePool.begin() + startFrom; citer != strokePool.end(); citer++) {
+
+    int diff = strokePool.size() - (last + 1);
+
+
+    for ( citer = strokePool.begin() + startFrom; citer != strokePool.end() - diff; citer++) {
       pGeom->addStroke(*citer);
     }
     pGeom->setPreStops(ptpThresh);
   }
+
+  // now pGeom has all strokes and prestops.
+  // do displacement if a displacement mesh exists and doDisplacement is turned on.
+
+
+  bool doDisplacement;
+  MObject dMesh =  data.inputValue(aDisplacementMesh).asMeshTransformed();
+  MFnMesh meshFn(dMesh, &st);
+  if (!st.error()) {
+    MMeshIsectAccelParams ap = meshFn.autoUniformGridParams();
+    pGeom->displace(meshFn, ap);
+  }
+
+
+
 
 
   MFnPluginData fnOut;
@@ -1293,7 +1379,9 @@ MStatus painting::sampleUVTexture(const MObject &attribute,   MFloatArray &uVals
   result.setLength(n);
   for (int i = 0; i < n; ++i)
   {
-    result.set(  int(colors[i].x * float(range)), i);
+    float modulus = colors[i].x - 1.0 * floor( colors[i].x / 1.0 );
+
+    result.set(  int( modulus * float(range)), i);
   }
   return MS::kSuccess;
 }

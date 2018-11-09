@@ -2,12 +2,9 @@ import pymel.core as pm
 import stroke_factory_utils as sfu
 import curve_utils as cutl
 from brush import Brush
-from robolink import (Robolink, ITEM_TYPE_ROBOT)
-import uprising.maya_util as uut
-import uprising.uprising_util as uput
-
-import robodk as rdk
+import uprising.uprising_util as uutl
 import sheets
+import copy
 
 
 def add_brush_to_painting():
@@ -34,7 +31,27 @@ def connect_brush_to_node(brush_tf, node, connect_to="next_available"):
     return index
 
 
-def create_brush_geo(height, bristle_height, tip, width, name, profile):
+def brush_name(**kw):
+    return "_".join([
+        kw["prefix"],
+        str(int(kw["id"])),
+        "%dmm" % int(kw["unsplay_width"] * 10),
+        "p%d" % int(kw["physical_id"]),
+        kw["profile"].lower(),
+        kw["desc"].lower()
+    ])
+
+
+def create_brush_geo(name, **kw):
+
+    height = kw["height"]
+    bristle_height = kw["bristle_height"]
+    tip = kw["tip"]
+    width = kw["unsplay_width"]
+    profile = kw["profile"]
+    x_offset = kw["x_offset"]
+    y_offset = kw["y_offset"]
+
 
     half_bristle_height = bristle_height / 2.0
     tcp = height - tip
@@ -64,99 +81,84 @@ def create_brush_geo(height, bristle_height, tip, width, name, profile):
 
     geo = pm.polyUnite(head, handle, ch=0, mergeUVSets=1, name=name)[0]
     geo.attr("tz").set(tcp)
+    geo.attr("tx").set(x_offset)
+    geo.attr("ty").set(y_offset)
 
     return geo
 
 
-# def brush_name(idx, unsplay_width, desc, profile, prefix):
-#     return "_".join([
-#         prefix,
-#         str(int(idx)),
-#         "%smm" % str(int(unsplay_width * 10)),
-#         profile.lower(),
-#         desc.lower()
-#     ])
+def create_and_connect_single_brush_geo(node, **kw):
 
-def brush_name(prefix, idx, width, physical_id, profile,desc):
-    return "_".join([
-        prefix,
-        str(int(idx)),
-        "%dmm" % int(width * 10),
-        "p%d"%int(physical_id),
-        profile.lower(),
-        desc.lower()
-    ])
-
-
-def create_and_connect_single_brush_geo(
-        node,
-        idx,
-        unsplay_width,
-        desc,
-        profile,
-        prefix,
-        height,
-        bristle_height,
-        tip,
-        width,
-        physical_id,
-        parent):
     if not node:
         pm.warning("No destination node. Skipping brush gen")
         return
 
-    # name = brush_name(idx, unsplay_width, desc, profile, prefix)
-    name = brush_name(prefix, idx, width, physical_id, profile,desc)
-    
-    tf = create_brush_geo(height, bristle_height, tip, width, name, profile)
+    name = brush_name(**kw)
+
+    tf = create_brush_geo(name, **kw)
+
     profile_shape = 0
-    if profile.lower() == "round":
+    if kw["profile"].lower() == "round":
         profile_shape = 1
 
     connect_brush_to_node(tf, node)
-    tf.attr("sfBrushWidth").set(width)
-    tf.attr("sfBrushTip").set(tip)
+    tf.attr("sfBrushWidth").set(kw["splay_width"])
+    tf.attr("sfBrushTip").set(kw["tip"])
     tf.attr("sfBrushShape").set(profile_shape)
-    tf.attr("sfBrushPhysicalId").set(physical_id)
+    tf.attr("sfBrushPhysicalId").set(kw["physical_id"])
 
-
-    retention = 1 if prefix == "bpx" else 1000
+    retention = 1 if kw["prefix"] == "bpx" else 1000
     tf.attr("sfBrushRetention").set(retention)
-
-    pm.parent(tf, parent)
+    pm.parent(tf, kw["parent"])
     return tf
 
- 
-def create_and_connect_both_brushes_geo( painting_node, dip_node, **kw):
 
+def create_and_connect_both_brushes_geo(painting_node, dip_node, **kw):
+
+    painting_kwargs = copy(kw)
+    painting_kwargs["prefix"] = "bpx"
+    painting_kwargs["parent"] = '|brushes|paintingBrushes'
     painting_brush_tf = create_and_connect_single_brush_geo(
-        painting_node,
-        kw["id"],
-        kw["unsplay_width"],
-        kw["desc"],
-        kw["profile"],
-        "bpx",
-        kw["height"],
-        kw["bristle_height"],
-        kw["tip"],
-        kw["splay_width"],
-        kw["physical_id"],
-        '|brushes|paintingBrushes')
+        painting_node, **painting_kwargs)
 
-    dip_brush_tf = create_and_connect_single_brush_geo(
-        dip_node,
-        kw["id"],
-        kw["unsplay_width"],
-        kw["desc"],
-        kw["profile"],
-        "bdx",
-        kw["height"],
-        kw["bristle_height"],
-        kw["dip_tip"],
-        kw["splay_width"],
-        kw["physical_id"],
-        '|brushes|dipBrushes')
+    dip_kwargs = copy(kw)
+    dip_kwargs["prefix"] = "bdx"
+    dip_kwargs["tip"] = kw["dip_tip"]
+    dip_kwargs["parent"] = '|brushes|dipBrushes'
+    dip_brush_tf = create_and_connect_single_brush_geo(dip_node, **dip_kwargs)
+
+    # painting_brush_tf = create_and_connect_single_brush_geo(
+    #     painting_node,
+    #     kw["id"],
+    #     kw["unsplay_width"],
+    #     kw["desc"],
+    #     kw["profile"],
+    #     "bpx",
+    #     kw["height"],
+    #     kw["bristle_height"],
+    #     kw["tip"],
+    #     kw["splay_width"],
+    #     kw["physical_id"],
+    #     kw["x_offset"],
+    #     kw["y_offset"],
+
+    #     '|brushes|paintingBrushes')
+
+    # dip_brush_tf = create_and_connect_single_brush_geo(
+    #     dip_node,
+    #     kw["id"],
+    #     kw["unsplay_width"],
+    #     kw["desc"],
+    #     kw["profile"],
+    #     "bdx",
+    #     kw["height"],
+    #     kw["bristle_height"],
+    #     kw["dip_tip"],
+    #     kw["splay_width"],
+    #     kw["physical_id"],
+    #     '|brushes|dipBrushes')
     return (painting_brush_tf, dip_brush_tf)
+
 
 def remove_brush_multi_atts(*nodes):
     for node in nodes:
@@ -200,96 +202,69 @@ def setup_brushes_from_sheet(painting_node, dip_node, pouch_name):
     pouch = validate_brush_data(pouch)
     delete_brushes(painting_node, dip_node)
 
-
     # prepare for dip curves
     dip_curves_src = "brushes|dipCurves|defaultSource"
     pm.makeIdentity(dip_curves_src, t=True, r=True, s=True)
-    pm.delete("brushes|dipCurves|bdcx*")
-
+    old_curves = pm.ls("brushes|dipCurves|bdcx*")
+    if old_curves:
+        pm.delete(old_curves)
 
     for row in pouch:
-        row = [uput.numeric(s) for s in row]
+        row = [uutl.numeric(s) for s in row]
 
-        kwargs = {
+        common_args = kwargs = {
             "id": row[0],
             "height": row[2],
             "bristle_height": row[3],
-            "tip": row[4],
+            # "tip": row[4],
             "unsplay_width": row[6],
             "splay_width": row[7],
             "desc": row[8],
             "profile": row[9],
-            "dip_tip": row[10],
-            "wipe_tip":  row[12],
-            "physical_id": row[16]
+            # "dip_tip": row[10],
+            "wipe_tip": row[12],
+            "physical_id": row[16],
+            "x_offset": row[17],
+            "y_offset": row[18],
         }
 
-        p_brush_tf, d_brush_tf = create_and_connect_both_brushes_geo(painting_node, dip_node, **kwargs)
-        wipe_offset = kwargs["dip_tip"] - kwargs["wipe_tip"] 
+        painting_kwargs = copy.copy(common_args)
+        painting_kwargs["prefix"] = "bpx"
+        painting_kwargs["tip"] = row[4]
+        painting_kwargs["parent"] = '|brushes|paintingBrushes'
+        painting_brush_tf = create_and_connect_single_brush_geo(
+            painting_node, **painting_kwargs)
 
-        generate_brush_dip_curves(p_brush_tf, d_brush_tf, wipe_offset)
+        dip_kwargs = copy.copy(common_args)
+        dip_kwargs["prefix"] = "bdx"
+        dip_kwargs["tip"] = row[10]
+        dip_kwargs["parent"] = '|brushes|dipBrushes'
+        dip_brush_tf = create_and_connect_single_brush_geo(
+            dip_node, **dip_kwargs)
 
+        wipe_offset = dip_kwargs["tip"] - common_args["wipe_tip"]
 
-# def get_raw_brushes_data():
-#     service = sheets._get_service()
-#     result = service.spreadsheets().values().get(
-#         spreadsheetId=sheets.SHEETS["Measurements"],
-#         range='Brushes!A2:L18').execute()
-#     values = result.get('values', [])
-#     return values
+        generate_brush_dip_curves(painting_brush_tf, dip_brush_tf, wipe_offset)
+
 
 def generate_brush_dip_curves(
-    painting_brush_tf, 
-    dip_brush_tf, 
-    wipe_offset):
-
-
+        painting_brush_tf,
+        dip_brush_tf,
+        wipe_offset):
 
     src = "brushes|dipCurves|defaultSource"
     pm.PyNode("brushes").attr("visibility").set(True)
-    # node = pm.PyNode("dipPaintingShape")
-    
 
-    painting_brush = painting_brush_tf.getChildren()[0]
-    dip_brush = dip_brush_tf.getChildren()[0]
-    
-    # dip_brushes = pm.ls("brushes|dipBrushes|bdx*", dag=True, leaf=True)
-    # painting_brushes = pm.ls(
-    #     "brushes|paintingBrushes|bpx*",
-    #     dag=True,
-    #     leaf=True)
-
-    # brushes = zip(dip_brushes, painting_brushes)
-
-    
-
-    # for dip_brush, painting_brush in brushes:
-        # brush_tf = dip_brush.getParent()
     name = "_".join(["bdcx"] + dip_brush_tf.name().split("|")
                     [-1].split("_")[1:])
 
-    # logger.debug("name: %s" % name)
     full_name = "brushes|dipCurves|%s" % name
-    # logger.debug("full_name: %s" % full_name)
 
-        # if force:
-        #     if pm.objExists(full_name):
-        #         pm.delete(full_name)
-        # if not pm.objExists(full_name):
     grp = cutl.duplicate_grp_with_stroke_curves(src, full_name)
-        # else:
-        # grp = cutl.ensure_grp_has_stroke_curves(src, pm.PyNode(full_name))
-
-        # lift higher if weight is low so wipes off less paint.
-        # wipe_offset = painting_brush.getParent().attr(
-        #     "tz").get() - dip_brush.getParent().attr("tz").get()
-        # wipe_offset = wipe_offset * lift
 
     for wipe_curve in grp.getChildren()[1:]:
         wipe_curve.attr("tz").set(wipe_offset)
-    pm.PyNode("brushes").attr("visibility").set(False)
-
-
+    # pm.PyNode("brushes").attr("visibility").set(False)
 
 
 def set_stroke_curve_att_from_brush_tip(attribute, mult=1, offset=0):
@@ -304,50 +279,3 @@ def set_stroke_curve_att_from_brush_tip(attribute, mult=1, offset=0):
     brush = Brush.brush_at_index(painting, index)
     val = (brush.tip * mult) + offset
     attribute.set(val)
-
-
-# def send_brushes(factory):
-#     RL = Robolink()
-#     robot = RL.Item('', ITEM_TYPE_ROBOT)
-#     base = pm.PyNode("brushes|base")
-#     brushes = Brush.used_brushes(factory)
-#     for _id in brushes:
-#         send_brush(robot, brushes[_id], base)
-
-
-# def send_brush(robot, brush, base):
-#     """Send a node to robodk.
-
-#     If the node is a locator, it becomes a target in robodk
-#     and exists in world space. If it is a transform, it is
-#     added as a reference frame to the hierarchy. If it is a
-#     mesh, we rebuild triangles in robodk and add it to the
-#     hierarchy.
-#     """
-#     RL = Robolink()
-#     geo = pm.PyNode(brush.name).getShapes() + base.getShapes()
-#     # print brush.name
-#     triangles = []
-#     for g in geo:
-#         points = g.getPoints(space='world')
-#         _, vids = g.getTriangles()
-#         for vid in vids:
-#             triangles.append(
-#                 [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
-
-#     tool_item = RL.Item(brush.name)
-#     if tool_item.Valid():
-#         tool_item.Delete()
-
-#     color = uut.shape_color(g)
-#     tool_item = robot.AddTool(brush.matrix, brush.name)
-#     shape = RL.AddShape(triangles)
-#     shape.setColor(list(color))
-#     tool_item.AddGeometry(shape, rdk.eye())
-#     robot.setPoseTool(tool_item)
-#     shape.Delete()
-
-######################################
-######################################
-######################################
-######################################

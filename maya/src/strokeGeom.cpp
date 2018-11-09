@@ -160,6 +160,18 @@ void strokeGeom::appendRepeatIdToSortStack(bool ascending) {
 	int val = ascending ? int(m_repeatId) : -int(m_repeatId);
 	m_sortStack.append(val);
 }
+
+
+void strokeGeom::appendCustomBrushIdToSortStack(bool ascending) {
+	int val = ascending ? int(m_customBrushId) : -int(m_customBrushId);
+	m_sortStack.append(val);
+}
+
+void strokeGeom::appendCustomPaintIdToSortStack(bool ascending) {
+	int val = ascending ? int(m_customPaintId) : -int(m_customPaintId);
+	m_sortStack.append(val);
+}
+
 void strokeGeom::appendMapRedIdToSortStack(bool ascending) {
 	int val = ascending ? int(m_sortColor.x * 256) : -int(m_sortColor.x * 256);
 	m_sortStack.append(val);
@@ -193,18 +205,23 @@ bool strokeGeom::testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) co
 bool strokeGeom::testId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_id, op, value);}
 bool strokeGeom::testParentId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_parentId, op, value);}
 bool strokeGeom::testBrushId(StrokeFilterOperator op, int value) const {
-	// cerr << "m_brushId <> value " << m_brushId << " " << value << endl;
 	return  testAgainstValue(int(m_brushId), op, value);
 }
 bool strokeGeom::testPaintId(StrokeFilterOperator op, int value) const {
-	// cerr << "m_paintId <> value " << m_paintId << " " << value << endl;
 	return  testAgainstValue(int(m_paintId), op, value);
 }
 bool strokeGeom::testLayerId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_layerId, op, value);}
 bool strokeGeom::testRepeatId(StrokeFilterOperator op, int value) const {return  testAgainstValue(m_repeatId, op, value);}
+
+bool strokeGeom::testCustomBrushId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_customBrushId), op, value);}
+bool strokeGeom::testCustomPaintId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_customPaintId), op, value);}
+
+
 bool strokeGeom::testMapRedId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_filterColor.x * 256), op, value);}
 bool strokeGeom::testMapGreenId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_filterColor.y * 256), op, value);}
 bool strokeGeom::testMapBlueId(StrokeFilterOperator op, int value) const {return  testAgainstValue(int(m_filterColor.z * 256), op, value);}
+
+
 
 
 bool strokeGeom::forceDip() const {
@@ -541,6 +558,14 @@ void strokeGeom::getAllTangents(const MMatrix &worldMatrix, MVectorArray &result
 	result.append(m_tangents[(len - 1)]*worldMatrix);
 }
 
+
+void strokeGeom::setCustomSortData(const Brush &brush,  const Paint &paint)
+{
+	m_customBrushId = brush.customId;
+	m_customPaintId =	paint.customId;
+}
+
+
 void strokeGeom::setUV(
   const MMatrix &inversePlaneMatrix)
 {
@@ -558,6 +583,48 @@ void strokeGeom::addPreStop(const MMatrix &mat)
 {
 	m_preStops.append(mat);
 }
+
+
+void strokeGeom::displaceMatrix( MFnMesh &meshFn, MMeshIsectAccelParams &ap,
+                                 MMatrix &mat)
+{
+	MFloatPoint hitPoint;
+	MFloatPoint rayOrigin =  extractfPos(mat);
+	rayOrigin.z = 0.0f;
+	float dist = 0;
+	bool hit = meshFn.closestIntersection( rayOrigin, MFloatVector::zAxis, 0, 0, false,
+	                                       MSpace::kWorld,
+	                                       100.0f, true, &ap, hitPoint, &dist, 0, 0, 0, 0);
+	if (hit) {
+		mat[3][2] += dist;
+	}
+}
+
+
+void strokeGeom::displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap)
+{
+	// const MFloatVector rayDirection(MFloatVector::zAxis);
+	unsigned len = m_targets.length();
+	MFloatPoint hitPoint;
+
+	for (int i = 0; i < len; ++i)
+	{
+		displaceMatrix(meshFn, ap, m_targets[i]);
+	}
+
+	len = m_preStops.length();
+	for (int i = 0; i < len; ++i)
+	{
+		displaceMatrix(meshFn, ap, m_preStops[i]);
+	}
+
+	displaceMatrix(meshFn, ap, m_startApproach);
+	displaceMatrix(meshFn, ap, m_endApproach);
+
+}
+
+
+
 
 // /* override */
 // strokeGeom &strokeGeom::operator=( const strokeGeom &other )

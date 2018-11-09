@@ -23,6 +23,8 @@
  	editorTemplate -callCustom "AEpaintingFilterListNew" "AEpaintingFilterListReplace" "strokeFilterList";
 	editorTemplate -addControl "strokeFilterTexture"; 
 	editorTemplate -addControl "startFrom";
+	editorTemplate -addControl "endAt";
+	
  	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Sorting attributes";

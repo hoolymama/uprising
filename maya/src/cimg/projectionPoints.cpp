@@ -145,14 +145,17 @@ MStatus projectionPoints::initialize()
 
 	aDensityImage = tAttr.create("densityImage", "dim", cImgData::id ) ;
 	tAttr.setStorable(false);
+	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	st = addAttribute( aDensityImage ); mser;
 
 	aRadiusImage = tAttr.create("radiusImage", "rim", cImgData::id ) ;
 	tAttr.setStorable(false);
+	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	st = addAttribute( aRadiusImage ); mser;
 
 	aMask = tAttr.create("mask", "msk", cImgData::id ) ;
 	tAttr.setStorable(false);
+	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	st = addAttribute( aMask ); mser;
 
 

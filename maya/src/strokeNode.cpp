@@ -70,7 +70,7 @@ MObject strokeNode::aLayerId;
 MObject strokeNode::aPointDensity;
 MObject strokeNode::aStrokeLength;
 MObject strokeNode::aRandomLengthFactor;
-MObject strokeNode::aBackstroke;
+MObject strokeNode::aStrokeDirection;
 MObject strokeNode::aRepeats;
 MObject strokeNode::aRepeatOffset;
 MObject strokeNode::aRepeatMirror;
@@ -194,14 +194,25 @@ MStatus strokeNode::initialize()
 
 
 
-  aBackstroke = nAttr.create( "reverseDirection", "revd", MFnNumericData::kBoolean);
-  nAttr.setHidden(false);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setKeyable(true);
-  nAttr.setDefault(false);
-  st = addAttribute(aBackstroke); mser;
+  // aStrokeDirection = nAttr.create( "reverseDirection", "revd", MFnNumericData::kBoolean);
+  // nAttr.setHidden(false);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // nAttr.setKeyable(true);
+  // nAttr.setDefault(false);
+  // st = addAttribute(aStrokeDirection); mser;
 
+
+  aStrokeDirection = eAttr.create("reverseDirection", "revd", Stroke::kForwards);
+  eAttr.addField("forwards", Stroke::kForwards);
+  eAttr.addField("backwards", Stroke::kBackwards);
+  eAttr.addField("startUppermost", Stroke::kStartUppermost);
+  eAttr.addField("endUppermost", Stroke::kEndUppermost);
+
+  eAttr.setKeyable(true);
+  eAttr.setHidden(false);
+  st = addAttribute(aStrokeDirection);
+  mser;
 
 
   aRepeats = nAttr.create("repeats", "rpts", MFnNumericData::kShort);
@@ -395,7 +406,7 @@ MStatus strokeNode::initialize()
   st = attributeAffects(aStrokeLength, aOutput);
   st = attributeAffects(aRandomLengthFactor, aOutput);
 
-  st = attributeAffects(aBackstroke, aOutput);
+  st = attributeAffects(aStrokeDirection, aOutput);
   st = attributeAffects(aRepeats, aOutput);
   st = attributeAffects(aRepeatOffset, aOutput);
   st = attributeAffects(aRepeatMirror, aOutput);

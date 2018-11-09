@@ -42,8 +42,21 @@ protected:
                                  std::vector<strokeGeom> *geom) const;
 
 
-  MStatus getImageChannel(MDataBlock &data,
-                          cImgData::Channel channel, CImg<unsigned char> &result) const;
+  MStatus getImageChannel(
+    MDataBlock &data,
+    MObject &attribute,
+    cImgData::Channel channel,
+    CImg<unsigned char> &resultt) const;
+
+
+
+
+
+  MStatus getFloatRedChannel(
+    MDataBlock &data,
+    MObject &attribute,
+    CImg<float> &result) const;
+
 
   void setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
                    double approachDist) const;
@@ -62,11 +75,21 @@ protected:
   //                     MFloatPointArray &resultPoints, cImgData::Interpolation interp = cImgData::kBilinear);
 
 
-  static  MObject aInputImage;
-  static  MObject aInterpolation;
+  static  MObject aFlowImage;
+  static  MObject aStrokeLengthImage;
+
+  static  MObject aStrokeLengthRemapRamp;
+  static  MObject aStrokeLengthRemapRange;
+  // static  MObject aCurvatureRamp;
+  // static  MObject aCurvatureRangeMin;
+  // static  MObject aCurvatureRangeMax;
+  // static  MObject aCurvatureRange;
+
+  static MObject aMaxCurvature;
+  // static  MObject aInterpolation;
   static  MObject aSamplePoints;
   static  MObject aProjectionMatrix;
-  static  MObject aChannel;
+  // static  MObject aChannel;
   static  MObject aBlur;
   static  MObject aRotation;
   static  MObject aSampleDistance;

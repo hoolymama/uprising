@@ -21,7 +21,8 @@
  	attrControlGrp -attribute ($plug+".brushRetention");
  	attrControlGrp -attribute ($plug+".brushTip");
  	attrControlGrp -attribute ($plug+".brushShape");
-
+ 	attrControlGrp -attribute ($plug+".brushCustomId");
+ 	
   string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
  	setParent ..;

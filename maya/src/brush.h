@@ -21,8 +21,8 @@ public:
 	  double width,
 	  double retention,
 	  double tip,
-	  Shape shape
-	);
+	  Shape shape,
+	  short customId);
 
 	~Brush();
 
@@ -33,7 +33,8 @@ public:
 	  MObject &retentionAttribute,
 	  MObject &tipAttribute,
 	  MObject &physicalIdAttribute,
-	  MObject &shapeAttribute);
+	  MObject &shapeAttribute,
+	  MObject &customIdAttribute	  );
 
 
 	friend ostream &operator<<(ostream &os, const Brush &b);
@@ -41,6 +42,7 @@ public:
 
 	short id;
 	short physicalId;
+	short customId;
 	double width;
 	double retention;
 	Shape shape;

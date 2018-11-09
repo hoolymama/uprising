@@ -30,6 +30,7 @@ private:
 	static MObject aImageData;
 	static MObject aInterpolation;
 	static MObject aUVCoord;
+	static MObject aFilterSize;
 	static MObject aDefaultColor 	;
 	static MObject aOutColor;
 	static MObject aOutAlpha;

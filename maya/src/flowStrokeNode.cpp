@@ -11,7 +11,7 @@
 # include <maya/MFloatArray.h>
 # include <maya/MFloatPointArray.h>
 # include <maya/MPoint.h>
-
+#include <maya/MQuaternion.h>
 #include <maya/MString.h>
 #include <maya/MFloatMatrix.h>
 #include <maya/MFnTypedAttribute.h>
@@ -60,29 +60,28 @@
 const double rad_to_deg = (180 / 3.1415927);
 const double epsilon = 0.0001;
 
-// void toImageCoords(const MFloatPoint &point, const MFloatMatrix &inverseProjection, int w,
-//                    int h,  float &x, float &y, bool clamp = true)
-// {
-// 	// puts p  in -1 -> 1
-// 	MFloatPoint p = point * inverseProjection;
-// 	x = ((p.x * 0.5f) + 0.5f) * w;
-// 	y = (1.0f - ((p.y * 0.5f) + 0.5f)) * h;
-// 	if (clamp) {
-// 		x = std::max(0.0f, std::min(x, float(w)));
-// 		y = std::max(0.0f, std::min(y, float(h)));
-// 	}
-// }
+
+
+MObject flowStroke::aFlowImage;
+
+MObject flowStroke::aStrokeLengthImage;
+MObject flowStroke::aStrokeLengthRemapRamp;
+MObject flowStroke::aStrokeLengthRemapRange;
+// MObject flowStroke::aCurvatureRamp;
+// MObject flowStroke::aCurvatureRangeMin;
+// MObject flowStroke::aCurvatureRangeMax;
+// MObject flowStroke::aCurvatureRange;
 
 
 
-MObject flowStroke::aInputImage;
-MObject flowStroke::aInterpolation;
+// MObject flowStroke::aInterpolation;
 MObject flowStroke::aSamplePoints;
 MObject flowStroke::aProjectionMatrix;
-MObject flowStroke::aChannel;
+// MObject flowStroke::aChannel;
 MObject flowStroke::aBlur;
 MObject flowStroke::aRotation;
 MObject flowStroke::aSampleDistance;
+MObject flowStroke::aMaxCurvature;
 MObject flowStroke::aBrushIdImage;
 MObject flowStroke::aPaintIdImage;
 MObject flowStroke::aBrushIdRemapRamp;
@@ -91,14 +90,9 @@ MObject flowStroke::aBrushIdRemapRange;
 MObject flowStroke::aBrushRampScope;
 MObject flowStroke::aApproachDistance;
 
-
-
 MTypeId flowStroke:: id(k_flowStroke );
-
 flowStroke:: flowStroke() {}
-
 flowStroke:: ~flowStroke() {}
-
 void *flowStroke::creator() {
 	return new flowStroke();
 }
@@ -116,16 +110,12 @@ MStatus flowStroke:: initialize()
 	MFnMatrixAttribute mAttr;
 	MFnEnumAttribute eAttr;
 
-
-
 	inheritAttributesFrom("strokeNode");
 
-
-
-
-	aInputImage = tAttr.create("inputImage", "ini", cImgData::id ) ;
+	aFlowImage = tAttr.create("flowImage", "fim", cImgData::id ) ;
 	tAttr.setStorable(false);
-	st = addAttribute( aInputImage ); mser;
+	st = addAttribute( aFlowImage ); mser;
+
 
 	MFloatMatrix identity;
 	identity.setToIdentity();
@@ -146,14 +136,14 @@ MStatus flowStroke:: initialize()
 	st = addAttribute( aSamplePoints );
 
 
-	aChannel = eAttr.create("channel", "ch", cImgData::kAverage);
-	eAttr.addField( "red",   cImgData::kRed);
-	eAttr.addField( "green",   cImgData::kGreen);
-	eAttr.addField( "blue",   cImgData::kBlue);
-	eAttr.addField( "average",   cImgData::kAverage);
-	eAttr.setHidden(false);
-	eAttr.setStorable(true);
-	st = addAttribute( aChannel );
+	aMaxCurvature = uAttr.create( "maxCurvature", "mxcv",
+	                              MFnUnitAttribute::kAngle );
+	uAttr.setDefault(MAngle(90, MAngle::kDegrees));
+	uAttr.setHidden(false);
+	uAttr.setStorable(true);
+	uAttr.setReadable(true);
+	st = addAttribute(aMaxCurvature);
+
 
 	aSampleDistance = nAttr.create( "sampleDistance", "sds", MFnNumericData::kDouble);
 	nAttr.setHidden(false);
@@ -176,32 +166,6 @@ MStatus flowStroke:: initialize()
 	uAttr.setStorable(true);
 	st = addAttribute(aRotation); mser;
 
-	aInterpolation = eAttr.create("interpolation", "itp");
-	eAttr.addField("Nearest", cImgData::kNearest);
-	eAttr.addField("Bilinear", cImgData::kBilinear);
-	eAttr.addField("Bicubic", cImgData::kBicubic);
-
-	eAttr.setDefault( cImgData::kBilinear );
-	eAttr.setKeyable(true);
-	eAttr.setWritable(true);
-	addAttribute(aInterpolation);
-
-
-	// aBrushIds = tAttr.create("brushIds", "bids", MFnData::kIntArray, &st);
-	// tAttr.setStorable( false);
-	// tAttr.setReadable( false);
-	// tAttr.setHidden( false );
-	// tAttr.setWritable(true);
-	// st = addAttribute( aBrushIds );
-
-
-	// aPaintIds = tAttr.create("paintIds", "pids", MFnData::kIntArray, &st);
-	// tAttr.setStorable( false);
-	// tAttr.setReadable( false);
-	// tAttr.setHidden( false );
-	// tAttr.setWritable(true);
-	// st = addAttribute( aPaintIds );
-
 	aBrushRampScope = eAttr.create("brushRampScope", "brsc",
 	                               StrokeRotationSpec::kStroke);
 	eAttr.addField("stroke", StrokeRotationSpec::kStroke);
@@ -218,7 +182,37 @@ MStatus flowStroke:: initialize()
 	nAttr.setHidden(false);
 	st = addAttribute(aApproachDistance);
 
+	////////////////
+	aStrokeLengthImage = tAttr.create("strokeLengthImage", "slim", cImgData::id ) ;
+	tAttr.setStorable(false);
+	st = addAttribute( aStrokeLengthImage ); mser;
 
+	aStrokeLengthRemapRamp  = MRampAttribute::createCurveRamp("strokeLengthRemapRamp",
+	                          "slrp");
+	st = addAttribute( aStrokeLengthRemapRamp ); mser;
+	aStrokeLengthRemapRange = nAttr.create("strokeLengthRemapRange", "slrg",
+	                                       MFnNumericData::k2Float);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aStrokeLengthRemapRange);
+	////////////////
+
+	// ////////////////
+	// aCurvatureRamp  = MRampAttribute::createCurveRamp("aCrvatureRamp", "ctp");
+	// st = addAttribute( aCurvatureRamp ); mser;
+
+	// aCurvatureRangeMin = uAttr.create( "crvatureRangeMin", "ctrn",
+	//                                    MFnUnitAttribute::kAngle );
+	// uAttr.setDefault(MAngle(-180, MAngle::kDegrees));
+	// aCurvatureRangeMax = uAttr.create( "crvatureRangeMax", "ctrx",
+	//                                    MFnUnitAttribute::kAngle );
+	// uAttr.setDefault(MAngle(180, MAngle::kDegrees));
+	// aCurvatureRange = nAttr.create("crvatureRange", "ctr", aCurvatureRangeMin,
+	//                                aCurvatureRangeMax);
+	// nAttr.setHidden( false );
+	// nAttr.setKeyable( true );
+	// st = addAttribute(aCurvatureRange); mser;
+	// ////////////////
 
 
 	aBrushIdImage = tAttr.create("brushIdImage", "bidi", cImgData::id ) ;
@@ -239,12 +233,18 @@ MStatus flowStroke:: initialize()
 
 
 
-	st = attributeAffects(aInputImage, aOutput ); mser;
+	st = attributeAffects(aFlowImage, aOutput ); mser;
+	st = attributeAffects(aStrokeLengthImage, aOutput);
+	st = attributeAffects(aStrokeLengthRemapRamp, aOutput);
+	st = attributeAffects(aStrokeLengthRemapRange, aOutput);
+
+	// st = attributeAffects(aCurvatureRamp, aOutput ); mser;
+	// st = attributeAffects(aCurvatureRange, aOutput ); mser;
+
 	st = attributeAffects(aSamplePoints, aOutput ); mser;
 	st = attributeAffects(aProjectionMatrix, aOutput ); mser;
-	st = attributeAffects(aChannel, aOutput ); mser;
 	st = attributeAffects(aBlur, aOutput ); mser;
-	st = attributeAffects(aInterpolation, aOutput ); mser;
+	st = attributeAffects(aMaxCurvature, aOutput ); mser;
 	st = attributeAffects(aRotation, aOutput ); mser;
 	st = attributeAffects(aSampleDistance, aOutput); mser;
 	st = attributeAffects(aBrushRampScope, aOutput ); mser;
@@ -263,11 +263,14 @@ MStatus flowStroke:: initialize()
 
 
 
-MStatus flowStroke::getImageChannel(MDataBlock &data,
-                                    cImgData::Channel channel, CImg<unsigned char> &result) const
+MStatus flowStroke::getImageChannel(
+  MDataBlock &data,
+  MObject &attribute,
+  cImgData::Channel channel,
+  CImg<unsigned char> &result) const
 {
 	MStatus st;
-	MDataHandle hImageData = data.inputValue(aInputImage, &st); msert;
+	MDataHandle hImageData = data.inputValue(attribute, &st); msert;
 	MObject dImageData = hImageData.data();
 	MFnPluginData fnImageData( dImageData , &st); msert;
 	cImgData *imageData = (cImgData *)fnImageData.data();
@@ -278,6 +281,25 @@ MStatus flowStroke::getImageChannel(MDataBlock &data,
 	return MS::kSuccess;
 }
 
+
+MStatus flowStroke::getFloatRedChannel(
+  MDataBlock &data,
+  MObject &attribute,
+  CImg<float> &result) const
+{
+	MStatus st;
+	MDataHandle hImageData = data.inputValue(attribute, &st); msert;
+	MObject dImageData = hImageData.data();
+	MFnPluginData fnImageData( dImageData , &st); msert;
+	cImgData *imageData = (cImgData *)fnImageData.data();
+	CImg<unsigned char> *image = imageData->fImg;
+
+	result = image->channel(0).get_normalize(0.0f, 1.0f);
+
+	return MS::kSuccess;
+}
+
+
 MFloatMatrix getFullProjection(float angle,
                                const MFloatMatrix &projection)
 {
@@ -287,8 +309,10 @@ MFloatMatrix getFullProjection(float angle,
 
 	MFloatMatrix rot;
 	rot.setToIdentity();
-	rot[0][0] = cz;	rot[0][1] = sz;
-	rot[1][0] = -sz;	rot[1][1] = cz;
+	rot[0][0] = cz;
+	rot[0][1] = sz;
+	rot[1][0] = -sz;
+	rot[1][1] = cz;
 
 	MFloatMatrix flip;
 	flip.setToIdentity();
@@ -298,47 +322,118 @@ MFloatMatrix getFullProjection(float angle,
 
 }
 
-
-
-int calcFlowPoints(const MFloatPoint &point, const CImgList<float> &grad,
-                   const MFloatMatrix &mat, const MFloatMatrix &imat, int count, float gap,
-                   MPointArray &resultPoints, cImgData::Interpolation interp)
+int calcFlowPoints(const MFloatPoint &point,
+                   const CImgList<float> &grad,
+                   const CImg<float> &lengthImg,
+                   const MFloatMatrix &mat,
+                   const MFloatMatrix &imat,
+                   float lengthRangeMin,
+                   float lengthRangeMax,
+                   MRampAttribute &lengthRemapRamp,
+                   float gap,
+                   double maxCurvature,
+                   MPointArray &resultPoints)
 {
 
+	MFloatVector lastGradient(MFloatVector::zero) ;
 	MFloatPoint p = point;
+
+	float x, y;
+
+	/* Calc stroke length */
+	int lw = lengthImg.width();
+	int lh = lengthImg.height();
+	cImgUtils::toImageCoords(p, imat, lw, lh, x, y, false);
+	float length = lengthImg.atXY(x, y);
+
+	// cerr << "lengthRangeMax: " << lengthRangeMax << endl;
+	// cerr << "lengthRangeMin: " << lengthRangeMin << endl;
+
+
+	float lengthRange = lengthRangeMax - lengthRangeMin;
+	float lengthResult;
+	MStatus st;
+	lengthRemapRamp.getValueAtPosition( length, lengthResult, &st ); mser;
+	if (st.error()) {
+		length = lengthRangeMax;
+	}
+	else {
+		length = (lengthResult *  lengthRange) + lengthRangeMin;
+	}
+	// cerr << "length:" << length << endl;
+
 	int w = grad(0).width();
 	int h = grad(0).height();
 
-	for (int i = 0; i < count; ++i)
-	{
-		resultPoints.append(MPoint(p));
 
-		float x, y;
+	float curr_length = 0.0;
+	resultPoints.append(MPoint(p));
+
+	maxCurvature = maxCurvature * gap;
+	do {
+
 		cImgUtils::toImageCoords(p, imat, w, h, x, y, false);
-
-
 		if (x < 0 || x > w || y < 0 || y > h) {
 			break;
 		}
-		float gx ;
-		float gy ;
+		float gx = grad(0).linear_atXY(x, y);
+		float	gy = grad(1).linear_atXY(x, y);
+		MFloatVector gradient = (MFloatVector(gx, gy, 0)  * mat).normal();
 
-		if (interp ==  cImgData::kNearest) {
-			gx = grad(0).atXY(x, y);
-			gy = grad(1).atXY(x, y);
+		if (! lastGradient.isEquivalent(MFloatVector::zero)) {
+			float angleBetween = gradient.angle(lastGradient);
+
+			if (double(angleBetween) > maxCurvature) {
+				// cerr << "angleBetween is greater" << angleBetween << endl;
+				MVector cross = MVector( lastGradient ^ gradient ).normal();
+				MQuaternion q(maxCurvature, cross);
+				gradient = MFloatVector(MVector(lastGradient).rotateBy(q));
+			}
 		}
-		else if (interp ==  cImgData::kBilinear) {
-			gx = grad(0).linear_atXY(x, y);
-			gy = grad(1).linear_atXY(x, y);
-		}
-		else {    // bicubic
-			gx = grad(0).cubic_atXY(x, y);
-			gy = grad(1).cubic_atXY(x, y);
-		}
-		MFloatVector gradient = MFloatVector(gx, gy, 0)  * mat;
-		p += (gradient.normal() * gap);
+
+
+		p += (gradient * gap);
+		resultPoints.append(MPoint(p));
+		curr_length += gap;
+		lastGradient = gradient;
 
 	}
+	while (curr_length < length) ;
+
+
+
+
+
+	// for (int i = 0; i < count; ++i)
+	// {
+	// 	resultPoints.append(MPoint(p));
+
+	// 	float x, y;
+	// 	cImgUtils::toImageCoords(p, imat, w, h, x, y, false);
+
+
+	// 	if (x < 0 || x > w || y < 0 || y > h) {
+	// 		break;
+	// 	}
+	// 	float gx ;
+	// 	float gy ;
+
+	// 	if (interp ==  cImgData::kNearest) {
+	// 		gx = grad(0).atXY(x, y);
+	// 		gy = grad(1).atXY(x, y);
+	// 	}
+	// 	else if (interp ==  cImgData::kBilinear) {
+	// 		gx = grad(0).linear_atXY(x, y);
+	// 		gy = grad(1).linear_atXY(x, y);
+	// 	}
+	// 	else {    // bicubic
+	// 		gx = grad(0).cubic_atXY(x, y);
+	// 		gy = grad(1).cubic_atXY(x, y);
+	// 	}
+	// 	MFloatVector gradient = MFloatVector(gx, gy, 0)  * mat;
+	// 	p += (gradient.normal() * gap);
+
+	// }
 
 	return resultPoints.length();
 }
@@ -357,34 +452,55 @@ MStatus flowStroke::generateStrokeGeometry(MDataBlock &data,
 {
 
 	MStatus st;
+	MObject thisObj = thisMObject();
 
 	std::vector<std::unique_ptr <Stroke> > strokes;
 
 	if (! data.inputValue(aActive).asBool()) {
 		return MS:: kSuccess;
 	}
-	cImgData::Channel channel = cImgData::Channel(data.inputValue(
-	                              aChannel).asShort());
-	CImg<unsigned char> single;
-	st = getImageChannel(data, channel, single);
+	// cImgData::Channel channel = cImgData::Channel(data.inputValue(
+	//                               aChannel).asShort());
+	CImg<unsigned char> singleFlow;
+	st = getImageChannel(data, flowStroke::aFlowImage, cImgData::kRed, singleFlow);
 	if (st.error()) {
 		return MS::kUnknownParameter;
 	}
 
+
+	double sampleDist =  data.inputValue(aSampleDistance).asDouble();
+	if (sampleDist < 0.1)  { sampleDist = 0.1; }
+
+
+
+
+	////////////////////// LENGTH ////////////////////
+	CImg<float> singleLength;
+	st = getFloatRedChannel(data, flowStroke::aStrokeLengthImage, singleLength);
+	if (st.error()) {
+		singleLength.assign(1, 1, 1, 1, 1.0f);
+	}
+	const float2 &lengthRange = data.inputValue( aStrokeLengthRemapRange ).asFloat2();
+	float lengthRangeMin =   std::max(lengthRange[0], 0.01f);
+	float lengthRangeMax = std::max(lengthRange[1], lengthRange[0]);
+	MRampAttribute lengthRemapRamp( thisObj, aStrokeLengthRemapRamp ); mser;
+	//////////////////////
+
+
+
 	float blur = data.inputValue(aBlur).asFloat();
 	float angle = float(data.inputValue(aRotation).asAngle().asRadians());
-	cImgData::Interpolation interp = cImgData::Interpolation(data.inputValue(
-	                                   aInterpolation).asShort());
+
 	MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
 	MFloatMatrix imat = projection.inverse();
 
-	int w = single.width();
-	int h = single.height();
+	int w = singleFlow.width();
+	int h = singleFlow.height();
 
 	MDataHandle hPts = data.inputValue( aSamplePoints , &st);
 	MObject dPts = hPts.data();
 	const MVectorArray samplePoints = MFnVectorArrayData( dPts ).array( &st );
-	CImgList<float> grad = single.get_gradient("xy", 0);
+	CImgList<float> grad = singleFlow.get_gradient("xy", 0);
 
 	MFloatMatrix fullProjection = getFullProjection(angle, projection);
 	grad(0).blur(blur);
@@ -399,13 +515,13 @@ MStatus flowStroke::generateStrokeGeometry(MDataBlock &data,
 	if (pointDensity < 0.001) {
 		pointDensity = 0.001;
 	}
-	double length = data.inputValue(aStrokeLength).asDouble();
-	if (length < 0.001) { length = 0.001; }
 
-	double sampleDist =  data.inputValue(aSampleDistance).asDouble();
-	int numPoints = int(length / sampleDist) + 1;
-	if (numPoints < 2) { numPoints = 2; }
-	sampleDist = length / (numPoints - 1);
+	/*	double lengthMult = data.inputValue(aStrokeLength).asDouble();
+		if (lengthMult < 0.001) { length = 0.001; }
+		double sampleDist =  data.inputValue(aSampleDistance).asDouble();*/
+	// int numPoints = int(length / sampleDist) + 1;
+	// if (numPoints < 2) { numPoints = 2; }
+	// sampleDist = length / (numPoints - 1);
 
 	MDataHandle hLift = data.inputValue(aLift);
 	double liftLength = hLift.child(aLiftLength).asDouble();
@@ -416,7 +532,8 @@ MStatus flowStroke::generateStrokeGeometry(MDataBlock &data,
 
 	double approachDistance = data.inputValue(aApproachDistance).asDouble();
 
-	bool backstroke = data.inputValue(aBackstroke).asBool();
+	Stroke::DirectionMethod strokeDirection = Stroke::DirectionMethod(data.inputValue(
+	      aStrokeDirection).asShort());
 
 	short repeats = data.inputValue(aRepeats).asShort();
 	double repeatOffset = data.inputValue(aRepeatOffset).asDouble();
@@ -450,21 +567,49 @@ MStatus flowStroke::generateStrokeGeometry(MDataBlock &data,
 	rotSpec.rampScope = StrokeRotationSpec::Scope(data.inputValue(aBrushRampScope).asShort());
 	rotSpec.followStroke =  data.inputValue(aBrushFollowStroke).asBool();
 
-	MObject thisObj = thisMObject();
 
+	double countFactor = data.inputValue(aStrokeCountFactor).asDouble();
+	int seed = data.inputValue(aSeed).asInt();
+	srand48(seed);
+
+	double maxCurvature = data.inputValue(aMaxCurvature).asAngle().asRadians();
+	// MRampAttribute curvaturRemapRamp( thisObj, aCurvatureRamp ); mser;
+	// MDataHandle hCurvatureRange = data.inputValue(aCurvatureRange);
+	// double curvatureRangeMin = hCurvatureRange.child(
+	//                              hCurvatureRangeMin).asAngle().asRadians();
+	// double curvatureRangeMax = hCurvatureRange.child(
+	//                              hCurvatureRangeMax).asAngle().asRadians();
+
+	// cerr << "aMaxCurvature: " << maxCurvature << endl;
 
 	unsigned len = samplePoints.length();
+	// cerr << "flowStrokeNode-----" <<  endl;
+
 	for (int i = 0; i < len; ++i)
 	{
+		if (drand48() > countFactor) {
+			continue;
+		}
+
+
 		// local (-1 to +1)
 		MFloatPoint point = MFloatPoint(samplePoints[i]);
 		MPointArray flowPoints;
-		int flowCount = calcFlowPoints(point, grad, fullProjection, imat, numPoints, sampleDist,
-		                               flowPoints,
-		                               interp);
+		int flowCount = calcFlowPoints(
+		                  point,
+		                  grad,
+		                  singleLength,
+		                  fullProjection,
+		                  imat,
+		                  lengthRangeMin,
+		                  lengthRangeMax,
+		                  lengthRemapRamp,
+		                  sampleDist,
+		                  maxCurvature,
+		                  flowPoints);
 
 
-
+		// cerr << "flowPoints" << flowPoints << endl;
 
 		if (flowCount > 1) // we can make a strokeGroup
 		{
@@ -493,15 +638,19 @@ MStatus flowStroke::generateStrokeGeometry(MDataBlock &data,
 			                             strokeProfileScaleMin,
 			                             strokeProfileScaleMax,
 			                             rotSpec,
-			                             backstroke,
+			                             strokeDirection,
 			                             repeats,
 			                             repeatOffset,
 			                             repeatMirror,
 			                             repeatOscillate,
 			                             pivotFraction,
 			                             strokes);
+
 		}
 	}
+
+	// cerr << "--------" << endl;
+
 
 	setApproach(  strokes, approachDistance);
 
@@ -537,21 +686,10 @@ void flowStroke::setBrushIds(MDataBlock &data, std::vector<strokeGeom> *geom) co
 {
 
 	MStatus st;
-	MDataHandle hImageData = data.inputValue(aBrushIdImage, &st);
 
-	if (st.error()) {return;}
 
-	MObject dImageData = hImageData.data();
-	MFnPluginData fnImageData( dImageData , &st);
 
-	if (st.error()) {return;}
 
-	cImgData *imageData = (cImgData *)fnImageData.data();
-	const CImg<unsigned char> *image = imageData->fImg;
-	int w = image->width();
-	int h = image->height();
-
-	if (!(w && h )) {return;}
 
 	MObject thisObj = thisMObject();
 	MRampAttribute remapRamp( thisObj, aBrushIdRemapRamp ); mser;
@@ -560,37 +698,56 @@ void flowStroke::setBrushIds(MDataBlock &data, std::vector<strokeGeom> *geom) co
 	int high = range[1];
 	int span = high - low;
 
-	float normalizer = 1.0f / 255.0f;
+	bool imageValid = false;
+	MDataHandle hImageData = data.inputValue(aBrushIdImage, &st);
 
-	std::vector<strokeGeom>::iterator iter;
-	for (iter = geom->begin(); iter !=  geom->end(); iter++)
-	{
-		float u, v;
-		iter->getUV(u, v);
-		float x, y;
+	if (! st.error()) {
+		MObject dImageData = hImageData.data();
+		MFnPluginData fnImageData( dImageData , &st);
+		if (! st.error()) {
+			cImgData *imageData = (cImgData *)fnImageData.data();
+			const CImg<unsigned char> *image = imageData->fImg;
+			int w = image->width();
+			int h = image->height();
+			if (w && h)
+			{
+				imageValid = true;
+				float normalizer = 1.0f / 255.0f;
 
-		cImgUtils::toImageCoords(u, v, w, h, x, y);
+				std::vector<strokeGeom>::iterator iter;
+				for (iter = geom->begin(); iter !=  geom->end(); iter++)
+				{
+					float u, v;
+					iter->getUV(u, v);
+					float x, y;
+					cImgUtils::toImageCoords(u, v, w, h, x, y);
+					float value = float( image->atXY(int(x), int(y) , 0, 0)) * normalizer;
 
-		// int pixelValue = (*image)(int(x + 0.5), int(y + 0.5) , 0, 0);
-		float value = float( image->atXY(int(x), int(y) , 0, 0)) * normalizer;
-		// cerr << "Pixel Val: " << pixelValue << " - value " << value << endl;
-
-		float remappedVal;
-		remapRamp.getValueAtPosition( value, remappedVal, &st );
-		if (st.error()) {
-			remappedVal =  value;
+					float remappedVal;
+					remapRamp.getValueAtPosition( value, remappedVal, &st );
+					if (st.error()) {
+						remappedVal =  value;
+					}
+					int ival = int((remappedVal * span) + low);
+					ival = std::max(low, std::min(ival, high));
+					iter->setBrushId(ival);
+				}
+			}
 		}
-		int ival = int((remappedVal * span) + low);
-		// cerr << "Normalized: " << value <<   " - remapped to: " << remappedVal << " - int val: " << ival <<  endl;
-		ival = std::max(low, std::min(ival, high));
-		iter->setBrushId(ival);
+	}
+	if (! imageValid) {
+		// cerr << "high: " << high << endl;
+		std::vector<strokeGeom>::iterator iter;
+		for (iter = geom->begin(); iter !=  geom->end(); iter++)
+		{
+			iter->setBrushId(high);
+		}
 	}
 }
 
 
 void flowStroke::setPaintIds(MDataBlock &data, std::vector<strokeGeom> *geom) const
 {
-	// cerr << "flowStroke::setPaintIds" << endl;
 
 	MStatus st;
 	MDataHandle hImageData = data.inputValue(aPaintIdImage, &st);
@@ -609,28 +766,16 @@ void flowStroke::setPaintIds(MDataBlock &data, std::vector<strokeGeom> *geom) co
 
 	if (!(w && h )) {return;}
 
-	// cerr << "geom->size():" << geom->size() << endl;
 	std::vector<strokeGeom>::iterator iter;
-	// cerr << "got iter" << endl;
-	// cerr << "w:"  << w << "h:" << h << endl;
 
 	for (iter = geom->begin(); iter !=  geom->end(); iter++)
 	{
 		float u, v;
-
 		iter->getUV(u, v);
-		// cerr << "u:"  << u << "v:" << v << endl;
-
 		float x, y;
-		// unsigned char val;
 		cImgUtils::toImageCoords(u, v, w, h, x, y);
-		// cerr << "x:"  << x << "y:" << y << endl;
-
 		iter->setPaintId(short(image->atXY(int(x),  int(y), 0, 0)));
-
 	}
-	// cerr << "Done" << endl;
-
 
 }
 

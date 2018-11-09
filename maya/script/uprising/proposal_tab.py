@@ -185,7 +185,7 @@ class ProposalTab(gui.FormLayout):
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        cancel_but = pm.button(label='Cancel')
+        save_but = pm.button(label='Save', command=pm.Callback(self.save))
         go_but = pm.button(
             label='Go', command=pm.Callback(
                 self.on_write))
@@ -193,18 +193,31 @@ class ProposalTab(gui.FormLayout):
         self.attachForm(self.column, 'left', 2)
         self.attachForm(self.column, 'right', 2)
         self.attachForm(self.column, 'top', 2)
-        self.attachControl(self.column, 'bottom', 2, cancel_but)
+        self.attachControl(self.column, 'bottom', 2, save_but)
 
-        self.attachNone(cancel_but, 'top')
-        self.attachForm(cancel_but, 'left', 2)
-        self.attachPosition(cancel_but, 'right', 2, 50)
-        self.attachForm(cancel_but, 'bottom', 2)
+        self.attachNone(save_but, 'top')
+        self.attachForm(save_but, 'left', 2)
+        self.attachPosition(save_but, 'right', 2, 50)
+        self.attachForm(save_but, 'bottom', 2)
 
         self.attachNone(go_but, 'top')
         self.attachForm(go_but, 'right', 2)
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
- 
+
+    def populate(self):
+        pass
+        # val = "default"
+        # if "up_setup_palette_name" in pm.optionVar:
+        #     val = pm.optionVar["up_setup_palette_name"]
+        # print val
+        # pm.textFieldGrp(self.setup_paints_tf, e=True, text=val)
+
+    def save(self):
+        pass
+        # val = pm.textFieldButtonGrp(self.setup_paints_tf, q=True, text=True)
+        # pm.optionVar["up_setup_palette_name"] = val
+     
 
 
     def on_make_clean_top(self):

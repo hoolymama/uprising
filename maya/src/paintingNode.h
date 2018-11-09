@@ -18,6 +18,7 @@
 #include <maya/MDGModifier.h>
 
 #include "paintingData.h"
+
 #include "brush.h"
 #include "paint.h"
 #include "strokeGeom.h"
@@ -63,7 +64,10 @@ public:
     kMapRed,
     kMapGreen,
     kMapBlue,
-    kLayerId
+    kLayerId,
+    kCustomBrushId,
+    kCustomPaintId
+
   };
 
 
@@ -171,6 +175,8 @@ private:
 
 
   static MObject aStartFrom;
+  static MObject aEndAt;
+
 
 
 
@@ -190,6 +196,7 @@ private:
 
 
   static MObject aPlaneMatrix;
+  static MObject aDisplacementMesh; // cm
 
   // static MObject aDipApproachObject;
   // static MObject aToolChangeApproachObject;
@@ -207,6 +214,7 @@ private:
   static MObject  aBrushShape;
   static MObject  aBrushTip;
   static MObject  aBrushPhysicalId;
+  static MObject  aBrushCustomId;
   static MObject  aBrushes;
 
   static MObject  aPaintColorR;
@@ -215,7 +223,10 @@ private:
   static MObject  aPaintColor;
   static MObject  aPaintOpacity;
   static MObject  aPaintTravel;
+  static MObject  aPaintCustomId;
   static MObject  aPaints;
+
+
 
   static MObject  aPointSize;
   static MObject  aLineLength;

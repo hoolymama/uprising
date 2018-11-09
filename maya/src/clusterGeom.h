@@ -46,6 +46,8 @@ public:
 	void setPreStops(double threshold);
 	// clusterGeom &operator=( const clusterGeom &other );
 
+	void displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap);
+
 	friend ostream &operator<<(ostream &os, const clusterGeom &geom);
 
 private:

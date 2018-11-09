@@ -36,9 +36,52 @@ class PublishTab(gui.FormLayout):
             pass
 
         self.on_current_frame_cb_change()
+        self.on_context_rb_change()
+        self.on_components_cb_change()
+
+    def on_context_rb_change(self):
+        val = pm.radioButtonGrp(
+            self.context_rb, query=True, sl=True)
+        pm.checkBoxGrp(self.components_cb, edit=True, en=(val == 2))
+
+    def on_components_cb_change(self):
+        do_painting, do_verify = pm.checkBoxGrp(
+            self.components_cb, q=True, valueArray2=True)
+
+        pm.rowLayout(self.anim_row, edit=True, en=do_painting)
 
     def create_ui(self):
         pm.setParent(self.column)
+
+        self.context_rb = pm.radioButtonGrp(
+            label='Context',
+            labelArray3=[
+                "Calibration",
+                "Painting",
+                "Snapshot"],
+            sl=2,
+            numberOfRadioButtons=3,
+            changeCommand=pm.Callback(
+                self.on_context_rb_change))
+
+        # self.calibration_cb = pm.checkBoxGrp(
+        #     numberOfCheckBoxes=1,
+        #     height=30,
+        #     label='Calibration only',
+        #     value1=False,
+        #     columnWidth2=(180, 300),
+        #     changeCommand=pm.Callback(self.on_calibration_cb_change)
+        # )
+
+        self.components_cb = pm.checkBoxGrp(
+            numberOfCheckBoxes=2,
+            height=30,
+            label='Components',
+            labelArray2=['Painting', "Verify"],
+            valueArray2=[True, True],
+            columnWidth3=(180, 200, 200),
+            changeCommand=pm.Callback(self.on_components_cb_change)
+        )
 
         self.create_description_ui()
 
@@ -47,10 +90,6 @@ class PublishTab(gui.FormLayout):
         max_frame = int(pm.playbackOptions(max=True, query=True))
 
         with uutl.activatable(state=False):
-            # self.pre_frame_py_tf = pm.textFieldGrp(
-            #     label="Pre-frame python"
-            # )
-
             self.pre_frame_py_tf = pm.textFieldButtonGrp(
                 label='Pre-frame python',
                 text='load_numbered_brush_pouch,test_set',
@@ -62,12 +101,12 @@ class PublishTab(gui.FormLayout):
                 buttonCommand=pm.Callback(
                     self.test_python_callback))
 
-        pm.rowLayout(numberOfColumns=2,
-                     columnWidth2=(
-                         (390), 100),
-                     # adjustableColumn=1,
-                     columnAlign=(1, 'right'),
-                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+        self.anim_row = pm.rowLayout(numberOfColumns=2,
+                                     columnWidth2=(
+                                         (390), 100),
+                                     # adjustableColumn=1,
+                                     columnAlign=(1, 'right'),
+                                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
 
         self.frame_if = pm.intFieldGrp(
             label="Frames to run",
@@ -84,87 +123,20 @@ class PublishTab(gui.FormLayout):
 
         pm.setParent('..')
 
-        self.save_maya_only_cb = pm.checkBoxGrp(
-            label='Skip RoboDK',
-            ann="Save Maya files only",
-            value1=False)
+        # self.save_maya_only_cb = pm.checkBoxGrp(
+        #     label='Skip RoboDK',
+        #     ann="Save Maya files only",
+        #     value1=False)
 
         self.save_unfiltered_snapshot = pm.checkBoxGrp(
             label='Save unfiltered snapshot',
             ann="This will switch off filtering temporarily",
             value1=True)
 
-        self.snap_now_if = pm.floatSliderButtonGrp(
-            label='Make snapshot now',
-            field=True,
-            maxValue=4096,
-            step=1,
-            value=1024,
-            symbolButtonDisplay=False,
-            buttonLabel="Go",
-            buttonCommand=pm.Callback(self.on_make_snapshot),
-            columnWidth=(4, 60)
+        self.snap_size_if = pm.intFieldGrp(
+            label='Snapshot size',
+            value1=1024
         )
-
-        # self.send_paintings_cb = pm.checkBoxGrp(
-        #     numberOfCheckBoxes=2,
-        #     height=30,
-        #     label='Send Clusters',
-        #     labelArray2=['Painting', 'Dips'],
-        #     valueArray2=[True, True],
-        #     columnWidth3=(180, 120, 120))
-
-        # self.send_board_cb = pm.checkBoxGrp(
-        #     label='Send Board',
-        #     value1=1,
-        #     height=30,
-        #     columnWidth2=(
-        #         180,
-        #         120))
-
-        # pm.rowLayout(
-        #     numberOfColumns=4, columnWidth4=(
-        #         100, 80, 80, 80), adjustableColumn=1, columnAlign=(
-        #         1, 'right'), columnAttach=[
-        #         (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2)])
-
-        # pm.text(label='Export to RoboDK')
-
-        # pm.button(
-        #     label='Painting only',
-        #     command=pm.Callback(self.on_create_painting))
-
-        # pm.button(
-        #     label='Dips only',
-        #     command=pm.Callback(self.on_create_dips))
-
-        # pm.button(
-        #     label='All',
-        #     command=pm.Callback(self.on_create_all))
-
-        # pm.setParent('..')
-
-        # self.description_tf = pm.scrollField(
-        #     wordWrap=True, text="Description...")
-        # pm.button(
-        #     label='Write program package',
-        #     command=pm.Callback(self.write_program_package))
-
-        # pm.button(
-        #     label='Write maya package only',
-        #     command=pm.Callback(self.write_maya_package))
-
-        # pm.rowLayout(
-        #     numberOfColumns=2, columnWidth2=(
-        #         150, 200), adjustableColumn=1, columnAlign=(
-        #         1, 'right'), columnAttach=[
-        #         (1, 'both', 2), (2, 'both', 2)])
-
-        # self.frame_if = pm.intFieldGrp(label="Frames to run", numberOfFields=2, value1=1, value2=1 )
-
-        # pm.button(
-        #     label='Export and write packages',
-        #     command=pm.Callback(self.on_export_and_write_series))
 
     def on_current_frame_cb_change(self):
         state = pm.checkBox(self.current_frame_cb, query=True, value=True)
@@ -251,63 +223,38 @@ class PublishTab(gui.FormLayout):
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        cancel_but = pm.button(label='Cancel')
+        save_but = pm.button(label='Save', command=pm.Callback(self.save))
         go_but = pm.button(
             label='Go', command=pm.Callback(
-                self.on_export_and_write_series))
+                self.on_go))
 
         self.attachForm(self.column, 'left', 2)
         self.attachForm(self.column, 'right', 2)
         self.attachForm(self.column, 'top', 2)
-        self.attachControl(self.column, 'bottom', 2, cancel_but)
+        self.attachControl(self.column, 'bottom', 2, save_but)
 
-        self.attachNone(cancel_but, 'top')
-        self.attachForm(cancel_but, 'left', 2)
-        self.attachPosition(cancel_but, 'right', 2, 50)
-        self.attachForm(cancel_but, 'bottom', 2)
+        self.attachNone(save_but, 'top')
+        self.attachForm(save_but, 'left', 2)
+        self.attachPosition(save_but, 'right', 2, 50)
+        self.attachForm(save_but, 'bottom', 2)
 
         self.attachNone(go_but, 'top')
         self.attachForm(go_but, 'right', 2)
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
-    # def write(self, painting_node, dip_node):
-    #     RL = Robolink()
-    #     RL.setWindowState(-1)
-    #     try:
-    #         studio = Studio(painting_node, dip_node)
-    #         studio.write()
-    #     except Exception:
-    #         t, v, tb = sys.exc_info()
-    #         RL.setWindowState(2)
-    #         raise t, v, tb
-    #     RL.setWindowState(2)
+    def populate(self):
+        pass
+        # val = "default"
+        # if "up_setup_palette_name" in pm.optionVar:
+        #     val = pm.optionVar["up_setup_palette_name"]
+        # print val
+        # pm.textFieldGrp(self.setup_paints_tf, e=True, text=val)
 
-    # def on_create_painting(self):
-    #     painting_node = pm.PyNode("mainPaintingShape")
-    #     self.write(painting_node, None)
-
-    # def on_create_dips(self):
-    #     dip_node = pm.PyNode("dipPaintingShape")
-    #     self.write(None, dip_node)
-
-    # def on_create_all(self):
-    #     painting_node = pm.PyNode("mainPaintingShape")
-    #     dip_node = pm.PyNode("dipPaintingShape")
-    #     self.write(painting_node, dip_node)
-
-    # def write_program_package(self):
-    #     desc = pm.scrollField(self.description_tf, q=True, text=True)
-    #     export_dir = write.choose_publish_dir()
-    #     if export_dir:
-    #         write.export_package(export_dir, desc)
-
-    # def write_maya_package(self):
-    #     desc = pm.scrollField(self.description_tf, q=True, text=True)
-    #     export_dir = write.choose_publish_dir()
-    #     if export_dir:
-    #         write.export_maya_package_only(export_dir, desc)
-
+    def save(self):
+        pass
+        # val = pm.textFieldButtonGrp(self.setup_paints_tf, q=True, text=True)
+        # pm.optionVar["up_setup_palette_name"] = val
 
     def test_python_callback(self):
 
@@ -318,7 +265,7 @@ class PublishTab(gui.FormLayout):
 
         kw = {
             "frame": pm.currentTime(q=True),
-            "painting_node" : pm.PyNode("mainPaintingShape"),
+            "painting_node": pm.PyNode("mainPaintingShape"),
             "dip_node": pm.PyNode("dipPaintingShape")
         }
 
@@ -329,13 +276,29 @@ class PublishTab(gui.FormLayout):
         res = method(*args, **kw)
         print res
 
+    def on_go(self):
 
+        context = pm.radioButtonGrp(
+            self.context_rb, query=True, sl=True)
 
-    def on_export_and_write_series(self):
+        if context == 3:
+            # snapshot
+            self.make_snapshot()
+            return
 
         export_dir = write.choose_publish_dir()
         if not export_dir:
             return
+
+        painting_node = pm.PyNode("mainPaintingShape")
+
+        if context == 1:
+            # calibrate only
+            write.publish_calibration_program(export_dir, painting_node)
+            return
+
+        do_painting, do_verify = pm.checkBoxGrp(
+            self.components_cb, q=True, valueArray2=True)
 
         current_only = pm.checkBox(
             self.current_frame_cb, query=True, value=True)
@@ -358,8 +321,8 @@ class PublishTab(gui.FormLayout):
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
 
-        maya_only = pm.checkBoxGrp(
-            self.save_maya_only_cb, query=True, value1=True)
+        # maya_only = pm.checkBoxGrp(
+        #     self.save_maya_only_cb, query=True, value1=True)
         save_unfiltered_snapshot = pm.checkBoxGrp(
             self.save_unfiltered_snapshot, query=True, value1=True)
 
@@ -381,14 +344,14 @@ class PublishTab(gui.FormLayout):
             medium,
             ground,
             frames,
-            maya_only,
+            do_painting,
+            do_verify,
             save_unfiltered_snapshot,
             pre_frame_py
         )
 
-    def on_make_snapshot(self):
-        res = pm.floatSliderButtonGrp(self.snap_now_if, query=True, value=True)
-        res = int(res)
+    def make_snapshot(self):
+        res = pm.intFieldGrp(self.snap_size_if, query=True, value1=True)
         export_dir = os.path.join(pm.workspace.getPath(), 'export')
         entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
                                  dialogStyle=2, fileMode=3, dir=export_dir)

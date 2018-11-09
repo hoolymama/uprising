@@ -130,7 +130,7 @@ private:
   static MObject aRandomOverlapFactor;
 
 
-  static MObject aBackstroke;
+  static MObject aStrokeDirection;
 
   static MObject aRepeats;
   static MObject aRepeatOffset;

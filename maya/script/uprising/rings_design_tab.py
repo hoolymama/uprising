@@ -1,23 +1,8 @@
 import sys
-# import os.path
 import pymel.core as pm
-
-# import setup_dip
 import curve_utils as cutl
-# import brush_utils as butl
-# import paint_utils as putl
-
-# from setup_dip import setup_dip_factory
 import uprising_util as uutl
-import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
-# from uprising.sequence import Sequence
-# import painting as pnt
-from studio import Studio
-from robolink import (
-    Robolink
-)
-
 
 class RingsDesignTab(gui.FormLayout):
 
@@ -27,7 +12,9 @@ class RingsDesignTab(gui.FormLayout):
         self.column = pm.columnLayout()
         self.column.adjustableColumn(True)
         self.create_buttons()
-        self.create_action_buttons()
+        self.create_action_buttons()        
+        self.populate()
+
 
     def get_random_resource_values(self, row):
         if not pm.rowLayout(row, q=True, en=True):
@@ -48,7 +35,7 @@ class RingsDesignTab(gui.FormLayout):
             row = pm.rowLayout(numberOfColumns=3,
                                columnWidth3=(250, 90, 90),
                                columnAlign=(1, 'right'))
-            #, columnAttach=[(1, 'both', 2), (2, 'both', 2), (3, 'both', 2)])
+
             text_ctrl = pm.textFieldGrp(
                 label=label,
                 text=default_text
@@ -67,13 +54,13 @@ class RingsDesignTab(gui.FormLayout):
     def create_buttons(self):
         pm.setParent(self.column)
 
-
-
         with uutl.activatable():
-            self.spacing_row =  pm.rowLayout(numberOfColumns=2,
-             columnWidth2=(350, 150),
-             columnAlign=(1, 'right'),
-             columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+            self.spacing_row = pm.rowLayout(
+                numberOfColumns=2, columnWidth2=(
+                    350, 150), columnAlign=(
+                    1, 'right'), columnAttach=[
+                    (1, 'both', 2), (2, 'both', 2)])
+
             self.spacing_type_ctl = pm.radioButtonGrp(
                 label='Spacing',
                 sl=1,
@@ -92,54 +79,51 @@ class RingsDesignTab(gui.FormLayout):
                 value1=50
             )
 
- 
-
         self.random_paints_row = self.random_res_control(
             "Random paints", "0-32")
         self.random_brushes_row = self.random_res_control(
             "Random brushes", "0-16")
 
-        # with uutl.activatable():
-        #     self.random_brushes_ctrl = pm.textFieldGrp(
-        #         label='Rando brushes',
-        #         text='0-16'
-        #     )
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
+        save_but = pm.button(
+            label='Save',
+            command=pm.Callback(self.save))
+
         set_button = pm.button(
             label='Set value',
             command=pm.Callback(
-                self.on_apply,
+                self.on_go,
                 False))
         key_button = pm.button(
             label='Keyframe range',
             command=pm.Callback(
-                self.on_apply,
+                self.on_go,
                 True))
-        # key_button = pm.button(
-        #     label='Keyframe range',
-        #     command=pm.Callback(
-        #         self.on_apply,
-        #         True))
 
         self.attachForm(self.column, 'left', 2)
         self.attachForm(self.column, 'right', 2)
         self.attachForm(self.column, 'top', 2)
         self.attachControl(self.column, 'bottom', 2, set_button)
 
+        self.attachNone(save_but, 'top')
+        self.attachForm(save_but, 'left', 2)
+        self.attachPosition(save_but, 'right', 2, 33)
+        self.attachForm(save_but, 'bottom', 2)
+
         self.attachNone(set_button, 'top')
-        self.attachForm(set_button, 'left', 2)
-        self.attachPosition(set_button, 'right', 2, 50)
+        self.attachControl(set_button, 'left', 2, save_but)
+        self.attachPosition(set_button, 'right', 2, 66)
         self.attachForm(set_button, 'bottom', 2)
 
         self.attachNone(key_button, 'top')
         self.attachForm(key_button, 'right', 2)
-        self.attachPosition(key_button, 'left', 2, 50)
+        self.attachControl(key_button, 'left', 2, set_button)
         self.attachForm(key_button, 'bottom', 2)
 
-    def on_apply(self, do_keys):
+    def on_go(self, do_keys):
 
         random_paint_params = self.get_random_resource_values(
             self.random_paints_row)
@@ -216,139 +200,125 @@ class RingsDesignTab(gui.FormLayout):
                 brush_ids,
                 False)
 
-    # def on_duplicate_into_gaps(self):
-    #     curves = pm.ls(
-    #         selection=True,
-    #         dag=True,
-    #         leaf=True,
-    #         type="nurbsCurve",
-    #         ni=True,
-    #         ut=True)
-    #     cutl.duplicate_into_gaps(curves)
+    def populate(self):
 
-    # def on_arrange_rings_gap(self):
-    #     curves = pm.ls(
-    #         selection=True,
-    #         dag=True,
-    #         leaf=True,
-    #         type="nurbsCurve",
-    #         ni=True,
-    #         ut=True)
+        var = ("upov_spacing_row_en", True)
+        pm.rowLayout(
+            self.spacing_row,
+            e=True,
+            en=pm.optionVar.get(
+                var[0],
+                var[1]))
+        uutl.conform_activatable_checkbox(self.spacing_row)
 
-    #     # painting_node = pm.PyNode("mainPaintingShape")
-    #     gap = pm.floatSliderButtonGrp(self.gap_ff, query=True, v=True)
-    #     cutl.arrange_rings_gap(curves, gap)
+        var = ("upov_spacing_type_ctl", 2)
+        pm.radioButtonGrp(
+            self.spacing_type_ctl,
+            e=True,
+            sl=pm.optionVar.get(
+                var[0],
+                var[1]))
 
-    # def on_arrange_rings_spine(self):
-    #     curves = pm.ls(
-    #         selection=True,
-    #         dag=True,
-    #         leaf=True,
-    #         type="nurbsCurve",
-    #         ni=True,
-    #         ut=True)
-    #     # painting_node = pm.PyNode("mainPaintingShape")
-    #     dist = pm.floatSliderButtonGrp(self.spine_ff, query=True, v=True)
-    #     cutl.arrange_rings_spine(curves, dist)
+        var = ("upov_spacing_ctl", 0.3)
+        pm.floatFieldGrp(
+            self.spacing_ctl,
+            e=True,
+            value1=pm.optionVar.get(
+                var[0],
+                var[1]))
 
-    # def on_random_paints(self):
-    #     anim = pm.checkBox(self.random_paints_anim_cb, q=True, value=True)
-    #     spec = pm.textFieldButtonGrp(
-    #         self.random_paints_tf, query=True, text=True)
-    #     curves = pm.ls(
-    #         selection=True,
-    #         dag=True,
-    #         leaf=True,
-    #         type="nurbsCurve",
-    #         ni=True,
-    #         ut=True)
-    #     if (anim):
-    #         min_frame = int(pm.playbackOptions(min=True, query=True))
-    #         max_frame = int(pm.playbackOptions(max=True, query=True))
-    #         for f in range(min_frame, max_frame + 1):
-    #             pm.currentTime(f)
-    #             cutl.assign_random_paints(curves, spec, True)
-    #     else:
-    #         cutl.assign_random_paints(curves, spec, False)
+        var = ("upov_max_extent_ctrl_en", True)
+        pm.floatFieldGrp(
+            self.max_extent_ctrl,
+            e=True,
+            en=pm.optionVar.get(
+                var[0],
+                var[1]))
+        uutl.conform_activatable_checkbox(self.max_extent_ctrl)
 
-    # def on_random_brushes(self):
-    #     anim = pm.checkBox(self.random_brushes_tf, q=True, value=True)
-    #     spec = pm.textFieldButtonGrp(
-    #         self.random_brushes_tf, query=True, text=True)
-    #     curves = pm.ls(
-    #         selection=True,
-    #         dag=True,
-    #         leaf=True,
-    #         type="nurbsCurve",
-    #         ni=True,
-    #         ut=True,
-    #         v=True)
-    #     if (anim):
-    #         min_frame = int(pm.playbackOptions(min=True, query=True))
-    #         max_frame = int(pm.playbackOptions(max=True, query=True))
-    #         for f in range(min_frame, max_frame + 1):
-    #             pm.currentTime(f)
-    #             cutl.assign_random_brushes(curves, spec, True)
-    #     else:
-    #         cutl.assign_random_brushes(curves, spec, False)
+        var = ("upov_max_extent_ctrl", 57)
+        pm.floatFieldGrp(
+            self.max_extent_ctrl,
+            e=True,
+            v1=pm.optionVar.get(
+                var[0],
+                var[1]))
 
-    # def on_random_sequence(self):
-    #     paint_spec = pm.textFieldButtonGrp(
-    #         self.random_paints_tf, query=True, text=True)
-    #     brush_spec = pm.textFieldButtonGrp(
-    #         self.random_brushes_tf, query=True, text=True)
-    #     start_frame = pm.currentTime(query=True)
-    #     painting_node = pm.PyNode("mainPaintingShape")
-    #     min_frame = int(pm.playbackOptions(min=True, query=True))
-    #     max_frame = int(pm.playbackOptions(max=True, query=True))
-    #     gap = pm.floatSliderButtonGrp(self.gap_ff, query=True, v=True)
-    #     for f in range(min_frame, max_frame + 1):
-    #         print "Randomizing frame: %s" % f
-    #         pm.currentTime(f)
-    #         cutl.assign_random_paints(painting_node, paint_spec, True)
-    #         cutl.assign_random_brushes(painting_node, brush_spec, True)
-    #         cutl.arrange_rings(painting_node, gap, True)
-    #     pm.currentTime(start_frame)
+        self.populate_random_res("random_paints_row")
+        self.populate_random_res("random_brushes_row")
 
-    # def on_random_rotations(self):
-    #     curves = pm.ls(
-    #         selection=True,
-    #         dag=True,
-    #         leaf=True,
-    #         type="nurbsCurve",
-    #         ni=True,
-    #         ut=True,
-    #         v=True)
-    #     cutl.randomize_ring_rotation(curves)
+    def save(self):
+        # board
+        var = "upov_spacing_row_en"
+        pm.optionVar[var] = pm.rowLayout(self.spacing_row, q=True, en=True)
 
-    # def on_auto_stroke_length(self):
-    #     min_strokes = pm.intSliderGrp(
-    #         self.min_strokes_ctl, q=True, v=True)
-    #     max_length = pm.floatSliderGrp(
-    #         self.max_length_ctl, q=True, v=True)
-    #     overlap = pm.floatSliderGrp(
-    #         self.overlap_ctl, q=True, v=True)
-    #     twist_angle = pm.floatSliderGrp(
-    #         self.twist_angle_ctl, q=True, v=True)
-    #     twist_distance = pm.floatSliderGrp(
-    #         self.twist_distance_ctl, q=True, v=True)
+        var = "upov_spacing_type_ctl"
+        pm.optionVar[var] = pm.radioButtonGrp(
+            self.spacing_type_ctl, q=True, sl=True)
 
-    #     # lift_length = pm.floatSliderGrppm.floatSliderGrp(
-    #     #     self.lift_length_ctl, q=True, v=True)
-    #     curves = pm.ls(
-    #         selection=True,
-    #         dag=True,
-    #         leaf=True,
-    #         type="nurbsCurve",
-    #         ni=True,
-    #         ut=True,
-    #         v=True)
-    #     if not curves:
-    #         raise pm.MayaNodeError("Must select curves")
-    #     cutl.auto_set_rings(
-    #         curves,
-    #         min_strokes,
-    #         max_length,
-    #         overlap,
-    #         twist_angle,
-    #         twist_distance)
+        var = "upov_spacing_ctl"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.spacing_ctl, q=True, value1=True)
+
+        var = "upov_max_extent_ctrl_en"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.max_extent_ctrl, q=True, en=True)
+
+        var = "upov_max_extent_ctrl"
+        pm.optionVar[var] = pm.floatFieldGrp(
+            self.max_extent_ctrl, q=True, v1=True)
+
+        self.save_random_res("random_paints_row")
+        self.save_random_res("random_brushes_row")
+
+
+    def populate_random_res(self, row_attribute):
+        row = getattr(self, row_attribute)
+        var = ("upov_%s_en" % row_attribute, True)
+        pm.rowLayout(row, e=True, en=pm.optionVar.get(var[0], var[1]))
+
+        text_ctrl, steps_ctrl, power_ctrl = row.getChildArray()
+
+        var = ("upov_%s_spec" % row_attribute, "0-15")
+        pm.textFieldGrp(
+            text_ctrl,
+            e=True,
+            text=pm.optionVar.get(
+                var[0],
+                var[1]))
+
+        var = ("upov_%s_steps" % row_attribute, -1)
+        pm.intFieldGrp(
+            steps_ctrl,
+            e=True,
+            value1=pm.optionVar.get(
+                var[0],
+                var[1]))
+
+        var = ("upov_%s_power" % row_attribute, 0.0)
+        pm.floatFieldGrp(
+            power_ctrl,
+            e=True,
+            value1=pm.optionVar.get(
+                var[0],
+                var[1]))
+
+
+    def save_random_res(self, row_attribute):
+
+        row = getattr(self, row_attribute)
+        opvar = "upov_%s_en" % row_attribute
+        pm.optionVar[opvar] = pm.rowLayout(row, q=True, en=True)
+
+        text_ctrl, steps_ctrl, power_ctrl = row.getChildArray()
+
+        var = "upov_%s_spec" % row_attribute
+        pm.optionVar[var] = pm.textFieldGrp(text_ctrl, q=True, text=True)
+
+        var = "upov_%s_steps" % row_attribute
+        pm.optionVar[var] = pm.intFieldGrp(steps_ctrl, q=True, value1=True)
+
+        var = "upov_%s_power" % row_attribute
+        pm.optionVar[var] = pm.floatFieldGrp(power_ctrl, q=True, value1=True)
+
+

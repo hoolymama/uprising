@@ -16,13 +16,15 @@ public:
 	  MArrayDataHandle &ha,
 	  MObject &colorAttribute,
 	  MObject &opacityAttribute,
-	  MObject &travelAttribute);
+	  MObject &travelAttribute,
+	  MObject &customIdAttribute);
 
 	Paint();
 
 	Paint( short id,
 	       MColor color,
-	       double travel);
+	       double travel,
+	       short customId);
 
 	~Paint();
 
@@ -31,6 +33,7 @@ public:
 	short id;
 	MColor color;
 	double travel;
+	short customId;
 };
 
 #endif

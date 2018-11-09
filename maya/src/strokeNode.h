@@ -31,6 +31,7 @@ public:
 
   static  MTypeId id;
 
+
 protected:
 
   virtual MStatus generateStrokeGeometry(MDataBlock &data,
@@ -39,12 +40,13 @@ protected:
   static MObject aPointDensity;
   static MObject aStrokeLength;
   static MObject aRandomLengthFactor;
-  static MObject aBackstroke;
   static MObject aRepeats;
   static MObject aRepeatOffset;
   static MObject aRepeatMirror;
   static MObject aRepeatOscillate;
   static MObject aSeed;
+
+  static MObject aStrokeDirection;
 
   static MObject aLiftLength;
   static MObject aLiftBias;

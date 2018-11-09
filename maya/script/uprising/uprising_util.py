@@ -9,6 +9,14 @@ from robolink import (Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TOOL, ITEM_TYPE_PROGR
 
 # RL = Robolink()
 
+
+
+def conform_activatable_checkbox(ctl):
+    val = ctl.getEnable()
+    form = ctl.parent()
+    cb = form.getChildArray()[-1]
+    pm.checkBox(cb, e=True, value=val)
+
 def assembly(node):
     top = node
     p = node.getParent()
@@ -29,6 +37,21 @@ def minimize_robodk():
         raise t, v, tb
     RL.ShowRoboDK()
 
+
+# @contextmanager
+# def minimize_robodk():
+#     RL = Robolink()
+#     # RL.HideRoboDK()
+#     try:
+#         yield
+#     except Exception:
+#         t, v, tb = sys.exc_info()
+#         # RL.ShowRoboDK()
+#         raise t, v, tb
+#     # RL.ShowRoboDK()
+
+
+
 @contextmanager
 def final_position(node):
     asy = assembly(node)
@@ -36,6 +59,16 @@ def final_position(node):
     asy.attr("zeroPosition").set(False)
     yield
     asy.attr("zeroPosition").set(zpos)
+
+@contextmanager
+def zero_position(node):
+    asy = assembly(node)
+    zpos = asy.attr("zeroPosition").get()
+    asy.attr("zeroPosition").set(True)
+    yield
+    asy.attr("zeroPosition").set(zpos)
+
+
 
 @contextmanager
 def filters_off(node):
@@ -204,6 +237,22 @@ def config_000_poses(pose):
     return result
 
 
+
+# def config_first_pose(pose):
+#     RL = Robolink()
+#     configs = {}
+#     result = []
+#     robot = RL.Item('', ITEM_TYPE_ROBOT)
+#     ik = robot.SolveIK_All(pose)
+#     siz = ik.size()   
+#     if not (ik and  siz[0] and  siz[1] and (len(ik.list()) > 5)):
+#         return result
+#     joint_poses = [el[0:6] for el in ik.list2()]
+#     for joint_pose in joint_poses:
+#         key = config_key(robot.JointsConfig(joint_pose))
+#         if key == "000":
+#             result.append(joint_pose)
+#     return result
 
 
 

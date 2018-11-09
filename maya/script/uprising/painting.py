@@ -1,16 +1,12 @@
 
-
+import math
 import pymel.core as pm
+# import const as k
 
-# from robolink import (
-#     Robolink,
-#     ITEM_TYPE_ROBOT,
-#     INSTRUCTION_CALL_PROGRAM,
-#     INSTRUCTION_SHOW_MESSAGE,
-#     RUNMODE_MAKE_ROBOTPROG,
-#     COLLISION_ON,
-#     COLLISION_OFF
-# )
+from robolink import (
+    INSTRUCTION_COMMENT,
+    INSTRUCTION_SHOW_MESSAGE
+)
 # import robodk as rdk
 
 from paint import Paint
@@ -19,10 +15,9 @@ from brush import Brush
 from cluster import (PaintingCluster, DipCluster)
 # from studio import Studio
 
-# from uprising_util import PaintingError
-
-# import uprising_util as uutl
-# import const as k
+from uprising_util import PaintingError
+import uprising_util as uutl
+import const as k
 
 
 import logging
@@ -42,7 +37,7 @@ class Painting(object):
         self.node = node
         self.brushes = Brush.brushes(node)
         self.paints = Paint.paints(node)
-
+        self.clusters = []
         self.motion = {
             "linear_speed": self.node.attr("linearSpeed").get() * 10,
             "angular_speed": self.node.attr("angularSpeed").get(),
@@ -50,11 +45,9 @@ class Painting(object):
         }
         logger.debug("Done initialize Painting")
 
-
     def create_clusters(self, c_type, robot):
 
         logger.debug("Create clusters")
-        self.clusters = []
 
         num_clusters = pm.paintingQuery(self.node, clusterCount=True)
         logger.debug("Number of clusters: %d" % num_clusters)
@@ -86,291 +79,134 @@ class Painting(object):
                 self.clusters.append(cluster)
 
     def write(self, studio):
+
+
         logger.debug("Write program")
         for brush in self.brushes:
             self.brushes[brush].write(studio)
 
         for cluster in self.clusters:
             cluster.write(studio, self.motion)
-       
 
 
+class Calibration(Painting):
+
+ 
+    PROGRAM_NAME = "xx"
+    FRAME_NAME = "xx_frame"
+    PAUSE_MESSAGE = "Please enter distance from tip to board:"
+    PROBE_SUFFIX = "base"
+
+
+    def __init__(self, node):
+        super(Calibration, self).__init__(node)
+        self.brush = Brush.brush_at_index(node, 0)
+        self.max_p2p_span = node.attr("maxPointToPointDistance").get()
+
+        assembly = uutl.assembly(self.node)
+        probe_group = pn = pm.PyNode("%s|jpos|probes" % assembly)
+        self.probes = probe_group.getChildren()
+        if not self.probes:
+            pm.warning("No probes")
+            raise PaintingError("No probes for calibration")
+
+    def write(self, studio):
+        self.brush.write(studio)
+        self.tool = studio.RL.Item(self.brush.name)
+        if not self.tool.Valid():
+            raise PaintingError(
+                "SERIOUS RISK OF DAMAGE! Can't find valid tool!")
+
+        self.program = uutl.create_program(self.PROGRAM_NAME)
+        self.frame = uutl.create_frame(self.FRAME_NAME)
+
+        self._write_setup(studio)
+
+        last = None
+        for probe in self.probes:
+            self._write_probe_stops(last, probe, studio)
+            self._write_one_probe(probe, studio)
+            last = probe
+        self.program.addMoveJ(studio.home_approach)
+
+    def _write_setup(self, studio):
+        self.program.setSpeed(
+            self.motion["linear_speed"],
+            self.motion["angular_speed"])
+        self.program.setRounding(self.motion["rounding"])
+        self.program.setPoseTool(self.tool)
+        self.program.RunInstruction(("Starting %s" % self.__class__.__name__.lower()) ,
+                                    INSTRUCTION_COMMENT)
+        self.program.addMoveJ(studio.tool_approach)
+        self.program.RunInstruction(
+            "Attach calibration Tool: %s PID:(%d)" %
+            (self.brush.name, self.brush.physical_id),
+            INSTRUCTION_SHOW_MESSAGE)
+        self.program.Pause()
+
+    def _write_probe_stops(self, a, b, studio):
+        if a and b:
+            approach_a = pm.PyNode("%s|approach" % a)
+            approach_b = pm.PyNode("%s|approach" % b)
+
+            tmat = pm.dt.TransformationMatrix(
+                approach_a.attr("worldMatrix[0]").get())
+            tx_a = approach_a.attr("worldMatrix[0]").get().translate
+            tx_b = approach_b.attr("worldMatrix[0]").get().translate
+
+            dist = (tx_b - tx_a).length()
+
+            if dist > self.max_p2p_span:
+                num_spans = math.ceil(dist / self.max_p2p_span)
+                gap = dist / num_spans
+                vec = (tx_b - tx_a).normal() * gap
+                for i in range(int(num_spans) - 1):
+                    tx_a += vec
+                    tmat.setTranslation(tx_a, "world")
+                    name = "%s_stop_%d" % (b, i)
+                    target = self._create_a_target(
+                        tmat.asMatrix(), name, studio)
+                    self.program.addMoveJ(target)
+
+    def _create_a_target(self, mat, name, studio):
+        tool_pose = uutl.maya_to_robodk_mat(mat)
+        flange_pose = tool_pose * self.brush.matrix.invH()
+        target = studio.RL.AddTarget(name, self.frame, studio.robot)
+        joints = studio.robot.SolveIK(flange_pose, k.FACING_BOARD_JOINTS)
+        target.setPose(tool_pose)
+        target.setJoints(joints)
+        return target
+
+    def _write_one_probe(self, probe_node, studio):
+        base_name = "%s_%s" % (probe_node, self.PROBE_SUFFIX)
+        base_node = pm.PyNode("%s|%s" % (probe_node, self.PROBE_SUFFIX))
+        base_mat = base_node.attr("worldMatrix[0]").get()
+
+        base_target = self._create_a_target(
+            base_mat, base_name, studio)
+
+        approach_name = "%s_approach" % probe_node
+        approach_node = pm.PyNode("%s|approach" % probe_node)
+        approach_mat = approach_node.attr("worldMatrix[0]").get()
 
+        approach_target = self._create_a_target(
+            approach_mat, approach_name, studio)
 
-# def progressStart(name, maxValue):
-#     pm.progressWindow(
-#         title=name,
-#         progress=0,
-#         maxValue=maxValue,
-#         status="Generating: %d/%d" % (0, maxValue),
-#         isInterruptable=True)
+        self.program.RunInstruction(("Moving to %s" % probe_node),
+                                    INSTRUCTION_COMMENT)
+        self.program.addMoveJ(approach_target)
+        self.program.addMoveL(base_target)
+        self.program.RunInstruction(
+            ("%s %s" % (self.PAUSE_MESSAGE, probe_node)),
+            INSTRUCTION_SHOW_MESSAGE)
+        self.program.Pause()
+        self.program.addMoveL(approach_target)
 
 
-# def progressUpdate(amount, maxValue):
-#     pm.progressWindow(
-#         edit=True,
-#         progress=amount,
-#         status="Generating: %d/%d" % (amount, maxValue))
-#     if pm.progressWindow(query=True, isCancelled=True):
-#         raise SystemExit("Cancelled by user")
 
 
-# def progressEnd():
-#     pm.progressWindow(endProgress=1)
-
-
-
-     
-    # def create_dip_subroutines(self):
-    #     RL = Robolink()
-    #     RL.Render(False)
-    #     # print "Creating dip subroutines"
-    #     num_clusters = len(self.clusters)
-    #     completed_clusters = 0
-    #     progressStart("Create RoboDK Dips", num_clusters)
-
-    #     robot = RL.Item('', ITEM_TYPE_ROBOT)
-
-    #     dip_frame = uutl.create_frame("dx_frame")
-    #     for cluster in self.clusters:
-    #         program = uutl.create_program(cluster.name())
-    #         cluster.write_program_comands(robot, program, dip_frame)
-    #         completed_clusters += 1
-    #         progressUpdate(completed_clusters, num_clusters)
-    #         program.ShowInstructions(False)
-    #     progressEnd()
-    #     RL.Render(True)
-
-
-    # def create_approaches(self):
-    #     logger.debug("Create approaches")
-
-    #     robot = self.RL.Item('', ITEM_TYPE_ROBOT)
-    #     targets_frame = uutl.create_frame("ax_frame")
-
-    #     for approach_object in self.approach_objects:
-    #         mat = self.approach_objects[approach_object]
-    #         configs = uutl.config_map(mat, "000")
-    #         if configs and "000" in configs:
-    #             joints = configs["000"][0]
-
-    #         target = self.RL.AddTarget(approach_object, targets_frame, self.studio.robot)
-    #         # Set the target as Cartesian (default)
-    #         target.setAsJointTarget()
-    #         target.setJoints(joints)
-
-
-# class Painting(PaintingBase):
-
-#     NAME = "px"
-
-#     def __init__(self, node):
-#         super(Painting, self).__init__(node)
-#         self.set_approach_objects()
-
-#         # self.start_joints = k.PAINTING_START_JOINTS
-
-#     def set_approach_objects(self):
-#         self.approach_objects = {}
-#         atts = [
-#             k.DIP_APPROACH,
-#             k.TOOL_CHANGE_APPROACH,
-#             k.HOME_APPROACH]
-#         for att in atts:
-#             mat = uutl.mat_from_connected(self.node.attr(att), "world")
-#             if mat:
-#                 self.approach_objects[att] = mat
-
-
-#     def write(self):
-#         logger.debug("Write program")
-
-#         # RL = Robolink()
-#         # RL.Render(False)
-#         num_clusters = len(self.clusters)
-#         completed_clusters = 0
-#         # progressStart("Create RoboDK Painting", num_clusters)
-
-
-#         main_program = uutl.create_program(self.NAME)
-#         main_frame = uutl.create_frame("%s_frame" % self.NAME)
-
-#         self.create_approaches()
-
-#         for cluster in self.clusters:
-#             cluster.write(self.NAME, main_program, main_frame, self.robot, self.RL)
-#             # completed_clusters += 1
-#             # progressUpdate(completed_clusters, num_clusters)
-
-        # home = RL.Item(k.HOME_APPROACH)
-        # if not home.Valid():
-        #     home = RL.Item(k.TOOL_CHANGE_APPROACH)
-        # if home.Valid():
-        #     main_program.addMoveJ(home)
-
-        # make sure the robot is in a sensible place
-
-        # robot.setJoints(k.HOME_JOINTS)
-
-        # main_program.ShowInstructions(False)
-        # progressEnd()
-        # RL.Render(True)
-
-    # def _create_clusters(self, is_dip):
-    #     RL = Robolink()
-    #     robot = RL.Item('', ITEM_TYPE_ROBOT)
-    #     positions = self.node.attr("outPosition").get()
-
-    #     if not positions:
-    #         return
-
-    #     rotations = self.node.attr("outRotation").get()
-    #     counts = self.node.attr("outCounts").get()
-    #     brush_ids = self.node.attr("outBrushIds").get()
-    #     paint_ids = self.node.attr("outPaintIds").get()
-    #     curve_ids = self.node.attr("outCurveIds").get()
-    #     force_dips = self.node.attr("outForceDips").get()
-    #     arc_lengths = self.node.attr("outArcLengths").get()
-
-    #     start_approach_dists = self.node.attr("outApproachStarts").get()
-    #     end_approach_dists = self.node.attr("outApproachEnds").get()
-
-    #     linear_speed = self.node.attr("linearSpeed").get() * 10
-    #     angular_speed = self.node.attr("angularSpeed").get()
-    #     rounding = self.node.attr("approximationDistance").get() * 10
-
-    #     planeMat = self.node.attr("outPlaneMatrixWorld").get()
-    #     # approach_dist = self.node.attr("strokeApproachDistance").get()
-    #     planeNormal = (pm.dt.Vector(0, 0, 1) * planeMat).normal()
-    #     # approach = planeNormal * approach_dist
-
-    #     tangents = [(t * planeMat).normal()
-    #                 for t in self.node.attr("outTangents").get()]
-
-    #     # clusterApproachMat = uutl.mat_from_connected(
-    #     #     self.node.attr("clusterApproachObject"), "world")
-    #     # toolChangeApproachMat = uutl.mat_from_connected(
-    #     #     self.node.attr("toolChangeApproachObject"), "world")
-    #     # homeApproachMat = uutl.mat_from_connected(
-    #     #     self.node.attr("homeApproachObject"), "world")
-
-    #     num_strokes = len(counts)
-    #     completed_strokes = 0
-    #     progressStart("Generate stroke configurations", num_strokes)
-
-    #     self.clusters = []
-    #     cluster_id = 0
-    #     start = 0
-
-    #     cluster = None
-    #     last_curve_id = -1
-
-    #     for i, count in enumerate(counts):
-    #         new_brush = self.brushes.get(brush_ids[i])
-    #         new_paint = self.paints.get(paint_ids[i])
-    #         curve_name = self.curve_names.get(curve_ids[i])
-
-    #         start_approach_dist = start_approach_dists[i]
-    #         end_approach_dist = end_approach_dists[i]
-
-    #         if curve_ids[i] != last_curve_id:
-    #             last_curve_id = curve_ids[i]
-    #             curve_stroke_id = 0
-
-    #         if cluster:
-    #             change_reason = cluster.should_change(
-    #                 new_brush, new_paint, force_dips[i])
-    #         else:
-    #             change_reason = "tool"
-
-    #         if change_reason:
-    #             if cluster:
-    #                 self.clusters.append(cluster)
-
-    #             cluster = Cluster.create(
-    #                 is_dip=is_dip,
-    #                 cluster_id=cluster_id,
-    #                 robot=robot,
-    #                 brush=new_brush,
-    #                 paint=new_paint,
-    #                 linear_speed=linear_speed,
-    #                 angular_speed=angular_speed,
-    #                 rounding=rounding,
-    #                 reason=change_reason)
-    #             cluster_id += 1
-
-    #         end = start + count
-
-    #         try:
-    #             stroke = Stroke(robot,
-    #                             positions[start:end],
-    #                             rotations[start:end],
-    #                             tangents[start:end],
-    #                             new_brush,
-    #                             new_paint,
-    #                             arc_lengths[i],
-    #                             planeNormal,
-    #                             start_approach_dist,
-    #                             end_approach_dist,
-    #                             curve_name,
-    #                             curve_stroke_id
-    #                             )
-    #             cluster.build_stroke(stroke)
-
-    #         except StrokeError as e:
-    #             print "Can't build stroke %s : %d" % (
-    #                 curve_name, curve_stroke_id)
-    #             print e.message
-
-    #         # we update the stroke id even if a stroke failed to build
-    #         curve_stroke_id += 1
-    #         start = end
-    #         completed_strokes += 1
-
-    #         progressUpdate(completed_strokes, num_strokes)
-
-    #     self.clusters.append(cluster)
-    #     progressEnd()
-
-    # def create_painting_program(self):
-
-    #     # make sure nothing is selected
-
-    #     RL = Robolink()
-    #     RL.Render(False)
-    #     num_clusters = len(self.clusters)
-    #     completed_clusters = 0
-    #     progressStart("Create RoboDK Painting", num_clusters)
-
-    #     robot = RL.Item('', ITEM_TYPE_ROBOT)
-
-    #     main_program = uutl.create_program("px")
-    #     main_frame = uutl.create_frame("px_frame")
-
-    #     self.create_approaches()
-
-    #     for cluster in self.clusters:
-    #         cluster.write_program_comands(robot, main_program, main_frame)
-    #         completed_clusters += 1
-    #         progressUpdate(completed_clusters, num_clusters)
-
-    #     home = RL.Item(k.HOME_APPROACH)
-    #     if not home.Valid():
-    #         home = RL.Item(k.TOOL_APPROACH)
-    #     if home.Valid():
-    #         main_program.addMoveJ(home)
-
-    #     # make sure the robot is in a sensible place
-
-    #     robot.setJoints(k.HOME_JOINTS)
-
-    #     # main_program.ShowInstructions(False)
-    #     progressEnd()
-    #     RL.Render(True)
-
-
-# class Dip(PaintingBase):
-#     NAME = "dx"
-#     def __init__(self, node):
-#         super(Painting, self).__init__(node)
-#         self.start_joints = k.DIP_START_JOINTS
+class Verification(Calibration):
+    PROGRAM_NAME = "vx"
+    FRAME_NAME = "vx_frame"
+    PAUSE_MESSAGE = "Please check the tip is touching the board:"
+    PROBE_SUFFIX = "actual"

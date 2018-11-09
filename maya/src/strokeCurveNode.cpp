@@ -309,7 +309,10 @@ void strokeCurve::setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
     }
 }
 
+// bool shouldBeBackstroke(MFnNurbsCurve &curveFn,  double startDist, double endDist, strokeDirection)
+// {
 
+// }
 
 MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
         std::vector < strokeGeom > *geom) const
@@ -353,7 +356,8 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
     double approachMid = hApproachDistance.child(aApproachDistanceMid).asDouble();
     double approachEnd = hApproachDistance.child(aApproachDistanceEnd).asDouble();
 
-    bool backstroke = data.inputValue(aBackstroke).asBool();
+    Stroke::DirectionMethod strokeDirection = Stroke::DirectionMethod(data.inputValue(
+                aStrokeDirection).asShort());
 
     short repeats = data.inputValue(aRepeats).asShort();
     double repeatOffset = data.inputValue(aRepeatOffset).asDouble();
@@ -395,15 +399,20 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
 
 
     MObject thisObj = thisMObject();
-
+    // cerr << "strokeCurveNode-----" <<  endl;
     for (int i = 0; i < numStrokeGroups; ++i) {
         const double &startDist = boundaries[i].x;
         const double &endDist = boundaries[i].y;
 
+        // bool backstroke = shouldBeBackstroke(startDist, endDist, strokeDirection);
+
+
+
+
+
         unsigned strokeGroupSize = Stroke::createFromCurve(
                                        thisObj,
                                        dCurve,
-                                       // inversePlaneMatrix,
                                        planeNormal,
                                        curveLength,
                                        startDist,
@@ -416,7 +425,7 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
                                        strokeProfileScaleMin,
                                        strokeProfileScaleMax,
                                        rotSpec,
-                                       backstroke,
+                                       strokeDirection,
                                        repeats,
                                        repeatOffset,
                                        repeatMirror,
@@ -424,6 +433,7 @@ MStatus strokeCurve::generateStrokeGeometry(MDataBlock &data,
                                        pivotFraction,
                                        strokes);
     }
+    // cerr << "--------" << endl;
 
     setApproach(
         strokes, approachStart, approachMid, approachEnd);

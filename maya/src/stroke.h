@@ -22,6 +22,8 @@ public:
 
 	// enum Scope { kStroke, kTravelStroke, kCurve };
 
+	enum DirectionMethod { kForwards, kBackwards, kStartUppermost, kEndUppermost  };
+
 	Stroke();
 
 	Stroke(	const Stroke 	&other	)	;
@@ -46,7 +48,7 @@ public:
 	  double strokeProfileScaleMin,
 	  double strokeProfileScaleMax,
 	  const StrokeRotationSpec &rotSpec,
-	  bool backstroke,
+	  DirectionMethod strokeDirection,
 	  int repeats,
 	  double repeatOffset,
 	  bool repeatMirror,

@@ -61,9 +61,7 @@ def send_object(node, parent):
 
 def send(objects, frame=None):
     transforms = pm.ls(objects, transforms=True)
-    print transforms
     dups = pm.duplicate(transforms)
-    print dups
     for dup in dups:
         for att in ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]:
             dup.attr(att).setLocked(False)

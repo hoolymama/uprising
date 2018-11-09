@@ -16,9 +16,11 @@
 #include "cImgData.h"
 
 #include "cImgFile.h"
+#include "cImgExpr.h"
+
 #include "cImgNode.h"
 #include "cImgDetail.h"
-#include "cImgIndex.h"
+// #include "cImgIndex.h"
 #include "cImgQuantize.h"
 #include "cImgDistinct.h"
 
@@ -26,6 +28,8 @@
 #include "cImgShader.h"
 #include "cImgGradSampler.h"
 #include "cImgUVSampler.h"
+
+#include "cImgNoise.h"
 
 #include "cImgIndexSampler.h"
 
@@ -63,6 +67,10 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "cImgFile", cImgFile::id, cImgFile::creator,
 	                          cImgFile::initialize); msert;
 
+	st = plugin.registerNode( "cImgExpr", cImgExpr::id, cImgExpr::creator,
+	                          cImgExpr::initialize); msert;
+
+
 	st = plugin.registerNode( "cImgPngFile", cImgPngFile::id, cImgPngFile::creator,
 	                          cImgPngFile::initialize); msert;
 
@@ -76,8 +84,12 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "cImgDetail", cImgDetail::id, cImgDetail::creator,
 	                          cImgDetail::initialize); msert;
 
-	st = plugin.registerNode( "cImgIndex", cImgIndex::id, cImgIndex::creator,
-	                          cImgIndex::initialize); msert;
+	st = plugin.registerNode( "cImgNoise", cImgNoise::id, cImgNoise::creator,
+	                          cImgNoise::initialize); msert;
+
+
+	// st = plugin.registerNode( "cImgIndex", cImgIndex::id, cImgIndex::creator,
+	//                           cImgIndex::initialize); msert;
 
 	st = plugin.registerNode( "cImgQuantize", cImgQuantize::id, cImgQuantize::creator,
 	                          cImgQuantize::initialize); msert;
@@ -185,14 +197,17 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterNode( cImgQuantize::id); mser;
 
 	st = plugin.deregisterNode( cImgDistinct::id); mser;
-	st = plugin.deregisterNode( cImgIndex::id); mser;
+	st = plugin.deregisterNode( cImgNoise::id); mser;
 	st = plugin.deregisterNode( cImgDetail::id); mser;
 	st = plugin.deregisterNode( cImgProcess::id); mser;
 
 
 
 	st = plugin.deregisterNode( cImgPngFile::id); mser;
+
+	st = plugin.deregisterNode( cImgExpr::id); mser;
 	st = plugin.deregisterNode( cImgFile::id); mser;
+
 	st = plugin.deregisterData( cImgData::id); mser;
 
 

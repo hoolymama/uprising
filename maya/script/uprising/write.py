@@ -27,10 +27,13 @@ def split_desc(desc):
 
 
 def clean_rdk():
-    RL = Robolink()
-    for station in RL.getOpenStations():
-        station.Delete()
-    RL.AddFile(CLEAN_FILE)
+    pass
+    # RL = Robolink()
+    # for station in RL.getOpenStations():
+    #     station.Delete()
+    # RL.AddFile(CLEAN_FILE)
+
+
 
 
 def publish_proposal(
@@ -62,27 +65,7 @@ def publish_proposal(
         timestamp,
         frame_range,
         clean_top)
-
-    # for frame in range(frame_range[0], frame_range[1] + 1):
-    #     pm.currentTime(frame)
-    #     timestamp = get_timestamp(frame)
-    #     ts_dir = get_ts_dir(export_dir, timestamp)
-    #     mkdir_p(ts_dir)
-    #     desc, notes = split_desc(description.replace("#f", str(frame)))
-    #     print "Desc: %s" % desc
-    #     print "Notes: %s" % notes
-
-    #     write_log(
-    #         painting_node,
-    #         dip_node,
-    #         ts_dir,
-    #         timestamp,
-    #         desc,
-    #         notes,
-    #         frame)
-    # write_maya_scene(ts_dir, timestamp)
-    # write_ref_image(ts_dir, timestamp)
-
+ 
 
 def run_hook(code):
     if not code:
@@ -109,14 +92,15 @@ def publish_sequence(
         medium,
         ground,
         frame_range,
-        maya_only,
+        do_painting,
+        do_verify,
         save_unfiltered_snapshot,
         pre_frame_py):
     # RL = Robolink()
     # clean_rdk()
-    print "x" * 20
-    print "painting_node: %s" % painting_node
-    print "dip_node: %s" % dip_node
+    # print "x" * 20
+    # print "painting_node: %s" % painting_node
+    # print "dip_node: %s" % dip_node
 
     recordings_dir = os.path.join(export_dir, "recordings")
     mkdir_p(recordings_dir)
@@ -128,6 +112,7 @@ def publish_sequence(
             ts = get_timestamp()
             write_ref_image(design_dir, ts)
 
+
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
         run_hook(pre_frame_py)
@@ -135,13 +120,14 @@ def publish_sequence(
         ts_dir = get_ts_dir(export_dir, timestamp)
         mkdir_p(ts_dir)
         desc, notes = split_desc(description.replace("#f", str(frame)))
-        print "Desc: %s" % desc
-        print "Notes: %s" % notes
+        # print "Desc: %s" % desc
+        # print "Notes: %s" % notes
 
         setup_dip.doit()
         write_maya_scene(ts_dir, timestamp)
-        write_ref_image(ts_dir, timestamp)
         write_csv(export_dir, timestamp, desc, notes, medium, ground)
+
+        write_ref_image(ts_dir, timestamp)
 
         write_log(
             painting_node,
@@ -152,31 +138,44 @@ def publish_sequence(
             notes,
             frame)
 
-        if not maya_only:
-            # try:
-            publish_robodk_parts(painting_node, dip_node, ts_dir, timestamp)
-            # except:
-            #     write_error = True
+        if do_painting or do_verify:
+            kw = {}
+            if do_painting:
+                kw["painting_node"] = painting_node
+                kw["dip_node"] = dip_node
+            if do_verify:
+                kw["verification_node"] = painting_node
 
-            # setup_dip.doit()
-            # with uutl.minimize_robodk():
-            #     studio = Studio(painting_node, dip_node)
-            #     studio.write()
-            # write_station(RL, ts_dir, timestamp)
-            # write_program(RL, ts_dir, timestamp)
+            publish_robodk_painting(ts_dir, timestamp, **kw)
 
 
-def publish_robodk_parts(painting_node, dip_node, ts_dir, timestamp):
+def publish_robodk_painting(ts_dir, timestamp, **kw):
     RL = Robolink()
     clean_rdk()
 
     with uutl.minimize_robodk():
-        studio = Studio(painting_node, dip_node, calibration=True)
+        studio = Studio(**kw)
         studio.write()
     write_station(RL, ts_dir, timestamp)
-    write_program(RL, ts_dir, "xx", timestamp)
-    write_program(RL, ts_dir, "px", timestamp)
 
+    if kw.get("painting_node"):
+        write_program(RL, ts_dir, "px", timestamp)
+    if kw.get("verification_node"):
+        write_program(RL, ts_dir, "vx", timestamp)
+
+def publish_calibration_program(directory, node):
+    calibration_dir = os.path.join(directory, "calibrations")
+    mkdir_p(calibration_dir)
+
+    RL = Robolink()
+    clean_rdk()
+    timestamp = get_timestamp()
+    ts_dir = get_ts_dir(calibration_dir, timestamp)
+
+    with uutl.minimize_robodk():
+        studio = Studio(calibration_node=node)
+        studio.write()
+    write_program(RL, ts_dir, "xx", timestamp)
 
 def mkdir_p(path):
     try:
@@ -187,7 +186,6 @@ def mkdir_p(path):
         else:
             raise
 
-
 def choose_publish_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'export')
     entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
@@ -196,7 +194,6 @@ def choose_publish_dir():
         pm.displayWarning('Nothing Selected')
         return
     return entries[0]
-
 
 def choose_proposal_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'proposals')
@@ -207,7 +204,6 @@ def choose_proposal_dir():
         return
     return entries[0]
 
-
 def get_timestamp(suffix=None):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
 
@@ -215,10 +211,8 @@ def get_timestamp(suffix=None):
         timestamp = "%s_%s" % (timestamp, suffix)
     return timestamp
 
-
 def get_ts_dir(containing_dir, timestamp):
     return os.path.join(containing_dir, timestamp)
-
 
 def write_csv(export_dir, timestamp, description, notes, medium, ground):
     if description:
@@ -248,7 +242,6 @@ def write_csv(export_dir, timestamp, description, notes, medium, ground):
         the_file.write(line)
         the_file.write("\n")
 
-
 def write_ref_image(dest_dir, timestamp, res=1024):
 
     # TODO - make sure its active panel and
@@ -269,7 +262,6 @@ def write_ref_image(dest_dir, timestamp, res=1024):
         compression="tif",
         quality=100,
         widthHeight=(res, res))
-
 
 def write_image_sequence(
         painting_node,
@@ -295,7 +287,6 @@ def write_image_sequence(
 def setup_clean_top(painting_node):
     pass
 
-
 def write_program(RL, ts_dir, progname, timestamp):
     prog_filename = "%s_%s" % (progname.upper(), timestamp)
     program = RL.Item(progname)
@@ -319,10 +310,7 @@ def write_maya_scene(ts_dir, timestamp):
 
 
 def _painting_stats(node):
-    # print "_painting_stats %s" % node
-    pm.refresh()
     cluster_count = pm.paintingQuery(node, cc=True)
-    # print "GIT HERE %s" % cluster_count
     stroke_count = 0
     reason_result = {"dip": 0, "tool": 0, "tcp": 0}
     for i in range(cluster_count):
@@ -341,13 +329,11 @@ def _painting_stats(node):
     }
     return result
 
-
 def _used_paints(painting_node):
     ids = pm.paintingQuery(painting_node, dc=True)[1::2]
     ids = sorted(set(ids))
     paints = Paint.paints(painting_node)
     return [paints[_id] for _id in ids]
-
 
 def write_log(
         painting_node,

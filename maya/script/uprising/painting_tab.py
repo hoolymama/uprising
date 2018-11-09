@@ -2,20 +2,13 @@ import sys
 import re
 import pymel.core as pm
 
-# import setup_dip
 import curve_utils as cutl
 import brush_utils as butl
 import culling
 
-
-# import paint_utils as putl
-
-# from setup_dip import setup_dip_factory
-
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
-# import painting as pnt
-# from studio import Studio
+
 from robolink import (
     Robolink
 )
@@ -33,74 +26,7 @@ class PaintingTab(gui.FormLayout):
 
     def create_buttons(self):
         pm.setParent(self.column)
-
-        pm.button(
-            label='Select strokes from curves',
-            ann="Choose curves to select connected strokeCurves",
-            command=pm.Callback(self.on_select_strokes))
-
-        pm.button(
-            label='Select curves below',
-            command=pm.Callback(self.on_select_curves_below))
-
-        pm.button(
-            label='Duplicate curves with strokes',
-            ann="Duplicate selected curves and add to selected painting node",
-            command=pm.Callback(self.duplicate_curves_to_painting))
-
-        pm.button(
-            label='Add curves to painting in order',
-            ann="Add selected curves to selected painting node. If they are already connected, disconnect and add in the order they are selected",
-            command=pm.Callback(
-                self.add_curves_to_painting))
-
-        pm.button(
-            label='Reverse order of selected curves',
-            command=pm.Callback(self.reverse_connection_order))
-
-        # pm.rowLayout(numberOfColumns=2,
-        #              columnWidth2=(
-        #                  (100), 100),
-        #              adjustableColumn=1,
-        #              columnAlign=(1, 'right'),
-        #              columnAttach=[(1, 'both', 2), (2, 'both', 2)])
-        pm.button(
-            label='Remove curves from painting',
-            ann="Break selected curve connections",
-            command=pm.Callback(self.on_remove_curve_instances))
-
-        # delete_curves = 1
-        # self.delete_curves_cb = pm.checkBox(
-        #     label='Force',
-        #     value=delete_curves,
-        #     annotation='Also delete curves')
-
-        # pm.setParent('..')
-
-        pm.button(
-            label='Connect curve visibility',
-            ann="Connect curve visibility to stroke active",
-            command=pm.Callback(self.on_connect_curve_vis_active))
-
-        pm.button(
-            label='Disconnect curve visibility',
-            ann="Disconnect curve visibility from stroke active",
-            command=pm.Callback(self.on_disconnect_curve_vis_active))
-
-        pm.button(
-            label='Remove unconnected strokeCurves',
-            ann="Delete strokeCurves that are connected to selected curves but which have no destination painting",
-            command=pm.Callback(
-                self.on_remove_hanging_stroke_curves))
-
-
-        pm.button(
-            label='Cleanup curve plugs',
-            ann="Remove unconnected strokeCurve plugs on selected painting",
-            command=pm.Callback(
-                self.on_cleanup_curve_plugs))
-
-
+ 
         
         pm.rowLayout(
             numberOfColumns=6, columnWidth6=(
@@ -134,10 +60,6 @@ class PaintingTab(gui.FormLayout):
 
         pm.setParent('..')
 
-        pm.button(
-            label='Contain strokes to mesh',
-            ann="Choose a mesh and either some curves or strokeCurves",
-            command=pm.Callback(self.on_contain_strokes_in_mesh))
 
         self.rename_inputs_tf = pm.textFieldButtonGrp(
             label='Rename',
@@ -197,197 +119,39 @@ class PaintingTab(gui.FormLayout):
         )
 
 
-        # pm.rowLayout(numberOfColumns=3,
-        #              columnWidth3=(120, 80, 80),
-        #              adjustableColumn=1,
-        #              columnAlign=(1, 'right'),
-        # columnAttach=[(1, 'both', 2), (2, 'both', 2), (3, 'both', 2)])
-
-        # self.paint_brush_field =  pm.intFieldGrp(numberOfFields=2, label="Brush / Paint")
-        # pm.button(
-        #     label='Cull before' ,
-        #     command=pm.Callback(self.on_cull_before))
-
-        # pm.button(
-        #     label='Cull after' ,
-        #     command=pm.Callback(self.on_cull_after))
-
-        # pm.button(
-        #     label='Create dip subroutines',
-        #     command=pm.Callback(self.on_create_dip_only))
-
-        # pm.button(
-        #     label='Send brushes',
-        #     command=pm.Callback(self.on_send_brushes))
-
-        # pm.button(
-        #     label='Delete curve instances',
-        #     command=pm.Callback(self.on_delete_curve_instances))
-
-        # pm.button(
-        #     label='Set up dip stroke factory',
-        #     command=pm.Callback(self.on_setup_dip))
-
-        # pm.button(
-        #     label='Write program, station, simulation',
-        #     command=pm.Callback(write.write_program))
-
-        # pm.button(
-        #     label='Export approach objects',
-        #     command=pm.Callback(self.on_send_approach_targets))
-
-        # pm.button(
-        #     label='Set board transform from spreadsheet',
-        #     command=pm.Callback(self.set_board_transform_from_sheet))
-
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        cancel_but = pm.button(label='Cancel')
+        save_but = pm.button(label='Save', command=pm.Callback(self.save))
         go_but = pm.button(label='Go')
 
         self.attachForm(self.column, 'left', 2)
         self.attachForm(self.column, 'right', 2)
         self.attachForm(self.column, 'top', 2)
-        self.attachControl(self.column, 'bottom', 2, cancel_but)
+        self.attachControl(self.column, 'bottom', 2, save_but)
 
-        self.attachNone(cancel_but, 'top')
-        self.attachForm(cancel_but, 'left', 2)
-        self.attachPosition(cancel_but, 'right', 2, 50)
-        self.attachForm(cancel_but, 'bottom', 2)
+        self.attachNone(save_but, 'top')
+        self.attachForm(save_but, 'left', 2)
+        self.attachPosition(save_but, 'right', 2, 50)
+        self.attachForm(save_but, 'bottom', 2)
 
         self.attachNone(go_but, 'top')
         self.attachForm(go_but, 'right', 2)
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
-    def on_select_strokes(self):
-        curves = pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type="nurbsCurve",
-            ni=True,
-            ut=True)
-        pm.select(
-            pm.listHistory(
-                curves,
-                future=True,
-                levels=1,
-                type="strokeCurve"))
+    def populate(self):
+        pass
+        # val = "default"
+        # if "up_setup_palette_name" in pm.optionVar:
+        #     val = pm.optionVar["up_setup_palette_name"]
+        # print val
+        # pm.textFieldGrp(self.setup_paints_tf, e=True, text=val)
 
-    def on_select_curves_below(self):
-        pm.select(pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type="nurbsCurve",
-            ni=True,
-            ut=True))
-
-    def add_curves_to_painting(self):
-        node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
-        if not node:
-            raise IndexError("No painting node selected")
-        curves = pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type=("nurbsCurve", "strokeCurve"),
-            ni=True)
-
-        stroke_curves = pm.listConnections(
-            curves, d=True,
-            s=False,
-            type="strokeCurve")
-
-        painting_conns = pm.listConnections(
-            stroke_curves, d=True,
-            s=False,
-            type="painting",
-            c=True, p=True)
-        for conn in painting_conns:
-            conn[0] // conn[1]
-
-        for curve in curves:
-            cutl.connect_curve_to_painting(
-                curve, node, connect_to="next_available")
-
-    def reverse_connection_order(self):
-        curves = pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type=("nurbsCurve", "strokeCurve"),
-            ni=True)
-
-        stroke_curves = pm.listConnections(
-            curves, d=True,
-            s=False,
-            type="strokeCurve")
-
-        painting_conns = pm.listConnections(
-            stroke_curves, d=True,
-            s=False,
-            type="painting",
-            c=True, p=True)
-
-        for conn in painting_conns:
-            conn[0] // conn[1]
-
-        c1, c2 = zip(*painting_conns)
-        painting_conns = zip(list(c1), reversed(list(c2)))
-
-        for conn in painting_conns:
-            conn[0] >> conn[1]
-
-    def duplicate_curves_to_painting(self):
-        # node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
-        # if not node:
-        #     raise IndexError("No painting node selected")
-        curves = pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type="nurbsCurve",
-            ni=True)
-        for curve in curves:
-            cutl.duplicate_curve_to_painting(curve)
-
-
-
-    def on_cleanup_curve_plugs(self):
-        paintings = pm.ls(selection=True, type="painting")
-        for p in paintings:
-           cutl.remove_unconnected_curve_plugs(p)
-
-    def on_remove_curve_instances(self):
-
-        curves = pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type="nurbsCurve",
-            ni=True)
-
-        cutl.delete_curve_instances(curves)
-
-    def on_remove_hanging_stroke_curves(self):
-        curves = pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type="nurbsCurve",
-            ni=True,
-            ut=True,
-            v=True)
-        stroke_curves = pm.listConnections(
-            curves, d=True, s=False, type="strokeCurve")
-        for sc in stroke_curves:
-            paintings = pm.listConnections(
-                sc.attr("output"), d=True, s=False, type="painting")
-            if not paintings:
-                pm.delete(sc)
+    def save(self):
+        pass
+        # val = pm.textFieldButtonGrp(self.setup_paints_tf, q=True, text=True)
+        # pm.optionVar["up_setup_palette_name"] = val
 
     def on_propagate_profile_ramp(self):
         flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
@@ -406,24 +170,7 @@ class PaintingTab(gui.FormLayout):
         flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
         cutl.propagate_ramp_attribute(
             "brushTwistRamp", "brushTwistRange", flat)
-
-    def on_contain_strokes_in_mesh(self):
-        curves = pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type="nurbsCurve",
-            ni=True)
-
-        meshes = pm.ls(
-            selection=True,
-            dag=True,
-            leaf=True,
-            type="mesh",
-            ni=True)
-
-        cutl.contain_strokes_in_mesh(curves, meshes[0])
-
+ 
     def on_rename_inputs(self):
 
         templates = [
@@ -509,10 +256,6 @@ class PaintingTab(gui.FormLayout):
             stroke_curve=cutl.get_stroke_curve(curve)
             attr = stroke_curve.attr(attr_name)
             butl.set_stroke_curve_att_from_brush_tip(attr, mult, offset)
-
-# setAttr "cShape9_SC1.liftLength" 2.65;
-# setAttr "cShape9_SC1.liftHeight" 1.09;
-# setAttr "cShape9_SC1.liftBias" 1.2;
 
 
     def on_tip_length_to_lift_length(self):

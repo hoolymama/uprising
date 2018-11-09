@@ -45,12 +45,12 @@ class ValidateTab(gui.FormLayout):
         )
 
         self.send_paintings_cb = pm.checkBoxGrp(
-            numberOfCheckBoxes=3,
+            numberOfCheckBoxes=4,
             height=30,
             label='Create components',
-            labelArray3=['Painting', 'Dips', "Calibration"],
-            valueArray3=[True, False, False],
-            columnWidth4=(180, 120, 120, 120)
+            labelArray4=['Painting', 'Dips', "Calibrate", "Verify"],
+            valueArray4=[False, False, False, False],
+            columnWidth5=(180, 90,90,90,90)
         )
 
         self.send_selected_props_cb = pm.checkBoxGrp(
@@ -112,23 +112,36 @@ class ValidateTab(gui.FormLayout):
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        cancel_but = pm.button(label='Cancel')
+        save_but = pm.button(label='Save', command=pm.Callback(self.save))
         go_but = pm.button(label='Go', command=pm.Callback(self.on_go))
 
         self.attachForm(self.column, 'left', 2)
         self.attachForm(self.column, 'right', 2)
         self.attachForm(self.column, 'top', 2)
-        self.attachControl(self.column, 'bottom', 2, cancel_but)
+        self.attachControl(self.column, 'bottom', 2, save_but)
 
-        self.attachNone(cancel_but, 'top')
-        self.attachForm(cancel_but, 'left', 2)
-        self.attachPosition(cancel_but, 'right', 2, 50)
-        self.attachForm(cancel_but, 'bottom', 2)
+        self.attachNone(save_but, 'top')
+        self.attachForm(save_but, 'left', 2)
+        self.attachPosition(save_but, 'right', 2, 50)
+        self.attachForm(save_but, 'bottom', 2)
 
         self.attachNone(go_but, 'top')
         self.attachForm(go_but, 'right', 2)
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
+
+    def populate(self):
+        pass
+        # val = "default"
+        # if "up_setup_palette_name" in pm.optionVar:
+        #     val = pm.optionVar["up_setup_palette_name"]
+        # print val
+        # pm.textFieldGrp(self.setup_paints_tf, e=True, text=val)
+
+    def save(self):
+        pass
+        # val = pm.textFieldButtonGrp(self.setup_paints_tf, q=True, text=True)
+        # pm.optionVar["up_setup_palette_name"] = val
 
     def on_go(self):
         do_simple = pm.frameLayout(self.simple_frame_wg, query=True, en=True)
@@ -175,25 +188,30 @@ class ValidateTab(gui.FormLayout):
 
 
     def do_simple_validation(self):
-        send_painting = pm.checkBoxGrp(
-            self.send_paintings_cb, query=True, value1=True)
-        send_dips = pm.checkBoxGrp(
-            self.send_paintings_cb, query=True, value2=True)
-        send_calibration = pm.checkBoxGrp(
-            self.send_paintings_cb, query=True, value3=True)
+
+
+        send = pm.checkBoxGrp( self.send_paintings_cb, query=True, valueArray4=True)
+
+
+        kw = {}
+        if send[0]:
+            kw["painting_node"] = pm.PyNode( "mainPaintingShape") 
+        if send[1]:
+            kw["dip_node"] = pm.PyNode("dipPaintingShape")
+        if send[2]:
+            kw["calibration_node"] = pm.PyNode( "mainPaintingShape") 
+        if send[3]:
+            kw["verification_node"] = pm.PyNode( "mainPaintingShape") 
+
         send_selected_props = pm.checkBoxGrp(
             self.send_selected_props_cb, query=True, value1=True)
 
-        painting_node = pm.PyNode(
-            "mainPaintingShape") if send_painting else None
-        dip_node = pm.PyNode("dipPaintingShape") if send_dips else None
-
-        if painting_node or dip_node:
+        if sum(send):
             with uutl.minimize_robodk():
-                studio = Studio(painting_node, dip_node, calibration=send_calibration)
+                studio = Studio(**kw)
                 studio.write()
 
-        if painting_node:
+        if kw.get("painting_node"):
             path_result = self.validate_path(studio.painting_program)
             msg = self.format_path_result(path_result, {})
             pm.confirmDialog(
@@ -206,34 +224,6 @@ class ValidateTab(gui.FormLayout):
 
         if send_selected_props:
             props.send(pm.ls(selection=True))
-
-    # def hide_objects(self, obs):
-    #     for o in obs:
-    #         if o.type() == "strokeCurve":
-    #             xf = cutl.get_curve(o).getParent()
-    #         elif  o.type() == "nurbsCurve":
-    #             xf = o.getParent()
-    #         elif o.type() == "transform":
-    #             xf = o
-    #         else:
-    #             pm.warning("Cant get transform")
-    #             return
-    #         xf.attr("visibility").set(0)
-
-
-    # def show_objects(self, obs):
-    #     for o in obs:
-    #         if o.type() == "strokeCurve":
-    #             xf = cutl.get_curve(o).getParent()
-    #         elif  o.type() == "nurbsCurve":
-    #             xf = o.getParent()
-    #         elif o.type() == "transform":
-    #             xf = o
-    #         else:
-    #             pm.warning("Cant get transform")
-    #             return
-    #         xf.attr("visibility").set(1)
-
 
     def do_retries_validation(self):
         """Repetitively retry with different values until success.
@@ -293,52 +283,7 @@ class ValidateTab(gui.FormLayout):
 
         cutl.show_objects(obs)
 
-        # if step_type is "random":
-        #     vals = [random.uniform(low, high) for x in range(count)]
-        # else:
-        #     valrange = high - low
-        #     gap = valrange / (count-1)
-        #     vals = [low+(gap*x) for x in range(count)]
-
-        
-
-
-        # painting_node = pm.PyNode("mainPaintingShape")
-        # msg = ""
-        # for i, val in enumerate(vals):
-        #     self.setParams(obs, attribute, val)
-        #     with uutl.minimize_robodk():
-        #         studio = Studio(painting_node, None)
-        #         studio.write()
-
-        #     path_result = self.validate_path(studio.painting_program)
-
-        #     metadata = {
-        #         "iteration": i,
-        #         "attribute": attribute,
-        #         "value": val
-        #     }
-        #     msg += self.format_path_result(path_result, metadata)
-        #     if path_result["completion"] == 1.0:
-        #         break
-        # print msg
-            
-
-
-
-        # painting_node = pm.PyNode("mainPaintingShape")
-
-        # result text = 
-
-        # curves = pm.ls(
-        #     selection=True, dag=True,
-        #     ni=True,
-        #     shapes=True,
-        #     type="nurbsCurve")
-
-        # with uutl.minimize_robodk():
-        #     studio = Studio(painting_node, None)
-        #     studio.write()
+       
     def do_retries_for_object(self, o, attribute, step_type, low, high, count):
         result = -1
 
@@ -362,7 +307,7 @@ class ValidateTab(gui.FormLayout):
                 self.setParam(o, attribute, val)
                 pm.refresh()
                 
-                studio = Studio(painting_node, None, calibration=False)
+                studio = Studio(painting_node=painting_node)
                 studio.write()
                 path_result = self.validate_path(studio.painting_program)
 
@@ -384,16 +329,6 @@ class ValidateTab(gui.FormLayout):
             att = ob.attr(attribute).set(val)
         except (pm.MayaAttributeError, RuntimeError) as e:
             pm.warning("Error with : %s.%s - Skipping"  % (ob , attribute) )
-
-
-        # print "-" * 22
-        # print obs
-        # print attribute
-        # print val           
-
-
-
-
 
 
 

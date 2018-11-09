@@ -13,6 +13,8 @@ paintingGeom::paintingGeom()
 
 paintingGeom::~paintingGeom() {}
 
+
+
 void paintingGeom::setPaints(const std::map<short, Paint> &paints) {
 	m_paints = paints;
 }
@@ -190,6 +192,15 @@ void paintingGeom::addStroke(const strokeGeom &stroke) {
 }
 
 
+
+void paintingGeom::displace( MFnMesh &meshFn,  MMeshIsectAccelParams &ap )
+{
+	std::vector<clusterGeom>::iterator iter;
+	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
+	{
+		iter->displace(meshFn, ap);
+	}
+}
 // void paintingGeom::addStrokes(const strokeCurveGeom &strokeCurve) {}
 
 

@@ -27,10 +27,14 @@ class Target(object):
         self.linear = bool(last_mat)  
 
     def name(self, prefix):
+        # print "%s_t%d" % (prefix, self.id)
         return "%s_t%d" % (prefix, self.id)
 
     def write(self, prefix, program, frame, studio):
         target_name = self.name(prefix)
+        # print target_name
+        # print frame
+        
         rdk_target = studio.RL.AddTarget(target_name, frame, studio.robot)
         rdk_target.setPose(self.tool_pose)
         rdk_target.setJoints(self.joint_pose)

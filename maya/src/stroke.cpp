@@ -25,42 +25,42 @@ bool shouldMakeBackstroke(bool motherBackstroke, bool oscillate, int index )  {
 	}
 }
 
-// unsigned Stroke::createFromPoints(
-//   const MObject     &thisObj,
-//   const MFloatPointArray  flowPoints,
-//   const MVector   &planeNormal,
-//   double  liftLength,
-//   double  liftHeight,
-//   double  liftBias,
-//   const MObject &profileRampAttribute,
-//   double strokeProfileScaleMin,
-//   double strokeProfileScaleMax,
-//   const StrokeRotationSpec &rotSpec,
-//   bool backstroke,
-//   int repeats,
-//   double repeatOffset,
-//   bool repeatMirror,
-//   bool repeatOscillate,
-//   double pivotFraction,
-//   std::vector<std::unique_ptr<Stroke> > &strokes)
-// {
-// 	std::unique_ptr<Stroke> stk;
-// 	if (backstroke) {
-// 		stk = std::make_unique<BackStroke>();
-// 	}
-// 	else {
-// 		stk = std::make_unique<Stroke>();
-// 	}
+bool motherIsBackstroke(MObject dCurve, double startDist, double endDist,
+                        Stroke::DirectionMethod strokeDirection)
+{
 
-// 	stk->initialize(
-// 	  flowPoints,
-// 	  planeNormal,
-// 	  liftLength,
-// 	  liftBias
-// 	  // , brushId, paintId
-// 	);
+	/* 	enum DirectionMethod { kForwards, kBackwards, kStartUppermost, kEndUppermost  };  */
+	if (strokeDirection == Stroke::kForwards) {return false;}
+	if (strokeDirection == Stroke::kBackwards) {return true;}
 
-// }
+	MFnNurbsCurve curveFn(dCurve);
+
+	MVector comparison(MVector::yAxis);
+
+	double startParam = curveFn.findParamFromLength(startDist);
+	double endParam = curveFn.findParamFromLength(endDist);
+	MVector startTangent = curveFn.tangent(startParam).normal();
+	MVector endTangent = curveFn.tangent(endParam).normal();
+
+	double startUpFacing = startTangent * MVector::yAxis;
+	double endUpFacing = endTangent * MVector::yAxis;
+
+	if (startUpFacing > endUpFacing && strokeDirection == Stroke::kEndUppermost)
+	{
+		/* its a backstroke */
+		return true;
+	}
+
+	if (startUpFacing <= endUpFacing && strokeDirection == Stroke::kStartUppermost)
+	{
+		/* its a backstroke */
+		return true;
+	}
+
+	/* its a forwardstroke */
+	return false;
+}
+
 
 
 
@@ -80,7 +80,7 @@ unsigned Stroke::createFromCurve(
   double strokeProfileScaleMin,
   double strokeProfileScaleMax,
   const StrokeRotationSpec &rotSpec,
-  bool backstroke,
+  DirectionMethod strokeDirection,
   int repeats,
   double repeatOffset,
   bool repeatMirror,
@@ -95,6 +95,9 @@ unsigned Stroke::createFromCurve(
 	This factory provides a stroke or a backstroke
 	*/
 
+	/* Determine whether forward or backstroke*/
+	bool backstroke = motherIsBackstroke(dCurve, startDist, endDist, strokeDirection);
+
 	std::unique_ptr<Stroke> stk;
 	if (backstroke) {
 		stk = std::make_unique<BackStroke>();
@@ -102,6 +105,17 @@ unsigned Stroke::createFromCurve(
 	else {
 		stk = std::make_unique<Stroke>();
 	}
+
+	// MFnNurbsCurve fnc(dCurve);
+	// MPointArray cvs;
+	// fnc.getCVs(cvs, MSpace::kObject);
+	// cerr  << "obj space cvs" << cvs << endl;
+	// fnc.getCVs(cvs, MSpace::kWorld);
+	// cerr  << "world space cvs" << cvs << endl;
+
+
+
+
 
 	stk->initialize(
 	  dCurve,
@@ -334,7 +348,7 @@ void Stroke::initialize(
 
 void Stroke::setHeights( const MObject &thisObj,
                          const MObject &profileRampAttribute,
-                         double  strokeProfileScaleMin,
+                         double strokeProfileScaleMin,
                          double strokeProfileScaleMax,
                          double liftHeight) {
 

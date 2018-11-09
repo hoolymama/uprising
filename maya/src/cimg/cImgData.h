@@ -32,6 +32,8 @@ public:
 	enum Interpolation { kNearest, kBilinear, kBicubic };
 	enum Channel { kAll, kRed, kGreen , kBlue, kAverage};
 
+	enum NoiseType { kGaussian, kUniform, kSaltPepper, kPoisson, kRician};
+
 
 	enum ResizeInterpolation {
 		kNoInterpolation,

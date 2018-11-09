@@ -7,11 +7,16 @@
 #include <maya/MMatrixArray.h>
 #include <maya/MIntArray.h>
 #include <maya/MTransformationMatrix.h>
-#include <maya/MAngle.h>
 
+#include <maya/MFnMesh.h>
+
+
+
+#include <maya/MAngle.h>
 
 #include "stroke.h"
 #include "brush.h"
+#include "paint.h"
 
 class strokeGeom
 {
@@ -131,6 +136,8 @@ public:
 		  float &u,
 		  float &v) const ;
 	*/
+	void setCustomSortData(const Brush &brush,  const Paint &paint);
+
 	void setUV( const MMatrix &inversePlaneMatrix);
 	void getUV( float &u, float &v);
 
@@ -145,11 +152,15 @@ public:
 	void appendBrushIdToSortStack(bool ascending);
 	void appendPaintIdToSortStack(bool ascending);
 	void appendLayerIdToSortStack(bool ascending);
-
 	void appendRepeatIdToSortStack(bool ascending) ;
+	void appendCustomBrushIdToSortStack(bool ascending);
+	void appendCustomPaintIdToSortStack(bool ascending) ;
+
 	void appendMapRedIdToSortStack(bool ascending) ;
 	void appendMapGreenIdToSortStack(bool ascending) ;
 	void appendMapBlueIdToSortStack(bool ascending) ;
+	void appendValueToSortStack(bool ascending, int value) ;
+
 
 	bool testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) const;
 
@@ -159,16 +170,25 @@ public:
 	bool testPaintId(StrokeFilterOperator op, int value) const;
 	bool testLayerId(StrokeFilterOperator op, int value) const;
 	bool testRepeatId(StrokeFilterOperator op, int value) const;
+	bool testCustomBrushId(StrokeFilterOperator op, int value) const;
+	bool testCustomPaintId(StrokeFilterOperator op, int value) const;
+
+
 	bool testMapRedId(StrokeFilterOperator op, int value) const;
 	bool testMapGreenId(StrokeFilterOperator op, int value) const;
 	bool testMapBlueId(StrokeFilterOperator op, int value) const;
 
+
+
+	void displaceMatrix( MFnMesh &meshFn, MMeshIsectAccelParams &ap, MMatrix &mat);
+	void displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap);
+
 private:
 	int m_id;
 	int m_parentId;
-	MMatrix m_startApproach;
-	MMatrix m_endApproach;
-	MMatrixArray m_targets;
+	MMatrix m_startApproach; // These must be displaced
+	MMatrix m_endApproach; // These must be displaced
+	MMatrixArray m_targets; // These must be displaced
 	MVectorArray m_tangents;
 	double m_arcLength;
 	short m_direction;
@@ -181,11 +201,14 @@ private:
 	MFloatVector m_sortColor;
 	MFloatVector m_filterColor;
 
-	MMatrixArray m_preStops;
+	MMatrixArray m_preStops; // These must be displaced
 	MIntArray m_sortStack;
 	int m_repeatId;
 	float m_u;
 	float m_v;
+	short m_customPaintId;
+	short m_customBrushId;
+
 	// int m_globalId;
 };
 

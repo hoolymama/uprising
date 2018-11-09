@@ -30,6 +30,13 @@
  	setParent ..;
  }
 
+global proc onAddStrokeSortEntry(string $nodeAttr)
+{
+	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+	setAttr  ($nodeAttr+"["+$nextIndex+"].strokeSortKey")  0;
+}
+
+
  global proc AEpaintingSortListReplace (string $nodeAttr) {
 
  	string $node = attr.nodeFromNodeAttr($nodeAttr);
@@ -50,8 +57,7 @@
  	}
  	setParent ..;
 
- 	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
- 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].strokeSortKey  0" ) "AEaddPaintingSortListBtn";
+ 	button -e -c ( "onAddStrokeSortEntry(\"" + $nodeAttr +"\")") AEaddPaintingSortListBtn;
 
  }
 

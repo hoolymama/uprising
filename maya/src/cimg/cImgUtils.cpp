@@ -43,6 +43,30 @@ void cImgUtils::getImageChannel(const CImg<unsigned char> &image,
 	}
 }
 
+
+// void cImgUtils::getImageChannel(const CImg<unsigned char> &image,
+//                                 cImgData::Channel channel, CImg<float> &result)
+// {
+
+// 	int nChannels = image.spectrum();
+
+// 	if (channel == cImgData::kRed || nChannels  < 3 ) {
+// 		result = image.get_channel(0);
+// 	}
+// 	else if (channel == cImgData::kGreen) {
+// 		result =  image.get_channel(1);
+// 	}
+// 	else if (channel == cImgData::kBlue) {
+// 		result = image.get_channel(2);
+// 	}
+// 	else   // average
+// 	{
+// 		result =  image.get_norm();
+// 	}
+// }
+
+
+
 void cImgUtils::sampleNearest(
   const CImg<unsigned char> &image,
   const MDoubleArray &uVals,

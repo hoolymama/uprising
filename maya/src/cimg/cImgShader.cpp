@@ -28,6 +28,7 @@
 MObject cImgShader::aImageData;
 MObject cImgShader::aInterpolation;
 MObject cImgShader::aUVCoord;
+MObject cImgShader::aFilterSize;
 MObject cImgShader::aDefaultColor 	;
 MObject cImgShader::aOutColor;
 MObject cImgShader::aOutAlpha;
@@ -82,6 +83,15 @@ MStatus cImgShader::initialize()
 	nAttr.setHidden(true);
 	addAttribute(aUVCoord);
 
+
+	c1 = nAttr.create( "uvFilterSizeX", "fsx", MFnNumericData::kFloat);
+	c2 = nAttr.create( "uvFilterSizeY", "fsy", MFnNumericData::kFloat);
+	aFilterSize = nAttr.create("uvFilterSize", "fs", c1, c2);
+	nAttr.setStorable(false);
+	nAttr.setHidden(true);
+	nAttr.setReadable(true);
+	nAttr.setWritable(false);
+	addAttribute(aFilterSize);
 
 
 	aInterpolation = eAttr.create("interpolation", "itp");

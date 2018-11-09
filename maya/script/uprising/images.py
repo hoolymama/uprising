@@ -1,15 +1,7 @@
 import os
 import pymel.core as pm
  
-# from paint import Paint
-# from brush import Brush
-# import curve_utils as cutl
-# import uprising.uprising_util as uutl
-# import logging
-# logger = logging.getLogger('uprising')
-
-
-
+ 
 def png_palette_for_sheets(fn, sep="\t"):
     print fn
     num = pm.pngInfo(fn, palleteSize=True)

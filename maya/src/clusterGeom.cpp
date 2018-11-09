@@ -92,6 +92,14 @@ void clusterGeom::setPreStops(double threshold)
 
 
 
+void clusterGeom::displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap)
+{
+	std::vector<strokeGeom>::iterator iter;
+	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
+	{
+		iter->displace(meshFn, ap);
+	}
+}
 
 /* Is this assignment the same as default. If so remove it. */
 /*clusterGeom &clusterGeom::operator=( const clusterGeom &other )

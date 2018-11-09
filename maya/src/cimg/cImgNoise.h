@@ -1,6 +1,6 @@
 
-#ifndef _cImgIndex
-#define _cImgIndex
+#ifndef _cImgNoise
+#define _cImgNoise
 
 #include <maya/MPxNode.h>
 #include <maya/MTypeId.h>
@@ -8,13 +8,13 @@
 
 #include "cImgProcess.h"
 
-class cImgIndex : public cImgProcess
+class cImgNoise : public cImgProcess
 {
 public:
 
-	cImgIndex();
+	cImgNoise();
 
-	virtual				~cImgIndex();
+	virtual				~cImgNoise();
 
 	virtual bool    isAbstractClass() const {return false;}
 
@@ -28,12 +28,13 @@ public:
 	virtual MStatus process(MDataBlock &data, const CImg<unsigned char> &image,
 	                        CImg<unsigned char> &result);
 
-	static MObject aDithering;
 
-	static MObject aMapIndices;
+	static MObject aScale;
+	static MObject aInterpolation;
 
-	// static MObject aSampleRamp;
-	// static MObject aSamples;
+	static MObject aAmplitude;
+	static MObject aType;
+
 
 
 private:

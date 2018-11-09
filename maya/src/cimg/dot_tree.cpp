@@ -298,19 +298,21 @@ void  dotTree::strongestNPoints(
 			JVector2D diff = searchDot->position() - (*curr)->position();
 			float combinedRadii = ((*curr)->radius() + searchDot->radius());
 			float sqlen = diff.sqlength();
-			if (sqlen < (combinedRadii * combinedRadii)) {
-				float length = sqrt(sqlen);
-				float weakness = (length / combinedRadii);
-				if (weakness < q->top().weakness) {
-					//if (visited->find(*curr) == visited->end()) { // not been visited already
-					q->pop();
-					knnSearchPdData ksd;
-					ksd.weakness = weakness;
-					ksd.length = length;
-					ksd.diff = diff;
-					ksd.dot =  *curr;
-					q->push(ksd)  ;
-					//(*visited)[*curr] = *curr;
+			if (sqlen > P_TOLERANCE) {
+				if (sqlen < (combinedRadii * combinedRadii)) {
+					float length = sqrt(sqlen);
+					float weakness = (length / combinedRadii);
+					if (weakness < q->top().weakness) {
+						//if (visited->find(*curr) == visited->end()) { // not been visited already
+						q->pop();
+						knnSearchPdData ksd;
+						ksd.weakness = weakness;
+						ksd.length = length;
+						ksd.diff = diff;
+						ksd.dot =  *curr;
+						q->push(ksd)  ;
+						//(*visited)[*curr] = *curr;
+					}
 				}
 				//}
 			}

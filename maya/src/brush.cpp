@@ -13,7 +13,8 @@ Brush::Brush() :
 	width(1.0),
 	retention(1.0),
 	tip(0),
-	shape(Brush::kRound)
+	shape(Brush::kRound),
+	customId(-1)
 {}
 
 Brush::Brush(
@@ -22,13 +23,15 @@ Brush::Brush(
   double width,
   double retention,
   double tip,
-  Shape shape) :
+  Shape shape,
+  short customId) :
 	id(id),
 	physicalId(physicalId),
 	width(width),
 	retention(retention),
 	tip(tip),
-	shape(shape)
+	shape(shape),
+	customId(customId)
 {}
 
 Brush::~Brush() {}
@@ -39,7 +42,8 @@ std::map<short, Brush> Brush::factory(
   MObject &retentionAttribute,
   MObject &tipAttribute,
   MObject &physicalIdAttribute,
-  MObject &shapeAttribute)
+  MObject &shapeAttribute,
+  MObject &customIdAttribute)
 {
 	MStatus st;
 	std::map<short, Brush> result;
@@ -61,8 +65,10 @@ std::map<short, Brush> Brush::factory(
 		double retention = hComp.child(retentionAttribute).asDouble() ;
 		double tip = hComp.child(tipAttribute).asDouble() ;
 		Shape shape = Shape(hComp.child(shapeAttribute).asShort()) ;
+		short customId = hComp.child(customIdAttribute).asShort();
 
-		result[index] = Brush(index, physicalId, width, retention, tip, shape);
+
+		result[index] = Brush(index, physicalId, width, retention, tip, shape, customId);
 	}
 	return result;
 }
@@ -82,6 +88,7 @@ ostream &operator<<(ostream &os, const Brush &b)
 	os << " retention:" << b.retention;
 	os << " tip:" << b.tip;
 	os << " physicalId:" << b.physicalId;
+	os << " customId:" << b.physicalId;
 
 	os << " shape:" << shapeStr;
 	return os;

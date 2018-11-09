@@ -8,7 +8,8 @@ std::map<short, Paint> Paint::factory(
   MArrayDataHandle &ha,
   MObject &colorAttribute,
   MObject &opacityAttribute,
-  MObject &travelAttribute)
+  MObject &travelAttribute,
+  MObject &customIdAttribute)
 {
 	MStatus st;
 	std::map<short, Paint> result;
@@ -35,8 +36,12 @@ std::map<short, Paint> Paint::factory(
 
 
 		double travel = hComp.child(travelAttribute).asDouble() ;
+		short customId = hComp.child(customIdAttribute).asShort() ;
 
-		result[index] = Paint(index, color, travel);
+		result[index] = Paint(index, color, travel, customId);
+
+
+		// cerr << result[index] << endl;
 	}
 	return result;
 }
@@ -45,16 +50,19 @@ std::map<short, Paint> Paint::factory(
 Paint::Paint() :
 	id(-1),
 	color(1.0, 0.0, 1.0) ,
-	travel(10)
+	travel(10),
+	customId(-1)
 {}
 
 Paint::Paint(
   short id,
   MColor color,
-  double travel) :
+  double travel,
+  short customId) :
 	id(id),
 	color(color) ,
-	travel(travel)
+	travel(travel),
+	customId(customId)
 {
 }
 
@@ -65,6 +73,8 @@ ostream &operator<<(ostream &os, const Paint &p)
 	os << " id:" << p.id << ",";
 	os << " color:" << p.color << ",";
 	os << " travel:" << p.travel;
+	os << " customId:" << p.customId;
+
 	return os;
 }
 

@@ -37,6 +37,8 @@ public:
 
 	void dipCombinations(MIntArray &result) const ;
 
+	void 	displace( MFnMesh &meshFn,  MMeshIsectAccelParams &ap );
+
 	friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 
 private:

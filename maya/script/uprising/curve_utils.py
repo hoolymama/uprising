@@ -106,8 +106,9 @@ def duplicate_curve_to_painting(curve):
 
 def duplicate_grp_with_stroke_curves(src, full_name):
     logger.debug("src: %s -- full_name: %s " % (src, full_name))
-    plane = pm.PyNode("dipProjectionShape")
-    shapes = pm.ls(src, dag=True, ni=True, shapes=True)
+    
+    shapes =  pm.ls(src, dag=True, ni=True, shapes=True) 
+    
     logger.debug("shapes: %s " % shapes)
 
     stroke_curves = pm.listConnections(
@@ -124,7 +125,9 @@ def duplicate_grp_with_stroke_curves(src, full_name):
     for i, shape in enumerate(new_shapes):
         stroke_curve = new_stroke_curves[i]
         shape.attr("worldSpace[0]") >> stroke_curve.attr("curve")
-        # plane.attr("worldMatrix[0]") >> stroke_curve.attr("planeMatrix")
+    curves_xfs =  pm.listRelatives(new_shapes, parent=True)
+    curve_vis_active_connection(curves_xfs, True)
+
     return grp
 
 
@@ -815,7 +818,11 @@ def hide_objects( obs):
         else:
             pm.warning("Cant get transform")
             return
-        xf.attr("visibility").set(0)
+        try:
+            xf.attr("visibility").set(0)
+        except RuntimeError:
+            pm.warning("Can't change visibility for %s" % xf)
+
 
 
 def show_objects( obs):
@@ -829,8 +836,10 @@ def show_objects( obs):
         else:
             pm.warning("Cant get transform")
             return
-        xf.attr("visibility").set(1)
-
+        try:
+            xf.attr("visibility").set(1)
+        except RuntimeError:
+            pm.warning("Can't change visibility for %s" % xf)
 
 
 # def get_index(node, att, connect_to):

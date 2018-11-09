@@ -9,8 +9,9 @@ from uprising import (
     rings_design_tab,
     rings_setup_tab,
     proposal_tab,
-    images_tab,
-    tools_menu)
+    tools_menu,
+    curves_menu,
+    images_menu)
 
 
 # import uprising.logger_setup
@@ -67,16 +68,20 @@ reload(sheets)
 
 reload(painting_tab)
 reload(setup_tab)
+ 
 reload(props)
 reload(validate_tab)
 reload(publish_tab)
-reload(images_tab)
 reload(proposal_tab)
 reload(rings_design_tab)
 reload(rings_setup_tab)
 reload(culling)
 
 reload(tools_menu)
+reload(curves_menu)
+reload(images_menu)
+
+
 
 class RobotWindow(gui.Window):
 
@@ -86,26 +91,23 @@ class RobotWindow(gui.Window):
             if pm.window(win, q=True, title=True) == "Robot Tools":
                 pm.deleteUI(win)
 
-        
         self.setTitle('Robot Tools')
         self.setIconName('Robot Tools')
         self.setWidthHeight([500, 500])
 
         self.menuBarLayout = pm.menuBarLayout()
-        self.tabs = pm.tabLayout()
-
-        pm.setParent(self.tabs)
-        self.images_tab = images_tab.ImagesTab()
-        self.tabs.setTabLabel((self.images_tab, "Images"))
+        self.tabs = pm.tabLayout(
+            changeCommand=pm.Callback(
+                self.on_tab_changed))
 
         pm.setParent(self.tabs)
         self.setup_tab = setup_tab.SetupTab()
         self.tabs.setTabLabel((self.setup_tab, "Setup"))
-
+ 
         pm.setParent(self.tabs)
         self.painting_tab = painting_tab.PaintingTab()
         self.tabs.setTabLabel((self.painting_tab, "Painting"))
- 
+
         pm.setParent(self.tabs)
         self.rings_design_tab = rings_design_tab.RingsDesignTab()
         self.tabs.setTabLabel((self.rings_design_tab, "Ring design"))
@@ -125,14 +127,29 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.proposal_tab = proposal_tab.ProposalTab()
         self.tabs.setTabLabel((self.proposal_tab, "Proposal"))
- 
-        pm.setParent(self.menuBarLayout)
-        self.tools_menu = tools_menu.Menu()
 
+        # menus
+        pm.setParent(self.menuBarLayout)
+        self.tools_menu = tools_menu.create()
+
+        pm.setParent(self.menuBarLayout)
+        self.curves_menu = curves_menu.create()
+
+        pm.setParent(self.menuBarLayout)
+        self.images_menu = images_menu.create()
 
         self.show()
         self.setResizeToFitChildren()
-        self.tabs.setSelectTabIndex(7)
 
-    def onTabChanged(self):
-        print ""
+        self.populate()
+
+    def on_tab_changed(self):
+        self.save()
+
+    def populate(self):
+        var = ("upov_tab_index", 2)
+        self.tabs.setSelectTabIndex(pm.optionVar.get(var[0], var[1]))
+
+    def save(self):
+        var = "upov_tab_index"
+        pm.optionVar[var] = self.tabs.getSelectTabIndex()

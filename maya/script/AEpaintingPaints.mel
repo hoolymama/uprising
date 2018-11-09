@@ -12,9 +12,10 @@
 
  	string $cl = `frameLayout -bv 1 -cl 1 -cll 1 -label $label`;
 
- 	attrControlGrp -attribute ($plug+".paintColor");
- 	attrControlGrp -attribute ($plug+".paintOpacity");
+ 	attrControlGrp -attribute ($plug +".paintColor");
+ 	attrControlGrp -attribute ($plug +".paintOpacity");
  	attrControlGrp -attribute ($plug +".paintTravel");
+ 	attrControlGrp -attribute ($plug +".paintCustomId");
  	
 
 

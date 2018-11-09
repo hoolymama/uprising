@@ -31,6 +31,12 @@
  	setParent ..;
  }
 
+global proc onAddStrokeFilterEntry(string $nodeAttr)
+{
+	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+	setAttr  ($nodeAttr+"["+$nextIndex+"].strokeFilterKey")  0;
+}
+
  global proc AEpaintingFilterListReplace (string $nodeAttr) {
 
  	string $node = attr.nodeFromNodeAttr($nodeAttr);
@@ -51,8 +57,7 @@
  	}
  	setParent ..;
 
- 	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
- 	button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].strokeFilterKey  0" ) "AEaddPaintingFilterListBtn";
+ 	button -e -c ( "onAddStrokeFilterEntry(\"" + $nodeAttr +"\")") AEaddPaintingFilterListBtn;
 
  }
 
