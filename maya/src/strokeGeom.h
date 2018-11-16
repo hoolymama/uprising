@@ -26,7 +26,9 @@ public:
 	enum StrokeFilterOperator {
 		kGreaterThan,
 		kLessThan,
-		kEqualTo
+		kEqualTo,
+		kNotEqualTo,
+		kNoOp
 	};
 
 	// strokeGeom();

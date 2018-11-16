@@ -2,6 +2,9 @@ import sys
 import robodk as rdk
 import pymel.core as pm
 from contextlib import contextmanager
+# from paint import Paint
+# from brush import Brush
+
 PI = 3.14159265359
 
 
@@ -108,6 +111,8 @@ def activatable(**kw):
     _on_active_cb_change(ctrl, cb)
 
     pm.setParent('..')
+
+
 
 
 def to_vector_array(arr):

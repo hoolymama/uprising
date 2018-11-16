@@ -82,10 +82,15 @@ MObject flowStroke::aBlur;
 MObject flowStroke::aRotation;
 MObject flowStroke::aSampleDistance;
 MObject flowStroke::aMaxCurvature;
+MObject flowStroke::aSplitThreshold;
+MObject flowStroke::aTrimThreshold;
 MObject flowStroke::aBrushIdImage;
 MObject flowStroke::aPaintIdImage;
 MObject flowStroke::aBrushIdRemapRamp;
 MObject flowStroke::aBrushIdRemapRange;
+
+MObject flowStroke::aPaintIdRemapRamp;
+MObject flowStroke::aPaintIdRemapRange;
 
 MObject flowStroke::aBrushRampScope;
 MObject flowStroke::aApproachDistance;
@@ -143,6 +148,23 @@ MStatus flowStroke:: initialize()
 	uAttr.setStorable(true);
 	uAttr.setReadable(true);
 	st = addAttribute(aMaxCurvature);
+
+	aSplitThreshold = uAttr.create( "splitThreshold", "sth",
+	                                MFnUnitAttribute::kAngle );
+	uAttr.setDefault(MAngle(-1, MAngle::kDegrees));
+	uAttr.setHidden(false);
+	uAttr.setStorable(true);
+	uAttr.setReadable(true);
+	st = addAttribute(aSplitThreshold);
+
+
+	aTrimThreshold = uAttr.create( "trimThreshold", "tth",
+	                               MFnUnitAttribute::kAngle );
+	uAttr.setDefault(MAngle(-1, MAngle::kDegrees));
+	uAttr.setHidden(false);
+	uAttr.setStorable(true);
+	uAttr.setReadable(true);
+	st = addAttribute(aTrimThreshold);
 
 
 	aSampleDistance = nAttr.create( "sampleDistance", "sds", MFnNumericData::kDouble);
@@ -219,10 +241,6 @@ MStatus flowStroke:: initialize()
 	tAttr.setStorable(false);
 	st = addAttribute( aBrushIdImage ); mser;
 
-	aPaintIdImage = tAttr.create("paintIdImage", "pidi", cImgData::id ) ;
-	tAttr.setStorable(false);
-	st = addAttribute( aPaintIdImage ); mser;
-
 	aBrushIdRemapRamp  = MRampAttribute::createCurveRamp("brushIdRemapRamp", "brrp");
 	st = addAttribute( aBrushIdRemapRamp ); mser;
 
@@ -230,6 +248,20 @@ MStatus flowStroke:: initialize()
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	st = addAttribute(aBrushIdRemapRange);
+
+
+
+	aPaintIdImage = tAttr.create("paintIdImage", "pidi", cImgData::id ) ;
+	tAttr.setStorable(false);
+	st = addAttribute( aPaintIdImage ); mser;
+
+	aPaintIdRemapRamp  = MRampAttribute::createCurveRamp("paintIdRemapRamp", "prrp");
+	st = addAttribute( aPaintIdRemapRamp ); mser;
+
+	aPaintIdRemapRange = nAttr.create("paintIdRemapRange", "prrg", MFnNumericData::k2Int);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aPaintIdRemapRange);
 
 
 
@@ -245,12 +277,20 @@ MStatus flowStroke:: initialize()
 	st = attributeAffects(aProjectionMatrix, aOutput ); mser;
 	st = attributeAffects(aBlur, aOutput ); mser;
 	st = attributeAffects(aMaxCurvature, aOutput ); mser;
+	st = attributeAffects(aSplitThreshold, aOutput ); mser;
+	st = attributeAffects(aTrimThreshold, aOutput ); mser;
+
+
 	st = attributeAffects(aRotation, aOutput ); mser;
 	st = attributeAffects(aSampleDistance, aOutput); mser;
 	st = attributeAffects(aBrushRampScope, aOutput ); mser;
 
 	st = attributeAffects(aBrushIdImage, aOutput);
 	st = attributeAffects(aPaintIdImage, aOutput);
+
+
+	st = attributeAffects(aPaintIdRemapRamp, aOutput);
+	st = attributeAffects(aPaintIdRemapRange, aOutput);
 
 
 	st = attributeAffects(aBrushIdRemapRamp, aOutput);
@@ -400,41 +440,6 @@ int calcFlowPoints(const MFloatPoint &point,
 	}
 	while (curr_length < length) ;
 
-
-
-
-
-	// for (int i = 0; i < count; ++i)
-	// {
-	// 	resultPoints.append(MPoint(p));
-
-	// 	float x, y;
-	// 	cImgUtils::toImageCoords(p, imat, w, h, x, y, false);
-
-
-	// 	if (x < 0 || x > w || y < 0 || y > h) {
-	// 		break;
-	// 	}
-	// 	float gx ;
-	// 	float gy ;
-
-	// 	if (interp ==  cImgData::kNearest) {
-	// 		gx = grad(0).atXY(x, y);
-	// 		gy = grad(1).atXY(x, y);
-	// 	}
-	// 	else if (interp ==  cImgData::kBilinear) {
-	// 		gx = grad(0).linear_atXY(x, y);
-	// 		gy = grad(1).linear_atXY(x, y);
-	// 	}
-	// 	else {    // bicubic
-	// 		gx = grad(0).cubic_atXY(x, y);
-	// 		gy = grad(1).cubic_atXY(x, y);
-	// 	}
-	// 	MFloatVector gradient = MFloatVector(gx, gy, 0)  * mat;
-	// 	p += (gradient.normal() * gap);
-
-	// }
-
 	return resultPoints.length();
 }
 
@@ -446,6 +451,113 @@ void flowStroke::setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
 		(*iter)->setApproach(approachDist, approachDist);
 	}
 }
+
+void flowStroke::trimOnAngle(double trimThreshold, const MVector &planeNormal,
+                             MPointArray &flowPoints) const
+{
+	// MPointArray curr;
+	int len = flowPoints.length();
+	MVector lastVec; // start as zero
+
+	double leftExtent  = 0;
+	double rightExtent = 0;
+	double accumAngle = 0;
+	// curr.append(flowPoints[0]);
+
+	// int newLen = len;
+	int i;
+	for (i = 1; i < len; i++) {
+		MPoint lastPt = flowPoints[(i - 1)];
+		MPoint thisPt = flowPoints[i];
+		MVector thisVec = (thisPt - lastPt).normal();
+
+		if (lastVec != MVector::zero) {
+			// there is a last vec and a new vec, so test to see if we exceeded
+			MQuaternion	q(lastVec, thisVec);
+			double angle;
+			MVector axis(MVector::zAxis);
+			bool rotated = q.getAxisAngle(axis, angle);
+			if (rotated) {
+				double dir = (axis * planeNormal  < 0) ? -1.0 : 1.0 ;
+				accumAngle += (dir * angle);
+				if (accumAngle < leftExtent) {leftExtent = accumAngle;}
+				if (accumAngle > rightExtent) {rightExtent = accumAngle;}
+
+				if ((rightExtent - leftExtent) > trimThreshold)
+				{
+					break;
+					// need to stop
+					// flowPointsList.push_back(curr);
+					// curr = MPointArray();
+					// curr.append(flowPoints[i - 1]);
+
+					// leftExtent  = 0;
+					// rightExtent = 0;
+					// accumAngle = 0;
+				}
+			}
+		}
+
+		// curr.append(flowPoints[i]);
+		lastVec = thisVec;
+	}
+	cerr << "len:" << len << " i:" << i << endl;
+	if ( i < len) {
+		flowPoints.setLength(i);
+	}
+	// flowPointsList.push_back(curr);
+}
+
+
+
+void flowStroke::splitOnAngle(const MPointArray &flowPoints, double splitThreshold,
+                              const MVector &planeNormal, std::vector<MPointArray> &flowPointsList) const
+{
+	MPointArray curr;
+	int len = flowPoints.length();
+	MVector lastVec; // start as zero
+
+	double leftExtent  = 0;
+	double rightExtent = 0;
+	double accumAngle = 0;
+	curr.append(flowPoints[0]);
+
+	for (int i = 1; i < len; i++) {
+		MPoint lastPt = flowPoints[(i - 1)];
+		MPoint thisPt = flowPoints[i];
+		MVector thisVec = (thisPt - lastPt).normal();
+
+		if (lastVec != MVector::zero) {
+			// there is a last vec and a new vec, so test to see if we exceeded
+			MQuaternion	q(lastVec, thisVec);
+			double angle;
+			MVector axis(MVector::zAxis);
+			bool rotated = q.getAxisAngle(axis, angle);
+			if (rotated) {
+				double dir = (axis * planeNormal  < 0) ? -1.0 : 1.0 ;
+				accumAngle += (dir * angle);
+				if (accumAngle < leftExtent) {leftExtent = accumAngle;}
+				if (accumAngle > rightExtent) {rightExtent = accumAngle;}
+
+				if ((rightExtent - leftExtent) > splitThreshold)
+				{	// need to start a new array
+					flowPointsList.push_back(curr);
+					curr = MPointArray();
+					curr.append(flowPoints[i - 1]);
+
+					leftExtent  = 0;
+					rightExtent = 0;
+					accumAngle = 0;
+				}
+			}
+		}
+
+		curr.append(flowPoints[i]);
+		lastVec = thisVec;
+	}
+	flowPointsList.push_back(curr);
+}
+
 
 MStatus flowStroke::generateStrokeGeometry(MDataBlock &data,
     std::vector < strokeGeom > *geom) const
@@ -573,6 +685,9 @@ MStatus flowStroke::generateStrokeGeometry(MDataBlock &data,
 	srand48(seed);
 
 	double maxCurvature = data.inputValue(aMaxCurvature).asAngle().asRadians();
+	double splitThreshold = data.inputValue(aSplitThreshold).asAngle().asRadians();
+	double trimThreshold = data.inputValue(aTrimThreshold).asAngle().asRadians();
+
 	// MRampAttribute curvaturRemapRamp( thisObj, aCurvatureRamp ); mser;
 	// MDataHandle hCurvatureRange = data.inputValue(aCurvatureRange);
 	// double curvatureRangeMin = hCurvatureRange.child(
@@ -609,43 +724,66 @@ MStatus flowStroke::generateStrokeGeometry(MDataBlock &data,
 		                  flowPoints);
 
 
+
+
 		// cerr << "flowPoints" << flowPoints << endl;
 
 		if (flowCount > 1) // we can make a strokeGroup
 		{
-			MFnNurbsCurve curveFn;
-			MFnNurbsCurveData dataCreator;
-			MObject curveData = dataCreator.create( &st ); mser;
-			MObject dCurve = curveFn.createWithEditPoints(
-			                   flowPoints, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, &st);
-			double curveLength = curveFn.length(epsilon);
-			const double startDist = 0.0;
-			const double endDist = curveLength;
+			bool doTrim = trimThreshold > 0;
+			if (doTrim && flowCount > 2)
+			{
+				trimOnAngle(trimThreshold, planeNormal, flowPoints);
+			}
+			flowCount = flowPoints.length();
 
+			std::vector<MPointArray> flowPointsList;
+			if (splitThreshold > 0 && (splitThreshold < trimThreshold || (!doTrim))
+			    && flowCount > 2) {
+				splitOnAngle(flowPoints, splitThreshold, planeNormal, flowPointsList);
+			}
+			else {
+				flowPointsList.push_back(flowPoints);
+			}
 
-			unsigned strokeGroupSize = Stroke::createFromCurve(
-			                             thisObj,
-			                             dCurve,
-			                             planeNormal,
-			                             curveLength,
-			                             startDist,
-			                             endDist,
-			                             pointDensity,
-			                             liftLength,
-			                             liftHeight,
-			                             liftBias,
-			                             strokeNode::aStrokeProfileRamp,
-			                             strokeProfileScaleMin,
-			                             strokeProfileScaleMax,
-			                             rotSpec,
-			                             strokeDirection,
-			                             repeats,
-			                             repeatOffset,
-			                             repeatMirror,
-			                             repeatOscillate,
-			                             pivotFraction,
-			                             strokes);
+			// iterate
+			std::vector<MPointArray>::const_iterator citer;
+			for (citer = flowPointsList.begin(); citer != flowPointsList.end(); citer++)
+			{
 
+				MFnNurbsCurve curveFn;
+				MFnNurbsCurveData dataCreator;
+				MObject curveData = dataCreator.create( &st ); mser;
+				MObject dCurve = curveFn.createWithEditPoints(
+				                   (*citer), 3, MFnNurbsCurve::kOpen, true, false, true, curveData, &st);
+				double curveLength = curveFn.length(epsilon);
+				const double startDist = 0.0;
+				const double endDist = curveLength;
+
+				unsigned strokeGroupSize = Stroke::createFromCurve(
+				                             thisObj,
+				                             dCurve,
+				                             planeNormal,
+				                             curveLength,
+				                             startDist,
+				                             endDist,
+				                             pointDensity,
+				                             liftLength,
+				                             liftHeight,
+				                             liftBias,
+				                             strokeNode::aStrokeProfileRamp,
+				                             strokeProfileScaleMin,
+				                             strokeProfileScaleMax,
+				                             rotSpec,
+				                             strokeDirection,
+				                             repeats,
+				                             repeatOffset,
+				                             repeatMirror,
+				                             repeatOscillate,
+				                             pivotFraction,
+				                             strokes);
+
+			}
 		}
 	}
 
@@ -750,6 +888,16 @@ void flowStroke::setPaintIds(MDataBlock &data, std::vector<strokeGeom> *geom) co
 {
 
 	MStatus st;
+
+
+	MObject thisObj = thisMObject();
+	MRampAttribute remapRamp( thisObj, aPaintIdRemapRamp ); mser;
+	const int2 &range = data.inputValue( aPaintIdRemapRange ).asInt2();
+	int low = range[0];
+	int high = range[1];
+	int span = high - low;
+
+
 	MDataHandle hImageData = data.inputValue(aPaintIdImage, &st);
 
 	if (st.error()) {return;}
@@ -760,12 +908,19 @@ void flowStroke::setPaintIds(MDataBlock &data, std::vector<strokeGeom> *geom) co
 	if (st.error()) {return;}
 
 	cImgData *imageData = (cImgData *)fnImageData.data();
-	const CImg<unsigned char> *image = imageData->fImg;
-	int w = image->width();
-	int h = image->height();
+	// const CImg<unsigned char> *image = imageData->fImg;
+	const CImg<float> image = imageData->fImg->get_normalize(0.0f, 1.0f);
+	int w = image.width();
+	int h = image.height();
 
 	if (!(w && h )) {return;}
 
+	// unsigned char minpixel;
+	// unsigned char maxpixel = image->max_min(minpixel)	;
+	// 	unsigned char pixelrange = maxpixel-minpixel;
+
+
+	// float normalizer = 1.0f / float(pixelrange);
 	std::vector<strokeGeom>::iterator iter;
 
 	for (iter = geom->begin(); iter !=  geom->end(); iter++)
@@ -774,7 +929,20 @@ void flowStroke::setPaintIds(MDataBlock &data, std::vector<strokeGeom> *geom) co
 		iter->getUV(u, v);
 		float x, y;
 		cImgUtils::toImageCoords(u, v, w, h, x, y);
-		iter->setPaintId(short(image->atXY(int(x),  int(y), 0, 0)));
+
+		float value = image.atXY(int(x), int(y) , 0, 0);
+
+		// float value = float() * normalizer;
+		float remappedVal;
+		remapRamp.getValueAtPosition( value, remappedVal, &st );
+		if (st.error()) {
+			remappedVal =  value;
+		}
+
+		int ival = int((remappedVal * span) + low);
+		// cerr << "remappedVal:" << remappedVal << " * span:" << span << " + low:" << low << " = " << ival << endl;
+		ival = std::max(low, std::min(ival, high));
+		iter->setPaintId(short(ival));
 	}
 
 }

@@ -195,6 +195,8 @@ bool strokeGeom::testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) co
 			return lhs > rhs;
 		case strokeGeom::kEqualTo:
 			return lhs == rhs;
+		case strokeGeom::kNotEqualTo:
+			return lhs != rhs;
 		default:
 			return false;
 	}

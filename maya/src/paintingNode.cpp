@@ -404,12 +404,18 @@ MStatus painting::initialize()
   eAttr.addField("Layer Id", painting::kLayerId);
   eAttr.addField("Custom Brush Id", painting::kCustomBrushId);
   eAttr.addField("Custom Paint Id", painting::kCustomPaintId);
+  eAttr.setHidden( false );
+  eAttr.setKeyable( true );
 
   aStrokeFilterOperator = eAttr.create("strokeFilterOperator", "stfop",
                                        strokeGeom::kGreaterThan);
   eAttr.addField(">", strokeGeom::kGreaterThan);
   eAttr.addField("<", strokeGeom::kLessThan);
   eAttr.addField("==", strokeGeom::kEqualTo);
+  eAttr.addField("!=", strokeGeom::kNotEqualTo);
+  eAttr.addField("nop", strokeGeom::kNoOp);
+  eAttr.setHidden( false );
+  eAttr.setKeyable( true );
 
   aStrokeFilterOperand  = nAttr.create("strokeFilterOperand", "stfod",
                                        MFnNumericData::kInt);
@@ -1040,6 +1046,10 @@ MStatus painting::filterStrokes(MDataBlock &data,  std::vector<strokeGeom> &stro
 
 
       strokeGeom::StrokeFilterOperator op = std::get<1>(*filteriter);
+      if (op == strokeGeom::kNoOp) {
+        continue;
+      }
+
       int value = std::get<2>(*filteriter);
       StrokeSortFilterKey key = std::get<0>(*filteriter);
 

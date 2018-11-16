@@ -8,6 +8,8 @@ import uprising_util as uutl
 from robolink import (Robolink, ITEM_TYPE_STATION)
 from studio import Studio
 from paint import Paint
+from brush import Brush
+
 import setup_dip
 import callbacks
 
@@ -164,14 +166,14 @@ def publish_robodk_painting(ts_dir, timestamp, **kw):
         write_program(RL, ts_dir, "vx", timestamp)
 
 def publish_calibration_program(directory, node):
-    calibration_dir = os.path.join(directory, "calibrations")
-    mkdir_p(calibration_dir)
-
     RL = Robolink()
+    calibration_dir = os.path.join(directory, "calibrations")
+    
+
     clean_rdk()
     timestamp = get_timestamp()
     ts_dir = get_ts_dir(calibration_dir, timestamp)
-
+    mkdir_p(ts_dir)
     with uutl.minimize_robodk():
         studio = Studio(calibration_node=node)
         studio.write()
@@ -309,25 +311,65 @@ def write_maya_scene(ts_dir, timestamp):
     pm.renameFile(orig_sn)
 
 
-def _painting_stats(node):
+def used_paints_and_brushes(painting_node):
+    dc = pm.paintingQuery(painting_node, dc=True)
+    bids = sorted(set(dc[::2]))
+    pids = sorted(set(dc[1::2]))
+    paints = Paint.paints(painting_node)
+    brushes = Brush.brushes(painting_node)
+    used_paints =  [paints[_id] for _id in pids]
+    used_brushes =  [brushes[_id] for _id in bids]
+    return  (used_paints, used_brushes)
+
+
+def painting_stats(node):
     cluster_count = pm.paintingQuery(node, cc=True)
     stroke_count = 0
     reason_result = {"dip": 0, "tool": 0, "tcp": 0}
+    travel = []
     for i in range(cluster_count):
         stroke_count += pm.paintingQuery(node, ci=i, sc=True)
+        travel.append(pm.paintingQuery(node, ci=i, clusterTravel=True) )
         reason = pm.paintingQuery(node, ci=i, clusterReason=True)
         reason_result[reason] += 1
-    strokes_per_cluster = stroke_count / float(cluster_count)
-
+    avg_strokes_per_cluster = stroke_count / float(cluster_count)
+    total_travel =  sum(travel)
+    avg_travel_per_cluster = total_travel / float(cluster_count)
     result = {
-        "Cluster count": cluster_count,
-        "Stroke count": stroke_count,
-        "Strokes per cluster": strokes_per_cluster,
-        "Tool changes": reason_result["tool"],
-        "Dip only changes": reason_result["dip"],
-        "Tcp only changes": reason_result["tcp"]
+        "cluster_count": cluster_count,
+        "stroke_count": stroke_count,
+        "avg_strokes_per_cluster": avg_strokes_per_cluster,
+        "tool_changes": reason_result["tool"],
+        "dip_only changes": reason_result["dip"],
+        "tcp_only_changes": reason_result["tcp"],
+        "total_stroke_travel": total_travel,
+        "avg_stroke_travel_per_cluster": avg_travel_per_cluster
     }
     return result
+
+
+
+
+
+# def _painting_stats(node):
+#     cluster_count = pm.paintingQuery(node, cc=True)
+#     stroke_count = 0
+#     reason_result = {"dip": 0, "tool": 0, "tcp": 0}
+#     for i in range(cluster_count):
+#         stroke_count += pm.paintingQuery(node, ci=i, sc=True)
+#         reason = pm.paintingQuery(node, ci=i, clusterReason=True)
+#         reason_result[reason] += 1
+#     strokes_per_cluster = stroke_count / float(cluster_count)
+
+#     result = {
+#         "Cluster count": cluster_count,
+#         "Stroke count": stroke_count,
+#         "Strokes per cluster": strokes_per_cluster,
+#         "Tool changes": reason_result["tool"],
+#         "Dip only changes": reason_result["dip"],
+#         "Tcp only changes": reason_result["tcp"]
+#     }
+#     return result
 
 def _used_paints(painting_node):
     ids = pm.paintingQuery(painting_node, dc=True)[1::2]
@@ -346,10 +388,12 @@ def write_log(
 
     dip_combos = setup_dip.dip_combinations(painting_node)
 
-    painting_stats = _painting_stats(painting_node)
-    dip_stats = _painting_stats(dip_node)
+    pnt_stats = painting_stats(painting_node)
+    dip_stats = painting_stats(dip_node)
 
     paints_in_use = _used_paints(painting_node)
+    paints_in_use, brushes_in_use = used_paints_and_brushes(painting_node)
+
 
     log_file = os.path.join(ts_dir, "log.txt")
     with open(log_file, 'w') as the_file:
@@ -363,8 +407,8 @@ def write_log(
         the_file.write("Frame number: %s\n\n" % frame)
 
         the_file.write("Painting node stats:\n")
-        for k in painting_stats:
-            the_file.write("%s: %s\n" % (k, painting_stats[k]))
+        for k in pnt_stats:
+            the_file.write("%s: %s\n" % (k, pnt_stats[k]))
         the_file.write("\n")
 
         the_file.write("\n")
@@ -376,6 +420,12 @@ def write_log(
         the_file.write("Paints in use:\n")
         for paint in paints_in_use:
             the_file.write("%s\t:%s\n" % (paint.id, paint.name))
+        the_file.write("\n")
+
+ 
+        the_file.write("Brushes in use:\n")
+        for brush in brushes_in_use:
+            the_file.write("%s\t:%s\n" % (brush.id, brush.name))
         the_file.write("\n")
 
         the_file.write("Dip combinations:\n")

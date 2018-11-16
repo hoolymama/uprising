@@ -98,16 +98,25 @@ def setup_board_from_sheet(node, name, depth_only):
         # for k in corners:
         #     tmp_locs[k].attr("translate").set(*corners[k]["new_pos"])
 
+
+def _verts(disp_mesh):
+    try:
+        verts = [item for sublist in  pm.sets("probePointsSet", q=True) for item in sublist]
+    except pm.MayaNodeError:
+        verts = disp_mesh.vtx
+    return verts
+
+
 def _get_probes_group(assembly):
+    """Get or make the group to hold probes"""
     try:
         g = pm.PyNode("%s|jpos|probes" % assembly)
+        pm.delete(g)
     except pm.MayaNodeError:
-        g = pm.group(em=True)
-        pm.parent(g, ("%s|jpos"% assembly), relative=True)
+        pass
+    g = pm.group(em=True)
+    pm.parent(g, ("%s|jpos"% assembly), relative=True)
     g.rename("probes")
-    g.attr("t").set(0,0,0)
-    g.attr("r").set(0,0,0)
-    g.attr("s").set(1,1,1)
     return g
 
 def generate_probes(node, offset, approach_dist):
@@ -118,8 +127,12 @@ def generate_probes(node, offset, approach_dist):
     if probes_group.getChildren():
         pm.delete(probes_group.getChildren())
 
+ 
+ 
     with uutl.zero_position(node):
-        for i, v in enumerate(disp_mesh.vtx):
+        for v in  _verts(disp_mesh):
+            index = int(str(v).split("[")[1].split("]")[0])
+
             pos = v.getPosition(space="world")
             pos.z=0
             probe = pm.group(em=True)
@@ -163,20 +176,20 @@ def set_board_vertices_from_sheets(painting_node, name):
     validate_calibration_data(data)
 
     probes = probes_group.getChildren()
-    values = [uutl.numeric(row[1]) * 0.1 for row in data ]
+    entries = [(
+     int(uutl.numeric(row[0])) ,  
+     (uutl.numeric(row[1]) * 0.1 )
+     ) for row in data ]
 
-    if not len(values) == len(disp_mesh.vtx):
-        raise IndexError("Number of values in sheet doesn't match vertex count %d <> %d" % (len(values), len(disp_mesh.vtx)))
-    if not len(values) == len(probes):
-        raise IndexError("Number of values in sheet doesn't probes count %d <> %d" % (len(values), len(probes)))
+    if not len(entries) == len(probes):
+        raise IndexError("Number of values in sheet doesn't probes count %d <> %d" % (len(entries), len(probes)))
 
-
-    # val_verts = zip(disp_mesh.vtx, values)
-    for vtx, val, probe in zip(disp_mesh.vtx, values, probes):
+    for index, value in entries:
+        probe =  pm.PyNode("%s|jpos|probes|probe_%d" % (assembly, index))
+        vtx = disp_mesh.vtx[index]
         pos = vtx.getPosition(space="world")
-        pos.z = (probes_offset - val)
+        pos.z = (probes_offset - value)
         vtx.setPosition(pos, space="world")
-        pm.PyNode("%s|actual" %probe).attr("tz").set(val)
-
+        pm.PyNode("%s|actual" %probe).attr("tz").set(value)
 
 

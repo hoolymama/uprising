@@ -1,3 +1,4 @@
+import re
 import pymel.core as pm
 import const as k
 
@@ -66,6 +67,19 @@ class Brush(object):
             vals.append(node.attr("brushes[%d].%s" % (index, att)).get())
 
         return Brush(*vals)
+
+
+    @classmethod
+    def find_by_regex(cls, node, regex_string):
+        regex = re.compile(regex_string)
+        for brush_id in node.attr("brushes").getArrayIndices():
+            conns = node.attr(
+                "brushes[%d].brushMatrix" % brush_id).connections(
+                source=True,
+                destination=False)
+            name = str(conns[0])
+            if regex.match(name):
+                return Brush.brush_at_index(node, brush_id)
 
     @classmethod
     def brushes(cls, node):

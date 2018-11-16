@@ -100,7 +100,10 @@ class Calibration(Painting):
 
     def __init__(self, node):
         super(Calibration, self).__init__(node)
-        self.brush = Brush.brush_at_index(node, 0)
+        
+        self.brush = Brush.find_by_regex(node, r'^.*_probe$')
+        if not self.brush:
+            raise PaintingError("No Probe Brush")
         self.max_p2p_span = node.attr("maxPointToPointDistance").get()
 
         assembly = uutl.assembly(self.node)

@@ -1,5 +1,5 @@
 
-# import os.path
+import sys
 import pymel.core as pm
 import random
 from robolink import (
@@ -61,6 +61,30 @@ class ValidateTab(gui.FormLayout):
                 180,
                 120))
 
+        self.anim_row = pm.rowLayout(numberOfColumns=2,
+                                     columnWidth2=(
+                                         (390), 100),
+                                     columnAlign=(1, 'right'),
+                                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+
+        min_frame = int(pm.playbackOptions(min=True, query=True))
+        max_frame = int(pm.playbackOptions(max=True, query=True))
+ 
+        self.frame_if = pm.intFieldGrp(
+            label="Frames to validate",
+            numberOfFields=2,
+            value1=min_frame,
+            value2=max_frame)
+
+        self.current_frame_cb = pm.checkBox(
+            label='Current',
+            value=1,
+            annotation='Use current frame only',
+            changeCommand=pm.Callback(self.on_current_frame_cb_change)
+        )
+
+        pm.setParent("..")
+
         pm.setParent("..")
 
         self.retries_frame_wg = pm.frameLayout(
@@ -104,6 +128,11 @@ class ValidateTab(gui.FormLayout):
         pm.setParent("..")
 
         self.initialize_ui()
+
+    def on_current_frame_cb_change(self):
+        state = pm.checkBox(self.current_frame_cb, query=True, value=True)
+        pm.intFieldGrp(self.frame_if, edit=True, enable=(not state))
+
 
     def initialize_ui(self):
         self.on_collapse_change()
@@ -162,16 +191,16 @@ class ValidateTab(gui.FormLayout):
             "status": "SUCCESS" if (update_result[3] == 1.0) else "FAILURE"
         }
 
-    def format_path_result(self, path_info, metadata):
+    def format_path_result(self, path_info, **metadata):
         text = """
-        ------------------------------------------
-        instructions  : %d
-        time          : %s
-        distance      : %s
-        completion    : %.3f
-        problems      : %s
-        status        : %s
-        """ % (path_info["instructions"],
+------------------------------------------
+instructions  : %d
+time          : %s
+distance      : %s
+completion    : %.3f
+problems      : %s
+status        : %s
+""" % (path_info["instructions"],
                path_info["time"],
                path_info["distance"],
                path_info["completion"],
@@ -179,7 +208,8 @@ class ValidateTab(gui.FormLayout):
                path_info["status"])
 
         if metadata:
-            text += "Iter:%i Attr:%s = %s" % (metadata["iteration"],metadata["attribute"], metadata["value"])
+            for k in metadata:
+                text += "%s : %s\n" % (k, metadata[k])
         return text
 
 
@@ -206,25 +236,64 @@ class ValidateTab(gui.FormLayout):
         send_selected_props = pm.checkBoxGrp(
             self.send_selected_props_cb, query=True, value1=True)
 
-        if sum(send):
-            with uutl.minimize_robodk():
-                studio = Studio(**kw)
-                studio.write()
 
-        if kw.get("painting_node"):
-            path_result = self.validate_path(studio.painting_program)
-            msg = self.format_path_result(path_result, {})
-            pm.confirmDialog(
-                title='Path validation result',
-                message=msg,
-                button=['OK'],
-                defaultButton='OK',
-                cancelButton='OK',
-                dismissString='OK')
+
+        result = []
+        
+        if sum(send):
+            current_only = pm.checkBox(
+                self.current_frame_cb, query=True, value=True)
+            if current_only:
+                frame = int(pm.currentTime(query=True))
+                frames = (frame, frame)
+            else:
+                frames = (
+                    pm.intFieldGrp(
+                        self.frame_if,
+                        query=True,
+                        value1=True),
+                    pm.intFieldGrp(
+                        self.frame_if,
+                        query=True,
+                        value2=True))
+
+            try:
+                with uutl.minimize_robodk():
+                    for f in range(frames[0], (frames[1]+1)):
+                        pm.currentTime(f)
+
+                        studio = Studio(**kw)
+                        studio.write()
+
+                        if kw.get("painting_node"):
+                            p_stats = write.painting_stats(kw["painting_node"])
+                            p_stats["frame"] = f
+                            validation_info = self.validate_path(studio.painting_program) 
+                            result.append( (validation_info , p_stats ))
+
+            except Exception:
+                t, v, tb = sys.exc_info()
+                if result:
+                    for msg, stats in result:
+                        print self.format_path_result(msg, **stats)
+                raise t, v, tb
+            else:
+                if result:
+                    for msg, stats in result:
+                        print self.format_path_result(msg, **stats)
+
+            # msg = self.format_path_result(path_result, {})
+            # pm.confirmDialog(
+            #     title='Path validation result',
+            #     message=msg,
+            #     button=['OK'],
+            #     defaultButton='OK',
+            #     cancelButton='OK',
+            #     dismissString='OK')
 
         if send_selected_props:
             props.send(pm.ls(selection=True))
-
+ 
     def do_retries_validation(self):
         """Repetitively retry with different values until success.
 
@@ -316,7 +385,7 @@ class ValidateTab(gui.FormLayout):
                     "attribute": attribute,
                     "value": val
                 }
-                msg += self.format_path_result(path_result, metadata)
+                msg += self.format_path_result(path_result, **metadata)
                 if path_result["completion"] == 1.0:
                     result =i+1
                     break

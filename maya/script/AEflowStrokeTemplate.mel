@@ -10,6 +10,9 @@ global proc AEflowStrokeTemplate ( string $nodeName )
 	editorTemplate -addControl "blur" ;
 	editorTemplate -addControl "rotation" ;
 	editorTemplate -addControl "maxCurvature" ;
+	
+	editorTemplate -addControl "splitThreshold" ;
+		editorTemplate -addControl "trimThreshold" ;
 	editorTemplate -endLayout;
 
 
@@ -24,6 +27,12 @@ global proc AEflowStrokeTemplate ( string $nodeName )
 	AEaddRampControl("brushIdRemapRamp");		
 	editorTemplate -addControl "brushIdRemapRange" ;
 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Paint Id remap attributes";	
+	AEaddRampControl("paintIdRemapRamp");		
+	editorTemplate -addControl "paintIdRemapRange" ;
+	editorTemplate -endLayout;
+
 
 	editorTemplate -cl 0  -beginLayout "Extra rotation attributes";		
 	editorTemplate -addControl "brushRampScope" ;

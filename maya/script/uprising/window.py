@@ -9,6 +9,7 @@ from uprising import (
     rings_design_tab,
     rings_setup_tab,
     proposal_tab,
+    keys_tab,
     tools_menu,
     curves_menu,
     images_menu)
@@ -75,6 +76,7 @@ reload(publish_tab)
 reload(proposal_tab)
 reload(rings_design_tab)
 reload(rings_setup_tab)
+reload(keys_tab)
 reload(culling)
 
 reload(tools_menu)
@@ -115,6 +117,10 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.rings_setup_tab = rings_setup_tab.RingsSetupTab()
         self.tabs.setTabLabel((self.rings_setup_tab, "Ring setup"))
+
+        pm.setParent(self.tabs)
+        self.keys_tab = keys_tab.KeysTab()
+        self.tabs.setTabLabel((self.keys_tab, "Keys"))
 
         pm.setParent(self.tabs)
         self.validate_tab = validate_tab.ValidateTab()

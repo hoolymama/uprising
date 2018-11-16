@@ -1,12 +1,13 @@
 import os
+import sys
 import pymel.core as pm
 import setup_dip
+import write
 import curve_utils as cutl
-import images
-from paint import Paint
 
-
-
+import uprising_util as uutl
+import json
+import csv
 
 
 def create():
@@ -14,7 +15,15 @@ def create():
     pm.menuItem( label="Bake mapped paintIds", command=pm.Callback(on_bake_paint_ids) )
     pm.menuItem( label="Make dip combinations", command=pm.Callback(setup_dip.doit) )
     pm.menuItem( label="Zero displacement mesh", command=pm.Callback(zero_disp_mesh) )
+    
     pm.menuItem( label="Print stats", command=pm.Callback(on_print_stats) )
+    pm.menuItem( label="Print stats range", command=pm.Callback(on_print_stats_range) )
+
+    pm.menuItem( label="Print paint and brush json", command=pm.Callback(on_print_paint_and_brush_stats, "json") )
+    pm.menuItem( label="Print paint and brush csv", command=pm.Callback(on_print_paint_and_brush_stats, "csv") )
+
+    
+    # pm.menuItem( label="Key filters for portrait", command=pm.Callback(on_key_filters) )
     
     return menu
 
@@ -50,43 +59,13 @@ def zero_disp_mesh():
         pos = v.getPosition(space="world")
         pos.z = 0
         v.setPosition(pos, space="world")
-
-def _used_paints(painting_node):
-    ids = pm.paintingQuery(painting_node, dc=True)[1::2]
-    ids = sorted(set(ids))
-    paints = Paint.paints(painting_node)
-    return [paints[_id] for _id in ids]
-
-def _painting_stats(node):
-    cluster_count = pm.paintingQuery(node, cc=True)
-    stroke_count = 0
-    reason_result = {"dip": 0, "tool": 0, "tcp": 0}
-    for i in range(cluster_count):
-        stroke_count += pm.paintingQuery(node, ci=i, sc=True)
-        reason = pm.paintingQuery(node, ci=i, clusterReason=True)
-        reason_result[reason] += 1
-    strokes_per_cluster = stroke_count / float(cluster_count)
-
-    result = {
-        "Cluster count": cluster_count,
-        "Stroke count": stroke_count,
-        "Strokes per cluster": strokes_per_cluster,
-        "Tool changes": reason_result["tool"],
-        "Dip only changes": reason_result["dip"],
-        "Tcp only changes": reason_result["tcp"]
-    }
-    return result
-
+ 
 
 
 def on_print_stats():
     painting_node = pm.PyNode("mainPaintingShape")
     print "-" * 50
-    print "Painting node stats:"
-    painting_stats = _painting_stats(painting_node)
-    for k in painting_stats:
-        print "%s: %s" % (k, painting_stats[k])
-    print "\n"
+    
     
     # dip_node = pm.PyNode("dipPaintingShape")
     print "Dip combinations:"
@@ -94,9 +73,78 @@ def on_print_stats():
         print  "%s" % k
     print "\n"
 
-    paints_in_use = _used_paints(painting_node)
+    paints, brushes = write.used_paints_and_brushes(painting_node)
     print "Paints in use:"
-    for paint in paints_in_use:
+    for paint in paints:
         print "%s\t:%s" % (paint.id, paint.name)
     print "\n"
 
+    print "Brushes in use:"
+    for brush in brushes:
+        print "%s\t:%s" % (brush.id, brush.name)
+    print "\n"
+
+    print "Painting node stats:"
+    p_stats = write.painting_stats(painting_node)
+    for k in p_stats:
+        print "%s: %s" % (k, p_stats[k])
+    print "\n"
+
+def on_print_stats_range():
+    min_frame = int(pm.playbackOptions(min=True, query=True))
+    max_frame = int(pm.playbackOptions(max=True, query=True))
+    painting_node = pm.PyNode("mainPaintingShape")
+   
+    for f in range(int(min_frame), int(max_frame+1)):
+        pm.currentTime(f)
+        p_stats = write.painting_stats(painting_node)
+        print "%d, %d, %f, %d, %d, %f, %d, %d, %f" % tuple([f] + p_stats.values())
+
+
+
+
+def on_print_paint_and_brush_stats(fmt="json"):
+    painting_node = pm.PyNode("mainPaintingShape")
+    paints, brushes = write.used_paints_and_brushes(painting_node)
+    result = {"brushes": [], "paints": []}
+    for brush in brushes:
+        result["brushes"].append({
+            "id": brush.id,
+            "physical_id": brush.physical_id,
+            "width(mm)":  brush.width,
+            "shape":  brush.shape,
+            "retention":  brush.retention,
+            "tip":  brush.tip,
+            "name":  brush.name
+            })
+
+    for paint in paints:
+        result["paints"].append({
+            "id": paint.id,
+            "color_r": paint.color[0],
+            "color_g": paint.color[1],
+            "color_b": paint.color[2],
+            "travel(cm)":  paint.travel,
+            "name":  paint.name
+            })
+
+    j = json.dumps(result)
+    if fmt=="json":
+        print j
+    else:
+        for key in result:
+            data = result[key]
+            output = csv.writer(sys.stdout)
+            output.writerow(data[0].keys())
+            for row in data:
+                output.writerow(row.values())
+     
+     
+
+# def _deactivate_all_nodes(nodes):
+#     for node in nodes:
+#         node.attr("active").set(0)
+
+# def _activate_all_nodes(nodes):
+#     for node in nodes:
+#         node.attr("active").set(1)

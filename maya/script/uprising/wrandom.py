@@ -23,14 +23,14 @@ class StepRandomizer(object):
  
 
 
-sr = StepRandomizer (4, 2)
-results = {}
-for i in range (10000):
-    res = sr.random()
-    if not res in results:
-        results[res] = 0
-    results [res] += 1
+# sr = StepRandomizer (4, 2)
+# results = {}
+# for i in range (10000):
+#     res = sr.random()
+#     if not res in results:
+#         results[res] = 0
+#     results [res] += 1
 
-print ('After 10000 rounds the distribution is:')
-print (results)
- 
+# print ('After 10000 rounds the distribution is:')
+# print (results)
+#  

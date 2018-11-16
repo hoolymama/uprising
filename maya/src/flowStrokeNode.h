@@ -66,6 +66,11 @@ protected:
 
 
   void setPaintIds(MDataBlock &data, std::vector<strokeGeom> *geom) const;
+
+  void splitOnAngle(const MPointArray &flowPoints, double splitThreshold,
+                    const MVector &planeNormal, std::vector<MPointArray> &flowPointsList) const;
+  void trimOnAngle(double trimThreshold, const MVector &planeNormal,
+                   MPointArray &flowPoints) const;
   // MFloatMatrix  getFullProjection(float angle,
   //                                 const MFloatMatrix &projection);
 
@@ -83,8 +88,9 @@ protected:
   // static  MObject aCurvatureRamp;
   // static  MObject aCurvatureRangeMin;
   // static  MObject aCurvatureRangeMax;
-  // static  MObject aCurvatureRange;
 
+  static  MObject aSplitThreshold;
+  static  MObject aTrimThreshold;
   static MObject aMaxCurvature;
   // static  MObject aInterpolation;
   static  MObject aSamplePoints;
@@ -97,9 +103,12 @@ protected:
   // static  MObject aPaintIds;
 
   static  MObject aBrushIdImage;
-  static  MObject aPaintIdImage;
   static  MObject aBrushIdRemapRamp;
   static  MObject aBrushIdRemapRange;
+
+  static  MObject aPaintIdImage;
+  static  MObject aPaintIdRemapRamp;
+  static  MObject aPaintIdRemapRange;
 
   static  MObject aBrushRampScope;
   static  MObject aApproachDistance;

@@ -101,63 +101,33 @@ def create_and_connect_single_brush_geo(node, **kw):
     if kw["profile"].lower() == "round":
         profile_shape = 1
 
+
+    # print "create_and_connect_single_brush_geo: %s" % kw["retention"]
     connect_brush_to_node(tf, node)
     tf.attr("sfBrushWidth").set(kw["splay_width"])
     tf.attr("sfBrushTip").set(kw["tip"])
     tf.attr("sfBrushShape").set(profile_shape)
     tf.attr("sfBrushPhysicalId").set(kw["physical_id"])
-
-    retention = 1 if kw["prefix"] == "bpx" else 1000
-    tf.attr("sfBrushRetention").set(retention)
+    tf.attr("sfBrushRetention").set(kw["retention"])
     pm.parent(tf, kw["parent"])
     return tf
 
 
-def create_and_connect_both_brushes_geo(painting_node, dip_node, **kw):
+# def create_and_connect_both_brushes_geo(painting_node, dip_node, **kw):
 
-    painting_kwargs = copy(kw)
-    painting_kwargs["prefix"] = "bpx"
-    painting_kwargs["parent"] = '|brushes|paintingBrushes'
-    painting_brush_tf = create_and_connect_single_brush_geo(
-        painting_node, **painting_kwargs)
+#     painting_kwargs = copy(kw)
+#     painting_kwargs["prefix"] = "bpx"
+#     painting_kwargs["parent"] = '|brushes|paintingBrushes'
+#     painting_brush_tf = create_and_connect_single_brush_geo(
+#         painting_node, **painting_kwargs)
 
-    dip_kwargs = copy(kw)
-    dip_kwargs["prefix"] = "bdx"
-    dip_kwargs["tip"] = kw["dip_tip"]
-    dip_kwargs["parent"] = '|brushes|dipBrushes'
-    dip_brush_tf = create_and_connect_single_brush_geo(dip_node, **dip_kwargs)
+#     dip_kwargs = copy(kw)
+#     dip_kwargs["prefix"] = "bdx"
+#     dip_kwargs["tip"] = kw["dip_tip"]
+#     dip_kwargs["parent"] = '|brushes|dipBrushes'
+#     dip_brush_tf = create_and_connect_single_brush_geo(dip_node, **dip_kwargs)
 
-    # painting_brush_tf = create_and_connect_single_brush_geo(
-    #     painting_node,
-    #     kw["id"],
-    #     kw["unsplay_width"],
-    #     kw["desc"],
-    #     kw["profile"],
-    #     "bpx",
-    #     kw["height"],
-    #     kw["bristle_height"],
-    #     kw["tip"],
-    #     kw["splay_width"],
-    #     kw["physical_id"],
-    #     kw["x_offset"],
-    #     kw["y_offset"],
-
-    #     '|brushes|paintingBrushes')
-
-    # dip_brush_tf = create_and_connect_single_brush_geo(
-    #     dip_node,
-    #     kw["id"],
-    #     kw["unsplay_width"],
-    #     kw["desc"],
-    #     kw["profile"],
-    #     "bdx",
-    #     kw["height"],
-    #     kw["bristle_height"],
-    #     kw["dip_tip"],
-    #     kw["splay_width"],
-    #     kw["physical_id"],
-    #     '|brushes|dipBrushes')
-    return (painting_brush_tf, dip_brush_tf)
+#     return (painting_brush_tf, dip_brush_tf)
 
 
 def remove_brush_multi_atts(*nodes):
@@ -226,11 +196,13 @@ def setup_brushes_from_sheet(painting_node, dip_node, pouch_name):
             "physical_id": row[16],
             "x_offset": row[17],
             "y_offset": row[18],
+               
         }
-
+        # print "RETENTION: %s" % row[19]
         painting_kwargs = copy.copy(common_args)
         painting_kwargs["prefix"] = "bpx"
         painting_kwargs["tip"] = row[4]
+        painting_kwargs["retention"] =row[19]
         painting_kwargs["parent"] = '|brushes|paintingBrushes'
         painting_brush_tf = create_and_connect_single_brush_geo(
             painting_node, **painting_kwargs)
@@ -238,12 +210,13 @@ def setup_brushes_from_sheet(painting_node, dip_node, pouch_name):
         dip_kwargs = copy.copy(common_args)
         dip_kwargs["prefix"] = "bdx"
         dip_kwargs["tip"] = row[10]
+        dip_kwargs["retention"] = 1000
         dip_kwargs["parent"] = '|brushes|dipBrushes'
         dip_brush_tf = create_and_connect_single_brush_geo(
             dip_node, **dip_kwargs)
 
         wipe_offset = dip_kwargs["tip"] - common_args["wipe_tip"]
-
+        
         generate_brush_dip_curves(painting_brush_tf, dip_brush_tf, wipe_offset)
 
 
