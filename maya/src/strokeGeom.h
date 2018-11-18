@@ -195,6 +195,7 @@ private:
 	double m_arcLength;
 	short m_direction;
 	MVector m_planeNormal;
+
 	short m_brushId;
 	short m_paintId;
 	int m_layerId;
