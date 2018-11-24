@@ -5,6 +5,8 @@
 #include <vector>
 #include <maya/MVector.h>
 #include <maya/MMatrix.h>
+#include <maya/MFnNurbsCurve.h>
+
 
 #include <maya/MPoint.h>
 
@@ -16,14 +18,21 @@ class Target {
 public:
 
 
-	Target(
-	  const MObject &curveObject,
-	  double startDist,
-	  double endDist,
-	  double dist,
-	  double curveLength
-	);
+	Target();
 
+	Target(
+	  const MMatrix &mat,
+	  const MVector &tangent,
+	  double strokeParam,
+	  double curveParam);
+
+
+	Target(
+	  const MFnNurbsCurve &curveFn,
+	  double dist,
+	  double startDist,
+	  double strokeRange,
+	  double curveLength);
 
 	~Target();
 
@@ -43,13 +52,25 @@ public:
 	double distanceTo(const Target &other) const;
 
 
-	MPoint position() const;
+	MMatrix directionMatrix(bool backstroke) const;
+
+	MPoint position(const MMatrix &space = MMatrix::identity) const;
+
+
+	void setPosition(const MPoint &rhs);
 
 	MVector rotation(
 	  MTransformationMatrix::RotationOrder order,
-	  MAngle::Unit unit) const;
+	  MAngle::Unit unit,
+	  const MMatrix &space = MMatrix::identity) const;
 
+	MVector  transform(const MVector &rhs) const;
 
+	void getBorderPoints(
+	  MFloatPoint &left,
+	  MFloatPoint &right,
+	  double width,
+	  bool flat = false) const;
 
 private:
 	MVector m_tangent; // tangent on the curve

@@ -1,13 +1,13 @@
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MTransformationMatrix.h>
 #include <maya/MQuaternion.h>
-#include <stroke.h>
 #include <algorithm>
 #include <vector>
 
-#include <typeinfo>
+// #include <typeinfo>
 #include "errorMacros.h"
 #include "mayaMath.h"
+#include <stroke.h>
 
 const double epsilon = 0.0001;
 // const double pi = 3.1415926535;
@@ -29,8 +29,11 @@ unsigned Stroke::create(
   const StrokeRepeatSpec &repeatSpec,
   DirectionMethod strokeDirection,
   double pivotParam,
-  std::vector<Stroke> &strokes
-
+  int strokeId,
+  int brushId,
+  int paintId,
+  int layerId,
+  std::vector<Stroke> *strokes
 ) {
 	/* This is the motherstroke. Determine whether forward or back */
 	bool backstroke = shouldMakeBackstroke(dCurve, startDist, endDist, strokeDirection);
@@ -40,7 +43,8 @@ unsigned Stroke::create(
 	}
 
 	int repeatId = 0;
-	Stroke stk(
+
+	Stroke motherStroke(
 	  dCurve,
 	  curveLength,
 	  startDist,
@@ -48,35 +52,43 @@ unsigned Stroke::create(
 	  entryLength,
 	  exitLength,
 	  pointDensity,
-	  repeatId++);
+	  pivotParam,
+	  strokeId,
+	  brushId,
+	  paintId,
+	  layerId,
+	  repeatId,
+	  backstroke);
 
-	stk.setRotations(thisObj, rotSpec, backstroke);
-	stk.setPivot(dCurve, pivotParam, startDist, endDist);
+	repeatId++;
 
-	strokes.push_back(stk);
+	motherStroke.setRotations(thisObj, rotSpec);
 
-	const Stroke &mother = stk;
+	// motherStroke.setPivot(dCurve, pivotParam, startDist, endDist);
+
+	strokes->push_back(motherStroke);
+
+	// const Stroke &mother = stk;
 
 	for (int j = 0; j < repeatSpec.repeats; ++j) {
-		bool reverse = false;
-		bool repeatIsBackstroke = backstroke;
-		if (repeatSpec.oscillate && (j % 2 == 0)) {
-			reverse = true;
-			repeatIsBackstroke = !backstroke;
-		}
+
+		bool	reverse = (repeatSpec.oscillate && (j % 2 == 0));
 
 		double offset = repeatSpec.offset * (j + 1);
-		stk = Stroke(mother, offset, reverse, repeatId++);
-		stk.setRotations(thisObj, rotSpec, backstroke);
-		strokes.push_back(stk);
-
-		if (repeatSpec.mirror) {
-			stk = Stroke(mother, -offset, reverse, repeatId++);
-			stk.setRotations(thisObj, rotSpec, backstroke);
-			strokes.push_back(stk);
+		Stroke stk(motherStroke);
+		stk.offset(offset, reverse, repeatId++);
+		stk.setRotations(thisObj, rotSpec);
+		strokes->push_back(stk);
+		// cerr << "repeatSpec.mirror" << repeatSpec.mirror << endl;
+		if ( repeatSpec.mirror) {
+			Stroke stk(motherStroke);
+			stk.offset(-offset, reverse, repeatId++);
+			stk.setRotations(thisObj, rotSpec);
+			strokes->push_back(stk);
 		}
 	}
-	return 1 + repeatSpec.count() ;
+
+	return repeatSpec.count() ;
 }
 
 
@@ -86,7 +98,13 @@ Stroke::Stroke()	:
 	m_arcLength(0),
 	m_entryLength(),
 	m_exitLength(),
-	m_repeatId() {}
+	m_repeatId(),
+	m_arrivals(),
+	m_departure()
+{}
+
+
+
 
 
 Stroke::Stroke(
@@ -97,73 +115,74 @@ Stroke::Stroke(
   double entryLength,
   double exitLength,
   double density,
-  int repeatId)	:
+  double pivotParam,
+  int strokeId,
+  int brushId,
+  int paintId,
+  int layerId,
+  int repeatId,
+  bool backstroke)	:
 	m_targets(),
 	m_pivot(),
 	m_arcLength(),
 	m_entryLength(entryLength),
 	m_exitLength(exitLength),
-	m_repeatId(repeatId)
+	m_strokeId(strokeId),
+	m_brushId(brushId),
+	m_paintId(paintId),
+	m_layerId(layerId),
+	m_repeatId(repeatId),
+	m_backstroke(backstroke),
+	m_arrivals(),
+	m_departure()
 
 {
 
-	double strokeLength = endDist - startDist;
-	unsigned numPoints = unsigned(density * strokeLength);
+	MFnNurbsCurve curveFn(curveObject);
+	double strokeRange = endDist - startDist; // can be negative
+	unsigned numPoints = unsigned(density * fabs(strokeRange));
 	if (numPoints < 2) { numPoints = 2; }
-	double gap = strokeLength / (numPoints - 1) ;
-
+	double gap = strokeRange / (numPoints - 1) ; // can be negative
 	for (unsigned i = 0; i < numPoints; i++) {
 		double dist = startDist + (i * gap);
-		Target target = Target(curveObject, startDist, endDist, dist, curveLength);
-		m_targets.push_back(target);
+		m_targets.push_back(
+		  Target(curveFn, dist, startDist, strokeRange, curveLength)
+		);
+	}
+
+	double pivotDist = startDist  + (strokeRange * pivotParam);
+	m_pivot = Target(curveFn, pivotDist, startDist, strokeRange, curveLength);
+
+	setArcLength();
+}
+
+void Stroke::offset(
+  double offset,
+  bool reverse,
+  int repeatId)
+{
+
+	m_repeatId = repeatId;
+	if (reverse) {
+		m_backstroke =  !m_backstroke;
+		std::reverse(m_targets.begin(), m_targets.end());
+	}
+
+	MVector offsetVec;
+	if (fabs(offset) > epsilon) {
+		std::vector<Target>::iterator iter;
+		for (iter = m_targets.begin(); iter != m_targets.end(); iter++) {
+			offsetVec = (iter->tangent() ^ MVector::zAxis) * offset;
+			iter->offsetBy(offsetVec);
+		}
+		offsetVec = (m_pivot.tangent() ^ MVector::zAxis) * offset;
+		m_pivot.offsetBy(offsetVec);
 	}
 	setArcLength();
 }
 
-/* Copy constructor */
-Stroke::Stroke(
-  const Stroke &other,
-  double offset,
-  bool reverse,
-  int repeatId):
-	m_repeatId(repeatId)
-{
 
-	unsigned len = other.targets().size();
-	// m_targets.setLength(len)
-	m_repeatId = repeatId;
-	m_pivot = other.pivot();
-
-	if (reverse)
-	{
-		std::vector<Target>::const_reverse_iterator citer;
-
-		for (citer = other.targets().rbegin() ; citer != other.targets().rend(); citer++) {
-			m_targets.push_back(*citer);
-		}
-	}
-	else {
-		std::vector<Target>::const_iterator citer;
-		for (citer = other.targets().begin() ; citer != other.targets().end(); citer++) {
-			m_targets.push_back(*citer);
-		}
-	}
-
-	if (fabs(offset) > epsilon) {
-		std::vector<Target>::iterator iter;
-		for (iter = m_targets.begin(); iter != m_targets.end(); iter++) {
-			MVector offsetVec = (iter->tangent() ^ MVector::zAxis) * offset;
-			iter->offsetBy(offsetVec);
-		}
-		setArcLength();
-	}
-	else {
-		m_arcLength = other.arcLength();
-	}
-}
-
-
-const MPoint &Stroke::pivot() const {
+const Target &Stroke::pivot() const {
 	return m_pivot;
 }
 
@@ -172,8 +191,7 @@ Stroke::~Stroke() {}
 
 void Stroke::setRotations(
   const MObject &thisObj,
-  const StrokeRotationSpec &rotSpec,
-  bool backstroke)
+  const StrokeRotationSpec &rotSpec)
 {
 	bool follow = rotSpec.followStroke;
 
@@ -184,7 +202,7 @@ void Stroke::setRotations(
 	else
 	{
 		this->getParams(sampleVals);
-		if (rotSpec.rampScope ==  StrokeRotationSpec::kTravelStroke && backstroke)
+		if (rotSpec.rampScope ==  StrokeRotationSpec::kTravelStroke && m_backstroke)
 		{	// reverse them
 			reverseArray(sampleVals);
 		}
@@ -212,7 +230,7 @@ void Stroke::setRotations(
 	std::vector<Target>::iterator iter = m_targets.begin();
 	unsigned i = 0;
 	for (; iter != m_targets.end(); iter++, i++) {
-		iter->setRotation(outTilt[i], outBank[i], outTwist[i], follow, backstroke );
+		iter->setRotation(outTilt[i], outBank[i], outTwist[i], follow, m_backstroke );
 	}
 }
 
@@ -227,17 +245,22 @@ void Stroke::setArcLength() {
 	}
 }
 
-void Stroke::setPivot(
-  const MObject &curveObject,
-  double pivotParam,
-  double startDist,
-  double endDist)
+bool Stroke::backstroke() const
 {
-	MFnNurbsCurve curveFn(curveObject);
-	double dist = startDist + (pivotParam * (endDist - startDist) );
-	double crvParam = curveFn.findParamFromLength(dist);
-	curveFn.getPointAtParam(crvParam, m_pivot, MSpace::kWorld);
+	return m_backstroke;
 }
+
+// void Stroke::setPivot(
+//   const MObject &curveObject,
+//   double pivotParam,
+//   double startDist,
+//   double endDist)
+// {
+// 	MFnNurbsCurve curveFn(curveObject);
+// 	double dist = startDist + (pivotParam * (endDist - startDist) );
+// 	double crvParam = curveFn.findParamFromLength(dist);
+// 	curveFn.getPointAtParam(crvParam, m_pivot, MSpace::kWorld);
+// }
 
 
 void Stroke::getParams(MDoubleArray &result) const {
@@ -283,35 +306,30 @@ unsigned Stroke::size() const {
 	return m_targets.size();
 }
 
+
+
 int Stroke::repeatId() const {
 	return m_repeatId;
 }
 
-///////// TO ADD ////////
-
-
-int Stroke::id() const
+int Stroke::strokeId() const
 {
-	return m_id;
+	return m_strokeId;
 }
 int Stroke::parentId() const
 {
 	return m_parentId;
 }
 
-
 void Stroke::setParentId(int parentId)
 {
 	m_parentId = parentId;
 }
 
-
-
 int Stroke::layerId() const
 {
 	return m_layerId;
 }
-
 
 int Stroke::brushId() const {
 	return m_brushId;
@@ -319,6 +337,15 @@ int Stroke::brushId() const {
 int Stroke::paintId() const {
 	return m_paintId;
 }
+
+void Stroke::setBrushId(int val) {
+	m_brushId = val;
+}
+void Stroke::setPaintId(int val) {
+	m_paintId = val;
+}
+
+/////////////////////// SORT AND FILTER ///////////////////////
 
 const MIntArray &Stroke::sortStack() const {
 	return m_sortStack;
@@ -330,12 +357,6 @@ void Stroke::clearSortStack()
 }
 
 
-void Stroke::setBrushId(int val) {
-	m_brushId = val;
-}
-void Stroke::setPaintId(int val) {
-	m_paintId = val;
-}
 
 void Stroke::setSortColor(const MFloatVector &color)
 {
@@ -347,9 +368,9 @@ void Stroke::setFilterColor(const MFloatVector &color)
 }
 
 
-void Stroke::appendIdToSortStack(bool ascending)
+void Stroke::appendStrokeIdToSortStack(bool ascending)
 {
-	int val = ascending ? m_id : -m_id;
+	int val = ascending ? m_strokeId : -m_strokeId;
 	m_sortStack.append(val);
 }
 
@@ -412,7 +433,7 @@ void Stroke::appendMapBlueIdToSortStack(bool ascending)
 }
 
 
-bool Stroke::testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) const
+bool Stroke::testAgainstValue(int lhs, FilterOperator op, int rhs ) const
 {
 	switch (op)
 	{
@@ -429,59 +450,336 @@ bool Stroke::testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) const
 	}
 }
 
-bool Stroke::testId(StrokeFilterOperator op, int value) const
+bool Stroke::testStrokeId(FilterOperator op, int value) const
 {
-	return  testAgainstValue(m_id, op, value);
+	return  testAgainstValue(m_strokeId, op, value);
 }
-bool Stroke::testParentId(StrokeFilterOperator op, int value) const
+bool Stroke::testParentId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(m_parentId, op, value);
 }
-bool Stroke::testBrushId(StrokeFilterOperator op, int value) const
+bool Stroke::testBrushId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(m_brushId, op, value);
 }
-bool Stroke::testPaintId(StrokeFilterOperator op, int value) const
+bool Stroke::testPaintId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(m_paintId, op, value);
 }
-bool Stroke::testLayerId(StrokeFilterOperator op, int value) const
+bool Stroke::testLayerId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(m_layerId, op, value);
 }
-bool Stroke::testRepeatId(StrokeFilterOperator op, int value) const
+bool Stroke::testRepeatId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(m_repeatId, op, value);
 }
-bool Stroke::testCustomBrushId(StrokeFilterOperator op, int value) const
+bool Stroke::testCustomBrushId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(int(m_customBrushId), op, value);
 }
-bool Stroke::testCustomPaintId(StrokeFilterOperator op, int value) const
+bool Stroke::testCustomPaintId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(int(m_customPaintId), op, value);
 }
-bool Stroke::testMapRedId(StrokeFilterOperator op, int value) const
+bool Stroke::testMapRedId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(int(m_filterColor.x * 256), op, value);
 }
-bool Stroke::testMapGreenId(StrokeFilterOperator op, int value) const
+bool Stroke::testMapGreenId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(int(m_filterColor.y * 256), op, value);
 }
-bool Stroke::testMapBlueId(StrokeFilterOperator op, int value) const
+bool Stroke::testMapBlueId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(int(m_filterColor.z * 256), op, value);
 }
 
+//////////////////////////////////////////////
+
+
+
+/////////////////////// FOR DRAWING ///////////////////////
+
+
+void Stroke::getDirectionMatrices(MMatrixArray &result, double stackHeight) const {
+	MVector stackOffset = MVector::zAxis * stackHeight;
+	std::vector<Target>::const_iterator citer;
+	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
+		MMatrix mat =  citer->directionMatrix(m_backstroke);
+		mat[3][2] += stackHeight;
+		result.append(mat);
+	}
+}
+
+void Stroke::getPoints(MFloatPointArray &result, double stackHeight,
+                       bool withTraversal) const {
+
+
+	cerr << "withTraversal: " << withTraversal << endl;
+	MFloatVector stackOffset =  MFloatVector::zAxis * stackHeight;
+	std::vector<Target>::const_iterator citer;
+	if (withTraversal)
+	{
+		for (citer = m_arrivals.begin() ; citer != m_arrivals.end(); citer++) {
+			cerr << "m_arrivals iter->position(): " << citer->position() << endl;
+			result.append(MFloatPoint(citer->position()) + stackOffset);
+		}
+	}
+	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
+		cerr << "m_targets iter->position(): " << citer->position() << endl;
+		result.append(MFloatPoint(citer->position()) + stackOffset);
+	}
+	if (withTraversal)
+	{
+		cerr << "m_departure.position(): " << m_departure.position() << endl;
+		result.append(MFloatPoint(m_departure.position()) + stackOffset);
+	}
+}
+
+void Stroke::transform(const MVector &vec, MFloatVectorArray &result,
+                       bool withTraversal) const {
+	std::vector<Target>::const_iterator citer;
+	if (withTraversal)
+	{
+		for (citer = m_arrivals.begin() ; citer != m_arrivals.end(); citer++) {
+			result.append(MFloatPoint(citer->transform(vec)));
+		}
+	}
+	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
+		result.append(MFloatVector(citer->transform(vec)));
+	}
+	if (withTraversal)
+	{
+		result.append(MFloatPoint(m_departure.transform(vec)));
+	}
+}
+
+void Stroke::getXAxes(MFloatVectorArray &result, bool withTraversal) const {
+	transform(MVector::xAxis, result, withTraversal);
+}
+void Stroke::getYAxes(MFloatVectorArray &result, bool withTraversal) const {
+	transform(MVector::yAxis, result, withTraversal);
+}
+void Stroke::getZAxes(MFloatVectorArray &result, bool withTraversal) const {
+	transform(MVector::zAxis, result, withTraversal);
+}
+
+
+
+void Stroke::getHead(MFloatPoint &result,  float stackHeight) const {
+	MFloatVector stackOffset = MFloatVector::zAxis * stackHeight;
+	result = MFloatPoint(m_targets[0].position()) + stackOffset;
+}
+
+
+
+
+void Stroke::getBorders(
+  MFloatPointArray &lefts,
+  MFloatPointArray &rights,
+  const Brush &brush,
+  double stackHeight) const
+{
+	unsigned len = m_targets.size();
+	lefts.setLength(len);
+	rights.setLength(len);
+
+	MFloatVector stackOffset = MFloatVector(MVector::zAxis * stackHeight);
+	double width = brush.width * 0.5;
+
+	bool flat = (brush.shape == Brush::kFlat) ;
+	std::vector<Target>::const_iterator citer;
+	unsigned i = 0;
+	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++, i++) {
+		MFloatPoint &left = lefts[i];
+		MFloatPoint &right = rights[i];
+		citer->getBorderPoints(left, right, width, flat);
+		left += stackOffset;
+		right += stackOffset;
+	}
+}
 
 ///////// ///////// /////////
+
+///////// ///////// /////////
+
+void Stroke::positions(const MMatrix &space, MPointArray &result) const
+{
+	std::vector<Target>::const_iterator citer;
+	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
+		result.append(citer->position(space));
+	}
+}
+
+void Stroke::rotations(
+  const MMatrix &space,
+  MTransformationMatrix::RotationOrder order,
+  MAngle::Unit unit,
+  MVectorArray &result ) const
+{
+	std::vector<Target>::const_iterator citer;
+	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
+		result.append(citer->rotation(order, unit, space));
+	}
+}
+
+
+
+void Stroke::tangents(const MMatrix &space, MVectorArray &result) const
+{
+	std::vector<Target>::const_iterator citer;
+	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++) {
+		result.append(citer->tangent() * space);
+	}
+}
+
+
+void Stroke::setCustomSortData(const Brush &brush,  const Paint &paint)
+{
+	m_customBrushId = brush.customId;
+	m_customPaintId =	paint.customId;
+}
+
+
+void Stroke::setUV(
+  const MMatrix &inversePlaneMatrix)
+{
+	MPoint p = ((m_pivot.position() * inversePlaneMatrix) * 0.5) + MVector(0.5, 0.5, 0.0);
+	m_u = p.x;
+	m_v = p.y;
+}
+void Stroke::getUV( float &u, float &v) {
+	u = m_u;
+	v = m_v;
+}
+
+void Stroke::displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap)
+{
+	std::vector<Target>::iterator iter;
+	for (iter = m_targets.begin() ; iter != m_targets.end(); iter++) {
+		MFloatPoint rayOrigin = MFloatPoint(iter->position());
+		rayOrigin.z = 0.0f;
+		float dist = 0;
+		MFloatPoint hitPoint;
+		bool hit = meshFn.closestIntersection(
+		             rayOrigin, MFloatVector::zAxis, 0, 0, false,
+		             MSpace::kWorld,
+		             100.0f, true, &ap, hitPoint, &dist, 0, 0, 0, 0);
+		if (hit) {
+			iter->offsetBy(MVector(0.0, 0.0, dist));
+		}
+	}
+}
+
+
+const Target &Stroke::departure() const
+{
+	return m_departure;
+}
+
+
+
+
+void Stroke::setDeparture(double offset)
+{
+	MVector offsetVector(0.0, 0.0, offset);
+	m_departure = Target(m_targets.back());
+	m_departure.offsetBy(offsetVector);
+	cerr << "Stroke::setDeparture: " << m_departure.position() << endl;
+}
+
+void Stroke::setArrival(double offset)
+{
+	MVector offsetVector(0.0, 0.0, offset);
+	Target arrival(m_targets.front());
+	arrival.offsetBy(offsetVector);
+	m_arrivals.push_back(arrival);
+}
+
+void Stroke::setArrival(double offset, double threshold, const Stroke &prev)
+{
+	const Target &departure = prev.departure();
+	MVector offsetVector(0.0, 0.0, offset);
+	Target arrival(m_targets.front());
+	arrival.offsetBy(offsetVector);
+
+	double dist = departure.distanceTo(arrival);
+
+	MPoint departurePos = departure.position();
+	MPoint arrivalPos = arrival.position();
+
+
+	if (dist > threshold) {
+		int num_inbetweens = int(dist / threshold);
+		for (int i = 0; i < num_inbetweens; ++i)
+		{
+			double fraction = (i + 1) / double(num_inbetweens + 1);
+			MPoint newPoint((departurePos * (1.0 - fraction)) + (arrivalPos * fraction));
+
+			Target stop;
+			if (fraction < 0.5) {
+				stop = Target(departure);
+			}
+			else
+			{
+				stop = Target(arrival);
+			}
+			stop.setPosition(newPoint);
+			m_arrivals.push_back(stop);
+		}
+	}
+	m_arrivals.push_back(arrival);
+}
+
+
+
+
+
+// void clusterGeom::setPreStops(double threshold)
+// {
+// 	std::vector<Stroke>::iterator iter;
+// 	iter = m_strokes.begin();
+// 	MMatrix lastA = iter->endApproach();
+// 	MPoint lastPoint(lastA[3][0], lastA[3][1], lastA[3][2]);
+// 	iter++;
+// 	for (; iter != m_strokes.end(); iter++)
+// 	{
+// 		const MMatrix &currentA = iter->startApproach();
+
+
+// 		MPoint currentPoint(currentA[3][0], currentA[3][1], currentA[3][2]);
+
+// 		double dist = lastPoint.distanceTo(currentPoint);
+
+// 		if (dist > threshold) {
+// 			int num_inbetweens = int(dist / threshold);
+// 			for (int i = 0; i < num_inbetweens; ++i)
+// 			{
+// 				double fraction = (i + 1) / double(num_inbetweens + 1);
+// 				MPoint newPoint((lastPoint * (1.0 - fraction)) + (currentPoint * fraction));
+// 				MMatrix newMat(lastA);
+// 				if (fraction > 0.5) {
+// 					newMat = MMatrix(currentA);
+// 				}
+// 				newMat[3][0] = newPoint.x;
+// 				newMat[3][1] = newPoint.y;
+// 				newMat[3][2] = newPoint.z;
+// 				iter->addPreStop(newMat);
+// 			}
+// 		}
+// 		lastA = iter->endApproach();
+// 		lastPoint = MPoint(lastA[3][0], lastA[3][1], lastA[3][2]);
+// 	}
+// }
+
+
+
 
 // private
 
 
-void Stroke::reverseArray(MDoubleArray &arr) const
-
+void Stroke::reverseArray(MDoubleArray &arr)
 {
 	int i = arr.length() - 1;
 	int j = 0;
@@ -497,7 +795,7 @@ void Stroke::reverseArray(MDoubleArray &arr) const
 
 
 bool Stroke::shouldMakeBackstroke(MObject dCurve, double startDist, double endDist,
-                                  Stroke::DirectionMethod strokeDirection) const
+                                  Stroke::DirectionMethod strokeDirection)
 {
 
 	/* 	enum DirectionMethod { kForwards, kBackwards, kStartUppermost, kEndUppermost  };  */
@@ -532,3 +830,11 @@ bool Stroke::shouldMakeBackstroke(MObject dCurve, double startDist, double endDi
 	return false;
 }
 
+// std::vector<Target>::const_reverse_iterator citer;
+// for (citer = other.targets().rbegin() ; citer != other.targets().rend(); citer++) {
+// 	m_targets.push_back(*citer);
+// }
+// std::vector<Target>::const_iterator citer;
+// for (citer = other.targets().begin() ; citer != other.targets().end(); citer++) {
+// 	m_targets.push_back(*citer);
+// }

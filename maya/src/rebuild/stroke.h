@@ -7,6 +7,8 @@
 #include <maya/MVectorArray.h>
 #include <maya/MMatrixArray.h>
 
+#include <maya/MFnMesh.h>
+
 #include <maya/MObject.h>
 
 #include <mayaMath.h>
@@ -15,6 +17,8 @@
 #include "strokeRotationSpec.h"
 #include "strokeRepeatSpec.h"
 
+#include "brush.h"
+#include "paint.h"
 #include "target.h"
 
 
@@ -25,9 +29,7 @@ public:
 
 	enum DirectionMethod { kForwards, kBackwards, kStartUppermost, kEndUppermost  };
 
-
-
-	enum StrokeFilterOperator {
+	enum FilterOperator {
 		kGreaterThan,
 		kLessThan,
 		kEqualTo,
@@ -35,8 +37,24 @@ public:
 		kNoOp
 	};
 
+	enum SortFilterKey {
+		kStrokeId,
+		kBrushId,
+		kPaintId,
+		kRepeatId,
+		kLayerId,
+		kMapRed,
+		kMapGreen,
+		kMapBlue
+	};
+
+
+	enum SortDirection { kSortAscending,  kSortDescending};
+
+
+
 	/* factory */
-	unsigned create(
+	static unsigned create(
 	  const MObject &thisObj,
 	  const MObject &dCurve,
 	  double curveLength,
@@ -49,11 +67,16 @@ public:
 	  const StrokeRepeatSpec &repeatSpec,
 	  DirectionMethod strokeDirection,
 	  double pivotParam,
-	  std::vector<Stroke> &strokes
+	  int strokeId,
+	  int brushId,
+	  int paintId,
+	  int layerId,
+	  std::vector<Stroke> *strokes
 	) ;
 
 
 	Stroke();
+
 
 	Stroke(
 	  const MObject &curveObject ,
@@ -63,28 +86,29 @@ public:
 	  double entryLength,
 	  double exitLength,
 	  double density,
+	  double pivotParam,
+	  int strokeId,
+	  int brushId,
+	  int paintId,
+	  int layerId,
+	  int repeatId,
+	  bool backstroke);
+
+	void offset(
+	  double offset,
+	  bool reverse,
 	  int repeatId);
-
-
-	// copy ctor can also apply an offset and/or
-	// reverse the direction.
-	Stroke(
-	  const Stroke &other,
-	  double offset = 0.0,
-	  bool reverse = false,
-	  int repeatId = 0);
 
 	~Stroke();
 
-	void setRotations(  const MObject &thisObj,
-	                    const StrokeRotationSpec &rotSpec,
-	                    bool backstroke = false);
+	void setRotations(   const MObject &thisObj,
+	                     const StrokeRotationSpec &rotSpec);
 
-	void setPivot(
-	  const MObject &curveObject,
-	  double fraction,
-	  double startDist,
-	  double endDist) ;
+	// void setPivot(
+	//   const MObject &curveObject,
+	//   double fraction,
+	//   double startDist,
+	//   double endDist) ;
 
 	unsigned size() const;
 
@@ -104,10 +128,11 @@ public:
 
 	const double &exitLength() const;
 
-	const MPoint &pivot() const ;
+	const Target &pivot() const ;
 
+	bool backstroke() const;
 
-	int id() const;
+	int strokeId() const;
 	int parentId() const;
 	int repeatId() const ;
 
@@ -131,7 +156,7 @@ public:
 	void setSortColor(const MFloatVector &color);
 	void setFilterColor(const MFloatVector &color);
 
-	void appendIdToSortStack(bool ascending);
+	void appendStrokeIdToSortStack(bool ascending);
 
 	void appendParentIdToSortStack(bool ascending);
 
@@ -151,42 +176,88 @@ public:
 	void appendMapGreenIdToSortStack(bool ascending);
 	void appendMapBlueIdToSortStack(bool ascending);
 
-	bool testAgainstValue(int lhs, StrokeFilterOperator op, int rhs ) const;
+	bool testAgainstValue(int lhs, FilterOperator op, int rhs ) const;
 
-	bool testId(StrokeFilterOperator op, int value) const;
-	bool testParentId(StrokeFilterOperator op, int value) const;
-	bool testBrushId(StrokeFilterOperator op, int value) const;
-	bool testPaintId(StrokeFilterOperator op, int value) const;
-	bool testLayerId(StrokeFilterOperator op, int value) const;
-	bool testRepeatId(StrokeFilterOperator op, int value) const;
-	bool testCustomBrushId(StrokeFilterOperator op, int value) const;
-	bool testCustomPaintId(StrokeFilterOperator op, int value) const;
-	bool testMapRedId(StrokeFilterOperator op, int value) const;
-	bool testMapGreenId(StrokeFilterOperator op, int value) const;
-	bool testMapBlueId(StrokeFilterOperator op, int value) const;
+	bool testStrokeId(FilterOperator op, int value) const;
+	bool testParentId(FilterOperator op, int value) const;
+	bool testBrushId(FilterOperator op, int value) const;
+	bool testPaintId(FilterOperator op, int value) const;
+	bool testLayerId(FilterOperator op, int value) const;
+	bool testRepeatId(FilterOperator op, int value) const;
+	bool testCustomBrushId(FilterOperator op, int value) const;
+	bool testCustomPaintId(FilterOperator op, int value) const;
+	bool testMapRedId(FilterOperator op, int value) const;
+	bool testMapGreenId(FilterOperator op, int value) const;
+	bool testMapBlueId(FilterOperator op, int value) const;
 
 
+	void getDirectionMatrices(MMatrixArray &result, double stackHeight) const;
+
+	void getPoints(MFloatPointArray &result, double stackHeight,
+	               bool withTraversal = false) const ;
+	void transform(const MVector &vec, MFloatVectorArray &result,
+	               bool withTraversal = false) const ;
+	void getXAxes(MFloatVectorArray &result, bool withTraversal = false) const ;
+	void getYAxes(MFloatVectorArray &result, bool withTraversal = false) const;
+	void getZAxes(MFloatVectorArray &result, bool withTraversal = false) const ;
+
+
+	void getBorders(
+	  MFloatPointArray &lefts,
+	  MFloatPointArray &rights,
+	  const Brush &brush,
+	  double stackHeight) const;
+
+
+
+	void positions(const MMatrix &space, MPointArray &result) const;
+	void rotations(
+	  const MMatrix &space,
+	  MTransformationMatrix::RotationOrder order,
+	  MAngle::Unit unit,
+	  MVectorArray &result ) const;
+
+
+	void tangents(const MMatrix &space, MVectorArray &result) const;
+
+	void getHead(MFloatPoint &result,  float stackHeight) const ;
+
+
+	void setCustomSortData(const Brush &brush,  const Paint &paint);
+
+	void setUV(const MMatrix &inversePlaneMatrix);
+	void getUV( float &u, float &v);
+	void displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap);
+
+
+
+
+	const Target &departure() const;
+
+	void setDeparture(double offset);
+	void setArrival(double offset);
+	void setArrival(double offset, double threshold, const Stroke &prev);
 
 private:
 
-	void reverseArray(MDoubleArray &arr) const ;
+	static void reverseArray(MDoubleArray &arr)  ;
 
 
-	bool shouldMakeBackstroke(MObject dCurve, double startDist, double endDist,
-	                          Stroke::DirectionMethod strokeDirection) const;
+	static bool shouldMakeBackstroke(MObject dCurve, double startDist, double endDist,
+	                                 Stroke::DirectionMethod strokeDirection) ;
 
 	void setArcLength();
 
 	std::vector<Target> m_targets;  // flat targets with 3d rotations
 
-	MPoint m_pivot;
+
 	double m_arcLength;
 	double m_entryLength;
 	double m_exitLength;
 	int m_repeatId;
 
 	// from  strokeGeom
-	int m_id;
+	int m_strokeId;
 	int m_parentId;
 	int m_brushId;
 	int m_paintId;
@@ -200,6 +271,14 @@ private:
 	MFloatVector m_sortColor;
 	MFloatVector m_filterColor;
 	MIntArray m_sortStack;
+
+	bool m_backstroke;
+
+	std::vector<Target> m_arrivals;
+
+	Target m_departure;
+
+	Target m_pivot;
 
 };
 

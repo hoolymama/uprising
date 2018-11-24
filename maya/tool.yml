@@ -33,6 +33,8 @@ templates:
 - gl
 source_files:
 - src/rebuild/*.cpp
+- src/rebuild/img/*.cpp
+
 # - src/cimg/*.cpp
 - ../../kettle/src/maya/mayaMath.cpp
 lib_paths:

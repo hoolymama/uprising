@@ -71,7 +71,6 @@ double paintingGeom::travelCutoff(  short brushId, short paintId) const {
 
 
 clusterGeom &paintingGeom::prepCluster(
-  bool force,
   short brushId,
   short phisicalId,
   short paintId)
@@ -122,8 +121,8 @@ clusterGeom &paintingGeom::prepCluster(
 	instantiate a cluster from the last cluster in the array.
 	*/
 
-	if (back.ranOutOfPaint() or force) {
-		// cerr << "RAN OUT PAINT OR FORCE (dip only)" << endl;
+	if (back.ranOutOfPaint()) {
+		// cerr << "RAN OUT PAINT  (dip only)" << endl;
 		m_clusters.push_back( clusterGeom(
 		                        back.brushId(),
 		                        back.paintId(),
@@ -136,6 +135,23 @@ clusterGeom &paintingGeom::prepCluster(
 }
 
 
+void paintingGeom::setApproaches(double approachStart, double approachMid,
+                                 double approachEnd, double ptpThresh)
+{
+	std::vector<clusterGeom>::iterator iter;
+	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
+	{
+		iter->setApproaches(approachStart, approachMid, approachEnd, ptpThresh);
+	}
+}
+
+// void paintingGeom::setPreStops(double threshold) {
+// 	std::vector<clusterGeom>::iterator iter;
+// 	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
+// 	{
+// 		iter->setPreStops(threshold);
+// 	}
+// }
 
 void paintingGeom::dipCombinations(MIntArray &result) const
 {
@@ -157,9 +173,9 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 
 // void paintingGeom::addStrokeCurve(const strokeCurveGeom &strokeCurve) {
 
-// 	const std::vector<strokeGeom> &strokes = strokeCurve.strokes();
+// 	const std::vector<Stroke> &strokes = strokeCurve.strokes();
 
-// 	std::vector<strokeGeom>::const_iterator citer;
+// 	std::vector<Stroke>::const_iterator citer;
 
 // 	unsigned i = 0;
 // 	for (citer = strokes.begin(); citer != strokes.end(); citer++) {
@@ -172,14 +188,14 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 // }
 
 
-void paintingGeom::addStroke(const strokeGeom &stroke) {
+void paintingGeom::addStroke(const Stroke &stroke) {
 
 	// short paintId = stroke.paintId();
 	short brushId = stroke.brushId();
 	const  Brush &b = brushFromId(brushId);
 	// short physicalId = b.physicalId;
-	bool force = stroke.forceDip();
-	clusterGeom &g = prepCluster(force, brushId , b.physicalId, stroke.paintId() );
+	// bool force = stroke.forceDip();
+	clusterGeom &g = prepCluster(brushId , b.physicalId, stroke.paintId() );
 	g.pushStroke(stroke);
 
 }
@@ -218,39 +234,39 @@ void paintingGeom::displace( MFnMesh &meshFn,  MMeshIsectAccelParams &ap )
 
 
 
-ostream &operator<<(ostream &os, const paintingGeom &g)
-{
-	os << "--------PAINTING GEOM---------------------\n" ;
-	os << g.m_brushes.size() << "BRUSHES: [\n" ;
-	for (auto const &brush : g.m_brushes) {
-		os << brush.first << ": " << brush.second << ",\n";
-	}
-	os << "],\n";
-	os << g.m_paints.size() << " PAINTS: [\n" ;
-	for (auto const &paint : g.m_paints) {
-		os << paint.first << ":" << paint.second << ",\n";
-	}
-	os << "],\n";
-	os  << g.m_clusters.size() << " CLUSTERS: [\n" ;
-	for (auto const &cluster : g.m_clusters) {
-		os << cluster << ",\n";
-	}
-	os << "],\n";
-	os << endl;
-	// std::map<short, Brush>::const_iterator cbiter = g.m_brushes.begin();
-	// for (; cbiter !=  g.m_brushes.end(), cbiter++) {
-	// 	// os << *cbiter;
-	// }
-	// for (auto const &brush : g.m_brushes)
-	// {
-	// 	os << *brush;
-	// }
+// ostream &operator<<(ostream &os, const paintingGeom &g)
+// {
+// 	os << "--------PAINTING GEOM---------------------\n" ;
+// 	os << g.m_brushes.size() << "BRUSHES: [\n" ;
+// 	for (auto const &brush : g.m_brushes) {
+// 		os << brush.first << ": " << brush.second << ",\n";
+// 	}
+// 	os << "],\n";
+// 	os << g.m_paints.size() << " PAINTS: [\n" ;
+// 	for (auto const &paint : g.m_paints) {
+// 		os << paint.first << ":" << paint.second << ",\n";
+// 	}
+// 	os << "],\n";
+// 	os  << g.m_clusters.size() << " CLUSTERS: [\n" ;
+// 	for (auto const &cluster : g.m_clusters) {
+// 		os << cluster << ",\n";
+// 	}
+// 	os << "],\n";
+// 	os << endl;
+// 	// std::map<short, Brush>::const_iterator cbiter = g.m_brushes.begin();
+// 	// for (; cbiter !=  g.m_brushes.end(), cbiter++) {
+// 	// 	// os << *cbiter;
+// 	// }
+// 	// for (auto const &brush : g.m_brushes)
+// 	// {
+// 	// 	os << *brush;
+// 	// }
 
-	// for (auto const &paint : g.m_paints)
-	// {
-	// 	os << *paint;
-	// }
+// 	// for (auto const &paint : g.m_paints)
+// 	// {
+// 	// 	os << *paint;
+// 	// }
 
-	return os;
-}
+// 	return os;
+// }
 

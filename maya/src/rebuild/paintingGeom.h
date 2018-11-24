@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 
+#include "stroke.h"
 
 #include "clusterGeom.h"
 
@@ -31,24 +32,20 @@ public:
 	double travelCutoff(short brushId, short paintId) const;
 
 
-	void addStroke(const strokeGeom &stroke);
+	void addStroke(const Stroke &stroke);
 
-
-
-	void setApproaches(double approachStart, double approachMid,
-	                   double approachEnd, double ptpThresh);
-
+	void  setApproaches(double approachStart, double approachMid,
+	                    double approachEnd, double ptpThresh);
 
 	void dipCombinations(MIntArray &result) const ;
 
 	void 	displace( MFnMesh &meshFn,  MMeshIsectAccelParams &ap );
 
-	friend ostream &operator<<(ostream &os, const paintingGeom &geom);
+	// friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 
 private:
 
 	clusterGeom &prepCluster(
-	  bool force,
 	  short brushId,
 	  short phisicalId,
 	  short paintId);

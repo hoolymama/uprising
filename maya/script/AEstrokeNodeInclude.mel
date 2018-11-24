@@ -2,13 +2,9 @@
 global proc AEstrokeNodeInclude ( string $nodeName )
 {
 
- 
 	editorTemplate -cl 0  -beginLayout "Stroke generation";		
  	editorTemplate -addControl "active" ;
- 	editorTemplate -addControl "planeNormal" ;
  	editorTemplate -addControl "pointDensity" ;
-	editorTemplate -addControl "strokeLength" ;
- 	editorTemplate -addControl "randomLengthFactor" ;
  	editorTemplate -addControl "reverseDirection" ;
  	editorTemplate -addControl "strokeCountFactor" ;
  	editorTemplate -addControl "seed" ;
@@ -22,17 +18,14 @@ global proc AEstrokeNodeInclude ( string $nodeName )
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0  -beginLayout "Paint and brush";		
-
  	editorTemplate -addControl "brushId" ;
 	editorTemplate -addControl "paintId" ;
 	editorTemplate -addControl "layerId" ;
 	editorTemplate -endLayout;
 
-	editorTemplate -cl 0  -beginLayout "Height profile";		
-
- 	editorTemplate -addControl "lift" ;
-	AEaddRampControl ("strokeProfileRamp");	
-	editorTemplate -addControl "strokeProfileScale" ;
+	editorTemplate -cl 0  -beginLayout "Height profile";
+ 	editorTemplate -addControl "entryLength";
+ 	editorTemplate -addControl "exitLength";
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0  -beginLayout "Target rotation";		
@@ -48,6 +41,7 @@ global proc AEstrokeNodeInclude ( string $nodeName )
 
 	editorTemplate -cl 0  -beginLayout "Stroke transformation";		
 	editorTemplate -addControl "pivotFraction" ;
+	editorTemplate -addControl "repeatPivot" ;
 	editorTemplate -endLayout;
 
  

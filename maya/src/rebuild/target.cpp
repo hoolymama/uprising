@@ -4,33 +4,53 @@
 
 const double rad_to_deg = (180 / 3.1415927);
 
+
+Target::Target() :
+	m_matrix(),
+	m_tangent(),
+	m_param(0.0),
+	m_curveParam(0.0)
+{}
+
+
 Target::Target(
-  const MObject &curveObject,
-  double startDist,
-  double endDist,
-  double dist,
-  double curveLength)	:
-	m_matrix()
+  const MMatrix &mat,
+  const MVector &tangent,
+  double param,
+  double curveParam)	:
+	m_matrix(mat),
+	m_tangent(tangent),
+	m_param(param),
+	m_curveParam(curveParam)
 {
-	MStatus st;
-	MFnNurbsCurve curveFn(curveObject);
+}
 
-	double strokeLength = endDist - startDist;
-	m_param = (dist - startDist) / strokeLength;
+
+Target::Target(
+  const MFnNurbsCurve &curveFn,
+  double dist,
+  double startDist,
+  double strokeRange,
+  double curveLength)
+{
+	m_param = (dist - startDist) / strokeRange;
 	m_curveParam = dist / curveLength;
-	double prm = curveFn.findParamFromLength(dist, &st);
-
-	// tangent should be flat
-	m_tangent = curveFn.tangent(prm).normal();
+	double prm = curveFn.findParamFromLength(dist);
+	m_tangent = curveFn.tangent(prm);
 	m_tangent.z = 0;
 	m_tangent.normalize();
 
 	MPoint pt;
-	st = curveFn.getPointAtParam(prm, pt, MSpace::kObject);
-	m_matrix[3][0] = pt.x;
-	m_matrix[3][1] = pt.y;
-	m_matrix[3][2] = 0.0;
+	curveFn.getPointAtParam(prm, pt, MSpace::kObject);
+	MMatrix mat;
+	mat[3][0] = pt.x;
+	mat[3][1] = pt.y;
+	mat[3][2] = pt.z;
+
+	m_matrix = mat;
 }
+
+
 
 
 Target::~Target() {}
@@ -88,6 +108,20 @@ double Target::distanceTo(const Target &other) const
 	       );
 }
 
+MMatrix Target::directionMatrix(bool backstroke) const
+{
+	MVector front = backstroke ? -m_tangent : m_tangent;
+	MVector side = (MVector::zAxis ^ front).normal();
+
+	MMatrix res = m_matrix;
+	res[0][0] = front.x; res[0][1] = front.y; res[0][2] = front.z; res[0][3] = 0.0;
+	res[1][0] = side.x; res[1][1] = side.y; res[1][2] = side.z; res[1][3] = 0.0;
+	res[2][0] = 0.0; res[2][1] = 0.0; res[2][2] = 1.0; res[2][3] = 0.0;
+
+	return res;
+}
+
+
 
 const MMatrix &Target::matrix() const
 {
@@ -99,17 +133,25 @@ const MVector &Target::tangent() const
 	return m_tangent;
 }
 
-MPoint Target::position() const
+MPoint Target::position(const MMatrix &space) const
 {
-	return MPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]);
+	return MPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]) * space;
+}
+
+void Target::setPosition(const MPoint &rhs)
+{
+	m_matrix[3][0] = rhs.x;
+	m_matrix[3][1] = rhs.y;
+	m_matrix[3][2] = rhs.z;
 }
 
 MVector Target::rotation(
   MTransformationMatrix::RotationOrder order,
-  MAngle::Unit unit) const
+  MAngle::Unit unit,
+  const MMatrix &space) const
 {
 	double rotValue[3];
-	MTransformationMatrix tMat(m_matrix);
+	MTransformationMatrix tMat(m_matrix * space);
 	tMat.reorderRotation(order);
 
 	MTransformationMatrix::RotationOrder throwAway;
@@ -139,4 +181,43 @@ void Target::offsetBy(const MVector &offset) {
 	m_matrix[3][1] = m_matrix[3][1] + offset.y;
 	m_matrix[3][2] = m_matrix[3][2] + offset.z;
 }
+
+
+MVector Target::transform(const MVector &rhs) const
+{
+	return rhs * m_matrix;
+}
+
+void Target::getBorderPoints(
+  MFloatPoint &left,
+  MFloatPoint &right,
+  double width,
+  bool flat) const
+{
+
+	MPoint p = position() ;
+	MVector xOffset;
+	if (flat) {
+		xOffset = (((MVector::xAxis * m_matrix) ^ MVector::zAxis)^
+		           MVector::zAxis).normal();
+	}
+	else {
+		xOffset = (m_tangent ^ MVector::zAxis).normal();
+	}
+	left = MFloatPoint(p + xOffset);
+	right = MFloatPoint(p - xOffset);
+}
+// MVector Target::xAxis() const
+// {
+// 	return MVector::xAxis * m_matrix;
+// }
+// MVector Target::yAxis() const
+// {
+// 	return MVector::yAxis * m_matrix;
+// }
+// MVector Target::zAxis() const
+// {
+// 	return MVector::zAxis * m_matrix;
+// }
+
 

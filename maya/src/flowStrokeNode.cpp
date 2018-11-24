@@ -64,15 +64,10 @@ const double epsilon = 0.0001;
 
 MObject flowStroke::aFlowImage;
 
+
 MObject flowStroke::aStrokeLengthImage;
 MObject flowStroke::aStrokeLengthRemapRamp;
 MObject flowStroke::aStrokeLengthRemapRange;
-// MObject flowStroke::aCurvatureRamp;
-// MObject flowStroke::aCurvatureRangeMin;
-// MObject flowStroke::aCurvatureRangeMax;
-// MObject flowStroke::aCurvatureRange;
-
-
 
 // MObject flowStroke::aInterpolation;
 MObject flowStroke::aSamplePoints;

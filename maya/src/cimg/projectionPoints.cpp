@@ -798,7 +798,7 @@ MBoundingBox projectionPoints::boundingBox() const
 
 }
 
-void projectionPoints:: postConstructor()
+void projectionPoints::postConstructor()
 {
 	// setExistWithoutInConnections(true);
 	// setExistWithoutOutConnections(true);

@@ -522,33 +522,6 @@ void strokeGeom::getAllRotations(
 
 
 
-void strokeGeom::getStopPositions(const MMatrix &worldMatrix, MPointArray &result) const
-{
-	unsigned len = m_preStops.length();
-	for (int i = 0; i < len; ++i)
-	{
-		result.append(extractPos(m_preStops[i]*worldMatrix));
-	}
-}
-
-void strokeGeom::getStopRotations(
-  const MMatrix &worldMatrix,
-  MTransformationMatrix::RotationOrder order,
-  MAngle::Unit unit,
-  MVectorArray &result ) const
-{
-
-	unsigned len = m_preStops.length();
-
-	for (int i = 0; i < len; ++i)
-	{
-		result.append(extractRotation(m_preStops[i]*worldMatrix, order, unit));
-	}
-}
-
-
-
-
 void strokeGeom::getAllTangents(const MMatrix &worldMatrix, MVectorArray &result) const
 {
 	unsigned len = m_tangents.length();
@@ -581,10 +554,7 @@ void strokeGeom::getUV( float &u, float &v) {
 }
 
 
-void strokeGeom::addPreStop(const MMatrix &mat)
-{
-	m_preStops.append(mat);
-}
+
 
 
 void strokeGeom::displaceMatrix( MFnMesh &meshFn, MMeshIsectAccelParams &ap,
@@ -623,6 +593,36 @@ void strokeGeom::displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap)
 	displaceMatrix(meshFn, ap, m_startApproach);
 	displaceMatrix(meshFn, ap, m_endApproach);
 
+}
+
+
+void strokeGeom::getStopPositions(const MMatrix &worldMatrix, MPointArray &result) const
+{
+	unsigned len = m_preStops.length();
+	for (int i = 0; i < len; ++i)
+	{
+		result.append(extractPos(m_preStops[i]*worldMatrix));
+	}
+}
+
+void strokeGeom::getStopRotations(
+  const MMatrix &worldMatrix,
+  MTransformationMatrix::RotationOrder order,
+  MAngle::Unit unit,
+  MVectorArray &result ) const
+{
+
+	unsigned len = m_preStops.length();
+
+	for (int i = 0; i < len; ++i)
+	{
+		result.append(extractRotation(m_preStops[i]*worldMatrix, order, unit));
+	}
+}
+
+void strokeGeom::addPreStop(const MMatrix &mat)
+{
+	m_preStops.append(mat);
 }
 
 

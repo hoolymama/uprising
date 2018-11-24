@@ -61,6 +61,14 @@ const double rad_to_deg = (180 / 3.1415927);
 MObject strokeCurve::aForceDip;
 
 
+// MObject strokeCurve::aStrokeLength;
+// MObject strokeCurve::aRandomLengthFactor;
+// MObject strokeCurve::aStrokeDirection;
+
+
+
+
+
 MObject strokeCurve::aCurve;
 MObject strokeCurve::aSubcurveMin;
 MObject strokeCurve::aSubcurveMax;
