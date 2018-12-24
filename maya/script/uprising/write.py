@@ -110,7 +110,11 @@ def publish_sequence(
     mkdir_p(design_dir)
 
     if save_unfiltered_snapshot:
-        with uutl.filters_off(painting_node):
+
+        filterable_nodes= pm.ls(type=["strokeNode", "collectStrokes"])
+
+
+        with uutl.filters_off(*filterable_nodes):
             ts = get_timestamp()
             write_ref_image(design_dir, ts)
 

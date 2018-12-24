@@ -24,14 +24,19 @@ Brush::Brush(
   double retention,
   double tip,
   Shape shape,
-  short customId) :
+  short customId,
+  double transHeight,
+  double transPower) :
 	id(id),
 	physicalId(physicalId),
 	width(width),
 	retention(retention),
 	tip(tip),
 	shape(shape),
-	customId(customId)
+	customId(customId),
+	transHeight(transHeight * tip),
+	transPower(transPower)
+
 {}
 
 Brush::~Brush() {}
@@ -43,7 +48,9 @@ std::map<short, Brush> Brush::factory(
   MObject &tipAttribute,
   MObject &physicalIdAttribute,
   MObject &shapeAttribute,
-  MObject &customIdAttribute)
+  MObject &customIdAttribute,
+  MObject &transHeightAttribute ,
+  MObject &transPowerAttribute)
 {
 	MStatus st;
 	std::map<short, Brush> result;
@@ -67,8 +74,19 @@ std::map<short, Brush> Brush::factory(
 		Shape shape = Shape(hComp.child(shapeAttribute).asShort()) ;
 		short customId = hComp.child(customIdAttribute).asShort();
 
+		double transHeight = hComp.child(transHeightAttribute).asDouble();
+		double transPower = hComp.child(transPowerAttribute).asDouble();
 
-		result[index] = Brush(index, physicalId, width, retention, tip, shape, customId);
+		result[index] = Brush(
+		                  index,
+		                  physicalId,
+		                  width,
+		                  retention,
+		                  tip,
+		                  shape,
+		                  customId,
+		                  transHeight,
+		                  transPower);
 	}
 	return result;
 }

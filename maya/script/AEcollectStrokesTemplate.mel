@@ -1,0 +1,15 @@
+ 
+
+ global proc AEcollectStrokesTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+
+	AEsortFilterInclude($nodeName);
+
+	AEbrushPaintOverrideInclude($nodeName, 1);
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}

@@ -18,6 +18,7 @@ public:
 	double offset;
 	bool mirror;
 	bool oscillate;
+	double fan;
 
 	int count() const {
 		return 1 + (mirror ? repeats * 2 : repeats);

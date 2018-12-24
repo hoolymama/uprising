@@ -53,6 +53,11 @@ class Studio(object):
         cal_node = kw.get("calibration_node")
         ver_node = kw.get("verification_node")
 
+        print "---------------------"
+        print "ptg_node %s" % ptg_node
+        print "dip_node %s" % dip_node
+
+
         if dip_node:
             logger.debug("Studio dip_node %s" % dip_node)
             with uutl.final_position(dip_node):

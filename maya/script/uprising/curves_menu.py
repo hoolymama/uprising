@@ -13,7 +13,7 @@ def create():
     menu = pm.menu(label="Curves", tearOff=True)
     pm.menuItem(
             label='Select strokes from curves',
-            ann="Choose curves to select connected strokeCurves",
+            ann="Choose curves to select connected curveStrokes",
             command=pm.Callback(on_select_strokes))
 
     pm.menuItem(
@@ -30,6 +30,12 @@ def create():
         ann="Add selected curves to selected painting node. If they are already connected, disconnect and add in the order they are selected",
         command=pm.Callback(
             add_curves_to_painting))
+
+    pm.menuItem(
+        label='Add new curves as clones',
+        ann="Add selected curves to the painting, using another selected curve as stroke node source.",
+        command=pm.Callback(
+            add_curves_using_source_strokes))
 
     pm.menuItem(
         label='Reverse order of selected curves',
@@ -51,20 +57,20 @@ def create():
         command=pm.Callback(on_disconnect_curve_vis_active))
 
     pm.menuItem(
-        label='Remove unconnected strokeCurves',
-        ann="Delete strokeCurves that are connected to selected curves but which have no destination painting",
+        label='Remove unconnected curveStrokes',
+        ann="Delete curveStrokes that are connected to selected curves but which have no destination painting",
         command=pm.Callback(
             on_remove_hanging_stroke_curves))
 
     pm.menuItem(
         label='Cleanup curve plugs',
-        ann="Remove unconnected strokeCurve plugs on selected painting",
+        ann="Remove unconnected curveStroke plugs on selected painting",
         command=pm.Callback(
             on_cleanup_curve_plugs))
 
     pm.menuItem(
         label='Contain strokes to mesh',
-        ann="Choose a mesh and either some curves or strokeCurves",
+        ann="Choose a mesh and either some curves or curveStrokes",
         command=pm.Callback(on_contain_strokes_in_mesh))
 
     return menu
@@ -84,7 +90,7 @@ def on_select_strokes():
             curves,
             future=True,
             levels=1,
-            type="strokeCurve"))
+            type="curveStroke"))
 
 def on_select_curves_below():
     pm.select(pm.ls(
@@ -114,13 +120,13 @@ def add_curves_to_painting():
         selection=True,
         dag=True,
         leaf=True,
-        type=("nurbsCurve", "strokeCurve"),
+        type=("nurbsCurve", "curveStroke"),
         ni=True)
 
     stroke_curves = pm.listConnections(
         curves, d=True,
         s=False,
-        type="strokeCurve")
+        type="curveStroke")
 
     painting_conns = pm.listConnections(
         stroke_curves, d=True,
@@ -134,18 +140,45 @@ def add_curves_to_painting():
         cutl.connect_curve_to_painting(
             curve, node, connect_to="next_available")
 
+def add_curves_using_source_strokes():
+
+    curves = pm.ls(
+        selection=True,
+        dag=True,
+        leaf=True,
+        type=("nurbsCurve"),
+        ni=True)
+
+    targets = curves[:-1]
+    src =  cutl.get_stroke_node(curves[-1])
+    destination = cutl.get_strokes_destination(curves[-1])
+
+    for curve in targets:
+        # curve_xf = pm.rebuildCurve(curve, ch=1, rpo=1, rt=0, end=0,kr=2, kcp=0, kep=1, kt=0, s=1, d=3, tol=1)[0]
+
+        # curve_xf = pm.rebuildCurve(curve, ch=1, rpo=1, rt=4, end=1,kr=2, kcp=0, kep=1, kt=0, s=1, d=3, tol=3)[0]
+        curve_xf = curve.getParent()
+        pm.xform(curve_xf, cpc=True)
+        curve = curve_xf.getChildren()[0]
+        cutl.connect_curve_using_src(curve, src, destination)
+
+    cutl.do_rename_inputs('crv_%d','strk_%d', targets)
+
+
+
+
 def reverse_connection_order():
     curves = pm.ls(
         selection=True,
         dag=True,
         leaf=True,
-        type=("nurbsCurve", "strokeCurve"),
+        type=("nurbsCurve", "curveStroke"),
         ni=True)
 
     stroke_curves = pm.listConnections(
         curves, d=True,
         s=False,
-        type="strokeCurve")
+        type="curveStroke")
 
     painting_conns = pm.listConnections(
         stroke_curves, d=True,
@@ -202,7 +235,7 @@ def on_remove_hanging_stroke_curves():
         ut=True,
         v=True)
     stroke_curves = pm.listConnections(
-        curves, d=True, s=False, type="strokeCurve")
+        curves, d=True, s=False, type="curveStroke")
     for sc in stroke_curves:
         paintings = pm.listConnections(
             sc.attr("output"), d=True, s=False, type="painting")

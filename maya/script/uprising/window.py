@@ -5,6 +5,7 @@ from uprising import (
     painting_tab,
     setup_tab,
     validate_tab,
+    selection_tab,
     publish_tab,
     rings_design_tab,
     rings_setup_tab,
@@ -50,9 +51,9 @@ reload(studio)
 reload(uprising_util)
 reload(paint)
 reload(brush)
+reload(target)
 reload(stroke)
 reload(cluster)
-reload(target)
 reload(write)
 reload(setup_dip)
 reload(const)
@@ -72,6 +73,7 @@ reload(setup_tab)
  
 reload(props)
 reload(validate_tab)
+reload(selection_tab)
 reload(publish_tab)
 reload(proposal_tab)
 reload(rings_design_tab)
@@ -123,8 +125,13 @@ class RobotWindow(gui.Window):
         self.tabs.setTabLabel((self.keys_tab, "Keys"))
 
         pm.setParent(self.tabs)
+        self.selection_tab = selection_tab.SelectionTab()
+        self.tabs.setTabLabel((self.selection_tab, "Selection"))
+
+        pm.setParent(self.tabs)
         self.validate_tab = validate_tab.ValidateTab()
         self.tabs.setTabLabel((self.validate_tab, "Validate"))
+
 
         pm.setParent(self.tabs)
         self.publish_tab = publish_tab.PublishTab()

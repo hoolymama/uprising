@@ -287,10 +287,11 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
     rotSpec.followStroke =  data.inputValue(aBrushFollowStroke).asBool();
 
     StrokeRepeatSpec repeatSpec;
-    repeatSpec.repeats =  data.inputValue(aRepeats).asShort();
-    repeatSpec.offset =  data.inputValue(aRepeatOffset).asDouble();
-    repeatSpec.mirror =  data.inputValue(aRepeatMirror).asBool();
-    repeatSpec.oscillate =  data.inputValue(aRepeatOscillate).asBool();
+    repeatSpec.repeats = data.inputValue(aRepeats).asShort();
+    repeatSpec.offset = data.inputValue(aRepeatOffset).asDouble();
+    repeatSpec.mirror = data.inputValue(aRepeatMirror).asBool();
+    repeatSpec.oscillate = data.inputValue(aRepeatOscillate).asBool();
+    repeatSpec.fan = data.inputValue(aRepeatFan).asAngle().asRadians();
 
     short brushId = data.inputValue(aBrushId).asShort();
     short paintId = data.inputValue(aPaintId).asShort();

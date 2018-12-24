@@ -40,7 +40,7 @@ public:
 
 	const std::vector<Stroke> &strokes() const ;
 
-	void pushStroke(const Stroke &s);
+	void pushStroke(const Stroke &s, int parentIndex) ;
 
 
 	void  setApproaches(double approachStart, double approachMid,
@@ -51,6 +51,8 @@ public:
 	// clusterGeom &operator=( const clusterGeom &other );
 
 	void displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap);
+
+	void setBrushTransitions(const Brush &brush);
 
 	// friend ostream &operator<<(ostream &os, const clusterGeom &geom);
 

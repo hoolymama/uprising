@@ -1,0 +1,20 @@
+ 
+global proc AEsortFilterInclude (string $nodeName)
+{
+
+	editorTemplate -cl 0 -beginLayout "Filtering attributes";
+	editorTemplate -addControl "applyFilters";
+ 	editorTemplate -callCustom "AEstrokeNodeFilterListNew" "AEstrokeNodeFilterListReplace" "strokeFilterList";
+	editorTemplate -addControl "strokeFilterTexture"; 
+	editorTemplate -addControl "startFrom";
+	editorTemplate -addControl "endAt";
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Sorting attributes";
+	editorTemplate -addControl "applySort";
+ 	editorTemplate -callCustom "AEstrokeNodeSortListNew" "AEstrokeNodeSortListReplace" "strokeSortList";
+	editorTemplate -addControl "strokeSortTexture"; 
+ 	editorTemplate -endLayout;
+
+
+}

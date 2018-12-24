@@ -163,12 +163,12 @@ class RingsDesignTab(gui.FormLayout):
         brush_ids = []
         if random_paint_params and random_paint_params[0] == "":
             for curve in curves:
-                sc = cutl.get_stroke_curve(curve)
+                sc = cutl.get_stroke_node(curve)
                 paint_ids.append(sc.attr("paintId").get())
 
         if random_brush_params and random_brush_params[0] == "":
             for curve in curves:
-                sc = cutl.get_stroke_curve(curve)
+                sc = cutl.get_stroke_node(curve)
                 paint_ids.append(sc.attr("brushId").get())
 
         curves_packs = map(None, curves, brush_ids, paint_ids)

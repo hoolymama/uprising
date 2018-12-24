@@ -9,15 +9,14 @@ import logging
 logger = logging.getLogger('uprising')
 
 
-DIP_CURVE_DEFAULTS = [
-    ("forceDip", 1),
-    ("followStroke", 0),
-    ("strokeLength", 1000),
-    ("randomOverlapFactor", 0),
-    ("randomLengthFactor", 0),
-    ("repeats", 0),
-    ("overlap", 0)
-]
+# DIP_CURVE_DEFAULTS = [
+#     ("followStroke", 0),
+#     ("strokeLength", 1000),
+#     ("randomOverlapFactor", 0),
+#     ("randomLengthFactor", 0),
+#     ("repeats", 0),
+#     ("overlap", 0)
+# ]
 
 
 def dip_combinations(painting_node):
@@ -57,7 +56,7 @@ def duplicate_and_connect(src_grp, dip_node, paint_id, brush_id):
 
     grp_name = "dcx_p%02d_b%02d" % (paint_id, brush_id)
     delete_if_exist(grp_name)
-    grp = cutl.duplicate_grp_with_stroke_curves(src_grp, grp_name)
+    grp = cutl.duplicate_grp_with_stroke_curves(src_grp, grp_name, True, ["brushId", "paintId"])
     grp.rename(grp_name)
     curves = grp.getChildren()
 
@@ -70,19 +69,10 @@ def duplicate_and_connect(src_grp, dip_node, paint_id, brush_id):
         first = (i == 0)
         cutl.connect_curve_to_painting(
             stroke_curve, dip_node, connect_to="next_available")
-        
-        set_dip_curve_defaults(stroke_curve, first, brush_id, paint_id)
+        stroke_curve.attr("brushId").set(brush_id)
+        stroke_curve.attr("paintId").set(paint_id)
+
     return grp
-
-
-def set_dip_curve_defaults(stroke_curve, first, brush_id, paint_id):
-    for d in DIP_CURVE_DEFAULTS:
-        stroke_curve.attr(d[0]).set(d[1])
-    if not first:
-        stroke_curve.attr("forceDip").set(0)
-    stroke_curve.attr("brushId").set(brush_id)
-    stroke_curve.attr("paintId").set(paint_id)
-
 
 
 
@@ -97,7 +87,7 @@ def doit():
     zpos = dip_assembly.attr("zeroPosition").get()
     dip_assembly.attr("zeroPosition").set(True)
 
-    pm.delete(dip_node.attr("strokeCurves").connections(destination=False, source=True, type="strokeCurve"))
+    pm.delete(dip_node.attr("strokes").connections(destination=False, source=True, type="curveStroke"))
 
     curves_grp = pm.PyNode("%s|curves" % dip_assembly)
     

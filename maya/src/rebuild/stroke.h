@@ -43,14 +43,14 @@ public:
 		kPaintId,
 		kRepeatId,
 		kLayerId,
+		kParentId,
 		kMapRed,
 		kMapGreen,
-		kMapBlue
+		kMapBlue,
 	};
 
 
 	enum SortDirection { kSortAscending,  kSortDescending};
-
 
 
 	/* factory */
@@ -157,8 +157,8 @@ public:
 	void setFilterColor(const MFloatVector &color);
 
 	void appendStrokeIdToSortStack(bool ascending);
-
 	void appendParentIdToSortStack(bool ascending);
+
 
 	void appendBrushIdToSortStack(bool ascending);
 
@@ -168,9 +168,9 @@ public:
 
 	void appendRepeatIdToSortStack(bool ascending);
 
-	void appendCustomBrushIdToSortStack(bool ascending);
+	// void appendCustomBrushIdToSortStack(bool ascending);
 
-	void appendCustomPaintIdToSortStack(bool ascending);
+	// void appendCustomPaintIdToSortStack(bool ascending);
 
 	void appendMapRedIdToSortStack(bool ascending);
 	void appendMapGreenIdToSortStack(bool ascending);
@@ -184,8 +184,8 @@ public:
 	bool testPaintId(FilterOperator op, int value) const;
 	bool testLayerId(FilterOperator op, int value) const;
 	bool testRepeatId(FilterOperator op, int value) const;
-	bool testCustomBrushId(FilterOperator op, int value) const;
-	bool testCustomPaintId(FilterOperator op, int value) const;
+	// bool testCustomBrushId(FilterOperator op, int value) const;
+	// bool testCustomPaintId(FilterOperator op, int value) const;
 	bool testMapRedId(FilterOperator op, int value) const;
 	bool testMapGreenId(FilterOperator op, int value) const;
 	bool testMapBlueId(FilterOperator op, int value) const;
@@ -197,9 +197,9 @@ public:
 	               bool withTraversal = false) const ;
 	void transform(const MVector &vec, MFloatVectorArray &result,
 	               bool withTraversal = false) const ;
-	void getXAxes(MFloatVectorArray &result, bool withTraversal = false) const ;
+	void getXAxes(MFloatVectorArray &result, bool withTraversal = false) const;
 	void getYAxes(MFloatVectorArray &result, bool withTraversal = false) const;
-	void getZAxes(MFloatVectorArray &result, bool withTraversal = false) const ;
+	void getZAxes(MFloatVectorArray &result, bool withTraversal = false) const;
 
 
 	void getBorders(
@@ -223,13 +223,13 @@ public:
 	void getHead(MFloatPoint &result,  float stackHeight) const ;
 
 
-	void setCustomSortData(const Brush &brush,  const Paint &paint);
+	// void setCustomSortData(const Brush &brush,  const Paint &paint);
 
 	void setUV(const MMatrix &inversePlaneMatrix);
 	void getUV( float &u, float &v);
 	void displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
-
+	void setBrushTransitions(const Brush &brush);
 
 
 	const Target &departure() const;
@@ -237,6 +237,30 @@ public:
 	void setDeparture(double offset);
 	void setArrival(double offset);
 	void setArrival(double offset, double threshold, const Stroke &prev);
+
+	void arrivalPositions(const MMatrix &space, MPointArray &result) const;
+	void arrivalRotations(
+	  const MMatrix &space,
+	  MTransformationMatrix::RotationOrder order,
+	  MAngle::Unit unit,
+	  MVectorArray &result ) const;
+
+	void departurePosition(const MMatrix &space, MPoint &result) const;
+	void departureRotation(
+	  const MMatrix &space,
+	  MTransformationMatrix::RotationOrder order,
+	  MAngle::Unit unit,
+	  MVector &result ) const;
+
+	void rotate(double rotation);
+	void translate(const MVector &translation);
+
+
+
+	friend bool operator< (const Stroke &a, const Stroke &b);
+
+
+
 
 private:
 
@@ -262,8 +286,8 @@ private:
 	int m_brushId;
 	int m_paintId;
 	int m_layerId;
-	int m_customPaintId;
-	int m_customBrushId;
+	// int m_customPaintId;
+	// int m_customBrushId;
 
 	float m_u;
 	float m_v;

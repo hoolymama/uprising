@@ -32,7 +32,7 @@ public:
 	double travelCutoff(short brushId, short paintId) const;
 
 
-	void addStroke(const Stroke &stroke);
+	void addStroke(const Stroke &stroke, int parentIndex);
 
 	void  setApproaches(double approachStart, double approachMid,
 	                    double approachEnd, double ptpThresh);
@@ -41,6 +41,7 @@ public:
 
 	void 	displace( MFnMesh &meshFn,  MMeshIsectAccelParams &ap );
 
+	void setBrushTransitions();
 	// friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 
 private:

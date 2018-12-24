@@ -109,6 +109,9 @@ def create_and_connect_single_brush_geo(node, **kw):
     tf.attr("sfBrushShape").set(profile_shape)
     tf.attr("sfBrushPhysicalId").set(kw["physical_id"])
     tf.attr("sfBrushRetention").set(kw["retention"])
+    tf.attr("sfBrushTransitionHeight").set(kw["trans_height"])
+    tf.attr("sfBrushTransitionPower").set(kw["trans_power"])
+    
     pm.parent(tf, kw["parent"])
     return tf
 
@@ -182,7 +185,7 @@ def setup_brushes_from_sheet(painting_node, dip_node, pouch_name):
     for row in pouch:
         row = [uutl.numeric(s) for s in row]
 
-        common_args = kwargs = {
+        common_args = {
             "id": row[0],
             "height": row[2],
             "bristle_height": row[3],
@@ -196,7 +199,9 @@ def setup_brushes_from_sheet(painting_node, dip_node, pouch_name):
             "physical_id": row[16],
             "x_offset": row[17],
             "y_offset": row[18],
-               
+            "y_offset": row[18],
+            "trans_height": row[20],
+            "trans_power": row[21]          
         }
         # print "RETENTION: %s" % row[19]
         painting_kwargs = copy.copy(common_args)
@@ -233,7 +238,7 @@ def generate_brush_dip_curves(
 
     full_name = "brushes|dipCurves|%s" % name
 
-    grp = cutl.duplicate_grp_with_stroke_curves(src, full_name)
+    grp = cutl.duplicate_grp_with_stroke_curves(src, full_name, True, ["brushId", "paintId"])
 
     for wipe_curve in grp.getChildren()[1:]:
         wipe_curve.attr("tz").set(wipe_offset)

@@ -10,19 +10,24 @@ global proc AEstrokeNodeInclude ( string $nodeName )
  	editorTemplate -addControl "seed" ;
 	editorTemplate -endLayout;
 
+
+	editorTemplate -cl 0  -beginLayout "Ids";		
+	editorTemplate -addControl "layerId" ;
+	editorTemplate -endLayout;
+	
+
+	AEbrushPaintOverrideInclude($nodeName, 1);
+
 	editorTemplate -cl 0  -beginLayout "Stroke repeats";		
  	editorTemplate -addControl "repeats" ;
 	editorTemplate -addControl "repeatOffset" ;
+	editorTemplate -addControl "repeatFan" ;
  	editorTemplate -addControl "repeatMirror" ;
  	editorTemplate -addControl "repeatOscillate" ;
 	editorTemplate -endLayout;
-
-	editorTemplate -cl 0  -beginLayout "Paint and brush";		
- 	editorTemplate -addControl "brushId" ;
-	editorTemplate -addControl "paintId" ;
-	editorTemplate -addControl "layerId" ;
-	editorTemplate -endLayout;
-
+	
+	AEsortFilterInclude($nodeName);
+	
 	editorTemplate -cl 0  -beginLayout "Height profile";
  	editorTemplate -addControl "entryLength";
  	editorTemplate -addControl "exitLength";
@@ -30,20 +35,40 @@ global proc AEstrokeNodeInclude ( string $nodeName )
 
 	editorTemplate -cl 0  -beginLayout "Target rotation";		
 	editorTemplate -addControl "followStroke" ;
-
+	editorTemplate -cl 0  -beginLayout "Tilt";	
 	AEaddRampControl("brushTiltRamp");
  	editorTemplate -addControl "brushTiltRange";
+ 	editorTemplate -endLayout;
+ 	editorTemplate -cl 0  -beginLayout "Bank";
 	AEaddRampControl("brushBankRamp");
  	editorTemplate -addControl "brushBankRange";
+	editorTemplate -endLayout;
+ 	editorTemplate -cl 0  -beginLayout "Twist";
 	AEaddRampControl("brushTwistRamp");
  	editorTemplate -addControl "brushTwistRange";
 	editorTemplate -endLayout;
-
-	editorTemplate -cl 0  -beginLayout "Stroke transformation";		
-	editorTemplate -addControl "pivotFraction" ;
-	editorTemplate -addControl "repeatPivot" ;
 	editorTemplate -endLayout;
 
+	editorTemplate -cl 0  -beginLayout "Pivots";		
+	editorTemplate -addControl "pivotFraction" ;
+	// editorTemplate -addControl "repeatPivot" ;
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Translation";		
+		editorTemplate -addControl "translationTexture";
+	editorTemplate -addControl "translationSampleDistance";
+	editorTemplate -addControl "translationScale";
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Rotation";		
+			editorTemplate -addControl "rotationTexture";
+	editorTemplate -addControl "rotationScale";
+
+	editorTemplate -endLayout;
+
+ 
  
 	
 }

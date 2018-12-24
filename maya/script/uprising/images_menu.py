@@ -40,7 +40,7 @@ def _make_and_connect_shader(attr):
     shader = pm.shadingNode("cImgShader", asTexture=True)
     tex = pm.shadingNode("place2dTexture", asUtility=True)
     tex.attr("outUV") >> shader.attr("uv")
-    attr >> shader.attr("imageData")
+    attr >> shader.attr("input")
     return shader
 
 def _make_swatch_ui(swatches):
@@ -49,7 +49,7 @@ def _make_swatch_ui(swatches):
     for swatch in swatches:
         tab = pm.frameLayout(label=swatch["attr"])
         pm.tabLayout(tabs, e=True, tabLabel=(tab, swatch["attr"]) )
-        pm.swatchDisplayPort(w=256, h=256, renderSize=256, sn=swatch["shader"])
+        pm.swatchDisplayPort(w=512, h=512, renderSize=512, sn=swatch["shader"])
         pm.setParent("..")
     win.show()
     win.setResizeToFitChildren()
@@ -58,22 +58,18 @@ def show_image_in_monitor():
     objects = pm.ls(sl=True)
     swatches = []
     for o in objects:
-        attributes = ["output", "outIndexImage", "outColorImage", "outPalette"]
-        for att in attributes:
-            try:
-                attr = o.attr(att)
-                if attr.type() == "cImgData":
-                    pack = {
-                        "attr": attr,
-                        "shader": None
-                    }
-                    shaders = pm.listConnections(
-                        attr, d=True, s=False, type="cImgShader")
-                    if shaders:
-                        pack["shader"] = shaders[0]
-                    else:
-                        pack["shader"] = _make_and_connect_shader(attr)
-                    swatches.append(pack)
-            except (pm.MayaNodeError, pm.MayaAttributeError):
-                pass
+        atts = [o.attr(att) for att in pm.listAttr(o, r=True) if o.attr(att).type() == "cImgData"]
+        for att in atts:
+            pack = {
+                "attr": att,
+                "shader": None
+            }
+            shaders = pm.listConnections(
+                att, d=True, s=False, type="cImgShader")
+            if shaders:
+                pack["shader"] = shaders[0]
+            else:
+                pack["shader"] = _make_and_connect_shader(att)
+            swatches.append(pack)
+
     _make_swatch_ui(swatches)

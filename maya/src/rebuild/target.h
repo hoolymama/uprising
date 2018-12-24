@@ -45,19 +45,23 @@ public:
 
 	const double &param() const ;
 
+	void reverseParam();
+
 	const double &curveParam() const ;
 
 	void offsetBy(const MVector &offset) ;
 
 	double distanceTo(const Target &other) const;
 
-
 	MMatrix directionMatrix(bool backstroke) const;
 
 	MPoint position(const MMatrix &space = MMatrix::identity) const;
 
-
 	void setPosition(const MPoint &rhs);
+
+	void setMatrix(const MMatrix &rhs);
+
+	void rotate(const MPoint &pivot, const MMatrix &rotation);
 
 	MVector rotation(
 	  MTransformationMatrix::RotationOrder order,
@@ -72,11 +76,16 @@ public:
 	  double width,
 	  bool flat = false) const;
 
+	void setContact(double contact);
+
+	const double &contact() const ;
+
 private:
 	MVector m_tangent; // tangent on the curve
 	MMatrix m_matrix;
 	double m_param; // normalised length in stroke
 	double m_curveParam; //normalised length in original curve
+	double m_contact; // fraction of brush tip
 
 
 };

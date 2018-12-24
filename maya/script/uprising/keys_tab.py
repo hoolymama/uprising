@@ -1,17 +1,6 @@
 
-import sys
 import pymel.core as pm
-import random
-from robolink import (
-    Robolink,
-    ITEM_TYPE_STATION,
-    ITEM_TYPE_PROGRAM,
-    COLLISION_OFF)
-import write
-import props
-import uprising_util as uutl
-import curve_utils as cutl
-from studio import Studio
+
 
 import pymel.core.uitypes as gui
 
@@ -113,7 +102,7 @@ class KeysTab(gui.FormLayout):
 
         vals = []
         frame = first_frame
-        conns =painting_node.attr("strokeCurves").connections(s=True, d=False,  c=True)
+        conns =painting_node.attr("strokes").connections(s=True, d=False,  c=True)
         nodes = [c[1] for c in conns]
         for plug, input_node,  in conns:
             _deactivate_all_nodes(nodes)

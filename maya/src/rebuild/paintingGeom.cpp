@@ -188,7 +188,7 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 // }
 
 
-void paintingGeom::addStroke(const Stroke &stroke) {
+void paintingGeom::addStroke(const Stroke &stroke, int parentIndex) {
 
 	// short paintId = stroke.paintId();
 	short brushId = stroke.brushId();
@@ -196,7 +196,7 @@ void paintingGeom::addStroke(const Stroke &stroke) {
 	// short physicalId = b.physicalId;
 	// bool force = stroke.forceDip();
 	clusterGeom &g = prepCluster(brushId , b.physicalId, stroke.paintId() );
-	g.pushStroke(stroke);
+	g.pushStroke(stroke, parentIndex);
 
 }
 
@@ -210,6 +210,18 @@ void paintingGeom::displace( MFnMesh &meshFn,  MMeshIsectAccelParams &ap )
 		iter->displace(meshFn, ap);
 	}
 }
+
+
+void paintingGeom::setBrushTransitions()
+{
+	std::vector<clusterGeom>::iterator iter;
+	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
+	{
+		const Brush &brush =  brushFromId(iter->brushId());
+		iter->setBrushTransitions( brush);
+	}
+}
+
 // void paintingGeom::addStrokes(const strokeCurveGeom &strokeCurve) {}
 
 

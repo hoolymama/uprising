@@ -21,7 +21,8 @@ Target::Target(
 	m_matrix(mat),
 	m_tangent(tangent),
 	m_param(param),
-	m_curveParam(curveParam)
+	m_curveParam(curveParam),
+	m_contact(1.0)
 {
 }
 
@@ -31,7 +32,8 @@ Target::Target(
   double dist,
   double startDist,
   double strokeRange,
-  double curveLength)
+  double curveLength):
+	m_contact(1.0)
 {
 	m_param = (dist - startDist) / strokeRange;
 	m_curveParam = dist / curveLength;
@@ -39,6 +41,7 @@ Target::Target(
 	m_tangent = curveFn.tangent(prm);
 	m_tangent.z = 0;
 	m_tangent.normalize();
+
 
 	MPoint pt;
 	curveFn.getPointAtParam(prm, pt, MSpace::kObject);
@@ -145,6 +148,28 @@ void Target::setPosition(const MPoint &rhs)
 	m_matrix[3][2] = rhs.z;
 }
 
+void Target::setMatrix(const MMatrix &rhs)
+{
+	m_matrix = rhs;
+}
+
+void Target::rotate(const MPoint &pivot, const MMatrix &rotation)
+{
+	m_matrix[3][0] = m_matrix[3][0] - pivot.x;
+	m_matrix[3][1] = m_matrix[3][1] - pivot.y;
+	m_matrix[3][2] = m_matrix[3][2] - pivot.z;
+
+	m_matrix = m_matrix * rotation;
+
+	m_matrix[3][0] = m_matrix[3][0] + pivot.x;
+	m_matrix[3][1] = m_matrix[3][1] + pivot.y;
+	m_matrix[3][2] = m_matrix[3][2] + pivot.z;
+
+	m_tangent = m_tangent * rotation;
+}
+
+
+
 MVector Target::rotation(
   MTransformationMatrix::RotationOrder order,
   MAngle::Unit unit,
@@ -171,6 +196,12 @@ const double &Target::param() const
 	return m_param;
 }
 
+void Target::reverseParam()
+{
+	m_param = 1.0 - m_param;
+}
+
+
 const double &Target::curveParam() const
 {
 	return m_curveParam;
@@ -188,6 +219,25 @@ MVector Target::transform(const MVector &rhs) const
 	return rhs * m_matrix;
 }
 
+void Target::setContact(double contact)
+{
+	if (contact < 0.0) {
+		m_contact = 0.0;
+	}
+	else if (contact > 1.0) {
+		m_contact = 1.0;
+	}
+	else {
+		m_contact = contact;
+	}
+}
+
+const double &Target::contact() const
+{
+	return m_contact;
+}
+
+
 void Target::getBorderPoints(
   MFloatPoint &left,
   MFloatPoint &right,
@@ -195,15 +245,19 @@ void Target::getBorderPoints(
   bool flat) const
 {
 
+
+	double contact = m_contact;
 	MPoint p = position() ;
 	MVector xOffset;
 	if (flat) {
 		xOffset = (((MVector::xAxis * m_matrix) ^ MVector::zAxis)^
 		           MVector::zAxis).normal();
+		contact = 1.0;
 	}
 	else {
 		xOffset = (m_tangent ^ MVector::zAxis).normal();
 	}
+	xOffset *= (width * contact);
 	left = MFloatPoint(p + xOffset);
 	right = MFloatPoint(p - xOffset);
 }

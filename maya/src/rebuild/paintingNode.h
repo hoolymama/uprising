@@ -77,12 +77,7 @@ public:
 
 private:
 
-  bool findInSortDefinition(StrokeSortFilterKey key,
-                            const std::vector< std::pair <StrokeSortFilterKey, StrokeSortDirection> >
-                            &sortDefinition);
-
-  MStatus populateStrokePool(MDataBlock &data,
-                             std::vector<Stroke> &strokePool);
+  MStatus addStrokes(MDataBlock &data, paintingGeom *pGeom);
 
   void setWireDrawColor(M3dView &view,  M3dView::DisplayStatus status);
 
@@ -94,9 +89,6 @@ private:
 
   void drawWireframe(const paintingGeom &geom, M3dView &view, const MDagPath &path,
                      M3dView::DisplayStatus status ) ;
-
-  // void drawWireframeApproach( const paintingGeom &geom, M3dView &view, const MDagPath &path,
-  //                             M3dView:: DisplayStatus status );
 
   void drawWireframeArrows(
     const paintingGeom &geom, M3dView &view,
@@ -111,10 +103,10 @@ private:
 
 
 
-  // void  drawWireframeStops(
-  //   const paintingGeom &geom, M3dView &view,
-  //   const MDagPath &path,
-  //   M3dView:: DisplayStatus status );
+  void  drawWireframePivots(
+    const paintingGeom &geom, M3dView &view,
+    const MDagPath &path,
+    M3dView:: DisplayStatus status );
 
   void drawIds(const paintingGeom &geom, M3dView &view,
                const MDagPath &path,
@@ -123,64 +115,7 @@ private:
   void drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
                   M3dView::DisplayStatus status ) ;
 
-
-  MStatus overrideBrushIds(MDataBlock &data,  std::vector<Stroke> &strokePool);
-  MStatus  overridePaintIds(MDataBlock &data, std::vector<Stroke> &strokePool);
-
-  MStatus filterStrokes(MDataBlock &data,  std::vector<Stroke> &strokePool);
-  MStatus sortStrokes(MDataBlock &data, std::vector<Stroke> &strokePool);
-  // MStatus setData(MDataBlock &block, MObject &attribute,
-  //                 const MMatrixArray &data) ;
-
-  // MStatus getData( MObject &attribute,  MIntArray &array);
-
-  // MStatus getData( MObject &attribute,  MDoubleArray &array);
-
-  // MStatus getData( MObject &attribute,  MVectorArray &array);
-  // MStatus getData( MArrayDataHandle &ha,  strokeCurveGeom *result);
-
-
-  void getUVs(std::vector<Stroke> &strokePool, MFloatArray &uVals,
-              MFloatArray &vVals);
-
-  bool hasTexture(const MObject &attribute);
-
-  MStatus getTextureName(const MObject &attribute,
-                         MString &name) const ;
-
-  MStatus sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,
-                          MFloatArray &vVals, MIntArray &result, short range) const;
-
-  MStatus sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,
-                          MFloatArray &vVals, MFloatVectorArray &result) const ;
-
   static MObject aStrokes;
-
-
-  static MObject aBrushIdTexture;
-  static MObject aPaintIdTexture;
-
-  // static MObject aStrokeSort;
-
-
-  static MObject aStrokeSortKey;
-  static MObject aStrokeSortDirection;
-  static MObject aStrokeSortList;
-  static MObject aStrokeSortTexture;
-  static MObject aApplySort;
-
-  static MObject aStrokeFilterKey;
-  static MObject aStrokeFilterOperator;
-  static MObject aStrokeFilterOperand;
-  static MObject aStrokeFilterList;
-  static MObject aStrokeFilterTexture;
-
-  static MObject aApplyFilters;
-
-
-  static MObject aStartFrom;
-  static MObject aEndAt;
-
 
 
 
@@ -188,18 +123,6 @@ private:
   static MObject aApproachDistanceMid;
   static MObject aApproachDistanceEnd;
   static MObject aApproachDistance;
-
-
-
-
-  // static MObject aStrokeGate;
-
-
-  // static MObject aStrokeSorts;
-
-
-  static MObject aBrushIdTextureRange;
-  static MObject aPaintIdTextureRange;
 
 
   static MObject aRotateOrder;
@@ -210,9 +133,6 @@ private:
   static MObject aPlaneMatrix;
   static MObject aDisplacementMesh; // cm
 
-  // static MObject aDipApproachObject;
-  // static MObject aToolChangeApproachObject;
-  // static MObject aHomeApproachObject;
 
   static MObject aLinearSpeed; // cm/sec
   static MObject aAngularSpeed; // per sec
@@ -227,6 +147,9 @@ private:
   static MObject  aBrushTip;
   static MObject  aBrushPhysicalId;
   static MObject  aBrushCustomId;
+  static MObject  aBrushTransitionHeight;
+  static MObject  aBrushTransitionPower;
+
   static MObject  aBrushes;
 
   static MObject  aPaintColorR;
@@ -245,9 +168,9 @@ private:
   static MObject  aLineThickness;
   static MObject  aDisplayTargets;
   // static MObject  aDisplayLift;
-  static MObject  aDisplayApproach;
+  // static MObject  aDisplayApproach;
   static MObject  aDisplayClusterPath;
-  static MObject  aDisplayStops;
+  static MObject  aDisplayPivots;
 
   static MObject  aDisplayIds;
   static MObject  aDisplayParentIds;

@@ -1,5 +1,5 @@
 
- global proc AEPaintingFilterListAddMultiWidget(
+ global proc AEstrokeNodeFilterListAddMultiWidget(
  	string $plug, 
  	string $columnLayout,  
  	int $index) 
@@ -37,10 +37,10 @@ global proc onAddStrokeFilterEntry(string $nodeAttr)
 	setAttr  ($nodeAttr+"["+$nextIndex+"].strokeFilterKey")  0;
 }
 
- global proc AEpaintingFilterListReplace (string $nodeAttr) {
+ global proc AEstrokeNodeFilterListReplace (string $nodeAttr) {
 
  	string $node = attr.nodeFromNodeAttr($nodeAttr);
- 	string $col = "AEaddPaintingFilterListCol";
+ 	string $col = "AEaddstrokeNodeFilterListCol";
 
  	setParent ..;
  	int $numElements = `getAttr -size $nodeAttr`;
@@ -53,30 +53,30 @@ global proc onAddStrokeFilterEntry(string $nodeAttr)
  	int $indices[] = `getAttr -mi $nodeAttr`;
  	for ($i = 0;$i<$numElements;$i++) {
  		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
- 		AEPaintingFilterListAddMultiWidget ($plug, $col,  $indices[$i]) ;
+ 		AEstrokeNodeFilterListAddMultiWidget ($plug, $col,  $indices[$i]) ;
  	}
  	setParent ..;
 
- 	button -e -c ( "onAddStrokeFilterEntry(\"" + $nodeAttr +"\")") AEaddPaintingFilterListBtn;
+ 	button -e -c ( "onAddStrokeFilterEntry(\"" + $nodeAttr +"\")") AEaddstrokeNodeFilterListBtn;
 
  }
 
 
- global proc AEpaintingFilterListNew (string $nodeAttr) {
+ global proc AEstrokeNodeFilterListNew (string $nodeAttr) {
  	global int $gTextColumnWidthIndex;
 
  	setUITemplate -pst attributeEditorTemplate;
 
- 	string $col = "AEaddPaintingFilterListCol";
+ 	string $col = "AEaddstrokeNodeFilterListCol";
  	rowLayout -numberOfColumns 3  -columnWidth3 $gTextColumnWidthIndex $gTextColumnWidthIndex $gTextColumnWidthIndex;
  	 text -label "";
- 	button -width 210 -l "Add" "AEaddPaintingFilterListBtn";
+ 	button -width 210 -l "Add" "AEaddstrokeNodeFilterListBtn";
  	text -label "";
  	setParent ..;
  	columnLayout -adj 1 $col ;	
  	setParent ..;
  	setUITemplate -ppt;
 
- 	AEpaintingFilterListReplace($nodeAttr);
+ 	AEstrokeNodeFilterListReplace($nodeAttr);
 
  }

@@ -23,6 +23,15 @@ def create():
     pm.menuItem( label="Print paint and brush csv", command=pm.Callback(on_print_paint_and_brush_stats, "csv") )
 
     
+    pm.menuItem( label="Connect texture to brushId", command=pm.Callback(on_connect_texture, "brushIdTexture") )
+    pm.menuItem( label="Connect texture to paintId", command=pm.Callback(on_connect_texture, "paintIdTexture") )
+    pm.menuItem( label="Connect texture to strokeSort", command=pm.Callback(on_connect_texture, "strokeSortTexture") )
+    pm.menuItem( label="Connect texture to strokeFilter", command=pm.Callback(on_connect_texture, "strokeFilterTexture") )
+    pm.menuItem( label="Connect texture to rotation", command=pm.Callback(on_connect_texture, "rotationTexture") )
+    pm.menuItem( label="Connect texture to translation", command=pm.Callback(on_connect_texture, "translationTexture") )
+
+    # pm.menuItem( label="Conditional select", command=pm.Callback(on_conditional_select) )
+
     # pm.menuItem( label="Key filters for portrait", command=pm.Callback(on_key_filters) )
     
     return menu
@@ -35,7 +44,7 @@ def _bake_first_paint_id(painting, curve):
         if sc:
             paint_id =  pm.paintingQuery(painting, ci=0, si=0, clusterPaintId=True)
             print "paint id is %d" % paint_id
-            stroke_curve = cutl.get_stroke_curve(curve)
+            stroke_curve = cutl.get_stroke_node(curve)
             stroke_curve.attr("paintId").set(paint_id)
 
 def on_bake_paint_ids():
@@ -60,7 +69,19 @@ def zero_disp_mesh():
         pos.z = 0
         v.setPosition(pos, space="world")
  
-
+def on_connect_texture(attribute):
+    curves = pm.ls(
+        selection=True,
+        dag=True,
+        leaf=True,
+        type=("nurbsCurve"),
+        ni=True)
+    tex =  pm.ls(
+        selection=True,
+        textures=True)[0]
+    for curve in curves:
+        strk = cutl.get_stroke_node(curve)
+        tex.attr("outColor") >> strk.attr(attribute)
 
 def on_print_stats():
     painting_node = pm.PyNode("mainPaintingShape")

@@ -74,11 +74,13 @@ def zero_position(node):
 
 
 @contextmanager
-def filters_off(node):
-    curr = node.attr("applyFilters").get()
-    node.attr("applyFilters").set(False)
+def filters_off(*nodes):
+    curr_vals = [node.attr("applyFilters").get() for node in nodes]
+    for node in nodes:
+        node.attr("applyFilters").set(False)
     yield
-    node.attr("applyFilters").set(curr)
+    for node, val in zip(nodes, curr_vals):
+        node.attr("applyFilters").set(val)
 
 
 def _on_active_cb_change(ctrl, cb_ctrl):

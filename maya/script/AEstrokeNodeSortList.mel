@@ -1,5 +1,5 @@
 
- global proc AEPaintingSortListAddMultiWidget(
+ global proc AEstrokeNodeSortListAddMultiWidget(
  	string $plug, 
  	string $columnLayout,  
  	int $index) 
@@ -37,10 +37,10 @@ global proc onAddStrokeSortEntry(string $nodeAttr)
 }
 
 
- global proc AEpaintingSortListReplace (string $nodeAttr) {
+ global proc AEstrokeNodeSortListReplace (string $nodeAttr) {
 
  	string $node = attr.nodeFromNodeAttr($nodeAttr);
- 	string $col = "AEaddPaintingSortListCol";
+ 	string $col = "AEaddstrokeNodeSortListCol";
 
  	setParent ..;
  	int $numElements = `getAttr -size $nodeAttr`;
@@ -53,30 +53,30 @@ global proc onAddStrokeSortEntry(string $nodeAttr)
  	int $indices[] = `getAttr -mi $nodeAttr`;
  	for ($i = 0;$i<$numElements;$i++) {
  		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
- 		AEPaintingSortListAddMultiWidget ($plug, $col,  $indices[$i]) ;
+ 		AEstrokeNodeSortListAddMultiWidget ($plug, $col,  $indices[$i]) ;
  	}
  	setParent ..;
 
- 	button -e -c ( "onAddStrokeSortEntry(\"" + $nodeAttr +"\")") AEaddPaintingSortListBtn;
+ 	button -e -c ( "onAddStrokeSortEntry(\"" + $nodeAttr +"\")") AEaddstrokeNodeSortListBtn;
 
  }
 
 
- global proc AEpaintingSortListNew (string $nodeAttr) {
+ global proc AEstrokeNodeSortListNew (string $nodeAttr) {
  	global int $gTextColumnWidthIndex;
 
  	setUITemplate -pst attributeEditorTemplate;
 
- 	string $col = "AEaddPaintingSortListCol";
+ 	string $col = "AEaddstrokeNodeSortListCol";
  	rowLayout -numberOfColumns 3  -columnWidth3 $gTextColumnWidthIndex $gTextColumnWidthIndex $gTextColumnWidthIndex;
  	 text -label "";
- 	button -width 210 -l "Add" "AEaddPaintingSortListBtn";
+ 	button -width 210 -l "Add" "AEaddstrokeNodeSortListBtn";
  	text -label "";
  	setParent ..;
  	columnLayout -adj 1 $col ;	
  	setParent ..;
  	setUITemplate -ppt;
 
- 	AEpaintingSortListReplace($nodeAttr);
+ 	AEstrokeNodeSortListReplace($nodeAttr);
 
  }

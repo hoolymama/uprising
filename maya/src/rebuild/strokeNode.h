@@ -36,59 +36,108 @@ public:
   static MObject aBrushTwistRamp;
 protected:
 
+
+
+  // bool findInSortDefinition( Stroke::SortFilterKey key,
+  //                            const std::vector< std::pair <Stroke::SortFilterKey, Stroke::SortDirection> >
+  //                            &sortDefinition)
+
+
+  // bool  hasTexture(const MObject &attribute);
+  // MStatus getTextureName(const MObject &attribute,
+  //                        MString &name) const ;
+  // MStatus  getMappedValues( const std::vector<Stroke> &strokes,
+  //                           const MObject &attribute, MFloatVectorArray &result);
+
+  // MStatus sampleUVTexture(const MString &textureName,   MFloatArray &uVals,
+  //                         MFloatArray &vVals, MFloatVectorArray &result) const;
+
+  void getUVs(std::vector<Stroke> &strokePool, MFloatArray &uVals,
+              MFloatArray &vVals) const;
+
+
   virtual MStatus generateStrokeGeometry(MDataBlock &data,
                                          std::vector<Stroke> *geom) const;
 
   virtual void assignUVs(MDataBlock &data, std::vector<Stroke> *geom) const;
-  virtual void overridePaintIds(MDataBlock &data, std::vector<Stroke> *geom) const;
-  virtual void overrideBrushIds(MDataBlock &data, std::vector<Stroke> *geom) const;
+  virtual bool overridePaintIds(MDataBlock &data, std::vector<Stroke> *geom) const;
+  virtual bool overrideBrushIds(MDataBlock &data, std::vector<Stroke> *geom) const;
   virtual void filterStrokes(MDataBlock &data,  std::vector<Stroke> *geom) const;
-  static MObject aPointDensity;
-  static MObject aRepeats;
-  static MObject aRepeatOffset;
-  static MObject aRepeatMirror;
-  static MObject aRepeatOscillate;
-  static MObject aSeed;
+  virtual void sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;
+  virtual bool setFilterMapColor(std::vector<Stroke> *geom) const;
+  virtual bool setSortMapColor(std::vector<Stroke> *geom) const;
 
-  static MObject aStrokeDirection;
+  bool getMappedColors(std::vector<Stroke> *geom, MObject &attribute,
+                       MFloatVectorArray &result) const;
 
-  static MObject aEntryLength;
-  static MObject aExitLength;
+  void cullStartEnd(MDataBlock &data,   std::vector<Stroke> *geom) const;
 
 
-  static MObject aBrushId;
-  static MObject aPaintId;
-  static MObject aLayerId;
-  static MObject aActive;
-  static MObject aStrokeCountFactor;
-
-  static MObject aPivotFraction;
-  static MObject aRepeatPivot;
 
 
-  static MObject aBrushTiltRangeMin;
-  static MObject aBrushTiltRangeMax;
-  static MObject aBrushTiltRange;
+  bool rotateStrokes(
+    MDataBlock &data,
+    MFloatArray &uVals,
+    MFloatArray &vVals,
+    std::vector<Stroke> *geom) const;
+
+  bool translateStrokes(
+    MDataBlock &data,
+    MFloatArray &uVals,
+    MFloatArray &vVals,
+    std::vector<Stroke> *geom) const;
 
 
-  static MObject aBrushBankRangeMin;
-  static MObject aBrushBankRangeMax;
-  static MObject aBrushBankRange;
+  void transformStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;
+
+  static MObject  aPointDensity;
+  static MObject  aRepeats;
+  static MObject  aRepeatOffset;
+  static MObject  aRepeatMirror;
+  static MObject  aRepeatOscillate;
+  static MObject  aRepeatFan;
+
+  static MObject  aSeed;
+
+  static MObject  aStrokeDirection;
+
+  static MObject  aEntryLength;
+  static MObject  aExitLength;
 
 
-  static MObject aBrushTwistRangeMin;
-  static MObject aBrushTwistRangeMax;
-  static MObject aBrushTwistRange;
+  static MObject  aBrushId;
+  static MObject  aPaintId;
+  static MObject  aLayerId;
+  static MObject  aActive;
+  static MObject  aStrokeCountFactor;
+
+  static MObject  aPivotFraction;
+  static MObject  aRepeatPivot;
+
+
+  static MObject  aBrushTiltRangeMin;
+  static MObject  aBrushTiltRangeMax;
+  static MObject  aBrushTiltRange;
+
+
+  static MObject  aBrushBankRangeMin;
+  static MObject  aBrushBankRangeMax;
+  static MObject  aBrushBankRange;
+
+
+  static MObject  aBrushTwistRangeMin;
+  static MObject  aBrushTwistRangeMax;
+  static MObject  aBrushTwistRange;
 
   static MObject  aBrushFollowStroke;
 
 
-  static MObject aProjection;
+  static MObject  aProjection;
 
-  static MObject  aBrushIdImage;
+  static MObject  aBrushIdTexture;
   static MObject  aBrushIdRemapRamp;
   static MObject  aBrushIdRemapRange;
-  static MObject  aPaintIdImage;
+  static MObject  aPaintIdTexture;
   static MObject  aPaintIdRemapRamp;
   static MObject  aPaintIdRemapRange;
 
@@ -107,9 +156,17 @@ protected:
   static MObject  aStrokeFilterTexture;
   static MObject  aApplyFilters;
 
+  static MObject  aStartFrom;
+  static MObject  aEndAt;
 
+  static MObject  aRotationTexture;
+  static MObject  aTranslationTexture;
+  static MObject  aTranslationSampleDistance;
 
-  static MObject aOutput;
+  static MObject  aRotationScale;
+  static MObject  aTranslationScale;
+
+  static MObject  aOutput;
 };
 
 

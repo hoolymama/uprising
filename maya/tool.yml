@@ -20,12 +20,12 @@ maya_modules_erb_files:
 include_paths:
 - ../../kettle/src
 - ../../kettle/src/maya
-- /opt/X11/include
+- ../../kettle/src/maya
+- ../../kit/maya/src
 - ../../../CImg-2.4.0
 libs:
 - OpenMayaUI
 - OpenMayaRender
-- X11
 templates:
 - cpp
 - maya
@@ -33,9 +33,8 @@ templates:
 - gl
 source_files:
 - src/rebuild/*.cpp
-- src/rebuild/img/*.cpp
-
-# - src/cimg/*.cpp
 - ../../kettle/src/maya/mayaMath.cpp
-lib_paths:
--  /opt/X11/lib
+- ../../kit/maya/src/cImgData.cpp
+
+
+

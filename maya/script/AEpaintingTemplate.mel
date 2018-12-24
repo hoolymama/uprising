@@ -7,32 +7,13 @@
 	editorTemplate -cl 0 -beginLayout "Speed Attributes";
 	editorTemplate -addControl "linearSpeed";
 	editorTemplate -addControl "angularSpeed";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Path Attributes";
 	editorTemplate -addControl "approximationDistance";
 	editorTemplate -addControl "maxPointToPointDistance";
+	editorTemplate -addControl "approachDistance";
 	editorTemplate -endLayout;
-
-	editorTemplate -cl 0 -beginLayout "Texture Attributes";
-	editorTemplate -addControl "brushIdTextureRange";
-	editorTemplate -addControl "paintIdTextureRange";
-
-	editorTemplate -endLayout;
-
-
-	editorTemplate -cl 0 -beginLayout "Filtering attributes";
-	editorTemplate -addControl "applyFilters";
- 	editorTemplate -callCustom "AEpaintingFilterListNew" "AEpaintingFilterListReplace" "strokeFilterList";
-	editorTemplate -addControl "strokeFilterTexture"; 
-	editorTemplate -addControl "startFrom";
-	editorTemplate -addControl "endAt";
-	
- 	editorTemplate -endLayout;
-
-	editorTemplate -cl 0 -beginLayout "Sorting attributes";
-	 editorTemplate -addControl "applySort";
- 	editorTemplate -callCustom "AEpaintingSortListNew" "AEpaintingSortListReplace" "strokeSortList";
-	editorTemplate -addControl "strokeSortTexture"; 
- 	editorTemplate -endLayout;
-
 
 	editorTemplate -cl 0 -beginLayout "Display Attributes";
 	editorTemplate -addControl "pointSize"; 
@@ -42,11 +23,10 @@
 	
 	editorTemplate -beginNoOptimize;
 	editorTemplate -addControl "displayTargets";
-	editorTemplate -addControl "displayLift";
-	editorTemplate -addControl "displayApproach";
+	editorTemplate -addControl "displayPivots";
 	editorTemplate -addControl "displayArrows";
 	editorTemplate -addControl "displayClusterPath";
-	editorTemplate -addControl "displayStops";
+
 	editorTemplate -addControl "displayIds";
 	editorTemplate -addControl "displayParentIds";
 	editorTemplate -addControl "displayLayerIds";
@@ -61,15 +41,7 @@
 	editorTemplate -addControl "stackGap"; 
 
 
- // 	editorTemplate -addControl "displayPoints"; 
- // 	editorTemplate -addControl "displayIds";
- 
- editorTemplate -endLayout;
-
-
-	// editorTemplate -cl 0 -beginLayout "Curves";
- // 	editorTemplate -callCustom "AEpaintingCurvesNew" "AEpaintingCurvesReplace" "curves";
- // 	editorTemplate -endLayout;
+  editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Paints";
  	editorTemplate -callCustom "AEpaintingPaintsNew" "AEpaintingPaintsReplace" "paints";
@@ -80,7 +52,7 @@
  	editorTemplate -endLayout;
 
 
-	editorTemplate -suppress "strokeCurves";
+	editorTemplate -suppress "strokes";
 
  	editorTemplate -suppress "outTargets";
  

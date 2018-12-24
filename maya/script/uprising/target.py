@@ -8,9 +8,9 @@ CONFIG_MASK = "000"
 
 class Target(object):
  
-    def __init__(self, id_, position, rotation, tangent, robot, brush, planeNormal):
+    def __init__(self, id_, position, rotation, tangent, robot, brush):
         self.id = id_
-        self.linear = False
+        self.linear = True
 
         self.tangent = tangent
         self.joint_pose = None
@@ -22,9 +22,9 @@ class Target(object):
         if not self.joint_poses:
             raise StrokeError("Cant initialize target: %d, no ik solutions" % self.id)
  
-    def configure(self, robot, last_mat, ref_joint_pose):
+    def configure(self):
         self.joint_pose =  self.joint_poses[0]
-        self.linear = bool(last_mat)  
+        # self.linear = bool(last_mat)  
 
     def name(self, prefix):
         # print "%s_t%d" % (prefix, self.id)
@@ -44,11 +44,22 @@ class Target(object):
             program.addMoveJ(rdk_target)
 
 
-class StopTarget(Target):
+class ArrivalTarget(Target):
 
     def name(self, prefix):
-        return "%s_st%d" % (prefix, self.id)
+        return "%s_ar%d" % (prefix, self.id)
 
-    def configure(self, robot):
+    def configure(self):
         self.joint_pose =  self.joint_poses[0]
         self.linear = False  
+
+
+class DepartureTarget(Target):
+
+    def name(self, prefix):
+        return "%s_dp%d" % (prefix, self.id)
+
+    # def configure(self, robot):
+    #     self.joint_pose =  self.joint_poses[0]
+    #     # self.linear = True  
+

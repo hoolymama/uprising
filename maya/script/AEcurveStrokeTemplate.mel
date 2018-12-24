@@ -1,4 +1,4 @@
-global proc AEcurveStrokesTemplate ( string $nodeName )
+global proc AEcurveStrokeTemplate ( string $nodeName )
 {
 
 	editorTemplate -beginScrollLayout;

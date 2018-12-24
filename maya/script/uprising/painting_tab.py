@@ -29,17 +29,14 @@ class PaintingTab(gui.FormLayout):
  
         
         pm.rowLayout(
-            numberOfColumns=6, columnWidth6=(
-                110, 60, 60, 60, 60, 80), columnAlign=(
+            numberOfColumns=5, columnWidth5=(
+                110, 60, 60, 60, 80), columnAlign=(
                 1, 'right'), columnAttach=[
-                (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2), (5, 'both', 2), (6, 'both', 2)])
+                (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2), (5, 'both', 2) ])
 
         pm.text(label='Propagate ramps')
 
-        pm.button(
-            label='Profile',
-            command=pm.Callback(self.on_propagate_profile_ramp))
-
+ 
         pm.button(
             label='Tilt',
             command=pm.Callback(self.on_propagate_tilt_ramp))
@@ -62,61 +59,61 @@ class PaintingTab(gui.FormLayout):
 
 
         self.rename_inputs_tf = pm.textFieldButtonGrp(
-            label='Rename',
-            text='ring_%d_crv, ring_%d_sc',
+            label='Rename curves',
+            text='crv_%d',
             buttonLabel='Go',
             buttonCommand=pm.Callback(
                 self.on_rename_inputs))
 
 
 
-        self.lift_length_ff = pm.floatSliderButtonGrp(
-            label='Tip length to lift length',
-            field=True,
-            maxValue=5.0,
-            step=0.01,
-            value=1.1,
-            symbolButtonDisplay=False,
-            buttonLabel="Go",
-            buttonCommand=pm.Callback(self.on_tip_length_to_lift_length),
-            columnWidth=(4, 60)
-        )
+        # self.lift_length_ff = pm.floatSliderButtonGrp(
+        #     label='Tip length to lift length',
+        #     field=True,
+        #     maxValue=5.0,
+        #     step=0.01,
+        #     value=1.1,
+        #     symbolButtonDisplay=False,
+        #     buttonLabel="Go",
+        #     buttonCommand=pm.Callback(self.on_tip_length_to_lift_length),
+        #     columnWidth=(4, 60)
+        # )
 
-        self.lift_height_ff = pm.floatSliderButtonGrp(
-            label='Tip length to lift height',
-            field=True,
-            maxValue=5.0,
-            step=0.01,
-            value=1.1,
-            symbolButtonDisplay=False,
-            buttonLabel="Go",
-            buttonCommand=pm.Callback(self.on_tip_length_to_lift_height),
-            columnWidth=(4, 60)
-        )
+        # self.lift_height_ff = pm.floatSliderButtonGrp(
+        #     label='Tip length to lift height',
+        #     field=True,
+        #     maxValue=5.0,
+        #     step=0.01,
+        #     value=1.1,
+        #     symbolButtonDisplay=False,
+        #     buttonLabel="Go",
+        #     buttonCommand=pm.Callback(self.on_tip_length_to_lift_height),
+        #     columnWidth=(4, 60)
+        # )
 
-        self.lift_bias_ff = pm.floatSliderButtonGrp(
-            label='Tip length to lift bias',
-            field=True,
-            maxValue=5.0,
-            step=0.01,
-            value=1.1,
-            symbolButtonDisplay=False,
-            buttonLabel="Go",
-            buttonCommand=pm.Callback(self.on_tip_length_to_lift_bias),
-            columnWidth=(4, 60)
-        )
+        # self.lift_bias_ff = pm.floatSliderButtonGrp(
+        #     label='Tip length to lift bias',
+        #     field=True,
+        #     maxValue=5.0,
+        #     step=0.01,
+        #     value=1.1,
+        #     symbolButtonDisplay=False,
+        #     buttonLabel="Go",
+        #     buttonCommand=pm.Callback(self.on_tip_length_to_lift_bias),
+        #     columnWidth=(4, 60)
+        # )
 
-        self.profile_height_max_ff = pm.floatSliderButtonGrp(
-            label='Tip length to profile max',
-            field=True,
-            maxValue=5.0,
-            step=0.01,
-            value=1.0,
-            symbolButtonDisplay=False,
-            buttonLabel="Go",
-            buttonCommand=pm.Callback(self.on_tip_length_to_profile_max),
-            columnWidth=(4, 60)
-        )
+        # self.profile_height_max_ff = pm.floatSliderButtonGrp(
+        #     label='Tip length to profile max',
+        #     field=True,
+        #     maxValue=5.0,
+        #     step=0.01,
+        #     value=1.0,
+        #     symbolButtonDisplay=False,
+        #     buttonLabel="Go",
+        #     buttonCommand=pm.Callback(self.on_tip_length_to_profile_max),
+        #     columnWidth=(4, 60)
+        # )
 
 
     def create_action_buttons(self):
@@ -153,10 +150,10 @@ class PaintingTab(gui.FormLayout):
         # val = pm.textFieldButtonGrp(self.setup_paints_tf, q=True, text=True)
         # pm.optionVar["up_setup_palette_name"] = val
 
-    def on_propagate_profile_ramp(self):
-        flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
-        cutl.propagate_ramp_attribute(
-            "strokeProfileRamp", "strokeProfileScale", flat)
+    # def on_propagate_profile_ramp(self):
+    #     flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
+    #     cutl.propagate_ramp_attribute(
+    #         "strokeProfileRamp", "strokeProfileScale", flat)
 
     def on_propagate_tilt_ramp(self):
         flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
@@ -172,7 +169,6 @@ class PaintingTab(gui.FormLayout):
             "brushTwistRamp", "brushTwistRange", flat)
  
     def on_rename_inputs(self):
-
         templates = [
             x.strip() for x in pm.textFieldButtonGrp(
                 self.rename_inputs_tf,
@@ -181,14 +177,10 @@ class PaintingTab(gui.FormLayout):
         if len(templates) == 2:
             crv_t, sc_t = templates
         elif len(templates) == 1:
-            crv_t = templates[0]
-            sc_t = "sc_%s" % templates[0]
+            crv_t = "%s_crv" % templates[0]
+            sc_t = "%s_stc" % templates[0]
         else:
             pm.error("Invalid templates")
-
-        # make sure templates are okay
-        test = crv_t % 3
-        test = sc_t % 3
 
         curves = pm.ls(
             selection=True,
@@ -196,33 +188,10 @@ class PaintingTab(gui.FormLayout):
             leaf=True,
             type="nurbsCurve",
             ni=True)
-        for curve in curves:
-            try:
-                stroke_curve = pm.listHistory(
-                    curve, future=True, levels=1, type="strokeCurve")[0]
-            except IndexError:
-                pm.warning(
-                    "Skipping: %s not connected to a strokeCurve" %
-                    curve)
-                continue
 
-            conns = pm.listConnections(
-                stroke_curve,
-                d=True,
-                s=False,
-                c=True,
-                p=True,
-                type="painting")
-            if not conns:
-                pm.warning(
-                    "Skipping: %s and %s not connected to a painting" %
-                    (curve, stroke_curve))
-                continue
-
-            index = int(re.compile(
-                r".*\[(\d+)]$").match(conns[0][1].name()).groups()[0])
-            curve.getParent().rename(crv_t % index)
-            stroke_curve.rename(sc_t % index)
+        cutl.do_rename_inputs(crv_t, sc_t, curves)
+        # make sure templates are okay
+    
 
     def on_connect_curve_vis_active(self):
         curves_xfs = pm.listRelatives(pm.ls(
@@ -253,7 +222,7 @@ class PaintingTab(gui.FormLayout):
             ni=True)
 
         for curve in curves:
-            stroke_curve=cutl.get_stroke_curve(curve)
+            stroke_curve=cutl.get_stroke_node(curve)
             attr = stroke_curve.attr(attr_name)
             butl.set_stroke_curve_att_from_brush_tip(attr, mult, offset)
 

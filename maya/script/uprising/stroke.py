@@ -1,11 +1,7 @@
-import robodk as rdk
 from robolink import (
-    Robolink,
-    INSTRUCTION_SHOW_MESSAGE,
-    INSTRUCTION_COMMENT,
-    INSTRUCTION_CALL_PROGRAM)
-
-from target import Target, StopTarget
+    INSTRUCTION_COMMENT
+)
+from target import (Target, DepartureTarget, ArrivalTarget)
 import pymel.core as pm
 
 import uprising_util as uutl
@@ -29,22 +25,25 @@ class Stroke(object):
         
         self.set_stroke_params()
         self.build_targets()
-        self.build_stop_targets()
+        self.build_arrivals()
+        self.build_departure()
+
+        # self.build_stop_targets()
         
         self.configure()
 
     def set_stroke_params(self):
-        self.normal = pm.paintingQuery(
-            self.node,
-            clusterIndex=self.cluster_id,
-            strokeIndex=self.id,
-            strokeNormal=True)
+        # self.normal = pm.paintingQuery(
+        #     self.node,
+        #     clusterIndex=self.cluster_id,
+        #     strokeIndex=self.id,
+        #     strokeNormal=True)
 
-        self.direction = pm.paintingQuery(
+        self.backstroke = pm.paintingQuery(
             self.node,
             clusterIndex=self.cluster_id,
             strokeIndex=self.id,
-            strokeDirection=True)
+            strokeBackstroke=True)
 
         self.arc_length = pm.paintingQuery(
             self.node,
@@ -57,7 +56,7 @@ class Stroke(object):
             clusterIndex=self.cluster_id,
             strokeIndex=self.id,
             strokeParentIndex=True)
-        print "PARENT: %s " % self.parent_id
+
  
     def build_targets(self):
 
@@ -93,41 +92,61 @@ class Stroke(object):
                 "Length mismatch: positions, rotations, tangents")
 
         for i, (p, r, t) in enumerate(zip(positions, rotations, tangents)):
-            tg = Target(i, (p * 10), r, t, self.robot, self.brush, self.normal)
+            tg = Target(i, (p * 10), r, t, self.robot, self.brush)
             self.targets.append(tg)
 
 
+    def build_arrivals(self):
 
+        self.arrivals = []
 
-    def build_stop_targets(self):
-
-        self.stop_targets = []
-
-        stop_positions = uutl.to_point_array(
+        positions = uutl.to_point_array(
             pm.paintingQuery(
                 self.node,
                 clusterIndex=self.cluster_id,
                 strokeIndex=self.id,
-                strokeStopPositions=True))
+                strokeArrivalPositions=True))
 
-        stop_rotations = uutl.to_vector_array(
+        rotations = uutl.to_vector_array(
             pm.paintingQuery(
                 self.node,
                 clusterIndex=self.cluster_id,
                 strokeIndex=self.id,
-                strokeStopRotations=True,
+                strokeArrivalRotations=True,
                 rotateOrder="zyx",
                 rotateUnit="rad"))
 
-        num_stop_targets = len(stop_positions)
-        if not (num_stop_targets == len(stop_rotations)  ):
+        num = len(positions)
+        if not (num == len(rotations)  ):
             raise StrokeError(
-                "Length mismatch: stop_positions, stop_rotations")
+                "Arrivals length mismatch: positions, rotations")
 
-        for i, (p, r) in enumerate(zip(stop_positions, stop_rotations)):
-            tg = StopTarget(i, (p * 10), r, None , self.robot, self.brush, self.normal)
-            self.stop_targets.append(tg)
+        for i, (p, r) in enumerate(zip(positions, rotations)):
+            tg = ArrivalTarget(i, (p * 10), r, None , self.robot, self.brush)
+            self.arrivals.append(tg)
 
+
+    def build_departure(self):
+
+        position = uutl.to_point_array(
+            pm.paintingQuery(
+                self.node,
+                clusterIndex=self.cluster_id,
+                strokeIndex=self.id,
+                strokeDeparturePosition=True))[0]
+
+        rotation = uutl.to_vector_array(
+            pm.paintingQuery(
+                self.node,
+                clusterIndex=self.cluster_id,
+                strokeIndex=self.id,
+                strokeDepartureRotation=True,
+                rotateOrder="zyx",
+                rotateUnit="rad"))[0]
+
+        self.departure =   DepartureTarget(0, (position * 10), rotation, None , self.robot, self.brush)
+
+ 
 
     def name(self, prefix):
         return "%s_p%d_s%d" % (prefix, self.parent_id, self.id)
@@ -136,11 +155,13 @@ class Stroke(object):
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
 
-        for t in self.stop_targets:
+        for t in self.arrivals:
             t.write(stroke_name, program,frame, studio)
 
         for t in self.targets:
             t.write(stroke_name, program,frame, studio)
+
+        self.departure.write(stroke_name, program,frame, studio)
 
     # Well there should only be the 000 config key anyway.
     # def get_common_configs(self):
@@ -163,18 +184,24 @@ class Stroke(object):
         #     raise StrokeError("Cant find any common configs")
 
         # for config in self.common_configs:
-        ref_pose = self.targets[0].joint_poses[0]
+        # ref_pose = self.targets[0].joint_poses[0]
         # self.configure_targets(self.robot, ref_pose)
 
-        last_mat = None
+        # last_mat = None
+        for target in self.arrivals:
+            target.configure()
+
         for target in self.targets:
-            target.configure(self.robot, last_mat, ref_pose)
-            ref_pose = target.joint_pose
-            last_mat = target.tool_pose
+            target.configure()
+
+        self.departure.configure()
+            # target.configure(self.robot, last_mat, ref_pose)
+            # ref_pose = target.joint_pose
+            # last_mat = target.tool_pose
 
 
-        for stop_target in self.stop_targets:
-            stop_target.configure(self.robot)
+        # for stop_target in self.stop_targets:
+        #     stop_target.configure(self.robot)
 
 
 

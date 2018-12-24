@@ -1,0 +1,23 @@
+ 
+global proc AEbrushPaintOverrideInclude ( string $nodeName, int $withSingleId )
+{
+
+	editorTemplate -cl 0  -beginLayout "Brush Id";
+	if ($withSingleId) {
+		editorTemplate -addControl "brushId" ;
+	}
+	editorTemplate -addControl "brushIdTexture";
+	AEaddRampControl("brushIdRemapRamp");		
+	editorTemplate -addControl "brushIdRemapRange" ;
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Paint Id";	
+	if ($withSingleId) {
+		editorTemplate -addControl "paintId" ;
+	}
+	editorTemplate -addControl "paintIdTexture";
+	AEaddRampControl("paintIdRemapRamp");		
+	editorTemplate -addControl "paintIdRemapRange" ;
+	editorTemplate -endLayout;
+
+}

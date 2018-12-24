@@ -50,7 +50,7 @@ class ValidateTab(gui.FormLayout):
             label='Create components',
             labelArray4=['Painting', 'Dips', "Calibrate", "Verify"],
             valueArray4=[False, False, False, False],
-            columnWidth5=(180, 90,90,90,90)
+            columnWidth5=(180, 90, 90, 90, 90)
         )
 
         self.send_selected_props_cb = pm.checkBoxGrp(
@@ -109,7 +109,7 @@ class ValidateTab(gui.FormLayout):
         pm.columnLayout(adj=True)
         self.varying_node_wg = pm.radioButtonGrp(
             label='Varying node', labelArray3=[
-                 "Selected", "Shape", "StrokeCurve"], sl=1, numberOfRadioButtons=3)
+                 "Selected", "Shape", "curveStroke"], sl=1, numberOfRadioButtons=3)
         self.varying_attrib_wg = pm.textFieldGrp(label='Attribute', text='rz')
         self.varying_range_wg = pm.floatFieldGrp(
             numberOfFields=2, label='Range', value1=0, value2=360.0)
@@ -319,7 +319,7 @@ status        : %s
         elif node_type is "shape": 
             obs = pm.ls(selection=True, dag=True,  ni=True,  shapes=True)
         else:  # stroke_curve
-            obs =  pm.ls(selection=True, type="strokeCurve")
+            obs =  pm.ls(selection=True, type="curveStroke")
 
             curves = pm.ls(
                 selection=True, dag=True,
@@ -330,7 +330,7 @@ status        : %s
                 curves,
                 d=True,
                 s=False,
-                type="strokeCurve")
+                type="curveStroke")
             obs += conns
 
         cutl.hide_objects(obs)

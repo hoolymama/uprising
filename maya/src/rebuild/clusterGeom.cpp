@@ -27,8 +27,9 @@ double clusterGeom::travelCutoff() const {
 	return m_travelCutoff;
 }
 
-void clusterGeom::pushStroke(const Stroke &s) {
+void clusterGeom::pushStroke(const Stroke &s, int parentIndex) {
 	m_strokes.push_back(s);
+	m_strokes.back().setParentId(parentIndex);
 	m_travel += s.arcLength();
 }
 
@@ -53,11 +54,6 @@ const std::vector<Stroke> &clusterGeom::strokes() const {
 	return m_strokes;
 }
 
-
-
-
-
-
 void clusterGeom::setDeparture(double approachMid, double approachEnd)
 {
 	for (auto iter = m_strokes.begin(); iter != m_strokes.end(); iter++) {
@@ -67,7 +63,6 @@ void clusterGeom::setDeparture(double approachMid, double approachEnd)
 		else {
 			iter->setDeparture(approachMid);
 		}
-		// cerr << "iter->departure().position()" << iter->departure().position() << endl;;
 	}
 }
 
@@ -90,14 +85,32 @@ void clusterGeom::setArrival(double approachStart, double approachMid,
 void  clusterGeom::setApproaches(double approachStart, double approachMid,
                                  double approachEnd, double ptpThresh )
 {
-
-	// cerr << " clusterGeom::setApproaches" << endl;
-	// cerr << approachStart << " " << approachMid << " " << approachEnd << " " << ptpThresh <<
-	//      endl;
-
 	setDeparture(approachMid, approachEnd);
 	setArrival(approachStart, approachMid, ptpThresh);
 }
+
+
+
+
+
+void clusterGeom::displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap)
+{
+	std::vector<Stroke>::iterator iter;
+	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
+	{
+		iter->displace(meshFn, ap);
+	}
+}
+
+void clusterGeom::setBrushTransitions(const Brush &brush)
+{
+	std::vector<Stroke>::iterator iter;
+	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
+	{
+		iter->setBrushTransitions( brush);
+	}
+}
+
 
 
 
@@ -138,16 +151,6 @@ void  clusterGeom::setApproaches(double approachStart, double approachMid,
 // 	}
 // }
 
-
-
-void clusterGeom::displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap)
-{
-	std::vector<Stroke>::iterator iter;
-	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
-	{
-		iter->displace(meshFn, ap);
-	}
-}
 
 /* Is this assignment the same as default. If so remove it. */
 /*clusterGeom &clusterGeom::operator=( const clusterGeom &other )

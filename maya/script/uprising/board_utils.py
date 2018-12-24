@@ -136,7 +136,7 @@ def generate_probes(node, offset, approach_dist):
             pos = v.getPosition(space="world")
             pos.z=0
             probe = pm.group(em=True)
-            probe.rename("probe_%d" % i)
+            probe.rename("probe_%d" % index)
             probe.attr("t").set(pos)
             pm.parent(probe, probes_group)
             probe.attr("r").set(0,180,0)
@@ -188,8 +188,8 @@ def set_board_vertices_from_sheets(painting_node, name):
         probe =  pm.PyNode("%s|jpos|probes|probe_%d" % (assembly, index))
         vtx = disp_mesh.vtx[index]
         pos = vtx.getPosition(space="world")
-        pos.z = (probes_offset - value)
+        pos.z = (probes_offset + value)
         vtx.setPosition(pos, space="world")
-        pm.PyNode("%s|actual" %probe).attr("tz").set(value)
+        pm.PyNode("%s|actual" %probe).attr("tz").set(-value)
 
 
