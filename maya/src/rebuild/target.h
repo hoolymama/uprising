@@ -34,6 +34,15 @@ public:
 	  double strokeRange,
 	  double curveLength);
 
+	Target(
+	  const MPoint &pt,
+	  const MVector &tangent,
+	  double strokeParam,
+	  double curveParam,
+	  double contact
+	);
+
+
 	~Target();
 
 	void setRotation(double tilt, double bank, double twist, bool follow,
@@ -80,6 +89,9 @@ public:
 
 	const double &contact() const ;
 
+	// static double Target::interpContact(const MDoubleArray &contacts,
+	//                                     const double &uniformParam)
+
 private:
 	MVector m_tangent; // tangent on the curve
 	MMatrix m_matrix;
@@ -89,6 +101,7 @@ private:
 
 
 };
+
 
 #endif
 

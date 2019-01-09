@@ -102,12 +102,12 @@ void clusterGeom::displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap)
 	}
 }
 
-void clusterGeom::setBrushTransitions(const Brush &brush)
+void clusterGeom::offsetBrushContact(const Brush &brush)
 {
 	std::vector<Stroke>::iterator iter;
 	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
 	{
-		iter->setBrushTransitions( brush);
+		iter->offsetBrushContact( brush);
 	}
 }
 

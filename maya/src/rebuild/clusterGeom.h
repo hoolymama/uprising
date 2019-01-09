@@ -52,7 +52,7 @@ public:
 
 	void displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
-	void setBrushTransitions(const Brush &brush);
+	void offsetBrushContact(const Brush &brush);
 
 	// friend ostream &operator<<(ostream &os, const clusterGeom &geom);
 

@@ -212,13 +212,13 @@ void paintingGeom::displace( MFnMesh &meshFn,  MMeshIsectAccelParams &ap )
 }
 
 
-void paintingGeom::setBrushTransitions()
+void paintingGeom::offsetBrushContact()
 {
 	std::vector<clusterGeom>::iterator iter;
 	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
 	{
 		const Brush &brush =  brushFromId(iter->brushId());
-		iter->setBrushTransitions( brush);
+		iter->offsetBrushContact( brush);
 	}
 }
 

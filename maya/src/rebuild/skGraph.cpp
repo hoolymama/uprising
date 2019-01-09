@@ -1,7 +1,7 @@
 #include <deque>
 
+#include <maya/MFloatArray.h>
 #include "skGraph.h"
-
 
 
 
@@ -35,7 +35,7 @@ skGraph::skGraph():
 
 
 
-skGraph::skGraph(const CImg<unsigned char>  *pImage):
+skGraph::skGraph(const CImg<float>  *pImage):
     m_nodes(),
     m_width(),
     m_height()
@@ -54,8 +54,7 @@ skGraph::skGraph(const CImg<unsigned char>  *pImage):
     kernel.push_back(coord(1, -1));
     kernel.push_back(coord(0, -1));
 
-    CImg<bool> image = pImage->get_norm();
-
+    CImg<bool> image = pImage->get_threshold(0.5);
 
     int nWhitePixels = image.sum();
     coord start(0, 0, 0);
@@ -94,7 +93,7 @@ skGraph::skGraph(const CImg<unsigned char>  *pImage):
                     addNode(neighbor.x, neighbor.y);
                     q.push_back(neighbor);
                     image(neighbor.x, neighbor.y) = false;
-                    nWhitePixels--; \
+                    nWhitePixels--;
 
                     connect(neighbor, curr);
                 }
@@ -103,13 +102,9 @@ skGraph::skGraph(const CImg<unsigned char>  *pImage):
         }
         start = whitePixel;
     }
-
-    resolveBranches();
-
+    detachBranches();
+    setRadius(pImage);
 }
-
-
-
 
 
 
@@ -126,6 +121,21 @@ skGraph::~skGraph()
 }
 
 
+
+
+void skGraph::setRadius(const CImg<float>  *pImage)
+{
+    for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
+            iter != m_nodes.end();
+            iter++)
+    {
+        coord c = iter->first;
+        float rad = (*pImage)(c.x, c.y);
+        // cerr << ", " << rad;
+        iter->second->radius = (*pImage)(c.x, c.y);
+    }
+    // cerr << endl;
+}
 
 
 skNode *skGraph::addNode(int x, int y, int z)
@@ -168,6 +178,17 @@ void skGraph::getPoints(MVectorArray &result) const
     }
 }
 
+void skGraph::getRadius(MDoubleArray &result) const
+{
+    for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
+            iter != m_nodes.end();
+            iter++)
+    {
+        result.append(iter->second->radius);
+    }
+}
+
+
 void skGraph::getEdges(MVectorArray &result) const
 {
     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
@@ -192,31 +213,27 @@ void skGraph::getEdges(MVectorArray &result) const
 
 
 /*
-resolveBranches() is called once the graph has been built.
+detachBranches() is called once the graph has been built.
 It finds all junctions, and then removes the straightest 2 branches
 from the node, then reconnects them with a new node.
 
 It keeps going until the original junction has less than 3 branches
 
-
 */
-void skGraph::resolveBranches()
+void skGraph::detachBranches()
 {
     for (std::map<coord, skNode *>::iterator iter = m_nodes.begin();
             iter != m_nodes.end();
             iter++)
     {
         coord c = iter->first;
-        cerr << "Coord:(" << c.x << "," << c.y << "," << c.z << ") ";
         skNode *node = iter->second;
         int z = 1;
         while (node->neighbors.size() > 2)
         {
-            cerr << z << " ";
             detatchStraightest(node, z);
             z++;
         }
-        cerr << endl;;
     }
 }
 
@@ -242,7 +259,7 @@ void skGraph::detatchStraightest( skNode *node, int z)
         {
             float facing = node->facing(iter1->second, iter2->second);
             if (facing < straightest) {
-                cerr << "facing: " << facing << endl;
+                // cerr << "facing: " << facing << endl;
                 first = iter1->second;
                 second = iter2->second;
                 if (facing == -1.0)
@@ -253,17 +270,12 @@ void skGraph::detatchStraightest( skNode *node, int z)
                 straightest = facing;
             }
             if (done) { break; }
-            // combinations.push_back(std::make_tuple(*iter1, *iter2, dotprod));
         }
         if (done) { break; }
         offset++;
     }
 
-    // if (first && second)
-    // {
     splitOff(node, first, second, z);
-    cerr << "Did Split" << endl;
-    // }
 
 }
 
@@ -289,5 +301,100 @@ void skGraph::splitOff( skNode *node,  skNode *first,  skNode *second, int z)
 
     connect(newCoord, first->c);
     connect(newCoord, second->c);
-
 }
+
+
+
+
+bool skGraph::hasJunctions() const
+{
+    for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
+            iter != m_nodes.end();
+            iter++)
+    {
+        const skNode *node = iter->second;
+        if (node->neighbors.size() > 2) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+void skGraph::getChains(const  MFloatMatrix &projection,  std::vector< skChain > &chains ,
+                        int step, int minPixels)
+const
+{
+
+    float pixelWidth = projection[0][0] * 2.0 / float(m_width);
+
+
+    MFloatVector half(m_width * 0.5, m_height * 0.5);
+    MFloatMatrix norm;
+    norm[0][0] = half.x;
+    norm[1][1] = -half.y;
+    norm[3][0] = half.x;
+    norm[3][1] = half.y;
+
+    MFloatMatrix transformation = norm.inverse()  *  projection;
+    /*
+    Loop through nodes, looking for endpoints that we havent seen yet,
+    so we may make .
+    */
+    for (std::map<coord, skNode *>::const_iterator mapiter = m_nodes.begin();
+            mapiter != m_nodes.end();
+            mapiter++)
+    {
+        // identify the start of a chain with at lest 2 nodes that has not been seen
+        if (mapiter->second->isEnd() && (! mapiter->second->seen )
+                && ( mapiter->second->neighbors.size() > 0)  ) {
+
+            // make a chain and set both ends to seen
+            // MFloatArray distances;
+            skChain chain;
+
+            skNode *curr = mapiter->second;
+            skNode *last = mapiter->second;
+            // float accum = 0;
+            int count = 0;
+            for (;; count++)
+            {
+                auto neighbor_iter =  std::find_if(
+                                          curr->neighbors.begin(),
+                                          curr->neighbors.end(),
+                                          [](const std::pair<coord, skNode *> &p) -> bool { return p.second->seen == false; }
+                                      );
+                MFloatVector xy =  curr->c * transformation;
+                // cerr << "curr->radius * pixelWidth: " << curr->radius << " * " << pixelWidth << endl;
+                skPoint pt(xy.x, xy.y, (curr->radius * pixelWidth));
+
+                chain.add(pt);
+
+                curr->seen = true;
+
+                if (neighbor_iter == curr->neighbors.end())
+                {
+                    break;
+                }
+                last = curr;
+                curr = neighbor_iter->second;
+            }
+
+            // chain is made
+            if (count < minPixels) {
+                continue;
+            }
+
+            if (step > 1) {
+                skChain interpolated;
+                chain.interpolate( step, interpolated);
+                chains.push_back(interpolated);
+            }
+            else {
+                chains.push_back(chain);
+            }
+        }
+    }
+}
+
+

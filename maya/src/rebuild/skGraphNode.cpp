@@ -5,6 +5,8 @@
 #include <maya/MDoubleArray.h>
 #include <maya/MFloatVectorArray.h>
 #include <maya/MFloatArray.h>
+#include <maya/MIntArray.h>
+
 #include <maya/MFloatPointArray.h>
 #include <maya/MPoint.h>
 
@@ -13,27 +15,82 @@
 
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnVectorArrayData.h>
+#include <maya/MFnIntArrayData.h>
+
 
 
 #include <maya/MFnNumericAttribute.h>
 
+#include <maya/MFnMatrixAttribute.h>
+
+
 #include "skGraphNode.h"
+
+#include "skChain.h"
+
 
 #include <jMayaIds.h>
 #include <attrUtils.h>
 
 
-#include "cImgData.h"
+#include "cImgFloatData.h"
 
 
 #include "errorMacros.h"
 
 
+const double  PI  = 3.141592653;
+
+
+const double rad_to_deg = (180 / PI);
+
+const double  TAU = 2.0 * PI;
+
+static int circleVertexCount = 16;
+const float gap = TAU / circleVertexCount;
+
+static float circle[][4] = {
+	{sin(gap * 0),   cos(gap * 0),  0.0f, 1.0f},
+	{sin(gap * 1),   cos(gap * 1),  0.0f, 1.0f},
+	{sin(gap * 2),   cos(gap * 2),  0.0f, 1.0f},
+	{sin(gap * 3),   cos(gap * 3),  0.0f, 1.0f},
+	{sin(gap * 4),   cos(gap * 4),  0.0f, 1.0f},
+	{sin(gap * 5),   cos(gap * 5),  0.0f, 1.0f},
+	{sin(gap * 6),   cos(gap * 6),  0.0f, 1.0f},
+	{sin(gap * 7),   cos(gap * 7),  0.0f, 1.0f},
+	{sin(gap * 8),   cos(gap * 8),  0.0f, 1.0f},
+	{sin(gap * 9),   cos(gap * 9),  0.0f, 1.0f},
+	{sin(gap * 10),  cos(gap * 10), 0.0f, 1.0f},
+	{sin(gap * 11),  cos(gap * 11), 0.0f, 1.0f},
+	{sin(gap * 12),  cos(gap * 12), 0.0f, 1.0f},
+	{sin(gap * 13),  cos(gap * 13), 0.0f, 1.0f},
+	{sin(gap * 14),  cos(gap * 14), 0.0f, 1.0f},
+	{sin(gap * 15),  cos(gap * 15), 0.0f, 1.0f}
+};
+
+
+MObject skGraphNode::aProjectionMatrix;
+
 MObject skGraphNode::aSkeletonImage;
+MObject skGraphNode::aMinPixels;
+MObject skGraphNode::aPixelStep;
+
 MObject skGraphNode::aOutPoints;
-MObject skGraphNode::aOutEdges;
+MObject skGraphNode::aOutParams;
+MObject skGraphNode::aOutRadius;
+MObject skGraphNode::aOutCounts;
+
 MObject skGraphNode::aPointSize;
-MObject skGraphNode::aColor;
+MObject skGraphNode::aColor1;
+MObject skGraphNode::aColor2;
+
+
+MObject skGraphNode::aRadiusMult;
+MObject skGraphNode::aDrawEdges;
+MObject skGraphNode::aDrawPoints;
+MObject skGraphNode::aDrawCircles;
+MObject skGraphNode::aRandomChainColor;
+
 
 
 MTypeId skGraphNode:: id(k_skGraphNode );
@@ -56,18 +113,38 @@ MStatus skGraphNode::initialize()
 	MFnNumericAttribute nAttr;
 	MFnTypedAttribute tAttr;
 
-	// MFnMatrixAttribute mAttr;
+	MFnMatrixAttribute mAttr;
 
 
 	// MFloatMatrix identity;
 	// identity.setToIdentity();
 
+	MFloatMatrix identity;
+	identity.setToIdentity();
+	aProjectionMatrix = mAttr.create( "projectionMatrix", "pmat",
+	                                  MFnMatrixAttribute::kFloat );
+	mAttr.setStorable( false );
+	mAttr.setHidden( false );
+	mAttr.setKeyable(true);
+	mAttr.setDefault(identity);
+	addAttribute(aProjectionMatrix);
 
-	aSkeletonImage = tAttr.create("skeletonImage", "simg", cImgData::id ) ;
+
+	aSkeletonImage = tAttr.create("skeletonImage", "simg", cImgFloatData::id ) ;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	st = addAttribute( aSkeletonImage ); mser;
 
+	aMinPixels = nAttr.create("minPixels", "mnpx", MFnNumericData::kInt);
+	nAttr.setDefault( 2 );
+	nAttr.setKeyable( true );
+	st = addAttribute( aMinPixels ); mser
+
+
+	aPixelStep = nAttr.create("pixelStep", "pxs", MFnNumericData::kInt);
+	nAttr.setDefault( 2 );
+	nAttr.setKeyable( true );
+	st = addAttribute( aPixelStep ); mser
 
 
 	aPointSize = nAttr.create("pointSize", "psz", MFnNumericData::kFloat);
@@ -75,10 +152,22 @@ MStatus skGraphNode::initialize()
 	nAttr.setKeyable( true );
 	st = addAttribute( aPointSize ); mser
 
-	aColor = nAttr.createColor( "drawColor", "dc");
+	aRadiusMult = nAttr.create("radiusMult", "radiusMult", MFnNumericData::kFloat);
+	nAttr.setDefault( 2.0f );
+	nAttr.setKeyable( true );
+	st = addAttribute( aRadiusMult ); mser
+
+	aColor1 = nAttr.createColor( "drawColor1", "dc1");
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
-	st = addAttribute( aColor ); mser
+	st = addAttribute( aColor1 ); mser
+
+
+	aColor2 = nAttr.createColor( "drawColor2", "dc2");
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute( aColor2 ); mser
+
 
 	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st);
 	tAttr.setStorable( false);
@@ -86,21 +175,90 @@ MStatus skGraphNode::initialize()
 	st = addAttribute( aOutPoints );
 
 
-	aOutEdges = tAttr.create("outEdges", "oed", MFnData::kVectorArray, &st);
+	// aOutEdges = tAttr.create("outEdges", "oed", MFnData::kVectorArray, &st);
+	// tAttr.setStorable( false);
+	// tAttr.setReadable( true);
+	// st = addAttribute( aOutEdges );
+
+	aOutRadius = tAttr.create("outRadius", "orad", MFnData::kDoubleArray, &st);
 	tAttr.setStorable( false);
 	tAttr.setReadable( true);
-	st = addAttribute( aOutEdges );
+	st = addAttribute( aOutRadius );
+
+	aOutParams = tAttr.create("outParams", "opm", MFnData::kDoubleArray, &st);
+	tAttr.setStorable( false);
+	tAttr.setReadable( true);
+	st = addAttribute( aOutParams );
 
 
-	st = attributeAffects( aSkeletonImage, aOutPoints);
-	st = attributeAffects( aSkeletonImage, aOutEdges);
+	aOutCounts = tAttr.create("outCounts", "ocnt", MFnData::kIntArray, &st);
+	tAttr.setStorable( false);
+	tAttr.setReadable( true);
+	st = addAttribute( aOutCounts);
+
+
+	aDrawEdges = nAttr.create( "drawEdges", "ded",
+	                           MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setReadable(true);
+	nAttr.setDefault(true);
+	addAttribute(aDrawEdges);
+
+	aDrawPoints = nAttr.create( "drawPoints", "dpt",
+	                            MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setReadable(true);
+	nAttr.setDefault(true);
+	addAttribute(aDrawPoints);
+
+	aDrawCircles = nAttr.create( "drawCircles", "dci",
+	                             MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setReadable(true);
+	nAttr.setDefault(true);
+	addAttribute(aDrawCircles);
+
+	aRandomChainColor = nAttr.create( "randomChainColor", "rcc",
+	                                  MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setReadable(true);
+	nAttr.setDefault(true);
+	addAttribute(aRandomChainColor);
+
+
+
+
+	attributeAffects( aMinPixels, aOutPoints);
+	attributeAffects( aMinPixels, aOutRadius);
+	attributeAffects( aMinPixels, aOutCounts);
+	attributeAffects( aMinPixels, aOutParams);
+
+	attributeAffects( aPixelStep, aOutPoints);
+	attributeAffects( aPixelStep, aOutRadius);
+	attributeAffects( aPixelStep, aOutCounts);
+	attributeAffects( aPixelStep, aOutParams);
+
+	attributeAffects( aSkeletonImage, aOutPoints);
+	attributeAffects( aSkeletonImage, aOutRadius);
+	attributeAffects( aSkeletonImage, aOutCounts);
+	attributeAffects( aSkeletonImage, aOutParams);
+
+
+	attributeAffects( aProjectionMatrix, aOutPoints);
+	attributeAffects( aProjectionMatrix, aOutRadius);
+	attributeAffects( aProjectionMatrix, aOutCounts);
+	attributeAffects( aProjectionMatrix, aOutParams);
 
 
 	return (MS::kSuccess );
 }
 
 
-CImg<unsigned char> *skGraphNode::getImage(MDataBlock &data, MObject &attribute )
+CImg<float> *skGraphNode::getImage(MDataBlock &data, MObject &attribute )
 {
 	MStatus st;
 	MDataHandle hImageData = data.inputValue(attribute, &st);
@@ -108,7 +266,7 @@ CImg<unsigned char> *skGraphNode::getImage(MDataBlock &data, MObject &attribute 
 	MObject dImageData = hImageData.data();
 	MFnPluginData fnImageData( dImageData , &st);
 	if (st.error()) {	return 0;}
-	cImgData *imageData = (cImgData *)fnImageData.data();
+	cImgFloatData *imageData = (cImgFloatData *)fnImageData.data();
 	return imageData->fImg;
 }
 
@@ -116,107 +274,73 @@ CImg<unsigned char> *skGraphNode::getImage(MDataBlock &data, MObject &attribute 
 MStatus skGraphNode::compute(const MPlug &plug, MDataBlock &data)
 {
 	MStatus st;
-	if (! ( plug == aOutPoints || plug == aOutEdges	 ))
+	// cerr << plug.name() << endl;
+	if (! (
+	      plug == aOutCounts
+	      ||  plug == aOutPoints
+	      ||   plug == aOutRadius
+	      ||   plug == aOutParams		 ))
 	{
 		return (MS::kUnknownParameter );
 	}
 
 
 	MVectorArray resultPoints;
-	MVectorArray resultEdges;
+	MDoubleArray resultRadius;
+	MDoubleArray resultParams;
+	MIntArray resultCounts;
 
-	CImg<unsigned char>  *pImage = getImage(data, skGraphNode::aSkeletonImage );
+
+	int step =  data.inputValue(aPixelStep).asInt();
+	int minPixels =  data.inputValue(aMinPixels).asInt();
+
+	CImg<float>  *pImage = getImage(data, skGraphNode::aSkeletonImage );
+
+
+	MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
+
+
 
 	if (! pImage) {
+		// JPMDBG;
 		outputData(skGraphNode::aOutPoints, data, resultPoints );
-		outputData(skGraphNode::aOutEdges, data, resultEdges );
+		outputData(skGraphNode::aOutParams, data, resultParams );
+		outputData(skGraphNode::aOutRadius, data, resultRadius );
+		outputData(skGraphNode::aOutCounts, data, resultCounts );
+
 		return MS::kSuccess;
+	}
+	// JPMDBG;
+	skGraph g(pImage);
+
+	std::vector< skChain > chains;
+
+
+
+
+	g.getChains(projection, chains, step, minPixels);
+
+
+
+
+	std::vector< skChain >::const_iterator iter;
+	for (iter = chains.begin(); iter != chains.end();  iter++)
+	{
+		iter->appendPoints(resultPoints);
+		iter->appendRadii(resultRadius);
+		iter->appendParams(resultParams);
+		resultCounts.append(iter->size());
 	}
 
 
-	skGraph g(pImage);
-	// g.build(pImage);
-
-	// // Create a deque containing integers
-	// std::deque<coord> q;
-
-
-	// std::vector< coord >	kernel;
-	// kernel.push_back(coord(0, 1));
-	// kernel.push_back(coord(-1, 1));
-	// kernel.push_back(coord(1, 1));
-	// kernel.push_back(coord(-1, 0));
-	// kernel.push_back(coord(1, 0));
-	// kernel.push_back(coord(-1, -1));
-	// kernel.push_back(coord(1, -1));
-	// kernel.push_back(coord(0, -1));
-
-
-
-	// CImg<bool> image = pImage->get_norm();
-
-	// int w = image.width();
-	// int h = image.height();
-
-	// int nWhitePixels = image.sum();
-
-	// coord start(0, 0, 0);
-
-
-	// while (nWhitePixels > 0)
-	// {
-	// 	coord whitePixel = findWhitePixel(start,  image );
-	// 	// cerr << "W:" << whitePixel.x << "," << whitePixel.y << endl;
-	// 	if (!whitePixel.valid(w, h)) {
-	// 		// cerr << "whitePixel invalid -> BREAK" << endl;
-	// 		break;
-	// 	}
-	// 	int x =  whitePixel.x;
-	// 	int y =  whitePixel.y;
-
-	// 	// skNode startNode(x, y, 0);
-
-	// 	q.push_back(whitePixel);
-	// 	image(x, y) = false;
-	// 	nWhitePixels--;
-
-	// 	g.addNode(x, y);
-	// 	while (! q.empty())
-	// 	{
-	// 		coord curr = q.front();
-
-	// 		std::vector< coord >::const_iterator iter;
-	// 		for (iter = kernel.begin(); iter != kernel.end(); iter++ )
-	// 		{
-	// 			coord neighbor = curr.offset(*iter);
-	// 			if (! neighbor.valid(w, h))
-	// 			{
-	// 				continue;
-	// 			}
-	// 			if (image(neighbor.x, neighbor.y))
-	// 			{
-	// 				g.addNode(neighbor.x, neighbor.y);
-	// 				g.connect(neighbor, curr);
-	// 				q.push_back(neighbor);
-	// 				image(neighbor.x, neighbor.y) = false;
-	// 				nWhitePixels--;
-	// 			}
-	// 		}
-	// 		q.pop_front();
-	// 	}
-	// 	start = whitePixel;
-	// 	// cerr << "setting start to whitePixel: " << start.x << "," << start.y << endl;
-	// }
-
-	// g.resolveBranches();
-
-
-	g.getEdges(resultEdges);
-	g.getPoints(resultPoints);
-
-
+	// cerr <<  ", " << resultPoints.length() << ", " << resultParams.length() << ", " <<
+	//      resultRadius.length() << ", " << resultCounts.length() << endl;
+	// JPMDBG;
 	outputData(skGraphNode::aOutPoints, data, resultPoints );
-	outputData(skGraphNode::aOutEdges, data, resultEdges );
+	outputData(skGraphNode::aOutParams, data, resultParams );
+	outputData(skGraphNode::aOutRadius, data, resultRadius );
+	outputData(skGraphNode::aOutCounts, data, resultCounts );
+
 	return MS::kSuccess;
 }
 
@@ -233,8 +357,19 @@ void skGraphNode::draw( M3dView &view,
 
 	MObject thisObj = thisMObject();
 
-	double pointSize;
+	float pointSize;
 	MPlug(thisObj, aPointSize).getValue(pointSize);
+
+	float radiusMult;
+	MPlug(thisObj, aRadiusMult).getValue(radiusMult);
+
+	bool drawPoints, drawEdges, drawCircles, randomChainColor;
+
+	MPlug(thisObj, aDrawPoints).getValue(drawPoints);
+	MPlug(thisObj, aDrawEdges).getValue(drawEdges);
+	MPlug(thisObj, aDrawCircles).getValue(drawCircles);
+	MPlug(thisObj, aRandomChainColor).getValue(randomChainColor);
+
 
 	MPlug pointsPlug( thisObj, aOutPoints );
 	MObject dPoints;
@@ -242,60 +377,182 @@ void skGraphNode::draw( M3dView &view,
 	MFnVectorArrayData fnPoints(dPoints);
 	MVectorArray points = fnPoints.array();
 
+	// MPlug edgesPlug( thisObj, aOutEdges );
+	// MObject dEdges;
+	// st = edgesPlug.getValue(dEdges); mser;
+	// MFnVectorArrayData fnEdges(dEdges);
+	// MVectorArray edges = fnEdges.array();
+
+	MPlug radiusPlug( thisObj, aOutRadius );
+	MObject dRadius;
+	st = radiusPlug.getValue(dRadius); mser;
+	MFnDoubleArrayData fnRadius(dRadius);
+	MDoubleArray radius = fnRadius.array();
+
+
+	MPlug paramsPlug( thisObj, aOutParams );
+	MObject dParams;
+	st = paramsPlug.getValue(dParams); mser;
+	MFnDoubleArrayData fnParams(dParams);
+	MDoubleArray params = fnParams.array();
 
 
 
-	MPlug edgesPlug( thisObj, aOutEdges );
-	MObject dEdges;
-	st = edgesPlug.getValue(dEdges); mser;
-	MFnVectorArrayData fnEdges(dEdges);
-	MVectorArray edges = fnEdges.array();
+	MPlug countsPlug( thisObj, aOutCounts );
+	MObject dCounts;
+	st = countsPlug.getValue(dCounts); mser;
+	MFnIntArrayData fnCounts(dCounts);
+	MIntArray counts = fnCounts.array();
 
 
-	MPlug colorPlug(thisObj, aColor);
+	MPlug colorPlug1(thisObj, aColor1);
 
+	float color1r , color1g , color1b;
+	colorPlug1.child(0).getValue(color1r);
+	colorPlug1.child(1).getValue(color1g);
+	colorPlug1.child(2).getValue(color1b);
 
-	float colorr , colorg , colorb;
-	colorPlug.child(0).getValue(colorr);
-	colorPlug.child(1).getValue(colorg);
-	colorPlug.child(2).getValue(colorb);
+	MPlug colorPlug2(thisObj, aColor2);
+
+	float color2r , color2g , color2b;
+	colorPlug2.child(0).getValue(color2r);
+	colorPlug2.child(1).getValue(color2g);
+	colorPlug2.child(2).getValue(color2b);
+
 
 
 
 	view.beginGL();
 
-	unsigned len = points.length();
-
 
 
 	glPushAttrib(GL_CURRENT_BIT);
-	glColor4f(colorr , colorg , colorb, 1.0f);
 	glPointSize(float(pointSize));
-	glBegin( GL_POINTS );
-	for (int i = 0; i < len; ++i)
+
+	srand48(0);
+
+	unsigned nChains = counts.length();
+	int pIndex = 0;
+	int eIndex = 0;
+	int cIndex = 0;
+
+
+
+
+	// cerr << "points.length():" << points.length() << endl;
+	// cerr << "radius.length():" << radius.length() << endl;
+
+
+	// cerr << "counts.length():" << counts.length() << endl;
+	float r, g, b;
+
+	for (int c = 0; c < counts.length(); ++c)
 	{
-		MFloatPoint p = MFloatPoint(points[i]);
-		glVertex3f( p.x, p.y, p.z);
+		int len = counts[c];
+		if (randomChainColor) {
+			r = drand48();
+			g = drand48();
+			b = drand48();
+			glColor3f(r, g, b);
+		}
+		// int elen = len - 1;
+
+		// glColor4f(colorr , colorg , colorb, 1.0f);
+
+		if (drawPoints) {
+			glBegin( GL_POINTS );
+			for (int i = 0; i < len; ++i)
+			{
+				if (!randomChainColor) {
+					float p = params[pIndex];
+					r =  ((color1r * (1.0 - p)) + (color2r * p));
+					g =  ((color1g * (1.0 - p)) + (color2g * p));
+					b =  ((color1b * (1.0 - p)) + (color2b * p));
+					glColor3f(r, g, b);
+				}
+				MFloatPoint p = MFloatPoint(points[pIndex]);
+				glVertex3f( p.x, p.y, p.z);
+				pIndex++;
+			}
+			glEnd();
+		}
+
+
+
+
+		if (drawEdges) {
+			glPushAttrib(GL_LINE_BIT);
+			glBegin(GL_LINE_STRIP);
+			for (int i = 0; i < len;  i++)
+			{
+				if (!randomChainColor) {
+					float p = params[eIndex];
+					r =  ((color1r * (1.0 - p)) + (color2r * p));
+					g =  ((color1g * (1.0 - p)) + (color2g * p));
+					b =  ((color1b * (1.0 - p)) + (color2b * p));
+					glColor3f(r, g, b);
+				}
+				// int j = i + 1;
+				MFloatPoint p = MFloatPoint(points[eIndex]);
+				// MFloatPoint end = MFloatPoint(points[pIndex + 1]);
+				glVertex3f( p.x, p.y, p.z);
+				eIndex++;
+				// glVertex3f( end.x, end.y, end.z);
+
+			}
+			glEnd();
+			glPopAttrib();
+		}
+
+
+
+
+
+
+		if (drawCircles) {
+			// len = points.length();
+			MFloatPointArray cScaled(circleVertexCount);
+			for (int j = 0; j < circleVertexCount; ++j) {
+				cScaled[j] = MPoint(circle[j]) * radiusMult;
+			}
+
+
+
+			glPushAttrib(GL_LINE_BIT);
+
+
+			for (int i = 0; i < len; ++i)
+			{
+				if (!randomChainColor) {
+					float p = params[cIndex];
+					r =  ((color1r * (1.0 - p)) + (color2r * p));
+					g =  ((color1g * (1.0 - p)) + (color2g * p));
+					b =  ((color1b * (1.0 - p)) + (color2b * p));
+					glColor3f(r, g, b);
+				}
+
+				MFloatPointArray c(circleVertexCount);
+				for (int j = 0; j < circleVertexCount; ++j) {
+					c[j] = ((cScaled[j] * radius[cIndex]) + MFloatPoint(points[cIndex])) /** imat*/;
+				}
+				glBegin(GL_LINE_STRIP);
+				for (int j = 0; j < circleVertexCount; ++j)
+				{
+					// int next = (j + 1) % circleVertexCount;
+					glVertex3f( float(c[j].x) , float(c[j].y) , float(c[j].z) );
+					// glVertex3f( float(c[next].x) , float(c[next].y) , float(c[next].z) );
+				}
+				glVertex3f( float(c[0].x) , float(c[0].y) , float(c[0].z) );
+				cIndex++;
+				glEnd();
+			}
+
+			glPopAttrib();
+
+		}
+
 	}
-	glEnd();
-
-
-	len = edges.length();
-
-	glBegin(GL_LINES);
-	for (int i = 0; i < len;  i += 2)
-	{
-		int j = i + 1;
-		MFloatPoint start = MFloatPoint(edges[i]);
-		MFloatPoint end = MFloatPoint(edges[j]);
-		glVertex3f( start.x, start.y, start.z);
-		glVertex3f( end.x, end.y, end.z);
-
-	}
-	glEnd();
 	glPopAttrib();
-	view.endGL();
-
 }
 
 

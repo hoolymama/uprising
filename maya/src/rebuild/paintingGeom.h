@@ -41,7 +41,7 @@ public:
 
 	void 	displace( MFnMesh &meshFn,  MMeshIsectAccelParams &ap );
 
-	void setBrushTransitions();
+	void offsetBrushContact();
 	// friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 
 private:

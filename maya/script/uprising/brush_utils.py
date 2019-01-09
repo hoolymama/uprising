@@ -7,6 +7,19 @@ import sheets
 import copy
 
 
+def connect_skels(painting, skels):
+    # remove existing
+    for skel in skels:
+        indices = skel.attr("brushWidths").getArrayIndices()
+        for i in indices:
+            pm.removeMultiInstance(skel.attr("brushWidths[%d]" % i), b=True)
+ 
+    indices = painting.attr("brushes").getArrayIndices()
+    for skel in skels:
+        for i in indices:
+            painting.attr("brushes[%d].brushWidth"%i) >> skel.attr("brushWidths[%d]" % i)
+ 
+
 def add_brush_to_painting():
     node = pm.ls(selection=True, dag=True, leaf=True, type="strokeFactory")[0]
     brushes = pm.ls(selection=True, dag=True, leaf=True, type="mesh")

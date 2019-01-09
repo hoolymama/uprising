@@ -4,6 +4,11 @@
 #include <map>
 #include <vector>
 
+
+#include <maya/MFloatMatrix.h>
+#include <maya/MFloatVector.h>
+
+
 #include <maya/MVector.h>
 
 struct coord {
@@ -51,7 +56,9 @@ struct coord {
 		       );
 	}
 
-
+	MFloatVector operator*(const MFloatMatrix &m) {
+		return   MFloatPoint(x, y) * m;
+	}
 
 };
 
@@ -66,9 +73,16 @@ public:
 	~skNode();
 
 	float radius;
+	bool seen;
+	bool isEnd() const;
+
+
+
 
 
 	float facing(const skNode *other1, const skNode *other2) const;
+	float distanceTo(const skNode *other) const;
+
 };
 
 

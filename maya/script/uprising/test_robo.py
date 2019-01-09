@@ -1,63 +1,82 @@
 
 import random
 import math
-class WeightedRandomizer:
-    def __init__ (self, weights):
-        self.__max = .0
-        self.__weights = []
-        for value, weight in weights.items ():
-            self.__max += weight
-            self.__weights.append ( (self.__max, value) )
-
-    def random (self):
-        r = random.random () * self.__max
-        for ceil, value in self.__weights:
-            if ceil > r: return value
 
 
+arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
-max_steps = 4
-power = 1
+num = len(arr)
+step = 3
 
+spans = int(math.ceil((num - 1) / step))
+print("spans:%s" % spans)
 
-sentinel = max_steps+1
-w = {}
-results = {}
-for i in range(sentinel):
-    j=1.0-(i / float(sentinel))
-    w[i] =   pow(j, power)
-    w[-i] = w[i]
-    results[i] = 0
-    results[-i] = 0
-       
-
-print w 
-
-arr = []
-for key, value in w.iteritems():
-    temp = [key,value]
-    arr.append(temp)
+nverts = spans + 1
+print("nverts:%s" % nverts)
 
 
+for i in range(nverts):
+    fraction = i / float(spans)
+    param = (num - 1) * fraction
+    # print("param:%s" % param)
+    leftid = int(math.floor(param))
+    rightid = int(math.ceil(param))
+    weight = math.ceil(param) - param if not leftid == rightid else 1
+    print("frac:%s\t\tparam:%s\t\tL:%s R:%s\t\tweight:%s" %
+          (fraction, param, leftid, rightid, weight))
+    # print("L:%s R:%s" % (leftid, rightid))
 
-arr =  sorted(arr, key=lambda tup: tup[0])
-arr = [x[1] for x in arr]
 
-tot = sum(arr)
-# print arr
-# siz = len(arr)
-# for a in arr:
-#     print "%d%%" % int((a / tot) *100)
-arr = ["%.1f%%" %  ((a / tot) *100) for a in arr ]
+# # # # # # # # # # # # # # # # # #
+# class WeightedRandomizer:
+#     def __init__ (self, weights):
+#         self.__max = .0
+#         self.__weights = []
+#         for value, weight in weights.items ():
+#             self.__max += weight
+#             self.__weights.append ( (self.__max, value) )
 
-print "\t".join(arr)
+#     def random (self):
+#         r = random.random () * self.__max
+#         for ceil, value in self.__weights:
+#             if ceil > r: return value
 
-    # print "%d" % ((float(a[1]) / float(siz))  )
+
+# max_steps = 4
+# power = 1
+
+# sentinel = max_steps+1
+# w = {}
+# results = {}
+# for i in range(sentinel):
+#     j=1.0-(i / float(sentinel))
+#     w[i] =   pow(j, power)
+#     w[-i] = w[i]
+#     results[i] = 0
+#     results[-i] = 0
+
+
+# print w
+
+# arr = []
+# for key, value in w.iteritems():
+#     temp = [key,value]
+#     arr.append(temp)
+
+# arr =  sorted(arr, key=lambda tup: tup[0])
+# arr = [x[1] for x in arr]
+
+# tot = sum(arr)
+# arr = ["%.1f%%" %  ((a / tot) *100) for a in arr ]
+# print "\t".join(arr)
+# # # # # # # # # # # # # # # # # # # # #
+
+# print "%d" % ((float(a[1]) / float(siz))  )
 
 # w = {'A': 1.0, 'B': 1.0, 'C': 18.0}
-#or w = {'A': 5, 'B': 5, 'C': 90}
-#or w = {'A': 1.0/18, 'B': 1.0/18, 'C': 1.0}
-#or or or
+# or w = {'A': 5, 'B': 5, 'C': 90}
+# or w = {'A': 1.0/18, 'B': 1.0/18, 'C': 1.0}
+# or or or
 
 # wr = WeightedRandomizer (w)
 
@@ -107,7 +126,6 @@ print "\t".join(arr)
 # # RL = Robolink()
 
 
-
 # program = RL.Item('px', ITEM_TYPE_PROGRAM)
 
 # Update the path (can take some time if collision checking is active)
@@ -119,7 +137,7 @@ print "\t".join(arr)
 # percent_ok = update_result[3]*100
 # str_problems = update_result[4]
 # if percent_ok < 100.0:
-#     msg_str = "WARNING! Problems with <strong>%s</strong> (%.1f):<br>%s" % (program.Name(), percent_ok, str_problems)                
+#     msg_str = "WARNING! Problems with <strong>%s</strong> (%.1f):<br>%s" % (program.Name(), percent_ok, str_problems)
 # else:
 #     msg_str = "No problems found for program %s" % program.Name()
 
@@ -128,22 +146,25 @@ print "\t".join(arr)
 
 def get_measurements_values(cell_range, service, dimension="ROWS"):
     result = service.spreadsheets().values().get(
-            spreadsheetId=sheets.SHEETS["Measurements"],
-            range=cell_range,majorDimension=dimension).execute()
+        spreadsheetId=sheets.SHEETS["Measurements"],
+        range=cell_range, majorDimension=dimension).execute()
     return result.get('values', [])
+
 
 def get_palette_header(search_str, service):
     batch_size = 100
     batches = 10
     total_rows = batch_size * batches
-    for r,x in [("Paints!A%d:A%d" % (x+1, x+batch_size) , x) for x in xrange(0,total_rows,batch_size) ]:
-        values = get_measurements_values(r,service, "COLUMNS")
+    for r, x in [("Paints!A%d:A%d" % (x + 1, x + batch_size), x)
+                 for x in xrange(0, total_rows, batch_size)]:
+        values = get_measurements_values(r, service, "COLUMNS")
         if values:
             for i, v in enumerate(values[0]):
                 if v == search_str:
-                    row = (x+i+1)
-                    cell_range = "Paints!A%d:B%d"  % (row,row)
-                    header_values = get_measurements_values(cell_range,service)[0]
+                    row = (x + i + 1)
+                    cell_range = "Paints!A%d:B%d" % (row, row)
+                    header_values = get_measurements_values(
+                        cell_range, service)[0]
                     header_values.append(row)
                     return tuple(header_values)
 
@@ -151,13 +172,13 @@ def get_palette_header(search_str, service):
 def get_palette_by_name(name):
     service = sheets._get_service()
     # name, medium, row = get_palette_header(name, service)
-    header =  get_palette_header(name, service)
+    header = get_palette_header(name, service)
     if header:
         name, medium, row = header
-        cell_range = "Paints!A%d:E%d"  % (row+1,row+64)
-        palette = get_measurements_values(cell_range,service)
+        cell_range = "Paints!A%d:E%d" % (row + 1, row + 64)
+        palette = get_measurements_values(cell_range, service)
         new_palette = []
-        for  entry in palette:
+        for entry in palette:
             if len(entry) == 0:
                 break
             new_palette.append(entry)
@@ -167,10 +188,6 @@ def get_palette_by_name(name):
 
 
 # print get_palette_by_name("ben_test28palette")
-
-
-
-
 
 
 # timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
@@ -192,7 +209,6 @@ def get_palette_by_name(name):
 # RL.AddFile("/Users/julian/projects/robot/stations/clean.rdk")
 
 
-
 # stat = RL.Item("", ITEM_TYPE_STATION)
 # stat.Delete()
 
@@ -208,11 +224,6 @@ def get_palette_by_name(name):
 # WINDOWSTATE_CINEMA      = 5         # Show maximized window without the toolbar and without the menu
 # WINDOWSTATE_FULLSCREEN_CINEMA= 6    # Show fulscreen window without the
 # toolbar and without the menu
-
-
-
-
-
 
 
 def draw_seg(verts, color, name):
@@ -249,8 +260,6 @@ def save_prog():
     RL.Finish()
 
 
-
-
 # RL.ProgramStart("px_file", folder, "KUKA_KRC4_RN", robot)
 # robot.RunInstruction('AutoProgram', INSTRUCTION_CALL_PROGRAM)
 # RL.Render(True)
@@ -271,13 +280,8 @@ def save_prog():
 # print "DONE"
 # RL.Finish()
 
-
-
-
     # shape.Delete()
 # robot = RL.Item('', ITEM_TYPE_ROBOT)
-
-
 
 
 # import pymel.core as pm
@@ -288,23 +292,22 @@ def save_prog():
 #     for k in range(n_strokes):
 #         rots = pm.paintingQuery(
 #             "mainPaintingShape",
-#             clusterIndex=j, 
-#             strokeIndex=k, 
+#             clusterIndex=j,
+#             strokeIndex=k,
 #             strokeStopRotations=True,
 #             rotateOrder="zyx",
 #             rotateUnit="rad"
 #         )
 #         pos = pm.paintingQuery(
 #             "mainPaintingShape",
-#             clusterIndex=j, 
-#             strokeIndex=k, 
+#             clusterIndex=j,
+#             strokeIndex=k,
 #             strokeStopPositions=True
 #         )
 #         print "C=%s, S=%s" % (j, k)
 #         if pos and rots:
 #             print pos
 #             print rots
-
 
 
 # RL.Item("geox_0000").Delete()

@@ -46,15 +46,40 @@ private:
   // void cullDots(MDataBlock &data, std::vector<dotData> &dots);
 
 
-  CImg<unsigned char> *getImage(MDataBlock &data, MObject &attribute );
+  CImg<float> *getImage(MDataBlock &data, MObject &attribute );
 
   // coord findWhitePixel(const coord &start,  const CImg<bool> &image );
 
+  static MObject aProjectionMatrix;
+
+
+
   static  MObject aSkeletonImage;
+  static  MObject aMaxRadius;
+  static  MObject aPixelStep;
+  static  MObject aMinPixels;
+
   static  MObject aPointSize;
-  static  MObject aColor;
+  static  MObject aColor1;
+  static  MObject aColor2;
+
   static  MObject aOutPoints;
-  static  MObject aOutEdges;
+  // static  MObject aOutEdges;
+  static  MObject aOutRadius;
+  static  MObject aOutParams;
+
+  static  MObject aOutCounts;
+
+
+  static  MObject aRadiusMult;
+  static  MObject aDrawEdges;
+  static  MObject aDrawPoints;
+  static  MObject aDrawCircles;
+  static  MObject aRandomChainColor;
+
+
+
+
 
 
 };

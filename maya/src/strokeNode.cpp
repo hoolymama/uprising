@@ -481,6 +481,11 @@ MStatus strokeNode::compute(const MPlug &plug, MDataBlock &data )
   return MS:: kSuccess;
 }
 
+
+
+
+
+
 // void strokeNode::postConstructor()
 // {
 //   // setExistWithoutInConnections(false);

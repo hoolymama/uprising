@@ -260,16 +260,15 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
 
     double entryLength = data.inputValue(aEntryLength).asDouble();
     double exitLength = data.inputValue(aExitLength).asDouble();
-
     Stroke::DirectionMethod strokeDirection = Stroke::DirectionMethod(data.inputValue(
                 aStrokeDirection).asShort());
 
     double pivotParam = data.inputValue(aPivotFraction).asDouble();
 
     StrokeRotationSpec rotSpec;
-    rotSpec.tiltRampAtt =  curveStrokeNode::aBrushTiltRamp;
-    rotSpec.bankRampAtt =  curveStrokeNode::aBrushBankRamp;
-    rotSpec.twistRampAtt =  curveStrokeNode::aBrushTwistRamp;
+    rotSpec.tiltRampAtt =  strokeNode::aBrushTiltRamp;
+    rotSpec.bankRampAtt =  strokeNode::aBrushBankRamp;
+    rotSpec.twistRampAtt =  strokeNode::aBrushTwistRamp;
 
     MDataHandle hRangeHandle = data.inputValue(aBrushTiltRange);
     rotSpec.tiltRampMin = hRangeHandle.child(aBrushTiltRangeMin).asAngle().asRadians();
@@ -297,6 +296,9 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
     short paintId = data.inputValue(aPaintId).asShort();
     int layerId = data.inputValue(aLayerId).asInt();
 
+
+    MDoubleArray dummyContacts;
+
     MObject thisObj = thisMObject();
     for (int strokeId = 0; strokeId < boundaries.length(); ++strokeId) {
         const double &startDist = boundaries[strokeId].x;
@@ -305,6 +307,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
         unsigned strokeGroupSize = Stroke::create(
                                        thisObj,
                                        dCurve,
+                                       dummyContacts,
                                        curveLength,
                                        startDist,
                                        endDist,

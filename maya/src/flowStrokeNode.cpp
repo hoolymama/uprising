@@ -1,16 +1,16 @@
 
 
-# include <maya/MIOStream.h>
-# include <math.h>
-# include <algorithm>
-# include <map>
+#include <maya/MIOStream.h>
+#include <math.h>
+#include <algorithm>
+#include <map>
 
-# include <maya/MFnPluginData.h>
-# include <maya/MDoubleArray.h>
-# include <maya/MFloatVectorArray.h>
-# include <maya/MFloatArray.h>
-# include <maya/MFloatPointArray.h>
-# include <maya/MPoint.h>
+#include <maya/MFnPluginData.h>
+#include <maya/MDoubleArray.h>
+#include <maya/MFloatVectorArray.h>
+#include <maya/MFloatArray.h>
+#include <maya/MFloatPointArray.h>
+#include <maya/MPoint.h>
 #include <maya/MQuaternion.h>
 #include <maya/MString.h>
 #include <maya/MFloatMatrix.h>

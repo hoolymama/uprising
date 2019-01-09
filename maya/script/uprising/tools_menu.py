@@ -4,7 +4,7 @@ import pymel.core as pm
 import setup_dip
 import write
 import curve_utils as cutl
-
+import brush_utils as butl
 import uprising_util as uutl
 import json
 import csv
@@ -22,19 +22,36 @@ def create():
     pm.menuItem( label="Print paint and brush json", command=pm.Callback(on_print_paint_and_brush_stats, "json") )
     pm.menuItem( label="Print paint and brush csv", command=pm.Callback(on_print_paint_and_brush_stats, "csv") )
 
-    
-    pm.menuItem( label="Connect texture to brushId", command=pm.Callback(on_connect_texture, "brushIdTexture") )
-    pm.menuItem( label="Connect texture to paintId", command=pm.Callback(on_connect_texture, "paintIdTexture") )
-    pm.menuItem( label="Connect texture to strokeSort", command=pm.Callback(on_connect_texture, "strokeSortTexture") )
-    pm.menuItem( label="Connect texture to strokeFilter", command=pm.Callback(on_connect_texture, "strokeFilterTexture") )
-    pm.menuItem( label="Connect texture to rotation", command=pm.Callback(on_connect_texture, "rotationTexture") )
-    pm.menuItem( label="Connect texture to translation", command=pm.Callback(on_connect_texture, "translationTexture") )
+    pm.menuItem( label="Connect brushIds to skeletons", 
+        command=pm.Callback(on_connect_brushids_to_skeleton) )
+
+
+    pm.menuItem( label="Connect texture", subMenu=True)
+    pm.menuItem( label="to brushId", command=pm.Callback(on_connect_texture, "brushIdTexture") )
+    pm.menuItem( label="to paintId", command=pm.Callback(on_connect_texture, "paintIdTexture") )
+    pm.menuItem( label="to strokeSort", command=pm.Callback(on_connect_texture, "strokeSortTexture") )
+    pm.menuItem( label="to strokeFilter", command=pm.Callback(on_connect_texture, "strokeFilterTexture") )
+    pm.menuItem( label="to rotation", command=pm.Callback(on_connect_texture, "rotationTexture") )
+    pm.menuItem( label="to translation", command=pm.Callback(on_connect_texture, "translationTexture") )
+
+    pm.setParent("..", menu=True)
 
     # pm.menuItem( label="Conditional select", command=pm.Callback(on_conditional_select) )
 
     # pm.menuItem( label="Key filters for portrait", command=pm.Callback(on_key_filters) )
     
     return menu
+
+
+
+
+def on_connect_brushids_to_skeleton():
+    painting = pm.PyNode("mainPaintingShape")
+    skels= pm.ls(selection=True, type="skeletonStroke")
+    if not skels:
+        skels= pm.ls(type="skeletonStroke")
+    butl.connect_skels(painting, skels)
+
 
 def _bake_first_paint_id(painting, curve):
     print "Baking curve"

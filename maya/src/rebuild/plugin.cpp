@@ -41,9 +41,11 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "curveStroke", curveStrokeNode::id, curveStrokeNode::creator,
 	                          curveStrokeNode::initialize); msert;
 
-	// st = plugin.registerNode( "skeletonStroke", skeletonStrokeNode::id,
-	//                           skeletonStrokeNode::creator,
-	//                           skeletonStrokeNode::initialize); msert;
+
+
+	st = plugin.registerNode( "skeletonStroke", skeletonStrokeNode::id,
+	                          skeletonStrokeNode::creator,
+	                          skeletonStrokeNode::initialize); msert;
 
 
 	st = plugin.registerNode( "painting", painting::id, painting::creator,
@@ -84,7 +86,7 @@ MStatus uninitializePlugin( MObject obj)
 
 	st = plugin.deregisterNode( painting::id ); mser;
 
-	// st = plugin.deregisterNode( skeletonStrokeNode::id ); mser;
+	st = plugin.deregisterNode( skeletonStrokeNode::id ); mser;
 
 	st = plugin.deregisterNode( curveStrokeNode::id ); mser;
 

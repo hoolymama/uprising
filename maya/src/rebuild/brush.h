@@ -22,7 +22,7 @@ public:
 	  double retention,
 	  double tip,
 	  Shape shape,
-	  short customId,
+	  // short customId,
 	  double transHeight,
 	  double transPower);
 
@@ -46,7 +46,7 @@ public:
 
 	short id;
 	short physicalId;
-	short customId;
+	// short customId;
 	double width;
 	double retention;
 	Shape shape;

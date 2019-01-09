@@ -581,7 +581,7 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
     // lift up the start and end of each stroke according to
     // brush tip
-    pGeom->setBrushTransitions();
+    pGeom->offsetBrushContact();
 
   }
 

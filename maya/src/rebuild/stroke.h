@@ -52,11 +52,14 @@ public:
 
 	enum SortDirection { kSortAscending,  kSortDescending};
 
+	static double interpContact(const MDoubleArray &contacts, const double &uniformParam);
+
 
 	/* factory */
 	static unsigned create(
 	  const MObject &thisObj,
 	  const MObject &dCurve,
+	  const MDoubleArray &contacts,
 	  double curveLength,
 	  double startDist,
 	  double endDist,
@@ -80,6 +83,7 @@ public:
 
 	Stroke(
 	  const MObject &curveObject ,
+	  const MDoubleArray &contacts,
 	  double curveLength,
 	  double startDist,
 	  double endDist,
@@ -103,6 +107,8 @@ public:
 
 	void setRotations(   const MObject &thisObj,
 	                     const StrokeRotationSpec &rotSpec);
+
+
 
 	// void setPivot(
 	//   const MObject &curveObject,
@@ -229,7 +235,7 @@ public:
 	void getUV( float &u, float &v);
 	void displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
-	void setBrushTransitions(const Brush &brush);
+	void offsetBrushContact(const Brush &brush);
 
 
 	const Target &departure() const;
@@ -265,12 +271,15 @@ public:
 private:
 
 	static void reverseArray(MDoubleArray &arr)  ;
-
+	static void reverseArray(const MDoubleArray &arr,  MDoubleArray &result);
 
 	static bool shouldMakeBackstroke(MObject dCurve, double startDist, double endDist,
 	                                 Stroke::DirectionMethod strokeDirection) ;
 
 	void setArcLength();
+
+
+	void setTransitionContact( );
 
 	std::vector<Target> m_targets;  // flat targets with 3d rotations
 
@@ -305,6 +314,23 @@ private:
 	Target m_pivot;
 
 };
+
+
+inline double Stroke::interpContact(const MDoubleArray &contacts,
+                                    const double &uniformParam)
+{
+	int len = contacts.length();
+	int rindex = ceil(uniformParam);
+	if ( len < (rindex + 1)) { 	return 1.0; }
+	int lindex = floor(uniformParam);
+	if (lindex != rindex)
+	{
+		double w = double(rindex) - uniformParam;
+		return contacts[lindex] * w + contacts[rindex] * (1.0 - w);
+	}
+	return contacts[lindex];
+}
+
 
 
 #endif

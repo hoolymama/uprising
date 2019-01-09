@@ -9,7 +9,8 @@ Target::Target() :
 	m_matrix(),
 	m_tangent(),
 	m_param(0.0),
-	m_curveParam(0.0)
+	m_curveParam(0.0),
+	m_contact(1.0)
 {}
 
 
@@ -26,6 +27,22 @@ Target::Target(
 {
 }
 
+Target::Target(
+  const MPoint &pt,
+  const MVector &tangent,
+  double strokeParam,
+  double curveParam,
+  double contact)
+	: m_tangent(tangent),
+	  m_param(strokeParam),
+	  m_curveParam(curveParam),
+	  m_contact(contact),
+	  m_matrix()
+{
+	m_matrix[3][0] = pt.x;
+	m_matrix[3][1] = pt.y;
+	m_matrix[3][2] = pt.z;
+}
 
 Target::Target(
   const MFnNurbsCurve &curveFn,
@@ -38,6 +55,7 @@ Target::Target(
 	m_param = (dist - startDist) / strokeRange;
 	m_curveParam = dist / curveLength;
 	double prm = curveFn.findParamFromLength(dist);
+
 	m_tangent = curveFn.tangent(prm);
 	m_tangent.z = 0;
 	m_tangent.normalize();

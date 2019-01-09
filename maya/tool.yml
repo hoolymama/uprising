@@ -35,6 +35,7 @@ source_files:
 - src/rebuild/*.cpp
 - ../../kettle/src/maya/mayaMath.cpp
 - ../../kit/maya/src/cImgData.cpp
+- ../../kit/maya/src/cImgFloatData.cpp
 
 
 

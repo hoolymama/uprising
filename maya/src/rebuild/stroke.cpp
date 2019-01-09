@@ -16,9 +16,30 @@ const double epsilon = 0.0001;
 // const double half_pi = 0.5 * pi;
 
 
+// double Stroke::interpContact(const MDoubleArray &contacts, double uniformParam)
+// {
+// 	int len = contacts.length();
+// 	int rindex = ceil(uniformParam);
+// 	if ( len < (rindex + 1))
+// 	{
+// 		return 1.0;
+// 	}
+// 	int lindex = floor(uniformParam);
+
+// 	double result = contacts[lindex];
+// 	if (lindex != rindex)
+// 	{
+// 		double w = double(rindex) - uniformParam;
+// 		result = contacts[lindex] * w + contacts[rindex] * (1.0 - w);
+// 	}
+// 	return result;
+// }
+
+
 unsigned Stroke::create(
   const MObject &thisObj,
   const MObject &dCurve,
+  const MDoubleArray &contacts,
   double curveLength,
   double startDist,
   double endDist,
@@ -38,6 +59,7 @@ unsigned Stroke::create(
 	/* This is the motherstroke. Determine whether forward or back */
 	bool backstroke = shouldMakeBackstroke(dCurve, startDist, endDist, strokeDirection);
 
+
 	if (backstroke) {
 		std::swap(startDist, endDist);
 	}
@@ -46,6 +68,7 @@ unsigned Stroke::create(
 
 	Stroke motherStroke(
 	  dCurve,
+	  contacts,
 	  curveLength,
 	  startDist,
 	  endDist,
@@ -60,9 +83,11 @@ unsigned Stroke::create(
 	  repeatId,
 	  backstroke);
 
+	motherStroke.setRotations(thisObj, rotSpec);
+	motherStroke.setTransitionContact();
+
 	repeatId++;
 
-	motherStroke.setRotations(thisObj, rotSpec);
 
 	// motherStroke.setPivot(dCurve, pivotParam, startDist, endDist);
 
@@ -79,6 +104,7 @@ unsigned Stroke::create(
 		Stroke stk(motherStroke);
 		stk.offset(offset, reverse, repeatId++);
 		stk.setRotations(thisObj, rotSpec);
+		stk.setTransitionContact();
 		stk.rotate(fan);
 		strokes->push_back(stk);
 		// cerr << "repeatSpec.mirror" << repeatSpec.mirror << endl;
@@ -86,6 +112,7 @@ unsigned Stroke::create(
 			Stroke stk(motherStroke);
 			stk.offset(-offset, reverse, repeatId++);
 			stk.setRotations(thisObj, rotSpec);
+			stk.setTransitionContact();
 			stk.rotate(-fan);
 			strokes->push_back(stk);
 		}
@@ -112,6 +139,7 @@ Stroke::Stroke()	:
 
 Stroke::Stroke(
   const MObject &curveObject ,
+  const MDoubleArray &contacts,
   double curveLength,
   double startDist,
   double endDist,
@@ -147,10 +175,26 @@ Stroke::Stroke(
 	if (numPoints < 2) { numPoints = 2; }
 	double gap = strokeRange / (numPoints - 1) ; // can be negative
 	for (unsigned i = 0; i < numPoints; i++) {
+
+
 		double dist = startDist + (i * gap);
+		double strokeParam = (dist - startDist) / strokeRange;
+		double curveParam = dist / curveLength;
+		double uniformParam = curveFn.findParamFromLength(dist);
+		MVector tangent = curveFn.tangent(uniformParam);
+		tangent.z = 0;
+		tangent.normalize();
+		double contact = Stroke::interpContact(contacts, uniformParam);
+		MPoint pt;
+		curveFn.getPointAtParam(uniformParam, pt, MSpace::kObject);
+
 		m_targets.push_back(
-		  Target(curveFn, dist, startDist, strokeRange, curveLength)
+		  Target(pt, tangent, strokeParam, curveParam, contact)
 		);
+
+		// m_targets.push_back(
+		//   Target(curveFn, dist, startDist, strokeRange, curveLength)
+		// );
 	}
 
 	double pivotDist = startDist  + (strokeRange * pivotParam);
@@ -165,6 +209,7 @@ void Stroke::offset(
   bool reverse,
   int repeatId)
 {
+
 	std::vector<Target>::iterator iter;
 	m_repeatId = repeatId;
 	if (reverse) {
@@ -186,8 +231,8 @@ void Stroke::offset(
 		m_pivot.offsetBy(offsetVec);
 	}
 	setArcLength();
-}
 
+}
 
 const Target &Stroke::pivot() const {
 	return m_pivot;
@@ -240,6 +285,10 @@ void Stroke::setRotations(
 		iter->setRotation(outTilt[i], outBank[i], outTwist[i], follow, m_backstroke );
 	}
 }
+
+
+
+
 
 void Stroke::setArcLength() {
 	m_arcLength = 0;
@@ -751,18 +800,13 @@ void Stroke::displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap)
 	}
 }
 
-void Stroke::setBrushTransitions(const Brush &brush)
+
+
+
+void Stroke::setTransitionContact( )
 {
-	const double &height = brush.transHeight;
-	const double &power = brush.transPower;
-	double tip = brush.tip;
-
-	if (tip < 0.00001) {
-		tip = 0.00001;
-	}
-
 	double m_entry_param = m_entryLength / m_arcLength;
-	double m_exit_param = (m_exitLength / m_arcLength);
+	double m_exit_param = m_exitLength / m_arcLength;
 
 	double total_param = m_entry_param + m_exit_param;
 
@@ -773,6 +817,7 @@ void Stroke::setBrushTransitions(const Brush &brush)
 	}
 	m_exit_param = 1.0 - m_exit_param;
 
+
 	// now have entry and exit params for the transitions
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin() ; iter != m_targets.end(); iter++) {
@@ -780,13 +825,10 @@ void Stroke::setBrushTransitions(const Brush &brush)
 		if (param > m_entry_param ) {
 			break;
 		}
-		float dist = pow((1.0 - (param / m_entry_param)) , power) * height;
-		iter->offsetBy(MVector(0.0, 0.0, dist));
-
-		double contact = (1.0 - (dist / tip));
+		double contact = param / m_entry_param;
+		contact = fmin(contact, iter->contact());
 		iter->setContact(contact);
 	}
-
 
 	std::vector<Target>::reverse_iterator riter;
 
@@ -795,13 +837,81 @@ void Stroke::setBrushTransitions(const Brush &brush)
 		if (param <= m_exit_param ) {
 			break;
 		}
-		float dist = pow (((param - m_exit_param) / (1.0 - m_exit_param)), power) * height;
-		riter->offsetBy(MVector(0.0, 0.0, dist));
-
-		double contact = (1.0 - (dist / tip));
+		double contact = (1.0 - param) / (1.0 - m_exit_param);
+		contact = fmin(contact, riter->contact());
 		riter->setContact(contact);
 	}
 }
+
+
+
+void Stroke::offsetBrushContact(const Brush &brush)
+{
+	const double &height = brush.transHeight;
+
+	std::vector<Target>::iterator iter;
+	for (iter = m_targets.begin() ; iter != m_targets.end(); iter++) {
+		const double &contact = iter->contact();
+		float dist = (1.0 - contact) * height;
+		// cerr << "contact:" << contact <<  "  height:" << height << " dist:" <<
+		//      dist << endl;
+		iter->offsetBy(MVector(0.0, 0.0, dist));
+	}
+}
+
+
+
+// void Stroke::offsetBrushContact(const Brush &brush)
+// {
+// 	const double &height = brush.transHeight;
+// 	const double &power = brush.transPower;
+// 	double tip = brush.tip;
+
+// 	if (tip < 0.00001) {
+// 		tip = 0.00001;
+// 	}
+
+// 	double m_entry_param = m_entryLength / m_arcLength;
+// 	double m_exit_param = (m_exitLength / m_arcLength);
+
+// 	double total_param = m_entry_param + m_exit_param;
+
+// 	if (total_param > 1.0)
+// 	{
+// 		m_entry_param = m_entry_param / total_param;
+// 		m_exit_param = m_exit_param / total_param;
+// 	}
+// 	m_exit_param = 1.0 - m_exit_param;
+
+// 	// now have entry and exit params for the transitions
+// 	std::vector<Target>::iterator iter;
+// 	for (iter = m_targets.begin() ; iter != m_targets.end(); iter++) {
+// 		const double &param = iter->param();
+// 		if (param > m_entry_param ) {
+// 			break;
+// 		}
+// 		float dist = pow((1.0 - (param / m_entry_param)) , power) * height;
+// 		iter->offsetBy(MVector(0.0, 0.0, dist));
+
+// 		double contact = (1.0 - (dist / tip));
+// 		iter->setContact(contact);
+// 	}
+
+
+// 	std::vector<Target>::reverse_iterator riter;
+
+// 	for (riter = m_targets.rbegin() ; riter != m_targets.rend(); riter++) {
+// 		const double &param = riter->param();
+// 		if (param <= m_exit_param ) {
+// 			break;
+// 		}
+// 		float dist = pow (((param - m_exit_param) / (1.0 - m_exit_param)), power) * height;
+// 		riter->offsetBy(MVector(0.0, 0.0, dist));
+
+// 		double contact = (1.0 - (dist / tip));
+// 		riter->setContact(contact);
+// 	}
+// }
 
 
 const Target &Stroke::departure() const
@@ -861,6 +971,13 @@ void Stroke::setArrival(double offset, double threshold, const Stroke &prev)
 
 
 
+void Stroke::reverseArray(const MDoubleArray &arr,  MDoubleArray &result)
+{
+	for (int i = arr.length() - 1; i >= 0 ; --i)
+	{
+		result.append(arr[i]);
+	}
+}
 
 void Stroke::reverseArray(MDoubleArray &arr)
 {
