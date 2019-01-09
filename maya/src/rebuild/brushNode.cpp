@@ -140,12 +140,16 @@ MStatus brushNode::initialize()
   nAttr.setKeyable(true);
   addAttribute(aWidth);
 
+  aRetention =  nAttr.create( "retention", "ret", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setMin(0.00);
+  nAttr.setSoftMax(100.0);
+  nAttr.setDefault(20.0);
+  nAttr.setKeyable(true);
+  addAttribute(aRetention);
 
 
-  aDisplacementMesh = tAttr.create( "displacementMesh", "dmsh", MFnData::kMesh, &st ); mser
-  tAttr.setReadable(false);
-  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-  st = addAttribute(aDisplacementMesh); mser;
 
   aLinearSpeed = nAttr.create( "linearSpeed", "lnsp", MFnNumericData::kDouble);
   nAttr.setStorable(true);

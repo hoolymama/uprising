@@ -53,7 +53,7 @@ public:
 
 private:
 
-  static MObject aId;
+  // static MObject aId;
   static MObject aPhysicalId;
   static MObject aWidth;
   static MObject aRetention;

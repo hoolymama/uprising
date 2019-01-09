@@ -22,16 +22,6 @@ public:
 
 	void	 clear();
 
-	// MStatus create() ;
-
-	// MStatus  create(
-	//   MDataBlock &data,
-	//   MObject &strokeCurvesAtt,
-	//   const std::map<short, Brush> &brushes,
-	//   const std::map<short, Paint> &paints);
-
-	// virtual void copy ( const MPxData &other );
-	// brushData &operator=(const brushData &otherData ) ;
 	brush	*geometry() const ;
 
 	virtual MTypeId         typeId() const;
