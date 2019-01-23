@@ -1171,24 +1171,24 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
 
   MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); msert;
-  std::map<short, Brush> brushes = Brush::factory(
-                                     hBrushes,
-                                     painting::aBrushWidth,
-                                     painting::aBrushRetention,
-                                     painting::aBrushTip,
-                                     painting::aBrushPhysicalId,
-                                     painting::aBrushShape,
-                                     painting::aBrushCustomId
-                                   );
+  std::map<int, Brush> brushes = Brush::factory(
+                                   hBrushes,
+                                   painting::aBrushWidth,
+                                   painting::aBrushRetention,
+                                   painting::aBrushTip,
+                                   painting::aBrushPhysicalId,
+                                   painting::aBrushShape,
+                                   painting::aBrushCustomId
+                                 );
 
   MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); msert;
-  std::map<short, Paint> paints = Paint::factory(
-                                    hPaints,
-                                    painting::aPaintColor,
-                                    painting::aPaintOpacity,
-                                    painting::aPaintTravel,
-                                    painting::aPaintCustomId
-                                  );
+  std::map<int, Paint> paints = Paint::factory(
+                                  hPaints,
+                                  painting::aPaintColor,
+                                  painting::aPaintOpacity,
+                                  painting::aPaintTravel,
+                                  painting::aPaintCustomId
+                                );
 
 
 

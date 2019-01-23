@@ -6,8 +6,8 @@
 
 
 skChain::skChain()
-	: maxRadius(0.0),
-	  minRadius(99999999.0)
+	: m_maxRadius(0.0),
+	  m_minRadius(99999999.0)
 {
 
 }
@@ -29,11 +29,11 @@ void skChain::add(const skPoint &pt)
 {
 	points.push_back(pt);
 	// cerr << "Adding: " << pt.radius << endl;
-	if (pt.radius > maxRadius) {
-		maxRadius = pt.radius;
+	if (pt.radius > m_maxRadius) {
+		m_maxRadius = pt.radius;
 	}
-	if (pt.radius < minRadius) {
-		minRadius = pt.radius;
+	if (pt.radius < m_minRadius) {
+		m_minRadius = pt.radius;
 	}
 }
 
@@ -57,19 +57,29 @@ void skChain::appendPoints(MVectorArray &positions) const
 	}
 }
 
-int skChain::getContacts( MDoubleArray &contacts, double maxWidth) const
+const float &skChain::maxRadius() const
 {
-	contacts.clear();
-	if (maxWidth < 0.0001f) {maxWidth = 0.0001f;}
-	std::vector< skPoint >::const_iterator iter;
-
-	for (iter = points.begin(); iter != points.end(); iter++)
-	{
-
-		contacts.append( fmin( iter->radius / maxWidth, 1.0));
-	}
-	return 0;
+	return m_maxRadius;
 }
+
+const float &skChain::minRadius() const
+{
+	return m_minRadius;
+}
+
+// int skChain::getContacts( MDoubleArray &contacts, double maxWidth) const
+// {
+// 	contacts.clear();
+// 	if (maxWidth < 0.0001f) {maxWidth = 0.0001f;}
+// 	std::vector< skPoint >::const_iterator iter;
+
+// 	for (iter = points.begin(); iter != points.end(); iter++)
+// 	{
+
+// 		contacts.append( fmin( iter->radius / maxWidth, 1.0));
+// 	}
+// 	return 0;
+// }
 
 
 /*
@@ -81,38 +91,35 @@ int skChain::getContacts( MDoubleArray &contacts, double maxWidth) const
 	just use the widest brush. The contact will be clamped to 1.
 */
 
-int skChain::getContacts(
-  MDoubleArray &contacts,
-  const std::vector< std::pair<int, float> > &radii) const
-{
-	int index = -1;
-	float radius =  1.0;
+// int skChain::getContacts(
+//   MDoubleArray &contacts,
+//   const std::vector< std::pair<int, float> > &radii) const
+// {
+// 	int index = -1;
+// 	float radius =  1.0;
 
-	if (radii.size())
-	{
-		std::vector< std::pair<int, float> >::const_iterator iter;
-		for (iter = radii.begin(); iter != radii.end(); iter++)
-		{
+// 	if (radii.size())
+// 	{
+// 		std::vector< std::pair<int, float> >::const_iterator iter;
+// 		for (iter = radii.begin(); iter != radii.end(); iter++)
+// 		{
 
-			if (iter->second < maxRadius && (iter != radii.begin() ))
-			{
-				break;
-			}
-			index = iter->first;
-			radius = iter->second;
-		}
-	}
+// 			if (iter->second < maxRadius && (iter != radii.begin() ))
+// 			{
+// 				break;
+// 			}
+// 			index = iter->first;
+// 			radius = iter->second;
+// 		}
+// 	}
 
-	// cerr << "maxRadius:" << maxRadius << " selected brush index and radius:" << index << "  "
-	//      << radius << endl;
-
-	std::vector< skPoint >::const_iterator iter;
-	for (iter = points.begin(); iter != points.end(); iter++)
-	{
-		contacts.append( fmin( iter->radius / radius, 1.0));
-	}
-	return index;
-}
+// 	std::vector< skPoint >::const_iterator iter;
+// 	for (iter = points.begin(); iter != points.end(); iter++)
+// 	{
+// 		contacts.append( fmin( iter->radius / radius, 1.0));
+// 	}
+// 	return index;
+// }
 
 
 
@@ -123,6 +130,15 @@ void skChain::appendRadii( MDoubleArray &radii) const
 	for (iter = points.begin(); iter != points.end(); iter++)
 	{
 		radii.append(double(iter->radius));
+	}
+}
+
+void skChain::appendRadii( MFloatArray &radii) const
+{
+	std::vector< skPoint >::const_iterator iter;
+	for (iter = points.begin(); iter != points.end(); iter++)
+	{
+		radii.append(iter->radius);
 	}
 }
 

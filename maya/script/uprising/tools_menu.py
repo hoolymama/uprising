@@ -25,6 +25,7 @@ def create():
     pm.menuItem( label="Connect brushIds to skeletons", 
         command=pm.Callback(on_connect_brushids_to_skeleton) )
 
+ 
 
     pm.menuItem( label="Connect texture", subMenu=True)
     pm.menuItem( label="to brushId", command=pm.Callback(on_connect_texture, "brushIdTexture") )

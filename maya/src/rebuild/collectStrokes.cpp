@@ -111,6 +111,17 @@ void *collectStrokes::creator() {
   return new collectStrokes();
 }
 
+
+/// Post constructor
+void
+collectStrokes::postConstructor()
+{
+  MPxNode::postConstructor();
+  setExistWithoutOutConnections(true);
+}
+
+
+
 const double epsilon = 0.0001;
 
 

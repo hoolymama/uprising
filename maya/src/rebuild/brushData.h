@@ -22,10 +22,12 @@ public:
 
 	void	 clear();
 
-	brush	*geometry() const ;
+	// Brush	*geometry() const ;
 
 	virtual MTypeId         typeId() const;
 	virtual MString         name() const;
+	void copy ( const MPxData &other );
+	// brushData &operator=(const brushData &otherData ) ;
 
 	static void *creator();
 
@@ -34,7 +36,8 @@ public:
 	static const MString typeName;
 	static const MTypeId id;
 
-	brush *m_pGeometry;
+	Brush *fGeometry;
 };
 #endif
+
 

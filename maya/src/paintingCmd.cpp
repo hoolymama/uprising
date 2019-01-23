@@ -13,8 +13,8 @@
 /*
 Command will return data from the painting output plug.
 	std::vector<clusterGeom> m_clusters;
-	std::map<short, Paint> m_paints;
-	std::map<short, Brush> m_brushes;
+	std::map<int, Paint> m_paints;
+	std::map<int, Brush> m_brushes;
 */
 
 const MString clusterIdPresenceMsg("You must provide a cluster Id");

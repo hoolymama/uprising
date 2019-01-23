@@ -12,13 +12,23 @@
 const MTypeId brushData::id( k_brushData );
 const MString brushData::typeName( "brushData" );
 
-brushData::brushData() : m_pGeometry( 0 ) {}
-brushData::~brushData() {}
+brushData::brushData() : fGeometry( 0 )
+{
+	fGeometry = new Brush();
+}
+brushData::~brushData()
+{
+	if ( 0 != fGeometry ) {
+		delete fGeometry;
+		fGeometry = 0;
+	}
+}
 
+/*
 brush	*brushData::geometry() const {
 	return m_pGeometry;
 }
-
+*/
 // clean up
 /*void	brushData::clear() {
 	if (m_pGeometry) {
@@ -39,18 +49,17 @@ MStatus brushData::create()
 	return MS::kSuccess;
 }*/
 
-// void brushData::copy(const MPxData &otherData)
-// {
-// 	m_pGeometry = ((const brushData &)otherData).geometry();
-// }
+void brushData::copy ( const MPxData &other )
+{
+	*fGeometry = *(((const brushData &)other).fGeometry);
+}
 
 // brushData &brushData::operator=(const brushData &otherData ) {
 // 	if (this != &otherData ) {
-// 		m_pGeometry = otherData.geometry();
+// 		fGeometry = otherData.fGeometry;
 // 	}
 // 	return *this;
 // }
-
 MTypeId brushData::typeId() const
 {
 	return brushData::id;

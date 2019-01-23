@@ -51,7 +51,9 @@
 #include "mayaMath.h"
 #include "errorMacros.h"
 
-#include "brush.h"
+// #include "brush.h"
+#include "brushData.h"
+
 #include "paint.h"
 
 
@@ -105,15 +107,15 @@ MObject painting::aApproachDistanceMid;
 MObject painting::aApproachDistanceEnd;
 MObject painting::aApproachDistance;
 
-MObject painting::aBrushMatrix;
-MObject painting::aBrushRetention;
-MObject painting::aBrushWidth;
-MObject painting::aBrushShape;
-MObject painting::aBrushTip;
-MObject painting::aBrushPhysicalId;
-MObject painting::aBrushCustomId;
-MObject painting::aBrushTransitionHeight;
-MObject painting::aBrushTransitionPower;
+// MObject painting::aBrushMatrix;
+// MObject painting::aBrushRetention;
+// MObject painting::aBrushWidth;
+// MObject painting::aBrushShape;
+// MObject painting::aBrushTip;
+// MObject painting::aBrushPhysicalId;
+// MObject painting::aBrushCustomId;
+// MObject painting::aBrushTransitionHeight;
+// MObject painting::aBrushTransitionPower;
 MObject painting::aBrushes;
 
 MObject painting::aPaintColorR;
@@ -247,73 +249,82 @@ MStatus painting::initialize()
   addAttribute(aStrokes);
 
 
-  aBrushWidth  = nAttr.create("brushWidth", "brwd", MFnNumericData::kDouble);
-  nAttr.setHidden( false );
-  nAttr.setKeyable( true );
-  nAttr.setDefault( 0.1 );
+  // aBrushWidth  = nAttr.create("brushWidth", "brwd", MFnNumericData::kDouble);
+  // nAttr.setHidden( false );
+  // nAttr.setKeyable( true );
+  // nAttr.setDefault( 0.1 );
 
-  aBrushMatrix = mAttr.create( "brushMatrix", "bmat",  MFnMatrixAttribute::kDouble );
-  mAttr.setStorable( false );
-  mAttr.setHidden( true );
-  mAttr.setDefault(identity);
+  // aBrushMatrix = mAttr.create( "brushMatrix", "bmat",  MFnMatrixAttribute::kDouble );
+  // mAttr.setStorable( false );
+  // mAttr.setHidden( true );
+  // mAttr.setDefault(identity);
 
-  aBrushRetention  = nAttr.create("brushRetention", "brrt", MFnNumericData::kDouble);
-  nAttr.setHidden( false );
-  nAttr.setKeyable( true );
-  nAttr.setDefault( 1.0 );
-
-
-  aBrushPhysicalId  = nAttr.create("brushPhysicalId", "bpid", MFnNumericData::kShort);
-  nAttr.setHidden( false );
-  nAttr.setKeyable( true );
-  nAttr.setDefault( -1);
-
-  aBrushCustomId  = nAttr.create("brushCustomId", "bcid", MFnNumericData::kShort);
-  nAttr.setHidden( false );
-  nAttr.setKeyable( true );
-  nAttr.setDefault( -1);
-
-  aBrushShape = eAttr.create( "brushShape", "bshp", Brush::kRound);
-  eAttr.addField("flat", Brush::kFlat);
-  eAttr.addField("round", Brush::kRound);
-  eAttr.setKeyable(true);
-  eAttr.setHidden(false);
-  st = addAttribute( aBrushShape ); mser;
-
-  aBrushTip  = nAttr.create("brushTip", "brtp", MFnNumericData::kDouble);
-  nAttr.setHidden( false );
-  nAttr.setKeyable( true );
-  nAttr.setDefault( 0.0 );
+  // aBrushRetention  = nAttr.create("brushRetention", "brrt", MFnNumericData::kDouble);
+  // nAttr.setHidden( false );
+  // nAttr.setKeyable( true );
+  // nAttr.setDefault( 1.0 );
 
 
-  aBrushTransitionHeight = nAttr.create("brushTransitionHeight", "brtnh",
-                                        MFnNumericData::kDouble);
-  nAttr.setHidden( false );
-  nAttr.setKeyable( true );
-  nAttr.setDefault( 1.0 );
+  // aBrushPhysicalId  = nAttr.create("brushPhysicalId", "bpid", MFnNumericData::kShort);
+  // nAttr.setHidden( false );
+  // nAttr.setKeyable( true );
+  // nAttr.setDefault( -1);
 
-  aBrushTransitionPower = nAttr.create("brushTransitionPower", "brtnp",
-                                       MFnNumericData::kDouble);
-  nAttr.setHidden( false );
-  nAttr.setKeyable( true );
-  nAttr.setDefault( 1.0 );
+  // aBrushCustomId  = nAttr.create("brushCustomId", "bcid", MFnNumericData::kShort);
+  // nAttr.setHidden( false );
+  // nAttr.setKeyable( true );
+  // nAttr.setDefault( -1);
+
+  // aBrushShape = eAttr.create( "brushShape", "bshp", Brush::kRound);
+  // eAttr.addField("flat", Brush::kFlat);
+  // eAttr.addField("round", Brush::kRound);
+  // eAttr.setKeyable(true);
+  // eAttr.setHidden(false);
+  // st = addAttribute( aBrushShape ); mser;
+
+  // aBrushTip  = nAttr.create("brushTip", "brtp", MFnNumericData::kDouble);
+  // nAttr.setHidden( false );
+  // nAttr.setKeyable( true );
+  // nAttr.setDefault( 0.0 );
+
+
+  // aBrushTransitionHeight = nAttr.create("brushTransitionHeight", "brtnh",
+  //                                       MFnNumericData::kDouble);
+  // nAttr.setHidden( false );
+  // nAttr.setKeyable( true );
+  // nAttr.setDefault( 1.0 );
+
+  // aBrushTransitionPower = nAttr.create("brushTransitionPower", "brtnp",
+  //                                      MFnNumericData::kDouble);
+  // nAttr.setHidden( false );
+  // nAttr.setKeyable( true );
+  // nAttr.setDefault( 1.0 );
 
 
 
-  aBrushes = cAttr.create("brushes", "bsh");
-  cAttr.addChild(aBrushWidth);
-  cAttr.addChild(aBrushShape);
-  cAttr.addChild(aBrushRetention);
-  cAttr.addChild(aBrushTip);
-  cAttr.addChild(aBrushPhysicalId);
-  cAttr.addChild(aBrushCustomId);
-  cAttr.addChild(aBrushTransitionHeight);
-  cAttr.addChild(aBrushTransitionPower);
-  cAttr.addChild(aBrushMatrix);
-  cAttr.setArray( true );
-  cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-  cAttr.setReadable(false);
-  st = addAttribute( aBrushes ); mser;
+  // aBrushes = cAttr.create("brushes", "bsh");
+  // cAttr.addChild(aBrushWidth);
+  // cAttr.addChild(aBrushShape);
+  // cAttr.addChild(aBrushRetention);
+  // cAttr.addChild(aBrushTip);
+  // cAttr.addChild(aBrushPhysicalId);
+  // cAttr.addChild(aBrushCustomId);
+  // cAttr.addChild(aBrushTransitionHeight);
+  // cAttr.addChild(aBrushTransitionPower);
+  // cAttr.addChild(aBrushMatrix);
+  // cAttr.setArray( true );
+  // cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
+  // cAttr.setReadable(false);
+  // st = addAttribute( aBrushes ); mser;
+
+  aBrushes = tAttr.create( "brushes", "bsh", brushData::id );
+  tAttr.setReadable(false);
+  tAttr.setStorable(false);
+  tAttr.setArray(true);
+  tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
+  addAttribute(aBrushes);
+
+
 
   aPaintColorR = nAttr.create( "paintColorR", "pcr", MFnNumericData::kFloat);
   aPaintColorG = nAttr.create( "paintColorG", "pcg", MFnNumericData::kFloat);
@@ -505,6 +516,42 @@ MStatus painting::initialize()
   return ( MS::kSuccess );
 
 }
+
+
+MStatus painting::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes)
+{
+  MStatus st;
+  MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st ); msert;
+
+  brushes[-1] = Brush();
+
+  unsigned nPlugs = ha.elementCount();
+  for (unsigned i = 0; i < nPlugs; i++, ha.next()) {
+    int index = ha.elementIndex(&st);
+    if (st.error()) {
+      continue;
+    }
+    MDataHandle h = ha.inputValue(&st);
+    if (st.error()) {
+      continue;
+    }
+
+    MObject d = h.data();
+    MFnPluginData fnP( d , &st);
+    if (st.error()) {
+      continue;
+    }
+    brushData *bData = (brushData *)fnP.data();
+
+    brushes[index] = *(bData->fGeometry);
+  }
+  return MS::kSuccess;
+}
+
+
+
+
+
 MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 {
   MStatus st;
@@ -514,35 +561,25 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
   MDataHandle mh = data.inputValue(aInMatrix, &st); mser;
   MMatrix wm = mh.asMatrix();
 
-
-
   double ptpThresh = data.inputValue(aMaxPointToPointDistance).asDouble();
   if (ptpThresh < 3.0) {
     ptpThresh = 3.0;
   }
 
-  MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); msert;
-  std::map<short, Brush> brushes = Brush::factory(
-                                     hBrushes,
-                                     painting::aBrushWidth,
-                                     painting::aBrushRetention,
-                                     painting::aBrushTip,
-                                     painting::aBrushPhysicalId,
-                                     painting::aBrushShape,
-                                     painting::aBrushCustomId,
-                                     painting::aBrushTransitionHeight,
-                                     painting::aBrushTransitionPower
+  // MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); msert;
 
-                                   );
+  // void Brush::factory(MArrayDataHandle & ha, std::map<int, Brush>)
+
+  std::map<int, Brush> brushes;
+  collectBrushes(data, brushes);
 
   MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st ); msert;
-  std::map<short, Paint> paints = Paint::factory(
-                                    hPaints,
-                                    painting::aPaintColor,
-                                    painting::aPaintOpacity,
-                                    painting::aPaintTravel,
-                                    painting::aPaintCustomId
-                                  );
+  std::map<int, Paint> paints = Paint::factory(
+                                  hPaints,
+                                  painting::aPaintColor,
+                                  painting::aPaintOpacity,
+                                  painting::aPaintTravel
+                                );
 
 
 

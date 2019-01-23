@@ -7,6 +7,7 @@ import uprising_util as uutl
 import pymel.core.uitypes as gui
 
 
+
 class SetupTab(gui.FormLayout):
 
     def __init__(self):
@@ -98,6 +99,9 @@ class SetupTab(gui.FormLayout):
 
         painting_node = pm.PyNode("mainPaintingShape")
         dip_node = pm.PyNode("dipPaintingShape")
+        wipe_node = pm.PyNode("wipePaintingShape")
+        rack = pm.PyNode("rack1")
+
 
         if do_board:
             name = pm.textFieldGrp(self.setup_board_tf, q=True, text=True)
@@ -105,13 +109,14 @@ class SetupTab(gui.FormLayout):
             bdutl.setup_board_from_sheet(painting_node, name, depth_only)
             # bdutl.generate_probes(painting_node)
 
+
         if do_brushes:
             name = pm.textFieldGrp(self.setup_brushes_tf, q=True, text=True)
-            butl.setup_brushes_from_sheet(painting_node, dip_node, name)
+            butl.setup_brushes_from_sheet(painting_node, rack, name)
 
         if do_paints:
             name = pm.textFieldGrp(self.setup_paints_tf, q=True, text=True)
-            putl.setup_paints_from_sheet(painting_node, dip_node, name)
+            putl.setup_paints_from_sheet(painting_node, rack, name)
 
         if do_rack:
             name = pm.textFieldGrp(self.setup_rack_tf, q=True, text=True)

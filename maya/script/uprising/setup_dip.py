@@ -1,9 +1,11 @@
 
 import pymel.core as pm
- 
+
 from paint import Paint
 from brush import Brush
 import curve_utils as cutl
+import paint_utils as putl
+
 import uprising.uprising_util as uutl
 import logging
 logger = logging.getLogger('uprising')
@@ -28,14 +30,21 @@ def dip_combinations(painting_node):
 
     combos = pm.paintingQuery(painting_node, dc=True)
 
-    for i in range(0, len(combos),2):
+    for i in range(0, len(combos), 2):
         brush_id = int(combos[i])
-        paint_id = int(combos[i+1])
+        paint_id = int(combos[i + 1])
 
         key = "p%02d_b%02d" % (paint_id, brush_id)
+
+        try:
+            b = brushes[brush_id]
+            p = paints[paint_id]
+        except KeyError:
+            raise KeyError("Bad Brush or Paint ID")
+
         result[key] = {
-            "brush": brushes[brush_id],
-            "paint": paints[paint_id]
+            "brush": b,
+            "paint": p
         }
     return result
 
@@ -47,16 +56,12 @@ def delete_if_exist(name):
         pass
 
 
-
-
-
-
-
 def duplicate_and_connect(src_grp, dip_node, paint_id, brush_id):
 
     grp_name = "dcx_p%02d_b%02d" % (paint_id, brush_id)
     delete_if_exist(grp_name)
-    grp = cutl.duplicate_grp_with_stroke_curves(src_grp, grp_name, True, ["brushId", "paintId"])
+    grp = cutl.duplicate_grp_with_stroke_curves(
+        src_grp, grp_name, True, ["brushId", "paintId"])
     grp.rename(grp_name)
     curves = grp.getChildren()
 
@@ -64,7 +69,8 @@ def duplicate_and_connect(src_grp, dip_node, paint_id, brush_id):
         name = "dcx_p%02d_b%02d_c%02d" % (paint_id, brush_id, i)
         curve.rename(name)
         shape = pm.listRelatives(curve, children=True)[0]
-        stroke_curve = shape.attr("worldSpace[0]").connections(destination=True, source=False)[0]
+        stroke_curve = shape.attr("worldSpace[0]").connections(
+            destination=True, source=False)[0]
 
         first = (i == 0)
         cutl.connect_curve_to_painting(
@@ -75,48 +81,115 @@ def duplicate_and_connect(src_grp, dip_node, paint_id, brush_id):
     return grp
 
 
+def _get_curve_strokes(parent):
+    curves = pm.ls(parent, dag=True, ni=True, shapes=True, type="nurbsCurve")
+    result = []
+    for c in curves:
+        result += pm.listConnections(
+            c.attr("worldSpace[0]"),
+            d=True,
+            s=False,
+            type="curveStroke")
+
+
+def _create_painting_node():
+    ptg_node = pm.createNode("painting")
+    ptg_node.attr("linearSpeed").set(100)
+    ptg_node.attr("angularSpeed").set(70.000)
+    ptg_node.attr("approximationDistance").set(2)
+    ptg_node.attr("maxPointToPointDistance").set(15)
+    ptg_node.attr("approachDistanceStart").set(20)
+    ptg_node.attr("approachDistanceMid").set(2.5)
+    ptg_node.attr("approachDistanceEnd").set(5)
+
+    ptg_node.attr("pointSize").set(1)
+    ptg_node.attr("lineLength").set(1)
+    ptg_node.attr("lineThickness").set(1)
+    ptg_node.attr("displayPivots").set(0)
+    ptg_node.attr("displayClusterPath").set(0)
+    ptg_node.attr("displayIds").set(0)
+    ptg_node.attr("displayParentIds").set(0)
+    ptg_node.attr("displayLayerIds").set(0)
+    ptg_node.attr("displayBrushIds").set(0)
+    ptg_node.attr("displayPaintIds").set(0)
+    ptg_node.attr("displayRepeatIds").set(0)
+    ptg_node.attr("arrowheadSize").set(0)
+
+    return ptg_node
+
+
+def _delete_paintings_under(parent):
+    paintings = pm.ls(
+        parent,
+        dag=True,
+        leaf=True,
+        type="painting")
+
+    paintings = pm.listRelatives(paintings, parent=True)
+    if paintings:
+        pm.delete(paintings)
+
+def _find_nodes_by_short_name(nodes, name):
+    return [n for n in nodes if n.split("|")[-1] == name ]
+
+
+
+def _create_painting_node(which, brush, paint, strokes, ):
+    ptg_node = pm.createNode("painting")
+    ptg_node.attr("linearSpeed").set(100)
+    ptg_node.attr("angularSpeed").set(70.000)
+    ptg_node.attr("approximationDistance").set(2)
+    ptg_node.attr("maxPointToPointDistance").set(15)
+    ptg_node.attr("approachDistanceStart").set(20)
+    ptg_node.attr("approachDistanceMid").set(2.5)
+    ptg_node.attr("approachDistanceEnd").set(5)
+
+    ptg_node.attr("pointSize").set(1)
+    ptg_node.attr("lineLength").set(1)
+    ptg_node.attr("lineThickness").set(1)
+    ptg_node.attr("displayPivots").set(0)
+    ptg_node.attr("displayClusterPath").set(0)
+    ptg_node.attr("displayIds").set(0)
+    ptg_node.attr("displayParentIds").set(0)
+    ptg_node.attr("displayLayerIds").set(0)
+    ptg_node.attr("displayBrushIds").set(0)
+    ptg_node.attr("displayPaintIds").set(0)
+    ptg_node.attr("displayRepeatIds").set(0)
+    ptg_node.attr("arrowheadSize").set(0)
+
+    ptg_name = "p{:02d}_b{:02d}_{}".format(paint.id, brush.id, which)
+    ptg_xf = ptg_node.getParent()
+    ptg_xf.rename(ptg_name)
+
+    strokes.attr("output") >> ptg_node.attr("strokes[0]")
+
+    brush_node = pm.PyNode(brush.name)
+    att = "out%sBrush" % which.capitalize()
+    brush_node.attr(att) >> ptg_node.attr("brushes[0]")
+
+    pot_node = pm.PyNode(paint.name)
+    putl.connect_paint_to_node(pot_node, ptg_node, 0)
+
+    loc_name = "%s_loc" % which
+    locator =  _find_nodes_by_short_name(pot_node.getParent().getParent().getChildren(),loc_name )[0]
+
+    pm.parent(ptg_xf, locator, relative=True)
+
+    return ptg_node
 
 def doit():
-    print "!!!!!!!!!!!!!!!!! SETUP DIP !!!!!!!!!!!!!!!!!!!!!!!!"
-    painting_node = pm.PyNode("mainPaintingShape")
-    dip_node = pm.PyNode("dipPaintingShape")
+    print "!!!!!!!!!!!!!!!!! SETUP DIP & WIPE !!!!!!!!!!!!!!!!!!!!!!!!"
+    # painting_node =
+    combinations = dip_combinations(pm.PyNode("mainPaintingShape"))
 
-    dip_assembly = uutl.assembly(dip_node)
-    logger.debug("dip_assembly: %s" % dip_assembly)
+    dip_stroke_node = pm.PyNode("collectStrokesDip")
+    wipe_stroke_node = pm.PyNode("collectStrokesWipe")
 
-    zpos = dip_assembly.attr("zeroPosition").get()
-    dip_assembly.attr("zeroPosition").set(True)
+    _delete_paintings_under("rack1")
 
-    pm.delete(dip_node.attr("strokes").connections(destination=False, source=True, type="curveStroke"))
-
-    curves_grp = pm.PyNode("%s|curves" % dip_assembly)
-    
-    logger.debug("curves_grp: %s" % curves_grp)
-
-    pm.delete(curves_grp.getChildren())
-
-    combinations = dip_combinations(painting_node)
-
-    logger.debug("combinations: %s" % combinations)
-
-    # before making new dip curves, delete the old ones
-    pm.delete(pm.PyNode("%s|curves|" % dip_assembly ).getChildren() )
-
+    for combo in combinations:
+        b = combinations[combo]["brush"]
+        p = combinations[combo]["paint"]
  
-
-    for dip in combinations:
-        paint_id = combinations[dip]["paint"].id
-        brush_id = combinations[dip]["brush"].id
-        brush_dip_curve_grp = "brushes|dipCurves|%s" % combinations[dip]["brush"].name.replace("bpx", "bdcx")
-
-        dip_curve_grp = duplicate_and_connect(brush_dip_curve_grp, dip_node, paint_id, brush_id)
-        tray = dip_node.attr("paints[%d].paintTravel" % paint_id).connections(source=1,destination=0 )[0]
-
-
-        pm.parent(dip_curve_grp, tray, relative=True)
-        pm.parent(dip_curve_grp, curves_grp , absolute=True)
-
-
-    dip_assembly.attr("zeroPosition").set(zpos)
-
- 
+        dip_ptg_node = _create_painting_node("dip", b, p, dip_stroke_node)
+        wipe_ptg_node = _create_painting_node("wipe", b, p, wipe_stroke_node)

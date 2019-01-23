@@ -77,3 +77,23 @@ def send(objects, frame=None):
 def send_selected():
     transforms = pm.ls(selected=True, transforms=True)
     send(transforms)
+
+
+
+
+# def brush_triangles(brushName):
+
+#     data = pm.brushQuery -tri -w  "bpx_2_portrait_set_B9_6mm_new9_roundShape";
+
+    
+#     for t in triangles:
+#     for vid in vids:
+#         triangles.append(
+#             [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
+#     shape = RL.AddShape(triangles)
+#     shape.setParent(parent)
+#     shape.setName(name)
+#     shape.setVisible(True, visible_frame=False)
+
+
+

@@ -328,6 +328,14 @@ def ensure_grp_has_stroke_curves(src, existing_curves_grp):
 
 #     # cutl.generate_brush_dip_curves(dip_painting_node,dip_curves_grp, dip_brushes )
 
+def delete_strokes_from(nodes):
+    for node in nodes:
+        conns = node.attr("strokes").connections(s=True, d=False)
+        for conn in conns:
+            if pm.nodeType(conn) == "collectStrokes":
+                delete_strokes_from([conn])
+            else:
+                pm.delete(conn)
 
 def remove_unconnected_curve_plugs(painting):
     print "remove_unconnected_curve_plugs %s" % painting

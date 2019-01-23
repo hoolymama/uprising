@@ -27,6 +27,20 @@ public:
   // enum BrushFilter {kRound, kFlat,  kAll};
 
 private:
+
+
+
+  MStatus collectBrushes(
+    MDataBlock &data,
+    std::vector< std::pair<int, Brush> > &brushes,
+    Brush::Shape filter = Brush::kRound) const;
+
+  int  getContacts(
+    const skChain &chain,
+    const std::vector< std::pair<int, Brush> > &brushes,
+    MDoubleArray &contacts) const;
+
+
   unsigned int getStrokeBoundaries(
     const MObject  &dCurve,
     float strokeLength,
@@ -53,8 +67,8 @@ private:
   static MObject aProjectionMatrix;
 
   static MObject aBrushes;
-  static MObject aBrushWidth;
-  static MObject aBrushActive;
+  // static MObject aBrushWidth;
+  // static MObject aBrushActive;
 
   static MObject aStrokeLength;
   static MObject aOverlap;

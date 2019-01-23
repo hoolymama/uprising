@@ -7,6 +7,7 @@
 #include <maya/MVectorArray.h>
 #include <maya/MPointArray.h>
 #include <maya/MDoubleArray.h>
+#include <maya/MFloatArray.h>
 
 #include "skPoint.h"
 
@@ -26,27 +27,32 @@ public:
 
 	void appendPoints(MVectorArray &positions) const;
 
-	int getContacts( MDoubleArray &contacts, double maxWidth) const;
+	// int getContacts( MDoubleArray &contacts, double maxWidth) const;
 
 
-	int getContacts(
-	  MDoubleArray &contacts,
-	  const std::vector< std::pair<int, float> > &widths) const;
+	// int getContacts(
+	//   MDoubleArray &contacts,
+	//   const std::vector< std::pair<int, float> > &widths) const;
 
 
 
-
+	void appendRadii( MFloatArray &radii) const;
 	void appendRadii( MDoubleArray &radii) const;
 
 	void appendParams( MDoubleArray &params) const;
 
 	void interpolate(int step, skChain &result) const;
 
+
+	const float &maxRadius() const;
+	const float &minRadius() const;
+
+
 private:
 	std::vector< skPoint > points;
 
-	float maxRadius;
-	float minRadius;
+	float m_maxRadius;
+	float m_minRadius;
 
 };
 #endif

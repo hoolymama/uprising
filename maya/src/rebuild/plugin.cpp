@@ -2,6 +2,7 @@
 #include <maya/MFnPlugin.h>
 #include <maya/MGlobal.h>
 #include <errorMacros.h>
+#include "brushData.h"
 #include "strokeData.h"
 #include "paintingData.h"
 #include "curveStrokeNode.h"
@@ -12,8 +13,15 @@
 
 #include "skeletonStrokeNode.h"
 #include "paintingNode.h"
+#include "brushNode.h"
 #include "collectStrokes.h"
 #include "paintingCmd.h"
+#include "brushCmd.h"
+
+// #include "quadricShape.cpp"
+
+
+
 
 MStatus initializePlugin( MObject obj)
 {
@@ -28,6 +36,17 @@ MStatus initializePlugin( MObject obj)
 	const MString UserClassifycImgShader("texture/2d:drawdb/shader/texture/2d/cImgShader");
 
 	MGlobal::executePythonCommand("import pymel.core;pymel.core.loadPlugin('Kit')");
+
+	// plugin.registerShape( "quadricShape", quadricShape::id,
+	//                       &quadricShape::creator,
+	//                       &quadricShape::initialize,
+	//                       &quadricShapeUI::creator  );
+
+
+	st = plugin.registerData( "brushData", brushData::id,
+	                          brushData::creator ); mser;
+
+
 
 	st = plugin.registerData( "strokeData", strokeData::id,
 	                          strokeData::creator ); mser;
@@ -51,6 +70,11 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "painting", painting::id, painting::creator,
 	                          painting::initialize, MPxNode::kLocatorNode ); msert;
 
+	st = plugin.registerNode( "brushNode", brushNode::id, brushNode::creator,
+	                          brushNode::initialize, MPxNode::kLocatorNode ); msert;
+
+
+
 	st = plugin.registerNode( "skGraph", skGraphNode::id, skGraphNode::creator,
 	                          skGraphNode::initialize, MPxNode::kLocatorNode ); msert;
 
@@ -61,6 +85,10 @@ MStatus initializePlugin( MObject obj)
 
 	st = plugin.registerCommand( "paintingQuery", paintingCmd::creator ,
 	                             paintingCmd::newSyntax); mser;
+
+	st = plugin.registerCommand( "brushQuery", brushCmd::creator ,
+	                             brushCmd::newSyntax); mser;
+
 
 	MGlobal::executePythonCommand("import uprising;uprising.load()");
 
@@ -76,6 +104,7 @@ MStatus uninitializePlugin( MObject obj)
 
 
 	MFnPlugin plugin( obj );
+	st = plugin.deregisterCommand( "brushCmd" ); mser;
 
 	st = plugin.deregisterCommand( "paintingCmd" ); mser;
 
@@ -83,6 +112,7 @@ MStatus uninitializePlugin( MObject obj)
 
 
 	st = plugin.deregisterNode( skGraphNode::id ); mser;
+	st = plugin.deregisterNode( brushNode::id ); mser;
 
 	st = plugin.deregisterNode( painting::id ); mser;
 
@@ -96,6 +126,9 @@ MStatus uninitializePlugin( MObject obj)
 
 	st = plugin.deregisterData( strokeData::id ); mser;
 
+	st = plugin.deregisterData( brushData::id ); mser;
+
+	// plugin.deregisterNode( quadricShape::id );
 
 	return st;
 }

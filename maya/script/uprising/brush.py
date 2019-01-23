@@ -8,15 +8,24 @@ import robodk as rdk
 
 
 class Brush(object):
-    def __init__(self, the_id, name, matrix, width, retention, tip, physical_id, shape):
+    def __init__(self,
+                 the_id,
+                 plug,
+                 matrix,
+                 width,
+                 retention,
+                 tip,
+                 physical_id,
+                 shape):
         self.id = the_id
-        self.physical_id= physical_id
+        self.physical_id = physical_id
         self.matrix = uutl.maya_to_robodk_mat(matrix)
         self.width = width * 10
         self.shape = shape
         self.retention = retention
         self.tip = tip
-        self.name = name
+        self.name, self.attribute = plug.split(".")
+        self.plug = plug
 
     def is_round(self):
         return self.shape == 1
@@ -29,52 +38,49 @@ class Brush(object):
         if old_brush.Valid():
             old_brush.Delete()
 
-        geo = pm.PyNode(self.name).getShapes() + \
-            pm.PyNode("brushes|brushBase").getShapes()
-        triangles = []
-        for g in geo:
-            points = g.getPoints(space='world')
-            _, vert_ids = g.getTriangles()
-            for vert_id in vert_ids:
-                triangles.append(
-                    [points[vert_id].x * 10, points[vert_id].y * 10, points[vert_id].z * 10])
+        triangles = [[t.x * 10, t.y * 10, t.z * 10]
+                     for t in pm.brushQuery(self.plug, tri=True)]
 
-        color = mut.shape_color(g)
         tool_item = studio.robot.AddTool(self.matrix, self.name)
         shape = studio.RL.AddShape(triangles)
-        shape.setColor(list(color))
         tool_item.AddGeometry(shape, rdk.eye())
         studio.robot.setPoseTool(tool_item)
         shape.Delete()
 
     @classmethod
     def brush_at_index(cls, node, index):
+
         vals = [index]
-        conns = node.attr(
-            "brushes[%d].brushMatrix" % index).connections(
+
+        brushPlug = node.attr(
+            "brushes[%d]" % index).connections(
             source=True,
-            destination=False)
-        vals.append(str(conns[0]))
+            destination=False,
+            plugs=True
+        )[0]
 
+        vals.append(str(brushPlug))
+
+        matrix = pm.dt.Matrix(pm.brushQuery(brushPlug, tcp=True))
+        vals.append(matrix)
+
+        brush_node = brushPlug.node()
         for att in [
-            "brushMatrix",
-            "brushWidth",
-            "brushRetention",
-            "brushTip",
-            "brushPhysicalId",
-            "brushShape"
+            "width",
+            "retention",
+            "tip",
+            "physicalId",
+            "shape"
         ]:
-            vals.append(node.attr("brushes[%d].%s" % (index, att)).get())
-
+            vals.append(brush_node.attr(att).get())
         return Brush(*vals)
-
 
     @classmethod
     def find_by_regex(cls, node, regex_string):
         regex = re.compile(regex_string)
         for brush_id in node.attr("brushes").getArrayIndices():
             conns = node.attr(
-                "brushes[%d].brushMatrix" % brush_id).connections(
+                "brushes[%d]" % brush_id).connections(
                 source=True,
                 destination=False)
             name = str(conns[0])
@@ -88,16 +94,16 @@ class Brush(object):
             result[brush_id] = Brush.brush_at_index(node, brush_id)
         return result
 
-    @classmethod
-    def used_brushes(cls, node):
-        num_brushes = len(node.attr("brushes").getArrayIndices())
-        result = {}
-        found_brushes = 0
-        for index in node.attr("curves").getArrayIndices():
-            brush_id = node.attr("curves[%d].brushId" % index).get()
-            if brush_id not in result:
-                result[brush_id] = Brush.brush_at_index(node, brush_id)
-                found_brushes += 1
-                if found_brushes == num_brushes:
-                    break
-        return result
+    # @classmethod
+    # def used_brushes(cls, node):
+    #     num_brushes = len(node.attr("brushes").getArrayIndices())
+    #     result = {}
+    #     found_brushes = 0
+    #     for index in node.attr("curves").getArrayIndices():
+    #         brush_id = node.attr("curves[%d].brushId" % index).get()
+    #         if brush_id not in result:
+    #             result[brush_id] = Brush.brush_at_index(node, brush_id)
+    #             found_brushes += 1
+    #             if found_brushes == num_brushes:
+    #                 break
+    #     return result

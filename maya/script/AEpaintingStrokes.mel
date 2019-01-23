@@ -1,8 +1,8 @@
 
- global proc AEpaintingBrushesReplace (string $nodeAttr) {
+ global proc AEpaintingStrokesReplace (string $nodeAttr) {
 
  	string $node = attr.nodeFromNodeAttr($nodeAttr);
- 	string $col = "AEaddPaintingBrushesCol";
+ 	string $col = "AEaddPaintingStrokesCol";
 
  		
  	setParent $col;
@@ -25,12 +25,12 @@
  }
 
 
- global proc AEpaintingBrushesNew (string $nodeAttr) {
+ global proc AEpaintingStrokesNew (string $nodeAttr) {
  	setUITemplate -pst attributeEditorTemplate;
 
- 	string $col = "AEaddPaintingBrushesCol";
+ 	string $col = "AEaddPaintingStrokesCol";
  	columnLayout -adj 1 $col ;	
 
- 	AEpaintingBrushesReplace($nodeAttr);
+ 	AEpaintingStrokesReplace($nodeAttr);
 
  }

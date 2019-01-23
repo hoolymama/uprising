@@ -19,17 +19,17 @@ public:
 
 
 	const std::vector<clusterGeom> &clusters() const;
-	const std::map<short, Paint>    &paints() const;
-	const std::map<short, Brush>    &brushes() const;
+	const std::map<int, Paint>    &paints() const;
+	const std::map<int, Brush>    &brushes() const;
 
-	void setPaints(const std::map<short, Paint> &paints);
+	void setPaints(const std::map<int, Paint> &paints);
 
-	void setBrushes(const std::map<short, Brush> &brushes);
+	void setBrushes(const std::map<int, Brush> &brushes);
 
-	const Brush &brushFromId(short id) const ;
-	const Paint &paintFromId(short id) const ;
+	const Brush &brushFromId(int id) const ;
+	const Paint &paintFromId(int id) const ;
 
-	double travelCutoff(short brushId, short paintId) const;
+	double travelCutoff(int brushId, int paintId) const;
 
 
 	void addStroke(const Stroke &stroke, int parentIndex);
@@ -47,13 +47,13 @@ public:
 private:
 
 	clusterGeom &prepCluster(
-	  short brushId,
-	  short phisicalId,
-	  short paintId);
+	  int brushId,
+	  int phisicalId,
+	  int paintId);
 
 	std::vector<clusterGeom> m_clusters;
-	std::map<short, Paint> m_paints;
-	std::map<short, Brush> m_brushes;
+	std::map<int, Paint> m_paints;
+	std::map<int, Brush> m_brushes;
 
 };
 

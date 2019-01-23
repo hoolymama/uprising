@@ -11,48 +11,60 @@
 class Brush {
 public:
 
-	enum Shape { kFlat, kRound };
+	enum Shape { kFlat, kRound, kAll };
 
 	Brush();
 
 	Brush(
-	  short id,
-	  short physicalId, /* physicalID might be redundant - if so remove it */
-	  double width,
-	  double retention,
-	  double tip,
+	  int physicalId,
+	  const MFloatVector &tip,
+	  float bristleHeight,
+	  float tcpParam,
+	  float width,
 	  Shape shape,
-	  // short customId,
-	  double transHeight,
-	  double transPower);
+	  float retention,
+	  float transHeightParam);
+
+	// Brush &operator=(const Brush &rhs);
+
+
+
+	// Brush(const Brush &rhs);
 
 	~Brush();
 
+	MFloatMatrix tcp() const;
 
-	static std::map<short, Brush>  factory(
-	  MArrayDataHandle &ha,
-	  MObject &widthAttribute,
-	  MObject &retentionAttribute,
-	  MObject &tipAttribute,
-	  MObject &physicalIdAttribute,
-	  MObject &shapeAttribute,
-	  MObject &customIdAttribute	,
-	  MObject &transHeightAttribute ,
-	  MObject &transPowerAttribute );
+
+	void getTriangles(MFloatPointArray &triangles) const;
+
+	const float &retention() const;
+	float transHeight() const;
+	int physicalId() const;
+
+	bool matches(Shape filter) const;
+
+	Brush::Shape shape() const;
+
+	const float &width() const;
+
+
+
 
 
 	friend ostream &operator<<(ostream &os, const Brush &b);
 
+private:
 
-	short id;
-	short physicalId;
-	// short customId;
-	double width;
-	double retention;
-	Shape shape;
-	double tip;
-	double transHeight;
-	double transPower;
+	int m_physicalId;
+	float m_width;
+	float m_bristleHeight;
+	float m_retention;
+	float m_tcpParam;
+	Shape m_shape;
+	float m_transHeightParam;
+	MFloatVector m_tip;
+
 
 };
 #endif

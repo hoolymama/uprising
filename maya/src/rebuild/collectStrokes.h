@@ -25,7 +25,7 @@ public:
 
   static void *creator();
   static MStatus initialize();
-
+  virtual void    postConstructor();
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
   static  MTypeId id;

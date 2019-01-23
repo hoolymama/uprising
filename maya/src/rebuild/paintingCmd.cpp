@@ -7,14 +7,15 @@
 #include "paintingData.h"
 #include "paintingGeom.h"
 #include "clusterGeom.h"
+#include "cmdUtils.h"
 //	static
 
 
 /*
 Command will return data from the painting output plug.
 	std::vector<clusterGeom> m_clusters;
-	std::map<short, Paint> m_paints;
-	std::map<short, Brush> m_brushes;
+	std::map<int, Paint> m_paints;
+	std::map<int, Brush> m_brushes;
 */
 
 const MString clusterIdPresenceMsg("You must provide a cluster Id");
@@ -35,8 +36,8 @@ MSyntax paintingCmd::newSyntax()
 
 	syn.addFlag(kClusterIndexFlag, kClusterIndexFlagL, MSyntax::kLong);
 
-
 	syn.addFlag(kStrokeCountFlag, kStrokeCountFlagL);
+
 	syn.addFlag(kClusterReasonFlag, kClusterReasonFlagL);
 
 	syn.addFlag(kClusterPaintIdFlag, kClusterPaintIdFlagL);
@@ -46,7 +47,6 @@ MSyntax paintingCmd::newSyntax()
 	syn.addFlag(kClusterTravelCutoffFlag, kClusterTravelCutoffFlagL); \
 
 	syn.addFlag(kClusterTravelFlag, kClusterTravelFlagL);
-
 
 	syn.addFlag(kStrokeIndexFlag, kStrokeIndexFlagL, MSyntax::kLong);
 
@@ -222,39 +222,7 @@ MStatus paintingCmd::doIt( const MArgList &args )
 }
 
 
-void flatten(const MVectorArray &arr, MDoubleArray &result) {
 
-	unsigned len = arr.length();
-	result.setLength(len * 3);
-	unsigned j = 0;
-	for (int i = 0; i < len; ++i)
-	{
-		result.set(arr[i].x, j++);
-		result.set(arr[i].y, j++);
-		result.set(arr[i].z, j++);
-	}
-}
-
-void flatten(const MPointArray &arr, MDoubleArray &result) {
-
-	unsigned len = arr.length();
-	result.setLength(len * 3);
-	unsigned j = 0;
-	for (int i = 0; i < len; ++i)
-	{
-		result.set(arr[i].x, j++);
-		result.set(arr[i].y, j++);
-		result.set(arr[i].z, j++);
-	}
-}
-
-
-void flatten(const MVector &v, MDoubleArray &result) {
-	result.clear();
-	result.append(v.x);
-	result.append(v.y);
-	result.append(v.z);
-}
 
 MTransformationMatrix::RotationOrder paintingCmd::getRotationOrder(MArgDatabase &argData)
 {
@@ -498,7 +466,7 @@ MStatus paintingCmd::handleStrokePositionsFlag(const paintingGeom &geom,
 	MPointArray pos;
 	geom.clusters()[clusterId].strokes()[strokeId].positions(worldMatrix, pos);
 	MDoubleArray result;
-	flatten(pos, result );
+	CmdUtils::flatten(pos, result );
 	setResult(result);
 	return MS::kSuccess;
 }
@@ -519,7 +487,7 @@ MStatus paintingCmd::handleStrokeRotationsFlag(const paintingGeom &geom,
 	geom.clusters()[clusterId].strokes()[strokeId].rotations(worldMatrix, order, unit,
 	    rot);
 	MDoubleArray result;
-	flatten(rot, result );
+	CmdUtils::flatten(rot, result );
 	setResult(result);
 	return MS::kSuccess;
 }
@@ -537,7 +505,7 @@ MStatus paintingCmd::handleStrokeArrivalPositionsFlag(const paintingGeom &geom,
 	MPointArray pos;
 	geom.clusters()[clusterId].strokes()[strokeId].arrivalPositions(worldMatrix, pos);
 	MDoubleArray result;
-	flatten(pos, result );
+	CmdUtils::flatten(pos, result );
 	setResult(result);
 	return MS::kSuccess;
 }
@@ -558,7 +526,7 @@ MStatus paintingCmd::handleStrokeArrivalRotationsFlag(const paintingGeom &geom,
 	geom.clusters()[clusterId].strokes()[strokeId].arrivalRotations(worldMatrix, order, unit,
 	    rot);
 	MDoubleArray result;
-	flatten(rot, result );
+	CmdUtils::flatten(rot, result );
 	setResult(result);
 	return MS::kSuccess;
 }
@@ -576,7 +544,7 @@ MStatus paintingCmd::handleStrokeDeparturePositionFlag(const paintingGeom &geom,
 	MPoint pos;
 	geom.clusters()[clusterId].strokes()[strokeId].departurePosition(worldMatrix, pos);
 	MDoubleArray result;
-	flatten(MVector(pos), result );
+	CmdUtils::flatten(MVector(pos), result );
 	setResult(result);
 	return MS::kSuccess;
 }
@@ -598,7 +566,7 @@ MStatus paintingCmd::handleStrokeDepartureRotationFlag(const paintingGeom &geom,
 	    unit,
 	    rot);
 	MDoubleArray result;
-	flatten(rot, result );
+	CmdUtils::flatten(rot, result );
 	setResult(result);
 	return MS::kSuccess;
 }
@@ -618,7 +586,7 @@ MStatus paintingCmd::handleStrokeTangentsFlag(const paintingGeom &geom,
 	geom.clusters()[clusterId].strokes()[strokeId].tangents(
 	  worldMatrix, tangents);
 	MDoubleArray result;
-	flatten(tangents, result );
+	CmdUtils::flatten(tangents, result );
 	setResult(result);
 	return MS::kSuccess;
 }
@@ -675,7 +643,7 @@ MStatus paintingCmd::handleStrokeParentIndexFlag(const paintingGeom &geom,
 // 	}
 // 	int clusterId = getClusterId(geom, argData, &st);
 // 	MDoubleArray result;
-// 	flatten(geom.clusters()[clusterId].strokes()[strokeId].planeNormal(), result);
+// 	CmdUtils::flatten(geom.clusters()[clusterId].strokes()[strokeId].planeNormal(), result);
 // 	setResult(result);
 // 	return MS::kSuccess;
 // }

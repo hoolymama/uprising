@@ -4,25 +4,25 @@
 
 
 #include <maya/MPxLocatorNode.h>
-#include <maya/MFloatArray.h>
-#include <maya/MVector.h>
+// #include <maya/MFloatArray.h>
+// #include <maya/MVector.h>
 #include <maya/MFnDependencyNode.h>
 
-#include <maya/MFnNurbsCurve.h>
-#include <maya/MAngle.h>
-#include <maya/MVectorArray.h>
+// #include <maya/MFnNurbsCurve.h>
+// #include <maya/MAngle.h>
+// #include <maya/MVectorArray.h>
 
 #include <maya/MPxNode.h>
 
-#include <maya/MDGMessage.h>
-#include <maya/MDGModifier.h>
+// #include <maya/MDGMessage.h>
+// #include <maya/MDGModifier.h>
 
-#include "paintingData.h"
+#include "brushData.h"
 
 #include "brush.h"
-#include "paint.h"
-#include "stroke.h"
-
+// #include "paint.h"
+// #include "stroke.h"
+// #include <openGL/glu.h>
 
 class brushNode : public MPxLocatorNode
 {
@@ -53,17 +53,32 @@ public:
 
 private:
 
+
+
+
+  MStatus getBrush(MObject &attribute, Brush &brush);
+
+  MStatus outputData(MDataBlock &data, MObject &attribute, const Brush &brush );
+
   // static MObject aId;
   static MObject aPhysicalId;
   static MObject aWidth;
+  static MObject aTip;
+  static MObject aBristleHeight;
+  static MObject aPaintingParam;
+  static MObject aDipParam;
+  static MObject aWipeParam;
   static MObject aRetention;
-  static MObject aPaintTcp;
-  static MObject aDipTcp;
   static MObject aShape;
-  static MObject aTransitionHeight;
+  static MObject aTransHeightParam;
+
+  static MObject aLineLength;
+  static MObject aLineThickness;
+
 
   static MObject aOutPaintBrush;
   static MObject aOutDipBrush;
+  static MObject aOutWipeBrush;
 
 };
 

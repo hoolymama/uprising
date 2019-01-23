@@ -51,8 +51,12 @@
  	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
  	editorTemplate -endLayout;
 
+	editorTemplate -cl 0 -beginLayout "Strokes";
+ 	editorTemplate -callCustom "AEpaintingStrokesNew" "AEpaintingStrokesReplace" "strokes";
+ 	editorTemplate -endLayout;
 
-	editorTemplate -suppress "strokes";
+
+	// editorTemplate -suppress "strokes";
 
  	editorTemplate -suppress "outTargets";
  

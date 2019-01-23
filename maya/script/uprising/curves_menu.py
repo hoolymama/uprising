@@ -42,9 +42,16 @@ def create():
         command=pm.Callback(reverse_connection_order))
 
     pm.menuItem(
-        label='Remove curves from painting',
+        label='Remove selected curves from painting',
         ann="Break selected curve connections",
         command=pm.Callback(on_remove_curve_instances))
+
+
+    pm.menuItem(
+        label='Remove curves from selected painting',
+        ann="Break selected curve connections",
+        command=pm.Callback(on_remove_strokes_from_selected_node))
+
 
     pm.menuItem(
         label='Connect curve visibility',
@@ -205,6 +212,18 @@ def on_remove_curve_instances():
         ni=True)
 
     cutl.delete_curve_instances(curves)
+
+def on_remove_strokes_from_selected_node():
+
+    nodes = pm.ls(
+        selection=True,
+        dag=True,
+        leaf=True,
+        type=["painting", "collectStrokes"])
+
+    cutl.delete_strokes_from(nodes)
+
+
 
 def on_connect_curve_vis_active():
     curves_xfs = pm.listRelatives(pm.ls(

@@ -680,9 +680,9 @@ void Stroke::getBorders(
 	rights.setLength(len);
 
 	MFloatVector stackOffset = MFloatVector(MVector::zAxis * stackHeight);
-	double width = brush.width * 0.5;
+	double width = brush.width() * 0.5;
 
-	bool flat = (brush.shape == Brush::kFlat) ;
+	bool flat = (brush.shape() == Brush::kFlat) ;
 	std::vector<Target>::const_iterator citer;
 	unsigned i = 0;
 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++, i++) {
@@ -847,15 +847,15 @@ void Stroke::setTransitionContact( )
 
 void Stroke::offsetBrushContact(const Brush &brush)
 {
-	const double &height = brush.transHeight;
-
+	float height = brush.transHeight();
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin() ; iter != m_targets.end(); iter++) {
-		const double &contact = iter->contact();
-		float dist = (1.0 - contact) * height;
-		// cerr << "contact:" << contact <<  "  height:" << height << " dist:" <<
-		//      dist << endl;
-		iter->offsetBy(MVector(0.0, 0.0, dist));
+		iter->offsetBy(
+		  MVector(
+		    0.0,
+		    0.0,
+		    ((1.0 - iter->contact()) * height)
+		  ));
 	}
 }
 

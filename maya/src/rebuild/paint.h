@@ -12,19 +12,17 @@ class Paint {
 
 public:
 
-	static std::map<short, Paint> factory(
+	static std::map<int, Paint> factory(
 	  MArrayDataHandle &ha,
 	  MObject &colorAttribute,
 	  MObject &opacityAttribute,
-	  MObject &travelAttribute,
-	  MObject &customIdAttribute);
+	  MObject &travelAttribute);
 
 	Paint();
 
-	Paint( short id,
+	Paint( int id,
 	       MColor color,
-	       double travel,
-	       short customId);
+	       double travel);
 
 	~Paint();
 
@@ -33,7 +31,6 @@ public:
 	short id;
 	MColor color;
 	double travel;
-	short customId;
 };
 
 #endif

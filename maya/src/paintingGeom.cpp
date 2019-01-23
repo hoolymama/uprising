@@ -15,11 +15,11 @@ paintingGeom::~paintingGeom() {}
 
 
 
-void paintingGeom::setPaints(const std::map<short, Paint> &paints) {
+void paintingGeom::setPaints(const std::map<int, Paint> &paints) {
 	m_paints = paints;
 }
 
-void paintingGeom::setBrushes(const std::map<short, Brush> &brushes) {
+void paintingGeom::setBrushes(const std::map<int, Brush> &brushes) {
 	m_brushes = brushes;
 }
 
@@ -28,19 +28,19 @@ const std::vector<clusterGeom> &paintingGeom::clusters() const
 	return m_clusters;
 }
 
-const std::map<short, Paint>    &paintingGeom::paints() const
+const std::map<int, Paint>    &paintingGeom::paints() const
 {
 	return m_paints;
 }
 
-const std::map<short, Brush>    &paintingGeom::brushes() const
+const std::map<int, Brush>    &paintingGeom::brushes() const
 {
 	return m_brushes;
 }
 
 const Brush &paintingGeom::brushFromId(short id) const {
 
-	std::map<short, Brush>::const_iterator iter = m_brushes.find(id);
+	std::map<int, Brush>::const_iterator iter = m_brushes.find(id);
 	const Brush *p;
 	if (iter != m_brushes.end()) {
 		return (iter->second);
@@ -50,7 +50,7 @@ const Brush &paintingGeom::brushFromId(short id) const {
 }
 
 const Paint &paintingGeom::paintFromId(short id) const {
-	std::map<short, Paint>::const_iterator iter = m_paints.find(id);
+	std::map<int, Paint>::const_iterator iter = m_paints.find(id);
 	// const Paint *p;
 	if (iter != m_paints.end()) {
 		return (iter->second);
@@ -237,7 +237,7 @@ ostream &operator<<(ostream &os, const paintingGeom &g)
 	}
 	os << "],\n";
 	os << endl;
-	// std::map<short, Brush>::const_iterator cbiter = g.m_brushes.begin();
+	// std::map<int, Brush>::const_iterator cbiter = g.m_brushes.begin();
 	// for (; cbiter !=  g.m_brushes.end(), cbiter++) {
 	// 	// os << *cbiter;
 	// }

@@ -15,11 +15,11 @@ paintingGeom::~paintingGeom() {}
 
 
 
-void paintingGeom::setPaints(const std::map<short, Paint> &paints) {
+void paintingGeom::setPaints(const std::map<int, Paint> &paints) {
 	m_paints = paints;
 }
 
-void paintingGeom::setBrushes(const std::map<short, Brush> &brushes) {
+void paintingGeom::setBrushes(const std::map<int, Brush> &brushes) {
 	m_brushes = brushes;
 }
 
@@ -28,20 +28,20 @@ const std::vector<clusterGeom> &paintingGeom::clusters() const
 	return m_clusters;
 }
 
-const std::map<short, Paint>    &paintingGeom::paints() const
+const std::map<int, Paint>    &paintingGeom::paints() const
 {
 	return m_paints;
 }
 
-const std::map<short, Brush>    &paintingGeom::brushes() const
+const std::map<int, Brush>    &paintingGeom::brushes() const
 {
 	return m_brushes;
 }
 
-const Brush &paintingGeom::brushFromId(short id) const {
+const Brush &paintingGeom::brushFromId(int id) const {
 
-	std::map<short, Brush>::const_iterator iter = m_brushes.find(id);
-	const Brush *p;
+	std::map<int, Brush>::const_iterator iter = m_brushes.find(id);
+	// const Brush *p;
 	if (iter != m_brushes.end()) {
 		return (iter->second);
 	}
@@ -49,8 +49,8 @@ const Brush &paintingGeom::brushFromId(short id) const {
 
 }
 
-const Paint &paintingGeom::paintFromId(short id) const {
-	std::map<short, Paint>::const_iterator iter = m_paints.find(id);
+const Paint &paintingGeom::paintFromId(int id) const {
+	std::map<int, Paint>::const_iterator iter = m_paints.find(id);
 	// const Paint *p;
 	if (iter != m_paints.end()) {
 		return (iter->second);
@@ -59,10 +59,10 @@ const Paint &paintingGeom::paintFromId(short id) const {
 }
 
 
-double paintingGeom::travelCutoff(  short brushId, short paintId) const {
+double paintingGeom::travelCutoff(  int brushId, int paintId) const {
 	const  Brush &b = brushFromId(brushId);
 	const  Paint &p = paintFromId(paintId);
-	double cutoff =   b.retention * p.travel;
+	double cutoff =   b.retention() * p.travel;
 	if (cutoff < epsilon) {
 		cutoff = epsilon;
 	}
@@ -71,9 +71,9 @@ double paintingGeom::travelCutoff(  short brushId, short paintId) const {
 
 
 clusterGeom &paintingGeom::prepCluster(
-  short brushId,
-  short phisicalId,
-  short paintId)
+  int brushId,
+  int physicalId,
+  int paintId)
 {
 
 	// FIRST CLUSTER
@@ -90,16 +90,16 @@ clusterGeom &paintingGeom::prepCluster(
 	const clusterGeom &back = m_clusters.back();
 
 
-	short lastBrushId = back.brushId();
-	short lastPaintId = back.paintId();
+	int lastBrushId = back.brushId();
+	int lastPaintId = back.paintId();
 
 	// CHANGE PAINT OR BRUSH (tool change)
 	if (! (lastBrushId == brushId && lastPaintId == paintId)) {
 		double cutoff = travelCutoff(brushId, paintId);
 		clusterGeom::Reason reason = clusterGeom::kTool;
 		if (lastPaintId == paintId) { // brush Id changed - but is it the same physical brush?
-			short lastPhysicalId =  brushFromId(lastBrushId).physicalId;
-			if (lastPhysicalId == phisicalId) {
+			int lastPhysicalId =  brushFromId(lastBrushId).physicalId();
+			if (lastPhysicalId == physicalId) {
 				reason = clusterGeom::kTcp;
 			}
 		}
@@ -108,10 +108,6 @@ clusterGeom &paintingGeom::prepCluster(
 		);
 		return m_clusters.back();
 	}
-
-
-
-
 
 	// RAN OUT PAINT (dip only)
 	// FORCE DIP ON FIRST STROKE OF CURVE
@@ -145,29 +141,21 @@ void paintingGeom::setApproaches(double approachStart, double approachMid,
 	}
 }
 
-// void paintingGeom::setPreStops(double threshold) {
-// 	std::vector<clusterGeom>::iterator iter;
-// 	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
-// 	{
-// 		iter->setPreStops(threshold);
-// 	}
-// }
 
 void paintingGeom::dipCombinations(MIntArray &result) const
 {
-	std::set<std::pair <short, short> > combos;
+	std::set<std::pair <int, int> > combos;
 	std::vector<clusterGeom>::const_iterator iter;
 	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
 	{
-		std::pair <short, short> combo (iter->brushId(), iter->paintId()); ;
+		std::pair <int, int> combo (iter->brushId(), iter->paintId()); ;
 		combos.insert(combo);
 	}
-	for (std::set<std::pair <short, short> >::const_iterator citer = combos.begin();
+	for (std::set<std::pair <int, int> >::const_iterator citer = combos.begin();
 	     citer != combos.end(); citer++)
 	{
 		result.append(citer->first);
 		result.append(citer->second);
-
 	}
 }
 
@@ -191,11 +179,11 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 void paintingGeom::addStroke(const Stroke &stroke, int parentIndex) {
 
 	// short paintId = stroke.paintId();
-	short brushId = stroke.brushId();
+	int brushId = stroke.brushId();
 	const  Brush &b = brushFromId(brushId);
 	// short physicalId = b.physicalId;
 	// bool force = stroke.forceDip();
-	clusterGeom &g = prepCluster(brushId , b.physicalId, stroke.paintId() );
+	clusterGeom &g = prepCluster(brushId , b.physicalId(), stroke.paintId() );
 	g.pushStroke(stroke, parentIndex);
 
 }
@@ -218,7 +206,7 @@ void paintingGeom::offsetBrushContact()
 	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
 	{
 		const Brush &brush =  brushFromId(iter->brushId());
-		iter->offsetBrushContact( brush);
+		iter->offsetBrushContact(brush);
 	}
 }
 
@@ -265,7 +253,7 @@ void paintingGeom::offsetBrushContact()
 // 	}
 // 	os << "],\n";
 // 	os << endl;
-// 	// std::map<short, Brush>::const_iterator cbiter = g.m_brushes.begin();
+// 	// std::map<int, Brush>::const_iterator cbiter = g.m_brushes.begin();
 // 	// for (; cbiter !=  g.m_brushes.end(), cbiter++) {
 // 	// 	// os << *cbiter;
 // 	// }

@@ -15,17 +15,7 @@ def _get_service():
         creds = tools.run_flow(flow, STORE)
     service = build('sheets', 'v4', http=creds.authorize(Http()))
     return service
-
-
-# def get_raw_brushes_data():
-#     service = _get_service()
-#     result = service.spreadsheets().values().get(
-#         spreadsheetId=SHEETS["Measurements"],
-#         range='Brushes!A2:J18').execute()
-#     values = result.get('values', [])
-#     return values
-
-
+ 
 
 def get_measurements_values(cell_range, service, dimension="ROWS"):
     result = service.spreadsheets().values().get(
@@ -49,17 +39,21 @@ def get_named_header(search_str, sheet_name,  service):
                     row = (x+i+1)
                     cell_range = "%s!A%d:B%d"  % (sheet_name,row,row)
                     header_values = get_measurements_values(cell_range,service)[0]
-                    header_values.append(row)
-                    return tuple(header_values)
+                    # header_values.append(row)
+                    return {
+                        "name":header_values[0],
+                        "args": header_values[1:],
+                        "first_row": row
+                    }
+                    # return tuple(header_values)
 
 
 def get_resource_by_name(name, resource):
     service = _get_service()
-    header = get_named_header(name, resource, service)
-    print "In get_resource_by_name - "
-    if header:
-        name, desc, row = header
-        print "name, desc %s %s" % (name, desc)
+    result = get_named_header(name, resource, service)
+    if result:
+        row = result["first_row"]
+        # print "name: %s" % header["name"]
         cell_range = "%s!A%d:Z%d"  % (resource, row+1,row+64)
         data =  get_measurements_values(cell_range,service)
         new_data = []
@@ -67,7 +61,9 @@ def get_resource_by_name(name, resource):
             if len(entry) == 0:
                 break
             new_data.append(entry)
-        return tuple([name, desc, new_data])
+
+        result["data"] = new_data
+    return result
 
 
 

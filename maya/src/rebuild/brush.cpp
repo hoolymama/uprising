@@ -5,109 +5,290 @@
 #include <maya/MString.h>
 #include "brush.h"
 
+// void Brush::factory(MArrayDataHandle &ha, std::map<int, Brush>)
+// {
+// 	MStatus st;
+// 	std::map<int, Brush> result;
+
+// 	result[-1] = Brush();
+
+// 	unsigned nPlugs = ha.elementCount();
+// 	for (unsigned i = 0; i < nPlugs; i++, ha.next()) {
+// 		int index = ha.elementIndex(&st);
+// 		if (st.error()) {
+// 			continue;
+// 		}
+// 		MDataHandle h = ha.inputValue(&st);
+// 		if (st.error()) {
+// 			continue;
+// 		}
+
+// 		MObject d = h.data();
+// 		MFnPluginData fnP( d , &st);
+// 		if (st.error()) {
+// 			continue;
+// 		}
+// 		brushData *bData = (brushData *)fnPt.data();
+
+// 		result[index] = *(bData->fGeometry);
+// 	}
+// 	return result;
+// }
 
 
 Brush::Brush() :
-	id(-1),
-	physicalId(-1),
-	width(1.0),
-	retention(1.0),
-	tip(0),
-	shape(Brush::kRound),
-	customId(-1)
+	m_physicalId(-1),
+	m_width(1.0f),
+	m_bristleHeight(1.0f),
+	m_retention(1.0f),
+	m_tip(),
+	m_shape(Brush::kRound),
+	m_transHeightParam(1.0)
 {}
+
 
 Brush::Brush(
-  short id,
-  short physicalId,
-  double width,
-  double retention,
-  double tip,
+  int physicalId,
+  const MFloatVector &tip,
+  float bristleHeight,
+  float tcpParam,
+  float width,
   Shape shape,
-  short customId,
-  double transHeight,
-  double transPower) :
-	id(id),
-	physicalId(physicalId),
-	width(width),
-	retention(retention),
-	tip(tip),
-	shape(shape),
-	customId(customId),
-	transHeight(transHeight * tip),
-	transPower(transPower)
+  float retention,
+  float transHeightParam)
+	:
+	m_physicalId(physicalId),
+	m_tip(tip),
+	m_bristleHeight(bristleHeight),
+	m_tcpParam(tcpParam),
+	m_width(width),
+	m_shape(shape),
+	m_retention(retention),
+	m_transHeightParam(transHeightParam)
+{
+	// cerr << "Brush ctor : " <<  bristleHeight << " -->> " << m_bristleHeight << endl;
 
-{}
+
+}
 
 Brush::~Brush() {}
 
-std::map<short, Brush> Brush::factory(
-  MArrayDataHandle &ha,
-  MObject &widthAttribute,
-  MObject &retentionAttribute,
-  MObject &tipAttribute,
-  MObject &physicalIdAttribute,
-  MObject &shapeAttribute,
-  MObject &customIdAttribute,
-  MObject &transHeightAttribute ,
-  MObject &transPowerAttribute)
+MFloatMatrix Brush::tcp() const
 {
-	MStatus st;
-	std::map<short, Brush> result;
 
-	result[-1] = Brush();
+	MFloatMatrix result;
+	result.setToIdentity();
+	MFloatVector p(m_tip - MFloatVector( 0.0,  0.0, (m_bristleHeight * m_tcpParam)));
 
-	unsigned nPlugs = ha.elementCount();
-	for (unsigned i = 0; i < nPlugs; i++, ha.next()) {
-		short index = short(ha.elementIndex(&st));
-		if (st.error()) {
-			continue;
-		}
-		MDataHandle hComp = ha.inputValue(&st );
-		if (st.error()) {
-			continue;
-		}
-		short physicalId = hComp.child(physicalIdAttribute).asShort();
-		double width =  hComp.child(widthAttribute).asDouble() ;
-		double retention = hComp.child(retentionAttribute).asDouble() ;
-		double tip = hComp.child(tipAttribute).asDouble() ;
-		Shape shape = Shape(hComp.child(shapeAttribute).asShort()) ;
-		short customId = hComp.child(customIdAttribute).asShort();
-
-		double transHeight = hComp.child(transHeightAttribute).asDouble();
-		double transPower = hComp.child(transPowerAttribute).asDouble();
-
-		result[index] = Brush(
-		                  index,
-		                  physicalId,
-		                  width,
-		                  retention,
-		                  tip,
-		                  shape,
-		                  customId,
-		                  transHeight,
-		                  transPower);
-	}
+	result[3][0] = p.x;
+	result[3][1] = p.y;
+	result[3][2] = p.z;
 	return result;
 }
 
 
+void appendCube(const MFloatPointArray &verts, MFloatPointArray &triangles)
+{
+	// base
+	triangles.append(verts[0]);
+	triangles.append(verts[1]);
+	triangles.append(verts[3]);
 
+	triangles.append(verts[3]);
+	triangles.append(verts[1]);
+	triangles.append(verts[2]);
+
+	// front
+	triangles.append(verts[0]);
+	triangles.append(verts[4]);
+	triangles.append(verts[5]);
+
+	triangles.append(verts[0]);
+	triangles.append(verts[5]);
+	triangles.append(verts[1]);
+
+	// right
+	triangles.append(verts[1]);
+	triangles.append(verts[5]);
+	triangles.append(verts[6]);
+
+	triangles.append(verts[1]);
+	triangles.append(verts[6]);
+	triangles.append(verts[2]);
+
+	// back
+	triangles.append(verts[2]);
+	triangles.append(verts[6]);
+	triangles.append(verts[7]);
+
+	triangles.append(verts[2]);
+	triangles.append(verts[7]);
+	triangles.append(verts[3]);
+
+	// left
+	triangles.append(verts[3]);
+	triangles.append(verts[7]);
+	triangles.append(verts[4]);
+
+	triangles.append(verts[3]);
+	triangles.append(verts[4]);
+	triangles.append(verts[0]);
+
+	// top
+	triangles.append(verts[4]);
+	triangles.append(verts[7]);
+	triangles.append(verts[6]);
+
+	triangles.append(verts[4]);
+	triangles.append(verts[6]);
+	triangles.append(verts[5]);
+}
+
+void Brush::getTriangles(MFloatPointArray &triangles) const
+{
+
+	float majorRadius = m_width * 0.5;
+	float minorRadius = majorRadius;
+	float ferruleHeight = 1.0f;
+
+	if (m_shape == Brush::kFlat)
+	{
+		minorRadius = majorRadius * 0.2;
+	}
+
+	float handleRadius = 0.5f;
+	float handleHeight = m_tip.z - (m_bristleHeight + ferruleHeight);
+	MFloatPoint baseCenter(m_tip.x, m_tip.y, 0.0);
+	MFloatPoint handleTopCenter(m_tip.x, m_tip.y, handleHeight);
+	// HANDLE
+	MFloatPointArray verts;
+	verts.append(baseCenter + MFloatVector(-handleRadius, handleRadius, 0.0 ));
+	verts.append(baseCenter + MFloatVector(-handleRadius, -handleRadius, 0.0 ));
+	verts.append(baseCenter + MFloatVector(handleRadius, -handleRadius, 0.0 ));
+	verts.append(baseCenter + MFloatVector(handleRadius, handleRadius, 0.0 ));
+	verts.append(handleTopCenter + MFloatVector(-handleRadius, handleRadius, 0.0 ));
+	verts.append(handleTopCenter + MFloatVector(-handleRadius, -handleRadius, 0.0 ));
+	verts.append(handleTopCenter + MFloatVector(handleRadius,  -handleRadius, 0.0 ));
+	verts.append(handleTopCenter + MFloatVector(handleRadius, handleRadius, 0.0 ));
+	appendCube(verts, triangles);
+
+	// FERRULE
+	verts.clear();
+	MFloatPoint ferruleTopCenter(m_tip.x, m_tip.y, handleHeight + ferruleHeight);
+	verts.append(handleTopCenter + MFloatVector(-handleRadius, handleRadius, 0.0 ));
+	verts.append(handleTopCenter + MFloatVector(-handleRadius, -handleRadius, 0.0 ));
+	verts.append(handleTopCenter + MFloatVector(handleRadius,  -handleRadius, 0.0 ));
+	verts.append(handleTopCenter + MFloatVector(handleRadius, handleRadius, 0.0 ));
+
+	verts.append(ferruleTopCenter + MFloatVector(-majorRadius, minorRadius, 0.0 ));
+	verts.append(ferruleTopCenter + MFloatVector(-majorRadius, -minorRadius, 0.0 ));
+	verts.append(ferruleTopCenter + MFloatVector(majorRadius,  -minorRadius, 0.0 ));
+	verts.append(ferruleTopCenter + MFloatVector(majorRadius, minorRadius, 0.0 ));
+	appendCube(verts, triangles);
+
+	// BRISTLE LOWER
+	verts.clear();
+	MFloatPoint halfBristleTopCenter(m_tip.x, m_tip.y,
+	                                 handleHeight + ferruleHeight + (m_bristleHeight * 0.5));
+	verts.append(ferruleTopCenter + MFloatVector(-majorRadius, minorRadius, 0.0 ));
+	verts.append(ferruleTopCenter + MFloatVector(-majorRadius, -minorRadius, 0.0 ));
+	verts.append(ferruleTopCenter + MFloatVector(majorRadius,  -minorRadius, 0.0 ));
+	verts.append(ferruleTopCenter + MFloatVector(majorRadius, minorRadius, 0.0 ));
+
+	verts.append(halfBristleTopCenter + MFloatVector(-majorRadius, minorRadius, 0.0 ));
+	verts.append(halfBristleTopCenter + MFloatVector(-majorRadius, -minorRadius, 0.0 ));
+	verts.append(halfBristleTopCenter + MFloatVector(majorRadius,  -minorRadius, 0.0 ));
+	verts.append(halfBristleTopCenter + MFloatVector(majorRadius, minorRadius, 0.0 ));
+	appendCube(verts, triangles);
+
+	// BRISTLE UPPER
+	verts.clear();
+	MFloatPoint tipCenter(m_tip.x, m_tip.y,  m_tip.z);
+
+	float tipMajorRadius = majorRadius;
+	float tipMinorRadius = majorRadius * 0.1;
+	if (m_shape == Brush::kRound)
+	{
+		tipMajorRadius = majorRadius * 0.05;
+		tipMinorRadius = tipMajorRadius;
+	}
+
+	verts.append(halfBristleTopCenter + MFloatVector(-majorRadius, minorRadius, 0.0 ));
+	verts.append(halfBristleTopCenter + MFloatVector(-majorRadius, -minorRadius, 0.0 ));
+	verts.append(halfBristleTopCenter + MFloatVector(majorRadius, -minorRadius, 0.0 ));
+	verts.append(halfBristleTopCenter + MFloatVector(majorRadius, minorRadius, 0.0 ));
+
+	verts.append(tipCenter + MFloatVector(-tipMajorRadius, tipMinorRadius, 0.0 ));
+	verts.append(tipCenter + MFloatVector(-tipMajorRadius, -tipMinorRadius, 0.0 ));
+	verts.append(tipCenter + MFloatVector(tipMajorRadius, -tipMinorRadius, 0.0 ));
+	verts.append(tipCenter + MFloatVector(tipMajorRadius, tipMinorRadius, 0.0 ));
+	appendCube(verts, triangles);
+
+
+	// SLAB AT TCP
+	MFloatPoint tcpCenter(m_tip.x, m_tip.y, m_tip.z - (m_bristleHeight * m_tcpParam));
+	MFloatPoint tcpBaseCenter(m_tip.x, m_tip.y,
+	                          m_tip.z - ((m_bristleHeight * m_tcpParam) + 0.1));
+
+	float tcpMajorRadius = majorRadius + 0.1;
+	float tcpMinorRadius = minorRadius + 0.1;
+	verts.clear();
+
+	verts.append(tcpBaseCenter  + MFloatVector(-tipMajorRadius, tipMinorRadius, 0.0 ));
+	verts.append(tcpBaseCenter  + MFloatVector(-tipMajorRadius, -tipMinorRadius, 0.0 ));
+	verts.append(tcpBaseCenter  + MFloatVector(tipMajorRadius, -tipMinorRadius, 0.0 ));
+	verts.append(tcpBaseCenter  + MFloatVector(tipMajorRadius, tipMinorRadius, 0.0 ));
+
+	verts.append(tcpCenter + MFloatVector(-tcpMajorRadius, tcpMinorRadius, 0.0 ));
+	verts.append(tcpCenter + MFloatVector(-tcpMajorRadius, -tcpMinorRadius, 0.0 ));
+	verts.append(tcpCenter + MFloatVector(tcpMajorRadius, -tcpMinorRadius, 0.0 ));
+	verts.append(tcpCenter + MFloatVector(tcpMajorRadius, tcpMinorRadius, 0.0 ));
+	appendCube(verts, triangles);
+
+}
+
+const float &Brush::retention() const
+{
+	return m_retention;
+}
+
+float Brush::transHeight() const
+{
+	return m_transHeightParam * m_bristleHeight * m_tcpParam;
+}
+
+int Brush::physicalId() const
+{
+	return m_physicalId;
+}
+
+const float &Brush::width() const
+{
+	return m_width;
+}
+
+Brush::Shape Brush::shape() const
+{
+	return m_shape;
+}
+
+bool Brush::matches(Shape filter) const
+{
+	return (filter == m_shape) || (filter == Brush::kAll);
+}
 
 ostream &operator<<(ostream &os, const Brush &b)
 {
 
 	MString shapeStr  =  "flat";
-	if (b.shape == Brush::kRound) {
+	if (b.m_shape == Brush::kRound) {
 		shapeStr = "round";
 	}
-	os << " id:" << b.id;
-	os << " width:" << b.width;
-	os << " retention:" << b.retention;
-	os << " tip:" << b.tip;
-	os << " physicalId:" << b.physicalId;
-	os << " customId:" << b.physicalId;
 
+	os << " width:" << b.m_width;
+	os << " retention:" << b.m_retention;
+	os << " tip:" << b.m_tip;
+	os << " physicalId:" << b.m_physicalId;
 	os << " shape:" << shapeStr;
 	return os;
 }

@@ -67,7 +67,6 @@ public:
     kLayerId,
     kCustomBrushId,
     kCustomPaintId
-
   };
 
 
@@ -76,6 +75,8 @@ public:
   static MObject aInMatrix;
 
 private:
+
+  MStatus collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes);
 
   MStatus addStrokes(MDataBlock &data, paintingGeom *pGeom);
 
@@ -140,15 +141,15 @@ private:
   static MObject aMaxPointToPointDistance; // cm
 
 
-  static MObject  aBrushMatrix;
-  static MObject  aBrushRetention;
-  static MObject  aBrushWidth;
-  static MObject  aBrushShape;
-  static MObject  aBrushTip;
-  static MObject  aBrushPhysicalId;
-  static MObject  aBrushCustomId;
-  static MObject  aBrushTransitionHeight;
-  static MObject  aBrushTransitionPower;
+  // static MObject  aBrushMatrix;
+  // static MObject  aBrushRetention;
+  // static MObject  aBrushWidth;
+  // static MObject  aBrushShape;
+  // static MObject  aBrushTip;
+  // static MObject  aBrushPhysicalId;
+  // static MObject  aBrushCustomId;
+  // static MObject  aBrushTransitionHeight;
+  // static MObject  aBrushTransitionPower;
 
   static MObject  aBrushes;
 
