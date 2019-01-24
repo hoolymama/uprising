@@ -1,15 +1,11 @@
-import sys
+ 
 import pymel.core as pm
 import curve_utils as cutl
 import uprising_util as uutl
 
-import stroke_factory_utils as sfu
+ 
 import pymel.core.uitypes as gui
-from studio import Studio
-from robolink import (
-    Robolink
-)
-
+  
 
 class RingsSetupTab(gui.FormLayout):
 

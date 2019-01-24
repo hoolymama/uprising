@@ -24,42 +24,12 @@ brushData::~brushData()
 	}
 }
 
-/*
-brush	*brushData::geometry() const {
-	return m_pGeometry;
-}
-*/
-// clean up
-/*void	brushData::clear() {
-	if (m_pGeometry) {
-		delete m_pGeometry; m_pGeometry = 0;
-	}
-}*/
-/*
-MStatus brushData::create()
-{
-
-	MStatus st = MS::kSuccess;
-	clear();
-	m_pGeometry = new paintingGeom();
-
-	if (! m_pGeometry) {
-		return MS::kFailure;
-	}
-	return MS::kSuccess;
-}*/
 
 void brushData::copy ( const MPxData &other )
 {
 	*fGeometry = *(((const brushData &)other).fGeometry);
 }
 
-// brushData &brushData::operator=(const brushData &otherData ) {
-// 	if (this != &otherData ) {
-// 		fGeometry = otherData.fGeometry;
-// 	}
-// 	return *this;
-// }
 MTypeId brushData::typeId() const
 {
 	return brushData::id;

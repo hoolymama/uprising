@@ -1,6 +1,7 @@
 import errno
 import os
 import sys
+import re
 import datetime
 import pymel.core as pm
 import uprising_util as uutl
@@ -69,6 +70,32 @@ def publish_proposal(
         clean_top)
  
 
+def _get_dip_wipe_packs():
+    result = {}
+    racks = ["rack1"]
+    paint_regex = re.compile(r"^.*_(\d+)\|holeTrans$")
+    brush_regex = re.compile(r"^.*\|holeTrans\|.*\|b(\d+)\|.*$")
+
+    holes = pm.ls("rack*|holes|holeRot_*|holeTrans")
+    for hole in holes:
+        paint_id = "p{}".format(paint_regex.match(str(hole)).groups()[0])
+
+        result[paint_id] = {}
+        dip_shapes = pm.ls(
+            "{}|dip_loc|*".format(holes[0]), dag=True, leaf=True, type="painting")
+        wipe_shapes = pm.ls(
+            "{}|wipe_loc|*".format(holes[0]), dag=True, leaf=True, type="painting")
+        dip_wipes = zip(dip_shapes, wipe_shapes)
+        for dw in dip_wipes:
+            brush_id = "b{}".format(
+                brush_regex.match(str(dw[0])).groups()[0])
+            result[paint_id][brush_id] = {
+                "dip": dw[0],
+                "wipe": dw[1],
+                "name": "{}_{}".format(paint_id, brush_id)
+            }
+    return result
+
 def run_hook(code):
     if not code:
         return
@@ -85,11 +112,11 @@ def run_hook(code):
     res = method(*args, **kw)
     print res
 
-
+   
 def publish_sequence(
         export_dir,
         painting_node,
-        dip_node,
+        dip_wipe_packs,
         description,
         medium,
         ground,
@@ -103,6 +130,10 @@ def publish_sequence(
     # print "x" * 20
     # print "painting_node: %s" % painting_node
     # print "dip_node: %s" % dip_node
+
+    painting_node = pm.PyNode("mainPaintingShape")
+    dip_wipe_packs = _get_dip_wipe_packs()
+
 
     recordings_dir = os.path.join(export_dir, "recordings")
     mkdir_p(recordings_dir)
@@ -137,7 +168,7 @@ def publish_sequence(
 
         write_log(
             painting_node,
-            dip_node,
+            dip_wipe_packs,
             ts_dir,
             timestamp,
             desc,
@@ -148,7 +179,7 @@ def publish_sequence(
             kw = {}
             if do_painting:
                 kw["painting_node"] = painting_node
-                kw["dip_node"] = dip_node
+                kw["dip_wipe_packs"] = dip_wipe_packs
             if do_verify:
                 kw["verification_node"] = painting_node
 

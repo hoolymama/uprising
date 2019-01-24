@@ -13,8 +13,7 @@ from paint import Paint
 from brush import Brush
 # from stroke import Stroke
 from cluster import (PaintingCluster, DipCluster)
-# from studio import Studio
-
+ 
 from uprising_util import PaintingError
 import uprising_util as uutl
 import const as k
@@ -43,16 +42,15 @@ class Painting(object):
             "angular_speed": self.node.attr("angularSpeed").get(),
             "rounding": self.node.attr("approximationDistance").get() * 10
         }
-        logger.debug("Done initialize Painting")
+        # logger.debug("Done initialize Painting")
 
-    def create_clusters(self, c_type, robot):
+    def create_clusters(self, robot):
 
         logger.debug("Create clusters")
 
         num_clusters = pm.paintingQuery(self.node, clusterCount=True)
         logger.debug("Number of clusters: %d" % num_clusters)
         for i in range(num_clusters):
-
             brush_id = pm.paintingQuery(
                 self.node, clusterIndex=i, clusterBrushId=True)
             paint_id = pm.paintingQuery(
@@ -61,22 +59,22 @@ class Painting(object):
             brush = self.brushes.get(brush_id)
             paint = self.paints.get(paint_id)
             logger.debug("Cluster %d: p=%d, b=%d" % (i, paint_id, brush_id))
-            if c_type == "painting":
-                cluster = PaintingCluster(
-                    i,
-                    self.node,
-                    robot,
-                    brush,
-                    paint)
-                self.clusters.append(cluster)
-            else:
-                cluster = DipCluster(
-                    i,
-                    self.node,
-                    robot,
-                    brush,
-                    paint)
-                self.clusters.append(cluster)
+            
+            cluster = PaintingCluster(
+                i,
+                self.node,
+                robot,
+                brush,
+                paint)
+            self.clusters.append(cluster)
+            # else:
+            #     cluster = DipCluster(
+            #         i,
+            #         self.node,
+            #         robot,
+            #         brush,
+            #         paint)
+            #     self.clusters.append(cluster)
 
     def write(self, studio):
 
@@ -87,6 +85,22 @@ class Painting(object):
 
         for cluster in self.clusters:
             cluster.write(studio, self.motion)
+
+
+
+
+
+class DipProgram(object):
+    def __init__(self, node_pack, robot):
+        self.dip_painting = Painting(node_pack["dip"])
+        self.wipe_painting = Painting(node_pack["wipe"])
+        self.program_name = node_pack["name"]
+
+       
+        
+
+
+
 
 
 class Calibration(Painting):

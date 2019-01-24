@@ -1,15 +1,13 @@
 
-from robolink import (Robolink,  INSTRUCTION_SHOW_MESSAGE,  INSTRUCTION_COMMENT,  INSTRUCTION_CALL_PROGRAM)
+from robolink import (  INSTRUCTION_SHOW_MESSAGE,  INSTRUCTION_COMMENT,  INSTRUCTION_CALL_PROGRAM)
 
-import robodk as rdk
+ 
 
-from uprising_util import StrokeError, ClusterError
+from uprising_util import ClusterError
 from stroke import Stroke
 import uprising_util as uutl
 import pymel.core as pm
-
-import const as k
-
+ 
 
 import logging
 logger = logging.getLogger('uprising')
@@ -115,29 +113,61 @@ class PaintingCluster(Cluster):
         super(PaintingCluster, self).write(studio, program,frame, motion)
 
 
-class DipCluster(Cluster ):
+# class DipCluster(Cluster ):
 
-    def name(self):
-        return "dx_c%s" % (self.id)
+#     def name(self):
+#         return "dx_c%s" % (self.id)
 
-    @staticmethod
-    def generate_program_name(paint_id, brush_id):
-        return "dip_p%02d_b%02d" % (paint_id, brush_id)
+#     @staticmethod
+#     def generate_program_name(paint_id, brush_id):
+#         return "dip_p%02d_b%02d" % (paint_id, brush_id)
 
 
-    def write(self, studio, motion):
-        frame = studio.dip_frame
-        dip_program_name = DipCluster.generate_program_name(
-            self.paint.id, self.brush.id)
-        program = uutl.create_program(dip_program_name)
+#     def write(self, studio, motion):
+#         frame = studio.dip_frame
+#         dip_program_name = DipCluster.generate_program_name(
+#             self.paint.id, self.brush.id)
+#         program = uutl.create_program(dip_program_name)
  
-        program.RunInstruction("Dip with tool %s" % self.brush.name, INSTRUCTION_COMMENT)
-        logger.debug( "dip approach is %s" % studio.dip_approach.Name())
+#         program.RunInstruction("Dip with tool %s" % self.brush.name, INSTRUCTION_COMMENT)
+#         logger.debug( "dip approach is %s" % studio.dip_approach.Name())
  
-        program.addMoveJ(studio.dip_approach)
-        super(DipCluster, self).write(studio, program, frame, motion)
-        program.addMoveJ(studio.dip_approach)
-        program.ShowInstructions(False)
+#         program.addMoveJ(studio.dip_approach)
+#         super(DipCluster, self).write(studio, program, frame, motion)
+#         program.addMoveJ(studio.dip_approach)
+#         program.ShowInstructions(False)
+
+
+
+# class WipeCluster(Cluster ):
+
+#     def name(self):
+#         return "wx_c%s" % (self.id)
+
+#     @staticmethod
+#     def generate_program_name(paint_id, brush_id):
+#         return "wipe_p%02d_b%02d" % (paint_id, brush_id)
+
+
+#     def write(self, studio, motion):
+#         frame = studio.dip_frame
+#         dip_program_name = DipCluster.generate_program_name(
+#             self.paint.id, self.brush.id)
+#         program = uutl.create_program(dip_program_name)
+ 
+#         program.RunInstruction("Wipe with tool %s" % self.brush.name, INSTRUCTION_COMMENT)
+#         logger.debug( "dip approach is %s" % studio.dip_approach.Name())
+ 
+#         program.addMoveJ(studio.dip_approach)
+#         super(DipCluster, self).write(studio, program, frame, motion)
+#         program.addMoveJ(studio.dip_approach)
+#         program.ShowInstructions(False)
+
+
+
+
+
+
     # def write(self, studio):
     #     logger.debug("Write cluster")
 

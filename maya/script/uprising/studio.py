@@ -12,8 +12,8 @@ from robolink import (
 from paint import Paint
 import props
 # from brush import Brush
-import painting as ptg 
-# from painting import Calibration 
+import painting as ptg
+# from painting import Calibration
 
 # from contextlib import contextmanager
 # import stroke_factory_utils as sfu
@@ -31,7 +31,7 @@ class StudioError(Exception):
 class Studio(object):
     """Glue together the entire studio."""
 
-    def __init__(self, **kw ):
+    def __init__(self, **kw):
         self.RL = Robolink()
 
         self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
@@ -48,21 +48,20 @@ class Studio(object):
         self.calibration = None
         self.verification = None
 
-        dip_node = kw.get("dip_node")
+        dw_nodes = kw.get("dip_wipe_nodes")
         ptg_node = kw.get("painting_node")
         cal_node = kw.get("calibration_node")
         ver_node = kw.get("verification_node")
 
         print "---------------------"
-        print "ptg_node %s" % ptg_node
-        print "dip_node %s" % dip_node
+        print "ptg_node %s , and dw_nodes:" % ptg_node
+        print  dw_nodes
 
-
-        if dip_node:
-            logger.debug("Studio dip_node %s" % dip_node)
-            with uutl.final_position(dip_node):
-                self.dip = ptg.Painting(dip_node)
-                self.dip.create_clusters("dip", self.robot)
+        if dw_nodes:
+            logger.debug("Studio dw_nodes %s")
+            # with uutl.final_position(dip_node):
+            self.dip = ptg.Painting(dip_node)
+            self.dip.create_clusters("dip", self.robot)
 
         if ptg_node:
             logger.debug("Studio ptg_node %s" % ptg_node)
@@ -70,24 +69,24 @@ class Studio(object):
                 self.painting = ptg.Painting(ptg_node)
                 self.painting.create_clusters("painting", self.robot)
 
-        if cal_node: 
+        if cal_node:
             logger.debug("Studio cal_node %s" % cal_node)
             with uutl.final_position(cal_node):
                 self.calibration = ptg.Calibration(cal_node)
-        
-        if ver_node: 
+
+        if ver_node:
             logger.debug("Studio ver_node %s" % ver_node)
             with uutl.final_position(ver_node):
                 self.verification = ptg.Verification(ver_node)
 
-
     def _write_canvas(self):
-        
+
         canvas_frame = uutl.create_frame("cx_frame")
-        painting_node =  pm.PyNode("mainPaintingShape")
+        painting_node = pm.PyNode("mainPaintingShape")
         disp_tx = None
         with uutl.zero_position(painting_node):
-            disp_meshes = pm.listConnections(painting_node.attr("displacementMesh"), s=True, d=False)
+            disp_meshes = pm.listConnections(
+                painting_node.attr("displacementMesh"), s=True, d=False)
             if disp_meshes:
                 # disp_tf = disp_meshes[0].getParent()
                 dups = pm.duplicate(disp_meshes[0])
@@ -102,12 +101,10 @@ class Studio(object):
         #     if canvas:
         #         props.send(canvas, canvas_frame)
 
-
-
     def write(self):
         """Clean up and make parent objects etc."""
         # should_clean = True
-        # if (self.painting and self.dip) or self.calibration: 
+        # if (self.painting and self.dip) or self.calibration:
         uutl.delete_programs()
         logger.debug("_write_canvas")
         self._write_canvas()
@@ -155,7 +152,6 @@ class Studio(object):
                 self.calibration.write(self)
             logger.debug("DONE write calibration")
 
-
         if self.verification:
             logger.debug("write verification")
             with uutl.final_position(self.verification.node):
@@ -179,7 +175,6 @@ class Studio(object):
         target.setAsJointTarget()
         target.setJoints(joints)
         return target
-
 
     # def write_calibration(self):
     #     cal_program = uutl.create_program("xx")
@@ -221,8 +216,6 @@ class Studio(object):
     #     probes["BL"]["nice"] = "Bottom Left"
     #     probes["BR"]["nice"] = "Bottom Right"
     #     probes["C"]["nice"] = "Center"
-        
-
 
     #     motion = self.painting.motion
     #     cal_program.setSpeed(
@@ -245,7 +238,6 @@ class Studio(object):
     #         (brush.name, brush.physical_id),
     #         INSTRUCTION_SHOW_MESSAGE)
     #     cal_program.Pause()
-
 
     #     self.do_one_probe(cal_program, probes["TL"])
     #     self.do_one_probe(cal_program, probes["TR"])

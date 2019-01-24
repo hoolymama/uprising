@@ -1,23 +1,14 @@
 import sys
 import os
+import re
 import pymel.core as pm
 import write
 import datetime
-# import setup_dip
-# import curve_utils as cutl
-# import brush_utils as butl
-# import paint_utils as putl
 import uprising_util as uutl
-import setup_dip
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
-# import painting as pnt
-from studio import Studio
 
 import callbacks
-from robolink import (
-    Robolink
-)
 
 
 class PublishTab(gui.FormLayout):
@@ -318,11 +309,7 @@ class PublishTab(gui.FormLayout):
                     value2=True))
 
         desc = pm.scrollField(self.description_tf, q=True, text=True)
-        painting_node = pm.PyNode("mainPaintingShape")
-        dip_node = pm.PyNode("dipPaintingShape")
 
-        # maya_only = pm.checkBoxGrp(
-        #     self.save_maya_only_cb, query=True, value1=True)
         save_unfiltered_snapshot = pm.checkBoxGrp(
             self.save_unfiltered_snapshot, query=True, value1=True)
 
@@ -338,8 +325,6 @@ class PublishTab(gui.FormLayout):
 
         write.publish_sequence(
             export_dir,
-            painting_node,
-            dip_node,
             desc,
             medium,
             ground,
@@ -349,6 +334,7 @@ class PublishTab(gui.FormLayout):
             save_unfiltered_snapshot,
             pre_frame_py
         )
+
 
     def make_snapshot(self):
         res = pm.intFieldGrp(self.snap_size_if, query=True, value1=True)

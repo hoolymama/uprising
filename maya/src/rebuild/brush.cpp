@@ -5,37 +5,6 @@
 #include <maya/MString.h>
 #include "brush.h"
 
-// void Brush::factory(MArrayDataHandle &ha, std::map<int, Brush>)
-// {
-// 	MStatus st;
-// 	std::map<int, Brush> result;
-
-// 	result[-1] = Brush();
-
-// 	unsigned nPlugs = ha.elementCount();
-// 	for (unsigned i = 0; i < nPlugs; i++, ha.next()) {
-// 		int index = ha.elementIndex(&st);
-// 		if (st.error()) {
-// 			continue;
-// 		}
-// 		MDataHandle h = ha.inputValue(&st);
-// 		if (st.error()) {
-// 			continue;
-// 		}
-
-// 		MObject d = h.data();
-// 		MFnPluginData fnP( d , &st);
-// 		if (st.error()) {
-// 			continue;
-// 		}
-// 		brushData *bData = (brushData *)fnPt.data();
-
-// 		result[index] = *(bData->fGeometry);
-// 	}
-// 	return result;
-// }
-
-
 Brush::Brush() :
 	m_physicalId(-1),
 	m_width(1.0f),

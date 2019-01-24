@@ -3,19 +3,9 @@ import os
 import pymel.core as pm
 import write
 import datetime
-# import setup_dip
-# import curve_utils as cutl
-# import brush_utils as butl
-import uprising_util as uutl
 
-import setup_dip
 import stroke_factory_utils as sfu
 import pymel.core.uitypes as gui
-# import painting as pnt
-from studio import Studio
-from robolink import (
-    Robolink
-)
  
 
 class ProposalTab(gui.FormLayout):

@@ -4,8 +4,6 @@ import pymel.core as pm
 import random
 from robolink import (
     Robolink,
-    ITEM_TYPE_STATION,
-    ITEM_TYPE_PROGRAM,
     COLLISION_OFF)
 import write
 import props
@@ -61,15 +59,15 @@ class ValidateTab(gui.FormLayout):
                 180,
                 120))
 
-        self.anim_row = pm.rowLayout(numberOfColumns=2,
-                                     columnWidth2=(
-                                         (390), 100),
-                                     columnAlign=(1, 'right'),
-                                     columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+        self.anim_row = pm.rowLayout(
+            numberOfColumns=2, columnWidth2=(
+                (390), 100), columnAlign=(
+                1, 'right'), columnAttach=[
+                (1, 'both', 2), (2, 'both', 2)])
 
         min_frame = int(pm.playbackOptions(min=True, query=True))
         max_frame = int(pm.playbackOptions(max=True, query=True))
- 
+
         self.frame_if = pm.intFieldGrp(
             label="Frames to validate",
             numberOfFields=2,
@@ -108,8 +106,13 @@ class ValidateTab(gui.FormLayout):
 
         pm.columnLayout(adj=True)
         self.varying_node_wg = pm.radioButtonGrp(
-            label='Varying node', labelArray3=[
-                 "Selected", "Shape", "curveStroke"], sl=1, numberOfRadioButtons=3)
+            label='Varying node',
+            labelArray3=[
+                "Selected",
+                "Shape",
+                "curveStroke"],
+            sl=1,
+            numberOfRadioButtons=3)
         self.varying_attrib_wg = pm.textFieldGrp(label='Attribute', text='rz')
         self.varying_range_wg = pm.floatFieldGrp(
             numberOfFields=2, label='Range', value1=0, value2=360.0)
@@ -133,10 +136,8 @@ class ValidateTab(gui.FormLayout):
         state = pm.checkBox(self.current_frame_cb, query=True, value=True)
         pm.intFieldGrp(self.frame_if, edit=True, enable=(not state))
 
-
     def initialize_ui(self):
         self.on_collapse_change()
- 
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -186,7 +187,7 @@ class ValidateTab(gui.FormLayout):
             "instructions": update_result[0],
             "time": update_result[1],
             "distance": update_result[2],
-            "completion":  update_result[3],
+            "completion": update_result[3],
             "problems": update_result[4],
             "status": "SUCCESS" if (update_result[3] == 1.0) else "FAILURE"
         }
@@ -212,34 +213,28 @@ status        : %s
                 text += "%s : %s\n" % (k, metadata[k])
         return text
 
-
-
-
-
-
     def do_simple_validation(self):
 
-
-        send = pm.checkBoxGrp( self.send_paintings_cb, query=True, valueArray4=True)
-
+        send = pm.checkBoxGrp(
+            self.send_paintings_cb,
+            query=True,
+            valueArray4=True)
 
         kw = {}
         if send[0]:
-            kw["painting_node"] = pm.PyNode( "mainPaintingShape") 
+            kw["painting_node"] = pm.PyNode("mainPaintingShape")
         if send[1]:
             kw["dip_node"] = pm.PyNode("dipPaintingShape")
         if send[2]:
-            kw["calibration_node"] = pm.PyNode( "mainPaintingShape") 
+            kw["calibration_node"] = pm.PyNode("mainPaintingShape")
         if send[3]:
-            kw["verification_node"] = pm.PyNode( "mainPaintingShape") 
+            kw["verification_node"] = pm.PyNode("mainPaintingShape")
 
         send_selected_props = pm.checkBoxGrp(
             self.send_selected_props_cb, query=True, value1=True)
 
-
-
         result = []
-        
+
         if sum(send):
             current_only = pm.checkBox(
                 self.current_frame_cb, query=True, value=True)
@@ -259,7 +254,7 @@ status        : %s
 
             try:
                 with uutl.minimize_robodk():
-                    for f in range(frames[0], (frames[1]+1)):
+                    for f in range(frames[0], (frames[1] + 1)):
                         pm.currentTime(f)
 
                         studio = Studio(**kw)
@@ -268,8 +263,9 @@ status        : %s
                         if kw.get("painting_node"):
                             p_stats = write.painting_stats(kw["painting_node"])
                             p_stats["frame"] = f
-                            validation_info = self.validate_path(studio.painting_program) 
-                            result.append( (validation_info , p_stats ))
+                            validation_info = self.validate_path(
+                                studio.painting_program)
+                            result.append((validation_info, p_stats))
 
             except Exception:
                 t, v, tb = sys.exc_info()
@@ -293,33 +289,40 @@ status        : %s
 
         if send_selected_props:
             props.send(pm.ls(selection=True))
- 
+
     def do_retries_validation(self):
         """Repetitively retry with different values until success.
 
         Typically there will be just one thing selected.
         """
-        count =  pm.intSliderGrp(self.num_retries_wg, query=True, value=True)
-        node_type_idx = pm.radioButtonGrp(self.varying_node_wg, query=True, sl=True)
-        node_type = ["dummy", "selected", "shape", "stroke_curve"][node_type_idx]
-        attribute = pm.textFieldGrp(self.varying_attrib_wg, query=True, text=True)
+        count = pm.intSliderGrp(self.num_retries_wg, query=True, value=True)
+        node_type_idx = pm.radioButtonGrp(
+            self.varying_node_wg, query=True, sl=True)
+        node_type = [
+            "dummy",
+            "selected",
+            "shape",
+            "stroke_curve"][node_type_idx]
+        attribute = pm.textFieldGrp(
+            self.varying_attrib_wg, query=True, text=True)
         low = pm.floatFieldGrp(
-                self.varying_range_wg,
-                query=True,
-                value1=True)
+            self.varying_range_wg,
+            query=True,
+            value1=True)
         high = pm.floatFieldGrp(
-                self.varying_range_wg,
-                query=True,
-                value2=True)
-        step_type_idx = pm.radioButtonGrp(self.varying_step_type_wg, query=True, sl=True)
+            self.varying_range_wg,
+            query=True,
+            value2=True)
+        step_type_idx = pm.radioButtonGrp(
+            self.varying_step_type_wg, query=True, sl=True)
         step_type = ["dummy", "random", "linear"][step_type_idx]
 
         if node_type is "selected":
             obs = pm.ls(selection=True)
-        elif node_type is "shape": 
-            obs = pm.ls(selection=True, dag=True,  ni=True,  shapes=True)
+        elif node_type is "shape":
+            obs = pm.ls(selection=True, dag=True, ni=True, shapes=True)
         else:  # stroke_curve
-            obs =  pm.ls(selection=True, type="curveStroke")
+            obs = pm.ls(selection=True, type="curveStroke")
 
             curves = pm.ls(
                 selection=True, dag=True,
@@ -338,7 +341,8 @@ status        : %s
         results = []
         for o in obs:
             cutl.show_objects([o])
-            attempts = self.do_retries_for_object(o,attribute,  step_type, low, high, count)
+            attempts = self.do_retries_for_object(
+                o, attribute, step_type, low, high, count)
             status = "SUCCESS" if (attempts > -1) else "FAILURE"
             results.append({"node": o, "status": status, "attempts": attempts})
             cutl.hide_objects([o])
@@ -348,11 +352,8 @@ status        : %s
             if res["status"] == "FAILURE":
                 print res
 
-
-
         cutl.show_objects(obs)
 
-       
     def do_retries_for_object(self, o, attribute, step_type, low, high, count):
         result = -1
 
@@ -362,11 +363,11 @@ status        : %s
             vals = [curr] + [random.uniform(low, high) for x in range(count)]
         else:
             valrange = high - low
-            gap = valrange / (count-1)
-            vals = [curr] + [low+(gap*x) for x in range(count)]
+            gap = valrange / (count - 1)
+            vals = [curr] + [low + (gap * x) for x in range(count)]
 
-        # prepend the current val, because if it works then nothing needs to change. 
-
+        # prepend the current val, because if it works then nothing needs to
+        # change.
 
         painting_node = pm.PyNode("mainPaintingShape")
         msg = ""
@@ -375,7 +376,7 @@ status        : %s
             for i, val in enumerate(vals):
                 self.setParam(o, attribute, val)
                 pm.refresh()
-                
+
                 studio = Studio(painting_node=painting_node)
                 studio.write()
                 path_result = self.validate_path(studio.painting_program)
@@ -387,18 +388,13 @@ status        : %s
                 }
                 msg += self.format_path_result(path_result, **metadata)
                 if path_result["completion"] == 1.0:
-                    result =i+1
+                    result = i + 1
                     break
             print msg
             return result
-
 
     def setParam(self, ob, attribute, val):
         try:
             att = ob.attr(attribute).set(val)
         except (pm.MayaAttributeError, RuntimeError) as e:
-            pm.warning("Error with : %s.%s - Skipping"  % (ob , attribute) )
-
-
-
-
+            pm.warning("Error with : %s.%s - Skipping" % (ob, attribute))

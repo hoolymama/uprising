@@ -56,29 +56,29 @@ def delete_if_exist(name):
         pass
 
 
-def duplicate_and_connect(src_grp, dip_node, paint_id, brush_id):
+# def duplicate_and_connect(src_grp, dip_node, paint_id, brush_id):
 
-    grp_name = "dcx_p%02d_b%02d" % (paint_id, brush_id)
-    delete_if_exist(grp_name)
-    grp = cutl.duplicate_grp_with_stroke_curves(
-        src_grp, grp_name, True, ["brushId", "paintId"])
-    grp.rename(grp_name)
-    curves = grp.getChildren()
+#     grp_name = "dcx_p%02d_b%02d" % (paint_id, brush_id)
+#     delete_if_exist(grp_name)
+#     grp = cutl.duplicate_grp_with_stroke_curves(
+#         src_grp, grp_name, True, ["brushId", "paintId"])
+#     grp.rename(grp_name)
+#     curves = grp.getChildren()
 
-    for i, curve in enumerate(curves):
-        name = "dcx_p%02d_b%02d_c%02d" % (paint_id, brush_id, i)
-        curve.rename(name)
-        shape = pm.listRelatives(curve, children=True)[0]
-        stroke_curve = shape.attr("worldSpace[0]").connections(
-            destination=True, source=False)[0]
+#     for i, curve in enumerate(curves):
+#         name = "dcx_p%02d_b%02d_c%02d" % (paint_id, brush_id, i)
+#         curve.rename(name)
+#         shape = pm.listRelatives(curve, children=True)[0]
+#         stroke_curve = shape.attr("worldSpace[0]").connections(
+#             destination=True, source=False)[0]
 
-        first = (i == 0)
-        cutl.connect_curve_to_painting(
-            stroke_curve, dip_node, connect_to="next_available")
-        stroke_curve.attr("brushId").set(brush_id)
-        stroke_curve.attr("paintId").set(paint_id)
+#         first = (i == 0)
+#         cutl.connect_curve_to_painting(
+#             stroke_curve, dip_node, connect_to="next_available")
+#         stroke_curve.attr("brushId").set(brush_id)
+#         stroke_curve.attr("paintId").set(paint_id)
 
-    return grp
+#     return grp
 
 
 def _get_curve_strokes(parent):
@@ -91,31 +91,6 @@ def _get_curve_strokes(parent):
             s=False,
             type="curveStroke")
 
-
-def _create_painting_node():
-    ptg_node = pm.createNode("painting")
-    ptg_node.attr("linearSpeed").set(100)
-    ptg_node.attr("angularSpeed").set(70.000)
-    ptg_node.attr("approximationDistance").set(2)
-    ptg_node.attr("maxPointToPointDistance").set(15)
-    ptg_node.attr("approachDistanceStart").set(20)
-    ptg_node.attr("approachDistanceMid").set(2.5)
-    ptg_node.attr("approachDistanceEnd").set(5)
-
-    ptg_node.attr("pointSize").set(1)
-    ptg_node.attr("lineLength").set(1)
-    ptg_node.attr("lineThickness").set(1)
-    ptg_node.attr("displayPivots").set(0)
-    ptg_node.attr("displayClusterPath").set(0)
-    ptg_node.attr("displayIds").set(0)
-    ptg_node.attr("displayParentIds").set(0)
-    ptg_node.attr("displayLayerIds").set(0)
-    ptg_node.attr("displayBrushIds").set(0)
-    ptg_node.attr("displayPaintIds").set(0)
-    ptg_node.attr("displayRepeatIds").set(0)
-    ptg_node.attr("arrowheadSize").set(0)
-
-    return ptg_node
 
 
 def _delete_paintings_under(parent):
@@ -157,7 +132,8 @@ def _create_painting_node(which, brush, paint, strokes, ):
     ptg_node.attr("displayRepeatIds").set(0)
     ptg_node.attr("arrowheadSize").set(0)
 
-    ptg_name = "p{:02d}_b{:02d}_{}".format(paint.id, brush.id, which)
+    # ptg_name = "p{:02d}_b{:02d}_{}".format(paint.id, brush.id, which)
+    ptg_name = "b{:02d}".format(brush.id)
     ptg_xf = ptg_node.getParent()
     ptg_xf.rename(ptg_name)
 

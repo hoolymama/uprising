@@ -1,12 +1,6 @@
-
-import sys
+ 
 import pymel.core as pm
-import random
-import write
-import props
-import uprising_util as uutl
-import curve_utils as cutl
-from studio import Studio
+ 
 
 import pymel.core.uitypes as gui
 
