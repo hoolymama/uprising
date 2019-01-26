@@ -65,7 +65,7 @@ MStatus brushCmd::doIt( const MArgList &args )
 
 	MPlug brushPlug;
 	st = 	brushIter.getPlug (brushPlug);
-	cerr << "PLUG NAME: " << brushPlug.name() << endl;
+	// cerr << "PLUG NAME: " << brushPlug.name() << endl;
 
 	MFnDependencyNode brushFn( brushObject );
 	if (brushFn.typeId() != brushNode::id) {

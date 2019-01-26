@@ -8,7 +8,7 @@ import brush_utils as butl
 import uprising_util as uutl
 import json
 import csv
-
+from brush import Brush
 
 def create():
     menu = pm.menu(label="Tools", tearOff=True)
@@ -24,6 +24,9 @@ def create():
 
     pm.menuItem( label="Connect brushIds to skeletons", 
         command=pm.Callback(on_connect_brushids_to_skeleton) )
+
+    pm.menuItem( label="Send brushes from selected paintings", 
+        command=pm.Callback(on_send_brushes) )
 
  
 
@@ -52,6 +55,14 @@ def on_connect_brushids_to_skeleton():
     if not skels:
         skels= pm.ls(type="skeletonStroke")
     butl.connect_skels(painting, skels)
+
+def on_send_brushes():
+    paintings = pm.ls(sl=True, dag=True, leaf=True, type="painting")
+    uutl.delete_tools()
+    for painting in paintings:
+        brushes = Brush.brushes(painting)
+        for brush in brushes:
+            brushes[brush].write()
 
 
 def _bake_first_paint_id(painting, curve):
@@ -120,7 +131,7 @@ def on_print_stats():
 
     print "Brushes in use:"
     for brush in brushes:
-        print "%s\t:%s" % (brush.id, brush.name)
+        print "%s\t:%s" % (brush.id, brush.node_name)
     print "\n"
 
     print "Painting node stats:"

@@ -9,6 +9,7 @@ tmp/
 *.pyc
 *~
 */examples/
+example/export/
 *.sublime-workspace
 *.sublime-project
 .nfs*

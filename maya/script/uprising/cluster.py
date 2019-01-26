@@ -1,13 +1,15 @@
 
-from robolink import (  INSTRUCTION_SHOW_MESSAGE,  INSTRUCTION_COMMENT,  INSTRUCTION_CALL_PROGRAM)
+from robolink import (
+    INSTRUCTION_SHOW_MESSAGE,
+    INSTRUCTION_COMMENT,
+    INSTRUCTION_CALL_PROGRAM)
 
- 
 
 from uprising_util import ClusterError
 from stroke import Stroke
 import uprising_util as uutl
 import pymel.core as pm
- 
+
 
 import logging
 logger = logging.getLogger('uprising')
@@ -41,76 +43,82 @@ class Cluster(object):
                 self.node,
                 self.robot,
                 self.brush
-                )
+            )
             self.strokes.append(stroke)
 
-    def name(self):
-        raise NotImplementedError
+    def change_tool_message(self):
+        return "Change Tool: {} B:({:d}) - P:({:d})".format(
+            self.brush.name, self.brush.physical_id, self.paint.id)
+
+    def name(self, program):
+        return "{}_c{}".format(program.Name(), self.id)
 
     def write(self, studio, program, frame, motion):
-        logger.debug("Write cluster")
-        # program = studio.painting_program
         tool = studio.RL.Item(self.brush.name)
         if not tool.Valid():
             raise ClusterError(
                 "SERIOUS RISK OF DAMAGE! Can't find valid tool!")
+
         program.setPoseTool(tool)
 
-        cluster_name = self.name()
-        program.RunInstruction( 
+        cluster_name = self.name(program)
+
+        program.RunInstruction(
             "Cluster %s" %
             cluster_name,
             INSTRUCTION_COMMENT)
+
         program.setSpeed(
             motion["linear_speed"],
             motion["angular_speed"])
         program.setRounding(motion["rounding"])
 
         for i, stroke in enumerate(self.strokes):
-            stroke.write(cluster_name, program,  frame, studio)
-            last_target = stroke.targets[-1]
+            stroke.write(cluster_name, program, frame, studio)
+            # last_target = stroke.targets[-1]
 
 
-class PaintingCluster(Cluster):
+# class PaintingCluster(Cluster):
 
-    # def __init__(self, _id, node, robot, brush, paint):
-    #     super(PaintingCluster, self).__init__(_id, node, robot, brush, paint)
+#     # def __init__(self, _id, node, robot, brush, paint):
+#     #     super(PaintingCluster, self).__init__(_id, node, robot, brush, paint)
 
-    def name(self):
-        return "px_c%s" % (self.id)
+#     def name(self):
+#         return "px_c%s" % (self.id)
 
-    def write(self, studio, motion):
-        """Write the cluster to roboDK.
+#     def write(self, studio, motion):
+#         """Write the cluster to roboDK.
 
-        Always do a dip before writing the strokes. 
+#         Always do a dip before writing the strokes.
 
-        If the cluster is also a tool change then offer up the flange
-        to the user first.
+#         If the cluster is also a tool change then offer up the flange
+#         to the user first.
 
-        If the  cluster is a tcp change then offer up the flange
-        to the user first."""
+#         If the  cluster is a tcp change then offer up the flange
+#         to the user first.
+#         """
 
-        program = studio.painting_program
-        frame = studio.painting_frame
+#         program = studio.painting_program
+#         frame = studio.painting_frame
 
-        if self.reason == "tool":
-            program.addMoveJ(studio.tool_approach)
-            program.RunInstruction(
-                "Change Tool: %s PID:(%d) - paint ID:(%d)" %
-                (self.brush.name,
-                 self.brush.physical_id,
-                 self.paint.id),
-                INSTRUCTION_SHOW_MESSAGE)
-            program.Pause()
+#         if self.reason == "tool":
+#             program.addMoveJ(studio.tool_approach)
+#             program.RunInstruction(
+#                 "Change Tool: %s PID:(%d) - paint ID:(%d)" %
+#                 (self.brush.name,
+#                  self.brush.physical_id,
+#                  self.paint.id),
+#                 INSTRUCTION_SHOW_MESSAGE)
+#             program.Pause()
 
-        dip_program_name = DipCluster.generate_program_name(
-            self.paint.id, self.brush.id)
-        program.RunInstruction(
-            dip_program_name, INSTRUCTION_CALL_PROGRAM)
+#         dip_program_name = DipCluster.generate_program_name(
+#             self.paint.id, self.brush.id)
+#         program.RunInstruction(
+#             dip_program_name, INSTRUCTION_CALL_PROGRAM)
 
-        # program.addMoveJ(studio.dip_approach)
+#         # program.addMoveJ(studio.dip_approach)
 
-        super(PaintingCluster, self).write(studio, program,frame, motion)
+#         super(PaintingCluster, self).write(studio, program, frame, motion)
 
 
 # class DipCluster(Cluster ):
@@ -118,25 +126,24 @@ class PaintingCluster(Cluster):
 #     def name(self):
 #         return "dx_c%s" % (self.id)
 
-#     @staticmethod
-#     def generate_program_name(paint_id, brush_id):
-#         return "dip_p%02d_b%02d" % (paint_id, brush_id)
+    # @staticmethod
+    # def generate_program_name(paint_id, brush_id):
+    #     return "dip_p%02d_b%02d" % (paint_id, brush_id)
 
 
-#     def write(self, studio, motion):
-#         frame = studio.dip_frame
-#         dip_program_name = DipCluster.generate_program_name(
-#             self.paint.id, self.brush.id)
-#         program = uutl.create_program(dip_program_name)
- 
-#         program.RunInstruction("Dip with tool %s" % self.brush.name, INSTRUCTION_COMMENT)
-#         logger.debug( "dip approach is %s" % studio.dip_approach.Name())
- 
-#         program.addMoveJ(studio.dip_approach)
-#         super(DipCluster, self).write(studio, program, frame, motion)
-#         program.addMoveJ(studio.dip_approach)
-#         program.ShowInstructions(False)
+    # def write(self, studio, motion):
+    #     frame = studio.dip_frame
+    #     dip_program_name = DipCluster.generate_program_name(
+    #         self.paint.id, self.brush.id)
+    #     program = uutl.create_program(dip_program_name)
 
+    #     program.RunInstruction("Dip with tool %s" % self.brush.name, INSTRUCTION_COMMENT)
+    #     logger.debug( "dip approach is %s" % studio.dip_approach.Name())
+
+    #     program.addMoveJ(studio.dip_approach)
+    #     super(DipCluster, self).write(studio, program, frame, motion)
+    #     program.addMoveJ(studio.dip_approach)
+    #     program.ShowInstructions(False)
 
 
 # class WipeCluster(Cluster ):
@@ -154,19 +161,14 @@ class PaintingCluster(Cluster):
 #         dip_program_name = DipCluster.generate_program_name(
 #             self.paint.id, self.brush.id)
 #         program = uutl.create_program(dip_program_name)
- 
+
 #         program.RunInstruction("Wipe with tool %s" % self.brush.name, INSTRUCTION_COMMENT)
 #         logger.debug( "dip approach is %s" % studio.dip_approach.Name())
- 
+
 #         program.addMoveJ(studio.dip_approach)
 #         super(DipCluster, self).write(studio, program, frame, motion)
 #         program.addMoveJ(studio.dip_approach)
 #         program.ShowInstructions(False)
-
-
-
-
-
 
     # def write(self, studio):
     #     logger.debug("Write cluster")
@@ -178,8 +180,6 @@ class PaintingCluster(Cluster):
 
     #     for i, stroke in enumerate(self.strokes):
     #         stroke.write(cluster_name, parent_program, parent_frame, robot, RL)
-
-
 
     # def write_program_comands(self, robot, parent_program, parent_frame):
     #     RL = Robolink()
@@ -216,13 +216,12 @@ class PaintingCluster(Cluster):
     # def should_change(self):
     #     raise NotImplementedError
 
-
-                # if i > 1 and i < (num_targets - 3):
-                #     seg_draw = self.drawing_instruction(
-                #         t, stroke.targets[i + 1])
-                #     if seg_draw:
-                #         parent_program.RunInstruction(
-                #             seg_draw, INSTRUCTION_CALL_PROGRAM)
+        # if i > 1 and i < (num_targets - 3):
+        #     seg_draw = self.drawing_instruction(
+        #         t, stroke.targets[i + 1])
+        #     if seg_draw:
+        #         parent_program.RunInstruction(
+        #             seg_draw, INSTRUCTION_CALL_PROGRAM)
 
 
 # class PaintingCluster(Cluster ):

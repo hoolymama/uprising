@@ -12,8 +12,8 @@ from robolink import (
 from paint import Paint
 from brush import Brush
 # from stroke import Stroke
-from cluster import (PaintingCluster, DipCluster)
- 
+from cluster import (Cluster)
+
 from uprising_util import PaintingError
 import uprising_util as uutl
 import const as k
@@ -31,7 +31,7 @@ def paint_and_brush_name(paint, brush):
 
 class Painting(object):
 
-    def __init__(self, node):
+    def __init__(self, node, robot):
         logger.debug("Initialize Painting")
         self.node = node
         self.brushes = Brush.brushes(node)
@@ -42,14 +42,12 @@ class Painting(object):
             "angular_speed": self.node.attr("angularSpeed").get(),
             "rounding": self.node.attr("approximationDistance").get() * 10
         }
-        # logger.debug("Done initialize Painting")
+        self._create_clusters(robot)
 
-    def create_clusters(self, robot):
-
-        logger.debug("Create clusters")
+    def _create_clusters(self, robot):
 
         num_clusters = pm.paintingQuery(self.node, clusterCount=True)
-        logger.debug("Number of clusters: %d" % num_clusters)
+
         for i in range(num_clusters):
             brush_id = pm.paintingQuery(
                 self.node, clusterIndex=i, clusterBrushId=True)
@@ -58,63 +56,36 @@ class Painting(object):
 
             brush = self.brushes.get(brush_id)
             paint = self.paints.get(paint_id)
-            logger.debug("Cluster %d: p=%d, b=%d" % (i, paint_id, brush_id))
-            
-            cluster = PaintingCluster(
-                i,
-                self.node,
-                robot,
-                brush,
-                paint)
+  
+            cluster = Cluster(i, self.node, robot, brush, paint)
             self.clusters.append(cluster)
-            # else:
-            #     cluster = DipCluster(
-            #         i,
-            #         self.node,
-            #         robot,
-            #         brush,
-            #         paint)
-            #     self.clusters.append(cluster)
-
-    def write(self, studio):
 
 
-        logger.debug("Write program")
+    def write_brushes(self):
         for brush in self.brushes:
-            self.brushes[brush].write(studio)
+            self.brushes[brush].write()
 
-        for cluster in self.clusters:
-            cluster.write(studio, self.motion)
+    # def write(self, studio):
 
+    #     logger.debug("Write program")
+    #     for brush in self.brushes:
+    #         self.brushes[brush].write(studio)
 
+    #     for cluster in self.clusters:
+    #         cluster.write(studio, self.motion)
 
-
-
-class DipProgram(object):
-    def __init__(self, node_pack, robot):
-        self.dip_painting = Painting(node_pack["dip"])
-        self.wipe_painting = Painting(node_pack["wipe"])
-        self.program_name = node_pack["name"]
-
-       
-        
-
-
-
-
+ 
 
 class Calibration(Painting):
 
- 
     PROGRAM_NAME = "xx"
     FRAME_NAME = "xx_frame"
     PAUSE_MESSAGE = "Please enter distance from tip to board:"
     PROBE_SUFFIX = "base"
 
-
     def __init__(self, node):
         super(Calibration, self).__init__(node)
-        
+
         self.brush = Brush.find_by_regex(node, r'^.*_probe$')
         if not self.brush:
             raise PaintingError("No Probe Brush")
@@ -127,8 +98,11 @@ class Calibration(Painting):
             pm.warning("No probes")
             raise PaintingError("No probes for calibration")
 
+    def _create_clusters(self, robot):
+        pass
+
     def write(self, studio):
-        self.brush.write(studio)
+        self.brush.write()
         self.tool = studio.RL.Item(self.brush.name)
         if not self.tool.Valid():
             raise PaintingError(
@@ -152,8 +126,10 @@ class Calibration(Painting):
             self.motion["angular_speed"])
         self.program.setRounding(self.motion["rounding"])
         self.program.setPoseTool(self.tool)
-        self.program.RunInstruction(("Starting %s" % self.__class__.__name__.lower()) ,
-                                    INSTRUCTION_COMMENT)
+        self.program.RunInstruction(
+            ("Starting %s" %
+             self.__class__.__name__.lower()),
+            INSTRUCTION_COMMENT)
         self.program.addMoveJ(studio.tool_approach)
         self.program.RunInstruction(
             "Attach calibration Tool: %s PID:(%d)" %
@@ -218,8 +194,6 @@ class Calibration(Painting):
             INSTRUCTION_SHOW_MESSAGE)
         self.program.Pause()
         self.program.addMoveL(approach_target)
-
-
 
 
 class Verification(Calibration):

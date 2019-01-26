@@ -59,6 +59,14 @@ class ValidateTab(gui.FormLayout):
                 180,
                 120))
 
+        # self.send_brushes_cb = pm.checkBoxGrp(
+        #     label='Send brushes',
+        #     value1=0,
+        #     height=30,
+        #     columnWidth2=(
+        #         180,
+        #         120))
+
         self.anim_row = pm.rowLayout(
             numberOfColumns=2, columnWidth2=(
                 (390), 100), columnAlign=(
@@ -233,6 +241,11 @@ status        : %s
         send_selected_props = pm.checkBoxGrp(
             self.send_selected_props_cb, query=True, value1=True)
 
+        # send_brushes = pm.checkBoxGrp(
+        #     self.send_brushes_cb, query=True, value1=True)
+
+
+
         result = []
 
         if sum(send):
@@ -289,6 +302,18 @@ status        : %s
 
         if send_selected_props:
             props.send(pm.ls(selection=True))
+
+
+        # if send_brushes:
+        #     self.send_brushes()
+
+
+
+    # def send_brushes(self):
+    #    uutl.delete_tools()
+
+       
+
 
     def do_retries_validation(self):
         """Repetitively retry with different values until success.

@@ -69,7 +69,7 @@ class PublishTab(gui.FormLayout):
             height=30,
             label='Components',
             labelArray2=['Painting', "Verify"],
-            valueArray2=[True, True],
+            valueArray2=[True, False],
             columnWidth3=(180, 200, 200),
             changeCommand=pm.Callback(self.on_components_cb_change)
         )
@@ -122,7 +122,7 @@ class PublishTab(gui.FormLayout):
         self.save_unfiltered_snapshot = pm.checkBoxGrp(
             label='Save unfiltered snapshot',
             ann="This will switch off filtering temporarily",
-            value1=True)
+            value1=False)
 
         self.snap_size_if = pm.intFieldGrp(
             label='Snapshot size',
@@ -322,6 +322,7 @@ class PublishTab(gui.FormLayout):
             self.pre_frame_py_tf,
             q=True,
             text=True) if do_pre_frame_py else None
+
 
         write.publish_sequence(
             export_dir,

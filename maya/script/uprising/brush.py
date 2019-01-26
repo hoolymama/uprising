@@ -5,6 +5,7 @@ import const as k
 import uprising_util as uutl
 import uprising.maya_util as mut
 import robodk as rdk
+from robolink import (Robolink, ITEM_TYPE_ROBOT)
 
 
 class Brush(object):
@@ -24,8 +25,11 @@ class Brush(object):
         self.shape = shape
         self.retention = retention
         self.tip = tip
-        self.name, self.attribute = plug.split(".")
         self.plug = plug
+        self.node_name, self.attr_name = plug.split(".")
+        self.name = str(plug).replace(".", "_")
+        
+
 
     def is_round(self):
         return self.shape == 1
@@ -33,18 +37,20 @@ class Brush(object):
     def is_flat(self):
         return self.shape == 0
 
-    def write(self, studio):
-        old_brush = studio.RL.Item(self.name)
+    def write(self):
+        RL = Robolink()
+        robot = RL.Item('', ITEM_TYPE_ROBOT)
+        old_brush = RL.Item(self.name)
         if old_brush.Valid():
-            old_brush.Delete()
+            return
 
-        triangles = [[t.x * 10, t.y * 10, t.z * 10]
-                     for t in pm.brushQuery(self.plug, tri=True)]
+        triangles = uutl.to_vector_array(pm.brushQuery(self.plug, tri=True))
+        triangles = [[t.x * 10, t.y * 10, t.z * 10]  for t in triangles]
 
-        tool_item = studio.robot.AddTool(self.matrix, self.name)
-        shape = studio.RL.AddShape(triangles)
+        tool_item = robot.AddTool(self.matrix, self.name)
+        shape = RL.AddShape(triangles)
         tool_item.AddGeometry(shape, rdk.eye())
-        studio.robot.setPoseTool(tool_item)
+        robot.setPoseTool(tool_item)
         shape.Delete()
 
     @classmethod
@@ -52,19 +58,19 @@ class Brush(object):
 
         vals = [index]
 
-        brushPlug = node.attr(
+        plug = node.attr(
             "brushes[%d]" % index).connections(
             source=True,
             destination=False,
             plugs=True
         )[0]
 
-        vals.append(str(brushPlug))
+        vals.append(str(plug))
 
-        matrix = pm.dt.Matrix(pm.brushQuery(brushPlug, tcp=True))
+        matrix = pm.dt.Matrix(pm.brushQuery(plug, tcp=True))
         vals.append(matrix)
 
-        brush_node = brushPlug.node()
+        brush_node = plug.node()
         for att in [
             "width",
             "retention",
@@ -90,9 +96,11 @@ class Brush(object):
     @classmethod
     def brushes(cls, node):
         result = {}
-        for brush_id in node.attr("brushes").getArrayIndices():
+        for brush_id in  node.attr("brushes").getArrayIndices():
             result[brush_id] = Brush.brush_at_index(node, brush_id)
         return result
+
+
 
     # @classmethod
     # def used_brushes(cls, node):

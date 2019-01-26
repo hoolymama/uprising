@@ -243,7 +243,24 @@ def config_000_poses(pose):
             result.append(joint_pose)
     return result
 
+def _create_joint_target(obj, name, frame):
+    RL = Robolink()
+    robot = RL.Item('', ITEM_TYPE_ROBOT)
+    mat = obj.attr("worldMatrix[0]").get()
+    mat =  maya_to_robodk_mat(mat)
+    joint_poses =  config_000_poses(mat)
+    if not joint_poses:
+        raise Exception(
+            "No configs for approach mat. Try repositioning.")
+    joints = joint_poses[0]
 
+    old_approach = RL.Item(name)
+    if old_approach.Valid():
+        old_approach.Delete()
+    target = RL.AddTarget(name, frame, robot)
+    target.setAsJointTarget()
+    target.setJoints(joints)
+    return target
 
 # def config_first_pose(pose):
 #     RL = Robolink()

@@ -27,6 +27,7 @@ import stroke_factory_utils
 import studio
 
 import painting
+import program
 import paint
 import brush
 import stroke
@@ -65,6 +66,8 @@ reload(brush_utils)
 reload(paint_utils)
 reload(board_utils)
 reload(painting)
+reload(program)
+
 reload(stroke_factory_utils)
 reload(sheets)
 

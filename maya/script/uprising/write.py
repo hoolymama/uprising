@@ -37,8 +37,6 @@ def clean_rdk():
     # RL.AddFile(CLEAN_FILE)
 
 
-
-
 def publish_proposal(
         proposals_dir,
         painting_node,
@@ -68,33 +66,66 @@ def publish_proposal(
         timestamp,
         frame_range,
         clean_top)
- 
 
-def _get_dip_wipe_packs():
+
+def _get_dip_wipe_packs(painting_node):
+
     result = {}
     racks = ["rack1"]
-    paint_regex = re.compile(r"^.*_(\d+)\|holeTrans$")
-    brush_regex = re.compile(r"^.*\|holeTrans\|.*\|b(\d+)\|.*$")
 
-    holes = pm.ls("rack*|holes|holeRot_*|holeTrans")
-    for hole in holes:
-        paint_id = "p{}".format(paint_regex.match(str(hole)).groups()[0])
+    dip_combinations = setup_dip.dip_combination_ids(painting_node)
 
-        result[paint_id] = {}
-        dip_shapes = pm.ls(
-            "{}|dip_loc|*".format(holes[0]), dag=True, leaf=True, type="painting")
-        wipe_shapes = pm.ls(
-            "{}|wipe_loc|*".format(holes[0]), dag=True, leaf=True, type="painting")
-        dip_wipes = zip(dip_shapes, wipe_shapes)
-        for dw in dip_wipes:
-            brush_id = "b{}".format(
-                brush_regex.match(str(dw[0])).groups()[0])
-            result[paint_id][brush_id] = {
-                "dip": dw[0],
-                "wipe": dw[1],
-                "name": "{}_{}".format(paint_id, brush_id)
-            }
+    for combo in dip_combinations:
+
+        dip_ptg_path = "rack*|holes|holeRot_{:02d}|holeTrans|dip_loc|b{:02d}|*".format(
+            combo["paint"], combo["brush"])
+        wipe_ptg_path = "rack*|holes|holeRot_{:02d}|holeTrans|wipe_loc|b{:02d}|*".format(
+            combo["paint"], combo["brush"])
+
+        paint_key = "p{:02d}".format(combo["paint"])
+        brush_key = "b{:02d}".format(combo["brush"])
+
+        print "{} -- {}".format(dip_ptg_path, wipe_ptg_path)
+        try:
+            dip_ptg = pm.ls(dip_ptg_path, type="painting")[0]
+            wipe_ptg = pm.ls(wipe_ptg_path, type="painting")[0]
+        except IndexError:
+            raise IndexError("Either dip or wipe node is missing: for {} {}".format(paint_key, brush_key))
+
+        if paint_key not in result:
+            result[paint_key] = {}
+        result[paint_key][brush_key] = {
+            "dip": dip_ptg,
+            "wipe": wipe_ptg,
+            "name": "{}_{}".format(paint_key, brush_key)
+        }
+
+    # paint_regex = re.compile(r"^.*_(\d+)\|holeTrans$")
+    # brush_regex = re.compile(r"^.*\|holeTrans\|.*\|b(\d+)\|.*$")
+
+    # holes = pm.ls("rack*|holes|holeRot_*|holeTrans")
+    # for hole in holes:
+    #     paint_id = "p{}".format(paint_regex.match(str(hole)).groups()[0])
+
+    #     current = {}
+    #     dip_shapes = pm.ls(
+    #         "{}|dip_loc|*".format(holes[0]), dag=True, leaf=True, type="painting")
+    #     wipe_shapes = pm.ls(
+    #         "{}|wipe_loc|*".format(holes[0]), dag=True, leaf=True, type="painting")
+    #     dip_wipes = zip(dip_shapes, wipe_shapes)
+    #     for dw in dip_wipes:
+    #         brush_id = "b{}".format(
+    #             brush_regex.match(str(dw[0])).groups()[0])
+    #         current[brush_id] = {
+    #             "dip": dw[0],
+    #             "wipe": dw[1],
+    #             "name": "{}_{}".format(paint_id, brush_id)
+    #         }
+    #     if current:
+    #         result[paint_id] = current
+
     return result
+
 
 def run_hook(code):
     if not code:
@@ -112,11 +143,11 @@ def run_hook(code):
     res = method(*args, **kw)
     print res
 
-   
+
 def publish_sequence(
         export_dir,
-        painting_node,
-        dip_wipe_packs,
+        # painting_node,
+        # dip_wipe_packs,
         description,
         medium,
         ground,
@@ -132,8 +163,9 @@ def publish_sequence(
     # print "dip_node: %s" % dip_node
 
     painting_node = pm.PyNode("mainPaintingShape")
-    dip_wipe_packs = _get_dip_wipe_packs()
+    dip_wipe_packs = _get_dip_wipe_packs(painting_node)
 
+    # print dip_wipe_packs
 
     recordings_dir = os.path.join(export_dir, "recordings")
     mkdir_p(recordings_dir)
@@ -142,13 +174,11 @@ def publish_sequence(
 
     if save_unfiltered_snapshot:
 
-        filterable_nodes= pm.ls(type=["strokeNode", "collectStrokes"])
-
+        filterable_nodes = pm.ls(type=["strokeNode", "collectStrokes"])
 
         with uutl.filters_off(*filterable_nodes):
             ts = get_timestamp()
             write_ref_image(design_dir, ts)
-
 
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
@@ -160,20 +190,21 @@ def publish_sequence(
         # print "Desc: %s" % desc
         # print "Notes: %s" % notes
 
-        setup_dip.doit()
+        # setup_dip.doit()
+
         write_maya_scene(ts_dir, timestamp)
         write_csv(export_dir, timestamp, desc, notes, medium, ground)
 
         write_ref_image(ts_dir, timestamp)
 
-        write_log(
-            painting_node,
-            dip_wipe_packs,
-            ts_dir,
-            timestamp,
-            desc,
-            notes,
-            frame)
+        # write_log(
+        #     painting_node,
+        #     # dip_wipe_packs,
+        #     ts_dir,
+        #     timestamp,
+        #     desc,
+        #     notes,
+        #     frame)
 
         if do_painting or do_verify:
             kw = {}
@@ -200,10 +231,10 @@ def publish_robodk_painting(ts_dir, timestamp, **kw):
     if kw.get("verification_node"):
         write_program(RL, ts_dir, "vx", timestamp)
 
+
 def publish_calibration_program(directory, node):
     RL = Robolink()
     calibration_dir = os.path.join(directory, "calibrations")
-    
 
     clean_rdk()
     timestamp = get_timestamp()
@@ -214,6 +245,7 @@ def publish_calibration_program(directory, node):
         studio.write()
     write_program(RL, ts_dir, "xx", timestamp)
 
+
 def mkdir_p(path):
     try:
         os.makedirs(path)
@@ -222,6 +254,7 @@ def mkdir_p(path):
             pass
         else:
             raise
+
 
 def choose_publish_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'export')
@@ -232,6 +265,7 @@ def choose_publish_dir():
         return
     return entries[0]
 
+
 def choose_proposal_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'proposals')
     entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
@@ -241,6 +275,7 @@ def choose_proposal_dir():
         return
     return entries[0]
 
+
 def get_timestamp(suffix=None):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
 
@@ -248,8 +283,10 @@ def get_timestamp(suffix=None):
         timestamp = "%s_%s" % (timestamp, suffix)
     return timestamp
 
+
 def get_ts_dir(containing_dir, timestamp):
     return os.path.join(containing_dir, timestamp)
+
 
 def write_csv(export_dir, timestamp, description, notes, medium, ground):
     if description:
@@ -279,6 +316,7 @@ def write_csv(export_dir, timestamp, description, notes, medium, ground):
         the_file.write(line)
         the_file.write("\n")
 
+
 def write_ref_image(dest_dir, timestamp, res=1024):
 
     # TODO - make sure its active panel and
@@ -299,6 +337,7 @@ def write_ref_image(dest_dir, timestamp, res=1024):
         compression="tif",
         quality=100,
         widthHeight=(res, res))
+
 
 def write_image_sequence(
         painting_node,
@@ -323,6 +362,7 @@ def write_image_sequence(
 
 def setup_clean_top(painting_node):
     pass
+
 
 def write_program(RL, ts_dir, progname, timestamp):
     prog_filename = "%s_%s" % (progname.upper(), timestamp)
@@ -352,23 +392,24 @@ def used_paints_and_brushes(painting_node):
     pids = sorted(set(dc[1::2]))
     paints = Paint.paints(painting_node)
     brushes = Brush.brushes(painting_node)
-    used_paints =  [paints[_id] for _id in pids]
-    used_brushes =  [brushes[_id] for _id in bids]
-    return  (used_paints, used_brushes)
+    used_paints = [paints[_id] for _id in pids]
+    used_brushes = [brushes[_id] for _id in bids]
+    return (used_paints, used_brushes)
 
 
 def painting_stats(node):
+    print "painting_stats {}".format(str(node))
     cluster_count = pm.paintingQuery(node, cc=True)
     stroke_count = 0
     reason_result = {"dip": 0, "tool": 0, "tcp": 0}
     travel = []
     for i in range(cluster_count):
         stroke_count += pm.paintingQuery(node, ci=i, sc=True)
-        travel.append(pm.paintingQuery(node, ci=i, clusterTravel=True) )
+        travel.append(pm.paintingQuery(node, ci=i, clusterTravel=True))
         reason = pm.paintingQuery(node, ci=i, clusterReason=True)
         reason_result[reason] += 1
     avg_strokes_per_cluster = stroke_count / float(cluster_count)
-    total_travel =  sum(travel)
+    total_travel = sum(travel)
     avg_travel_per_cluster = total_travel / float(cluster_count)
     result = {
         "cluster_count": cluster_count,
@@ -381,9 +422,6 @@ def painting_stats(node):
         "avg_stroke_travel_per_cluster": avg_travel_per_cluster
     }
     return result
-
-
-
 
 
 # def _painting_stats(node):
@@ -412,9 +450,10 @@ def _used_paints(painting_node):
     paints = Paint.paints(painting_node)
     return [paints[_id] for _id in ids]
 
+
 def write_log(
         painting_node,
-        dip_node,
+        # dip_node,
         ts_dir,
         timestamp,
         description,
@@ -423,12 +462,12 @@ def write_log(
 
     dip_combos = setup_dip.dip_combinations(painting_node)
 
+    print ""
     pnt_stats = painting_stats(painting_node)
-    dip_stats = painting_stats(dip_node)
+    # dip_stats = painting_stats(dip_node)
 
     paints_in_use = _used_paints(painting_node)
     paints_in_use, brushes_in_use = used_paints_and_brushes(painting_node)
-
 
     log_file = os.path.join(ts_dir, "log.txt")
     with open(log_file, 'w') as the_file:
@@ -446,21 +485,20 @@ def write_log(
             the_file.write("%s: %s\n" % (k, pnt_stats[k]))
         the_file.write("\n")
 
-        the_file.write("\n")
-        the_file.write("Dip node stats:\n")
-        for k in dip_stats:
-            the_file.write("%s: %s\n" % (k, dip_stats[k]))
-        the_file.write("\n")
+        # the_file.write("\n")
+        # the_file.write("Dip node stats:\n")
+        # for k in dip_stats:
+        #     the_file.write("%s: %s\n" % (k, dip_stats[k]))
 
+        the_file.write("\n")
         the_file.write("Paints in use:\n")
         for paint in paints_in_use:
             the_file.write("%s\t:%s\n" % (paint.id, paint.name))
         the_file.write("\n")
 
- 
         the_file.write("Brushes in use:\n")
         for brush in brushes_in_use:
-            the_file.write("%s\t:%s\n" % (brush.id, brush.name))
+            the_file.write("%s\t:%s\n" % (brush.id, brush.node_name))
         the_file.write("\n")
 
         the_file.write("Dip combinations:\n")

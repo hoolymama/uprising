@@ -13,6 +13,8 @@ from paint import Paint
 import props
 # from brush import Brush
 import painting as ptg
+import program as prg
+
 # from painting import Calibration
 
 # from contextlib import contextmanager
@@ -28,56 +30,98 @@ class StudioError(Exception):
     pass
 
 
+# {
+#     'p00':
+#     {
+#         'b11':
+#         {
+#             'dip': nt.Painting(u'holeRot_00|holeTrans|dip_loc|b11|bShape11'),
+#             'wipe': nt.Painting(u'holeRot_00|holeTrans|wipe_loc|b11|bShape11')
+#         },
+#         'b14':
+#         {
+#             'dip': nt.Painting(u'holeRot_00|holeTrans|dip_loc|b14|bShape14'),
+#             'wipe': nt.Painting(u'holeRot_00|holeTrans|wipe_loc|b14|bShape14')
+#         },
+#          'b16': {
+#             'dip': nt.Painting(u'holeRot_00|holeTrans|dip_loc|b16|bShape16'),
+#             'wipe': nt.Painting(u'holeRot_00|holeTrans|wipe_loc|b16|bShape16')
+#         }
+#     },
+#     'p01': {
+#         'b11': {
+#             'dip': nt.Painting(u'holeRot_00|holeTrans|dip_loc|b11|bShape11'),
+#             'wipe': nt.Painting(u'holeRot_00|holeTrans|wipe_loc|b11|bShape11')
+#         }
+#     }
+# }
+
+
 class Studio(object):
     """Glue together the entire studio."""
 
     def __init__(self, **kw):
         self.RL = Robolink()
 
-        self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
-        self.painting_program = None
-        self.painting_frame = None
-        self.approaches_frame = None
+        # self.rack_node = kw.get("rack_node")
 
+        self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
+        
+        # self.painting_frame = None
+
+        self.approaches_frame = None
         self.dip_approach = None
         self.tool_approach = None
         self.home_approach = None
 
-        self.dip = None
-        self.painting = None
+        # self.dip = None
+        # self.painting = None
+
         self.calibration = None
         self.verification = None
 
-        dw_nodes = kw.get("dip_wipe_nodes")
+        self.dip_programs = self._build_dip_programs(
+            kw.get("dip_wipe_packs", []))
+
         ptg_node = kw.get("painting_node")
-        cal_node = kw.get("calibration_node")
-        ver_node = kw.get("verification_node")
-
-        print "---------------------"
-        print "ptg_node %s , and dw_nodes:" % ptg_node
-        print  dw_nodes
-
-        if dw_nodes:
-            logger.debug("Studio dw_nodes %s")
-            # with uutl.final_position(dip_node):
-            self.dip = ptg.Painting(dip_node)
-            self.dip.create_clusters("dip", self.robot)
-
         if ptg_node:
             logger.debug("Studio ptg_node %s" % ptg_node)
             with uutl.final_position(ptg_node):
-                self.painting = ptg.Painting(ptg_node)
-                self.painting.create_clusters("painting", self.robot)
+                self.painting_program = prg.MainProgram("px", ptg_node, self.robot)
+    
 
-        if cal_node:
-            logger.debug("Studio cal_node %s" % cal_node)
-            with uutl.final_position(cal_node):
-                self.calibration = ptg.Calibration(cal_node)
+        # cal_node = kw.get("calibration_node")
+        # ver_node = kw.get("verification_node")
 
-        if ver_node:
-            logger.debug("Studio ver_node %s" % ver_node)
-            with uutl.final_position(ver_node):
-                self.verification = ptg.Verification(ver_node)
+        # if cal_node:
+        #     logger.debug("Studio cal_node %s" % cal_node)
+        #     with uutl.final_position(cal_node):
+        #         self.calibration = ptg.Calibration(cal_node)
+
+        # if ver_node:
+        #     logger.debug("Studio ver_node %s" % ver_node)
+        #     with uutl.final_position(ver_node):
+        #         self.verification = ptg.Verification(ver_node)
+
+    def _build_dip_programs(self, packs):
+        print packs
+
+        result = []
+        if packs:
+            for pid in packs:
+                paint_pack = packs[pid]
+                for bid in paint_pack:
+                    pack = paint_pack[bid]
+                    result.append(
+                        prg.DipProgram(
+                            pack["name"],
+                            pack["dip"],
+                            pack["wipe"],
+                            self.robot))
+        return result
+
+
+ 
 
     def _write_canvas(self):
 
@@ -101,80 +145,92 @@ class Studio(object):
         #     if canvas:
         #         props.send(canvas, canvas_frame)
 
+
+
+    # def write_dips(self):
+
+
+
     def write(self):
         """Clean up and make parent objects etc."""
         # should_clean = True
         # if (self.painting and self.dip) or self.calibration:
         uutl.delete_programs()
+        uutl.delete_tools()
+
         logger.debug("_write_canvas")
+
         self._write_canvas()
         logger.debug("DONE _write_canvas")
 
         logger.debug("approaches")
         self.approaches_frame = uutl.create_frame("ax_frame")
 
-        self.tool_approach = self._create_joint_target(
-            pm.PyNode(TOOL_TARGET), "tool_approach")
-        self.home_approach = self._create_joint_target(
-            pm.PyNode(HOME_TARGET), "home_approach")
-        self.dip_approach = self._create_joint_target(
-            pm.PyNode(DIP_TARGET), "dip_approach")
+        self.tool_approach = uutl._create_joint_target(
+            pm.PyNode(TOOL_TARGET), "tool_approach", self.approaches_frame)
+        self.home_approach = uutl._create_joint_target(
+            pm.PyNode(HOME_TARGET), "home_approach", self.approaches_frame)
+        self.dip_approach = uutl._create_joint_target(
+            pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame)
         logger.debug("DONE approaches")
 
+
+
         logger.debug("making frames")
-        self.dip_frame = uutl.create_frame("dx_frame")
+        # self.dip_frame = uutl.create_frame("dx_frame")
         self.trays_frame = uutl.create_frame("tx_frame")
-        self.painting_frame = uutl.create_frame("px_frame")
+        # self.painting_frame = uutl.create_frame("px_frame")
         logger.debug("DONE making frames")
 
         # if self.painting:
         #     self.painting_program = uutl.create_program("px")
         #     self.painting_program.ShowInstructions(False)
 
-        if self.dip:
-            logger.debug("write dips")
-            self.dip.write(self)
-            with uutl.final_position(self.dip.node):
-                Paint.write_trays(self.dip.node, self.trays_frame, self.RL)
+        if self.dip_programs:
+            logger.debug("write dip_programs")
+            for dip in self.dip_programs:
+                dip.write(self)
+ 
+            Paint.write_geos()
             logger.debug("DONE write dips")
 
-        if self.painting:
-            logger.debug("write painting")
-            self.painting_program = uutl.create_program("px")
-            self.painting_program.ShowInstructions(False)
-            self.painting.write(self)
-            self.painting_program.addMoveJ(self.home_approach)
-            logger.debug("DONE write painting")
+        if self.painting_program:
+            self.painting_program.write(self)
+            # logger.debug("write painting")
+            # self.painting_program = uutl.create_program("px")
+            # self.painting_program.ShowInstructions(False)
+            # self.painting_program.addMoveJ(self.home_approach)
+            # logger.debug("DONE write painting")
 
-        if self.calibration:
-            logger.debug("write calibration")
-            with uutl.final_position(self.calibration.node):
-                self.calibration.write(self)
-            logger.debug("DONE write calibration")
+        # if self.calibration:
+        #     logger.debug("write calibration")
+        #     with uutl.final_position(self.calibration.node):
+        #         self.calibration.write(self)
+        #     logger.debug("DONE write calibration")
 
-        if self.verification:
-            logger.debug("write verification")
-            with uutl.final_position(self.verification.node):
-                self.verification.write(self)
-            logger.debug("DONE write verification")
+        # if self.verification:
+        #     logger.debug("write verification")
+        #     with uutl.final_position(self.verification.node):
+        #         self.verification.write(self)
+        #     logger.debug("DONE write verification")
 
-    def _create_joint_target(self, obj, name):
+    # def _create_joint_target(self, obj, name):
 
-        mat = obj.attr("worldMatrix[0]").get()
-        mat = uutl.maya_to_robodk_mat(mat)
-        joint_poses = uutl.config_000_poses(mat)
-        if not joint_poses:
-            raise StudioError(
-                "No configs for approach mat. Try repositioning.")
-        joints = joint_poses[0]
+    #     mat = obj.attr("worldMatrix[0]").get()
+    #     mat = uutl.maya_to_robodk_mat(mat)
+    #     joint_poses = uutl.config_000_poses(mat)
+    #     if not joint_poses:
+    #         raise StudioError(
+    #             "No configs for approach mat. Try repositioning.")
+    #     joints = joint_poses[0]
 
-        old_approach = self.RL.Item(name)
-        if old_approach.Valid():
-            old_approach.Delete()
-        target = self.RL.AddTarget(name, self.approaches_frame, self.robot)
-        target.setAsJointTarget()
-        target.setJoints(joints)
-        return target
+    #     old_approach = self.RL.Item(name)
+    #     if old_approach.Valid():
+    #         old_approach.Delete()
+    #     target = self.RL.AddTarget(name, self.approaches_frame, self.robot)
+    #     target.setAsJointTarget()
+    #     target.setJoints(joints)
+    #     return target
 
     # def write_calibration(self):
     #     cal_program = uutl.create_program("xx")

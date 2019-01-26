@@ -1,4 +1,6 @@
 import pymel.core as pm
+from robolink import (Robolink, ITEM_TYPE_ROBOT)
+import uprising_util as uutl
 
 class Paint(object):
     def __init__(self, the_id, name, color, opacity, travel):
@@ -32,14 +34,21 @@ class Paint(object):
         return result
 
     @classmethod
-    def write_trays(cls, node, frame, RL):
-        paints = cls.paints(node)
-        for key in paints:
-            paints[key].write_tray(frame, RL)
+    def write_geos(cls):
+        frame = uutl.create_frame("tx_frame")
+        RL = Robolink()
+        node = pm.PyNode("mainPaintingShape")
 
-    def write_tray(self, frame, RL):
+        dc = pm.paintingQuery(node, dc=True)
+        pids = sorted(set(dc[1::2]))
+        paints = Paint.paints(node)
+        for pid in pids:
+            paints[pid].write_geo(frame, RL)
+
+    def write_geo(self, frame, RL):
         tray = pm.PyNode(self.name)
-        geo = tray.getShapes()
+        geo = pm.ls( tray.getParent().getParent(), dag=True, leaf=True, type="mesh")
+ 
         triangles = []
         for g in geo:
             points = g.getPoints(space='world')

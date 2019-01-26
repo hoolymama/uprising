@@ -1,6 +1,6 @@
 //Maya ASCII 2017ff04 scene
 //Name: newBrushesWipeSkel.ma
-//Last modified: Wed, Jan 23, 2019 08:55:27 PM
+//Last modified: Fri, Jan 25, 2019 09:03:22 PM
 //Codeset: UTF-8
 requires maya "2017ff04";
 requires -nodeType "glyphShape" -nodeType "matrixGlyphShape" "Congregation" "2017.dev.999";
@@ -20,8 +20,8 @@ fileInfo "osv" "Mac OS X 10.12.6";
 createNode transform -s -n "persp";
 	rename -uid "4E161BFB-4046-46A3-EE6C-DD8D384A4713";
 	setAttr ".v" no;
-	setAttr ".t" -type "double3" -12.299384936465868 -544.41537003400254 215.34185128182699 ;
-	setAttr ".r" -type "double3" 74.061647271648354 1.5902773407317588e-15 -9.3999999999949928 ;
+	setAttr ".t" -type "double3" 266.66296373658668 -213.52867199542698 236.42250962720749 ;
+	setAttr ".r" -type "double3" 58.461647271650911 -3.1805546814635176e-15 60.600000000005011 ;
 	setAttr ".rp" -type "double3" 1.4210854715202004e-14 8.8817841970012523e-15 5.6843418860808015e-14 ;
 	setAttr ".rpt" -type "double3" -3.2126587147117258e-14 -5.2098900557035962e-14 -2.0466006432280544e-14 ;
 createNode camera -s -n "perspShape" -p "persp";
@@ -30,7 +30,7 @@ createNode camera -s -n "perspShape" -p "persp";
 	setAttr ".fl" 34.999999999999986;
 	setAttr ".ncp" 1;
 	setAttr ".fcp" 1000;
-	setAttr ".coi" 589.99424602294698;
+	setAttr ".coi" 516.42574132288325;
 	setAttr ".imn" -type "string" "persp";
 	setAttr ".den" -type "string" "persp_depth";
 	setAttr ".man" -type "string" "persp_mask";
@@ -3153,7 +3153,6 @@ createNode painting -n "mainPaintingShape" -p "mainPainting";
 	setAttr ".dprid" no;
 	setAttr ".dlyid" no;
 	setAttr ".dbid" no;
-	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 	setAttr ".sgap" 1.1500000000000001;
 createNode transform -n "canvas" -p "|mainPaintingGroup|jpos";
@@ -3606,7 +3605,6 @@ createNode transform -n "displace" -p "mainPaintingGroup";
 createNode mesh -n "displaceShape" -p "displace";
 	rename -uid "7A326FD5-0D42-323D-3346-1399D2818754";
 	setAttr -k off ".v";
-	setAttr -s 2 ".iog";
 	setAttr -s 2 ".iog[0].og";
 	setAttr ".vir" yes;
 	setAttr ".vif" yes;
@@ -8165,113 +8163,6 @@ createNode mesh -n "homeTargetShape" -p "homeTarget";
 	setAttr ".cvd" -type "dataPolyComponent" Index_Data Vertex 0 ;
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
-createNode transform -n "r_tray";
-	rename -uid "FBCAD417-C14A-4920-1999-B9887E2BC63A";
-	addAttr -ci true -sn "sfPaintColorR" -ln "sfPaintColorR" -at "float";
-	addAttr -ci true -sn "sfPaintColorG" -ln "sfPaintColorG" -at "float";
-	addAttr -ci true -sn "sfPaintColorB" -ln "sfPaintColorB" -at "float";
-	addAttr -ci true -sn "sfPaintName" -ln "sfPaintName" -dt "string";
-	addAttr -ci true -sn "sfPaintOpacity" -ln "sfPaintOpacity" -at "double";
-	addAttr -ci true -sn "sfPaintMaxArcLength" -ln "sfPaintMaxArcLength" -at "double";
-	setAttr ".rp" -type "double3" 5.6843418860808015e-14 2.2737367544323206e-13 0 ;
-	setAttr ".sp" -type "double3" 5.6843418860808015e-14 2.2737367544323206e-13 0 ;
-	setAttr -k on ".sfPaintColorR" 0.97039997577667236;
-	setAttr -k on ".sfPaintColorG" 0.46129998564720154;
-	setAttr -k on ".sfPaintColorB" 0.98030000925064087;
-	setAttr -k on ".sfPaintName" -type "string" "orange";
-	setAttr -k on ".sfPaintOpacity" 0.5;
-	setAttr -k on ".sfPaintMaxArcLength" 20;
-createNode mesh -n "r_trayShape" -p "r_tray";
-	rename -uid "39B17E2B-B64E-A26B-6394-E58639ABB2CC";
-	setAttr -k off ".v";
-	setAttr -s 2 ".iog[0].og";
-	setAttr ".iog[0].og[0].gcl" -type "componentList" 1 "f[0:14]";
-	setAttr ".iog[0].og[1].gcl" -type "componentList" 1 "f[15:19]";
-	setAttr ".vir" yes;
-	setAttr ".vif" yes;
-	setAttr ".pv" -type "double2" 0.7083333432674408 0.49999997019767761 ;
-	setAttr ".uvst[0].uvsn" -type "string" "map1";
-	setAttr -s 50 ".uvst[0].uvsp[0:49]" -type "float2" 0.375 0 0.38510099
-		 0.014371129 0.38510102 0.23562887 0.61519605 0.23562887 0.625 0.25 0.375 0.25 0.61519605
-		 0.014371129 0.625 0 0.29166669 0 0.29166669 0.25 0.375 0.91666663 0.625 0.91666663
-		 0.625 0.99999994 0.375 0.99999994 0.70833337 0 0.70833337 0.25 0.625 0.33333334 0.375
-		 0.33333334 0.20833334 0 0.20833334 0.25 0.375 0.83333331 0.625 0.83333331 0.79166669
-		 0 0.79166669 0.25 0.625 0.41666669 0.375 0.41666669 0.125 0 0.125 0.25 0.375 0.75
-		 0.625 0.75 0.875 0 0.875 0.25 0.625 0.5 0.375 0.5 0.625 0.27153829 0.375 0.27153829
-		 0.375 0.5 0.625 0.5 0.64653826 5.17414e-18 0.64653826 0.25 0.875 0.25 0.875 0 0.375
-		 0.75 0.625 0.75 0.35346171 0.25 0.35346171 1.1274109e-17 0.125 0 0.125 0.25 0.375
-		 0.97846174 0.625 0.97846174;
-	setAttr ".cuvs" -type "string" "map1";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr ".covm[0]"  0 1 1;
-	setAttr ".cdvm[0]"  0 1 1;
-	setAttr -s 24 ".pt[0:23]" -type "float3"  7.7621551 -0.74639893 -0.54260594 
-		5.6701221 -0.48628235 -0.54260594 -6.6329327 -16.387344 -0.54260594 -37.000687 11.088562 
-		1.8436368 -39.17366 10.924011 1.8436368 -6.1391048 -18.713074 -0.54260594 -22.866409 
-		26.989624 1.8436368 -23.203276 28.890701 1.8436368 6.1947575 -0.47973633 -0.40076476 
-		-6.5717068 -16.979736 -0.40076476 -22.85515 28.575119 1.8436368 -37.52182 12.075104 
-		1.8436368 6.1947575 -0.47973633 -0.29713321 -6.5717068 -16.979736 -0.29713321 -22.85515 
-		28.575119 1.8436368 -37.52182 12.075104 1.8436368 4.8153095 0.41189575 -0.36704192 
-		-7.5256023 -15.538101 -0.36704192 -21.932907 28.765991 -0.39038113 -36.110703 12.815979 
-		-0.39038113 -7.6484127 -14.507767 -0.44283086 -23.479355 -0.65306091 -0.39038113 
-		-11.930174 14.273666 -0.39038113 3.9007664 0.41897583 -0.44283086;
-	setAttr -s 24 ".vt[0:23]"  -0.81153107 -8.98333359 4.099960327 0.48139954 -7.95052719 4.099960327
-		 0.48139954 7.95053101 4.099960327 29.93354797 7.95053101 4.099960327 31.1884613 8.9833374 4.099960327
-		 -0.81153107 8.9833374 4.099960327 29.93354797 -7.95052719 4.099960327 31.1884613 -8.98333359 4.099960327
-		 0.18846893 -8.25 3.3907547 0.18846893 8.25 3.3907547 30.18847656 -8.25 3.3907547
-		 30.18847656 8.25 3.3907547 0.18846893 -8.25 2.87259674 0.18846893 8.25 2.87259674
-		 30.18847656 -8.25 2.87259674 30.18847656 8.25 2.87259674 1.35513306 -7.97499847 0
-		 1.35513306 7.97499847 0 29.02180481 -7.97499847 0 29.02180481 7.97499847 0 1.87381744 7.46335602 0.3789444
-		 17.70475769 7.46335602 0.3789444 17.70475769 -7.46335983 0.3789444 1.87381744 -7.46335983 0.3789444;
-	setAttr -s 42 ".ed[0:41]"  0 1 1 1 2 0 2 3 0 3 4 1 4 5 0 5 0 0 3 6 1
-		 6 1 0 0 7 0 7 4 0 8 0 0 5 9 0 9 8 1 8 10 1 10 7 0 10 11 1 11 4 0 11 9 1 12 8 0 9 13 0
-		 13 12 1 12 14 1 14 10 0 14 15 1 15 11 0 15 13 1 16 12 0 13 17 0 17 16 0 16 18 0 18 14 0
-		 18 19 0 19 15 0 19 17 0 2 20 0 20 21 0 21 3 0 21 22 1 22 6 0 20 23 0 23 22 0 1 23 0;
-	setAttr -s 20 -ch 84 ".fc[0:19]" -type "polyFaces" 
-		f 6 0 1 2 3 4 5
-		mu 0 6 0 1 2 3 4 5
-		f 6 6 7 -1 8 9 -4
-		mu 0 6 3 6 1 0 7 4
-		f 4 10 -6 11 12
-		mu 0 4 8 0 5 9
-		f 4 13 14 -9 -11
-		mu 0 4 10 11 12 13
-		f 4 -15 15 16 -10
-		mu 0 4 7 14 15 4
-		f 4 -5 -17 17 -12
-		mu 0 4 5 4 16 17
-		f 4 18 -13 19 20
-		mu 0 4 18 8 9 19
-		f 4 21 22 -14 -19
-		mu 0 4 20 21 11 10
-		f 4 -23 23 24 -16
-		mu 0 4 14 22 23 15
-		f 4 -18 -25 25 -20
-		mu 0 4 17 16 24 25
-		f 4 26 -21 27 28
-		mu 0 4 26 18 19 27
-		f 4 29 30 -22 -27
-		mu 0 4 28 29 21 20
-		f 4 -31 31 32 -24
-		mu 0 4 22 30 31 23
-		f 4 -26 -33 33 -28
-		mu 0 4 25 24 32 33
-		f 4 -34 -32 -30 -29
-		mu 0 4 33 32 29 28
-		f 4 -3 34 35 36
-		mu 0 4 34 35 36 37
-		f 4 -7 -37 37 38
-		mu 0 4 38 39 40 41
-		f 4 39 40 -38 -36
-		mu 0 4 36 42 43 37
-		f 4 -2 41 -40 -35
-		mu 0 4 44 45 46 47
-		f 4 -8 -39 -41 -42
-		mu 0 4 48 49 43 42;
-	setAttr ".cd" -type "dataPolyComponent" Index_Data Edge 0 ;
-	setAttr ".cvd" -type "dataPolyComponent" Index_Data Vertex 0 ;
-	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
-	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode transform -n "persp1";
 	rename -uid "7E2ADE31-024A-ED2F-7139-20972CE05F04";
 	setAttr ".t" -type "double3" 26.664830313361058 -168.90147915779656 210.08239682820613 ;
@@ -8290,14 +8181,14 @@ createNode camera -n "persp1Shape" -p "persp1";
 	setAttr ".hc" -type "string" "viewSet -p %camera";
 createNode transform -n "top1";
 	rename -uid "14F14B06-A442-F725-ED98-0BA42C716D02";
-	setAttr ".t" -type "double3" 2.7034411743827977 -1.0805912849081807 1009.6229017083732 ;
+	setAttr ".t" -type "double3" -27.706282444673239 -25.971862726017228 1009.6229017083732 ;
 createNode camera -n "top1Shape" -p "top1";
 	rename -uid "F5CCDA81-584C-B464-9784-7EB3E0753709";
 	setAttr -k off ".v";
 	setAttr ".rnd" no;
 	setAttr ".ff" 2;
 	setAttr ".coi" 1009.6229017083732;
-	setAttr ".ow" 103.75281410604637;
+	setAttr ".ow" 96.366284269431432;
 	setAttr ".imn" -type "string" "top";
 	setAttr ".den" -type "string" "top_depth";
 	setAttr ".man" -type "string" "top_mask";
@@ -31129,9 +31020,9 @@ createNode mesh -n "pot_0_coffeeShape" -p "pot_0_coffee";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "952C2C73-CC40-D092-5DB8-5BA314D44552";
+	rename -uid "9FB79478-0540-234B-B1B9-20B0DEEB3EEF";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11";
-	rename -uid "D7403D67-7C44-3244-C85A-F6A42A2D3108";
+	rename -uid "83A057DB-7A45-BB2E-1761-3CB2EE6D07EF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31150,9 +31041,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "0AA369E8-974B-FE37-EA48-E681F60D2669";
+	rename -uid "2B3B08D1-F644-D772-E449-C4BF6D79330D";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16";
-	rename -uid "11A1D366-C842-395A-BD90-6590EDDF4712";
+	rename -uid "178A81E5-E84D-2820-C8C0-C28877AADFCB";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31171,9 +31062,9 @@ createNode painting -n "bShape16" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "5C6EF2B0-E048-F92F-89A9-85ADE2031881";
+	rename -uid "74AAA46E-2C42-8F8B-B2D1-93AB431044F3";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14";
-	rename -uid "6CE7685A-5948-BEE5-AD19-10B9B0CD2661";
+	rename -uid "8BA65CBF-E04D-67D2-8D16-AB8E7124C05E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31214,9 +31105,9 @@ createNode mesh -n "handleShape" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|
 	setAttr ".covm[0]"  0 1 1;
 	setAttr ".cdvm[0]"  0 1 1;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "0A973399-994C-26B9-E3FC-82A193F88207";
+	rename -uid "6C106B57-2F4E-16AC-C16B-3782B2F5C3E2";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11";
-	rename -uid "8F75096C-654B-AB45-7B9E-C2A59E9159EA";
+	rename -uid "DFBBA651-AB45-A817-4E0D-C5BA0EB0FEAF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31235,9 +31126,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "54BB5F2E-D44B-64D3-5B15-D49621255DB5";
+	rename -uid "7C357A1C-D04A-54FB-EC5D-32824E506F2C";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16";
-	rename -uid "0A2BC23A-4343-2DAE-EB54-449ED1763156";
+	rename -uid "3C9C613F-3142-7EF6-B1DB-67808B58CBBF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31256,9 +31147,9 @@ createNode painting -n "bShape16" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "180E56E4-3B43-3F0F-8147-269685D668DD";
+	rename -uid "F404DE05-284A-A236-D4E3-48B595D58E02";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14";
-	rename -uid "D923998B-F742-ED54-49D0-89A2E06DE54D";
+	rename -uid "B9B29E73-104C-9A42-4B4F-87AF2AB40A11";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31485,9 +31376,9 @@ createNode mesh -n "pot_1_teaShape" -p "pot_1_tea";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "4AB181F5-5F48-3956-5354-EA8535682B9C";
+	rename -uid "8EA3EA37-2C43-3D93-2602-A2863653C38E";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04";
-	rename -uid "765F58F1-F544-F6AC-94F9-EBB85E1215B4";
+	rename -uid "9DA3241A-C444-7168-E1E9-3CAD91E2C6D3";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31506,9 +31397,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "192FA470-0745-6AFD-E4B6-40B202FAA195";
+	rename -uid "4EC74F65-0B46-00AF-5DE1-0E93363A5C09";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16";
-	rename -uid "281979B8-9345-7284-C287-978037E8C099";
+	rename -uid "F359F9F3-F74E-BF54-1895-3E8EFD08C932";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31527,9 +31418,9 @@ createNode painting -n "bShape16" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "2F2453E5-DB40-D028-0326-869E097CC422";
+	rename -uid "CC22071C-6B46-FE08-159C-A1A61174A4AA";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11";
-	rename -uid "D6C5AD2C-6444-3FA7-7E6E-AC8927EFD57B";
+	rename -uid "16B12185-714C-940C-8F54-2F9EE422F69F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31559,9 +31450,9 @@ createNode transform -n "handle" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc"
 	setAttr ".rp" -type "double3" 0 0 -5.5511151231257827e-17 ;
 	setAttr ".sp" -type "double3" 2.4651903288156619e-32 0 -1.6653345369377348e-16 ;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "4CA2F2B7-4940-10E5-5F9D-2E9EFEB141ED";
+	rename -uid "BADBD0F9-1847-143A-B065-80BF73007013";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04";
-	rename -uid "4223E740-AC41-716B-DE90-22AA4407F56E";
+	rename -uid "FE2B9625-B940-DDDF-EF99-7B9CA33C731B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31580,9 +31471,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "7F2A1E1A-1E4A-7AE2-F2CC-D992F2F889C4";
+	rename -uid "DF23BFFC-7F4A-EE15-506A-E0B682605D13";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16";
-	rename -uid "F45E9369-F140-DD0B-1084-BFA0A1DB0EAA";
+	rename -uid "6458D0DB-B845-72A9-B207-ABA3BB1B1018";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31601,9 +31492,9 @@ createNode painting -n "bShape16" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "440FA2BB-5E4A-A7A9-F665-EA9CE63D4C3A";
+	rename -uid "0F6316BD-1644-080B-D90D-6F9E61A87A0A";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11";
-	rename -uid "C5133742-3C49-1295-F7AC-19AD522EC06C";
+	rename -uid "F28B843D-2D4B-90DF-E87A-57BFC0FBAB0B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31830,9 +31721,9 @@ createNode mesh -n "pot_2_peachShape" -p "pot_2_peach";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "EFBD2AAF-084A-12F5-96CD-A39FFE284A2C";
+	rename -uid "3E557F28-1345-AD25-1E19-F39B106C62A2";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11";
-	rename -uid "0163BB00-0A44-8819-9A20-55BFC56BF65E";
+	rename -uid "00CE708C-A242-3BF9-B040-6593527A998F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31851,9 +31742,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "D42B9E5B-0249-3114-1003-C98A774531BF";
+	rename -uid "D3AE8213-0B48-0774-8508-B5B08A865A33";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16";
-	rename -uid "6A7DF60F-7244-4C6D-C42B-3690444BD9A0";
+	rename -uid "AA829A84-8941-07E2-9938-94BCC758228A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31883,9 +31774,9 @@ createNode transform -n "handle" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc"
 	setAttr ".rp" -type "double3" 0 0 -5.5511151231257827e-17 ;
 	setAttr ".sp" -type "double3" 2.4651903288156619e-32 0 -1.6653345369377348e-16 ;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "0C7D3793-7D40-0A32-204E-9EAEE50A947B";
+	rename -uid "1018FEEF-D84D-DFF7-0664-0E9C847B50C7";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11";
-	rename -uid "23FE72B4-3541-8857-4531-FC915B7D4B5C";
+	rename -uid "A79CD72A-644D-95E9-2D00-C1936B99DD5E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31904,9 +31795,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "B527F858-E741-9832-6DDD-029615F49D56";
+	rename -uid "C8139CCD-1846-5F7D-B177-40B309BC55DB";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16";
-	rename -uid "55836E98-2941-2CCF-30A1-D5A00E664471";
+	rename -uid "638BC034-604A-0CC1-53DD-BFAD88F6F09E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32133,9 +32024,9 @@ createNode mesh -n "pot_3_labradorShape" -p "pot_3_labrador";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "163008D4-2E40-DD40-311C-649A59164246";
+	rename -uid "26154AC7-2548-F4E7-6A44-0192DE0DA4B8";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14";
-	rename -uid "0FDAA3DA-8E48-BA04-D54B-4CBECB6E3529";
+	rename -uid "E4B3AB7A-EB49-3324-81C3-BEA63646BF44";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32154,9 +32045,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "4AED008D-BD48-B42E-D059-23A3D2EE7CC8";
+	rename -uid "BA593F14-224A-94D4-2413-49B74289D7BB";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16";
-	rename -uid "465EE4C8-8947-E889-871F-DF83BD0D19AF";
+	rename -uid "CCE9B7D2-BB4D-8E51-8243-FA87C82E01BB";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32175,9 +32066,9 @@ createNode painting -n "bShape16" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "42B3A7C1-EF49-9A31-6B1E-CFB895CD66D1";
+	rename -uid "C4724CD5-CB41-98A4-7E7D-54896E69C788";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11";
-	rename -uid "EF8686C9-E34D-F7E8-D601-8FAAE0DA4F81";
+	rename -uid "98700DF6-9944-E953-0D61-03B82490EC88";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32208,9 +32099,9 @@ createNode transform -n "handle" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc"
 	setAttr ".rp" -type "double3" 0 0 -5.5511151231257827e-17 ;
 	setAttr ".sp" -type "double3" 2.4651903288156619e-32 0 -1.6653345369377348e-16 ;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "A712EF42-CC4A-CE82-DDE0-10BCFAA4A3CC";
+	rename -uid "1478E703-7B4B-B441-CC3E-B5AAFCEE0CB4";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14";
-	rename -uid "475FA0C4-D648-E752-FD04-3382B0290833";
+	rename -uid "81C4A4D8-784D-F6FF-9374-04BAFBED1FCA";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32229,9 +32120,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "1AAFEA60-1E4D-A9D7-7E42-F1A5C9ED1EE2";
+	rename -uid "D7A955F1-724E-0B44-B2DC-C6A967A3667A";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16";
-	rename -uid "ED6C6EB2-FF41-EAAD-D5DF-BF8B182114D4";
+	rename -uid "C54F39B4-6D40-9350-945F-529230B69FEF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32250,9 +32141,9 @@ createNode painting -n "bShape16" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "B26DF19D-D24E-2FE4-2E98-5CA9F33096EE";
+	rename -uid "7E804686-1940-6CB2-21D4-098EA012BC01";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11";
-	rename -uid "503BF440-0B46-8EC0-108A-E8821FFC7AC6";
+	rename -uid "D169DA49-664F-290F-080A-DB852C168BC4";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32479,9 +32370,9 @@ createNode mesh -n "pot_4_creamShape" -p "pot_4_cream";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "8D817309-BE48-7780-0F0F-9AB5ACDCDCBE";
+	rename -uid "590EB525-6F47-D062-DCD0-228AECEEFD9E";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16";
-	rename -uid "F7E29504-E84E-108D-77F4-E0B4CE0FA499";
+	rename -uid "70061899-1C46-F379-9553-17AAB7E2D269";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32500,9 +32391,9 @@ createNode painting -n "bShape16" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "4160A969-854E-3560-5024-51A51E5BD911";
+	rename -uid "96765283-4045-F584-B2DC-55A114DDDB1E";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14";
-	rename -uid "4315DCB8-8C44-5D1B-8A2B-2488CEC90CE4";
+	rename -uid "8CED864A-F345-6CB0-C10F-5C8ACFF56EB5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32521,9 +32412,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "93A3055A-FD44-3DA8-3B51-12A8AAFB248C";
+	rename -uid "6218261F-1744-F4F3-F8B9-4E911CDC8C79";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11";
-	rename -uid "72879F60-CA4D-F96C-2046-EA941766D082";
+	rename -uid "9BB95D1B-8C43-7333-DCF6-069287DDEF0C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32553,9 +32444,9 @@ createNode transform -n "handle" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc"
 	setAttr ".rp" -type "double3" 0 0 -5.5511151231257827e-17 ;
 	setAttr ".sp" -type "double3" 2.4651903288156619e-32 0 -1.6653345369377348e-16 ;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "CE2D25D0-F74D-18FF-ACD7-D09B1302EA21";
+	rename -uid "BD8310CF-B949-E5F6-81E5-AC81767A280C";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16";
-	rename -uid "57D05D12-6D45-30F2-05B9-F6B628225393";
+	rename -uid "DDB3BAC1-5E4F-6E35-F5D3-FD9D9C6B6565";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32574,9 +32465,9 @@ createNode painting -n "bShape16" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "BEFF684A-1443-BA51-4C2D-53B20DF50863";
+	rename -uid "9A6A76F4-0B40-2D0C-D228-B79F75474C76";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14";
-	rename -uid "396DCFD0-6645-340C-1F92-9CAC221A6047";
+	rename -uid "BE1CCC0F-C44D-F10F-C4B8-F299AEAFBF3E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32595,9 +32486,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "83CC5171-3D4C-29D1-CA94-6AA6D534908D";
+	rename -uid "58EBDEBA-A343-E90C-1A58-DA9C99FAC38D";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11";
-	rename -uid "BB4A0F9F-E245-1029-67C6-5D9F776F5C61";
+	rename -uid "3105B02F-AE46-C5EB-EF7F-60B09D9B3A30";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32824,9 +32715,9 @@ createNode mesh -n "pot_5_light_mintShape" -p "pot_5_light_mint";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "A716185A-0047-14A1-02F1-D2A9EE016AFB";
+	rename -uid "4A9AE358-7048-5CCE-9AC2-0495D232ABE2";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11";
-	rename -uid "05F206A0-DA47-A5E7-CAEA-37B84990B76C";
+	rename -uid "299E38FE-8D48-DB2F-6810-9C90A63ED92F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32845,9 +32736,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "16B811C9-6F46-D5F9-E0D6-C588AC435267";
+	rename -uid "37FF4433-9C48-7236-560A-189FF0D1718C";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16";
-	rename -uid "21B853F9-A447-3DA6-0BEE-89BBD3EBF524";
+	rename -uid "3FDA0FF2-AF4F-57C7-C71B-C980BE341BCA";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32866,9 +32757,9 @@ createNode painting -n "bShape16" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "7776D214-BA4E-F481-BD9C-BE8D0BBA5F6D";
+	rename -uid "481895F6-C04B-736F-5576-16AC718DE650";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14";
-	rename -uid "155BCF87-2E4E-0B61-3A6D-8C85E62B00EE";
+	rename -uid "CA0DA8A8-BA40-CC1F-2F2B-8DACDA94ACFF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32899,9 +32790,9 @@ createNode transform -n "handle" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc"
 	setAttr ".rp" -type "double3" 0 0 -5.5511151231257827e-17 ;
 	setAttr ".sp" -type "double3" 2.4651903288156619e-32 0 -1.6653345369377348e-16 ;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "4678C0E3-5549-F290-823D-ABB3348AF558";
+	rename -uid "8572BC22-F14D-E21D-386F-57B739AC46E2";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11";
-	rename -uid "456C0FAF-4C41-CA1C-2FD0-249CE4344E72";
+	rename -uid "7F78B374-544F-2BA0-2D93-FAAE7C22C16C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32920,9 +32811,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "67834D5F-4448-A59A-34C1-33A09405F1C9";
+	rename -uid "8E7AFBDA-9143-5465-C99F-CCA2FA8C8E26";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16";
-	rename -uid "555CEBB8-B246-4DC5-C4C0-72A5687EBE39";
+	rename -uid "7EDA1D03-0B4D-F4C9-A194-0D82062D9A65";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32941,9 +32832,9 @@ createNode painting -n "bShape16" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "181B51A3-2446-995D-2AF5-BB9295D8FAA0";
+	rename -uid "5E76A9C3-6F45-722B-5CFE-1F8B12305457";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14";
-	rename -uid "B1ECFDA8-0A44-0311-3BDB-D1BC67AD705B";
+	rename -uid "73D8A0AA-B245-00AA-1DF0-FE8E629E4FEB";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33169,31 +33060,10 @@ createNode mesh -n "pot_6_green_wispShape" -p "pot_6_green_wisp";
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
-createNode transform -n "b11" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "CFD9FB7D-C943-223B-9ED6-F7ACED37578E";
-createNode painting -n "bShape11" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11";
-	rename -uid "53C714F4-C648-C6DD-BBA8-6BBE14CF96EB";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "099893F2-4447-D40E-8C7B-EEAC12E29788";
+	rename -uid "97907D9E-404D-737C-8491-9E85D582DEE6";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14";
-	rename -uid "3B1383CE-F24B-568C-AAF0-1688228CCE4D";
+	rename -uid "09759975-E240-9471-44DC-E1BC0B9BDA4D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33212,9 +33082,30 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "F5718077-1D43-0862-A710-A8BA23269A8D";
+	rename -uid "FC694A58-C445-2A16-6E87-308E5A5F1F45";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16";
-	rename -uid "44E5913A-A54C-4420-5707-B0ABE147891A";
+	rename -uid "53382DE9-EA44-B657-C0FF-D4AAFDC49EF4";
+	setAttr -k off ".v";
+	setAttr ".agsp" 70;
+	setAttr ".apxd" 2;
+	setAttr ".mxptp" 15;
+	setAttr ".apd" -type "double3" 20 2.5 5 ;
+	setAttr ".psi" 1;
+	setAttr ".lln" 1;
+	setAttr ".ltk" 1;
+	setAttr ".arsz" 0;
+	setAttr ".dcpt" no;
+	setAttr ".dsp" no;
+	setAttr ".did" no;
+	setAttr ".dprid" no;
+	setAttr ".dlyid" no;
+	setAttr ".dbid" no;
+	setAttr ".dptid" no;
+	setAttr ".drpid" no;
+createNode transform -n "b11" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
+	rename -uid "DF72EB6D-DB4D-2349-F299-0C9E7CD1AE5D";
+createNode painting -n "bShape11" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11";
+	rename -uid "0B3A4B3D-0042-A01D-236D-6183DB7C6341";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33244,31 +33135,10 @@ createNode transform -n "handle" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc"
 	rename -uid "23CA687B-3147-85D9-68E5-92831A24C5DD";
 	setAttr ".rp" -type "double3" 0 0 -5.5511151231257827e-17 ;
 	setAttr ".sp" -type "double3" 2.4651903288156619e-32 0 -1.6653345369377348e-16 ;
-createNode transform -n "b11" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "E16C2E55-8A44-1CFE-1ECD-308982484ECF";
-createNode painting -n "bShape11" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11";
-	rename -uid "B521F56F-E348-1276-3998-DE89857BF514";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "73C49154-A940-82B9-C1C1-5681E7150230";
+	rename -uid "E13A6C4E-BD46-191C-D76E-0BA643B5181F";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14";
-	rename -uid "8EC85641-734C-6560-2973-41A4DADD1DEC";
+	rename -uid "1C30BC9B-0A46-2926-3006-A381A27F2F1E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33287,9 +33157,30 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "BAE339CB-294E-1D46-1CDF-5EB965EF7ED5";
+	rename -uid "898F88BA-E54A-4FA7-B9D8-3FABC4CF8B80";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16";
-	rename -uid "EAE4F778-6D45-BDA4-BC4B-348E3F2BC060";
+	rename -uid "66611584-FC42-76E8-0489-5984F4A7BF3C";
+	setAttr -k off ".v";
+	setAttr ".agsp" 70;
+	setAttr ".apxd" 2;
+	setAttr ".mxptp" 15;
+	setAttr ".apd" -type "double3" 20 2.5 5 ;
+	setAttr ".psi" 1;
+	setAttr ".lln" 1;
+	setAttr ".ltk" 1;
+	setAttr ".arsz" 0;
+	setAttr ".dcpt" no;
+	setAttr ".dsp" no;
+	setAttr ".did" no;
+	setAttr ".dprid" no;
+	setAttr ".dlyid" no;
+	setAttr ".dbid" no;
+	setAttr ".dptid" no;
+	setAttr ".drpid" no;
+createNode transform -n "b11" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
+	rename -uid "40E611E9-314B-7197-AD7E-F9BB540720FA";
+createNode painting -n "bShape11" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11";
+	rename -uid "69359B9E-6545-1DEE-F904-9B92D0D2B17E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33516,9 +33407,9 @@ createNode mesh -n "pot_7_blue_wispShape" -p "pot_7_blue_wisp";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "3F6624F5-9F47-69E1-7FAF-FFAAE5711ECA";
+	rename -uid "A4C9A0E0-8C47-6C4F-C5F8-CAAFBB123233";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11";
-	rename -uid "7710731A-7647-4890-951B-F69D86310680";
+	rename -uid "E6374E12-3744-A1C7-CB9B-D2926A707790";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33537,9 +33428,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "58D6EECF-7345-80E5-5337-19838AEB9934";
+	rename -uid "47607B9F-D843-0EA9-0448-0F8599D19550";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14";
-	rename -uid "0D6ECBE8-0742-E6F3-FDA9-5D92BB102F37";
+	rename -uid "8FC0D21C-BD45-25F1-EF7E-D7823331A53B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33558,9 +33449,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "6BA25FB3-7B42-CE76-865E-5BA8733FE135";
+	rename -uid "75744AB4-864D-A7BE-938F-B1AF53E6F890";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16";
-	rename -uid "77D0C83F-EB41-69AA-6A43-E688AB724155";
+	rename -uid "77FEB246-0847-8AF8-20DB-D9BFBF4D119F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33590,9 +33481,9 @@ createNode transform -n "handle" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc"
 	setAttr ".rp" -type "double3" 0 0 -5.5511151231257827e-17 ;
 	setAttr ".sp" -type "double3" 2.4651903288156619e-32 0 -1.6653345369377348e-16 ;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "DEB5B7B7-7540-E33F-780D-80BCD1A0F3C7";
+	rename -uid "3776DA0F-6547-8116-9AFE-BD9F39070BB0";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11";
-	rename -uid "6A5A58A3-274B-C70B-EF6C-AC94C976FBD1";
+	rename -uid "02FF709A-CC42-29FC-4A5B-3BA084531D50";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33611,9 +33502,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "51B60764-284C-82BF-2649-53A9473D1E7F";
+	rename -uid "690E4E62-F54D-BB51-4839-9CA694F1FB43";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14";
-	rename -uid "BC2E60D7-1C40-0FFF-F6BB-6E847AF927F4";
+	rename -uid "97F8B909-0740-1E4A-C9AD-5DA4FF8FD4F1";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33632,9 +33523,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "B0235469-A243-B64D-2A8E-5483C18620EB";
+	rename -uid "18D21C55-4441-83E9-1625-629CAC196D09";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16";
-	rename -uid "821FA72E-9644-90C3-2F5F-35B69C703931";
+	rename -uid "1D204223-414B-ED1B-4077-4D99DA3D0246";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33860,178 +33751,10 @@ createNode mesh -n "pot_8_brownShape" -p "pot_8_brown";
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
-createNode transform -n "b08" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "8B16839B-A64F-1C8E-57E9-26A32A5D166A";
-createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08";
-	rename -uid "95781FC4-214C-1888-F1A6-889E530E6F19";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b00" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "EA1A4F3B-524D-BF51-3C01-659A19A60D88";
-createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00";
-	rename -uid "8C19039E-7543-4D43-034A-8EADB1E71FBE";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "588230F5-0D46-5A41-140B-2BAC212DF2CC";
+	rename -uid "50E85F1F-AA4E-42E6-286B-A581B2E28312";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01";
-	rename -uid "B51BE957-494D-E05D-CE60-1C9DC4194524";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b02" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "03A9999C-2A43-C70C-1454-F4917EE44DCF";
-createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02";
-	rename -uid "D7A22173-FE44-0B81-2145-8B96D038A240";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b03" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "D77BCF83-D94A-60FB-CCE2-0593A59FA0F3";
-createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03";
-	rename -uid "0720536B-9A4E-8C56-6944-A686A40411D3";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b05" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "F5733B93-3245-A059-EAF9-0094AEE00FB7";
-createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05";
-	rename -uid "FABCF686-234C-DF17-7DA5-5CA8F474E512";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b06" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "F52703D1-E548-4F68-7E0A-948BA23B21C9";
-createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06";
-	rename -uid "7C156145-C64F-84E0-2024-5A83A8A41CE4";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b07" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "CAF327A4-6541-B9DC-7460-EBA9567B68A9";
-createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07";
-	rename -uid "86B5C93B-814F-50FC-8A2B-7CAA7A3262E6";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b04" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "55E382EB-9F44-AB5A-6239-D69A0DB015C0";
-createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04";
-	rename -uid "7B491DC5-294A-6379-A664-6E8EDFCFA473";
+	rename -uid "B8D8AE19-5847-5456-0D05-ABB149C33E34";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34050,9 +33773,30 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "EDF39260-224F-7CA7-DC0F-B3B34B6A323F";
+	rename -uid "7217BB80-624C-6EBB-17C9-448A47DCAB00";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16";
-	rename -uid "29213D37-9A4F-12DF-1269-758D2BBCAF65";
+	rename -uid "A8BD385E-454D-0D62-E63D-47B57F297D60";
+	setAttr -k off ".v";
+	setAttr ".agsp" 70;
+	setAttr ".apxd" 2;
+	setAttr ".mxptp" 15;
+	setAttr ".apd" -type "double3" 20 2.5 5 ;
+	setAttr ".psi" 1;
+	setAttr ".lln" 1;
+	setAttr ".ltk" 1;
+	setAttr ".arsz" 0;
+	setAttr ".dcpt" no;
+	setAttr ".dsp" no;
+	setAttr ".did" no;
+	setAttr ".dprid" no;
+	setAttr ".dlyid" no;
+	setAttr ".dbid" no;
+	setAttr ".dptid" no;
+	setAttr ".drpid" no;
+createNode transform -n "b14" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
+	rename -uid "6719755A-7F45-8FAB-1E88-10B9565134D8";
+createNode painting -n "bShape14" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14";
+	rename -uid "5ABD4AE5-7641-1B87-739E-76AA5DF7FDA8";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34082,178 +33826,10 @@ createNode transform -n "handle" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc"
 	rename -uid "DA102FD8-B54F-D615-7BBB-069AEEF4D62C";
 	setAttr ".rp" -type "double3" 0 0 -5.5511151231257827e-17 ;
 	setAttr ".sp" -type "double3" 2.4651903288156619e-32 0 -1.6653345369377348e-16 ;
-createNode transform -n "b08" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "F1D3879C-EA49-0BA6-ADB7-32A221A1B0B3";
-createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08";
-	rename -uid "F06145EB-7C4D-3053-1212-01B812172AC6";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b00" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "D14DD6AC-D944-F056-83C3-1AB48A0B3628";
-createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00";
-	rename -uid "170DF734-7148-CDDA-A872-5EBFF54ABE2F";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "7C54AD07-B742-830E-064A-2A9AD3673CE0";
+	rename -uid "EE39BA8B-6C49-765C-9CE6-F69DDE40DF07";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01";
-	rename -uid "5DBFB87C-0943-7F11-0DCB-AA8818602112";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b02" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "189564F8-BC45-A44E-3E21-ED95154CA406";
-createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02";
-	rename -uid "3220C338-AF47-7C8B-6BD9-34A81937B843";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b03" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "465ADE64-7D4A-2FCA-BE0B-058CD0264E34";
-createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03";
-	rename -uid "DE1F25A2-2247-5A10-CA0C-F9B8F8D57662";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b05" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "55395F06-5545-F39C-0534-329E7B31E96D";
-createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05";
-	rename -uid "7FE2FEAD-774F-CB9E-1C1C-0DA8A865FE66";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b06" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "308F7F1F-2843-3C37-BD4B-179C31C23421";
-createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06";
-	rename -uid "860CBABB-D04E-FA51-F15F-E0AF20090D47";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b07" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "4D0A432E-9243-5C1A-226F-42BE0BD34D2E";
-createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07";
-	rename -uid "F486D771-1842-4215-81B4-5BA18A16603F";
-	setAttr -k off ".v";
-	setAttr ".agsp" 70;
-	setAttr ".apxd" 2;
-	setAttr ".mxptp" 15;
-	setAttr ".apd" -type "double3" 20 2.5 5 ;
-	setAttr ".psi" 1;
-	setAttr ".lln" 1;
-	setAttr ".ltk" 1;
-	setAttr ".arsz" 0;
-	setAttr ".dcpt" no;
-	setAttr ".dsp" no;
-	setAttr ".did" no;
-	setAttr ".dprid" no;
-	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
-	setAttr ".dptid" no;
-	setAttr ".drpid" no;
-createNode transform -n "b04" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "124E2567-D545-EA43-3620-65918364C39E";
-createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04";
-	rename -uid "47ABE3DD-9146-6CA3-047E-D2B8AD504658";
+	rename -uid "D3EF73C9-C949-A117-2436-0AAFFD61E1C5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34272,9 +33848,30 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "C81F40FD-3E40-F76C-AF16-01A9A9ECBB14";
+	rename -uid "29DDAFE2-5F41-DA7E-61E4-85ACB52BA0DD";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16";
-	rename -uid "71C068D6-894C-8E3D-A42B-C9AE2EF414EC";
+	rename -uid "E1147E5A-C848-2A86-F09E-179BA832F2C2";
+	setAttr -k off ".v";
+	setAttr ".agsp" 70;
+	setAttr ".apxd" 2;
+	setAttr ".mxptp" 15;
+	setAttr ".apd" -type "double3" 20 2.5 5 ;
+	setAttr ".psi" 1;
+	setAttr ".lln" 1;
+	setAttr ".ltk" 1;
+	setAttr ".arsz" 0;
+	setAttr ".dcpt" no;
+	setAttr ".dsp" no;
+	setAttr ".did" no;
+	setAttr ".dprid" no;
+	setAttr ".dlyid" no;
+	setAttr ".dbid" no;
+	setAttr ".dptid" no;
+	setAttr ".drpid" no;
+createNode transform -n "b14" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
+	rename -uid "577180C8-B640-E2AA-DAA2-FBAF8986E280";
+createNode painting -n "bShape14" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14";
+	rename -uid "93A328F2-B04F-E4EB-AA0A-47B792DC76B2";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36682,18 +36279,6 @@ createNode transform -n "handle" -p "|rack1|holes|holeRot_19|holeTrans|wipe_loc"
 	rename -uid "2B8CD640-B147-578A-F69F-DEBF02EDCB41";
 	setAttr ".rp" -type "double3" 0 0 -5.5511151231257827e-17 ;
 	setAttr ".sp" -type "double3" 2.4651903288156619e-32 0 -1.6653345369377348e-16 ;
-createNode transform -n "pot";
-	rename -uid "9D3E8F38-EC4A-5E40-6CB0-1D80F2E5B308";
-createNode mesh -n "potShape" -p "|pot";
-	rename -uid "2B09DB2C-9347-3B91-66F1-129377409A3E";
-	setAttr -k off ".v";
-	setAttr ".vir" yes;
-	setAttr ".vif" yes;
-	setAttr ".uvst[0].uvsn" -type "string" "map1";
-	setAttr ".cuvs" -type "string" "map1";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr ".covm[0]"  0 1 1;
-	setAttr ".cdvm[0]"  0 1 1;
 createNode transform -n "painting1";
 	rename -uid "7934A72B-CD41-0918-ADA5-47BB894E6D91";
 createNode painting -n "paintingShape1" -p "painting1";
@@ -36734,25 +36319,25 @@ parent -s -nc -r -add "|rack1|holes|holeRot_00|holeTrans|wipe_loc|handle|handleS
 parent -s -nc -r -add "|rack1|holes|holeRot_00|holeTrans|wipe_loc|handle|handleShape" "|rack1|holes|holeRot_18|holeTrans|wipe_loc|handle" ;
 parent -s -nc -r -add "|rack1|holes|holeRot_00|holeTrans|wipe_loc|handle|handleShape" "|rack1|holes|holeRot_19|holeTrans|wipe_loc|handle" ;
 createNode lightLinker -s -n "lightLinker1";
-	rename -uid "2D399B29-2E43-94F3-27C8-08912B912F0E";
+	rename -uid "FD597E3B-DA47-7903-6BC6-C9AEE92254D5";
 	setAttr -s 34 ".lnk";
 	setAttr -s 34 ".slnk";
 createNode displayLayerManager -n "layerManager";
-	rename -uid "40EC781D-934D-8C5B-3CE9-BBB63AE44F01";
+	rename -uid "358DCA54-F144-31E2-4B4C-C69BDDF14116";
 	setAttr ".cdl" 5;
 	setAttr -s 8 ".dli[1:7]"  1 7 2 3 4 5 6;
 	setAttr -s 8 ".dli";
 createNode displayLayer -n "defaultLayer";
 	rename -uid "6A80EA64-4749-419F-EF64-5799265E621A";
 createNode renderLayerManager -n "renderLayerManager";
-	rename -uid "08FF57B0-F447-443E-FB78-EFB4BE9F3241";
+	rename -uid "08013B48-D848-5C8D-D2AC-BAB920B72163";
 createNode renderLayer -n "defaultRenderLayer";
 	rename -uid "CDB1CE57-F341-2F5A-536C-B69783E1D135";
 	setAttr ".g" yes;
 createNode shapeEditorManager -n "shapeEditorManager";
-	rename -uid "16E5FF7E-BC42-9F36-1C8C-D5AEFCE4571F";
+	rename -uid "8A268D63-A347-5080-A7E3-6A99BE21AD5E";
 createNode poseInterpolatorManager -n "poseInterpolatorManager";
-	rename -uid "83D0CA5B-FA4A-5D93-CB0D-C3AC2992FA0C";
+	rename -uid "7B154C1E-204D-2403-ED08-D9A1C5093668";
 createNode script -n "uiConfigurationScriptNode";
 	rename -uid "57F8CCD8-BE49-3F33-0A35-13874037C68D";
 	setAttr ".b" -type "string" (
@@ -36768,7 +36353,7 @@ createNode script -n "uiConfigurationScriptNode";
 		+ "            -imagePlane 1\n            -joints 0\n            -ikHandles 0\n            -deformers 0\n            -dynamics 0\n            -particleInstancers 0\n            -fluids 0\n            -hairSystems 0\n            -follicles 0\n            -nCloths 0\n            -nParticles 0\n            -nRigids 0\n            -dynamicConstraints 0\n            -locators 0\n            -manipulators 1\n            -pluginShapes 0\n            -dimensions 0\n            -handles 0\n            -pivots 0\n            -textures 0\n            -strokes 0\n            -motionTrails 0\n            -clipGhosts 0\n            -greasePencils 0\n            -shadows 0\n            -captureSequenceNumber -1\n            -width 1\n            -height 1\n            -sceneRenderFilter 0\n            $editorName;\n        modelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"modelPanel\" (localizedPanelLabel(\"Persp View\")) `;\n\tif (\"\" != $panelName) {\n"
 		+ "\t\t$label = `panel -q -label $panelName`;\n\t\tmodelPanel -edit -l (localizedPanelLabel(\"Persp View\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        modelEditor -e \n            -camera \"top1\" \n            -useInteractiveMode 0\n            -displayLights \"default\" \n            -displayAppearance \"smoothShaded\" \n            -activeOnly 0\n            -ignorePanZoom 0\n            -wireframeOnShaded 0\n            -headsUpDisplay 1\n            -holdOuts 1\n            -selectionHiliteDisplay 1\n            -useDefaultMaterial 0\n            -bufferMode \"double\" \n            -twoSidedLighting 0\n            -backfaceCulling 0\n            -xray 0\n            -jointXray 0\n            -activeComponentsXray 0\n            -displayTextures 0\n            -smoothWireframe 0\n            -lineWidth 1\n            -textureAnisotropic 0\n            -textureHilight 1\n            -textureSampling 2\n            -textureDisplay \"modulate\" \n            -textureMaxSize 16384\n            -fogging 0\n            -fogSource \"fragment\" \n"
 		+ "            -fogMode \"linear\" \n            -fogStart 0\n            -fogEnd 100\n            -fogDensity 0.1\n            -fogColor 0.5 0.5 0.5 1 \n            -depthOfFieldPreview 1\n            -maxConstantTransparency 1\n            -rendererName \"base_OpenGL_Renderer\" \n            -objectFilterShowInHUD 1\n            -isFiltered 0\n            -colorResolution 256 256 \n            -bumpResolution 512 512 \n            -textureCompression 0\n            -transparencyAlgorithm \"frontAndBackCull\" \n            -transpInShadows 0\n            -cullingOverride \"none\" \n            -lowQualityLighting 0\n            -maximumNumHardwareLights 1\n            -occlusionCulling 0\n            -shadingModel 0\n            -useBaseRenderer 0\n            -useReducedRenderer 0\n            -smallObjectCulling 0\n            -smallObjectThreshold -1 \n            -interactiveDisableShadows 0\n            -interactiveBackFaceCull 0\n            -sortTransparent 1\n            -nurbsCurves 1\n            -nurbsSurfaces 0\n            -polymeshes 1\n"
-		+ "            -subdivSurfaces 1\n            -planes 1\n            -lights 0\n            -cameras 0\n            -controlVertices 1\n            -hulls 0\n            -grid 1\n            -imagePlane 1\n            -joints 0\n            -ikHandles 0\n            -deformers 0\n            -dynamics 0\n            -particleInstancers 0\n            -fluids 0\n            -hairSystems 0\n            -follicles 0\n            -nCloths 0\n            -nParticles 0\n            -nRigids 0\n            -dynamicConstraints 0\n            -locators 1\n            -manipulators 1\n            -pluginShapes 0\n            -dimensions 0\n            -handles 0\n            -pivots 0\n            -textures 0\n            -strokes 0\n            -motionTrails 0\n            -clipGhosts 0\n            -greasePencils 0\n            -shadows 0\n            -captureSequenceNumber -1\n            -width 1735\n            -height 621\n            -sceneRenderFilter 0\n            $editorName;\n        modelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n"
+		+ "            -subdivSurfaces 1\n            -planes 1\n            -lights 0\n            -cameras 0\n            -controlVertices 1\n            -hulls 0\n            -grid 0\n            -imagePlane 1\n            -joints 0\n            -ikHandles 0\n            -deformers 0\n            -dynamics 0\n            -particleInstancers 0\n            -fluids 0\n            -hairSystems 0\n            -follicles 0\n            -nCloths 0\n            -nParticles 0\n            -nRigids 0\n            -dynamicConstraints 0\n            -locators 1\n            -manipulators 1\n            -pluginShapes 0\n            -dimensions 0\n            -handles 0\n            -pivots 0\n            -textures 0\n            -strokes 0\n            -motionTrails 0\n            -clipGhosts 0\n            -greasePencils 0\n            -shadows 0\n            -captureSequenceNumber -1\n            -width 1612\n            -height 1044\n            -sceneRenderFilter 0\n            $editorName;\n        modelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n"
 		+ "\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"outlinerPanel\" (localizedPanelLabel(\"ToggledOutliner\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\toutlinerPanel -edit -l (localizedPanelLabel(\"ToggledOutliner\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        outlinerEditor -e \n            -showShapes 1\n            -showAssignedMaterials 0\n            -showTimeEditor 1\n            -showReferenceNodes 0\n            -showReferenceMembers 0\n            -showAttributes 0\n            -showConnected 0\n            -showAnimCurvesOnly 0\n            -showMuteInfo 0\n            -organizeByLayer 1\n            -showAnimLayerWeight 1\n            -autoExpandLayers 1\n            -autoExpand 0\n            -showDagOnly 1\n            -showAssets 1\n            -showContainedOnly 1\n            -showPublishedAsConnected 0\n            -showContainerContents 1\n            -ignoreDagHierarchy 0\n            -expandConnections 0\n            -showUpstreamCurves 1\n"
 		+ "            -showUnitlessCurves 1\n            -showCompounds 1\n            -showLeafs 1\n            -showNumericAttrsOnly 0\n            -highlightActive 1\n            -autoSelectNewObjects 0\n            -doNotSelectNewObjects 0\n            -dropIsParent 1\n            -transmitFilters 0\n            -setFilter \"defaultSetFilter\" \n            -showSetMembers 1\n            -allowMultiSelection 1\n            -alwaysToggleSelect 0\n            -directSelect 0\n            -isSet 0\n            -isSetMember 0\n            -displayMode \"DAG\" \n            -expandObjects 0\n            -setsIgnoreFilters 1\n            -containersIgnoreFilters 0\n            -editAttrName 0\n            -showAttrValues 0\n            -highlightSecondary 0\n            -showUVAttrsOnly 0\n            -showTextureNodesOnly 0\n            -attrAlphaOrder \"default\" \n            -animLayerFilterOptions \"allAffecting\" \n            -sortOrder \"none\" \n            -longNames 0\n            -niceNames 1\n            -showNamespace 1\n            -showPinIcons 0\n"
 		+ "            -mapMotionTrails 0\n            -ignoreHiddenAttribute 0\n            -ignoreOutlinerColor 0\n            -renderFilterVisible 0\n            -renderFilterIndex 0\n            -selectionOrder \"chronological\" \n            -expandAttribute 0\n            $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"outlinerPanel\" (localizedPanelLabel(\"Outliner\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\toutlinerPanel -edit -l (localizedPanelLabel(\"Outliner\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        outlinerEditor -e \n            -showShapes 1\n            -showAssignedMaterials 0\n            -showTimeEditor 1\n            -showReferenceNodes 0\n            -showReferenceMembers 0\n            -showAttributes 0\n            -showConnected 0\n            -showAnimCurvesOnly 0\n            -showMuteInfo 0\n            -organizeByLayer 1\n            -showAnimLayerWeight 1\n            -autoExpandLayers 1\n"
@@ -36792,10 +36377,10 @@ createNode script -n "uiConfigurationScriptNode";
 		+ "                -textureDisplay \"modulate\" \n                -textureMaxSize 16384\n                -fogging 0\n                -fogSource \"fragment\" \n                -fogMode \"linear\" \n                -fogStart 0\n                -fogEnd 100\n                -fogDensity 0.1\n                -fogColor 0.5 0.5 0.5 1 \n                -depthOfFieldPreview 1\n                -maxConstantTransparency 1\n                -objectFilterShowInHUD 1\n                -isFiltered 0\n                -colorResolution 4 4 \n                -bumpResolution 4 4 \n                -textureCompression 0\n                -transparencyAlgorithm \"frontAndBackCull\" \n                -transpInShadows 0\n                -cullingOverride \"none\" \n                -lowQualityLighting 0\n                -maximumNumHardwareLights 0\n                -occlusionCulling 0\n                -shadingModel 0\n                -useBaseRenderer 0\n                -useReducedRenderer 0\n                -smallObjectCulling 0\n                -smallObjectThreshold -1 \n                -interactiveDisableShadows 0\n"
 		+ "                -interactiveBackFaceCull 0\n                -sortTransparent 1\n                -nurbsCurves 1\n                -nurbsSurfaces 1\n                -polymeshes 1\n                -subdivSurfaces 1\n                -planes 1\n                -lights 1\n                -cameras 1\n                -controlVertices 1\n                -hulls 1\n                -grid 1\n                -imagePlane 1\n                -joints 1\n                -ikHandles 1\n                -deformers 1\n                -dynamics 1\n                -particleInstancers 1\n                -fluids 1\n                -hairSystems 1\n                -follicles 1\n                -nCloths 1\n                -nParticles 1\n                -nRigids 1\n                -dynamicConstraints 1\n                -locators 1\n                -manipulators 1\n                -pluginShapes 1\n                -dimensions 1\n                -handles 1\n                -pivots 1\n                -textures 1\n                -strokes 1\n                -motionTrails 1\n                -clipGhosts 1\n"
 		+ "                -greasePencils 1\n                -shadows 0\n                -captureSequenceNumber -1\n                -width 0\n                -height 0\n                -sceneRenderFilter 0\n                -displayMode \"centerEye\" \n                -viewColor 0 0 0 1 \n                -useCustomBackground 1\n                $editorName;\n            stereoCameraView -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextScriptedPanel \"hyperShadePanel\" (localizedPanelLabel(\"Hypershade\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\tscriptedPanel -edit -l (localizedPanelLabel(\"Hypershade\")) -mbv $menusOkayInPanels  $panelName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextScriptedPanel \"nodeEditorPanel\" (localizedPanelLabel(\"Node Editor\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\tscriptedPanel -edit -l (localizedPanelLabel(\"Node Editor\")) -mbv $menusOkayInPanels  $panelName;\n"
-		+ "\n\t\t\t$editorName = ($panelName+\"NodeEditorEd\");\n            nodeEditor -e \n                -allAttributes 0\n                -allNodes 0\n                -autoSizeNodes 1\n                -consistentNameSize 1\n                -createNodeCommand \"nodeEdCreateNodeCommand\" \n                -defaultPinnedState 0\n                -additiveGraphingMode 0\n                -settingsChangedCallback \"nodeEdSyncControls\" \n                -traversalDepthLimit -1\n                -keyPressCommand \"nodeEdKeyPressCommand\" \n                -nodeTitleMode \"name\" \n                -gridSnap 0\n                -gridVisibility 1\n                -popupMenuScript \"nodeEdBuildPanelMenus\" \n                -showNamespace 1\n                -showShapes 1\n                -showSGShapes 0\n                -showTransforms 1\n                -useAssets 0\n                -syncedSelection 1\n                -extendToShapes 1\n                -activeTab 11\n                -editorMode \"default\" \n                $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n"
+		+ "\n\t\t\t$editorName = ($panelName+\"NodeEditorEd\");\n            nodeEditor -e \n                -allAttributes 0\n                -allNodes 0\n                -autoSizeNodes 1\n                -consistentNameSize 1\n                -createNodeCommand \"nodeEdCreateNodeCommand\" \n                -defaultPinnedState 0\n                -additiveGraphingMode 0\n                -settingsChangedCallback \"nodeEdSyncControls\" \n                -traversalDepthLimit -1\n                -keyPressCommand \"nodeEdKeyPressCommand\" \n                -nodeTitleMode \"name\" \n                -gridSnap 0\n                -gridVisibility 1\n                -popupMenuScript \"nodeEdBuildPanelMenus\" \n                -showNamespace 1\n                -showShapes 1\n                -showSGShapes 0\n                -showTransforms 1\n                -useAssets 1\n                -syncedSelection 1\n                -extendToShapes 1\n                -activeTab -1\n                -editorMode \"default\" \n                $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n"
 		+ "\t\t}\n\t}\n\n\n\tif ($useSceneConfig) {\n        string $configName = `getPanel -cwl (localizedPanelLabel(\"Current Layout\"))`;\n        if (\"\" != $configName) {\n\t\t\tpanelConfiguration -edit -label (localizedPanelLabel(\"Current Layout\")) \n\t\t\t\t-userCreated false\n\t\t\t\t-defaultImage \"vacantCell.xP:/\"\n\t\t\t\t-image \"\"\n\t\t\t\t-sc false\n\t\t\t\t-configString \"global string $gMainPane; paneLayout -e -cn \\\"single\\\" -ps 1 100 100 $gMainPane;\"\n\t\t\t\t-removeAllPanels\n\t\t\t\t-ap false\n\t\t\t\t\t(localizedPanelLabel(\"Persp View\")) \n\t\t\t\t\t\"modelPanel\"\n"
-		+ "\t\t\t\t\t\"$panelName = `modelPanel -unParent -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels `;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -camera \\\"top1\\\" \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 0\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 0\\n    -cameras 0\\n    -controlVertices 1\\n    -hulls 0\\n    -grid 1\\n    -imagePlane 1\\n    -joints 0\\n    -ikHandles 0\\n    -deformers 0\\n    -dynamics 0\\n    -particleInstancers 0\\n    -fluids 0\\n    -hairSystems 0\\n    -follicles 0\\n    -nCloths 0\\n    -nParticles 0\\n    -nRigids 0\\n    -dynamicConstraints 0\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 0\\n    -dimensions 0\\n    -handles 0\\n    -pivots 0\\n    -textures 0\\n    -strokes 0\\n    -motionTrails 0\\n    -clipGhosts 0\\n    -greasePencils 0\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 1735\\n    -height 621\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
-		+ "\t\t\t\t\t\"modelPanel -edit -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels  $panelName;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -camera \\\"top1\\\" \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 0\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 0\\n    -cameras 0\\n    -controlVertices 1\\n    -hulls 0\\n    -grid 1\\n    -imagePlane 1\\n    -joints 0\\n    -ikHandles 0\\n    -deformers 0\\n    -dynamics 0\\n    -particleInstancers 0\\n    -fluids 0\\n    -hairSystems 0\\n    -follicles 0\\n    -nCloths 0\\n    -nParticles 0\\n    -nRigids 0\\n    -dynamicConstraints 0\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 0\\n    -dimensions 0\\n    -handles 0\\n    -pivots 0\\n    -textures 0\\n    -strokes 0\\n    -motionTrails 0\\n    -clipGhosts 0\\n    -greasePencils 0\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 1735\\n    -height 621\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
+		+ "\t\t\t\t\t\"$panelName = `modelPanel -unParent -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels `;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -camera \\\"top1\\\" \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 0\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 0\\n    -cameras 0\\n    -controlVertices 1\\n    -hulls 0\\n    -grid 0\\n    -imagePlane 1\\n    -joints 0\\n    -ikHandles 0\\n    -deformers 0\\n    -dynamics 0\\n    -particleInstancers 0\\n    -fluids 0\\n    -hairSystems 0\\n    -follicles 0\\n    -nCloths 0\\n    -nParticles 0\\n    -nRigids 0\\n    -dynamicConstraints 0\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 0\\n    -dimensions 0\\n    -handles 0\\n    -pivots 0\\n    -textures 0\\n    -strokes 0\\n    -motionTrails 0\\n    -clipGhosts 0\\n    -greasePencils 0\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 1612\\n    -height 1044\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
+		+ "\t\t\t\t\t\"modelPanel -edit -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels  $panelName;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -camera \\\"top1\\\" \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 0\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 0\\n    -cameras 0\\n    -controlVertices 1\\n    -hulls 0\\n    -grid 0\\n    -imagePlane 1\\n    -joints 0\\n    -ikHandles 0\\n    -deformers 0\\n    -dynamics 0\\n    -particleInstancers 0\\n    -fluids 0\\n    -hairSystems 0\\n    -follicles 0\\n    -nCloths 0\\n    -nParticles 0\\n    -nRigids 0\\n    -dynamicConstraints 0\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 0\\n    -dimensions 0\\n    -handles 0\\n    -pivots 0\\n    -textures 0\\n    -strokes 0\\n    -motionTrails 0\\n    -clipGhosts 0\\n    -greasePencils 0\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 1612\\n    -height 1044\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
 		+ "\t\t\t\t$configName;\n\n            setNamedPanelLayout (localizedPanelLabel(\"Current Layout\"));\n        }\n\n        panelHistory -e -clear mainPanelHistory;\n        sceneUIReplacement -clear;\n\t}\n\n\ngrid -spacing 10 -size 150 -divisions 10 -displayAxes yes -displayGridLines yes -displayDivisionLines yes -displayPerspectiveLabels yes -displayOrthographicLabels yes -displayAxesBold yes -perspectiveLabelPosition axis -orthographicLabelPosition axis;\nviewManip -drawCompass 0 -compassAngle 0 -frontParameters \"\" -homeParameters \"\" -selectionLockParameters \"\";\n}\n");
 	setAttr ".st" 3;
 createNode script -n "sceneConfigurationScriptNode";
@@ -37433,7 +37018,7 @@ createNode collectStrokes -n "collectStrokesBG";
 	rename -uid "B568B5D7-3E4B-96E0-5806-93B40CDEE854";
 	setAttr -s 97 ".stks";
 	setAttr -s 2 ".stsl[0:1]"  2 1 1 1;
-	setAttr ".stfl[0]"  6 1 0;
+	setAttr ".stfl[0]"  6 0 0;
 	setAttr ".apfl" no;
 	setAttr -s 2 ".brrp[0:1]"  0 0 1 1 1 1;
 	setAttr -s 2 ".prrp[0:1]"  0 0 1 1 1 1;
@@ -39043,7 +38628,8 @@ createNode collectStrokes -n "collectStrokesFine";
 	rename -uid "727515A1-2C4A-CF65-7C8B-41AD69816890";
 	setAttr -s 65 ".stks";
 	setAttr -s 2 ".stsl[0:1]"  2 0 1 1;
-	setAttr ".stfl[0]"  0 1 0;
+	setAttr ".stfl[0]"  6 1 0;
+	setAttr ".apfl" no;
 	setAttr -s 2 ".brrp[0:1]"  0 0 1 1 1 1;
 	setAttr -s 2 ".prrp[0:1]"  0 0 1 1 1 1;
 	setAttr ".prrg" -type "long2" 8 8 ;
@@ -39055,7 +38641,7 @@ createNode curveStroke -n "pin_68_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 14;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39075,7 +38661,7 @@ createNode curveStroke -n "pin_67_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39095,7 +38681,7 @@ createNode curveStroke -n "pin_66_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39115,7 +38701,7 @@ createNode curveStroke -n "pin_65_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39135,7 +38721,7 @@ createNode curveStroke -n "pin_64_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 9;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39155,7 +38741,7 @@ createNode curveStroke -n "pin_63_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 9;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39175,7 +38761,7 @@ createNode curveStroke -n "pin_62_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 9;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39195,7 +38781,7 @@ createNode curveStroke -n "pin_61_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39215,7 +38801,7 @@ createNode curveStroke -n "pin_60_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39235,7 +38821,7 @@ createNode curveStroke -n "pin_59_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39255,7 +38841,7 @@ createNode curveStroke -n "pin_58_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39275,7 +38861,7 @@ createNode curveStroke -n "pin_57_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39295,7 +38881,7 @@ createNode curveStroke -n "pin_56_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39315,7 +38901,7 @@ createNode curveStroke -n "pin_55_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39335,7 +38921,7 @@ createNode curveStroke -n "pin_54_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39355,7 +38941,7 @@ createNode curveStroke -n "pin_53_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39375,7 +38961,7 @@ createNode curveStroke -n "pin_52_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39395,7 +38981,7 @@ createNode curveStroke -n "pin_51_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39415,7 +39001,7 @@ createNode curveStroke -n "pin_50_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 9;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39435,7 +39021,7 @@ createNode curveStroke -n "pin_49_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 9;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39455,7 +39041,7 @@ createNode curveStroke -n "pin_48_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39475,7 +39061,7 @@ createNode curveStroke -n "pin_47_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39495,7 +39081,7 @@ createNode curveStroke -n "pin_46_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39515,7 +39101,7 @@ createNode curveStroke -n "pin_45_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39533,7 +39119,7 @@ createNode curveStroke -n "pin_44_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39553,7 +39139,7 @@ createNode curveStroke -n "pin_43_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39571,7 +39157,7 @@ createNode curveStroke -n "pin_42_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39590,7 +39176,7 @@ createNode curveStroke -n "pin_41_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39610,7 +39196,7 @@ createNode curveStroke -n "pin_40_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39628,7 +39214,7 @@ createNode curveStroke -n "pin_39_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39648,7 +39234,7 @@ createNode curveStroke -n "pin_38_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39668,7 +39254,7 @@ createNode curveStroke -n "pin_37_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39688,7 +39274,7 @@ createNode curveStroke -n "pin_36_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39708,7 +39294,7 @@ createNode curveStroke -n "pin_35_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39728,7 +39314,7 @@ createNode curveStroke -n "pin_34_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39748,7 +39334,7 @@ createNode curveStroke -n "pin_33_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39768,7 +39354,7 @@ createNode curveStroke -n "pin_32_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 9;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39788,7 +39374,7 @@ createNode curveStroke -n "pin_31_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 9;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39808,7 +39394,7 @@ createNode curveStroke -n "pin_29_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39828,7 +39414,7 @@ createNode curveStroke -n "pin_27_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39848,7 +39434,7 @@ createNode curveStroke -n "pin_26_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39868,7 +39454,7 @@ createNode curveStroke -n "pin_25_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39888,7 +39474,7 @@ createNode curveStroke -n "pin_24_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39908,7 +39494,7 @@ createNode curveStroke -n "pin_23_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39929,7 +39515,7 @@ createNode curveStroke -n "pin_22_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39949,7 +39535,7 @@ createNode curveStroke -n "pin_21_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39969,7 +39555,7 @@ createNode curveStroke -n "pin_20_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -39989,7 +39575,7 @@ createNode curveStroke -n "pin_19_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40009,7 +39595,7 @@ createNode curveStroke -n "pin_18_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 9;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40029,7 +39615,7 @@ createNode curveStroke -n "pin_17_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40049,7 +39635,7 @@ createNode curveStroke -n "pin_16_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40069,7 +39655,7 @@ createNode curveStroke -n "pin_15_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40089,7 +39675,7 @@ createNode curveStroke -n "pin_14_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40109,7 +39695,7 @@ createNode curveStroke -n "pin_12_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40130,7 +39716,7 @@ createNode curveStroke -n "pin_10_stc";
 	setAttr ".rpof" 0.29999999999999982;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40151,7 +39737,7 @@ createNode curveStroke -n "pin_9_stc";
 	setAttr ".rpof" 0.29999999999999982;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40172,7 +39758,7 @@ createNode curveStroke -n "pin_8_stc";
 	setAttr ".rpof" 0.29999999999999982;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40192,7 +39778,7 @@ createNode curveStroke -n "pin_7_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40212,7 +39798,7 @@ createNode curveStroke -n "pin_6_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 2;
+	setAttr ".brid" 1;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40232,7 +39818,7 @@ createNode curveStroke -n "pin_5_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 9;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40252,7 +39838,7 @@ createNode curveStroke -n "pin_4_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40272,7 +39858,7 @@ createNode curveStroke -n "pin_3_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40292,7 +39878,7 @@ createNode curveStroke -n "pin_2_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40312,7 +39898,7 @@ createNode curveStroke -n "pin_1_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 10;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40332,7 +39918,7 @@ createNode curveStroke -n "pin_0_stc";
 	setAttr ".rpof" 1.2999999999999998;
 	setAttr ".rpmr" no;
 	setAttr ".rpoc" no;
-	setAttr ".brid" 17;
+	setAttr ".brid" 16;
 	setAttr ".ptid" 8;
 	setAttr ".brtl[0]"  0 0.60000002 1;
 	setAttr ".brbk[0]"  0 0.5 1;
@@ -40354,14 +39940,14 @@ createNode ramp -n "ramp14";
 	setAttr ".t" 5;
 	setAttr ".in" 0;
 	setAttr -s 2 ".cel";
-	setAttr ".cel[0].ep" 0.6213873028755188;
+	setAttr ".cel[0].ep" 0.29745042324066162;
 	setAttr ".cel[0].ec" -type "float3" 0 0 0 ;
-	setAttr ".cel[1].ep" 0.52890175580978394;
+	setAttr ".cel[1].ep" 0.12747874855995178;
 	setAttr ".cel[1].ec" -type "float3" 1 1 1 ;
 createNode place2dTexture -n "place2dTexture35";
 	rename -uid "E44D64DF-0E4F-06F6-B4F1-DEB7BA9747DF";
 	setAttr ".c" -type "float2" 1 0.33000001 ;
-	setAttr ".tf" -type "float2" 0 0.46000001 ;
+	setAttr ".tf" -type "float2" 0 0.31 ;
 	setAttr ".wu" no;
 	setAttr ".wv" no;
 createNode cImgShader -n "cImgShader20";
@@ -40438,6 +40024,7 @@ createNode skeletonStroke -n "skeletonStroke1";
 	setAttr ".exl" 0;
 	setAttr ".brid" 17;
 	setAttr ".ptid" 8;
+	setAttr ".act" no;
 	setAttr ".brtl[0]"  0 0 1;
 	setAttr ".brbk[0]"  0 0 1;
 	setAttr ".brtw[0]"  0 0 1;
@@ -40537,17 +40124,6 @@ createNode shadingEngine -n "typeBlinn1SG";
 createNode blinn -n "typeBlinn1";
 	rename -uid "1B7C05A3-9F41-D1BD-259E-6180B15DCF2C";
 	setAttr ".c" -type "float3" 1 1 1 ;
-createNode polyCylinder -n "polyCylinder4";
-	rename -uid "B0226B59-BB48-D6CB-5E22-A6B54F0014E7";
-	setAttr ".ax" -type "double3" 0 0 1 ;
-	setAttr ".sc" 1;
-	setAttr ".cuv" 3;
-createNode transformGeometry -n "transformGeometry1";
-	rename -uid "63783627-9E45-8DF2-A4F8-51A96EDB4604";
-	setAttr ".txf" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -1 1;
-createNode transformGeometry -n "transformGeometry2";
-	rename -uid "08AFA238-4A47-0E8E-CC93-6AB194E3FD3B";
-	setAttr ".txf" -type "matrix" 6 0 0 0 0 6 0 0 0 0 0.10000000000000001 0 0 0 0 1;
 createNode lambert -n "sx_coffee";
 	rename -uid "D7D9F3CE-924B-A71F-5758-C8B81E3DF56B";
 createNode shadingEngine -n "sx_coffee_SG";
@@ -42953,7 +42529,7 @@ select -ne :defaultRenderingList1;
 select -ne :defaultTextureList1;
 	setAttr -s 37 ".tx";
 select -ne :initialShadingGroup;
-	setAttr -s 29 ".dsm";
+	setAttr -s 28 ".dsm";
 	setAttr ".ro" yes;
 select -ne :initialParticleSE;
 	setAttr ".ro" yes;
@@ -42967,7 +42543,7 @@ select -ne :hardwareRenderGlobals;
 	setAttr ".ctrs" 256;
 	setAttr ".btrs" 512;
 select -ne :ikSystem;
-	setAttr -s 2 ".sol";
+	setAttr -s 5 ".sol";
 connectAttr "layer4.di" "mainProjection.do";
 connectAttr "layer4.di" "oversizeProjection.do";
 connectAttr "pasted__expression5.out[0]" "|mainPaintingGroup|jpos.tx";
@@ -43712,18 +43288,6 @@ connectAttr "pot_5_light_mint.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|
 		;
 connectAttr "pot_5_light_mint.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
 		;
-connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.stks[0]"
-		;
-connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.bsh[0]"
-		;
-connectAttr "pot_6_green_wisp.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
-		;
-connectAttr "pot_6_green_wisp.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
-		;
-connectAttr "pot_6_green_wisp.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
-		;
-connectAttr "pot_6_green_wisp.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
-		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.bsh[0]"
@@ -43748,17 +43312,17 @@ connectAttr "pot_6_green_wisp.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|
 		;
 connectAttr "pot_6_green_wisp.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
-connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.stks[0]"
+connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
-connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
+connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_6_green_wisp.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_6_green_wisp.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_6_green_wisp.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_6_green_wisp.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_6_green_wisp.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_6_green_wisp.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_6_green_wisp.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_6_green_wisp.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.stks[0]"
 		;
@@ -43783,6 +43347,18 @@ connectAttr "pot_6_green_wisp.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans
 connectAttr "pot_6_green_wisp.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
 		;
 connectAttr "pot_6_green_wisp.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
+		;
+connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.stks[0]"
+		;
+connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
+		;
+connectAttr "pot_6_green_wisp.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+		;
+connectAttr "pot_6_green_wisp.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+		;
+connectAttr "pot_6_green_wisp.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+		;
+connectAttr "pot_6_green_wisp.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
@@ -43856,30 +43432,6 @@ connectAttr "pot_7_blue_wisp.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|w
 		;
 connectAttr "pot_7_blue_wisp.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
-connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.stks[0]"
-		;
-connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
-		;
-connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.stks[0]"
-		;
-connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
-		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.bsh[0]"
@@ -43891,78 +43443,6 @@ connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_
 connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
 		;
 connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
-		;
-connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.stks[0]"
-		;
-connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
-		;
-connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.stks[0]"
-		;
-connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
-		;
-connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.stks[0]"
-		;
-connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
-		;
-connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.stks[0]"
-		;
-connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
-		;
-connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.stks[0]"
-		;
-connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
-		;
-connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.stks[0]"
-		;
-connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.stks[0]"
 		;
@@ -43976,29 +43456,17 @@ connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_l
 		;
 connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
-connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.stks[0]"
+connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
-connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.bsh[0]"
+connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
-		;
-connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.stks[0]"
-		;
-connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.stks[0]"
 		;
@@ -44012,78 +43480,6 @@ connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_
 		;
 connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
 		;
-connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.stks[0]"
-		;
-connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
-		;
-connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.stks[0]"
-		;
-connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
-		;
-connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.stks[0]"
-		;
-connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
-		;
-connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.stks[0]"
-		;
-connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
-		;
-connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.stks[0]"
-		;
-connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
-		;
-connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.stks[0]"
-		;
-connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.bsh[0]"
-		;
-connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
-		;
-connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
-		;
-connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
-		;
-connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
-		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.bsh[0]"
@@ -44096,7 +43492,18 @@ connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_
 		;
 connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
-connectAttr "transformGeometry2.og" "|pot|potShape.i";
+connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.stks[0]"
+		;
+connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.bsh[0]"
+		;
+connectAttr "pot_8_brown.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
+		;
+connectAttr "pot_8_brown.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
+		;
+connectAttr "pot_8_brown.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
+		;
+connectAttr "pot_8_brown.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
+		;
 connectAttr ":defaultColorMgtGlobals.cme" "imagePlaneShape2.cme";
 connectAttr ":defaultColorMgtGlobals.cfe" "imagePlaneShape2.cmcf";
 connectAttr ":defaultColorMgtGlobals.cfp" "imagePlaneShape2.cmcp";
@@ -44202,7 +43609,6 @@ connectAttr "displaceShape.iog" "pasted__typeBlinn1SG.dsm" -na;
 connectAttr "pasted__cable_04SG3.msg" "pasted__materialInfo46.sg";
 connectAttr "pasted__rubber3.msg" "pasted__materialInfo46.m";
 connectAttr "pasted__rubber3.oc" "pasted__cable_04SG3.ss";
-connectAttr "r_trayShape.iog" "pasted__cable_04SG3.dsm" -na;
 connectAttr "pasted__girderShaderSG1.msg" "pasted__materialInfo47.sg";
 connectAttr "pasted__girderShader1.msg" "pasted__materialInfo47.m";
 connectAttr "pasted__girderShader1.oc" "pasted__girderShaderSG1.ss";
@@ -45245,8 +44651,6 @@ connectAttr "typeBlinn1SG.msg" "materialInfo55.sg";
 connectAttr "typeBlinn1.msg" "materialInfo55.m";
 connectAttr "typeBlinn1.oc" "typeBlinn1SG.ss";
 connectAttr "|rack1|rack_translate|top|topShape.iog" "typeBlinn1SG.dsm" -na;
-connectAttr "polyCylinder4.out" "transformGeometry1.ig";
-connectAttr "transformGeometry1.og" "transformGeometry2.ig";
 connectAttr "pot_0_coffee.sfPaintColor" "sx_coffee.c";
 connectAttr "sx_coffee.oc" "sx_coffee_SG.ss";
 connectAttr "pot_0_coffeeShape.iog" "sx_coffee_SG.dsm" -na;
@@ -46477,7 +45881,6 @@ connectAttr "cImgShader20.msg" ":defaultTextureList1.tx" -na;
 connectAttr "ramp15.msg" ":defaultTextureList1.tx" -na;
 connectAttr "cImgShader21.msg" ":defaultTextureList1.tx" -na;
 connectAttr "ramp1.oc" ":lambert1.it";
-connectAttr "|pot|potShape.iog" ":initialShadingGroup.dsm" -na;
 connectAttr "|rack1|holes|holeRot_12|holeTrans|dip_loc|pot|potShape.iog" ":initialShadingGroup.dsm"
 		 -na;
 connectAttr "|rack1|holes|holeRot_13|holeTrans|dip_loc|pot|potShape.iog" ":initialShadingGroup.dsm"

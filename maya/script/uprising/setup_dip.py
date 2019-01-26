@@ -20,6 +20,18 @@ logger = logging.getLogger('uprising')
 #     ("overlap", 0)
 # ]
 
+def dip_combination_ids(painting_node):
+    result = []
+    combos = pm.paintingQuery(painting_node, dc=True)
+    for i in range(0, len(combos), 2):
+        result.append(
+            {
+                "brush": int(combos[i]),
+                "paint": int(combos[i + 1])
+            }
+        )
+    return result
+
 
 def dip_combinations(painting_node):
 
@@ -28,12 +40,14 @@ def dip_combinations(painting_node):
     brushes = Brush.brushes(painting_node)
     paints = Paint.paints(painting_node)
 
+    # for pair in dip_combination_pairs(painting_node):
+
     combos = pm.paintingQuery(painting_node, dc=True)
+    # print combos
 
     for i in range(0, len(combos), 2):
         brush_id = int(combos[i])
         paint_id = int(combos[i + 1])
-
         key = "p%02d_b%02d" % (paint_id, brush_id)
 
         try:
@@ -92,7 +106,6 @@ def _get_curve_strokes(parent):
             type="curveStroke")
 
 
-
 def _delete_paintings_under(parent):
     paintings = pm.ls(
         parent,
@@ -104,12 +117,12 @@ def _delete_paintings_under(parent):
     if paintings:
         pm.delete(paintings)
 
+
 def _find_nodes_by_short_name(nodes, name):
-    return [n for n in nodes if n.split("|")[-1] == name ]
+    return [n for n in nodes if n.split("|")[-1] == name]
 
 
-
-def _create_painting_node(which, brush, paint, strokes, ):
+def _create_painting_node(which, brush, paint, strokes_node):
     ptg_node = pm.createNode("painting")
     ptg_node.attr("linearSpeed").set(100)
     ptg_node.attr("angularSpeed").set(70.000)
@@ -137,9 +150,9 @@ def _create_painting_node(which, brush, paint, strokes, ):
     ptg_xf = ptg_node.getParent()
     ptg_xf.rename(ptg_name)
 
-    strokes.attr("output") >> ptg_node.attr("strokes[0]")
+    strokes_node.attr("output") >> ptg_node.attr("strokes[0]")
 
-    brush_node = pm.PyNode(brush.name)
+    brush_node = pm.PyNode(brush.node_name)
     att = "out%sBrush" % which.capitalize()
     brush_node.attr(att) >> ptg_node.attr("brushes[0]")
 
@@ -147,11 +160,13 @@ def _create_painting_node(which, brush, paint, strokes, ):
     putl.connect_paint_to_node(pot_node, ptg_node, 0)
 
     loc_name = "%s_loc" % which
-    locator =  _find_nodes_by_short_name(pot_node.getParent().getParent().getChildren(),loc_name )[0]
+    locator = _find_nodes_by_short_name(
+        pot_node.getParent().getParent().getChildren(), loc_name)[0]
 
     pm.parent(ptg_xf, locator, relative=True)
 
     return ptg_node
+
 
 def doit():
     print "!!!!!!!!!!!!!!!!! SETUP DIP & WIPE !!!!!!!!!!!!!!!!!!!!!!!!"
@@ -166,6 +181,6 @@ def doit():
     for combo in combinations:
         b = combinations[combo]["brush"]
         p = combinations[combo]["paint"]
- 
+
         dip_ptg_node = _create_painting_node("dip", b, p, dip_stroke_node)
         wipe_ptg_node = _create_painting_node("wipe", b, p, wipe_stroke_node)
