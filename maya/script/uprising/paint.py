@@ -1,6 +1,8 @@
 import pymel.core as pm
 from robolink import (Robolink, ITEM_TYPE_ROBOT)
 import uprising_util as uutl
+import uprising.maya_util as mutil
+
 
 class Paint(object):
     def __init__(self, the_id, name, color, opacity, travel):
@@ -9,8 +11,6 @@ class Paint(object):
         self.color = color
         self.opacity = opacity,
         self.travel = travel
-
-
 
     @classmethod
     def paint_at_index(cls, node, index):
@@ -48,22 +48,24 @@ class Paint(object):
     def write_geo(self, frame, RL):
         tray = pm.PyNode(self.name)
         geo = pm.ls( tray.getParent().getParent(), dag=True, leaf=True, type="mesh")
- 
-        triangles = []
         for g in geo:
+            xf = g.getParent()
+            triangles = []
+            color = mutil.shape_color(g)
             points = g.getPoints(space='world')
             _, vert_ids = g.getTriangles()
             for vert_id in vert_ids:
                 triangles.append(
                     [points[vert_id].x * 10, points[vert_id].y * 10, points[vert_id].z * 10])
- 
+            
+            shape = RL.AddShape(triangles)
+         
+            shape.setName(str(xf).replace("|", "_"))
+            shape.setColor(list(color))
+            shape.setParent(frame)
 
-        tray_item = RL.Item(self.name)
-        if tray_item.Valid():
-            tray_item.Delete()
+        # tray_item = RL.Item(self.name)
+        # if tray_item.Valid():
+        #     tray_item.Delete()
 
-        col = list(tray.attr("sfPaintColor").get())
-        shape = RL.AddShape(triangles)
-        shape.setName(self.name)
-        shape.setColor(col)
-        shape.setParent(frame)
+        

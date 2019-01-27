@@ -53,10 +53,19 @@ class Brush(object):
         robot.setPoseTool(tool_item)
         shape.Delete()
 
+
+    @classmethod
+    def write_used_brushes():
+        painting = pm.PyNode("mainPaintingShape")
+        dc = pm.paintingQuery(painting, dc=True)
+        bids = sorted(set(dc[::2]))
+        for bid in bids:
+            brush_set = Brush.brush_set_at_index(bid)
+            for key in brush_set:
+                brush_set[key].write()
+
     @classmethod
     def brush_at_index(cls, node, index):
-
-        vals = [index]
 
         plug = node.attr(
             "brushes[%d]" % index).connections(
@@ -65,21 +74,40 @@ class Brush(object):
             plugs=True
         )[0]
 
-        vals.append(str(plug))
+        return Brush._brush_at_plug(index, plug)
 
+    @classmethod
+    def brush_set_at_index(cls, index):
+        """ Get paint, dip, and wipe brushes corresponding to index.
+            
+            Always use the painting node
+        """
+        node = pm.PyNode("mainPaintingShape")
+
+        brush_node = node.attr(
+            "brushes[%d]" % index).connections(
+            source=True,
+            destination=False
+        )[0]
+        
+        result = {}
+        brush_atts = ["outPaintBrush", "outDipBrush", "outWipeBrush"]
+        for brush_att in brush_atts:
+            plug = brush_node.attr(brush_att)
+            result[brush_att] =Brush._brush_at_plug(index, plug)
+        return result
+
+
+    @classmethod
+    def _brush_at_plug(cls, index, plug):
+        vals = [index, str(plug)]
         matrix = pm.dt.Matrix(pm.brushQuery(plug, tcp=True))
         vals.append(matrix)
-
-        brush_node = plug.node()
-        for att in [
-            "width",
-            "retention",
-            "tip",
-            "physicalId",
-            "shape"
-        ]:
-            vals.append(brush_node.attr(att).get())
+        for att in [  "width",  "retention",  "tip",  "physicalId",  "shape" ]:
+            vals.append(plug.node().attr(att).get())
         return Brush(*vals)
+
+
 
     @classmethod
     def find_by_regex(cls, node, regex_string):

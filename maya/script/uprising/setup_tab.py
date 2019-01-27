@@ -5,7 +5,7 @@ import paint_utils as putl
 import board_utils as bdutl
 import uprising_util as uutl
 import pymel.core.uitypes as gui
-
+import setup_dip
 
 
 class SetupTab(gui.FormLayout):
@@ -21,6 +21,18 @@ class SetupTab(gui.FormLayout):
 
     def create_butttons(self):
         pm.setParent(self.column)
+
+
+
+        with uutl.activatable(state=False):
+            self.setup_brushes_tf = pm.textFieldGrp(
+                label='Setup brushes', text='pouch_name')
+
+        with uutl.activatable(state=False):
+            self.setup_paints_tf = pm.textFieldGrp(
+                label='Setup paints', text='palette_name')
+
+        pm.separator(style="in", height=20)
 
         with uutl.activatable(state=False):
             self.setup_board_row = pm.rowLayout(
@@ -38,18 +50,9 @@ class SetupTab(gui.FormLayout):
                 value=0,
                 annotation='Only set depth of the board')
             pm.setParent("..")
-
-        with uutl.activatable(state=False):
-            self.setup_brushes_tf = pm.textFieldGrp(
-                label='Setup brushes', text='pouch_name')
-
-        with uutl.activatable(state=False):
-            self.setup_paints_tf = pm.textFieldGrp(
-                label='Setup paints', text='palette_name')
-
-        with uutl.activatable(state=False):
-            self.setup_rack_tf = pm.textFieldGrp(
-                label='Setup rack', text='rack_name')
+        # with uutl.activatable(state=False):
+        #     self.setup_rack_tf = pm.textFieldGrp(
+        #         label='Setup rack', text='rack_name')
 
         with uutl.activatable(state=False):
             self.probes_ctl = pm.floatFieldGrp(
@@ -93,14 +96,21 @@ class SetupTab(gui.FormLayout):
         do_board = pm.rowLayout(self.setup_board_row, q=True, en=True)
         do_brushes = pm.textFieldGrp(self.setup_brushes_tf, q=True, en=True)
         do_paints = pm.textFieldGrp(self.setup_paints_tf, q=True, en=True)
-        do_rack = pm.textFieldGrp(self.setup_rack_tf, q=True, en=True)
+        # do_rack = pm.textFieldGrp(self.setup_rack_tf, q=True, en=True)
         do_calibration = pm.textFieldGrp(self.read_calibration_tf, q=True, en=True)
 
 
         painting_node = pm.PyNode("mainPaintingShape")
-        dip_node = pm.PyNode("dipPaintingShape")
-        wipe_node = pm.PyNode("wipePaintingShape")
-        rack = pm.PyNode("rack1")
+        # rack = pm.PyNode("rack1")
+
+
+        if do_brushes:
+            name = pm.textFieldGrp(self.setup_brushes_tf, q=True, text=True)
+            butl.setup_brushes_from_sheet(name)
+
+        if do_paints:
+            name = pm.textFieldGrp(self.setup_paints_tf, q=True, text=True)
+            putl.setup_paints_from_sheet(name)
 
 
         if do_board:
@@ -109,18 +119,9 @@ class SetupTab(gui.FormLayout):
             bdutl.setup_board_from_sheet(painting_node, name, depth_only)
             # bdutl.generate_probes(painting_node)
 
-
-        if do_brushes:
-            name = pm.textFieldGrp(self.setup_brushes_tf, q=True, text=True)
-            butl.setup_brushes_from_sheet(painting_node, rack, name)
-
-        if do_paints:
-            name = pm.textFieldGrp(self.setup_paints_tf, q=True, text=True)
-            putl.setup_paints_from_sheet(painting_node, rack, name)
-
-        if do_rack:
-            name = pm.textFieldGrp(self.setup_rack_tf, q=True, text=True)
-            putl.setup_rack_from_sheet(dip_node)
+        # if do_rack:
+        #     name = pm.textFieldGrp(self.setup_rack_tf, q=True, text=True)
+        #     putl.setup_rack_from_sheet(dip_node)
 
         gen_probes = pm.floatFieldGrp(self.probes_ctl, q=True, en=True)
         if gen_probes:
@@ -131,6 +132,10 @@ class SetupTab(gui.FormLayout):
         if do_calibration:
             name = pm.textFieldGrp(self.read_calibration_tf, q=True, text=True)
             bdutl.set_board_vertices_from_sheets(painting_node, name)
+
+        if do_brushes or do_paints:
+            setup_dip.doit()
+
 
 
     def populate(self):
@@ -163,12 +168,12 @@ class SetupTab(gui.FormLayout):
         pm.textFieldGrp(self.setup_paints_tf, e=True, text=pm.optionVar.get(var[0],var[1]))
 
         # rack
-        var = ("upov_setup_rack_tf_en", True)
-        pm.textFieldGrp(self.setup_rack_tf, e=True, en=pm.optionVar.get(var[0],var[1]))
-        uutl.conform_activatable_checkbox(self.setup_rack_tf)
+        # var = ("upov_setup_rack_tf_en", True)
+        # pm.textFieldGrp(self.setup_rack_tf, e=True, en=pm.optionVar.get(var[0],var[1]))
+        # uutl.conform_activatable_checkbox(self.setup_rack_tf)
 
-        var = ("upov_setup_rack_tf", "default")
-        pm.textFieldGrp(self.setup_rack_tf, e=True, text=pm.optionVar.get(var[0],var[1]))
+        # var = ("upov_setup_rack_tf", "default")
+        # pm.textFieldGrp(self.setup_rack_tf, e=True, text=pm.optionVar.get(var[0],var[1]))
 
         # probes
         var = ("upov_probes_ctl_en", True)
@@ -213,12 +218,12 @@ class SetupTab(gui.FormLayout):
         var ="upov_setup_paints_tf"
         pm.optionVar[var] = pm.textFieldGrp(self.setup_paints_tf, q=True, text=True)
 
-        # rack
-        var = "upov_setup_rack_tf_en"
-        pm.optionVar[var] = pm.textFieldGrp(self.setup_rack_tf, q=True, en=True)
+        # # rack
+        # var = "upov_setup_rack_tf_en"
+        # pm.optionVar[var] = pm.textFieldGrp(self.setup_rack_tf, q=True, en=True)
 
-        var ="upov_setup_rack_tf"
-        pm.optionVar[var] = pm.textFieldGrp(self.setup_rack_tf, q=True, text=True)
+        # var ="upov_setup_rack_tf"
+        # pm.optionVar[var] = pm.textFieldGrp(self.setup_rack_tf, q=True, text=True)
 
         # probes
         var = "upov_probes_ctl_en"

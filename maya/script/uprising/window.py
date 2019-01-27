@@ -5,13 +5,14 @@ from uprising import (
     painting_tab,
     setup_tab,
     validate_tab,
-    selection_tab,
+    # selection_tab,
     publish_tab,
     rings_design_tab,
     rings_setup_tab,
     proposal_tab,
-    keys_tab,
+    # keys_tab,
     tools_menu,
+    export_menu,
     curves_menu,
     images_menu)
 
@@ -76,17 +77,18 @@ reload(setup_tab)
  
 reload(props)
 reload(validate_tab)
-reload(selection_tab)
+# reload(selection_tab)
 reload(publish_tab)
 reload(proposal_tab)
 reload(rings_design_tab)
 reload(rings_setup_tab)
-reload(keys_tab)
+# reload(keys_tab)
 reload(culling)
 
 reload(tools_menu)
 reload(curves_menu)
 reload(images_menu)
+reload(export_menu)
 
 
 
@@ -123,13 +125,13 @@ class RobotWindow(gui.Window):
         self.rings_setup_tab = rings_setup_tab.RingsSetupTab()
         self.tabs.setTabLabel((self.rings_setup_tab, "Ring setup"))
 
-        pm.setParent(self.tabs)
-        self.keys_tab = keys_tab.KeysTab()
-        self.tabs.setTabLabel((self.keys_tab, "Keys"))
+        # pm.setParent(self.tabs)
+        # self.keys_tab = keys_tab.KeysTab()
+        # self.tabs.setTabLabel((self.keys_tab, "Keys"))
 
-        pm.setParent(self.tabs)
-        self.selection_tab = selection_tab.SelectionTab()
-        self.tabs.setTabLabel((self.selection_tab, "Selection"))
+        # pm.setParent(self.tabs)
+        # self.selection_tab = selection_tab.SelectionTab()
+        # self.tabs.setTabLabel((self.selection_tab, "Selection"))
 
         pm.setParent(self.tabs)
         self.validate_tab = validate_tab.ValidateTab()
@@ -153,6 +155,10 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.images_menu = images_menu.create()
+
+        pm.setParent(self.menuBarLayout)
+        self.export_menu = export_menu.create()
+
 
         self.show()
         self.setResizeToFitChildren()

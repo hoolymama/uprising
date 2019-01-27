@@ -20,6 +20,10 @@ logger = logging.getLogger('uprising')
 #     ("overlap", 0)
 # ]
 
+
+
+
+
 def dip_combination_ids(painting_node):
     result = []
     combos = pm.paintingQuery(painting_node, dc=True)
@@ -39,8 +43,6 @@ def dip_combinations(painting_node):
 
     brushes = Brush.brushes(painting_node)
     paints = Paint.paints(painting_node)
-
-    # for pair in dip_combination_pairs(painting_node):
 
     combos = pm.paintingQuery(painting_node, dc=True)
     # print combos
@@ -169,18 +171,40 @@ def _create_painting_node(which, brush, paint, strokes_node):
 
 
 def doit():
-    print "!!!!!!!!!!!!!!!!! SETUP DIP & WIPE !!!!!!!!!!!!!!!!!!!!!!!!"
-    # painting_node =
-    combinations = dip_combinations(pm.PyNode("mainPaintingShape"))
+    node = pm.PyNode("mainPaintingShape")
+    brushes = Brush.brushes (node)
+    paints = Paint.paints(node)
 
     dip_stroke_node = pm.PyNode("collectStrokesDip")
     wipe_stroke_node = pm.PyNode("collectStrokesWipe")
-
+    
     _delete_paintings_under("rack1")
 
-    for combo in combinations:
-        b = combinations[combo]["brush"]
-        p = combinations[combo]["paint"]
 
-        dip_ptg_node = _create_painting_node("dip", b, p, dip_stroke_node)
-        wipe_ptg_node = _create_painting_node("wipe", b, p, wipe_stroke_node)
+
+    for pkey in paints:
+        for bkey in brushes:
+            dip_ptg_node = _create_painting_node("dip", brushes[bkey], paints[pkey], dip_stroke_node)
+            wipe_ptg_node = _create_painting_node("wipe", brushes[bkey], paints[pkey], wipe_stroke_node)
+ 
+
+
+ 
+
+# def doit():
+#     print "!!!!!!!!!!!!!!!!! SETUP DIP & WIPE !!!!!!!!!!!!!!!!!!!!!!!!"
+#     # painting_node =
+#     combinations = dip_combinations(pm.PyNode("mainPaintingShape"))
+
+#     dip_stroke_node = pm.PyNode("collectStrokesDip")
+#     wipe_stroke_node = pm.PyNode("collectStrokesWipe")
+
+#     _delete_paintings_under("rack1")
+
+#     for combo in combinations:
+#         b = combinations[combo]["brush"]
+#         p = combinations[combo]["paint"]
+
+#         dip_ptg_node = _create_painting_node("dip", b, p, dip_stroke_node)
+#         wipe_ptg_node = _create_painting_node("wipe", b, p, wipe_stroke_node)
+

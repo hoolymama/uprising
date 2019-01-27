@@ -92,9 +92,8 @@ def validate_brush_data(data):
     return result
 
 
-def setup_brushes_from_sheet(painting_node, rack, pouch_name):
-    print "%s %s %s" % (painting_node, rack, pouch_name)
-    # (name, desc, pouch) = sheets.get_resource_by_name(pouch_name, "Brushes")
+def setup_brushes_from_sheet(pouch_name):
+    painting_node = pm.PyNode("mainPaintingShape")
     pouch = sheets.get_resource_by_name(pouch_name, "Brushes")
     data = validate_brush_data(pouch["data"])
     delete_brushes(painting_node)
@@ -134,6 +133,7 @@ def setup_brushes_from_sheet(painting_node, rack, pouch_name):
         geo.attr("outPaintBrush") >> painting_node.attr("brushes[%d]" % i)
 
     connect_skels(painting_node, pm.ls(type="skeletonStroke"))
+    
 
 
 def set_stroke_curve_att_from_brush_tip(attribute, mult=1, offset=0):

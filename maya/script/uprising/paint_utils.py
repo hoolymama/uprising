@@ -27,11 +27,11 @@ def delete_paints(node):
     for i in indices:
         pm.removeMultiInstance(node.attr("paints[%d]" % i), b=True)
 
-def set_up_rack(painting_node, rack, colors):
-    pots = pm.ls("%s|holes|holeRot*|holeTrans|dip_loc|pot*" % rack)
+def set_up_rack(colors):
+    pots = pm.ls("rack*|holes|holeRot*|holeTrans|dip_loc|pot*")
     used_pot_cols = set_pot_colors(pots, colors)
     used_pots = zip(*used_pot_cols)[0]
-    connect_pots(painting_node, used_pots)
+    connect_pots(used_pots)
 
 def set_pot_colors(pots, colors):
     pot_cols = zip(pots, colors)
@@ -60,7 +60,8 @@ def set_pot_colors(pots, colors):
     return pot_cols
 
 
-def connect_pots(painting_node, pots):
+def connect_pots(pots):
+    painting_node = pm.PyNode("mainPaintingShape")
     delete_paints(painting_node)
     for i, pot in enumerate(pots):
         connect_paint_to_node(pot, painting_node, i)
@@ -75,17 +76,17 @@ def connect_paint_to_node(pot, node, connect_to="next_available"):
             sfu.create_and_connect_driver(pot, att)
 
  
-def setup_paints_from_sheet(painting_node, rack, palette_name):
-    # (palette_name, medium, palette) =  get_palette_by_name(palette_name)
+def setup_paints_from_sheet(palette_name):
+    # painting_node = pm.PyNode("mainPaintingShape")
     resource =  sheets.get_resource_by_name(palette_name, "Paints")
-    medium = resource["args"][0]
-    palette_name = resource["name"]
+    # medium = resource["args"][0]
+    # palette_name = resource["name"]
     data =  resource["data"]
 
-    assembly= uutl.assembly(painting_node)
-    _, _, medium_att, palette_name_att = sfu.ensure_painting_has_notes(assembly)
-    medium_att.set(medium)
-    palette_name_att.set(palette_name)
+    # assembly= uutl.assembly(painting_node)
+    # _, _, medium_att, palette_name_att = sfu.ensure_painting_has_notes(assembly)
+    # medium_att.set(medium)
+    # palette_name_att.set(palette_name)
 
 
     validate_paint_data(data)
@@ -101,7 +102,7 @@ def setup_paints_from_sheet(painting_node, rack, palette_name):
         }
         colors.append(color)
     # set_up_trays(painting_node, dip_node, colors)
-    set_up_rack(painting_node, rack, colors)
+    set_up_rack(colors)
 
 
 def set_up_rack_from_sheet(dip_node):

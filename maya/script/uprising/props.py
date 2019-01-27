@@ -18,9 +18,8 @@ def get_targets_frame():
 def send_object(node, parent):
     """Send a node to robodk.
 
-    If the node is a locator, it becomes a target in robodk
-    and exists in world space. If it is a transform, it is
-    added as a reference frame to the hierarchy. If it is a
+    If it is a transform, it is added as a reference frame 
+    to the hierarchy. If it is a
     mesh, we rebuild triangles in robodk and add it to the
     hierarchy.
     """
@@ -30,20 +29,13 @@ def send_object(node, parent):
 
     if isinstance(node, pm.nodetypes.Transform):
         shapes = node.getShapes()
-        if shapes and isinstance(shapes[0], pm.nodetypes.Locator):
-            targets_parent = get_targets_frame()
-            wm = mutil.get_robodk_mat(node, "world")
-            item = RL.AddTarget(name, targets_parent, robot)
-            item.setAsCartesianTarget()
-            item.setPose(rdk.Mat(wm))
-            item.setVisible(True, visible_frame=True)
-        else:
-            mat = mutil.get_robodk_mat(node, "object")
-            frame = RL.AddFrame(name, parent)
-            frame.setPose(rdk.Mat(mat))
-            frame.setVisible(False, visible_frame=False)
-            for child in node.getChildren():
-                send_object(child, frame)
+        mat = mutil.get_robodk_mat(node, "object")
+        frame = RL.AddFrame(name, parent)
+        frame.setPose(rdk.Mat(mat))
+        frame.setVisible(False, visible_frame=False)
+        for child in node.getChildren():
+            send_object(child, frame)
+
     elif isinstance(node, pm.nodetypes.Mesh):
         points = node.getPoints(space='object')
         color = mutil.shape_color(node)
@@ -59,23 +51,23 @@ def send_object(node, parent):
         shape.setVisible(True, visible_frame=False)
 
 
-def send(objects, frame=None):
+def send(objects, parent=None):
     transforms = pm.ls(objects, transforms=True)
-    dups = pm.duplicate(transforms)
-    for dup in dups:
-        for att in ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]:
-            dup.attr(att).setLocked(False)
-        if dup.getParent():
-            pm.parent(dup, world=True)
-
-    pm.makeIdentity(dups, apply=True, t=False, r=False, s=True, pn=True)
-    for dup in dups:
-        send_object(dup, frame)
-    pm.delete(dups)
+    for xf in transforms:
+        xf = pm.duplicate(xf, rr=True)[0]
+        hi = pm.ls(sl=True, dag=True, transforms=True)
+        for node in hi:
+            for att in ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]:
+                node.attr(att).setLocked(False)
+        if xf.getParent():
+            pm.parent(xf, world=True)
+        pm.makeIdentity(xf, apply=True, t=0, r=0, s=1, n=0, pn=1)
+        send_object(xf, parent)
+        pm.delete(xf)
 
 
 def send_selected():
-    transforms = pm.ls(selected=True, transforms=True)
+    transforms = pm.ls(sl=True, transforms=True)
     send(transforms)
 
 
