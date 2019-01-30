@@ -48,7 +48,7 @@ private:
     MVectorArray &result
   ) const  ;
 
-  CImg<float> *getImage(MDataBlock &data, MObject &attribute )const;
+  // CImg<float> *getImage(MDataBlock &data, MObject &attribute )const;
 
   void setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
                    double approachStart, double approachMid, double approachEnd) const;
@@ -62,6 +62,8 @@ private:
   static MObject aSkeletonImage;
 
   static MObject aBrushFilter;/**/
+
+  static MObject aPruneLength;
   static MObject aMinPixels;
   static MObject aSpanPixels;
   static MObject aProjectionMatrix;

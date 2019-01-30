@@ -31,7 +31,7 @@ public:
   virtual void draw(  M3dView &view,
                       const MDagPath &path,
                       M3dView::DisplayStyle style,
-                      M3dView:: DisplayStatus status  );
+                      M3dView::DisplayStatus status  );
 
   MStatus compute(const MPlug &plug, MDataBlock &data);
 
@@ -46,7 +46,7 @@ private:
   // void cullDots(MDataBlock &data, std::vector<dotData> &dots);
 
 
-  CImg<float> *getImage(MDataBlock &data, MObject &attribute );
+  // CImg<float> *getImage(MDataBlock &data, MObject &attribute );
 
   // coord findWhitePixel(const coord &start,  const CImg<bool> &image );
 
@@ -55,6 +55,8 @@ private:
 
 
   static  MObject aSkeletonImage;
+  static  MObject aPruneLength;
+
   static  MObject aMaxRadius;
   static  MObject aPixelStep;
   static  MObject aMinPixels;

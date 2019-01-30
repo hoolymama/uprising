@@ -22,6 +22,7 @@
 #include "cImgFloatData.h"
 
 #include "brushData.h"
+#include "cImgUtils.h"
 
 #include <jMayaIds.h>
 #include "errorMacros.h"
@@ -37,7 +38,7 @@ MObject skeletonStrokeNode::aBrushFilter;
 MObject skeletonStrokeNode::aMinPixels;
 MObject skeletonStrokeNode::aSpanPixels;
 MObject skeletonStrokeNode::aBrushes;
-// MObject skeletonStrokeNode::aBrushWidth;
+MObject skeletonStrokeNode::aPruneLength;
 // MObject skeletonStrokeNode::aBrushActive;
 
 MObject skeletonStrokeNode::aProjectionMatrix;
@@ -87,6 +88,13 @@ MStatus skeletonStrokeNode:: initialize()
     tAttr.setStorable(false);
     tAttr.setDisconnectBehavior(MFnAttribute::kReset);
     st = addAttribute( aSkeletonImage ); mser;
+
+
+    aPruneLength = nAttr.create("pruneLength", "prl", MFnNumericData::kInt);
+    nAttr.setDefault( 2 );
+    nAttr.setKeyable( true );
+    st = addAttribute( aPruneLength ); mser
+
 
 
     aMinPixels = nAttr.create( "minPixels", "mnpx", MFnNumericData::kInt);
@@ -168,6 +176,7 @@ MStatus skeletonStrokeNode:: initialize()
     attributeAffects(aBrushFilter, aOutput);
     attributeAffects(aMinPixels, aOutput);
     attributeAffects(aSpanPixels, aOutput);
+    attributeAffects(aPruneLength, aOutput);
     attributeAffects(aBrushes, aOutput);
 
     attributeAffects(aProjectionMatrix, aOutput);
@@ -178,17 +187,17 @@ MStatus skeletonStrokeNode:: initialize()
 }
 
 
-CImg<float> *skeletonStrokeNode::getImage(MDataBlock &data, MObject &attribute ) const
-{
-    MStatus st;
-    MDataHandle hImageData = data.inputValue(attribute, &st);
-    if (st.error()) {   return 0;}
-    MObject dImageData = hImageData.data();
-    MFnPluginData fnImageData( dImageData , &st);
-    if (st.error()) {   return 0;}
-    cImgFloatData *imageData = (cImgFloatData *)fnImageData.data();
-    return imageData->fImg;
-}
+// CImg<float> *skeletonStrokeNode::getImage(MDataBlock &data, MObject &attribute ) const
+// {
+//     MStatus st;
+//     MDataHandle hImageData = data.inputValue(attribute, &st);
+//     if (st.error()) {   return 0;}
+//     MObject dImageData = hImageData.data();
+//     MFnPluginData fnImageData( dImageData , &st);
+//     if (st.error()) {   return 0;}
+//     cImgFloatData *imageData = (cImgFloatData *)fnImageData.data();
+//     return imageData->fImg;
+// }
 
 
 
@@ -369,13 +378,14 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
 
 
 
-    CImg<float>  *pImage = getImage(data, aSkeletonImage );
+    CImg<float>  *pImage = cImgUtils::getFloatImage(data, aSkeletonImage );
     MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
 
     // float pixelWidth = projection[0][0] / float(pImage->width());
 
 
     // MFloatMatrix imat = projection.inverse();
+    int minBranchLength =  data.inputValue(aPruneLength).asInt();
     int step =  data.inputValue(aSpanPixels).asInt();
     int minPixels =  data.inputValue(aMinPixels).asInt();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
@@ -394,6 +404,9 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
         return MS::kSuccess;
     }
     skGraph g(pImage);
+    g.prune(minBranchLength);
+    g.detachBranches();
+
     std::vector< skChain > chains;
     g.getChains(projection, chains, step, minPixels);
 

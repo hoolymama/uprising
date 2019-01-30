@@ -10,6 +10,7 @@
 
 
 #include "skGraphNode.h"
+#include "skGraphImage.h"
 
 #include "skeletonStrokeNode.h"
 #include "paintingNode.h"
@@ -78,6 +79,11 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "skGraph", skGraphNode::id, skGraphNode::creator,
 	                          skGraphNode::initialize, MPxNode::kLocatorNode ); msert;
 
+	st = plugin.registerNode( "skGraphImage", skGraphImage::id, skGraphImage::creator,
+	                          skGraphImage::initialize ); msert;
+
+
+
 
 
 	st = plugin.registerNode( "collectStrokes", collectStrokes::id, collectStrokes::creator,
@@ -110,7 +116,7 @@ MStatus uninitializePlugin( MObject obj)
 
 	st = plugin.deregisterNode( collectStrokes::id ); mser;
 
-
+	st = plugin.deregisterNode( skGraphImage::id ); mser;
 	st = plugin.deregisterNode( skGraphNode::id ); mser;
 	st = plugin.deregisterNode( brushNode::id ); mser;
 
