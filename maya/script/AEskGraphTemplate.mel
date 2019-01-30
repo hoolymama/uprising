@@ -1,0 +1,43 @@
+global proc AEskGraphTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+
+
+
+	editorTemplate -cl 0  -beginLayout "Graph Attributes";
+	editorTemplate -addControl "skeletonImage";
+	editorTemplate -addControl "pruneLength";
+	editorTemplate -addControl "minPixels";
+	editorTemplate -addControl "pixelStep";
+
+	editorTemplate -endLayout;	
+
+
+	editorTemplate -cl 0  -beginLayout "Display Attributes";
+	editorTemplate -addControl "drawColor1";
+	editorTemplate -addControl "drawColor2";
+
+	editorTemplate -addControl "pointSize";
+
+	editorTemplate -beginNoOptimize;
+	editorTemplate -addControl "drawEdges";
+	editorTemplate -addControl "drawPoints";
+	editorTemplate -addControl "drawCircles";
+	editorTemplate -addControl "randomChainColor";
+	editorTemplate -endNoOptimize;
+
+
+	editorTemplate -endLayout;	
+
+
+
+	editorTemplate -suppress "outPoints";
+	editorTemplate -suppress "outEdges";
+	editorTemplate -suppress "outCircles";
+	editorTemplate -suppress "outCounts";
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
