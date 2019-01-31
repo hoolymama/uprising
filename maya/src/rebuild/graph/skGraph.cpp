@@ -660,24 +660,24 @@ void skGraph::betterPrune(int minBranchLength)
 
 
 
-    // cerr << "clusters.size()" << clusters.size() << endl;;
-    // CLUSTERS::const_iterator mapiter;
-    // for (mapiter = clusters.begin(); mapiter != clusters.end(); mapiter++)
-    // {
+    cerr << "clusters.size()" << clusters.size() << endl;;
+    CLUSTERS::const_iterator mapiter;
+    for (mapiter = clusters.begin(); mapiter != clusters.end(); mapiter++)
+    {
 
-    //     skNode *junctionNode = mapiter->first;
-    //     TWIG_CLUSTER twigCluster = mapiter->second;
+        skNode *junctionNode = mapiter->first;
+        TWIG_CLUSTER twigCluster = mapiter->second;
 
 
-    //     cerr << "CLUSTER JUNCTION NODE AT: " << junctionNode->c << "has " << twigCluster.size() <<
-    //          "twigs ----------" << endl;
-    //     TWIG_CLUSTER::iterator tciter;
-    //     for (tciter = twigCluster.begin(); tciter != twigCluster.end(); tciter++)
-    //     {
-    //         cerr << "Twig at end " << tciter->first->c << " has " << tciter->second <<
-    //              " nodes before the junction" << endl;
-    //     }
-    // }
+        cerr << "CLUSTER JUNCTION NODE AT: " << junctionNode->c << "has " << twigCluster.size() <<
+             "twigs ----------" << endl;
+        TWIG_CLUSTER::iterator tciter;
+        for (tciter = twigCluster.begin(); tciter != twigCluster.end(); tciter++)
+        {
+            cerr << "Twig at end " << ((*tciter)[0])->c << " has " << tciter->size() <<
+                 " nodes before the junction" << endl;
+        }
+    }
 }
 
 // void pruneTwigs()
@@ -694,10 +694,12 @@ void skGraph::_getTwigs(int minBranchLength, CLUSTERS &twigClusters)
         {
             // cerr << "found end "  << endl;
             skNode *curr = mapiter->second;
-            TWIG twig = std::make_pair(curr, 0);
+            // TWIG twig = std::make_pair(curr, 0);
+            TWIG twig = std::vector<skNode *>();
             // walk until we find a junction, or exceed the max
             for (int count = 0; count < minBranchLength;  count++)
             {
+                // twig.push_back(curr)
 
                 //////////////// JUNCTION /////////////////////
                 if (curr->neighbors.size() > 2)
@@ -728,7 +730,9 @@ void skGraph::_getTwigs(int minBranchLength, CLUSTERS &twigClusters)
 
 
                 curr->seen = true;
-                twig.second++;
+                twig.push_back(curr);
+                // twig.second++;
+
                 curr = nextNodeIt->second;
             }
         }
