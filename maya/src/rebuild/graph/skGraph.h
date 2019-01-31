@@ -48,7 +48,7 @@ public:
 
 
     void verify() const;
-
+    void betterPrune(int minBranchLength);
 
 
 private:

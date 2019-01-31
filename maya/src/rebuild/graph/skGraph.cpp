@@ -532,14 +532,12 @@ void skGraph::prune(int minBranchLength)
     }
 
     std::vector<skNode *> toDelete;
-    // int disconnectCount = 0;
-
 
     for (std::map<coord, skNode *>::const_iterator mapiter = m_nodes.begin();
             mapiter != m_nodes.end();
             mapiter++)
     {
-        if (mapiter->second->isEnd()  && (! mapiter->second->seen ) )
+        if (mapiter->second->isEnd() /* && (! mapiter->second->seen ) */)
         {
             // start walking
             std::vector<skNode *> deletionCandidates;
@@ -551,25 +549,13 @@ void skGraph::prune(int minBranchLength)
             for (int count = 0; count < minBranchLength;  count++)
             {
 
-                // if ( count >= minBranchLength)
-                // {
-                //     // note, when count is equal to minLen - we bail out and do nothing,
-                //     // because this branch is long enough to stay
-                //     doPrune = false;
-                //     break;
-                // }
-
-
                 // if curr has more than 2 neighbor, then it is a junction
                 // This cannot happen the first iteration because the first iter is an end.
                 // We must have stared the walk. Therefore, sfe to assume candidates contains
                 // the previous node
-                // cerr << "curr->unseenNeighborCount():" << curr->unseenNeighborCount() << endl;
                 if (curr->neighbors.size() > 2)
                 {
-                    // disconnectCount++;
-                    skNode *b = deletionCandidates.back();
-                    _disconnect(curr, b);
+                    _disconnect(curr, deletionCandidates.back());
                     doPrune = true;
                     break;
                 }
@@ -582,12 +568,10 @@ void skGraph::prune(int minBranchLength)
                 // curr is either the end, or a non-junction chain node
 
                 if (nextNodeIt == curr->neighbors.end())
-                {   // curr is at the other end, so leave it (for now)
+                {
+                    // curr is at the other end, so leave it (for now)
                     // NOTE: Another option would be to delete the chain
                     // as its quite small -
-                    // To do that, we would
-                    //
-                    // cerr << "There is not next node - so break" << endl;
                     doPrune = false;
                     break;
                 }
@@ -625,7 +609,81 @@ void skGraph::prune(int minBranchLength)
 // typedef std::map <   skNode *, TWIG_CLUSTER > CLUSTERS;
 
 
-void skGraph::_getTwigs(int maxNodes, CLUSTERS &result)
+
+void skGraph::betterPrune(int minBranchLength)
+{
+    cerr << "betterPrune" << endl;;
+    CLUSTERS clusters;
+
+    _getTwigs( minBranchLength, clusters);
+
+
+    /*
+    Now lets prune all the branches in the cluster UNLESS
+    that would be all branches
+
+
+    */
+
+
+
+    // for (mapiter = clusters.begin(); mapiter != clusters.end(); mapiter++)
+    // {
+    //     skNode *junctionNode = mapiter->first;
+    //     TWIG_CLUSTER twigCluster = mapiter->second;
+
+    //     // cerr << "CLUSTER JUNCTION NODE AT: " << junctionNode->c << "has " << twigCluster.size() <<
+    //     //      "twigs ----------" << endl;
+
+    //     int degree = junctionNode->neighbors.size();
+    //     int candidates = twigCluster.size();
+
+    //     numToDelete = std::min( (degree - 2), candidates);
+    //     if (numToDelete == candidates)
+    //     {
+    //         // no need to sort, just delete them all
+    //     }
+    //     else
+    //     {
+    //         // delete the shortest
+    //     }
+
+
+    //     TWIG_CLUSTER::iterator tciter;
+    //     for (tciter = twigCluster.begin(); tciter != twigCluster.end(); tciter++)
+    //     {
+    //         cerr << "Twig at end " << tciter->first->c << " has " << tciter->second <<
+    //              " nodes before the junction" << endl;
+    //     }
+    // }
+
+
+
+
+    // cerr << "clusters.size()" << clusters.size() << endl;;
+    // CLUSTERS::const_iterator mapiter;
+    // for (mapiter = clusters.begin(); mapiter != clusters.end(); mapiter++)
+    // {
+
+    //     skNode *junctionNode = mapiter->first;
+    //     TWIG_CLUSTER twigCluster = mapiter->second;
+
+
+    //     cerr << "CLUSTER JUNCTION NODE AT: " << junctionNode->c << "has " << twigCluster.size() <<
+    //          "twigs ----------" << endl;
+    //     TWIG_CLUSTER::iterator tciter;
+    //     for (tciter = twigCluster.begin(); tciter != twigCluster.end(); tciter++)
+    //     {
+    //         cerr << "Twig at end " << tciter->first->c << " has " << tciter->second <<
+    //              " nodes before the junction" << endl;
+    //     }
+    // }
+}
+
+// void pruneTwigs()
+
+
+void skGraph::_getTwigs(int minBranchLength, CLUSTERS &twigClusters)
 {
 
     for (std::map<coord, skNode *>::const_iterator mapiter = m_nodes.begin();
@@ -634,14 +692,48 @@ void skGraph::_getTwigs(int maxNodes, CLUSTERS &result)
     {
         if (mapiter->second->isEnd() )
         {
+            // cerr << "found end "  << endl;
+            skNode *curr = mapiter->second;
+            TWIG twig = std::make_pair(curr, 0);
             // walk until we find a junction, or exceed the max
+            for (int count = 0; count < minBranchLength;  count++)
+            {
+
+                //////////////// JUNCTION /////////////////////
+                if (curr->neighbors.size() > 2)
+                {
+                    // its a junction, so stop
+                    twigClusters[curr].push_back(twig);
+                    break;
+                }
+                //////////////////////////////////////////
 
 
 
+                //////////////// NEXT NODE /////////////////////
+                auto nextNodeIt =  std::find_if(
+                                       curr->neighbors.begin(),
+                                       curr->neighbors.end(),
+                                       [](const std::pair<coord, skNode *> &p) -> bool { return p.second->seen == false; }
+                                   );
+                //////////////////////////////////////////
+
+
+                //////////////// OTHER END /////////////////////
+                if (nextNodeIt == curr->neighbors.end())
+                {   // curr is at the other end,
+                    break;
+                }
+                //////////////////////////////////////////
+
+
+                curr->seen = true;
+                twig.second++;
+                curr = nextNodeIt->second;
+            }
         }
-
     }
-
+    _resetSeen();
 }
 
 

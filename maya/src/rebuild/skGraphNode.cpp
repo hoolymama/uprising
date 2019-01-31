@@ -334,13 +334,18 @@ MStatus skGraphNode::compute(const MPlug &plug, MDataBlock &data)
 
 	skGraph g(pImage);
 
-	cerr << "BEFORE prune()" ;
-	g.verify() ;
 
-	g.prune(minBranchLength);
+	g.betterPrune(minBranchLength);
 
-	cerr << "BEFORE detachBranches()" ;
-	g.verify() ;
+
+
+	// cerr << "BEFORE prune()" ;
+	// g.verify() ;
+
+	// g.prune(minBranchLength);
+
+	// cerr << "BEFORE detachBranches()" ;
+	// g.verify() ;
 	g.detachBranches();
 	// cerr << "AFTER detachBranches()" ;
 	// g.verify() ;

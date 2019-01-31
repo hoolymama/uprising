@@ -62,7 +62,7 @@ struct coord {
 
 	friend ostream &operator<<(ostream &os, const coord &c)
 	{
-		os << "[" << c.x << ", " << c.y << ". " << c.z << "]" ;
+		os << "[" << c.x << ", " << c.y << ", " << c.z << "]" ;
 		return os;
 	}
 };
