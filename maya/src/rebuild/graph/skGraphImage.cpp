@@ -122,7 +122,6 @@ MStatus skGraphImage::compute( const MPlug &plug, MDataBlock &data ) {
 
 	skGraph g(pImage);
 	g.prune(minBranchLength);
-
 	g.draw(*image);
 
 	hOutput.set(newData);

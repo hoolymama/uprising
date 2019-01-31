@@ -333,10 +333,25 @@ MStatus skGraphNode::compute(const MPlug &plug, MDataBlock &data)
 	}
 
 	skGraph g(pImage);
+
+	cerr << "BEFORE prune()" ;
+	g.verify() ;
+
 	g.prune(minBranchLength);
+
+	cerr << "BEFORE detachBranches()" ;
+	g.verify() ;
 	g.detachBranches();
+	// cerr << "AFTER detachBranches()" ;
+	// g.verify() ;
 
 	std::vector< skChain > chains;
+
+	// cerr << "GET CHAINS WITH ARGS: " << endl;
+	// cerr << projection << endl;
+	// cerr << "step:" << step << "Min Pixels:" <<  minPixels << endl;
+
+
 	g.getChains(projection, chains, step, minPixels);
 
 	std::vector< skChain >::const_iterator iter;

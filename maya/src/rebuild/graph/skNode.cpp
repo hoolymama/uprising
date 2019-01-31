@@ -38,6 +38,8 @@ int skNode::unseenNeighborCount() const {
 	std::map<coord, skNode *>::const_iterator citer;
 	for (citer = neighbors.begin(); citer != neighbors.end(); citer++)
 	{
+		// cerr << "In unseenNeighborCount loop over neighbors" << endl;
+		// cerr << "citer->second->seen" << citer->second->seen << endl;
 		if (! citer->second->seen)
 		{
 			num_unseen++;
@@ -45,6 +47,26 @@ int skNode::unseenNeighborCount() const {
 	}
 	return num_unseen;
 }
+
+int skNode::getUnseenNeighbors(std::vector<skNode *> &result) const {
+
+	result.clear();
+	std::map<coord, skNode *>::const_iterator citer;
+	for (citer = neighbors.begin(); citer != neighbors.end(); citer++)
+	{
+		// cerr <<  "unseenNeighbors citer->second " << citer->second << endl;
+		// cerr <<  "unseenNeighbors citer->second->seen " << citer->second->seen << endl;
+		if (! citer->second->seen)
+		{
+			result.push_back(citer->second);
+		}
+	}
+	// cerr << "result.size(): " << result.size() << endl;
+
+	return result.size();
+}
+
+
 
 float skNode::facing(const skNode *other1, const skNode *other2) const
 {

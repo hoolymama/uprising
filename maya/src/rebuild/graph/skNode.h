@@ -60,6 +60,11 @@ struct coord {
 		return   MFloatPoint(x, y) * m;
 	}
 
+	friend ostream &operator<<(ostream &os, const coord &c)
+	{
+		os << "[" << c.x << ", " << c.y << ". " << c.z << "]" ;
+		return os;
+	}
 };
 
 
@@ -79,7 +84,15 @@ public:
 	float facing(const skNode *other1, const skNode *other2) const;
 	// float distanceTo(const skNode *other) const;
 	int  unseenNeighborCount() const;
+
+	int getUnseenNeighbors(std::vector<skNode *> &result) const ;
+
 };
+
+
+typedef std::pair < skNode *, int > TWIG;
+typedef std::vector < TWIG  > TWIG_CLUSTER;
+typedef std::map <   skNode *, TWIG_CLUSTER > CLUSTERS;
 
 
 #endif

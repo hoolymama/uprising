@@ -47,8 +47,16 @@ public:
     void detachBranches();
 
 
+    void verify() const;
+
+
+
 private:
 
+    void _getTwigs(int maxNodes, CLUSTERS &result) ;
+
+    void _verifyDegrees() const;
+    void _verifyNeighborsExist() const;
     // void _setRadius(const CImg<float>  *pImage);
     skNode *_addNode(int x, int y, int z, float radius);
     skNode *_addNode(const coord &c, float radius);
@@ -64,6 +72,5 @@ private:
     int m_height;
 
 };
-
 
 #endif
