@@ -408,7 +408,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     g.detachBranches();
 
     std::vector< skChain > chains;
-    g.getChains(projection, chains, step, minPixels);
+    g.getChains(projection, chains, step/*, minPixels*/);
 
     std::vector<skChain>::const_iterator citer;
     for (citer = chains.begin(); citer != chains.end(); citer++)

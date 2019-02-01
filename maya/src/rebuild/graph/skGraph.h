@@ -38,8 +38,7 @@ public:
     // void getChains(std::vector< skChain > &chains, int step = 1, int minPixels = 2 ) const;
     void getChains(     const  MFloatMatrix &projection ,
                         std::vector< skChain > &chains,
-                        int step,
-                        int minPixels)  ;
+                        int step/*,  int minPixels*/)  ;
 
 
     void draw(CImg<unsigned char>  &result) const;
@@ -49,11 +48,14 @@ public:
 
     void verify() const;
     void betterPrune(int minBranchLength);
+    void  removeLooseTwigs(int minTwigLength);
 
-
+    int numNodes() const;
 private:
 
-    void _getTwigs(int maxNodes, CLUSTERS &result) ;
+    void _pruneTwig(TWIG &twig, skNode *junction = 0);
+
+    void _getTwigClusters(int maxNodes, CLUSTERS &result) ;
 
     void _verifyDegrees() const;
     void _verifyNeighborsExist() const;
@@ -64,7 +66,7 @@ private:
     void _connect(coord from, coord to);
     void _detatchStraightest( skNode *node, int z);
     void _splitOff( skNode *node,  skNode *first,  skNode *second, int z);
-    void  _resetSeen();
+    int  _resetSeen();
     void _disconnect( skNode *a, skNode *b);
     std::map<coord, skNode * > m_nodes;
 

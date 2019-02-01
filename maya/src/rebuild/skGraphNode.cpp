@@ -332,23 +332,25 @@ MStatus skGraphNode::compute(const MPlug &plug, MDataBlock &data)
 		return MS::kSuccess;
 	}
 
+	int firstBuilt, afterPrune, afterLooseTwigs, afterDetach;
 	skGraph g(pImage);
+	firstBuilt = g.numNodes();
 
 
-	g.betterPrune(minBranchLength);
+	g.prune(minBranchLength);
+	afterPrune = g.numNodes();
+	g.verify();
+
+	g.removeLooseTwigs(minPixels);
+	afterLooseTwigs = g.numNodes();
 
 
-
-	// cerr << "BEFORE prune()" ;
-	// g.verify() ;
-
-	// g.prune(minBranchLength);
-
-	// cerr << "BEFORE detachBranches()" ;
-	// g.verify() ;
 	g.detachBranches();
-	// cerr << "AFTER detachBranches()" ;
-	// g.verify() ;
+	afterDetach = g.numNodes();
+
+	cerr << "built:" << firstBuilt << " afterPrune:" << afterPrune << " afterLooseTwigs:" <<
+	     afterLooseTwigs << " afterDetach:" << afterDetach << endl;
+
 
 	std::vector< skChain > chains;
 
@@ -357,7 +359,7 @@ MStatus skGraphNode::compute(const MPlug &plug, MDataBlock &data)
 	// cerr << "step:" << step << "Min Pixels:" <<  minPixels << endl;
 
 
-	g.getChains(projection, chains, step, minPixels);
+	g.getChains(projection, chains, step/*, minPixels*/);
 
 	std::vector< skChain >::const_iterator iter;
 	for (iter = chains.begin(); iter != chains.end();  iter++)
