@@ -37,41 +37,23 @@ public:
 
   static  MTypeId   id;
 
-
-  // static  MObject aProjectionMatrix;
 private:
 
-  // void makeDots(MDataBlock &data, std::vector<dotData> &dots);
-  // void relaxDots(MDataBlock &data, std::vector<dotData> &dots);
-  // void cullDots(MDataBlock &data, std::vector<dotData> &dots);
-
-
-  // CImg<float> *getImage(MDataBlock &data, MObject &attribute );
-
-  // coord findWhitePixel(const coord &start,  const CImg<bool> &image );
-
-  static MObject aProjectionMatrix;
+  MStatus    extract(
+    MDataBlock &data, MVectorArray &points, MDoubleArray &params,
+    MDoubleArray &radius, MIntArray &counts) const;
 
 
 
-  static  MObject aSkeletonImage;
-  static  MObject aPruneLength;
-
-  static  MObject aMaxRadius;
-  static  MObject aPixelStep;
-  static  MObject aMinPixels;
-
+  static MObject aChains;
   static  MObject aPointSize;
   static  MObject aColor1;
   static  MObject aColor2;
 
   static  MObject aOutPoints;
-  // static  MObject aOutEdges;
   static  MObject aOutRadius;
   static  MObject aOutParams;
-
   static  MObject aOutCounts;
-
 
   static  MObject aRadiusMult;
   static  MObject aDrawEdges;
@@ -86,27 +68,6 @@ private:
 
 };
 
-// namespace
-// {
-// static  MCallbackId id;
-
-
-// static void makeDefaultConnections(  MObject &node, void *clientData )
-// {
-
-//   MPlug wmPlugmulti( node, skGraphNode::worldMatrix );
-//   MPlug wm( wmPlugmulti.elementByLogicalIndex( 0 ) );
-//   MPlug pmt( node, skGraphNode::aProjectionMatrix );
-
-//   MDGModifier mod;
-//   mod.connect( wm, pmt );
-//   MStatus stat = mod.doIt();
-//   if (stat != MS::kSuccess)
-//   {
-//     stat.perror("painting ERROR :: callback unable to make matrix connections");
-//   }
-// }
-// }
 
 
 #endif

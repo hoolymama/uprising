@@ -49,7 +49,7 @@ public:
 	const float &width() const;
 
 
-
+	bool isFlat() const;
 
 
 	friend ostream &operator<<(ostream &os, const Brush &b);

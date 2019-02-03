@@ -241,6 +241,14 @@ Brush::Shape Brush::shape() const
 	return m_shape;
 }
 
+
+
+bool Brush::isFlat() const
+{
+	return m_shape == Brush::kFlat;
+}
+
+
 bool Brush::matches(Shape filter) const
 {
 	return (filter == m_shape) || (filter == Brush::kAll);

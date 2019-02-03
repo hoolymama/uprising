@@ -20,32 +20,26 @@
 #include "strokeRepeatSpec.h"
 
 #include "cImgFloatData.h"
+#include "cImgData.h"
 
 #include "brushData.h"
 #include "cImgUtils.h"
 
 #include <jMayaIds.h>
 #include "errorMacros.h"
+#include "skChainData.h"
 
 const double rad_to_deg = (180 / 3.1415927);
 
-MObject skeletonStrokeNode::aSkeletonImage;
+MObject skeletonStrokeNode::aChains;
 
 MObject skeletonStrokeNode::aBrushFilter;
-
-
-
-MObject skeletonStrokeNode::aMinPixels;
-MObject skeletonStrokeNode::aSpanPixels;
 MObject skeletonStrokeNode::aBrushes;
-MObject skeletonStrokeNode::aPruneLength;
-// MObject skeletonStrokeNode::aBrushActive;
-
-MObject skeletonStrokeNode::aProjectionMatrix;
 
 MObject skeletonStrokeNode::aStrokeLength;
 MObject skeletonStrokeNode::aOverlap;
 MObject skeletonStrokeNode::aBrushRampScope;
+
 
 
 MTypeId skeletonStrokeNode:: id(k_skeletonStrokeNode );
@@ -69,50 +63,16 @@ MStatus skeletonStrokeNode:: initialize()
     MFnTypedAttribute tAttr;
     MFnEnumAttribute eAttr;
     MFnCompoundAttribute cAttr;
-
     MFnMatrixAttribute mAttr;
 
     inheritAttributesFrom("strokeNode");
 
-    MFloatMatrix identity;
-    identity.setToIdentity();
-    aProjectionMatrix = mAttr.create( "projectionMatrix", "pmat",
-                                      MFnMatrixAttribute::kFloat );
-    mAttr.setStorable( false );
-    mAttr.setHidden( false );
-    mAttr.setKeyable(true);
-    mAttr.setDefault(identity);
-    addAttribute(aProjectionMatrix);
-
-    aSkeletonImage = tAttr.create("skeletonImage", "simg", cImgFloatData::id ) ;
+    /// skeleton generation
+    //////////////////
+    aChains = tAttr.create("chains", "chn", skChainData::id ) ;
     tAttr.setStorable(false);
     tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-    st = addAttribute( aSkeletonImage ); mser;
-
-
-    aPruneLength = nAttr.create("pruneLength", "prl", MFnNumericData::kInt);
-    nAttr.setDefault( 2 );
-    nAttr.setKeyable( true );
-    st = addAttribute( aPruneLength ); mser
-
-
-
-    aMinPixels = nAttr.create( "minPixels", "mnpx", MFnNumericData::kInt);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setMin(2);
-    nAttr.setDefault(10);
-    st = addAttribute(aMinPixels); mser;
-
-    aSpanPixels = nAttr.create( "spanPixels", "spx", MFnNumericData::kInt);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setMin(1);
-    nAttr.setDefault(10);
-    st = addAttribute(aSpanPixels); mser;
-
+    st = addAttribute( aChains ); mser;
 
     aStrokeLength = nAttr.create( "strokeLength", "stl", MFnNumericData::kFloat);
     nAttr.setStorable(true);
@@ -128,30 +88,12 @@ MStatus skeletonStrokeNode:: initialize()
     st = addAttribute(aOverlap);
     mser;
 
-
-
-
-    // static MObject aBrushes;
-    // static MObject aBrushWidth;
-    // static MObject aBrushActive;
-
     aBrushes = tAttr.create( "brushes", "bsh", brushData::id );
     tAttr.setReadable(false);
     tAttr.setStorable(false);
     tAttr.setArray(true);
     tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
     addAttribute(aBrushes);
-
-
-
-    // aBrushes = cAttr.create( "brushes", "bs");
-    // cAttr.setArray(true);
-    // cAttr.addChild(aBrushWidth);
-    // cAttr.addChild(aBrushActive);
-
-    // st = addAttribute(aBrushes); mser;
-
-
 
     aBrushRampScope = eAttr.create("brushRampScope", "brsc",
                                    StrokeRotationSpec::kStroke);
@@ -172,34 +114,15 @@ MStatus skeletonStrokeNode:: initialize()
     st = addAttribute(aBrushFilter);
     mser;
 
-    attributeAffects(aSkeletonImage, aOutput);
+    attributeAffects(aChains, aOutput);
     attributeAffects(aBrushFilter, aOutput);
-    attributeAffects(aMinPixels, aOutput);
-    attributeAffects(aSpanPixels, aOutput);
-    attributeAffects(aPruneLength, aOutput);
     attributeAffects(aBrushes, aOutput);
-
-    attributeAffects(aProjectionMatrix, aOutput);
     attributeAffects(aStrokeLength, aOutput);
     attributeAffects(aOverlap, aOutput);
     attributeAffects(aBrushRampScope, aOutput);
+
     return (MS::kSuccess );
 }
-
-
-// CImg<float> *skeletonStrokeNode::getImage(MDataBlock &data, MObject &attribute ) const
-// {
-//     MStatus st;
-//     MDataHandle hImageData = data.inputValue(attribute, &st);
-//     if (st.error()) {   return 0;}
-//     MObject dImageData = hImageData.data();
-//     MFnPluginData fnImageData( dImageData , &st);
-//     if (st.error()) {   return 0;}
-//     cImgFloatData *imageData = (cImgFloatData *)fnImageData.data();
-//     return imageData->fImg;
-// }
-
-
 
 
 unsigned int skeletonStrokeNode::getStrokeBoundaries(
@@ -243,6 +166,12 @@ MStatus skeletonStrokeNode::collectBrushes(
     std::vector< std::pair<int, Brush> > &brushes,
     Brush::Shape filter) const
 {
+
+    /*
+        Brushes, sorted by width, starting with largest.
+    */
+
+
     MStatus st;
     MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st); msert;
     unsigned nPlugs = ha.elementCount();
@@ -263,7 +192,6 @@ MStatus skeletonStrokeNode::collectBrushes(
         }
         brushData *bData = (brushData *)fnP.data();
 
-        // double radius = ha.inputValue().asFloat() * 0.5;
         const Brush *pBrush = bData->fGeometry;
         if (pBrush->matches(filter))
         {
@@ -285,29 +213,50 @@ int skeletonStrokeNode::getContacts(
     const std::vector< std::pair<int, Brush> > &brushes,
     MDoubleArray &contacts) const
 {
+    /*
+
+    If the first brush (the biggest brush) is too small for the stroke
+    then we return -1, meaning we cant actually paint the stroke.
+    */
+
     int index = -1;
     float brushRadius =  1.0;
+    bool isFlat = false;
+    // std::vector< std::pair<int, Brush> >::const_iterator selected_brush = brushes.find(-1);
 
-    std::vector< std::pair<int, Brush> >::const_iterator iter;
-    for (iter = brushes.begin(); iter != brushes.end(); iter++)
+    std::vector< std::pair<int, Brush> >::const_iterator brushIter;
+    for (brushIter = brushes.begin(); brushIter != brushes.end(); brushIter++)
     {
-        float rad = iter->second.width() / 2;
-        if (rad < chain.maxRadius() && (iter != brushes.begin() ))
+        float brushRad = brushIter->second.width() * 0.5;
+        if (brushRad < chain.maxRadius() && (brushIter != brushes.begin() ))
         {
             break;
         }
-        index = iter->first;
-        brushRadius = rad;
+        index = brushIter->first;
+        brushRadius = brushRad;
+        isFlat =  brushIter->second.isFlat();
     }
+    /*
 
+    */
 
     MFloatArray radii;
     chain.appendRadii(radii);
-    for (int i = 0; i < radii.length(); ++i)
+
+    if (isFlat)
     {
-        contacts.append(
-            fmin( radii[i] / brushRadius, 1.0)
-        );
+        for (int i = 0; i < radii.length(); ++i)
+        {
+            contacts.append( 1.0);
+        }
+    }
+    else {
+        for (int i = 0; i < radii.length(); ++i)
+        {
+            contacts.append(
+                fmin( radii[i] / brushRadius, 1.0)
+            );
+        }
     }
     return index;
 }
@@ -317,14 +266,11 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
         std::vector < Stroke > *pStrokes) const
 {
 
-    MStatus st;
 
+    MStatus st;
     if (! data.inputValue(aActive).asBool()) {
         return MS:: kSuccess;
     }
-
-
-
     //////////////////////////////////////////////////////////////
     double pointDensity = data.inputValue(aPointDensity).asDouble();
     if (pointDensity < 0.001) {
@@ -371,47 +317,30 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     //////////////////////////////////////////////////////////////
 
 
+    MDataHandle hChains = data.inputValue(aChains, &st); msert;
+    MObject dChains = hChains.data();
+    MFnPluginData fnChains( dChains , &st); msert;
+    skChainData *scData = (skChainData *)fnChains.data( &st); msert;
+    const std::vector<skChain> *geom = scData->fGeometry;
+    if ((! geom) || geom->size() == 0 ) {
+        return MS::kUnknownParameter;
+    }
+
 
 
 
     MObject thisObj = thisMObject();
 
-
-
-    CImg<float>  *pImage = cImgUtils::getFloatImage(data, aSkeletonImage );
-    MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
-
-    // float pixelWidth = projection[0][0] / float(pImage->width());
-
-
-    // MFloatMatrix imat = projection.inverse();
-    int minBranchLength =  data.inputValue(aPruneLength).asInt();
-    int step =  data.inputValue(aSpanPixels).asInt();
-    int minPixels =  data.inputValue(aMinPixels).asInt();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
     Brush::Shape filter = Brush::Shape(data.inputValue(aBrushFilter).asShort());
-
-
-    // float maxRadius = data.inputValue(aBrushWidth).asFloat() * 0.5;
 
     std::vector< std::pair<int, Brush> > brushes;
     st = collectBrushes(data, brushes  , filter);
 
 
-
-    if (! pImage) {
-        return MS::kSuccess;
-    }
-    skGraph g(pImage);
-    g.prune(minBranchLength);
-    g.detachBranches();
-
-    std::vector< skChain > chains;
-    g.getChains(projection, chains, step/*, minPixels*/);
-
     std::vector<skChain>::const_iterator citer;
-    for (citer = chains.begin(); citer != chains.end(); citer++)
+    for (citer = geom->begin(); citer != geom->end(); citer++)
     {
         MPointArray editPoints;
         MDoubleArray contacts;

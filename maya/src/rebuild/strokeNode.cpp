@@ -672,24 +672,21 @@ MStatus strokeNode::compute(const MPlug &plug, MDataBlock &data )
   std::vector < Stroke > *geom = newData->fGeometry;
   st = generateStrokeGeometry(data, geom); mser;
 
-
   assignUVs(data, geom);
-  overrideBrushIds( data, geom);
-  overridePaintIds( data, geom);
-  filterStrokes(data,  geom);
-  sortStrokes(data,  geom);
+  overrideBrushIds(data, geom);
+  overridePaintIds(data, geom);
+  filterStrokes(data, geom);
+  sortStrokes(data, geom);
   cullStartEnd(data, geom);
 
   // should probably go before assignUVs in case pivot moves
   transformStrokes(data, geom);
-
 
   hOutput.set(newData);
   data.setClean(plug);
 
   return MS:: kSuccess;
 }
-
 
 void strokeNode::assignUVs(MDataBlock &data, std::vector<Stroke> *geom) const
 {

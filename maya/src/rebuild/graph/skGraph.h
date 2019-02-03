@@ -26,8 +26,7 @@ class skGraph
 {
 public:
     skGraph();
-
-    skGraph(const CImg<float>  *pImage);
+    skGraph(const CImg<float>   &inImage);
 
     ~skGraph();
 
@@ -40,11 +39,10 @@ public:
                         std::vector< skChain > &chains,
                         int step/*,  int minPixels*/)  ;
 
-
-    void draw(CImg<unsigned char>  &result) const;
+    void draw(CImg<unsigned char>  &image) const;
+    void clampWidth(int maxWidth);
     void prune(int minBranchLength);
     void detachBranches();
-
 
     void verify() const;
     void betterPrune(int minBranchLength);

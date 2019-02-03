@@ -120,8 +120,10 @@ MStatus skGraphImage::compute( const MPlug &plug, MDataBlock &data ) {
 	// pointer to skel image
 	CImg<float>  *pImage = cImgUtils::getFloatImage(data, skGraphImage::aSkeletonImage );
 
-	skGraph g(pImage);
+	skGraph g(*pImage);
 	g.prune(minBranchLength);
+	g.clampWidth(maxRadius);
+
 	g.draw(*image);
 
 	hOutput.set(newData);

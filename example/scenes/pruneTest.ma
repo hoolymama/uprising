@@ -1,15 +1,17 @@
 //Maya ASCII 2017ff04 scene
 //Name: pruneTest.ma
-//Last modified: Thu, Jan 31, 2019 11:33:45 AM
+//Last modified: Sat, Feb 02, 2019 09:30:54 PM
 //Codeset: UTF-8
 requires maya "2017ff04";
 requires -nodeType "glyphShape" -nodeType "matrixGlyphShape" "Congregation" "2017.dev.999";
-requires -nodeType "curveStroke" -nodeType "skeletonStroke" -nodeType "painting"
-		 -nodeType "brushNode" -nodeType "skGraph" -nodeType "collectStrokes" -dataType "brushData"
-		 -dataType "strokeData" -dataType "paintingData" "Uprising" "2017.x.999";
+requires -nodeType "skChainNode" -nodeType "curveStroke" -nodeType "skeletonStroke"
+		 -nodeType "painting" -nodeType "brushNode" -nodeType "skGraph" -nodeType "collectStrokes"
+		 -dataType "skChainData" -dataType "brushData" -dataType "strokeData" -dataType "paintingData"
+		 "Uprising" "2017.x.999";
 requires "stereoCamera" "10.0";
-requires -nodeType "cImgFile" -nodeType "cImgPngFile" -nodeType "cImgSkel" -nodeType "axisImg"
-		 -nodeType "cImgShader" -dataType "cImgData" -dataType "cImgFloatData" "Kit" "2017.dev.999";
+requires -nodeType "cImgFile" -nodeType "cImgPngFile" -nodeType "cImgSkel" -nodeType "cImgGate"
+		 -nodeType "axisImg" -nodeType "cImgShader" -dataType "cImgData" -dataType "cImgFloatData"
+		 "Kit" "2017.dev.999";
 requires "stereoCamera" "10.0";
 currentUnit -l centimeter -a degree -t film;
 fileInfo "application" "maya";
@@ -20,8 +22,8 @@ fileInfo "osv" "Mac OS X 10.12.6";
 createNode transform -s -n "persp";
 	rename -uid "4E161BFB-4046-46A3-EE6C-DD8D384A4713";
 	setAttr ".v" no;
-	setAttr ".t" -type "double3" -219.38535731131861 -49.745272192150637 15.131259045386884 ;
-	setAttr ".r" -type "double3" 78.261647271652862 0 -100.99999999999235 ;
+	setAttr ".t" -type "double3" -60.672867972549739 -41.262055782302397 72.457445980262023 ;
+	setAttr ".r" -type "double3" -24.338352728343224 0 111.00000000000799 ;
 	setAttr ".rp" -type "double3" 1.4210854715202004e-14 8.8817841970012523e-15 5.6843418860808015e-14 ;
 	setAttr ".rpt" -type "double3" -3.2126587147117258e-14 -5.2098900557035962e-14 -2.0466006432280544e-14 ;
 createNode camera -s -n "perspShape" -p "persp";
@@ -30,11 +32,11 @@ createNode camera -s -n "perspShape" -p "persp";
 	setAttr ".fl" 34.999999999999986;
 	setAttr ".ncp" 1;
 	setAttr ".fcp" 1000;
-	setAttr ".coi" 302.95188830277004;
+	setAttr ".coi" 79.040848922047815;
 	setAttr ".imn" -type "string" "persp";
 	setAttr ".den" -type "string" "persp_depth";
 	setAttr ".man" -type "string" "persp_mask";
-	setAttr ".tp" -type "double3" 135.21567916870117 0.000194549560546875 21.99999988079071 ;
+	setAttr ".tp" -type "double3" -30 -30 0 ;
 	setAttr ".hc" -type "string" "viewSet -p %camera";
 createNode transform -s -n "top";
 	rename -uid "E2738A7A-F348-1DF6-7ED8-069DAC9E8234";
@@ -3153,10 +3155,8 @@ createNode painting -n "mainPaintingShape" -p "mainPainting";
 	setAttr ".did" no;
 	setAttr ".dprid" no;
 	setAttr ".dlyid" no;
-	setAttr ".dbid" no;
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
-	setAttr ".sgap" 0.57999999999999985;
 createNode transform -n "canvas" -p "jpos";
 	rename -uid "65D811F3-8E40-F34C-D6BE-7798FAFE88F9";
 	addAttr -ci true -sn "width" -ln "width" -at "double";
@@ -3608,7 +3608,6 @@ createNode transform -n "displace" -p "mainPaintingGroup";
 createNode mesh -n "displaceShape" -p "displace";
 	rename -uid "7A326FD5-0D42-323D-3346-1399D2818754";
 	setAttr -k off ".v";
-	setAttr -s 2 ".iog";
 	setAttr -s 2 ".iog[0].og";
 	setAttr ".vir" yes;
 	setAttr ".vif" yes;
@@ -4256,14 +4255,14 @@ createNode camera -n "persp1Shape" -p "persp1";
 	setAttr ".hc" -type "string" "viewSet -p %camera";
 createNode transform -n "top1";
 	rename -uid "14F14B06-A442-F725-ED98-0BA42C716D02";
-	setAttr ".t" -type "double3" -53.389667948301003 -42.188040019919974 1009.7077254141126 ;
+	setAttr ".t" -type "double3" -34.28564120057753 -30.790059935760787 1009.7077254141126 ;
 createNode camera -n "top1Shape" -p "top1";
 	rename -uid "F5CCDA81-584C-B464-9784-7EB3E0753709";
 	setAttr -k off ".v";
 	setAttr ".rnd" no;
 	setAttr ".ff" 2;
 	setAttr ".coi" 1009.7077254141126;
-	setAttr ".ow" 40.442782713935088;
+	setAttr ".ow" 52.461648100722051;
 	setAttr ".imn" -type "string" "top";
 	setAttr ".den" -type "string" "top_depth";
 	setAttr ".man" -type "string" "top_mask";
@@ -4306,24 +4305,21 @@ createNode camera -n "bottomShape" -p "bottom";
 	setAttr ".o" yes;
 createNode transform -n "skGraph";
 	rename -uid "218CE6C8-F845-0D4A-8BE1-00A67F00C609";
+	setAttr ".v" no;
 	setAttr ".t" -type "double3" 0 0 500 ;
 createNode skGraph -n "skGraphShape" -p "skGraph";
 	rename -uid "003A0DEC-A243-8483-3068-369B9C6683BF";
 	setAttr -k off ".v";
-	setAttr ".prl" 100;
-	setAttr ".mnpx" 1;
-	setAttr ".pxs" 1;
 	setAttr ".psz" 3.380000114440918;
 	setAttr ".radiusMult" 1;
 	setAttr ".dc1" -type "float3" 1 0 0 ;
 	setAttr ".dc2" -type "float3" 1 0.63880002 0 ;
-	setAttr ".dci" no;
 	setAttr ".rcc" no;
 createNode transform -n "plane1";
 	rename -uid "BC48DB67-734D-212C-2C6C-3298B96857C1";
 	setAttr ".ove" yes;
 	setAttr ".ovc" 18;
-	setAttr ".t" -type "double3" -35.282894235610399 -31.983743696504039 0 ;
+	setAttr ".t" -type "double3" -30 -30 0 ;
 	setAttr ".s" -type "double3" 30 30 30 ;
 createNode sketchPlane -n "planeShape1" -p "plane1";
 	rename -uid "B6B572B4-D743-1645-9DFC-BBAB9821F611";
@@ -26902,7 +26898,7 @@ createNode transform -n "dip_loc" -p "|rack1|holes|holeRot_00|holeTrans";
 createNode locator -n "dip_locShape" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
 	rename -uid "E30FB42A-4F42-83E8-86AB-BD9AC0662464";
 	setAttr -k off ".v";
-createNode transform -n "pot_0_g_00" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
+createNode transform -n "pot_0_g_01" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
 	rename -uid "0C256FA6-484D-44A0-4F31-6793A0CC1CFD";
 	addAttr -ci true -uac -sn "sfPaintColor" -ln "sfPaintColor" -at "float3" -nc 3;
 	addAttr -ci true -sn "sfPaintColorR" -ln "sfPaintColorR" -at "float" -p "sfPaintColor";
@@ -26912,13 +26908,13 @@ createNode transform -n "pot_0_g_00" -p "|rack1|holes|holeRot_00|holeTrans|dip_l
 	addAttr -ci true -sn "sfPaintTravel" -ln "sfPaintTravel" -at "double";
 	addAttr -ci true -sn "sfPaintCustomId" -ln "sfPaintCustomId" -at "short";
 	addAttr -ci true -sn "sfPaintCode" -ln "sfPaintCode" -dt "string";
-	setAttr -k on ".sfPaintColor" -type "float3" 0.64705884 0.64705884 0.64705884 ;
+	setAttr -k on ".sfPaintColor" -type "float3" 0.21176471 0.21176471 0.21176471 ;
 	setAttr -k on ".sfPaintColor";
 	setAttr -k on ".sfPaintOpacity" 1;
 	setAttr -k on ".sfPaintTravel" 5;
 	setAttr -k on ".sfPaintCustomId" -1;
-	setAttr ".sfPaintCode" -type "string" "bg_00";
-createNode mesh -n "pot_0_g_00Shape" -p "pot_0_g_00";
+	setAttr ".sfPaintCode" -type "string" "g_02";
+createNode mesh -n "pot_0_g_01Shape" -p "pot_0_g_01";
 	rename -uid "0BF6AA74-0345-166E-53BD-8F89F1B94FCA";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
@@ -27098,9 +27094,9 @@ createNode mesh -n "pot_0_g_00Shape" -p "pot_0_g_00";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "6ED2D833-CA4C-49A0-E00C-64979A5B796E";
+	rename -uid "3480091F-464C-4A12-3F45-5BBB0F030B1C";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00";
-	rename -uid "3BFF7DC7-184B-A5CE-5DF3-D18E5BFD172F";
+	rename -uid "5B35EA6F-CA4E-A56D-5AFD-588A924CAF2E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27119,9 +27115,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "B190D213-2F4F-E93C-A45C-6A95C7FEA38A";
+	rename -uid "562FA91D-6149-D563-CC8F-E1B53DE3F489";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01";
-	rename -uid "15450622-5F41-3D2B-09C5-D193ACE56B78";
+	rename -uid "2458B7B1-CC4B-B9B5-64DE-898F88F7869A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27140,9 +27136,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "3814B84E-3E45-5478-717F-5E8E273EC3A8";
+	rename -uid "9E56A5FD-FD40-A321-4945-0889509109F7";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02";
-	rename -uid "B37A196C-6E45-1B32-B61A-6EAD984210C6";
+	rename -uid "BF5743DA-8C4A-CA24-B441-739B917E4C36";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27161,9 +27157,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "2DF53838-CB43-7E06-91A4-BD8615FC0624";
+	rename -uid "4947B52D-5D43-9F22-4CF7-0F8FDF252705";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03";
-	rename -uid "7504343F-8F43-8B00-9EEB-C8ABDD469838";
+	rename -uid "7BD5ADA4-404B-ED3E-C03A-3F850B228B93";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27182,9 +27178,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "3C74FFF5-884E-7C78-7F26-B69EEB05757A";
+	rename -uid "C17674B8-294D-4099-A78F-06BDF8C0BF68";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04";
-	rename -uid "34D4DE8F-4241-98BA-7F8A-B0B3552B9167";
+	rename -uid "66AC8E60-8949-6E68-A71E-3DB3218EF1BE";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27203,9 +27199,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "7465C7FE-D746-C82A-6B8C-C880DDAB720E";
+	rename -uid "8A629418-0B48-27B7-84B6-F58E0D61D663";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05";
-	rename -uid "BC016581-4D48-F63D-687E-DBAC7FFCAD64";
+	rename -uid "F6947701-E74D-41C8-42FA-0EB1BB891375";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27224,9 +27220,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "E25E0232-6640-ADCA-6E55-9EBB804D738D";
+	rename -uid "88DD52B6-3347-5484-D312-B29B236E272E";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06";
-	rename -uid "A7C613DA-4C43-7142-0DDA-D2A38A93387E";
+	rename -uid "4D51CC6A-8A4A-36D1-60B8-0BAE52AB5795";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27245,9 +27241,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "5C1468D9-9E4D-2DA8-4011-10892BD21D23";
+	rename -uid "B32E610D-4248-4C68-E909-EE94EBA1A036";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07";
-	rename -uid "47B822CF-1A4E-6348-A568-0CA6285FEDB1";
+	rename -uid "94623262-3649-2EF6-3A50-66B4D3314E43";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27266,9 +27262,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "EAD92F63-AE44-17AE-C1F8-D5A6BF23C01F";
+	rename -uid "57A8E809-8E40-2F9C-0563-3C9D3625BB6E";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08";
-	rename -uid "58DBF8BB-6B4A-C02B-15D4-C7B9832D2F01";
+	rename -uid "FF800007-324D-0591-847D-8AB56B9E15CF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27287,9 +27283,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "5475DCEF-F342-1796-FC3E-EC84539C977D";
+	rename -uid "3641304F-6141-9AA4-EE48-B7AA6687E9B5";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09";
-	rename -uid "BD9F1A4B-B84A-FEE4-BBEA-DF929D17FDB4";
+	rename -uid "48524D85-6047-B602-A76E-7EA506F3EC94";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27308,9 +27304,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "A6D167D6-EB48-9D1E-534E-059832545569";
+	rename -uid "CD1C2AE3-C046-7E6A-0FD1-B99C0F2A68D7";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10";
-	rename -uid "85E688DD-854E-977B-52AA-708A6F9F08DE";
+	rename -uid "EF08AFF8-6E40-89CA-C2C1-6DB1D716F9E9";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27329,9 +27325,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "6B411732-6741-86B9-4A7C-BAA48CEFECF4";
+	rename -uid "25FC42E5-DD44-3D63-04B1-B891BBE04843";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11";
-	rename -uid "53E708AF-894C-6CA0-3077-9AB42836DFEE";
+	rename -uid "A1E95A00-8E48-CB39-4187-10935773CD82";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27350,9 +27346,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "FB2258DB-EB48-310C-D382-039D6AE30BEA";
+	rename -uid "AFAC7837-8749-641E-E064-CA8B32941C1C";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12";
-	rename -uid "B7E4A716-9D41-7DAF-C45B-5EA59B8A73E1";
+	rename -uid "C259C2F4-F348-7733-60DC-A385C4BC94C9";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27371,9 +27367,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "247175A2-FA4C-8CDC-6BB9-A1A3A8A4EFF9";
+	rename -uid "946412A8-1242-C00B-8215-BEA07CCA76D6";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13";
-	rename -uid "6344B74E-DE4F-FAC3-3DE2-D082F5865517";
+	rename -uid "783255F5-394D-5DA1-E5D6-8DBDB20FC8FF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27392,9 +27388,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "B103C98C-414A-609D-15FF-A880B4C18193";
+	rename -uid "DB337A55-5B45-9493-CE17-D0BE1F55ADB4";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14";
-	rename -uid "7A9BB66E-2341-5DA1-50EA-5F87DE0EF091";
+	rename -uid "C8522139-4B48-5AF0-E73B-8FAF1676E21E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27413,9 +27409,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "120BC955-2341-B21B-C17D-EF923496C3E4";
+	rename -uid "3D8CBF6E-E44E-7E34-0B0A-00A467E37F12";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15";
-	rename -uid "B5CF29D1-6840-9ED4-7C8D-539114529043";
+	rename -uid "AC9F81B7-B344-BB1B-7255-699A1665A463";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27434,9 +27430,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc";
-	rename -uid "25DC0B4B-1441-E479-AE16-03A30F9856F1";
+	rename -uid "91AA8810-8542-8EC6-DC3A-42AA031E1F88";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16";
-	rename -uid "22294C24-0B44-22C9-9B4B-778FF6FF2781";
+	rename -uid "C5597206-6B46-34BC-527A-95979E2B8F33";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27476,9 +27472,9 @@ createNode mesh -n "handleShape" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|
 	setAttr ".covm[0]"  0 1 1;
 	setAttr ".cdvm[0]"  0 1 1;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "CAA9EEA6-604F-3B0B-2B78-11BA789FDAB6";
+	rename -uid "B08BC05F-9E49-0FC3-B9D5-5BB0245A846F";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b00";
-	rename -uid "24E00535-5D4C-F4B5-3A2F-6091B4AE0C99";
+	rename -uid "441AAD00-6E44-8DC4-0F4A-D5B9D4783E48";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27497,9 +27493,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "CEC3FA0D-8545-A4C1-A183-F5892371ACE6";
+	rename -uid "82438AE4-1D4C-1B52-4401-E4928EE0B819";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01";
-	rename -uid "8A30BF7C-BC43-B1CF-7E6A-CBB10F3565A5";
+	rename -uid "6C7CA9DC-9C46-1DFE-6646-90B9F3D631E6";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27518,9 +27514,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "4087F772-EF41-8AB6-AD39-909400FA5956";
+	rename -uid "ED28D3A5-C749-365E-AA0E-4A90FB8200F0";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02";
-	rename -uid "18DF60CF-1542-140F-C079-AFA38628386F";
+	rename -uid "2E993C11-D546-9FF6-D444-64970291DCB4";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27539,9 +27535,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "C9D65A0B-3047-0FD1-23D1-7CA66F299145";
+	rename -uid "D27EEE10-FF45-DE40-AD59-E18C4D17852B";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03";
-	rename -uid "C9CF1320-D54A-1607-9C68-B683EA2AFA28";
+	rename -uid "6C20A9E3-1940-A8E2-FD46-F7B7AF0203FD";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27560,9 +27556,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "72370DF8-764F-3C8C-4AE7-EDB2BBD4975D";
+	rename -uid "811914B7-5A4D-6128-1C04-0DA37F4430E2";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04";
-	rename -uid "F87F5A7E-7C43-9182-5A6C-509B5C610DBF";
+	rename -uid "F4AC066F-034F-7589-5EB2-EDB04225BC38";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27581,9 +27577,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "79D7A682-2840-57BB-DA52-EFA76DDAED41";
+	rename -uid "F0A38E08-394A-0568-9902-EF8368817060";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05";
-	rename -uid "492DEB5B-C045-C8C4-BC50-39A172B2004A";
+	rename -uid "2F27C57B-EE4F-FCD4-6E9F-ACAAA7CA2134";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27602,9 +27598,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "FC6E81C6-AE43-6041-C0C7-6CB0F219EBB9";
+	rename -uid "FD90E555-1B47-7BF7-0C0F-1AB962C72ACF";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06";
-	rename -uid "5AF37DAC-D946-A06C-5229-5F9D4059A954";
+	rename -uid "7FAFC902-2A43-73D7-303F-B88F8323241A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27623,9 +27619,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "105F579B-CF41-B5C7-F527-9783647010FA";
+	rename -uid "69984790-B942-0D15-F197-BDAB6CC43BD5";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07";
-	rename -uid "EFB5DBCB-264C-3018-BDA4-0FA3EDAAE33B";
+	rename -uid "39C66007-614C-8667-FE63-3284D5C3586B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27644,9 +27640,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "31BA02B1-0745-13F7-EB65-76935C6636CF";
+	rename -uid "21103FA4-CB4E-BF7E-B110-FCAED2AD5194";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08";
-	rename -uid "234F75D8-9E4D-03EE-1D5D-0E957831C71A";
+	rename -uid "A74A163F-B444-B58E-1306-7ABDEDA2935D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27665,9 +27661,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "F7FC9DA5-E048-1B93-A62A-41889FAF8924";
+	rename -uid "C0A75772-9B4F-EE3E-3DD5-43824E4803EB";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09";
-	rename -uid "CE8BBE91-8C4F-6B16-B121-76963408D82A";
+	rename -uid "9FC1929F-FA49-E674-49B0-EC90394F42D7";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27686,9 +27682,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "72362685-3645-0E0A-0604-20953EAE983E";
+	rename -uid "B7D2922E-2C44-CF25-92CA-5EB14C6D1CED";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10";
-	rename -uid "F3D47573-AE44-101E-6A97-12B82C940A5E";
+	rename -uid "CD1C5C69-3145-9D90-FA4B-3CA52A03DC5C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27707,9 +27703,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "02D81ADC-0542-68E3-4327-68A99B3902AA";
+	rename -uid "F4B7707C-EF43-E6C2-E64F-01A7F08FBF06";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11";
-	rename -uid "D954A68F-C649-C2D2-8F03-C9B6CBB1456F";
+	rename -uid "9650812B-2E4A-4475-DBCE-B3846E9A254B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27728,9 +27724,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "9099E2BD-C649-6DD3-4E42-4582AA2B70B2";
+	rename -uid "679AB616-F344-C18B-8E41-15AA8B15BE7A";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12";
-	rename -uid "6C47AE32-0943-EC26-42CA-A28A2FF51CB5";
+	rename -uid "E4732015-C04B-B5EF-DE82-D6AA642044A4";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27749,9 +27745,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "A51E7970-6049-57AA-9CBB-229E065CF70A";
+	rename -uid "06D22AF2-5A44-B1DF-6A34-F082630C042D";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13";
-	rename -uid "BFD1CEC9-7B46-8AF4-EFFB-639A7788181E";
+	rename -uid "6CAB7BCF-C74E-ADEE-83A3-DFAD25A8F5D0";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27770,9 +27766,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "77037729-9E47-227A-AC30-758A10FF4CF6";
+	rename -uid "0EEC41C6-5445-7C03-4148-FF8470B3743B";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14";
-	rename -uid "31643160-F543-3822-18D5-84AE9FC36962";
+	rename -uid "3EC691D5-9347-8A51-78BF-07AB958E2A1D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27791,9 +27787,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "B32660A4-914D-36F2-E4B7-1BAEF9785DA6";
+	rename -uid "6AFEFE01-F24C-2AE4-AA10-3FB917556A04";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15";
-	rename -uid "4790A006-4C46-4261-267D-EF98FB6E39DB";
+	rename -uid "133149A6-6147-EC7B-E5F1-2A80D8A75444";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27812,9 +27808,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc";
-	rename -uid "24BA351B-A248-51B9-F14C-348F5C90AB73";
+	rename -uid "858B65BD-2048-EC8A-04BB-7D853E7EE951";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16";
-	rename -uid "D05954FC-3949-2BEF-7B71-7D94DB488764";
+	rename -uid "080E99A5-0645-FB81-D014-FEA390BAC249";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -27845,7 +27841,7 @@ createNode transform -n "dip_loc" -p "|rack1|holes|holeRot_01|holeTrans";
 createNode locator -n "dip_locShape" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
 	rename -uid "31FFD379-D646-7289-4ABC-DC8643D5DFFD";
 	setAttr -k off ".v";
-createNode transform -n "pot_1_g_01" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
+createNode transform -n "pot_1_g_02" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
 	rename -uid "84814175-0241-9060-CEF4-F9B158A26009";
 	addAttr -ci true -uac -sn "sfPaintColor" -ln "sfPaintColor" -at "float3" -nc 3;
 	addAttr -ci true -sn "sfPaintColorR" -ln "sfPaintColorR" -at "float" -p "sfPaintColor";
@@ -27855,13 +27851,13 @@ createNode transform -n "pot_1_g_01" -p "|rack1|holes|holeRot_01|holeTrans|dip_l
 	addAttr -ci true -sn "sfPaintTravel" -ln "sfPaintTravel" -at "double";
 	addAttr -ci true -sn "sfPaintCustomId" -ln "sfPaintCustomId" -at "short";
 	addAttr -ci true -sn "sfPaintCode" -ln "sfPaintCode" -dt "string";
-	setAttr -k on ".sfPaintColor" -type "float3" 0.71764708 0.71764708 0.71764708 ;
+	setAttr -k on ".sfPaintColor" -type "float3" 0.33725491 0.33725491 0.33725491 ;
 	setAttr -k on ".sfPaintColor";
 	setAttr -k on ".sfPaintOpacity" 1;
 	setAttr -k on ".sfPaintTravel" 5;
 	setAttr -k on ".sfPaintCustomId" -1;
-	setAttr ".sfPaintCode" -type "string" "bg_01";
-createNode mesh -n "pot_1_g_01Shape" -p "pot_1_g_01";
+	setAttr ".sfPaintCode" -type "string" "g_03";
+createNode mesh -n "pot_1_g_02Shape" -p "pot_1_g_02";
 	rename -uid "927F5435-6946-1927-8A2D-CA82568D1A30";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
@@ -28041,9 +28037,9 @@ createNode mesh -n "pot_1_g_01Shape" -p "pot_1_g_01";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "08AC230C-B544-0420-4793-E6B9F390BE20";
+	rename -uid "D7140940-0D4C-FF59-6D6C-8FAF6B9856D4";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00";
-	rename -uid "F6C5BA70-364D-2203-D694-EC836157D9E7";
+	rename -uid "3CFB38FA-9C4B-A72E-2F04-4EB401CA31EB";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28062,9 +28058,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "CEE5A2A2-4F4F-A104-6BF9-E484D64C4C75";
+	rename -uid "45FFB137-D547-B1E6-3FE6-B7B1C0CF17ED";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01";
-	rename -uid "F9920E3A-A34B-F932-2812-4A937F5F876E";
+	rename -uid "158A4BB3-B547-81F0-F616-2596CD1CA62C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28083,9 +28079,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "85D88861-B847-B179-FD96-E8982D326590";
+	rename -uid "A38F8BAE-664A-73FC-AF99-08961BB7EDC3";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02";
-	rename -uid "FA29FEF0-D346-BE9F-0D95-37BC64CFBCD5";
+	rename -uid "4FC99C69-304F-315B-2256-BD878FE9E1C5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28104,9 +28100,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "50A82257-194B-9B38-200F-B6AE11D67C66";
+	rename -uid "73030821-D74F-7FA6-B5EC-0BB2EBCC759E";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03";
-	rename -uid "0D85720D-CA4C-66E6-9D2E-BCA42B8EA438";
+	rename -uid "CA1559F7-EB41-4CF8-F641-918425C8EBB5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28125,9 +28121,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "46DF1998-9E4F-DE9A-BEB4-76984BBD8F19";
+	rename -uid "AA3A5804-444A-830B-344E-008247C3DDE4";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04";
-	rename -uid "C09EE604-6248-D4C5-1FB1-9AA416862971";
+	rename -uid "566F4101-0F47-D776-FDF3-E480C1026513";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28146,9 +28142,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "427BD9B2-A049-CEA0-BCCC-7E8740BF0C3B";
+	rename -uid "119E6647-2D4D-B9DA-CD3B-538FC7D0AAAC";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05";
-	rename -uid "B50661B9-C44F-E72D-4D0F-F6AC5D8C8E5D";
+	rename -uid "5B102D39-3B42-1137-5156-A186D8405E42";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28167,9 +28163,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "EDE8C3B7-A447-2275-65FE-B59C3C2DC99E";
+	rename -uid "D3D7A55C-D145-E344-ACBF-2A95A823F4A6";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06";
-	rename -uid "5308E12E-F148-8C3B-CCB1-00BFA932AD03";
+	rename -uid "0476ADAB-214C-0C67-34A0-83B327795706";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28188,9 +28184,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "A4F010B1-584D-786B-29DA-E8B83C6466D1";
+	rename -uid "D92BD5BB-B54E-034F-B205-2DAE5879AE63";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07";
-	rename -uid "EA21FED0-7349-7C0A-6C34-25ACCA6BE5AD";
+	rename -uid "04E6A45F-E74A-5327-BDDA-89B914CA7F1B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28209,9 +28205,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "739C5F7F-6A47-B760-AED4-A183CC935973";
+	rename -uid "10257BCB-2E4E-E2D2-A962-F5B8D945AB50";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08";
-	rename -uid "1054EB75-D949-77A8-FAFD-CF82177D3666";
+	rename -uid "F7D3AAFE-5143-75E5-712C-73A4B9FFE779";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28230,9 +28226,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "793C8B1A-4649-1C63-B782-AC8B405D4F95";
+	rename -uid "33A7E563-7544-23ED-1504-63B331B08367";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09";
-	rename -uid "2A39A853-844D-8BD3-5BCD-A4A3EA6EDA59";
+	rename -uid "098EA020-F44F-C719-F7C1-E0A99FB30E23";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28251,9 +28247,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "908D71F0-DA46-396A-2BCD-DCBA3E797F4A";
+	rename -uid "C0EC11F9-4A44-3227-5A8A-539556D6E0C9";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10";
-	rename -uid "1902DEA1-0F44-B61E-9813-64822957F27A";
+	rename -uid "167E2538-0F46-C694-F685-8DA2539DB072";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28272,9 +28268,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "8E59CD31-7142-A00F-C474-3C9578E090CE";
+	rename -uid "790D2DF4-4E45-21CE-BBE3-60A5B5FFE37E";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11";
-	rename -uid "27A4C31F-EE48-4BE8-9400-DBA96C4F3F4E";
+	rename -uid "6D6812FD-3342-9EF2-7B07-30B733BB974C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28293,9 +28289,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "02BD9FB5-1040-1C15-48EA-57BB16F483EA";
+	rename -uid "C9A92123-6047-C9DC-3951-79B42A522F57";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12";
-	rename -uid "5957D620-2B47-B54D-9AEE-CAAF4F860F15";
+	rename -uid "797B4D9A-C942-58AA-23DE-AE94EDB3BE0B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28314,9 +28310,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "29D6DB12-5742-1456-15A7-9FB73E048CC3";
+	rename -uid "87F265A1-1243-1989-8F01-09817A096575";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13";
-	rename -uid "33AF08D2-3344-16C1-C393-FB80C657A32C";
+	rename -uid "042A8235-6A4A-5F9D-44B3-3EA93C5C6A8F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28335,9 +28331,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "313D49A3-9242-1161-1D58-1DAF07EACFCF";
+	rename -uid "0AA2297D-1948-E479-EFBB-D1822634CD6B";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14";
-	rename -uid "490AD85B-A645-0B79-2A41-0BBC3DF94FD1";
+	rename -uid "F5CAC029-5340-2AA1-77B3-DD82E964ADFE";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28356,9 +28352,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "53E7752A-304A-E79B-A23E-9487488E577A";
+	rename -uid "C74D7F22-BB4B-574A-324B-4CA72441F5C3";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15";
-	rename -uid "88E60D46-DE4A-9D5E-5EF7-4594702C2073";
+	rename -uid "5567FCF4-BD48-9EC5-A0A0-1C9D95195FB8";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28377,9 +28373,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc";
-	rename -uid "D012CE51-4544-A4A6-F298-CB9494006A83";
+	rename -uid "079F3431-1C4D-286C-563C-EA9D28CE5E25";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16";
-	rename -uid "3A5689C8-5F44-1F4B-FED8-B6865527A021";
+	rename -uid "0D64B344-1747-9380-E5A9-D0A23C176640";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28589,9 +28585,9 @@ createNode mesh -n "handleShape" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "D9790BB3-7D42-44F8-0BA9-A0A7C6D784F0";
+	rename -uid "D2A4E4AE-784C-0877-03D6-9DAE9B143957";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00";
-	rename -uid "10DA6A04-D448-EA0F-C54D-8E8DDBA20484";
+	rename -uid "10F93684-8F43-3FA4-22AE-FAA20F28DA6D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28610,9 +28606,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "7EE334B6-514D-DF66-5E7F-D8B92FF9B49E";
+	rename -uid "F8A37E24-9D43-D11F-679C-B6845DBB64B3";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01";
-	rename -uid "B9CFC25C-BC4E-CDB4-2B5A-3EB33E9934D1";
+	rename -uid "DFA006A2-624B-C66D-C083-EBA3FBB79142";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28631,9 +28627,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "16131F7F-384C-0C14-0BDE-B5A1C999F22F";
+	rename -uid "780C328B-2540-0764-4669-B988477E8C75";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02";
-	rename -uid "CD57C1AC-FC45-3392-342E-18975B712033";
+	rename -uid "02E5A0AA-1448-89AD-8857-4080815FD67A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28652,9 +28648,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "233F7C7F-0C4D-F873-78B0-8B9B3C8F0A94";
+	rename -uid "A0CC414A-F941-E4E3-A077-0A9AD47DD3AC";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03";
-	rename -uid "CBEEFAF0-524A-9196-A66A-BCB60AAC438A";
+	rename -uid "F1CA80BD-A04D-1605-CBE9-CDB45912466C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28673,9 +28669,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "8CF5F3D6-2C4D-0795-82FA-958C12355414";
+	rename -uid "2DCDC8F4-6648-4BB9-567F-888D0807D05A";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04";
-	rename -uid "F64B6B4E-604F-792D-E900-C4B44116A1B6";
+	rename -uid "92A1FFF2-6748-295C-68AD-EE9F4B4F3DF3";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28694,9 +28690,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "F8381AC2-7A4F-7640-C84C-46B7436789BB";
+	rename -uid "B4A9326F-A54E-E891-D10E-D19B3D63BA12";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05";
-	rename -uid "A6ECDB00-CA46-B048-75B8-939724CF9778";
+	rename -uid "D8EFC5A8-DD47-4B59-19F0-F6A723B75CD2";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28715,9 +28711,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "34E44A3A-6544-E97B-62F2-7E90675A03DB";
+	rename -uid "989464F7-734F-3E3B-D312-57908F7FC4AD";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06";
-	rename -uid "C3134014-A943-7F57-370A-9DB7D81A3908";
+	rename -uid "BEB98C73-084D-F443-FE78-B6B431414D8C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28736,9 +28732,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "D79ECD3A-0349-3DDF-06EC-38BBE67FB319";
+	rename -uid "37ED9642-D94A-C4B9-BF52-AD97E36C5E7B";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07";
-	rename -uid "DC10183C-FE4F-9E32-BEE3-AFB52BC126AB";
+	rename -uid "70FDC0B2-EC4F-7233-0080-2AAC9F179C09";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28757,9 +28753,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "C83B54C9-5D4F-BF83-620C-F88E072460A9";
+	rename -uid "800EA703-3B4B-A425-AB05-41A95CE04555";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08";
-	rename -uid "6F47246E-2948-AA84-6514-7C8295426EC2";
+	rename -uid "EBFF75F2-9043-C6C2-B921-B5973914558F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28778,9 +28774,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "1FD2B4F2-A543-38DC-9D0F-F884D527CEEB";
+	rename -uid "E696695A-FF41-9F05-DCF5-E589B73B2832";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09";
-	rename -uid "A7C69546-3347-DCC1-D96E-F9A12557E707";
+	rename -uid "02300B67-144F-666E-96E7-FFAE57C9EE57";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28799,9 +28795,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "6CD696BA-7547-1257-2C0D-B5BFD7997440";
+	rename -uid "E0CA49B9-904B-02FC-A634-63ACAC4B5EB1";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10";
-	rename -uid "6BBB59D5-114B-1D60-9E27-39B70672F833";
+	rename -uid "0F4BBA72-0E4C-AFD0-FCE6-6A96171DF52C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28820,9 +28816,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "F25C2D7A-DB4A-60A0-FDEB-8FA9FA30D48A";
+	rename -uid "DFD68D48-1E4D-DFC3-4FAE-8491CD96B3B0";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11";
-	rename -uid "1790D740-0644-9FA0-5688-4E9BA685B728";
+	rename -uid "FB1DB623-3B41-74F6-600D-F9AFB827C416";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28841,9 +28837,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "C5995B00-3849-9FE4-B860-A8B13C9ACDBD";
+	rename -uid "04908E09-9346-FDF0-2248-C885DB815907";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12";
-	rename -uid "0D33F4A2-7C45-AA71-7766-3C990E68AD2E";
+	rename -uid "F36D21E9-9040-0B07-3B18-BBA2DFF281D4";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28862,9 +28858,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "EEB349B4-2F49-189D-6B23-BEBF2EF78A70";
+	rename -uid "FB3A968C-0541-9326-A33F-6DA5741E0CEE";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13";
-	rename -uid "39A21365-684B-8F5F-26A0-63A17B86DC76";
+	rename -uid "E6E5B5AB-B94C-7756-F545-96AD96855C8C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28883,9 +28879,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "C40C907B-FC45-0F55-4BAE-4E9D4C85EEF1";
+	rename -uid "1CEC7EA8-6E4A-97F1-185A-789450D875A4";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14";
-	rename -uid "05E58A6A-9043-C535-10D9-5EB412EC7709";
+	rename -uid "E0578B10-6845-DFD0-128A-88B91CEC7D8A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28904,9 +28900,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "E3BDF461-8143-4BC8-1118-50A405E4AD28";
+	rename -uid "E29ED5BD-4645-EED3-EA7B-B4A108ADD641";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15";
-	rename -uid "FC5266E2-9642-C5D5-8920-688779DF0AA7";
+	rename -uid "291BCB99-204B-453C-F03A-64AAB4E5A4E1";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28925,9 +28921,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc";
-	rename -uid "4C4044E9-404A-5F73-B7CC-8E84979A636F";
+	rename -uid "DDF31E8A-0D4F-40CC-2937-F880251D658A";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16";
-	rename -uid "58645D49-E64E-339D-C3A9-6CA0A4B52601";
+	rename -uid "6964ED8E-5540-4ECB-FDA8-C5B315CC50DC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -28958,7 +28954,7 @@ createNode transform -n "dip_loc" -p "|rack1|holes|holeRot_02|holeTrans";
 createNode locator -n "dip_locShape" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
 	rename -uid "C531E20A-3841-8BA8-4A2E-10AA2784E751";
 	setAttr -k off ".v";
-createNode transform -n "pot_2_g_02" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
+createNode transform -n "pot_2_g_04" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
 	rename -uid "B02542B9-554D-EBA6-81DE-2A8BCA434262";
 	addAttr -ci true -uac -sn "sfPaintColor" -ln "sfPaintColor" -at "float3" -nc 3;
 	addAttr -ci true -sn "sfPaintColorR" -ln "sfPaintColorR" -at "float" -p "sfPaintColor";
@@ -28968,13 +28964,13 @@ createNode transform -n "pot_2_g_02" -p "|rack1|holes|holeRot_02|holeTrans|dip_l
 	addAttr -ci true -sn "sfPaintTravel" -ln "sfPaintTravel" -at "double";
 	addAttr -ci true -sn "sfPaintCustomId" -ln "sfPaintCustomId" -at "short";
 	addAttr -ci true -sn "sfPaintCode" -ln "sfPaintCode" -dt "string";
-	setAttr -k on ".sfPaintColor" -type "float3" 0.78431374 0.78431374 0.78431374 ;
+	setAttr -k on ".sfPaintColor" -type "float3" 0.51372552 0.51372552 0.51372552 ;
 	setAttr -k on ".sfPaintColor";
 	setAttr -k on ".sfPaintOpacity" 1;
 	setAttr -k on ".sfPaintTravel" 5;
 	setAttr -k on ".sfPaintCustomId" -1;
-	setAttr ".sfPaintCode" -type "string" "bg_02";
-createNode mesh -n "pot_2_g_02Shape" -p "pot_2_g_02";
+	setAttr ".sfPaintCode" -type "string" "g_05";
+createNode mesh -n "pot_2_g_04Shape" -p "pot_2_g_04";
 	rename -uid "7030119F-124D-6DFC-D668-57B4119365D7";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
@@ -29154,9 +29150,9 @@ createNode mesh -n "pot_2_g_02Shape" -p "pot_2_g_02";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "215F8A8D-3342-7703-3ADD-6B869C274D2C";
+	rename -uid "2F01B629-E244-FE41-CD9A-B6A327930A9C";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00";
-	rename -uid "F77138E0-CB45-9DD8-B9C7-80B79684F4EA";
+	rename -uid "4ED3484D-0A4C-19BD-1917-C1A0C9077DC9";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29175,9 +29171,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "32394928-D549-8817-73E5-E6A8A3C2FD73";
+	rename -uid "3B7AA461-1448-D6B3-CD09-D3B12EC129AA";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01";
-	rename -uid "1F4F27C3-DA4E-5914-E288-DEA6F4C276A7";
+	rename -uid "FA4CB991-414C-3BB8-9D7D-03AB378D9FC4";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29196,9 +29192,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "310C57D3-3E46-6744-DA23-36BC97B35ACC";
+	rename -uid "A06FE94B-BC4D-B46A-18B1-018FDD095A11";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02";
-	rename -uid "A791A843-FC47-3C66-9B39-FC9D306768E3";
+	rename -uid "7FB90D5E-7F4C-26AF-8B09-9FB95CF3AB59";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29217,9 +29213,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "482FAFF9-E849-3036-F5BD-34894A883804";
+	rename -uid "7CBCD5A3-484D-B2A8-4D8D-C6A5DD126F7E";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03";
-	rename -uid "9143378C-104B-E113-ECA7-E9996B393B7B";
+	rename -uid "BAD1AAA1-3147-11F8-3B8F-27BAA0F8C10F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29238,9 +29234,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "1535CF05-7A48-46B6-A781-F68055B0CCA5";
+	rename -uid "3EF74CC0-604F-86BD-6031-A9A95469D663";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04";
-	rename -uid "E4F52ECB-1042-9D1F-7C86-EEADF8A71258";
+	rename -uid "8529E56E-AC47-904B-61DA-5D9FDC15A8A6";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29259,9 +29255,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "B2A1E9C0-4B4E-7020-5F99-E4ACDF566332";
+	rename -uid "D04553C7-E948-6B19-1562-33903974087A";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05";
-	rename -uid "15208F43-014F-F6CE-F5B0-819D1EB59BB4";
+	rename -uid "7A28E944-9D4E-7ED2-2DE5-8C8534A7D376";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29280,9 +29276,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "980CEF75-054C-F16C-522B-AEA381D957E4";
+	rename -uid "3BE7FCA2-DD41-21A3-BEBB-97AE67706100";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06";
-	rename -uid "C4D7D4E0-BA4F-1D32-769F-EF9459087CBE";
+	rename -uid "0B0A0EEA-0E4B-F8BC-C844-C3AB135C2EFD";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29301,9 +29297,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "082F8C28-0E4F-D442-AD0D-99B03A203EEC";
+	rename -uid "28CCBB0E-CA44-9467-1FC5-C88C99891A07";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07";
-	rename -uid "564384C4-4049-BBC0-ED02-75A7653CF75C";
+	rename -uid "C0635F4F-3C43-112F-25D5-20A4DB7BBBC0";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29322,9 +29318,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "D6B6157D-3847-63F6-47D7-99B77A03EAAA";
+	rename -uid "EE4402EB-6949-D160-AAAD-38ADE1BD934D";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08";
-	rename -uid "0110B1C9-024A-3426-AC98-0B90257308A3";
+	rename -uid "D165C11B-BA47-EB64-DCED-148CBFDF5CCB";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29343,9 +29339,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "4FE0DA59-9848-0691-9AA3-19A94AC341CE";
+	rename -uid "80FE8E17-CC49-6192-0EC2-84A7735E06D6";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09";
-	rename -uid "224A7D1E-2E42-7041-13E8-979CB3D30068";
+	rename -uid "C7338C9C-FC47-0E83-94F9-B787DF1E185C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29364,9 +29360,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "0B5495DC-6249-4EF3-825C-93A2C8F5D4DD";
+	rename -uid "911F6331-E34D-A7A3-5B6B-F1AE7023C5A9";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10";
-	rename -uid "9E4B7EA3-A240-9E7B-D32F-5BB9EE82156D";
+	rename -uid "F437EF77-B24B-38B7-5E82-A9A794BA6618";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29385,9 +29381,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "945BC2EE-8345-98BF-CFED-8386F3B9D8AC";
+	rename -uid "8BF3E8B4-C44E-CD3F-A3B0-3E953D3750B9";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11";
-	rename -uid "1D1F588B-9841-07D7-CDCB-20987411E0CD";
+	rename -uid "1008B177-AC40-AC2C-EEA0-C5BA9874CCBC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29406,9 +29402,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "126397A1-7C41-BBEE-28C4-57AA201DBC0C";
+	rename -uid "F8EA09D5-6B44-61F0-E3AE-B48A7BB53CEB";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12";
-	rename -uid "7E593822-BE4F-0C9B-C61E-54BBDB078AB5";
+	rename -uid "C372E822-574B-CFF8-9D19-DCA8C3EFDF7F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29427,9 +29423,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "B9E357C0-494F-F9F7-9665-71B6D37818E6";
+	rename -uid "DEA8A978-D443-CCFF-0343-1FB84D3BB88E";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13";
-	rename -uid "CB1655E1-1049-D006-5AD6-838F5FCE88A8";
+	rename -uid "27085E85-7041-04E0-97E5-5D86FCAEF6B1";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29448,9 +29444,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "4437B238-6D4F-3FBC-1410-39BCB9560F2A";
+	rename -uid "CB5EA233-D64E-8BA4-4186-04A9D6108FF4";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14";
-	rename -uid "B4834137-A542-3728-91FB-22B58D18DA3E";
+	rename -uid "53FEF6BA-9542-DADA-44C6-D19A8A870B0A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29469,9 +29465,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "AB075859-8143-2E46-F7A0-179DFBD91AFF";
+	rename -uid "9B07E0DA-9E4E-13E1-8654-5997FA1F6974";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15";
-	rename -uid "5774D186-8047-434C-1BCE-DC832B0C98D1";
+	rename -uid "1C22F5F8-EE44-FCD9-938C-7E95B91E5132";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29490,9 +29486,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc";
-	rename -uid "9DDE0239-0F44-1765-8566-83B7DF483E36";
+	rename -uid "F63A36ED-5F43-3248-008E-89A819A52BFE";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16";
-	rename -uid "CEA80EFC-9A48-D11F-6575-67950AAADA9A";
+	rename -uid "2C3F5EB8-BA49-0E28-9CDD-4EA5F1730F7B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29702,9 +29698,9 @@ createNode mesh -n "handleShape" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "63EA3EDE-BA4C-1EAE-F317-A7AAA015264B";
+	rename -uid "E948BC47-9E44-BAB3-731A-078917E44736";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00";
-	rename -uid "476DDBFB-3F4C-26FF-242A-CFA37BE5A69D";
+	rename -uid "8694D09C-F84D-7076-3776-F8B0FA22945F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29723,9 +29719,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "13526077-7F40-4DFA-C9CD-6D8D00D4ECB8";
+	rename -uid "41BEA906-B242-9884-61D3-0BB081B51B9A";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01";
-	rename -uid "3EC3538B-DF42-8006-8AA2-30B28947BD11";
+	rename -uid "2F0D85B7-684C-EBF1-397C-D8AE5B5A39B4";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29744,9 +29740,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "A31663CD-E34D-01D2-1A0B-2DB5B96C35F2";
+	rename -uid "52E0DB1C-6643-AEEF-6561-CD83F1B4EC60";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02";
-	rename -uid "33F200AE-9C40-F07B-777D-57A157159BA8";
+	rename -uid "FA68641D-004C-7C67-08C1-1FA5E3692015";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29765,9 +29761,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "13C5EDEB-404A-3365-9A84-3CA51E65DF45";
+	rename -uid "DAC239E3-5F45-1822-6C75-029FE1280506";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03";
-	rename -uid "B57A0782-ED46-0AC3-DC47-A9B24FF6A931";
+	rename -uid "48392D6A-9843-E2FA-F632-2C9B9649C304";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29786,9 +29782,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "99480971-A74C-7BA6-5285-B484EA5DB337";
+	rename -uid "1758F8B4-314F-7C61-308C-3FA56F4C1109";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04";
-	rename -uid "41C8D38C-B64A-751C-1DF9-11A9FE1ABDCC";
+	rename -uid "0171EEB1-D449-FFD1-4E44-199BFCAE815C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29807,9 +29803,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "835119B7-8447-BDD2-C18B-8EA0354FFA20";
+	rename -uid "029DA2CA-544F-4648-2623-5AB7A243B98B";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05";
-	rename -uid "D202E821-3444-F351-B2F6-858C22E76FF6";
+	rename -uid "67FFDF67-0748-C0BA-1900-599CD814E359";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29828,9 +29824,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "5234B07B-BE43-94AC-7594-92BFC99D73D9";
+	rename -uid "B1BCE2FE-5941-AE0C-54A6-52BFB5D8E227";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06";
-	rename -uid "9E256DE2-9145-2E5E-DF13-C48BA9908F04";
+	rename -uid "A1CCD831-0C45-9DBB-A7FC-84B35DBCC3B2";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29849,9 +29845,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "594C107D-C842-1FE3-A8A8-4DA3CABB647F";
+	rename -uid "E604280D-184F-8EAC-C119-E7BAD5B59271";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07";
-	rename -uid "A85E4A86-4347-1AE5-C480-C1957800EF98";
+	rename -uid "1C2FF856-EC40-9EF7-A03B-73AF74773591";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29870,9 +29866,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "B20CD37F-D24B-9156-2777-72B5F559D446";
+	rename -uid "FDAB71C5-7B4E-2558-28D2-749B11D75CAE";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08";
-	rename -uid "A08C84D5-304C-2779-BECE-D3BD8462A141";
+	rename -uid "4CAC2440-234E-0558-AF35-BDA76703E031";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29891,9 +29887,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "A96F47EA-7A4D-1844-6515-688AE30E395B";
+	rename -uid "D3606426-9242-DEE4-54C0-9396F5E85A27";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09";
-	rename -uid "7F1A2B16-C840-FED2-677A-699507B6C1A4";
+	rename -uid "C639FB55-7D42-BC7C-3FF5-3399D8A9D997";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29912,9 +29908,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "FF0FA22B-C44D-E39B-1AB9-4EA0C000CD43";
+	rename -uid "8C83E2E1-5E41-AF7D-69D6-069DA4A178DD";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10";
-	rename -uid "29AFC140-9D4F-4B6C-98EC-96911160FEC7";
+	rename -uid "C43EC9D1-BA44-9B0F-D119-899C7EED46AA";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29933,9 +29929,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "A91CCEF8-CA47-3180-8B87-A2B597A89E31";
+	rename -uid "1F608114-B648-A718-E412-D4996BF64AE7";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11";
-	rename -uid "C223B2AE-6E45-7939-CCD3-86928A39E804";
+	rename -uid "2AA62BDC-6C4A-9E98-C892-D895A78A9F68";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29954,9 +29950,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "40D4FB01-7B4C-1836-7525-B2964D57DA78";
+	rename -uid "F0D62217-FC4E-D43E-B0A3-ECAF646249A1";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12";
-	rename -uid "AC4E176A-204A-693C-FFFC-A5A3C12BCBC8";
+	rename -uid "CB0C760A-6548-1675-50E5-60B3760D9368";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29975,9 +29971,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "7C3960D1-EE40-2899-A1E9-33AA41BBA8C7";
+	rename -uid "738F6A81-1649-E375-5A55-87A062366ACD";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13";
-	rename -uid "63B8840B-4542-6FBB-78F5-60BE29419E77";
+	rename -uid "5113FB81-2342-F70A-4F84-E79F9A1541EC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -29996,9 +29992,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "B1A17247-A649-A2F7-D7D0-9CA86F82CBB0";
+	rename -uid "32329A66-AE4D-8D28-D776-01A1889D6DB0";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14";
-	rename -uid "9DD15F63-D142-CE2A-1ABF-53B6D4A4DC1D";
+	rename -uid "0843C151-5B47-B9C9-28EE-44952615F3D6";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30017,9 +30013,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "D364296A-CE49-3CD1-7CCC-A7B8138C0C5E";
+	rename -uid "70B937C9-4C49-2EF1-58C6-4080638F2BC5";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15";
-	rename -uid "D55B48D2-2145-E36F-82F4-CCA0276D176F";
+	rename -uid "C7936C4A-DE47-20E5-AD8E-CF86F5B4A602";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30038,9 +30034,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc";
-	rename -uid "8F5BCE87-704A-85CB-BFDA-74B635242B1C";
+	rename -uid "86688487-2240-1C8A-56C4-2E8744C73477";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16";
-	rename -uid "F79AC678-FD4D-0BD9-2C5D-F98D95F1E862";
+	rename -uid "507EB6EA-1741-34D9-A3ED-42806DDCEA2D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30071,7 +30067,7 @@ createNode transform -n "dip_loc" -p "|rack1|holes|holeRot_03|holeTrans";
 createNode locator -n "dip_locShape" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
 	rename -uid "60B132F1-EB41-C178-67CD-5AB6ADCD1029";
 	setAttr -k off ".v";
-createNode transform -n "pot_3_g_03" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
+createNode transform -n "pot_3_g_06" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
 	rename -uid "C1EA0C32-BF45-40FE-1E3C-3A91633B3975";
 	addAttr -ci true -uac -sn "sfPaintColor" -ln "sfPaintColor" -at "float3" -nc 3;
 	addAttr -ci true -sn "sfPaintColorR" -ln "sfPaintColorR" -at "float" -p "sfPaintColor";
@@ -30081,13 +30077,13 @@ createNode transform -n "pot_3_g_03" -p "|rack1|holes|holeRot_03|holeTrans|dip_l
 	addAttr -ci true -sn "sfPaintTravel" -ln "sfPaintTravel" -at "double";
 	addAttr -ci true -sn "sfPaintCustomId" -ln "sfPaintCustomId" -at "short";
 	addAttr -ci true -sn "sfPaintCode" -ln "sfPaintCode" -dt "string";
-	setAttr -k on ".sfPaintColor" -type "float3" 0.84705883 0.84705883 0.84705883 ;
+	setAttr -k on ".sfPaintColor" -type "float3" 0.62352943 0.62352943 0.62352943 ;
 	setAttr -k on ".sfPaintColor";
 	setAttr -k on ".sfPaintOpacity" 1;
 	setAttr -k on ".sfPaintTravel" 5;
 	setAttr -k on ".sfPaintCustomId" -1;
-	setAttr ".sfPaintCode" -type "string" "bg_03";
-createNode mesh -n "pot_3_g_03Shape" -p "pot_3_g_03";
+	setAttr ".sfPaintCode" -type "string" "g_07";
+createNode mesh -n "pot_3_g_06Shape" -p "pot_3_g_06";
 	rename -uid "BB6A3099-8C4F-E889-003B-D298FB663EA7";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
@@ -30267,9 +30263,9 @@ createNode mesh -n "pot_3_g_03Shape" -p "pot_3_g_03";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "A6C9586F-FA40-E599-FC2E-7996BA3F69E7";
+	rename -uid "B34FAEB3-4042-2C73-9595-22993BF661C6";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00";
-	rename -uid "395170F8-5E43-B4A6-30BF-B58D9FE4D5F5";
+	rename -uid "943AB116-404F-4700-9E5A-73A89058C811";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30288,9 +30284,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "16AAD49B-AB47-F433-463B-81A20F78CBBA";
+	rename -uid "078C940F-A94E-4007-8A32-A3A8E9C33312";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01";
-	rename -uid "29F8A477-944F-52F7-50BC-D79DD6EA7754";
+	rename -uid "AC3D66D1-1F4D-B74E-A2A9-3CB396C2D8D0";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30309,9 +30305,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "0241F563-8547-DE91-429E-BA891CEE048F";
+	rename -uid "6D8D3FBF-E94C-CE2F-7203-A19094E5223F";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02";
-	rename -uid "BF1B3C39-384E-3FB9-F728-F1B9B3C9DD12";
+	rename -uid "142A877B-C340-B5E4-5BD5-7AB7BD86D7E7";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30330,9 +30326,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "7A3DD77D-E241-C8BD-7D04-F5A7A42E1999";
+	rename -uid "ABBF1803-AD45-5DDF-CAD4-10992FB6AA5F";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03";
-	rename -uid "C99463F9-6F49-59AA-1021-C5BDA00678F7";
+	rename -uid "711B6764-3C43-C24A-E7A4-60ACC4D78C4B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30351,9 +30347,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "5B9DED3D-424E-810A-77A6-4FB3E6F87E58";
+	rename -uid "AD5F159E-674D-DFD3-97B3-D08A212F7E86";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04";
-	rename -uid "EB2683F5-A64B-F3D1-70D6-6A81FEBEA8D2";
+	rename -uid "07AE301F-C84D-F551-E967-DE97D0594006";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30372,9 +30368,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "DFF31835-3D48-9700-41C1-08AC94CB14F2";
+	rename -uid "8DE38562-3E41-0E71-6D96-BC8405447384";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05";
-	rename -uid "FDDD03E0-C144-E3C3-8EEE-B2B88D19061D";
+	rename -uid "1E20838D-254C-29A5-BB32-98A60C067480";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30393,9 +30389,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "52D1DCFD-7B47-0464-DB16-7A809B9B40C2";
+	rename -uid "80E81504-EF45-20AF-656F-CF99D952A4CA";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06";
-	rename -uid "FF12CCEB-DD48-64B8-3011-3C97875AC4C3";
+	rename -uid "34AE2043-484C-292B-B953-DDAB7BE34355";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30414,9 +30410,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "44A4385B-2F4E-AAB5-48CF-6EB5F706C41F";
+	rename -uid "92A2C9AF-914B-F246-FB9A-14B6668E9232";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07";
-	rename -uid "DBBFA080-0B49-2CFF-CD49-F88293A91980";
+	rename -uid "797F7071-2246-57B2-C79C-C59EFC8BF36F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30435,9 +30431,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "4CC2FA93-B94E-E9CA-F52A-B4ACC6C51A40";
+	rename -uid "824CEC69-B74C-71E7-AFB1-63B014A07972";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08";
-	rename -uid "4029483B-DE44-7F4E-BCC4-5EB5BCC8CC45";
+	rename -uid "2E989B4B-6248-C9D8-0E6A-DB86284DD1B3";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30456,9 +30452,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "FA6EB42F-C547-47EB-4BF6-44849D2EE778";
+	rename -uid "44CE18A2-DD45-F12E-D30D-D89B963702F7";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09";
-	rename -uid "BF8E57D5-0047-6E30-3B68-71BA1F2D06C0";
+	rename -uid "F2F3BE9F-C94E-6CC6-E87B-BB81D71FDED8";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30477,9 +30473,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "8366028F-CE44-41CC-3423-95A6244676D8";
+	rename -uid "D59412C2-8D48-3B5F-06BC-17908005C658";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10";
-	rename -uid "6FB48761-C44B-C7F0-445E-B8B172253ED9";
+	rename -uid "97B1FF30-3040-DC09-B32B-53BD9782CF35";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30498,9 +30494,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "AF49918B-D540-FBC3-E100-5695FDA13BA2";
+	rename -uid "CDCD2262-904A-00BA-904A-35B04FC2AAF5";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11";
-	rename -uid "127547FA-5549-03C9-B39C-71AF9DE34CE7";
+	rename -uid "B04949F7-DF42-A89E-EDE2-A68CE8A2750B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30519,9 +30515,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "62F2A695-E444-A4BD-DB39-F5864C9C1850";
+	rename -uid "0B2151C1-1747-BBE2-F8F4-42AA5B6645F8";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12";
-	rename -uid "9A7B7B43-9344-8B66-8E3B-5494E99996F0";
+	rename -uid "DDF69CAE-CC4F-6312-2615-CCBF2EB8E7D4";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30540,9 +30536,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "F5FC0084-C647-978F-E1FE-5E89856D6F7E";
+	rename -uid "AADBA2CA-9C46-58DC-39FC-D281E8A7C999";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13";
-	rename -uid "782E280C-7E45-0D70-8318-F590CB01CBF0";
+	rename -uid "717E8442-3E48-1AF8-982C-62B9258EFD3F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30561,9 +30557,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "E1EEAB6E-6948-137B-8196-78B522CEEF9B";
+	rename -uid "CF7AA4B9-3044-F076-0020-66BFD1CB6AB7";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14";
-	rename -uid "9BDC859F-784D-5CA9-FBA9-95ADD9074BF1";
+	rename -uid "3AF18F99-D743-A937-022C-E280C7A6C4DE";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30582,9 +30578,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "2DF31EC0-774D-B784-17F7-A59CA542AC7F";
+	rename -uid "8E8D614E-4748-A371-BA7C-9296A22A5156";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15";
-	rename -uid "64699DE9-FE4E-258E-1492-2698D4FCDAC8";
+	rename -uid "EC8E87A5-2545-5E13-AF87-FB966D6CDF6E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30603,9 +30599,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc";
-	rename -uid "FCCC75E0-4443-24EB-4059-499D9012ED1C";
+	rename -uid "11E78E97-FA4D-5032-5785-F89E4207492F";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16";
-	rename -uid "1F33BE6A-8546-E2E0-D96A-54AD5CF8C0CF";
+	rename -uid "5C2B84FE-784B-904D-CEEC-F58D42041BDE";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30816,9 +30812,9 @@ createNode mesh -n "handleShape" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "7244ECCD-4C42-8112-7F09-F5B424DE2829";
+	rename -uid "77A6BE63-5643-2A0B-46DE-9FB070120871";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00";
-	rename -uid "56515F02-DF43-7B53-60F3-E3B2CE7D4050";
+	rename -uid "5DC3EE82-FE43-55E1-34A0-FCBA31C3E550";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30837,9 +30833,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "1E5DA75C-724A-21D6-6AB0-79A2848A0923";
+	rename -uid "DFF2F902-2749-3433-0A77-559F4564F3F3";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01";
-	rename -uid "2F00BD55-6049-C838-355C-CE82F77CADA2";
+	rename -uid "C79B19F9-5B4F-DD11-B686-C8A98F071166";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30858,9 +30854,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "231CBE4C-5C4A-D89A-E444-99846E19B8B4";
+	rename -uid "71889B8D-144A-C671-E80F-1B8F768F9B4E";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02";
-	rename -uid "C32844AD-944C-68E3-82F8-558538364EF9";
+	rename -uid "2CDD2484-6948-0662-7B03-4EA5E38B216C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30879,9 +30875,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "2BBA50E0-714A-3EFC-57B7-DE8BE19E21BC";
+	rename -uid "B96C7EC4-5645-E860-6E32-968AF7CDC3E3";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03";
-	rename -uid "A58D3657-AD4A-923B-4F55-ADB9CEA6BEC7";
+	rename -uid "9E05EEC7-B840-EACB-0E2E-66A0B008CAF0";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30900,9 +30896,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "5DB308C1-4E40-8A56-62CF-6486A1D00E91";
+	rename -uid "81EB6FF1-F54B-D3F1-2DA7-84B63C2B1BC2";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04";
-	rename -uid "4F9ECC5C-C942-141A-9731-16A6A4CCDF3A";
+	rename -uid "36B1AB21-4C4B-F857-2260-45926DEC8FCD";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30921,9 +30917,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "16FDCF34-0E4E-11F1-D0CE-F098581D984B";
+	rename -uid "309B6637-8A48-EAA8-CA46-1ABEDEB082FB";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05";
-	rename -uid "3BA26D2D-6744-0259-A9D8-E289867E57AB";
+	rename -uid "1670FFDB-8346-85CE-6403-BC8237D01189";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30942,9 +30938,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "08DAADA8-9642-41E9-8B5D-DBA504B97B87";
+	rename -uid "B4291B44-7A4F-A0EA-8B87-378761F0069E";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06";
-	rename -uid "B68AB462-014E-EA0F-A6B9-5BAA25B15693";
+	rename -uid "6C10057E-8E4B-1B50-0400-D595D14075C9";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30963,9 +30959,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "0C34EBA7-4246-DE79-11DB-0B8A77DF2CB2";
+	rename -uid "36009F2E-9840-D03F-6A0C-AF9DD909B9C3";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07";
-	rename -uid "4872C762-4345-12D2-D9F1-6E92D7640B07";
+	rename -uid "6910D534-514C-558D-6D8A-2FB8EAEDB611";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -30984,9 +30980,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "8395DAC9-8B4B-C9EA-CBCB-A0A81D633D2F";
+	rename -uid "6399EABD-E140-EEC7-EF4A-C29089B3F6B3";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08";
-	rename -uid "C61FF7D5-C349-DB87-3054-8B909E949B72";
+	rename -uid "403C00B9-BA40-4835-A1B3-7D8B54C03DE6";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31005,9 +31001,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "99BED1DE-FA4E-65C9-9FB5-CCB5B10C28C6";
+	rename -uid "CE6E1244-A847-725B-D186-97873C771847";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09";
-	rename -uid "605E2797-404E-5E74-0B61-BBBD79554934";
+	rename -uid "6FCA0EB5-E94D-43FD-ABD5-E7AD8B579075";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31026,9 +31022,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "806706B4-8C4A-69C0-0314-CD8403BFA8BD";
+	rename -uid "C13A806D-D54F-8455-9B77-4D9A531F9D0E";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10";
-	rename -uid "DCB32354-5842-ACFE-9F95-229554714D46";
+	rename -uid "20AE366C-6E45-B338-8B50-4DA524C8A37B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31047,9 +31043,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "28EE90EC-F048-86E2-7CED-1F85CBD58918";
+	rename -uid "50963D6F-9F43-03E7-046C-ED8DD0A5A4C2";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11";
-	rename -uid "A6689E34-3E4F-7912-D724-D2AF14CA8746";
+	rename -uid "A274AA64-894F-3D09-3469-10B00410C606";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31068,9 +31064,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "70C9A652-3B43-F0FD-C6FD-43BBA0894BC7";
+	rename -uid "65F3B36F-DE46-B8DA-3D52-84A3DAB9731E";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12";
-	rename -uid "3D748A0A-E247-9E13-A6CA-5596CB392CE4";
+	rename -uid "7CAEF5ED-CE4D-EAE3-1E16-C4B5A8EE3D9C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31089,9 +31085,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "396AEE14-8943-99E9-0C2E-45A5C138377B";
+	rename -uid "0D76FA4D-DD4F-6822-1A0A-9FB1E7391955";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13";
-	rename -uid "05B5972E-8D44-EE4A-68B4-25831C47BCA4";
+	rename -uid "1EA2B8B0-4748-242E-46AE-B8B723F6AF15";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31110,9 +31106,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "5F43D3AF-D14A-FF51-C95F-E5A5B61A54D5";
+	rename -uid "AD44F585-A541-9F8A-2196-1F86DF6001EB";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14";
-	rename -uid "3F6617D8-214E-FCC0-784B-4495F89727FF";
+	rename -uid "40D19409-234B-E9F8-DE67-BB85E81CC7DF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31131,9 +31127,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "4E004A14-F747-9AB7-85B4-039970AE9528";
+	rename -uid "8E252813-4B4D-1D1B-7EB4-22940B8C7422";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15";
-	rename -uid "C772B208-BE4C-E609-1CF2-C6A452ADCC97";
+	rename -uid "71B3A9B3-294C-60F4-9253-A09272F88E24";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31152,9 +31148,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc";
-	rename -uid "F7C74C76-0D4F-0CEC-1EDE-039EBE9597BF";
+	rename -uid "9E5E0FA8-DC43-3B8D-AD96-8EACC216C80E";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16";
-	rename -uid "1BA1E543-A448-B543-2677-79A95CAE2DC7";
+	rename -uid "C6824A66-C74A-DEBC-371A-56A20B76F09E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31185,7 +31181,7 @@ createNode transform -n "dip_loc" -p "|rack1|holes|holeRot_04|holeTrans";
 createNode locator -n "dip_locShape" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
 	rename -uid "8B272FDC-9748-FD15-E09A-3B810F5D9ECD";
 	setAttr -k off ".v";
-createNode transform -n "pot_4_g_04" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
+createNode transform -n "pot_4_g_08" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
 	rename -uid "657C8F35-884F-23B0-A3C9-98939BB73DCD";
 	addAttr -ci true -uac -sn "sfPaintColor" -ln "sfPaintColor" -at "float3" -nc 3;
 	addAttr -ci true -sn "sfPaintColorR" -ln "sfPaintColorR" -at "float" -p "sfPaintColor";
@@ -31195,13 +31191,13 @@ createNode transform -n "pot_4_g_04" -p "|rack1|holes|holeRot_04|holeTrans|dip_l
 	addAttr -ci true -sn "sfPaintTravel" -ln "sfPaintTravel" -at "double";
 	addAttr -ci true -sn "sfPaintCustomId" -ln "sfPaintCustomId" -at "short";
 	addAttr -ci true -sn "sfPaintCode" -ln "sfPaintCode" -dt "string";
-	setAttr -k on ".sfPaintColor" -type "float3" 0.89411765 0.89411765 0.89411765 ;
+	setAttr -k on ".sfPaintColor" -type "float3" 0.71372551 0.71372551 0.71372551 ;
 	setAttr -k on ".sfPaintColor";
 	setAttr -k on ".sfPaintOpacity" 1;
 	setAttr -k on ".sfPaintTravel" 5;
 	setAttr -k on ".sfPaintCustomId" -1;
-	setAttr ".sfPaintCode" -type "string" "bg_04";
-createNode mesh -n "pot_4_g_04Shape" -p "pot_4_g_04";
+	setAttr ".sfPaintCode" -type "string" "g_09";
+createNode mesh -n "pot_4_g_08Shape" -p "pot_4_g_08";
 	rename -uid "AB5CB52C-B04E-06B9-2A4A-9BA647DDA823";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
@@ -31381,9 +31377,9 @@ createNode mesh -n "pot_4_g_04Shape" -p "pot_4_g_04";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "AE38BD3E-9943-247E-B321-FCBA7E66CDAE";
+	rename -uid "C6676A6A-184D-33F3-B74A-63BC898D3E90";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00";
-	rename -uid "48F8FC33-EF45-DFEE-CD64-04A660AC1B7C";
+	rename -uid "468026C1-8943-63AC-760A-6186BB3ECA0E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31402,9 +31398,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "C97182A2-4345-313D-39A2-D291731D38F7";
+	rename -uid "86090C4F-8F4F-D3D9-CBDD-059E9AEF70F8";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01";
-	rename -uid "C89D0FCE-FB45-6C4C-B777-CEBB7A7BC553";
+	rename -uid "382C99B1-B24E-B5F3-D926-D59B0047C5CF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31423,9 +31419,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "DEA8EDE8-1D4D-4E4A-840E-BF9C3135F5CF";
+	rename -uid "39A7B5B0-134F-FD3D-9FC3-03BAB15580CF";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02";
-	rename -uid "61F55205-BF4D-71E8-A8A2-808C202AACE3";
+	rename -uid "013126F9-E44D-77C1-1D3D-8796D0E9214A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31444,9 +31440,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "EABD7E77-A24F-A3CE-0513-DEA478177E68";
+	rename -uid "316CF970-FC4F-8E90-6B51-23BAB8F1A5D7";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03";
-	rename -uid "C23B34FD-9E4F-9D57-3043-049F7EB6AF48";
+	rename -uid "34744780-9C41-59F0-C734-A684901430F9";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31465,9 +31461,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "A13170AA-0E43-C306-5F4D-F4ADDACCC89F";
+	rename -uid "13F2858C-5144-88A9-DA62-049E65AFB3AC";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04";
-	rename -uid "5AA441E3-784A-B572-55DF-F99AFEC4E56A";
+	rename -uid "A5CC9402-0B48-E60A-2939-6C95DA7A4962";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31486,9 +31482,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "0C9DEB37-4A4F-C00D-4118-F3A32044842D";
+	rename -uid "C9A848D2-3D46-0562-020A-5CAAA6E64C4F";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05";
-	rename -uid "211E3C7B-804A-98E0-3E97-EEB0DA0A19D7";
+	rename -uid "FEE25A2F-BF46-77B8-65F7-B9A7B0EBCE53";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31507,9 +31503,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "12677DB0-CF45-0CD9-2E1B-0F9FAB7D1C80";
+	rename -uid "2C3AC09F-BA41-7B6E-7F7B-2C84DBC75AF8";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06";
-	rename -uid "F2AA4243-B849-D6AA-2B1C-C78E274A3D5C";
+	rename -uid "5C36D477-2A4F-3690-4E60-7CB5A2A27B93";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31528,9 +31524,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "EDD30184-374A-5A98-DD4F-C39B7CFFB71E";
+	rename -uid "713D43E2-A84C-37A8-9773-089738A57ACB";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07";
-	rename -uid "8E255E13-AE48-8D2D-1A56-07B617BE0CF0";
+	rename -uid "8100B33C-8E48-1AFA-08FF-8783AB65583E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31549,9 +31545,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "F9FF1181-C248-876B-C097-C3810875D804";
+	rename -uid "3A8345F2-7C42-BC9F-3C92-E988CF3CC65F";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08";
-	rename -uid "881DFEC0-F940-555C-1501-6A9C81AE649D";
+	rename -uid "C9E0C331-2E44-D8B8-E2B5-DDAF266ECE8F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31570,9 +31566,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "B12ADFFE-BA4F-13E5-471B-5FA283260E70";
+	rename -uid "912F95AA-9E4C-0A3E-6F72-9391D2DC896E";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09";
-	rename -uid "9C2DC1B2-3845-BC1A-52B9-3E8DD8E6C00F";
+	rename -uid "41DFD1B9-1041-1149-B3C4-8AAA8A6FB349";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31591,9 +31587,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "7355444B-E946-D967-D995-ED9747888D09";
+	rename -uid "4E2596AA-D444-E115-BA08-13ACBD3A480C";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10";
-	rename -uid "0096FB9A-0F42-C1F4-1B86-6395F6874A6F";
+	rename -uid "7774BF0E-1F40-B65B-5C57-7EB13A285BF5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31612,9 +31608,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "19202E15-CE44-1A0A-76D9-0D91958FA7EC";
+	rename -uid "9903E0B0-3C41-AAE5-21FE-55922A050C1A";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11";
-	rename -uid "8AEEB9FE-DF48-79B1-04BC-98829A3817C9";
+	rename -uid "83B87444-B447-67BD-0458-84A2BD2AB7CD";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31633,9 +31629,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "ED816E82-BE43-409D-60FF-90AF85FE8C07";
+	rename -uid "2FC96098-A046-ACB1-C67F-CF9596405A14";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12";
-	rename -uid "5C0B094F-1145-E24D-C750-5BA8B28BD248";
+	rename -uid "1F877C19-8549-F905-E9CC-63B60C85B93A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31654,9 +31650,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "E08C994B-2C4D-11F6-29F2-BEAB12CEFDD7";
+	rename -uid "A5E7828D-7747-678E-9F80-03BC484C2350";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13";
-	rename -uid "14FBE01B-2B42-DC71-A2B5-5095F0AC1CD9";
+	rename -uid "34F1C320-A14F-D5F6-D49C-8C8C1C209C83";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31675,9 +31671,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "29A5160A-E344-15D8-D610-A6AD3F881D1C";
+	rename -uid "1D248034-7540-C2B1-6BC0-20A0A3A3100F";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14";
-	rename -uid "1F08C11D-DF41-0536-DB04-4EB9102342FC";
+	rename -uid "E357C07D-2849-B74E-611E-4B9A619C2349";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31696,9 +31692,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "E435B6E0-E546-CF16-AD59-0AB09CA4815C";
+	rename -uid "6D7151F6-FB40-1B56-0E4D-88B5A27A9072";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15";
-	rename -uid "E968597B-2849-11B5-C270-168624D415EC";
+	rename -uid "6A00F93C-A44D-4DA7-C680-AB918F27CF0D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31717,9 +31713,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc";
-	rename -uid "23763C42-A84C-972A-38CD-EA814AAAF6AD";
+	rename -uid "002A00AE-884A-86B3-324D-0C9D5AB9EF16";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16";
-	rename -uid "F9853032-7E48-7731-2A95-DFB97E0EB9FF";
+	rename -uid "61FBA561-4B43-57AE-FF1D-4A807A55FFFA";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31929,9 +31925,9 @@ createNode mesh -n "handleShape" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "34293A3E-C648-C75E-2794-6F897149CED6";
+	rename -uid "C676E007-8E4B-2986-E35A-48AF446107FA";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00";
-	rename -uid "012D6F5A-8445-A435-5737-7485200D0B3D";
+	rename -uid "47A09F24-9947-A93C-2A18-2BB61831576C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31950,9 +31946,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "A9C207D7-8B41-1C86-01CD-57B42C4E04E7";
+	rename -uid "4A093386-3D4F-F8FC-B5C8-92B3760A9689";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01";
-	rename -uid "B3A39DB1-3C4D-D6EA-EE31-618CDF8FCE41";
+	rename -uid "D084C4C8-264B-3332-9DBE-17823198860C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31971,9 +31967,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "9CAA183D-D645-1162-A5CE-8FAFCCB2622C";
+	rename -uid "14F04D59-F44E-59C4-B919-CDBB4AAA60B4";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02";
-	rename -uid "254130FD-744A-7A8D-2B30-C9BDA142D1D8";
+	rename -uid "B1655C16-0545-62D2-8B8A-26BBFD077981";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -31992,9 +31988,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "EC318E55-EB46-E80D-F3B5-9185D5B2E43B";
+	rename -uid "8EC9A2F2-934A-F3B9-6A78-5480B600D584";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03";
-	rename -uid "C5D4F210-1849-0F14-074F-4BA72E830134";
+	rename -uid "4AD55B7C-0D45-B8A6-A152-77A642FB5B4C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32013,9 +32009,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "B7BC1590-B841-6EF5-CCBA-B88D7422EF2B";
+	rename -uid "775E66CC-C64C-F4BF-1752-5E93EF7F2EE2";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04";
-	rename -uid "D15CF7DC-C446-CE0A-9E44-09AC07FF85FC";
+	rename -uid "EAF312F4-3147-7681-E9F7-38AC76B61901";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32034,9 +32030,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "69D34B0B-194E-565B-20A8-95963751DD45";
+	rename -uid "86840259-BC4A-2259-250B-97A4E6C77D5B";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05";
-	rename -uid "7FD763E7-3C43-71E1-9AC5-5B8D2ED659F5";
+	rename -uid "C7294E7F-B146-9417-C519-84A94269F539";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32055,9 +32051,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "C58B657B-D846-6B5F-AF18-E38163615541";
+	rename -uid "5F189028-B545-415B-F740-549DCC3F5E01";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06";
-	rename -uid "8F2DE57F-A14F-01E1-F490-D0BFE32CD3F6";
+	rename -uid "6673973C-E740-2A26-2736-4ABFFD1D9D3D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32076,9 +32072,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "05BB734F-FD4F-95A3-FE70-0FB897DB26E4";
+	rename -uid "80E0F53F-2D44-38E1-F3F1-4597E3C6579A";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07";
-	rename -uid "C7A3D905-ED45-A0D2-3818-079505B22EDC";
+	rename -uid "19BF679C-4A48-B63F-D376-578370E09B5A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32097,9 +32093,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "6FECE4B3-DF4D-0F77-9841-13B607EDCE0A";
+	rename -uid "93CCB5A6-664C-3086-A2A8-00BC15606F5A";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08";
-	rename -uid "97C3A798-304E-7B96-8C52-9FB82D7344DA";
+	rename -uid "7385C3E5-1047-B8CA-04F5-EA87A0E7A028";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32118,9 +32114,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "547ECC94-B442-7C43-3A74-E083F0916582";
+	rename -uid "A6AABB0E-1843-736D-5752-8DA9D8101E7D";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09";
-	rename -uid "F4414F63-9642-FFEC-B33B-7A88DECC2C19";
+	rename -uid "4F38E58C-4940-D55F-055A-9F9D5BEA1C15";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32139,9 +32135,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "0876542A-E640-BAF7-3A10-EA9188E86AB9";
+	rename -uid "339A4EC3-1B49-8BE9-61E8-DF8823615F47";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10";
-	rename -uid "B8AC6D21-D34A-57AC-5B30-4B9AEE8F6680";
+	rename -uid "882C807F-C141-757E-116D-CD8FABA462EC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32160,9 +32156,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "F09B46BD-894B-6012-21A4-C0BA06B4AB68";
+	rename -uid "B585A9A7-AB43-D590-FB51-2DA7DCD8AD59";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11";
-	rename -uid "56C449A3-F447-45BA-311C-CEA6885C81B3";
+	rename -uid "3BCE0572-ED44-E601-D1EF-4380625D88A9";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32181,9 +32177,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "C9FF5195-714E-D892-7267-109938FE6638";
+	rename -uid "E6C8337F-BE41-FD10-BEE9-A7AB319F39D9";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12";
-	rename -uid "A59EDA12-2B42-0CD1-E078-0EBE0A6883F4";
+	rename -uid "6E6FA393-794B-D009-BE57-50B657FA0A59";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32202,9 +32198,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "D05A1A08-8246-77DF-26C0-B7940595F8E2";
+	rename -uid "B7A89A10-B941-BF8D-A02C-CA8B8B9A2DDF";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13";
-	rename -uid "8656B106-9B4A-1989-53B5-38B8AC6F5FC1";
+	rename -uid "A65B0A82-5B4C-3C98-DAD7-85A299DB73A4";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32223,9 +32219,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "22628FA4-EC4B-6614-9C39-07B633550B04";
+	rename -uid "5DBAE1C0-6841-5323-3B0D-ACB04338742F";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14";
-	rename -uid "85480B4A-1642-7E13-28DF-6280B17244EF";
+	rename -uid "FA191CCA-9045-B084-A077-82A8DBCBBA02";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32244,9 +32240,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "7F710A75-FB4F-1FCA-819B-24BD94978F88";
+	rename -uid "86CE2333-6D40-DA56-A059-4981ACEE452B";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15";
-	rename -uid "0C9ADBC9-344C-AC5A-877C-32BC5E077098";
+	rename -uid "6E77FEBF-FE49-6779-366B-C0A55EFA6AD0";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32265,9 +32261,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc";
-	rename -uid "06D62964-1146-595D-258A-95A853B58FCC";
+	rename -uid "B1D25F33-904A-FF09-6205-6EB24C6E2387";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16";
-	rename -uid "48E2FB8E-D942-2FF2-7CE2-9FA7C1AFCF35";
+	rename -uid "D03E89A8-8143-89B1-47F2-02813B965E87";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32298,7 +32294,7 @@ createNode transform -n "dip_loc" -p "|rack1|holes|holeRot_05|holeTrans";
 createNode locator -n "dip_locShape" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
 	rename -uid "42E71D55-BB47-89B8-8601-C0B1F16E1F85";
 	setAttr -k off ".v";
-createNode transform -n "pot_5_g_05" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
+createNode transform -n "pot_5_g_10" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
 	rename -uid "DEC96F6D-7D4D-EC28-E9A4-B2B80FC2B52D";
 	addAttr -ci true -uac -sn "sfPaintColor" -ln "sfPaintColor" -at "float3" -nc 3;
 	addAttr -ci true -sn "sfPaintColorR" -ln "sfPaintColorR" -at "float" -p "sfPaintColor";
@@ -32308,13 +32304,13 @@ createNode transform -n "pot_5_g_05" -p "|rack1|holes|holeRot_05|holeTrans|dip_l
 	addAttr -ci true -sn "sfPaintTravel" -ln "sfPaintTravel" -at "double";
 	addAttr -ci true -sn "sfPaintCustomId" -ln "sfPaintCustomId" -at "short";
 	addAttr -ci true -sn "sfPaintCode" -ln "sfPaintCode" -dt "string";
-	setAttr -k on ".sfPaintColor" -type "float3" 0.91764706 0.91764706 0.91764706 ;
+	setAttr -k on ".sfPaintColor" -type "float3" 0.7764706 0.7764706 0.7764706 ;
 	setAttr -k on ".sfPaintColor";
 	setAttr -k on ".sfPaintOpacity" 1;
 	setAttr -k on ".sfPaintTravel" 5;
 	setAttr -k on ".sfPaintCustomId" -1;
-	setAttr ".sfPaintCode" -type "string" "bg_05";
-createNode mesh -n "pot_5_g_05Shape" -p "pot_5_g_05";
+	setAttr ".sfPaintCode" -type "string" "g_11";
+createNode mesh -n "pot_5_g_10Shape" -p "pot_5_g_10";
 	rename -uid "F4299C41-5E41-0792-98DE-949E71F4C8DC";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
@@ -32494,9 +32490,9 @@ createNode mesh -n "pot_5_g_05Shape" -p "pot_5_g_05";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "DDEE849E-0E46-4DBD-FC58-6C804151826A";
+	rename -uid "4D134A5E-C34C-7676-936D-739CF2129A16";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00";
-	rename -uid "AF09428A-5B4B-648B-E215-4D8CCA1B6318";
+	rename -uid "0F14D633-2C40-3F27-0186-8DB65C92A826";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32515,9 +32511,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "6F4875D1-EE41-0170-EF71-47A6FE436339";
+	rename -uid "624B1816-1D40-4A87-F62C-75802B7582CC";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01";
-	rename -uid "AD6BB9F0-AB47-72A4-58BF-3DB93EDD2AD7";
+	rename -uid "D6CB4CFF-0945-9448-DF67-9F83D35FBC1A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32536,9 +32532,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "040087C6-DC4A-564D-1034-3593FDAA2D40";
+	rename -uid "821A4B98-9C40-9AD9-1ADE-E89368A88211";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02";
-	rename -uid "19F07005-9342-5FB8-1FF8-E1AE2D249ECE";
+	rename -uid "FFB7958D-E641-55B3-2DBE-3EB91748A562";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32557,9 +32553,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "F8BC721F-3245-AB03-71DF-9B8AE6900864";
+	rename -uid "E9D23446-604C-746C-489F-DE8BFA142C28";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03";
-	rename -uid "7580D59C-214D-336B-EB55-A1A06C4EA6E5";
+	rename -uid "80F05D5F-2748-7552-C17A-4E9CF2C87EA7";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32578,9 +32574,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "9D0FC7C3-B549-9F15-96B1-658A50BA1986";
+	rename -uid "81C68749-444F-9104-613B-FA9DD32213C6";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04";
-	rename -uid "2D2770E4-5249-0A0E-83A3-7499E04A5485";
+	rename -uid "606F3B68-E04B-C805-3907-26B6B934FEB0";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32599,9 +32595,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "2C702312-DE47-0C51-C1AD-57A8DBA0CFB0";
+	rename -uid "30E940E6-A04F-E6BD-380C-29B467C3934B";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05";
-	rename -uid "EE078468-2A44-8D82-4455-2C8A1EFDA2B9";
+	rename -uid "6C82D59B-B94E-ED1A-C63D-578EE1028F8A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32620,9 +32616,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "11DEC93A-8B4A-BD2C-0325-B7B807C5A98B";
+	rename -uid "07789C7D-CC40-6023-0092-14B41A715FDD";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06";
-	rename -uid "E2CEE1FD-E54B-9201-F457-5680344DCCD6";
+	rename -uid "DC797B74-0A48-B2B5-3B44-2CA96095ECDE";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32641,9 +32637,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "213B895A-504C-930D-988D-C8A4BC984533";
+	rename -uid "5C2D05B9-134B-F88F-DD73-17A4CCEA7C9E";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07";
-	rename -uid "6349E488-A844-6C66-65EC-3BBA1D2D25C8";
+	rename -uid "66DB6C94-F249-C80B-817F-AD85CF5E997E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32662,9 +32658,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "4848CECA-5B4C-A7C2-72D3-6D9D29502BC8";
+	rename -uid "548984ED-2548-D2D1-41F0-57A253EC90DB";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08";
-	rename -uid "39F0DBA8-2F43-9191-8065-E0ABFC743677";
+	rename -uid "5FB09BED-2D48-F555-907E-53A9D1CB26D3";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32683,9 +32679,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "52125E4B-1342-8A84-B498-4A990BAB07E4";
+	rename -uid "28B972F8-1148-7C21-4251-21BC2BAF4C48";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09";
-	rename -uid "F75F1C37-3640-5AFF-D9C2-0B989C4CC88F";
+	rename -uid "3038F3B5-1647-6FA9-7539-E9B685F7B86F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32704,9 +32700,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "DFBC7324-BF4F-88A5-AD2B-75BD87E7D9C4";
+	rename -uid "B517A335-FC46-D3AA-FC9D-758BDD0F5A92";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10";
-	rename -uid "D969360E-5941-7212-C5DA-FD855A41A859";
+	rename -uid "0DF5C5F2-904D-9842-4F25-449541E2FC21";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32725,9 +32721,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "E939832F-364F-2E60-252D-648878C19429";
+	rename -uid "F2760EE9-C14E-F11B-AD91-00A38878226A";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11";
-	rename -uid "D4C8D7A1-2B4B-57FF-E66C-2ABE9860A87C";
+	rename -uid "7EB0F203-0848-2C63-CBB2-C2A49DE448A3";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32746,9 +32742,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "866DB09B-C24A-1462-E994-0BA7736C47A2";
+	rename -uid "5968FB24-9A4B-A06B-4E5A-C9B640C7B651";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12";
-	rename -uid "982E2B60-EF43-3D53-7A85-B09BB1A80A3D";
+	rename -uid "BE2C8C37-8B49-8FB9-D46C-84953203AB10";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32767,9 +32763,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "901CA372-1A48-9828-E7A3-C98CE8F98AC4";
+	rename -uid "118C3BD8-5843-3A36-3155-E9BCD62DA1DE";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13";
-	rename -uid "B7190971-A540-1D38-0866-1DA2AE371293";
+	rename -uid "0701D78C-AE43-CC4A-E837-57B57575CE45";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32788,9 +32784,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "9E831D28-704D-8407-ABBE-ADBE89E42527";
+	rename -uid "D1F0F665-B843-6A34-D130-EBA031AFFCFB";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14";
-	rename -uid "B51C9DED-4A40-5BDE-601C-589E2ECD08CE";
+	rename -uid "F360989C-154B-ED1E-DC09-7D8C8DBD95EC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32809,9 +32805,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "552F1856-D842-A448-C49B-1A8F41C0229E";
+	rename -uid "EBCE2DE2-CA47-FD8C-5BD3-DCB938AF4B70";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15";
-	rename -uid "00A4DD7B-6F4F-2563-AD2F-2C89ECEA5623";
+	rename -uid "13EEB5F6-A44F-6797-FD7F-3C868B78CFFB";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -32830,9 +32826,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc";
-	rename -uid "CF85D943-2B4A-A4A7-909C-64BDF68D2749";
+	rename -uid "8C69F98F-B945-7B7F-196F-D9B70EE1B4C2";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16";
-	rename -uid "8D8B21E1-134F-5C99-9C72-EE9663135777";
+	rename -uid "E3144791-EC45-5817-EF19-F8B2F0143BE9";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33043,9 +33039,9 @@ createNode mesh -n "handleShape" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "97D069F6-214E-AAD0-D8F4-A5973D60429B";
+	rename -uid "3B194A0A-0B48-57A1-138F-F29091CF6BD0";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00";
-	rename -uid "8E1565BD-A54C-D764-CDEB-13AC8A91D648";
+	rename -uid "9B4B12D6-DA42-CC0F-56E2-0A9AFD534F86";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33064,9 +33060,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "95629E87-B042-5334-ED84-18A3746B9E94";
+	rename -uid "20C3CF3E-0645-7D9C-CD78-13818C62BA3B";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01";
-	rename -uid "54C423BB-DA46-D7A9-AADD-6780412B3BEF";
+	rename -uid "0ACBDA50-AA4D-A01A-A8A2-17AF796A6862";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33085,9 +33081,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "26B9A79D-0542-FAE5-912A-8991B9BE7CDA";
+	rename -uid "DACB6385-774C-63EE-D289-15A1254E0CE9";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02";
-	rename -uid "3E6E0D2E-FC43-559E-3FF8-A7B8DAC853BE";
+	rename -uid "65A13118-DD4B-0BEE-37D0-E9BBA9AED6F3";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33106,9 +33102,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "7069B52B-0A4E-A8F0-0F90-9C83B576C50A";
+	rename -uid "F21F6E73-E84B-5781-E50B-038524EE628F";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03";
-	rename -uid "926D945E-A34F-5CF0-7B42-7E98A40AABD4";
+	rename -uid "4E60DAFD-9C42-C6DE-CB50-ABABF83F097A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33127,9 +33123,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "E7A9F1CF-E84D-05B3-DA82-5AB7E75087A3";
+	rename -uid "E4AC7C78-D34F-88F8-96EA-2DBCC701070D";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04";
-	rename -uid "919F3CDC-9440-8363-DA55-38ACDD4AE194";
+	rename -uid "5DF7B915-2743-F054-BE87-FDAC55156C6A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33148,9 +33144,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "B2814914-3442-6BBA-6A84-938D6477796D";
+	rename -uid "0526A184-684F-3A21-BE98-83B50A3E23C5";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05";
-	rename -uid "7E97BB04-0C4C-818D-DCBD-86B5988F7BC6";
+	rename -uid "919500D2-9B47-7E64-C614-159A41C976FA";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33169,9 +33165,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "AE4F61DA-B64D-1662-3AC6-6EABBF0854BB";
+	rename -uid "457350A8-F947-48B6-B1CD-23BA8B9B131C";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06";
-	rename -uid "0A68A7C6-3B4A-6F30-89CA-8DB33E19E4AB";
+	rename -uid "25F03AB6-4D48-EB85-C065-6B9090F61BA2";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33190,9 +33186,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "C99E7C79-3449-D115-74BF-B4941D6C9624";
+	rename -uid "8EB555ED-FA42-8318-DDE1-FB8A92B1064D";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07";
-	rename -uid "32A92C8E-5C49-922C-22EB-57B5F7848D0D";
+	rename -uid "7CB6A719-BD4A-D183-457A-B3A3383A2C23";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33211,9 +33207,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "5D965DD4-5D44-60FD-0062-57950279A8CF";
+	rename -uid "9A3EF235-E642-AB1B-E423-188E98D0923A";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08";
-	rename -uid "8685D66A-EF46-218D-F95B-E3BB8472187F";
+	rename -uid "16DB03F4-134B-47AA-C751-1F88164D66E4";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33232,9 +33228,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "8D578EA8-454C-3886-A0A1-CB89F3BABCF1";
+	rename -uid "FB9291CF-BE46-6A2C-0876-77B8D8C47F49";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09";
-	rename -uid "97AA1989-A240-DB94-461C-F5A83F597869";
+	rename -uid "39C20303-954D-C23A-D257-C2BE116D09DA";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33253,9 +33249,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "AAE72658-B541-2544-8DC3-EAAB07F6718B";
+	rename -uid "60C89CDA-7A49-3CFE-494B-0FBA18110080";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10";
-	rename -uid "F1167420-F24B-BC9C-DC26-4CA898AF0DD5";
+	rename -uid "E1A36C35-F54F-2666-9931-44854429D546";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33274,9 +33270,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "A878281E-B849-79A5-BA87-3DB779E9E248";
+	rename -uid "FF104269-BF48-E489-6F4C-B5B5581B7A24";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11";
-	rename -uid "1BA2254D-AB4C-9FD1-55CD-D6A03EF2CE42";
+	rename -uid "2A9C0BED-2D42-0E4C-2D42-0EBB73DE0F36";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33295,9 +33291,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "E6D8C91A-5D45-B413-5711-A5B7D77EB1FD";
+	rename -uid "EC46BBBF-E942-7C56-E7BB-ECADDBC5E125";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12";
-	rename -uid "80AC2E6F-CA46-213E-92D3-A6935A10538F";
+	rename -uid "C9BB37A6-D24F-19B2-4204-618366413739";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33316,9 +33312,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "D9037424-3A45-D32A-1A45-CCA8F5027D59";
+	rename -uid "21E4E149-EA4B-D2C6-7E2C-B8BFF9430576";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13";
-	rename -uid "51C126E7-7F49-E28F-B18C-92B87311DB86";
+	rename -uid "1A0A90ED-9D41-FB42-2D5C-28BA5542D600";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33337,9 +33333,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "365FD65C-1F44-5416-05E6-1ABDCE57AC25";
+	rename -uid "C34AA9DF-7341-C420-6DA8-468D6E44E197";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14";
-	rename -uid "BF5053E4-6246-C384-90ED-E4902E69E148";
+	rename -uid "80E16C16-AD41-A5CF-2449-8C84300432B3";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33358,9 +33354,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "B57767E9-EB4A-A1DB-6E76-2082939B5BDF";
+	rename -uid "8BAAC3BA-0F46-6DED-A988-089032E750C5";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15";
-	rename -uid "1AA822AE-0942-8404-7094-3385A37679DB";
+	rename -uid "A5E10ECC-E143-2373-FC44-A39EC454843D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33379,9 +33375,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc";
-	rename -uid "288D5A0E-1840-EDCD-8BC4-E8BA715815A7";
+	rename -uid "F580ABEA-0343-9FB3-D2F4-999E5F83E149";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16";
-	rename -uid "58E2A484-F848-9D7C-5E05-0BA7AADC99B9";
+	rename -uid "3FCC6ACE-B849-5F30-9402-019DFA28A287";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33412,7 +33408,7 @@ createNode transform -n "dip_loc" -p "|rack1|holes|holeRot_06|holeTrans";
 createNode locator -n "dip_locShape" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
 	rename -uid "9B229AEE-6F4E-68C7-7C4A-148B11E70A4D";
 	setAttr -k off ".v";
-createNode transform -n "pot_6_g_06" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
+createNode transform -n "pot_6_g_12" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
 	rename -uid "02993B35-DD4A-9D25-7F0A-6790C1A4FF94";
 	addAttr -ci true -uac -sn "sfPaintColor" -ln "sfPaintColor" -at "float3" -nc 3;
 	addAttr -ci true -sn "sfPaintColorR" -ln "sfPaintColorR" -at "float" -p "sfPaintColor";
@@ -33422,13 +33418,13 @@ createNode transform -n "pot_6_g_06" -p "|rack1|holes|holeRot_06|holeTrans|dip_l
 	addAttr -ci true -sn "sfPaintTravel" -ln "sfPaintTravel" -at "double";
 	addAttr -ci true -sn "sfPaintCustomId" -ln "sfPaintCustomId" -at "short";
 	addAttr -ci true -sn "sfPaintCode" -ln "sfPaintCode" -dt "string";
-	setAttr -k on ".sfPaintColor" -type "float3" 0.94901961 0.94901961 0.94901961 ;
+	setAttr -k on ".sfPaintColor" -type "float3" 0.8392157 0.8392157 0.8392157 ;
 	setAttr -k on ".sfPaintColor";
 	setAttr -k on ".sfPaintOpacity" 1;
 	setAttr -k on ".sfPaintTravel" 5;
 	setAttr -k on ".sfPaintCustomId" -1;
-	setAttr ".sfPaintCode" -type "string" "bg_06";
-createNode mesh -n "pot_6_g_06Shape" -p "pot_6_g_06";
+	setAttr ".sfPaintCode" -type "string" "g_13";
+createNode mesh -n "pot_6_g_12Shape" -p "pot_6_g_12";
 	rename -uid "F4FD5B2A-D844-2CBC-C9D2-B6AC90AD88E4";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
@@ -33608,9 +33604,9 @@ createNode mesh -n "pot_6_g_06Shape" -p "pot_6_g_06";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "A0FABADA-3940-14CE-1BDD-5AB7F532700A";
+	rename -uid "A011CF96-2742-E7EB-8776-55914DF72FF8";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00";
-	rename -uid "7E905BB8-AB45-32EF-C547-758FC1E19034";
+	rename -uid "8B2F4692-E74C-B580-EB50-51A9459A3E24";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33629,9 +33625,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "DA6ADB3D-3948-3665-BCD0-84B17103F639";
+	rename -uid "AD9D2BF1-6B42-AFF5-3766-929780BB0965";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01";
-	rename -uid "AEC803E5-D54C-897D-C6BE-27B1C573120A";
+	rename -uid "AC321CE4-6341-C370-49D7-F0A58C72B12A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33650,9 +33646,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "B826B75D-D045-F9C8-9804-BB91C93E591A";
+	rename -uid "36E49C6A-E043-4EC1-17E0-1D84B61B72F2";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02";
-	rename -uid "9C29B6D7-DE4A-B966-0301-6092E8AB4EB0";
+	rename -uid "F45859F2-604A-3602-F78C-1CBDDDD48770";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33671,9 +33667,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "84E1BD86-3F4B-3932-0B04-4FB4CA9F615F";
+	rename -uid "2FB536DD-6F48-FB10-6328-ACA5743A01C4";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03";
-	rename -uid "8AE9B52D-6D45-5BC2-B769-4DAE8DC44E91";
+	rename -uid "B4C2A2F5-B14E-6FD8-213F-11A21CBF7730";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33692,9 +33688,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "D13973C6-B840-AD96-BC5B-E1A0CA388B77";
+	rename -uid "ED6A0ACB-194A-E286-ACED-9BAE2B9A8912";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04";
-	rename -uid "AC8BF0BD-BB4D-5833-0A93-81AA3169864B";
+	rename -uid "AD75B352-B941-D394-AF41-73AE13BB8B4A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33713,9 +33709,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "D92D6BC8-3140-3028-DB00-E78F5953BB02";
+	rename -uid "278F8815-E546-D6B9-FA69-E08F1B82643C";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05";
-	rename -uid "4533E02F-BF4F-ED04-809C-C49911E31869";
+	rename -uid "1B339D76-B74D-EC55-242E-A0ADF3084ED5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33734,9 +33730,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "1F91A79E-E34E-8C18-74E4-A7BB44E2BAF8";
+	rename -uid "B15F4536-7B47-0A6A-F3F7-04B1A88B98E8";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06";
-	rename -uid "300D659C-634C-0DD4-9669-518402EB2498";
+	rename -uid "00E8AFFC-FD45-1659-1D3E-68ADE7983D7D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33755,9 +33751,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "6BE43616-7D41-12F9-57D3-22B6075DBC76";
+	rename -uid "6B6138F2-1F44-FFBD-F14C-5597251874B9";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07";
-	rename -uid "084CF2AC-F64C-B938-97C6-0BAFD94C11E7";
+	rename -uid "7178B526-1445-C68E-D49D-DE8CD74EFE84";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33776,9 +33772,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "9289E7D6-AF4B-2792-0D8C-A2A95E952A22";
+	rename -uid "C20A8909-E142-B10A-4F3D-41977E2348BE";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08";
-	rename -uid "AF95A365-0747-D25A-96D6-F6984BD2B400";
+	rename -uid "D0D025D6-B242-A1EE-58C2-66A9CC934CDC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33797,9 +33793,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "79288C77-8249-55D8-0F2F-A6B048E2AF6B";
+	rename -uid "FBB8DBF3-A245-76A5-9A75-8B9F293DE38F";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09";
-	rename -uid "FE12C799-A34B-D216-28D0-F8999FE819AD";
+	rename -uid "6E9AA78F-6740-4415-63F2-DB9A7AA6E0C6";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33818,9 +33814,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "39D655D7-514B-D7C8-B2AB-5FA2593C5C8D";
+	rename -uid "CFDA108C-964A-293F-9CCF-85B0F5F942DA";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10";
-	rename -uid "4946FB30-C747-A0AE-760C-BB83B5E9D555";
+	rename -uid "9F637E72-9F4F-5DB6-4A9F-48B96EDF20DC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33839,9 +33835,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "A4C34BBB-9840-6191-F729-D7BBC29A82CF";
+	rename -uid "02050E61-834E-715B-60B8-8197CD6684CC";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11";
-	rename -uid "6E14D71B-B84E-AA26-81EB-5695FBC79777";
+	rename -uid "6C8C8390-1E46-477D-A8ED-5DAB823B9AC7";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33860,9 +33856,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "248894BE-CD44-5D3B-EFAD-6C986C25A0E5";
+	rename -uid "A76B113C-764D-BE19-DE76-3EA8FE88D9EE";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12";
-	rename -uid "60C7CD19-4C4D-D6DD-8C4D-1285C4781FAB";
+	rename -uid "930912F9-1447-0D99-5774-579EB3876C56";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33881,9 +33877,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "BDFD3BA3-D940-C802-DAEC-22BC2820AA5A";
+	rename -uid "60729B24-D541-05D8-D2FB-F9A1F4ABFE1F";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13";
-	rename -uid "E1964C75-BC4D-470F-75B0-E888DFA0DD07";
+	rename -uid "457EC318-9049-37A4-56C0-CBA1B77881BF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33902,9 +33898,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "6222E6C2-FD43-C5AF-546B-18BEAAB6C3B6";
+	rename -uid "CA500651-024F-4D4E-BC69-1BA141823E1B";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14";
-	rename -uid "1C42D3C7-0442-0510-6428-0188EA0E906F";
+	rename -uid "31BED425-E44B-EE22-4358-3BB60733A2F1";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33923,9 +33919,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "3110710D-414E-AC92-D088-63A3A99F057D";
+	rename -uid "15E24B02-794F-6E7A-1809-34884A5FE475";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15";
-	rename -uid "FE63C67C-6444-6CE4-1FD6-4A83FFC50B46";
+	rename -uid "D0B46867-B845-CFC2-AC63-BDAF92572DFE";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -33944,9 +33940,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc";
-	rename -uid "46480669-E04A-6E61-53A2-9B99C0E9C3BB";
+	rename -uid "012D1586-0E45-2DC1-AF23-059B3670A30A";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16";
-	rename -uid "63F0F5BF-A744-3464-35E9-C49C34D875F8";
+	rename -uid "01D0D8F0-A341-62F0-CD39-EE97511A9393";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34157,9 +34153,9 @@ createNode mesh -n "handleShape" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "5C833D5E-4542-4AD6-AD49-A4BD57CCAA33";
+	rename -uid "B7B4E224-5447-FAAD-44A4-9285BA4D073E";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00";
-	rename -uid "7EB9EF08-6246-3E9F-5496-5EA13AC1B162";
+	rename -uid "7EF213E7-AD4E-E626-35DD-80BC308ACB69";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34178,9 +34174,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "54B01641-4A41-E4E6-FE24-F6B147210978";
+	rename -uid "238B46F0-234C-10C4-8B5A-D0A0406B090A";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01";
-	rename -uid "BBB661C3-8F46-6BC9-8E47-43B503408EE0";
+	rename -uid "A0269E71-0148-1E72-82EE-8289AAD159A1";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34199,9 +34195,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "9DDFD1B1-224B-7CA8-56E2-ACB02B3ADB69";
+	rename -uid "EB93F8CE-5543-47E0-62B7-AA8BEAA8579D";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02";
-	rename -uid "2F9E44D9-E146-F9E0-3368-3898EFBE9E06";
+	rename -uid "0AA9B9B3-7649-EF62-3E01-10A1E41D8A1E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34220,9 +34216,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "5805C528-6645-7C5A-C6B6-2F9C5BAC9A11";
+	rename -uid "E217B8D4-9240-21F0-61CE-6E8F67C72160";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03";
-	rename -uid "3FFDD537-E24D-9301-86EE-7991618F18F5";
+	rename -uid "2EDDC9BF-474B-08FD-CA01-378A6057496B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34241,9 +34237,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "4B948183-7747-C04F-15C6-3982C945CCEB";
+	rename -uid "E173232B-764A-EE94-9078-6083E3D6ACB9";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04";
-	rename -uid "D614121C-5A44-AC81-D8FE-09B08AA2FDE5";
+	rename -uid "514F670C-9941-CCD3-C34A-109A33417EA1";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34262,9 +34258,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "E2DBDFFA-4B41-7C25-10FA-E49AD483AC0D";
+	rename -uid "63FC244E-6E4B-BC5C-597F-2F8F7E5F9DCF";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05";
-	rename -uid "4B7A27DE-694E-C8EF-57C2-4D94055F2C47";
+	rename -uid "ECB5AF3C-C14E-3126-6789-9886BB7E1F63";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34283,9 +34279,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "B3337876-E047-3BF1-1CE5-D2AA33098D59";
+	rename -uid "D660C289-6D42-5110-10A9-9F9E62981DEC";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06";
-	rename -uid "3D8DBC25-1F4C-BD87-23A2-A8A4936A7C26";
+	rename -uid "02F184D7-3F4A-6694-FE16-E2A960FFB0CD";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34304,9 +34300,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "7AD670C7-6D49-39DF-59D8-55B3853E3504";
+	rename -uid "1D28E4F8-6840-6A05-A60B-A7A1EE75AF0A";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07";
-	rename -uid "98D2BD26-F74E-FE58-F37D-A69488AD8902";
+	rename -uid "0DE7D7E8-ED46-C7A0-B2A1-10A0F446EB57";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34325,9 +34321,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "47C0051F-A940-9A3C-6644-64AFEAE33A3F";
+	rename -uid "B55FC29E-5347-5C99-7C10-29873A53CC2B";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08";
-	rename -uid "C83F186D-F64A-6B45-CF4F-60BEBDE16264";
+	rename -uid "21999BEC-C842-FA77-239F-16AD8FADCA62";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34346,9 +34342,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "62D6B254-434D-A370-7B0E-B5B22D7AB99C";
+	rename -uid "A8D9B194-C44A-700D-B33B-C4AA2551ED82";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09";
-	rename -uid "13F59FAC-3C48-6A28-5388-76A85CCDC922";
+	rename -uid "1553B64E-6F49-A600-6138-61A7D4723161";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34367,9 +34363,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "E071BE54-1548-AAC7-0CFB-03A2C181F3C5";
+	rename -uid "BA360058-AE4D-BBDD-94AA-708636B6B0B2";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10";
-	rename -uid "D580031F-CB47-A35A-B51E-F29A814CC789";
+	rename -uid "BBF2141F-8F41-104B-84AA-5FB50AE56D58";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34388,9 +34384,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "98DC502F-9443-521A-D94A-92B292C570F3";
+	rename -uid "BB744A46-A84E-943A-01F2-37B2BD4F7B4D";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11";
-	rename -uid "7F77CAD2-E24D-EBBC-6559-5CBBB92B8EBC";
+	rename -uid "1E567410-D249-0F0D-AAB8-8CA91C837E97";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34409,9 +34405,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "DDED0D30-404A-2E20-5E4A-9A99FA44DF8A";
+	rename -uid "F963895C-A54A-D497-0F19-B383C1CDACB0";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12";
-	rename -uid "B2A1E816-A54F-4243-49D0-6C8C6199C593";
+	rename -uid "D4418BD5-8B45-562E-D3A7-E3A61AC56ECC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34430,9 +34426,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "F948A841-DB4D-742B-C056-CEB0A814E487";
+	rename -uid "CAE6DB6A-654F-12AE-7E34-84A76700DC9B";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13";
-	rename -uid "F02B7229-9D40-4FA2-C71D-0EBA519692A2";
+	rename -uid "A6EE5DAC-F343-356E-ECC8-F29A2E03B7C3";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34451,9 +34447,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "838B5E2D-BD48-71AE-6AAE-15B71EEF7DE2";
+	rename -uid "2A153D0C-F04A-67E7-5EB1-9E83ED3CE863";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14";
-	rename -uid "14B6BF0F-4F48-DE40-D952-58A1018C4D91";
+	rename -uid "87DCCD24-684D-00EC-9AFE-64865EC532EF";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34472,9 +34468,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "CA133AB2-544B-F45F-C952-999C14C67267";
+	rename -uid "8348C7A3-D54E-2D52-886A-7E85FE67D966";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15";
-	rename -uid "731E802B-B141-F122-2A3E-6F9D45D1657D";
+	rename -uid "E3A0CC15-4C4C-66CF-377D-EC91E1280AEB";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34493,9 +34489,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc";
-	rename -uid "A2051A23-1A4C-13E7-3953-E5BE81646C4D";
+	rename -uid "1FB54807-0840-D270-5479-77B9A5AEBC33";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16";
-	rename -uid "5353A443-BA41-7731-E40D-19902CEA283D";
+	rename -uid "EC5B5F6A-D84C-F3D5-945F-33AA5867C521";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34526,7 +34522,7 @@ createNode transform -n "dip_loc" -p "|rack1|holes|holeRot_07|holeTrans";
 createNode locator -n "dip_locShape" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
 	rename -uid "08CD094C-424A-CA69-4714-C2AC23FC28C5";
 	setAttr -k off ".v";
-createNode transform -n "pot_7_g_07" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
+createNode transform -n "pot_7_g_14" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
 	rename -uid "D3407EC1-E740-E049-E187-4B831D714378";
 	addAttr -ci true -uac -sn "sfPaintColor" -ln "sfPaintColor" -at "float3" -nc 3;
 	addAttr -ci true -sn "sfPaintColorR" -ln "sfPaintColorR" -at "float" -p "sfPaintColor";
@@ -34536,13 +34532,13 @@ createNode transform -n "pot_7_g_07" -p "|rack1|holes|holeRot_07|holeTrans|dip_l
 	addAttr -ci true -sn "sfPaintTravel" -ln "sfPaintTravel" -at "double";
 	addAttr -ci true -sn "sfPaintCustomId" -ln "sfPaintCustomId" -at "short";
 	addAttr -ci true -sn "sfPaintCode" -ln "sfPaintCode" -dt "string";
-	setAttr -k on ".sfPaintColor" -type "float3" 0.98823529 0.98823529 0.98823529 ;
+	setAttr -k on ".sfPaintColor" -type "float3" 0.92156863 0.92156863 0.92156863 ;
 	setAttr -k on ".sfPaintColor";
 	setAttr -k on ".sfPaintOpacity" 1;
 	setAttr -k on ".sfPaintTravel" 5;
 	setAttr -k on ".sfPaintCustomId" -1;
-	setAttr ".sfPaintCode" -type "string" "bg_07";
-createNode mesh -n "pot_7_g_07Shape" -p "pot_7_g_07";
+	setAttr ".sfPaintCode" -type "string" "g_15";
+createNode mesh -n "pot_7_g_14Shape" -p "pot_7_g_14";
 	rename -uid "446E630A-3444-E08B-B873-C7951FC6D779";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
@@ -34722,9 +34718,9 @@ createNode mesh -n "pot_7_g_07Shape" -p "pot_7_g_07";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "EEE7107D-A74F-4F99-D36C-CF9E4100A532";
+	rename -uid "2E0B1F55-144F-EEAC-A38A-3FB50F804B09";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00";
-	rename -uid "52280008-8D49-E62E-7B75-64AFD113B984";
+	rename -uid "3F55E80F-E54B-F782-7A96-548A1F86F7B6";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34743,9 +34739,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "F0D17595-9B40-A6A8-B4A3-F4993C961A41";
+	rename -uid "D2698F89-E24C-B739-C8F7-B998373FF5E7";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01";
-	rename -uid "8CCA523E-F845-588D-E05D-969BF1A2A64C";
+	rename -uid "808569D9-B046-3B30-40A3-2FBA91D845BB";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34764,9 +34760,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "2B037E4A-2145-0775-110C-F0BCD522277E";
+	rename -uid "977F5D18-9E41-5C4C-54BE-E4816CDF0683";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02";
-	rename -uid "08CF0427-484A-D8ED-8375-C990FFF48C4A";
+	rename -uid "1338ADE0-4241-0838-BA18-A8BC2634E5D3";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34785,9 +34781,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "DE8C27EE-9D45-F856-E10E-DD92D0C3AD44";
+	rename -uid "A863F663-0446-E55D-D1ED-599C923D64D3";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03";
-	rename -uid "2667C69B-7B49-8720-86C9-4A8F937E7F5C";
+	rename -uid "DAFE72DC-934D-7CD5-5B6A-82BE9F2E4F64";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34806,9 +34802,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "10EBF70E-1944-E154-05A2-B69982A4DB8C";
+	rename -uid "56C341A0-2B49-87F5-2A05-1C8C45BF20FC";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04";
-	rename -uid "F8644774-0644-6C4E-AB94-369B616250D1";
+	rename -uid "FA344943-874D-ADF2-F2D0-4A8FA3845DE7";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34827,9 +34823,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "3B100B8A-B146-CC73-97D4-BBBE2E9987F6";
+	rename -uid "12A84FDC-4F42-F6CE-1994-C8943DA165B3";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05";
-	rename -uid "E9D70DEF-1A45-AB27-5774-97BEAA4B5E57";
+	rename -uid "6764D89E-5F4C-E863-A4CA-F691BDFF15BE";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34848,9 +34844,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "4A9095D2-D443-3031-D787-1AB1CF227BFB";
+	rename -uid "D23369A4-A147-D225-DB40-5FB091A32CF7";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06";
-	rename -uid "F2EE7353-794B-94AF-A359-D8A40514F289";
+	rename -uid "A3455BCD-154B-5B79-21D0-18BA9E536F65";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34869,9 +34865,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "5E2CA167-9347-BE06-49AC-DC9C1689D8DE";
+	rename -uid "5BCB458B-3C4C-C70D-08D2-3A85412FCEA2";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07";
-	rename -uid "D6A21C4C-7240-C6FE-2D9F-1D97800C636B";
+	rename -uid "038DA4A9-2B43-4F4D-5FA9-34BDAEEACB4B";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34890,9 +34886,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "F2BDE7F3-9849-3943-0165-6F847F9550A8";
+	rename -uid "785C3A4A-C44D-8300-9EC2-F698DD42DF6C";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08";
-	rename -uid "EE81A641-594D-34D3-C70C-0F8E78A2C9D3";
+	rename -uid "7B144E10-2547-7428-36FF-9CA63149B17D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34911,9 +34907,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "AFA45F4F-A64A-D02C-F27C-2AAF6F9977F3";
+	rename -uid "6059B1BE-F644-EB3F-B6B8-068E243FFBE3";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09";
-	rename -uid "327602BE-0844-F84E-61CC-5CB3A4D775C5";
+	rename -uid "953E7216-854D-E3E1-E546-318C117B3A6D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34932,9 +34928,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "3765D5F0-0341-4F97-BABF-96A310C77654";
+	rename -uid "EC6E2323-994C-9C73-F1A3-84A710BA41A8";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10";
-	rename -uid "10F5FEE1-0C41-2367-BCC9-DF942FC4C94C";
+	rename -uid "B950B823-B647-AE0C-D011-FEA6F49965A2";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34953,9 +34949,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "B273BAF1-334A-C895-689A-9380D08CB74C";
+	rename -uid "1A83094C-4046-4A82-F070-D4B4B63572D4";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11";
-	rename -uid "9872A44A-8B4F-D272-7FCC-67AFF6FEA507";
+	rename -uid "11A95CD5-114A-ED29-F453-60A4BCBF7F37";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34974,9 +34970,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "E357E7C9-C445-26BD-36DC-1D904E6CB262";
+	rename -uid "A4BD6B94-0146-B58C-011B-0489AE1CB6FD";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12";
-	rename -uid "E5F5C31F-7742-FD6A-FEC7-4AB74EA9E85C";
+	rename -uid "A99F3419-DA47-A14E-BC8E-4693AAC06FB6";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -34995,9 +34991,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "B3027F2C-E949-473C-9327-0784A082E5BA";
+	rename -uid "A875EF8A-E141-E0EB-4175-C881D2126EBC";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13";
-	rename -uid "8AF819CB-904F-AFC1-4568-AE9324FFBADE";
+	rename -uid "924BAA71-1843-C608-29F7-51885B6BE701";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35016,9 +35012,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "4A706962-5543-E021-98F2-CAAA10F656DE";
+	rename -uid "D00656F1-BF43-E370-A3D6-3D8E30CD6E06";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14";
-	rename -uid "E6D406C9-994D-C2A8-3F2F-A0AF750B5BA2";
+	rename -uid "19275328-9A46-F425-9377-3283E68E8DEA";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35037,9 +35033,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "D068D2D4-834E-CE13-4B29-A28C40E7EDEA";
+	rename -uid "B33F0408-6445-BA16-5ACD-C5901F49624E";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15";
-	rename -uid "5860B97B-DC48-3FD1-DDFD-5E986FBA2BBC";
+	rename -uid "F9F42A15-1F4E-3470-0B60-FA9CB281A488";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35058,9 +35054,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc";
-	rename -uid "CDDDA1F3-C74F-BFCD-927E-E48166084DF2";
+	rename -uid "55581974-5E4E-15B4-7BD9-319383D98487";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16";
-	rename -uid "44F80479-7B4C-A51A-CA01-498111B37095";
+	rename -uid "736C9E5F-CE43-09F7-0905-448A381E8117";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35270,9 +35266,9 @@ createNode mesh -n "handleShape" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "9FE14D65-2448-87CC-657A-1D8742D35A9E";
+	rename -uid "E1E07AF2-3345-B43B-E648-4C85C6E3A12C";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00";
-	rename -uid "CD9DDDE4-834E-FC6C-1085-55B25D47B06B";
+	rename -uid "14108232-BA4D-A22B-0102-21A0F26C74AC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35291,9 +35287,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "1D846D0F-B849-4B69-DB62-F481D4879A5C";
+	rename -uid "72A246A7-E84E-F11E-68B5-C8A21BA80793";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01";
-	rename -uid "9856B8FB-A648-D0E2-E547-8095C4AAEB6B";
+	rename -uid "26338EA7-A649-FEB1-E513-3E96EB64E15D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35312,9 +35308,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "38B11C93-4F4A-DB0B-C003-DEB30376FAFE";
+	rename -uid "34F29CD8-564F-173D-38AD-2A806F6510CC";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02";
-	rename -uid "10BF9D6A-3E48-F072-907C-BC9DF6A3E92E";
+	rename -uid "CD762F9F-4B47-FA77-34EA-2AB5BCDAE7FC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35333,9 +35329,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "7686676A-5045-DCA5-4769-AB96F33124EB";
+	rename -uid "88004F0F-1742-C918-E977-0DB87C79A80A";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03";
-	rename -uid "E5D66C6A-614B-00C3-0227-51B4265FE193";
+	rename -uid "0013C345-A948-4C0C-1EA8-23A2C63E9BA5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35354,9 +35350,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "D6219C6F-2F4D-8489-6559-4D8DA5637F46";
+	rename -uid "61FCDA0D-2944-52F0-39AA-9591EAEBFF24";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04";
-	rename -uid "7FE7E52F-F249-AF8A-2092-758B1BDD40B7";
+	rename -uid "D44C7D63-C841-5094-B3CF-3E8EA216E403";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35375,9 +35371,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "C1D359ED-9C45-1C38-E55D-949027D6AE22";
+	rename -uid "F34C5E3D-9D48-D121-D139-D883C55A8A69";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05";
-	rename -uid "65CB9D36-EF49-2D79-E15D-23B63C31C853";
+	rename -uid "B4AC3E2D-164C-49F7-13D4-46B8AF214976";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35396,9 +35392,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "8EF64FF8-7A46-B980-DE3F-25A19B87469C";
+	rename -uid "7D757F54-C94B-F465-7DBB-B38187848613";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06";
-	rename -uid "FCED2BA3-024D-2023-6EF7-93A310527145";
+	rename -uid "882A2AFC-724B-422D-51AC-C389AB2C2B37";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35417,9 +35413,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "F5FE99D9-3441-3657-94BE-1B8FABE15A5B";
+	rename -uid "2482088A-4A44-5B5E-B92F-6096B0F09850";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07";
-	rename -uid "2FBB97C7-B94F-45AA-DEE9-A8B5580097EE";
+	rename -uid "8AF4FCB0-4C49-5162-E383-199861EEAFD7";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35438,9 +35434,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "F66E0181-FD40-762F-2BCF-EFB086E7FD14";
+	rename -uid "9E223587-AF45-3EA9-3F1B-5F9870D574EF";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08";
-	rename -uid "886E87DE-324B-20ED-D67F-EFB57D564394";
+	rename -uid "012BF701-4D43-AB24-6022-E0A6DEC8F664";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35459,9 +35455,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "C9741023-ED47-F771-DC80-69A1B9BD5650";
+	rename -uid "71CAD519-FC49-7214-0429-709310E60FC6";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09";
-	rename -uid "3F817A04-7A41-75C5-8CBA-59AE785D2432";
+	rename -uid "C2735C9C-D743-A130-99B0-AF93DEB72054";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35480,9 +35476,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "478E146E-4649-EE55-A7BD-3F8F680F89AD";
+	rename -uid "D69B8CB4-7547-AC22-7346-62AB63FD4809";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10";
-	rename -uid "731D2FE7-1146-76B5-72C3-83BB2545023C";
+	rename -uid "32C397DC-AC4A-EA45-95F2-48B1A6DD712D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35501,9 +35497,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "2BB7E958-5A45-3813-4556-CDB80E21D29A";
+	rename -uid "3B50A4EF-6F48-F320-2263-53B553544CEB";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11";
-	rename -uid "4555CA69-0047-2794-7969-EEA553B15DD0";
+	rename -uid "CAC501E1-BB4B-763A-12A6-DBA8297E0988";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35522,9 +35518,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "DD2D7D0D-AD42-C987-B161-73ACBD3C2C1E";
+	rename -uid "00ED5CB8-8341-9885-77E2-51A37097C06F";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12";
-	rename -uid "0DEE5BFB-2B49-27DD-548D-AB85388E2521";
+	rename -uid "5A9984FF-D142-DC39-D034-77996DD89AD7";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35543,9 +35539,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "D56A42CC-0147-0472-9BF7-FB9B2BDFCE76";
+	rename -uid "DE27E510-4241-F6D7-3888-0E8EFD4F6C11";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13";
-	rename -uid "3E6BE000-9040-E51E-2698-CEB99E2AA660";
+	rename -uid "431E4313-124E-9563-9C49-AB9DBB0F0921";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35564,9 +35560,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "FA4DCC93-1E42-D701-B524-D7B2AF5FAD27";
+	rename -uid "02F71349-034E-DCE2-8ED3-FAA1708925FD";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14";
-	rename -uid "0595A71F-7945-92C1-8B6C-56ACDC3BD5A5";
+	rename -uid "3054C979-064C-2799-D050-4C93F3ACEDD9";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35585,9 +35581,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "5508DEF6-AD47-B382-7E6F-CBBF818DE54C";
+	rename -uid "9D4F6C23-474F-F061-6378-0EAD91E777DB";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15";
-	rename -uid "00D2484D-6F40-9041-60B0-7189BDE98DDE";
+	rename -uid "6E3E382F-2D47-3650-C70B-4394F338E615";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35606,9 +35602,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc";
-	rename -uid "96A578D0-E249-0180-E388-E9B37E34943D";
+	rename -uid "5F87A12A-8148-5D58-2BD7-3DB21615AF2D";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16";
-	rename -uid "0B04F9EC-8544-20F7-D1B4-E9BA8AC5BEDD";
+	rename -uid "A155820B-4047-2FF8-3D78-D6B1772E254C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35639,7 +35635,7 @@ createNode transform -n "dip_loc" -p "|rack1|holes|holeRot_08|holeTrans";
 createNode locator -n "dip_locShape" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
 	rename -uid "4C83FCA5-FF4E-63BA-3153-938E46BD4345";
 	setAttr -k off ".v";
-createNode transform -n "pot_8_g_08" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
+createNode transform -n "pot_8_g_15" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
 	rename -uid "B2DFA553-1C41-B03E-A552-8798005241B3";
 	addAttr -ci true -uac -sn "sfPaintColor" -ln "sfPaintColor" -at "float3" -nc 3;
 	addAttr -ci true -sn "sfPaintColorR" -ln "sfPaintColorR" -at "float" -p "sfPaintColor";
@@ -35649,12 +35645,13 @@ createNode transform -n "pot_8_g_08" -p "|rack1|holes|holeRot_08|holeTrans|dip_l
 	addAttr -ci true -sn "sfPaintTravel" -ln "sfPaintTravel" -at "double";
 	addAttr -ci true -sn "sfPaintCustomId" -ln "sfPaintCustomId" -at "short";
 	addAttr -ci true -sn "sfPaintCode" -ln "sfPaintCode" -dt "string";
+	setAttr -k on ".sfPaintColor" -type "float3" 0.98431373 0.98431373 0.98431373 ;
 	setAttr -k on ".sfPaintColor";
 	setAttr -k on ".sfPaintOpacity" 1;
 	setAttr -k on ".sfPaintTravel" 5;
 	setAttr -k on ".sfPaintCustomId" -1;
-	setAttr ".sfPaintCode" -type "string" "fg_00";
-createNode mesh -n "pot_8_g_08Shape" -p "pot_8_g_08";
+	setAttr ".sfPaintCode" -type "string" "g_16";
+createNode mesh -n "pot_8_g_15Shape" -p "pot_8_g_15";
 	rename -uid "0471B386-5B4C-3508-F7BD-BF812F24E103";
 	setAttr -k off ".v";
 	setAttr ".vir" yes;
@@ -35834,9 +35831,9 @@ createNode mesh -n "pot_8_g_08Shape" -p "pot_8_g_08";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".dr" 1;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "58CD0379-9243-8411-4F66-F29F3D5227FB";
+	rename -uid "EEF2AF88-0B4F-CD4F-10D7-C7AAC8D3094A";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00";
-	rename -uid "9EF8309A-B142-F6E4-2C33-728D010234B2";
+	rename -uid "89604569-A242-63A0-3781-A993456AA7ED";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35855,9 +35852,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "672B3F1A-6944-BC7D-0431-C0802F3748A3";
+	rename -uid "D0EC6CCB-AE4C-D2AD-1D49-0AB3D072A54E";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01";
-	rename -uid "D9419B63-3D42-3FB2-1A67-4BB25CC731A2";
+	rename -uid "0E9238CD-6648-E79D-B923-609D2CD6F1E2";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35876,9 +35873,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "EE34F046-724F-1B13-DE56-56BB9B537B6A";
+	rename -uid "C61C994D-E64D-F76B-246F-C3A569CA1852";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02";
-	rename -uid "741059C9-9540-658A-44E7-0C8EC7037BE5";
+	rename -uid "A036EE31-B440-9F51-C194-1BA7560BCE3D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35897,9 +35894,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "89B69CFD-504D-FB4E-9761-C6865E5723DD";
+	rename -uid "F7724F98-BF41-45FE-842C-43A53C047BCF";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03";
-	rename -uid "0E79ABCD-B74F-04D9-6BBD-AEA524315DBA";
+	rename -uid "D3A6677F-F648-4DC3-3522-2CB25E4E8C3E";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35918,9 +35915,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "AD0F7BED-974F-363E-A441-8D958EE1FD04";
+	rename -uid "08F4BC44-6A40-C9FB-07DB-1483E8B1C307";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04";
-	rename -uid "D670B19E-D14F-629F-E6E2-2DB92DF80B1C";
+	rename -uid "4BBDF9ED-3349-83E9-4D25-B09C6A7F5E1A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35939,9 +35936,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "CD835012-AE46-EA33-F714-3EA808718FF9";
+	rename -uid "A57DAA5E-7745-3EE9-CA6A-E3BCBD8DE9AE";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05";
-	rename -uid "D3927F23-2C4B-0B08-EB48-EC88FB27490C";
+	rename -uid "B86EEAD6-EC4F-B645-317C-8987B1B73FA5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35960,9 +35957,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "4466DCC4-4649-ADBD-A81C-579E4126B2FE";
+	rename -uid "494F4791-534C-CFBD-A829-D2A33E5005FD";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06";
-	rename -uid "7DD3F1C2-8742-2B2A-098A-D399266502C7";
+	rename -uid "1AD0B3CD-594F-B5B6-C368-27AEBB3A7465";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -35981,9 +35978,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "CE27DC85-2D49-A022-6390-36ADB2C074D3";
+	rename -uid "6F59CBE3-7741-DDA1-21A8-C4A07C4802DA";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07";
-	rename -uid "5ED11E9A-6945-A70E-30F6-20831076607E";
+	rename -uid "24E51604-444C-31EE-D3B0-20A92DB1E24F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36002,9 +35999,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "4E29E211-A247-F4BD-35F7-14950A7AA801";
+	rename -uid "EE13BBDE-1349-A821-7BE2-AA84F241FF9D";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08";
-	rename -uid "917A060F-F74F-7D84-02DE-BC865206F26B";
+	rename -uid "B8C61E03-9741-88E8-3FE7-74AB45BE49FC";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36023,9 +36020,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "3FB072E6-F946-6B78-E9A1-B1B2253C4407";
+	rename -uid "239EB39E-4541-040F-7BA3-A9803856CDDB";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09";
-	rename -uid "A0DE0717-034C-B9FC-62F7-D7BA4EC6AEE9";
+	rename -uid "4E85F3ED-7C43-3FA0-F92F-95BBCF4BB525";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36044,9 +36041,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "C450F3FE-C348-10B8-E6BD-289C5D256D29";
+	rename -uid "3B00E630-0A44-AB65-21CE-FD86F483DEF6";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10";
-	rename -uid "EDF4323D-1444-C2FA-64C2-02BF6B6A2F3F";
+	rename -uid "A47DB306-4E48-E099-A3A9-08879B25C924";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36065,9 +36062,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "12B54176-BC4B-68F6-9FAD-49BA3E445683";
+	rename -uid "6E25ED4A-AE46-AFBC-95FC-C3AD86F17A92";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11";
-	rename -uid "AD3FE054-FB41-D7E6-B1C6-D48691160F11";
+	rename -uid "9967B1E0-F44F-3361-2C7A-85A3D53A0F36";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36086,9 +36083,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "540412DA-E447-5DE4-9A70-7DA17478C7A5";
+	rename -uid "B4C79D13-E94A-E101-F0A0-E6B0BF79CF48";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12";
-	rename -uid "933628AB-E440-5489-6551-80A50436A439";
+	rename -uid "8184947C-AA48-1717-3583-FE91CD7CDD09";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36107,9 +36104,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "85589D87-164A-BC63-14BA-38B77650F779";
+	rename -uid "22066375-CD46-E186-9BD3-83AFDCC553F6";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13";
-	rename -uid "12B15A40-4C42-BEAC-4543-EE9003A6F216";
+	rename -uid "68F88C60-E84E-3792-3688-B89F0EB330F5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36128,9 +36125,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "D07317CD-C541-E8C1-920F-0D8037A6B590";
+	rename -uid "D768C921-7E46-FAA8-173A-1C80518EF12A";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14";
-	rename -uid "F06D5BDF-A74B-C788-2B7F-6E8CE554F1E6";
+	rename -uid "8A692DDD-EB46-FDBA-D443-83AB3F54A9F5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36149,9 +36146,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "F8AF603C-4543-16EA-5764-82A71A35AB65";
+	rename -uid "43A44C31-3F45-FEEE-DEB4-B9A79156BE09";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15";
-	rename -uid "71D1B1DE-B145-D5B4-C244-1597C5F18E77";
+	rename -uid "5D5C41FB-3F48-9EAD-35A7-87A6E3A100AB";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36170,9 +36167,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc";
-	rename -uid "DD1EF1B4-EA40-CE9A-7CB2-8B9DCCE3CE1F";
+	rename -uid "F673A0CA-434D-8B7F-BFDD-23957BF9A9BD";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16";
-	rename -uid "A9F222BA-6449-4888-5B54-219DCE8D6F2E";
+	rename -uid "8702AC6A-B84E-8C15-1C47-C5B45213333A";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36383,9 +36380,9 @@ createNode mesh -n "handleShape" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode transform -n "b00" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "3DF20570-9940-166B-BCF6-CB9BBFB54334";
+	rename -uid "7445D31D-FE4B-0240-040F-7EAE3A20C8A4";
 createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00";
-	rename -uid "68BEDA8A-D442-C1A7-0182-13970B4DFC63";
+	rename -uid "044AB2AB-E748-6452-0F9B-CD860AC64656";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36404,9 +36401,9 @@ createNode painting -n "b0Shape0" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b01" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "2FF4CD0C-994C-8E5F-BCC0-749B812F9660";
+	rename -uid "6EFB2CE4-3C48-8103-D19D-8EA030ED4798";
 createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01";
-	rename -uid "97DD0D38-3243-93E7-37D1-70AF52A2BCC9";
+	rename -uid "D0AD4946-4A46-EF30-DD65-5289D3F1E739";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36425,9 +36422,9 @@ createNode painting -n "b0Shape1" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b02" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "B071C9CC-184F-5B6C-BBE9-E1B063A9EEFF";
+	rename -uid "87344BD2-EA41-6A4B-1A87-248581EEF0C7";
 createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02";
-	rename -uid "9D26CA0B-EB4A-32A6-509A-36B11DC31999";
+	rename -uid "A04AE7D0-1345-83E5-C70F-96975BB08D82";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36446,9 +36443,9 @@ createNode painting -n "b0Shape2" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b03" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "27F3480E-7A45-90DE-1A6A-818022E3CE54";
+	rename -uid "2E14076C-D54C-40F8-799F-A9BB44F63AFA";
 createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03";
-	rename -uid "C60C4A8D-6742-0D39-5C06-2B9B953493C7";
+	rename -uid "9A8F1D41-2E4E-55BA-390B-F083E85A13E4";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36467,9 +36464,9 @@ createNode painting -n "b0Shape3" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b04" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "B989F2FF-0B40-D3A2-E2CF-3581214EFCCE";
+	rename -uid "6F0DB8A6-5742-E72A-B154-9DA1945E9987";
 createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04";
-	rename -uid "2B603D8F-6C43-39FF-7F71-778681D70215";
+	rename -uid "FADCF2E0-A440-C993-F3C1-309067B4C6D0";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36488,9 +36485,9 @@ createNode painting -n "b0Shape4" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b05" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "485137AB-534F-1F4E-BFCC-CFABB97CAA88";
+	rename -uid "7E891777-BB4A-F4D7-97FA-308BE0718C54";
 createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05";
-	rename -uid "EF91BBB8-2448-1F28-9E16-D485320F4A27";
+	rename -uid "998FF38F-D74D-2134-E752-6DA37309BFE6";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36509,9 +36506,9 @@ createNode painting -n "b0Shape5" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b06" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "CE30F2E1-FC4F-A37E-B949-728AFFB51AEA";
+	rename -uid "FBCCE697-0745-F3CF-703B-B6A0D2627B12";
 createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06";
-	rename -uid "9C612618-434D-5A27-C81A-15B322ABA102";
+	rename -uid "B1A3182B-2240-88A8-00E9-499AF10B5361";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36530,9 +36527,9 @@ createNode painting -n "b0Shape6" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b07" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "06BBB9D7-FF47-E778-CE3C-80B6076D5A36";
+	rename -uid "288F039C-B445-F0EA-11A9-B4B3C5647521";
 createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07";
-	rename -uid "FDC43028-BA44-D1A7-DB13-D2B7AB073D58";
+	rename -uid "C53DB396-FE49-B8A7-E9F5-7792A02608EA";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36551,9 +36548,9 @@ createNode painting -n "b0Shape7" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b08" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "BE4EF38B-3E49-DDBE-EA01-008E86700F98";
+	rename -uid "21BA1221-C447-197C-1F8C-72AA7CE52232";
 createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08";
-	rename -uid "B497E802-1241-3ACD-29D7-6F8534AD78E0";
+	rename -uid "0A5812D9-7643-2315-B6D0-3FB5A70E8825";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36572,9 +36569,9 @@ createNode painting -n "b0Shape8" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b09" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "D3D7E16A-094B-4C9E-ED29-B49BF7D7D03B";
+	rename -uid "1F93ACB1-4545-C06E-FDDD-7693168F94A7";
 createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09";
-	rename -uid "CC14D498-3647-A3E7-B5FD-109836CEDDCA";
+	rename -uid "08C1021C-8F4C-8581-807F-15BEF7FBA1D5";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36593,9 +36590,9 @@ createNode painting -n "b0Shape9" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b10" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "2A9DC47A-8E45-C987-AB22-AB921F2DD83D";
+	rename -uid "9641540D-6D4E-AA01-D768-BBA9CC0CD170";
 createNode painting -n "bShape10" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10";
-	rename -uid "4C31D19C-4146-EE52-A261-3984A1651D31";
+	rename -uid "2D69D825-764B-3CB7-378E-3E88C32E680D";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36614,9 +36611,9 @@ createNode painting -n "bShape10" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b11" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "6CBB51E5-9643-2D87-337B-C8BFD4246015";
+	rename -uid "DAD464F7-3446-24CA-6669-A495AF926FAA";
 createNode painting -n "bShape11" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11";
-	rename -uid "EF7D0894-BB44-EC97-2710-69881D6190CC";
+	rename -uid "DD855320-5B44-1F8C-FEE5-10BD4BF5FF6C";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36635,9 +36632,9 @@ createNode painting -n "bShape11" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b12" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "8EB40B73-1744-7131-750D-1495CF7D434B";
+	rename -uid "94E0DF75-B149-27B7-1644-10B1FAFE776D";
 createNode painting -n "bShape12" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12";
-	rename -uid "7BC0445C-9F47-0C56-BE73-34B5478E558D";
+	rename -uid "F64C1F93-C34D-85D8-F4BE-9188473C49A8";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36656,9 +36653,9 @@ createNode painting -n "bShape12" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b13" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "5B2DFCA9-F648-607F-7C89-51B2332B281B";
+	rename -uid "DEF357FF-764F-6B17-CE8A-1E87B830D63F";
 createNode painting -n "bShape13" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13";
-	rename -uid "D1A49492-2849-19C9-E1CA-9A9B412C30F3";
+	rename -uid "9933263A-E24E-6826-C336-DCA411F661F9";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36677,9 +36674,9 @@ createNode painting -n "bShape13" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b14" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "D8D57D96-7C45-2466-6550-DB9CEA894EC2";
+	rename -uid "E37DACEA-4145-BF83-1270-018E66395C63";
 createNode painting -n "bShape14" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14";
-	rename -uid "E404FD82-1049-014D-3B4E-819AA1CAECD7";
+	rename -uid "6AC79FAD-9748-B8EA-8A05-A09BFB947E59";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36698,9 +36695,9 @@ createNode painting -n "bShape14" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b15" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "0DC2FF6C-1A49-E01A-1CFA-13A8FC4ABE2B";
+	rename -uid "2DDEAB67-3742-340C-BCF6-EEACBF696363";
 createNode painting -n "bShape15" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15";
-	rename -uid "F7D713F8-E04A-0311-D63F-B28F5BBE91D1";
+	rename -uid "C1D8C42E-974D-684E-1257-ECA7BD33CB6F";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -36719,9 +36716,9 @@ createNode painting -n "bShape15" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc
 	setAttr ".dptid" no;
 	setAttr ".drpid" no;
 createNode transform -n "b16" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc";
-	rename -uid "DE10D68A-E444-5CDA-EA53-16AE7F0C89F5";
+	rename -uid "ACB7C9DF-D248-AF01-A19F-CBAB59EDD04E";
 createNode painting -n "bShape16" -p "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16";
-	rename -uid "5D780B04-B04A-2187-0A69-C5B0D73AAD32";
+	rename -uid "CA57F173-0043-022E-8272-7D89910F1235";
 	setAttr -k off ".v";
 	setAttr ".agsp" 70;
 	setAttr ".apxd" 2;
@@ -41152,8 +41149,8 @@ createNode painting -n "paintingShape2" -p "painting2";
 	setAttr ".drpid" no;
 createNode transform -n "pPlane1";
 	rename -uid "95D99CA9-374F-476E-20EA-AD8B9A1B1D29";
-	setAttr ".t" -type "double3" -35.282894235610399 -31.983743696504039 -3.5113921259271272 ;
-	setAttr ".s" -type "double3" 67.992292 91.10967 57.810922 ;
+	setAttr ".t" -type "double3" -30 -30 -3 ;
+	setAttr ".s" -type "double3" 60 60 60 ;
 createNode mesh -n "pPlaneShape1" -p "pPlane1";
 	rename -uid "20D9AFFB-7E45-EBA6-7F96-DAAA5A3DFD98";
 	setAttr -k off ".v";
@@ -41185,25 +41182,25 @@ createNode locator -n "locatorShape1" -p "locator1";
 	rename -uid "C047E11C-B049-9C4F-51D6-6C83BA571BBF";
 	setAttr -k off ".v";
 createNode lightLinker -s -n "lightLinker1";
-	rename -uid "BD03A265-B14E-25D4-E7CD-569D207D4395";
+	rename -uid "D3284417-284A-6CEE-48D9-748DABBCAB99";
 	setAttr -s 19 ".lnk";
 	setAttr -s 19 ".slnk";
 createNode displayLayerManager -n "layerManager";
-	rename -uid "E2117BA1-454E-08DD-6AAD-D789E44F1FEC";
+	rename -uid "89730156-8848-36EF-2C57-FD92BAED3250";
 	setAttr ".cdl" 5;
 	setAttr -s 8 ".dli[1:7]"  1 7 2 3 4 5 6;
 	setAttr -s 8 ".dli";
 createNode displayLayer -n "defaultLayer";
 	rename -uid "6A80EA64-4749-419F-EF64-5799265E621A";
 createNode renderLayerManager -n "renderLayerManager";
-	rename -uid "8A824B7D-B942-CAA0-7426-A5A7A3AB3100";
+	rename -uid "5391E18D-1B4A-967D-FA5B-0A83A2E9379F";
 createNode renderLayer -n "defaultRenderLayer";
 	rename -uid "CDB1CE57-F341-2F5A-536C-B69783E1D135";
 	setAttr ".g" yes;
 createNode shapeEditorManager -n "shapeEditorManager";
-	rename -uid "D62A7159-7B41-1BFE-6904-6CB56E157B33";
+	rename -uid "B08D1C5B-2A45-C293-6ACF-95B6DDB841CC";
 createNode poseInterpolatorManager -n "poseInterpolatorManager";
-	rename -uid "7FD7A57E-524B-9C52-6E7E-8F87C7B701E9";
+	rename -uid "8FC5BF05-1F49-5A49-9AEF-4186E8A4F74E";
 createNode script -n "uiConfigurationScriptNode";
 	rename -uid "57F8CCD8-BE49-3F33-0A35-13874037C68D";
 	setAttr ".b" -type "string" (
@@ -41217,9 +41214,9 @@ createNode script -n "uiConfigurationScriptNode";
 		+ "\t\t$editorName = $panelName;\n        modelEditor -e \n            -camera \"front\" \n            -useInteractiveMode 0\n            -displayLights \"default\" \n            -displayAppearance \"smoothShaded\" \n            -activeOnly 0\n            -ignorePanZoom 0\n            -wireframeOnShaded 0\n            -headsUpDisplay 1\n            -holdOuts 1\n            -selectionHiliteDisplay 1\n            -useDefaultMaterial 0\n            -bufferMode \"double\" \n            -twoSidedLighting 0\n            -backfaceCulling 0\n            -xray 0\n            -jointXray 0\n            -activeComponentsXray 0\n            -displayTextures 0\n            -smoothWireframe 0\n            -lineWidth 1\n            -textureAnisotropic 0\n            -textureHilight 1\n            -textureSampling 2\n            -textureDisplay \"modulate\" \n            -textureMaxSize 16384\n            -fogging 0\n            -fogSource \"fragment\" \n            -fogMode \"linear\" \n            -fogStart 0\n            -fogEnd 100\n            -fogDensity 0.1\n            -fogColor 0.5 0.5 0.5 1 \n"
 		+ "            -depthOfFieldPreview 1\n            -maxConstantTransparency 1\n            -rendererName \"vp2Renderer\" \n            -objectFilterShowInHUD 1\n            -isFiltered 0\n            -colorResolution 256 256 \n            -bumpResolution 512 512 \n            -textureCompression 0\n            -transparencyAlgorithm \"frontAndBackCull\" \n            -transpInShadows 0\n            -cullingOverride \"none\" \n            -lowQualityLighting 0\n            -maximumNumHardwareLights 1\n            -occlusionCulling 0\n            -shadingModel 0\n            -useBaseRenderer 0\n            -useReducedRenderer 0\n            -smallObjectCulling 0\n            -smallObjectThreshold -1 \n            -interactiveDisableShadows 0\n            -interactiveBackFaceCull 0\n            -sortTransparent 1\n            -nurbsCurves 1\n            -nurbsSurfaces 0\n            -polymeshes 0\n            -subdivSurfaces 0\n            -planes 0\n            -lights 0\n            -cameras 0\n            -controlVertices 0\n            -hulls 0\n            -grid 0\n"
 		+ "            -imagePlane 1\n            -joints 0\n            -ikHandles 0\n            -deformers 0\n            -dynamics 0\n            -particleInstancers 0\n            -fluids 0\n            -hairSystems 0\n            -follicles 0\n            -nCloths 0\n            -nParticles 0\n            -nRigids 0\n            -dynamicConstraints 0\n            -locators 0\n            -manipulators 1\n            -pluginShapes 0\n            -dimensions 0\n            -handles 0\n            -pivots 0\n            -textures 0\n            -strokes 0\n            -motionTrails 0\n            -clipGhosts 0\n            -greasePencils 0\n            -shadows 0\n            -captureSequenceNumber -1\n            -width 1\n            -height 1\n            -sceneRenderFilter 0\n            $editorName;\n        modelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"modelPanel\" (localizedPanelLabel(\"Persp View\")) `;\n\tif (\"\" != $panelName) {\n"
-		+ "\t\t$label = `panel -q -label $panelName`;\n\t\tmodelPanel -edit -l (localizedPanelLabel(\"Persp View\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        modelEditor -e \n            -camera \"top1\" \n            -useInteractiveMode 0\n            -displayLights \"default\" \n            -displayAppearance \"smoothShaded\" \n            -activeOnly 0\n            -ignorePanZoom 0\n            -wireframeOnShaded 1\n            -headsUpDisplay 1\n            -holdOuts 1\n            -selectionHiliteDisplay 1\n            -useDefaultMaterial 0\n            -bufferMode \"double\" \n            -twoSidedLighting 0\n            -backfaceCulling 0\n            -xray 0\n            -jointXray 0\n            -activeComponentsXray 0\n            -displayTextures 0\n            -smoothWireframe 0\n            -lineWidth 1\n            -textureAnisotropic 0\n            -textureHilight 1\n            -textureSampling 2\n            -textureDisplay \"modulate\" \n            -textureMaxSize 16384\n            -fogging 0\n            -fogSource \"fragment\" \n"
-		+ "            -fogMode \"linear\" \n            -fogStart 0\n            -fogEnd 100\n            -fogDensity 0.1\n            -fogColor 0.5 0.5 0.5 1 \n            -depthOfFieldPreview 1\n            -maxConstantTransparency 1\n            -rendererName \"base_OpenGL_Renderer\" \n            -objectFilterShowInHUD 1\n            -isFiltered 0\n            -colorResolution 256 256 \n            -bumpResolution 512 512 \n            -textureCompression 0\n            -transparencyAlgorithm \"frontAndBackCull\" \n            -transpInShadows 0\n            -cullingOverride \"none\" \n            -lowQualityLighting 0\n            -maximumNumHardwareLights 1\n            -occlusionCulling 0\n            -shadingModel 0\n            -useBaseRenderer 0\n            -useReducedRenderer 0\n            -smallObjectCulling 0\n            -smallObjectThreshold -1 \n            -interactiveDisableShadows 0\n            -interactiveBackFaceCull 0\n            -sortTransparent 1\n            -nurbsCurves 0\n            -nurbsSurfaces 0\n            -polymeshes 1\n"
-		+ "            -subdivSurfaces 1\n            -planes 1\n            -lights 0\n            -cameras 0\n            -controlVertices 1\n            -hulls 0\n            -grid 1\n            -imagePlane 0\n            -joints 0\n            -ikHandles 0\n            -deformers 0\n            -dynamics 0\n            -particleInstancers 0\n            -fluids 0\n            -hairSystems 0\n            -follicles 0\n            -nCloths 0\n            -nParticles 0\n            -nRigids 0\n            -dynamicConstraints 0\n            -locators 1\n            -manipulators 1\n            -pluginShapes 0\n            -dimensions 0\n            -handles 0\n            -pivots 0\n            -textures 0\n            -strokes 0\n            -motionTrails 0\n            -clipGhosts 0\n            -greasePencils 0\n            -shadows 0\n            -captureSequenceNumber -1\n            -width 1076\n            -height 1044\n            -sceneRenderFilter 0\n            $editorName;\n        modelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n"
+		+ "\t\t$label = `panel -q -label $panelName`;\n\t\tmodelPanel -edit -l (localizedPanelLabel(\"Persp View\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        modelEditor -e \n            -camera \"top1\" \n            -useInteractiveMode 0\n            -displayLights \"default\" \n            -displayAppearance \"wireframe\" \n            -activeOnly 0\n            -ignorePanZoom 0\n            -wireframeOnShaded 1\n            -headsUpDisplay 1\n            -holdOuts 1\n            -selectionHiliteDisplay 1\n            -useDefaultMaterial 0\n            -bufferMode \"double\" \n            -twoSidedLighting 0\n            -backfaceCulling 0\n            -xray 0\n            -jointXray 0\n            -activeComponentsXray 0\n            -displayTextures 0\n            -smoothWireframe 0\n            -lineWidth 1\n            -textureAnisotropic 0\n            -textureHilight 1\n            -textureSampling 2\n            -textureDisplay \"modulate\" \n            -textureMaxSize 16384\n            -fogging 0\n            -fogSource \"fragment\" \n"
+		+ "            -fogMode \"linear\" \n            -fogStart 0\n            -fogEnd 100\n            -fogDensity 0.1\n            -fogColor 0.5 0.5 0.5 1 \n            -depthOfFieldPreview 1\n            -maxConstantTransparency 1\n            -rendererName \"base_OpenGL_Renderer\" \n            -objectFilterShowInHUD 1\n            -isFiltered 0\n            -colorResolution 256 256 \n            -bumpResolution 512 512 \n            -textureCompression 0\n            -transparencyAlgorithm \"frontAndBackCull\" \n            -transpInShadows 0\n            -cullingOverride \"none\" \n            -lowQualityLighting 0\n            -maximumNumHardwareLights 1\n            -occlusionCulling 0\n            -shadingModel 0\n            -useBaseRenderer 0\n            -useReducedRenderer 0\n            -smallObjectCulling 0\n            -smallObjectThreshold -1 \n            -interactiveDisableShadows 0\n            -interactiveBackFaceCull 0\n            -sortTransparent 1\n            -nurbsCurves 0\n            -nurbsSurfaces 0\n            -polymeshes 0\n"
+		+ "            -subdivSurfaces 1\n            -planes 1\n            -lights 0\n            -cameras 0\n            -controlVertices 1\n            -hulls 0\n            -grid 0\n            -imagePlane 0\n            -joints 0\n            -ikHandles 0\n            -deformers 0\n            -dynamics 0\n            -particleInstancers 0\n            -fluids 0\n            -hairSystems 0\n            -follicles 0\n            -nCloths 0\n            -nParticles 0\n            -nRigids 0\n            -dynamicConstraints 0\n            -locators 1\n            -manipulators 1\n            -pluginShapes 0\n            -dimensions 0\n            -handles 0\n            -pivots 0\n            -textures 0\n            -strokes 0\n            -motionTrails 0\n            -clipGhosts 0\n            -greasePencils 0\n            -shadows 0\n            -captureSequenceNumber -1\n            -width 1734\n            -height 1044\n            -sceneRenderFilter 0\n            $editorName;\n        modelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n"
 		+ "\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"outlinerPanel\" (localizedPanelLabel(\"ToggledOutliner\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\toutlinerPanel -edit -l (localizedPanelLabel(\"ToggledOutliner\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        outlinerEditor -e \n            -showShapes 1\n            -showAssignedMaterials 0\n            -showTimeEditor 1\n            -showReferenceNodes 0\n            -showReferenceMembers 0\n            -showAttributes 0\n            -showConnected 0\n            -showAnimCurvesOnly 0\n            -showMuteInfo 0\n            -organizeByLayer 1\n            -showAnimLayerWeight 1\n            -autoExpandLayers 1\n            -autoExpand 0\n            -showDagOnly 1\n            -showAssets 1\n            -showContainedOnly 1\n            -showPublishedAsConnected 0\n            -showContainerContents 1\n            -ignoreDagHierarchy 0\n            -expandConnections 0\n            -showUpstreamCurves 1\n"
 		+ "            -showUnitlessCurves 1\n            -showCompounds 1\n            -showLeafs 1\n            -showNumericAttrsOnly 0\n            -highlightActive 1\n            -autoSelectNewObjects 0\n            -doNotSelectNewObjects 0\n            -dropIsParent 1\n            -transmitFilters 0\n            -setFilter \"defaultSetFilter\" \n            -showSetMembers 1\n            -allowMultiSelection 1\n            -alwaysToggleSelect 0\n            -directSelect 0\n            -isSet 0\n            -isSetMember 0\n            -displayMode \"DAG\" \n            -expandObjects 0\n            -setsIgnoreFilters 1\n            -containersIgnoreFilters 0\n            -editAttrName 0\n            -showAttrValues 0\n            -highlightSecondary 0\n            -showUVAttrsOnly 0\n            -showTextureNodesOnly 0\n            -attrAlphaOrder \"default\" \n            -animLayerFilterOptions \"allAffecting\" \n            -sortOrder \"none\" \n            -longNames 0\n            -niceNames 1\n            -showNamespace 1\n            -showPinIcons 0\n"
 		+ "            -mapMotionTrails 0\n            -ignoreHiddenAttribute 0\n            -ignoreOutlinerColor 0\n            -renderFilterVisible 0\n            -renderFilterIndex 0\n            -selectionOrder \"chronological\" \n            -expandAttribute 0\n            $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"outlinerPanel\" (localizedPanelLabel(\"Outliner\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\toutlinerPanel -edit -l (localizedPanelLabel(\"Outliner\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        outlinerEditor -e \n            -showShapes 1\n            -showAssignedMaterials 0\n            -showTimeEditor 1\n            -showReferenceNodes 0\n            -showReferenceMembers 0\n            -showAttributes 0\n            -showConnected 0\n            -showAnimCurvesOnly 0\n            -showMuteInfo 0\n            -organizeByLayer 1\n            -showAnimLayerWeight 1\n            -autoExpandLayers 1\n"
@@ -41243,10 +41240,10 @@ createNode script -n "uiConfigurationScriptNode";
 		+ "                -textureDisplay \"modulate\" \n                -textureMaxSize 16384\n                -fogging 0\n                -fogSource \"fragment\" \n                -fogMode \"linear\" \n                -fogStart 0\n                -fogEnd 100\n                -fogDensity 0.1\n                -fogColor 0.5 0.5 0.5 1 \n                -depthOfFieldPreview 1\n                -maxConstantTransparency 1\n                -objectFilterShowInHUD 1\n                -isFiltered 0\n                -colorResolution 4 4 \n                -bumpResolution 4 4 \n                -textureCompression 0\n                -transparencyAlgorithm \"frontAndBackCull\" \n                -transpInShadows 0\n                -cullingOverride \"none\" \n                -lowQualityLighting 0\n                -maximumNumHardwareLights 0\n                -occlusionCulling 0\n                -shadingModel 0\n                -useBaseRenderer 0\n                -useReducedRenderer 0\n                -smallObjectCulling 0\n                -smallObjectThreshold -1 \n                -interactiveDisableShadows 0\n"
 		+ "                -interactiveBackFaceCull 0\n                -sortTransparent 1\n                -nurbsCurves 1\n                -nurbsSurfaces 1\n                -polymeshes 1\n                -subdivSurfaces 1\n                -planes 1\n                -lights 1\n                -cameras 1\n                -controlVertices 1\n                -hulls 1\n                -grid 1\n                -imagePlane 1\n                -joints 1\n                -ikHandles 1\n                -deformers 1\n                -dynamics 1\n                -particleInstancers 1\n                -fluids 1\n                -hairSystems 1\n                -follicles 1\n                -nCloths 1\n                -nParticles 1\n                -nRigids 1\n                -dynamicConstraints 1\n                -locators 1\n                -manipulators 1\n                -pluginShapes 1\n                -dimensions 1\n                -handles 1\n                -pivots 1\n                -textures 1\n                -strokes 1\n                -motionTrails 1\n                -clipGhosts 1\n"
 		+ "                -greasePencils 1\n                -shadows 0\n                -captureSequenceNumber -1\n                -width 0\n                -height 0\n                -sceneRenderFilter 0\n                -displayMode \"centerEye\" \n                -viewColor 0 0 0 1 \n                -useCustomBackground 1\n                $editorName;\n            stereoCameraView -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextScriptedPanel \"hyperShadePanel\" (localizedPanelLabel(\"Hypershade\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\tscriptedPanel -edit -l (localizedPanelLabel(\"Hypershade\")) -mbv $menusOkayInPanels  $panelName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextScriptedPanel \"nodeEditorPanel\" (localizedPanelLabel(\"Node Editor\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\tscriptedPanel -edit -l (localizedPanelLabel(\"Node Editor\")) -mbv $menusOkayInPanels  $panelName;\n"
-		+ "\n\t\t\t$editorName = ($panelName+\"NodeEditorEd\");\n            nodeEditor -e \n                -allAttributes 0\n                -allNodes 0\n                -autoSizeNodes 1\n                -consistentNameSize 1\n                -createNodeCommand \"nodeEdCreateNodeCommand\" \n                -defaultPinnedState 0\n                -additiveGraphingMode 0\n                -settingsChangedCallback \"nodeEdSyncControls\" \n                -traversalDepthLimit -1\n                -keyPressCommand \"nodeEdKeyPressCommand\" \n                -nodeTitleMode \"name\" \n                -gridSnap 0\n                -gridVisibility 1\n                -popupMenuScript \"nodeEdBuildPanelMenus\" \n                -showNamespace 1\n                -showShapes 1\n                -showSGShapes 0\n                -showTransforms 1\n                -useAssets 0\n                -syncedSelection 1\n                -extendToShapes 1\n                -activeTab 11\n                -editorMode \"default\" \n                $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n"
+		+ "\n\t\t\t$editorName = ($panelName+\"NodeEditorEd\");\n            nodeEditor -e \n                -allAttributes 0\n                -allNodes 0\n                -autoSizeNodes 1\n                -consistentNameSize 1\n                -createNodeCommand \"nodeEdCreateNodeCommand\" \n                -defaultPinnedState 0\n                -additiveGraphingMode 0\n                -settingsChangedCallback \"nodeEdSyncControls\" \n                -traversalDepthLimit -1\n                -keyPressCommand \"nodeEdKeyPressCommand\" \n                -nodeTitleMode \"name\" \n                -gridSnap 0\n                -gridVisibility 1\n                -popupMenuScript \"nodeEdBuildPanelMenus\" \n                -showNamespace 1\n                -showShapes 1\n                -showSGShapes 0\n                -showTransforms 1\n                -useAssets 1\n                -syncedSelection 1\n                -extendToShapes 1\n                -activeTab -1\n                -editorMode \"default\" \n                $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n"
 		+ "\t\t}\n\t}\n\n\n\tif ($useSceneConfig) {\n        string $configName = `getPanel -cwl (localizedPanelLabel(\"Current Layout\"))`;\n        if (\"\" != $configName) {\n\t\t\tpanelConfiguration -edit -label (localizedPanelLabel(\"Current Layout\")) \n\t\t\t\t-userCreated false\n\t\t\t\t-defaultImage \"vacantCell.xP:/\"\n\t\t\t\t-image \"\"\n\t\t\t\t-sc false\n\t\t\t\t-configString \"global string $gMainPane; paneLayout -e -cn \\\"single\\\" -ps 1 100 100 $gMainPane;\"\n\t\t\t\t-removeAllPanels\n\t\t\t\t-ap false\n\t\t\t\t\t(localizedPanelLabel(\"Persp View\")) \n\t\t\t\t\t\"modelPanel\"\n"
-		+ "\t\t\t\t\t\"$panelName = `modelPanel -unParent -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels `;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -camera \\\"top1\\\" \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 1\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 0\\n    -nurbsSurfaces 0\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 0\\n    -cameras 0\\n    -controlVertices 1\\n    -hulls 0\\n    -grid 1\\n    -imagePlane 0\\n    -joints 0\\n    -ikHandles 0\\n    -deformers 0\\n    -dynamics 0\\n    -particleInstancers 0\\n    -fluids 0\\n    -hairSystems 0\\n    -follicles 0\\n    -nCloths 0\\n    -nParticles 0\\n    -nRigids 0\\n    -dynamicConstraints 0\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 0\\n    -dimensions 0\\n    -handles 0\\n    -pivots 0\\n    -textures 0\\n    -strokes 0\\n    -motionTrails 0\\n    -clipGhosts 0\\n    -greasePencils 0\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 1076\\n    -height 1044\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
-		+ "\t\t\t\t\t\"modelPanel -edit -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels  $panelName;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -camera \\\"top1\\\" \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 1\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 0\\n    -nurbsSurfaces 0\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 0\\n    -cameras 0\\n    -controlVertices 1\\n    -hulls 0\\n    -grid 1\\n    -imagePlane 0\\n    -joints 0\\n    -ikHandles 0\\n    -deformers 0\\n    -dynamics 0\\n    -particleInstancers 0\\n    -fluids 0\\n    -hairSystems 0\\n    -follicles 0\\n    -nCloths 0\\n    -nParticles 0\\n    -nRigids 0\\n    -dynamicConstraints 0\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 0\\n    -dimensions 0\\n    -handles 0\\n    -pivots 0\\n    -textures 0\\n    -strokes 0\\n    -motionTrails 0\\n    -clipGhosts 0\\n    -greasePencils 0\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 1076\\n    -height 1044\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
+		+ "\t\t\t\t\t\"$panelName = `modelPanel -unParent -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels `;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -camera \\\"top1\\\" \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"wireframe\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 1\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 0\\n    -nurbsSurfaces 0\\n    -polymeshes 0\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 0\\n    -cameras 0\\n    -controlVertices 1\\n    -hulls 0\\n    -grid 0\\n    -imagePlane 0\\n    -joints 0\\n    -ikHandles 0\\n    -deformers 0\\n    -dynamics 0\\n    -particleInstancers 0\\n    -fluids 0\\n    -hairSystems 0\\n    -follicles 0\\n    -nCloths 0\\n    -nParticles 0\\n    -nRigids 0\\n    -dynamicConstraints 0\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 0\\n    -dimensions 0\\n    -handles 0\\n    -pivots 0\\n    -textures 0\\n    -strokes 0\\n    -motionTrails 0\\n    -clipGhosts 0\\n    -greasePencils 0\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 1734\\n    -height 1044\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
+		+ "\t\t\t\t\t\"modelPanel -edit -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels  $panelName;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -camera \\\"top1\\\" \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"wireframe\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 1\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"base_OpenGL_Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -nurbsCurves 0\\n    -nurbsSurfaces 0\\n    -polymeshes 0\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 0\\n    -cameras 0\\n    -controlVertices 1\\n    -hulls 0\\n    -grid 0\\n    -imagePlane 0\\n    -joints 0\\n    -ikHandles 0\\n    -deformers 0\\n    -dynamics 0\\n    -particleInstancers 0\\n    -fluids 0\\n    -hairSystems 0\\n    -follicles 0\\n    -nCloths 0\\n    -nParticles 0\\n    -nRigids 0\\n    -dynamicConstraints 0\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 0\\n    -dimensions 0\\n    -handles 0\\n    -pivots 0\\n    -textures 0\\n    -strokes 0\\n    -motionTrails 0\\n    -clipGhosts 0\\n    -greasePencils 0\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 1734\\n    -height 1044\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
 		+ "\t\t\t\t$configName;\n\n            setNamedPanelLayout (localizedPanelLabel(\"Current Layout\"));\n        }\n\n        panelHistory -e -clear mainPanelHistory;\n        sceneUIReplacement -clear;\n\t}\n\n\ngrid -spacing 10 -size 150 -divisions 10 -displayAxes yes -displayGridLines yes -displayDivisionLines yes -displayPerspectiveLabels yes -displayOrthographicLabels yes -displayAxesBold yes -perspectiveLabelPosition axis -orthographicLabelPosition axis;\nviewManip -drawCompass 0 -compassAngle 0 -frontParameters \"\" -homeParameters \"\" -selectionLockParameters \"\";\n}\n");
 	setAttr ".st" 3;
 createNode script -n "sceneConfigurationScriptNode";
@@ -44475,14 +44472,15 @@ createNode cImgFile -n "cImgFile1";
 	setAttr ".rrg" -type "long2" 200 300 ;
 createNode cImgFile -n "cImgFile4";
 	rename -uid "10B0FD6D-1049-337E-735F-C8B5D5CEF345";
-	setAttr ".im" -type "string" "/Users/julian/dev/w/uprising/example//sourceimages/pruneTest.jpg";
-	setAttr ".rrg" -type "long2" 120 160 ;
+	setAttr ".im" -type "string" "/Users/julian/dev/w/uprising/example//sourceimages/kate_nn.jpg";
+	setAttr ".rsz" yes;
+	setAttr ".rrg" -type "long2" 512 512 ;
 	setAttr ".int" 3;
 createNode cImgSkel -n "cImgSkel1";
 	rename -uid "615EF656-1E41-18AC-DCC2-83846B6C835C";
 	setAttr ".thr" 100;
 	setAttr ".inv" yes;
-	setAttr ".sthr" 1;
+	setAttr ".sthr" 0;
 	setAttr ".ccv" yes;
 createNode nodeGraphEditorInfo -n "MayaNodeEditorSavedTabsInfo1";
 	rename -uid "3429F726-8240-4258-BBB9-EC9D29729752";
@@ -44509,9 +44507,7 @@ createNode skeletonStroke -n "skeletonStroke1";
 	setAttr ".pd" 2;
 	setAttr ".enl" 0;
 	setAttr ".exl" 0;
-	setAttr ".brid" 17;
-	setAttr ".ptid" 8;
-	setAttr ".act" no;
+	setAttr ".brid" 2;
 	setAttr ".brtl[0]"  0 0 1;
 	setAttr ".brbk[0]"  0 0 1;
 	setAttr ".brtw[0]"  0 0 1;
@@ -44519,8 +44515,6 @@ createNode skeletonStroke -n "skeletonStroke1";
 	setAttr ".prrp[0]"  0 0 1;
 	setAttr ".apst" no;
 	setAttr ".apfl" no;
-	setAttr ".mnpx" 20;
-	setAttr ".spx" 4;
 	setAttr -s 17 ".bsh";
 createNode curveStroke -n "longWipeBShape_SC";
 	rename -uid "BB468DA6-8A46-7257-2B49-F5A95B45B4D0";
@@ -44629,78 +44623,6 @@ createNode transformGeometry -n "transformGeometry3";
 	rename -uid "2CE85104-FA45-C636-E3C7-9DA456FD9207";
 	setAttr ".txf" -type "matrix" 6.661338147750939e-17 0 -0.29999999999999999 0 0 0.29999999999999999 0 0
 		 10 0 2.2204460492503131e-15 0 6.4922027610520431e-17 0 -0.30000007152557395 1;
-createNode lambert -n "sx_g_00";
-	rename -uid "F8A485AD-C24D-F914-3C2B-7782C58D57EC";
-createNode shadingEngine -n "sx_g_00_SG";
-	rename -uid "C139BED7-0C46-14CA-EE6B-2E84952FB136";
-	setAttr ".ihi" 0;
-	setAttr ".ro" yes;
-createNode materialInfo -n "materialInfo58";
-	rename -uid "564C8735-0140-DC07-671A-61914C24DE1C";
-createNode lambert -n "sx_g_01";
-	rename -uid "5956D3F6-F645-E594-0A4D-20A03291A5B5";
-createNode shadingEngine -n "sx_g_01_SG";
-	rename -uid "74A860D7-314E-E983-8189-89B0148F2566";
-	setAttr ".ihi" 0;
-	setAttr ".ro" yes;
-createNode materialInfo -n "materialInfo59";
-	rename -uid "838CD4BA-BB4A-6A34-1AAA-F5A13182F329";
-createNode lambert -n "sx_g_02";
-	rename -uid "98C20EAD-084B-6ECA-93CE-83BC1879151C";
-createNode shadingEngine -n "sx_g_02_SG";
-	rename -uid "AD2E6191-0443-F5D9-52BF-58B36282DE28";
-	setAttr ".ihi" 0;
-	setAttr ".ro" yes;
-createNode materialInfo -n "materialInfo60";
-	rename -uid "924EDB5C-F541-3EFF-BF61-9796220E1688";
-createNode lambert -n "sx_g_03";
-	rename -uid "EFCC5CC7-5142-A8D9-E11C-3BB2EA5F3874";
-createNode shadingEngine -n "sx_g_03_SG";
-	rename -uid "46EA0196-1840-B0AD-C84B-6FB30EC50256";
-	setAttr ".ihi" 0;
-	setAttr ".ro" yes;
-createNode materialInfo -n "materialInfo61";
-	rename -uid "BAC908F8-F44A-3B96-C7BD-5AA9936204BB";
-createNode lambert -n "sx_g_04";
-	rename -uid "DA3993DA-F94B-D0A1-C752-3B87CBB0CB2F";
-createNode shadingEngine -n "sx_g_04_SG";
-	rename -uid "4A484C21-104F-7BE1-EC6F-CCAA48EBCA2F";
-	setAttr ".ihi" 0;
-	setAttr ".ro" yes;
-createNode materialInfo -n "materialInfo62";
-	rename -uid "3D6D72A5-9044-DC74-8AB6-9C8BB796E381";
-createNode lambert -n "sx_g_05";
-	rename -uid "87AFF7E0-2941-3B83-A1CF-5FAE3E88955E";
-createNode shadingEngine -n "sx_g_05_SG";
-	rename -uid "5E6C5F12-2448-7F91-4B2A-88B8F51A4A14";
-	setAttr ".ihi" 0;
-	setAttr ".ro" yes;
-createNode materialInfo -n "materialInfo63";
-	rename -uid "0E36BC8D-3441-FAAA-A3B9-D8BA16E019FA";
-createNode lambert -n "sx_g_06";
-	rename -uid "A5D90FC5-4146-1FDA-A11E-B1A229AFD3AA";
-createNode shadingEngine -n "sx_g_06_SG";
-	rename -uid "83BF5203-C34D-E072-E539-579DD1108AE1";
-	setAttr ".ihi" 0;
-	setAttr ".ro" yes;
-createNode materialInfo -n "materialInfo64";
-	rename -uid "099ACD6C-5648-2782-A062-2B870A497D48";
-createNode lambert -n "sx_g_07";
-	rename -uid "45167F96-2E44-60A5-A79A-289B3F9E77C6";
-createNode shadingEngine -n "sx_g_07_SG";
-	rename -uid "3048A6D9-5E42-BDDF-21FE-96BE93BE01E8";
-	setAttr ".ihi" 0;
-	setAttr ".ro" yes;
-createNode materialInfo -n "materialInfo65";
-	rename -uid "07D4A6D4-1747-E912-FA4C-C188B0A5E1EE";
-createNode lambert -n "sx_g_08";
-	rename -uid "84930838-2044-BAEF-1C4D-DEA09E2B0AD7";
-createNode shadingEngine -n "sx_g_08_SG";
-	rename -uid "9C01EDC4-9B4D-01A2-BC25-1588CCD1084B";
-	setAttr ".ihi" 0;
-	setAttr ".ro" yes;
-createNode materialInfo -n "materialInfo66";
-	rename -uid "94388F76-9A49-5674-8CAF-5BB2BB22A039";
 createNode polyPlane -n "polyPlane6";
 	rename -uid "22170085-0046-1813-2D7B-61A947CBBE30";
 	setAttr ".ax" -type "double3" 0 0 1 ;
@@ -44752,12 +44674,105 @@ createNode polyPlane -n "polyPlane7";
 	rename -uid "D9A323FD-DD4A-70BF-F89B-A7A2679D8DA3";
 	setAttr ".ax" -type "double3" 0 0 1 ;
 	setAttr ".cuv" 2;
+createNode skChainNode -n "skChainNode1";
+	rename -uid "CE0AD1CB-284D-2B2A-C211-EE9F207C788A";
+	setAttr ".mng" 0;
+	setAttr ".mxg" 150;
+	setAttr ".med" 2;
+	setAttr ".mxi" 3;
+	setAttr ".mbtl" 5;
+	setAttr ".spx" 5;
+	setAttr ".mwpx" 12;
+createNode cImgGate -n "cImgGate1";
+	rename -uid "426EC817-A149-4C39-5B58-EB8B202D054F";
+	setAttr ".mn" 170;
+	setAttr ".mx" 200;
+createNode cImgShader -n "cImgShader24";
+	rename -uid "D5E3FE1A-D447-08FB-DCDA-73B803E3C25E";
+createNode place2dTexture -n "place2dTexture40";
+	rename -uid "9C7436CF-CD46-C05E-1787-3DA8F522C7A8";
+createNode cImgShader -n "cImgShader25";
+	rename -uid "0DB5546D-AD48-B65F-54AE-6D96C9A3FF2D";
+createNode place2dTexture -n "place2dTexture41";
+	rename -uid "E462AEFC-694A-4BA5-3188-B0942E9E62D6";
+createNode lambert -n "sx_g_01";
+	rename -uid "55C00D8A-904A-027D-23C2-8E9E237D2091";
+createNode shadingEngine -n "sx_g_01_SG";
+	rename -uid "13C067CF-7E4D-5CAF-BB88-8B815868B43E";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo68";
+	rename -uid "F0207B8A-9347-26FA-BB7E-068B9A3EE2B1";
+createNode lambert -n "sx_g_02";
+	rename -uid "CCF53C96-124B-6F19-55DA-0A8AE45D735A";
+createNode shadingEngine -n "sx_g_02_SG";
+	rename -uid "5C114139-114D-7D13-EA94-36A344C8F8FD";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo69";
+	rename -uid "85735EF5-A044-73A2-536B-15BC6AC90279";
+createNode lambert -n "sx_g_04";
+	rename -uid "CC26F31D-8842-CC91-8202-FD9E6A5F6C9B";
+createNode shadingEngine -n "sx_g_04_SG";
+	rename -uid "4204FC44-EF4E-BF9F-1DA6-D190EA1F9943";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo70";
+	rename -uid "995F9B8B-424C-F116-E95B-0881D5B5B522";
+createNode lambert -n "sx_g_06";
+	rename -uid "E0692F17-2B42-69EA-39EE-8A9B7810BF59";
+createNode shadingEngine -n "sx_g_06_SG";
+	rename -uid "2C4F1ECE-2343-05B1-60D6-7097CB44BC67";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo71";
+	rename -uid "EAAC7D12-264B-A976-8DC1-68B753A3F526";
+createNode lambert -n "sx_g_08";
+	rename -uid "AFAD1E4B-D842-A81E-B0C6-65B610B39D59";
+createNode shadingEngine -n "sx_g_08_SG";
+	rename -uid "05593228-4D4D-9509-1D3B-42809761D433";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo72";
+	rename -uid "9D553E0D-574B-BEE2-6304-AF9808C65F9D";
+createNode lambert -n "sx_g_10";
+	rename -uid "22234B56-6948-3719-7E60-E69624AF2F84";
+createNode shadingEngine -n "sx_g_10_SG";
+	rename -uid "052120B2-4A48-A971-F12B-90A53ADDD0AB";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo73";
+	rename -uid "F5E8903A-A84D-7325-5B60-91ACD56DF89A";
+createNode lambert -n "sx_g_12";
+	rename -uid "EBA47D43-D442-C7A1-E396-45A0E01389F4";
+createNode shadingEngine -n "sx_g_12_SG";
+	rename -uid "20C3A83A-F34D-A67C-AAED-D497EA813D3C";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo74";
+	rename -uid "ACFA966A-0344-D124-F283-25B5253DDAAF";
+createNode lambert -n "sx_g_14";
+	rename -uid "344AC462-F140-584A-94E5-0BB5C784875D";
+createNode shadingEngine -n "sx_g_14_SG";
+	rename -uid "5201AEE3-0143-BB9A-1C2B-0384A42823FB";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo75";
+	rename -uid "5D2E797D-0742-974A-98D5-22A2D6B9BC26";
+createNode lambert -n "sx_g_15";
+	rename -uid "7B3C6E14-EC4C-FC7E-ACDE-0FBE06AC2AE7";
+createNode shadingEngine -n "sx_g_15_SG";
+	rename -uid "CF56B7EC-A844-5B54-FDE1-DCB51F831652";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo76";
+	rename -uid "A7D9011A-F346-328E-E915-2690F0619174";
 createNode nodeGraphEditorInfo -n "MayaNodeEditorSavedTabsInfo";
-	rename -uid "0077B61F-1647-C476-D770-5491233D1A81";
+	rename -uid "E74A9652-894C-B49B-DFBF-F789D1E12158";
 	setAttr -s 12 ".tgi";
 	setAttr ".tgi[0].tn" -type "string" "all";
-	setAttr ".tgi[0].vl" -type "double2" -2605.2196766976517 5048.809323187812 ;
-	setAttr ".tgi[0].vh" -type "double2" 3126.6482274065138 6601.1902138826908 ;
+	setAttr ".tgi[0].vl" -type "double2" -2618.0401890087228 5039.285514042499 ;
+	setAttr ".tgi[0].vh" -type "double2" 3148.9925488629524 6601.1902138827445 ;
 	setAttr -s 2 ".tgi[0].ni";
 	setAttr ".tgi[0].ni[0].x" -596.45599365234375;
 	setAttr ".tgi[0].ni[0].y" 4482.1337890625;
@@ -44766,2016 +44781,2025 @@ createNode nodeGraphEditorInfo -n "MayaNodeEditorSavedTabsInfo";
 	setAttr ".tgi[0].ni[1].y" 5825.68798828125;
 	setAttr ".tgi[0].ni[1].nvs" 18306;
 	setAttr ".tgi[1].tn" -type "string" "bg";
-	setAttr ".tgi[1].vl" -type "double2" -2598.900995630052 -1491.6666073931613 ;
-	setAttr ".tgi[1].vh" -type "double2" 2913.1866974271743 1.1904761431709892 ;
+	setAttr ".tgi[1].vl" -type "double2" -2611.1262698695386 -1501.190416538529 ;
+	setAttr ".tgi[1].vh" -type "double2" 2936.1262569551982 1.1904761431708266 ;
 	setAttr ".tgi[1].ni[0].x" 219.13179016113281;
 	setAttr ".tgi[1].ni[0].y" -604.66485595703125;
 	setAttr ".tgi[1].ni[0].nvs" 18305;
 	setAttr ".tgi[2].tn" -type "string" "rough";
-	setAttr ".tgi[2].vl" -type "double2" -2065.3387457696394 11771.428103674043 ;
-	setAttr ".tgi[2].vh" -type "double2" 1552.2435280629738 12751.189969503712 ;
+	setAttr ".tgi[2].vl" -type "double2" -2078.159258080711 11761.904294528678 ;
+	setAttr ".tgi[2].vh" -type "double2" 1574.5878495194124 12751.189969503714 ;
 	setAttr ".tgi[2].ni[0].x" -225.71427917480469;
 	setAttr ".tgi[2].ni[0].y" 12531.5634765625;
 	setAttr ".tgi[2].ni[0].nvs" 18305;
 	setAttr ".tgi[3].tn" -type "string" "main";
-	setAttr ".tgi[3].vl" -type "double2" -4292.1701591148112 -497.6190278454481 ;
-	setAttr ".tgi[3].vh" -type "double2" 2938.5987843294765 1460.7142276707129 ;
+	setAttr ".tgi[3].vl" -type "double2" -4304.3954333542979 -507.14283699081147 ;
+	setAttr ".tgi[3].vh" -type "double2" 2961.5383438575009 1460.7142276707173 ;
 	setAttr ".tgi[3].ni[0].x" 63.924198150634766;
 	setAttr ".tgi[3].ni[0].y" 919.2769775390625;
 	setAttr ".tgi[3].ni[0].nvs" 18306;
 	setAttr ".tgi[4].tn" -type "string" "fine";
-	setAttr ".tgi[4].vl" -type "double2" -1232.6922587095241 -1045.2380537040667 ;
-	setAttr ".tgi[4].vh" -type "double2" 3782.6921573816212 313.09522565395167 ;
+	setAttr ".tgi[4].vl" -type "double2" -1245.5127710205895 -1054.761862849437 ;
+	setAttr ".tgi[4].vh" -type "double2" 3805.0364788380652 313.09522565394872 ;
 	setAttr -s 8 ".tgi[4].ni";
-	setAttr ".tgi[4].ni[0].x" 980;
-	setAttr ".tgi[4].ni[0].y" 12830;
+	setAttr ".tgi[4].ni[0].x" 1287.142822265625;
+	setAttr ".tgi[4].ni[0].y" 12411.4287109375;
 	setAttr ".tgi[4].ni[0].nvs" 18305;
-	setAttr ".tgi[4].ni[1].x" 672.85711669921875;
-	setAttr ".tgi[4].ni[1].y" 12300;
-	setAttr ".tgi[4].ni[1].nvs" 18304;
+	setAttr ".tgi[4].ni[1].x" 980;
+	setAttr ".tgi[4].ni[1].y" 13041.4287109375;
+	setAttr ".tgi[4].ni[1].nvs" 18305;
 	setAttr ".tgi[4].ni[2].x" 672.85711669921875;
 	setAttr ".tgi[4].ni[2].y" 12011.4287109375;
 	setAttr ".tgi[4].ni[2].nvs" 18305;
 	setAttr ".tgi[4].ni[3].x" 220;
 	setAttr ".tgi[4].ni[3].y" -1495.7142333984375;
 	setAttr ".tgi[4].ni[3].nvs" 18305;
-	setAttr ".tgi[4].ni[4].x" 980;
-	setAttr ".tgi[4].ni[4].y" 13041.4287109375;
+	setAttr ".tgi[4].ni[4].x" 1668.5714111328125;
+	setAttr ".tgi[4].ni[4].y" 11648.5712890625;
 	setAttr ".tgi[4].ni[4].nvs" 18305;
-	setAttr ".tgi[4].ni[5].x" 1287.142822265625;
-	setAttr ".tgi[4].ni[5].y" 12411.4287109375;
+	setAttr ".tgi[4].ni[5].x" 980;
+	setAttr ".tgi[4].ni[5].y" 12830;
 	setAttr ".tgi[4].ni[5].nvs" 18305;
-	setAttr ".tgi[4].ni[6].x" 1668.5714111328125;
-	setAttr ".tgi[4].ni[6].y" 11648.5712890625;
-	setAttr ".tgi[4].ni[6].nvs" 18305;
-	setAttr ".tgi[4].ni[7].x" 980;
+	setAttr ".tgi[4].ni[6].x" 980;
+	setAttr ".tgi[4].ni[6].y" 12300;
+	setAttr ".tgi[4].ni[6].nvs" 18304;
+	setAttr ".tgi[4].ni[7].x" 672.85711669921875;
 	setAttr ".tgi[4].ni[7].y" 12300;
 	setAttr ".tgi[4].ni[7].nvs" 18304;
 	setAttr ".tgi[5].tn" -type "string" "Untitled_1";
-	setAttr ".tgi[5].vl" -type "double2" 1074.954169739372 267.85713221345662 ;
-	setAttr ".tgi[5].vh" -type "double2" 6288.1407757727611 1679.7618380141662 ;
+	setAttr ".tgi[5].vl" -type "double2" 1062.1336574283002 258.33332306808938 ;
+	setAttr ".tgi[5].vh" -type "double2" 6310.4850972292006 1679.7618380141666 ;
 	setAttr -s 11 ".tgi[5].ni";
-	setAttr ".tgi[5].ni[0].x" 3292.5693359375;
-	setAttr ".tgi[5].ni[0].y" 809.07879638671875;
-	setAttr ".tgi[5].ni[0].nvs" 18306;
+	setAttr ".tgi[5].ni[0].x" 4272.85693359375;
+	setAttr ".tgi[5].ni[0].y" 1008.5714111328125;
+	setAttr ".tgi[5].ni[0].nvs" 18305;
 	setAttr ".tgi[5].ni[1].x" 3592.857177734375;
-	setAttr ".tgi[5].ni[1].y" 1185.7142333984375;
-	setAttr ".tgi[5].ni[1].nvs" 18305;
-	setAttr ".tgi[5].ni[2].x" 4272.85693359375;
-	setAttr ".tgi[5].ni[2].y" 1008.5714111328125;
+	setAttr ".tgi[5].ni[1].y" 1035.7142333984375;
+	setAttr ".tgi[5].ni[1].nvs" 18304;
+	setAttr ".tgi[5].ni[2].x" 3943.871826171875;
+	setAttr ".tgi[5].ni[2].y" 1198.0748291015625;
 	setAttr ".tgi[5].ni[2].nvs" 18305;
-	setAttr ".tgi[5].ni[3].x" 3272.00439453125;
-	setAttr ".tgi[5].ni[3].y" 913.13421630859375;
+	setAttr ".tgi[5].ni[3].x" 4207.14306640625;
+	setAttr ".tgi[5].ni[3].y" 1245.7142333984375;
 	setAttr ".tgi[5].ni[3].nvs" 18304;
-	setAttr ".tgi[5].ni[4].x" 3943.871826171875;
-	setAttr ".tgi[5].ni[4].y" 1198.0748291015625;
-	setAttr ".tgi[5].ni[4].nvs" 18305;
-	setAttr ".tgi[5].ni[5].x" 3601.0830078125;
-	setAttr ".tgi[5].ni[5].y" 915.2069091796875;
+	setAttr ".tgi[5].ni[4].x" 3272.00439453125;
+	setAttr ".tgi[5].ni[4].y" 913.13421630859375;
+	setAttr ".tgi[5].ni[4].nvs" 18304;
+	setAttr ".tgi[5].ni[5].x" 3592.857177734375;
+	setAttr ".tgi[5].ni[5].y" 1335.7142333984375;
 	setAttr ".tgi[5].ni[5].nvs" 18305;
-	setAttr ".tgi[5].ni[6].x" 3592.857177734375;
-	setAttr ".tgi[5].ni[6].y" 1335.7142333984375;
+	setAttr ".tgi[5].ni[6].x" 3601.0830078125;
+	setAttr ".tgi[5].ni[6].y" 915.2069091796875;
 	setAttr ".tgi[5].ni[6].nvs" 18305;
-	setAttr ".tgi[5].ni[7].x" 4207.14306640625;
-	setAttr ".tgi[5].ni[7].y" 1245.7142333984375;
-	setAttr ".tgi[5].ni[7].nvs" 18304;
+	setAttr ".tgi[5].ni[7].x" 3292.5693359375;
+	setAttr ".tgi[5].ni[7].y" 809.07879638671875;
+	setAttr ".tgi[5].ni[7].nvs" 18306;
 	setAttr ".tgi[5].ni[8].x" 3592.857177734375;
-	setAttr ".tgi[5].ni[8].y" 1035.7142333984375;
-	setAttr ".tgi[5].ni[8].nvs" 18304;
+	setAttr ".tgi[5].ni[8].y" 1567.142822265625;
+	setAttr ".tgi[5].ni[8].nvs" 18305;
 	setAttr ".tgi[5].ni[9].x" 3592.857177734375;
-	setAttr ".tgi[5].ni[9].y" 1567.142822265625;
+	setAttr ".tgi[5].ni[9].y" 1185.7142333984375;
 	setAttr ".tgi[5].ni[9].nvs" 18305;
 	setAttr ".tgi[5].ni[10].x" 4207.14306640625;
 	setAttr ".tgi[5].ni[10].y" 1147.142822265625;
 	setAttr ".tgi[5].ni[10].nvs" 18304;
 	setAttr ".tgi[6].tn" -type "string" "Untitled_2";
-	setAttr ".tgi[6].vl" -type "double2" -8600.5953220857591 22278.570427994488 ;
-	setAttr ".tgi[6].vh" -type "double2" 5113.6906987381371 25992.856225300959 ;
+	setAttr ".tgi[6].vl" -type "double2" -8595.833417513044 22273.808523421292 ;
+	setAttr ".tgi[6].vh" -type "double2" 5118.4526033108523 25988.09432072776 ;
 	setAttr -s 105 ".tgi[6].ni";
 	setAttr ".tgi[6].ni[0].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[0].y" 29222.857421875;
+	setAttr ".tgi[6].ni[0].y" 6508.5712890625;
 	setAttr ".tgi[6].ni[0].nvs" 18305;
 	setAttr ".tgi[6].ni[1].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[1].y" 10028.5712890625;
+	setAttr ".tgi[6].ni[1].y" 12080;
 	setAttr ".tgi[6].ni[1].nvs" 18305;
 	setAttr ".tgi[6].ni[2].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[2].y" 13105.7138671875;
+	setAttr ".tgi[6].ni[2].y" 28951.427734375;
 	setAttr ".tgi[6].ni[2].nvs" 18305;
 	setAttr ".tgi[6].ni[3].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[3].y" 22122.857421875;
+	setAttr ".tgi[6].ni[3].y" 27442.857421875;
 	setAttr ".tgi[6].ni[3].nvs" 18305;
 	setAttr ".tgi[6].ni[4].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[4].y" 5482.85693359375;
+	setAttr ".tgi[6].ni[4].y" 11557.142578125;
 	setAttr ".tgi[6].ni[4].nvs" 18305;
 	setAttr ".tgi[6].ni[5].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[5].y" 12602.857421875;
+	setAttr ".tgi[6].ni[5].y" 26940;
 	setAttr ".tgi[6].ni[5].nvs" 18305;
 	setAttr ".tgi[6].ni[6].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[6].y" 13880;
+	setAttr ".tgi[6].ni[6].y" 17788.572265625;
 	setAttr ".tgi[6].ni[6].nvs" 18305;
 	setAttr ".tgi[6].ni[7].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[7].y" 5734.28564453125;
+	setAttr ".tgi[6].ni[7].y" 14905.7138671875;
 	setAttr ".tgi[6].ni[7].nvs" 18305;
 	setAttr ".tgi[6].ni[8].x" -602.85711669921875;
 	setAttr ".tgi[6].ni[8].y" 13357.142578125;
 	setAttr ".tgi[6].ni[8].nvs" 18305;
 	setAttr ".tgi[6].ni[9].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[9].y" 17788.572265625;
+	setAttr ".tgi[6].ni[9].y" 24948.572265625;
 	setAttr ".tgi[6].ni[9].nvs" 18305;
 	setAttr ".tgi[6].ni[10].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[10].y" 21117.142578125;
+	setAttr ".tgi[6].ni[10].y" 23400;
 	setAttr ".tgi[6].ni[10].nvs" 18305;
 	setAttr ".tgi[6].ni[11].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[11].y" 22645.71484375;
+	setAttr ".tgi[6].ni[11].y" 24174.28515625;
 	setAttr ".tgi[6].ni[11].nvs" 18305;
 	setAttr ".tgi[6].ni[12].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[12].y" 19337.142578125;
+	setAttr ".tgi[6].ni[12].y" 18311.427734375;
 	setAttr ".tgi[6].ni[12].nvs" 18305;
 	setAttr ".tgi[6].ni[13].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[13].y" 13608.5712890625;
+	setAttr ".tgi[6].ni[13].y" 23902.857421875;
 	setAttr ".tgi[6].ni[13].nvs" 18305;
 	setAttr ".tgi[6].ni[14].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[14].y" 8017.14306640625;
+	setAttr ".tgi[6].ni[14].y" 20091.427734375;
 	setAttr ".tgi[6].ni[14].nvs" 18305;
 	setAttr ".tgi[6].ni[15].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[15].y" 8268.5712890625;
+	setAttr ".tgi[6].ni[15].y" 14402.857421875;
 	setAttr ".tgi[6].ni[15].nvs" 18305;
 	setAttr ".tgi[6].ni[16].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[16].y" 20594.28515625;
+	setAttr ".tgi[6].ni[16].y" 15428.5712890625;
 	setAttr ".tgi[6].ni[16].nvs" 18305;
-	setAttr ".tgi[6].ni[17].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[17].y" 16977.142578125;
+	setAttr ".tgi[6].ni[17].x" -295.71429443359375;
+	setAttr ".tgi[6].ni[17].y" 21448.572265625;
 	setAttr ".tgi[6].ni[17].nvs" 18305;
 	setAttr ".tgi[6].ni[18].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[18].y" 28197.142578125;
+	setAttr ".tgi[6].ni[18].y" 25934.28515625;
 	setAttr ".tgi[6].ni[18].nvs" 18305;
 	setAttr ".tgi[6].ni[19].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[19].y" 20845.71484375;
+	setAttr ".tgi[6].ni[19].y" 7514.28564453125;
 	setAttr ".tgi[6].ni[19].nvs" 18305;
 	setAttr ".tgi[6].ni[20].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[20].y" 18562.857421875;
+	setAttr ".tgi[6].ni[20].y" 27191.427734375;
 	setAttr ".tgi[6].ni[20].nvs" 18305;
 	setAttr ".tgi[6].ni[21].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[21].y" 26940;
+	setAttr ".tgi[6].ni[21].y" 24697.142578125;
 	setAttr ".tgi[6].ni[21].nvs" 18305;
-	setAttr ".tgi[6].ni[22].x" -910;
-	setAttr ".tgi[6].ni[22].y" 17468.572265625;
+	setAttr ".tgi[6].ni[22].x" 85.714286804199219;
+	setAttr ".tgi[6].ni[22].y" 20762.857421875;
 	setAttr ".tgi[6].ni[22].nvs" 18305;
-	setAttr ".tgi[6].ni[23].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[23].y" 9525.7138671875;
+	setAttr ".tgi[6].ni[23].x" -910;
+	setAttr ".tgi[6].ni[23].y" 25662.857421875;
 	setAttr ".tgi[6].ni[23].nvs" 18305;
-	setAttr ".tgi[6].ni[24].x" -61.428569793701172;
-	setAttr ".tgi[6].ni[24].y" -341.42855834960938;
+	setAttr ".tgi[6].ni[24].x" -602.85711669921875;
+	setAttr ".tgi[6].ni[24].y" 18814.28515625;
 	setAttr ".tgi[6].ni[24].nvs" 18305;
 	setAttr ".tgi[6].ni[25].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[25].y" 7765.71435546875;
+	setAttr ".tgi[6].ni[25].y" 21871.427734375;
 	setAttr ".tgi[6].ni[25].nvs" 18305;
 	setAttr ".tgi[6].ni[26].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[26].y" 8520;
+	setAttr ".tgi[6].ni[26].y" 9525.7138671875;
 	setAttr ".tgi[6].ni[26].nvs" 18305;
 	setAttr ".tgi[6].ni[27].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[27].y" 29977.142578125;
+	setAttr ".tgi[6].ni[27].y" 7765.71435546875;
 	setAttr ".tgi[6].ni[27].nvs" 18305;
-	setAttr ".tgi[6].ni[28].x" 85.714286804199219;
-	setAttr ".tgi[6].ni[28].y" 20762.857421875;
+	setAttr ".tgi[6].ni[28].x" -602.85711669921875;
+	setAttr ".tgi[6].ni[28].y" 8268.5712890625;
 	setAttr ".tgi[6].ni[28].nvs" 18305;
 	setAttr ".tgi[6].ni[29].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[29].y" 4980;
+	setAttr ".tgi[6].ni[29].y" 22122.857421875;
 	setAttr ".tgi[6].ni[29].nvs" 18305;
 	setAttr ".tgi[6].ni[30].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[30].y" 6508.5712890625;
+	setAttr ".tgi[6].ni[30].y" 8017.14306640625;
 	setAttr ".tgi[6].ni[30].nvs" 18305;
 	setAttr ".tgi[6].ni[31].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[31].y" 23148.572265625;
+	setAttr ".tgi[6].ni[31].y" 4728.5712890625;
 	setAttr ".tgi[6].ni[31].nvs" 18305;
 	setAttr ".tgi[6].ni[32].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[32].y" 7011.4287109375;
+	setAttr ".tgi[6].ni[32].y" 29977.142578125;
 	setAttr ".tgi[6].ni[32].nvs" 18305;
 	setAttr ".tgi[6].ni[33].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[33].y" 25220;
+	setAttr ".tgi[6].ni[33].y" 10782.857421875;
 	setAttr ".tgi[6].ni[33].nvs" 18305;
 	setAttr ".tgi[6].ni[34].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[34].y" 23400;
+	setAttr ".tgi[6].ni[34].y" 25471.427734375;
 	setAttr ".tgi[6].ni[34].nvs" 18305;
 	setAttr ".tgi[6].ni[35].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[35].y" 9022.857421875;
+	setAttr ".tgi[6].ni[35].y" 28197.142578125;
 	setAttr ".tgi[6].ni[35].nvs" 18305;
 	setAttr ".tgi[6].ni[36].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[36].y" 10280;
+	setAttr ".tgi[6].ni[36].y" 4980;
 	setAttr ".tgi[6].ni[36].nvs" 18305;
 	setAttr ".tgi[6].ni[37].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[37].y" 21871.427734375;
+	setAttr ".tgi[6].ni[37].y" 9022.857421875;
 	setAttr ".tgi[6].ni[37].nvs" 18305;
 	setAttr ".tgi[6].ni[38].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[38].y" 25934.28515625;
+	setAttr ".tgi[6].ni[38].y" 22897.142578125;
 	setAttr ".tgi[6].ni[38].nvs" 18305;
 	setAttr ".tgi[6].ni[39].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[39].y" 24174.28515625;
+	setAttr ".tgi[6].ni[39].y" 21368.572265625;
 	setAttr ".tgi[6].ni[39].nvs" 18305;
 	setAttr ".tgi[6].ni[40].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[40].y" 16705.71484375;
+	setAttr ".tgi[6].ni[40].y" 5734.28564453125;
 	setAttr ".tgi[6].ni[40].nvs" 18305;
-	setAttr ".tgi[6].ni[41].x" -910;
-	setAttr ".tgi[6].ni[41].y" 25662.857421875;
+	setAttr ".tgi[6].ni[41].x" -602.85711669921875;
+	setAttr ".tgi[6].ni[41].y" 29474.28515625;
 	setAttr ".tgi[6].ni[41].nvs" 18305;
 	setAttr ".tgi[6].ni[42].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[42].y" 29725.71484375;
+	setAttr ".tgi[6].ni[42].y" 11305.7138671875;
 	setAttr ".tgi[6].ni[42].nvs" 18305;
 	setAttr ".tgi[6].ni[43].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[43].y" 17285.71484375;
+	setAttr ".tgi[6].ni[43].y" 26437.142578125;
 	setAttr ".tgi[6].ni[43].nvs" 18305;
 	setAttr ".tgi[6].ni[44].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[44].y" 20091.427734375;
+	setAttr ".tgi[6].ni[44].y" 11828.5712890625;
 	setAttr ".tgi[6].ni[44].nvs" 18305;
 	setAttr ".tgi[6].ni[45].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[45].y" 18814.28515625;
+	setAttr ".tgi[6].ni[45].y" 12351.4287109375;
 	setAttr ".tgi[6].ni[45].nvs" 18305;
 	setAttr ".tgi[6].ni[46].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[46].y" 6257.14306640625;
+	setAttr ".tgi[6].ni[46].y" 28448.572265625;
 	setAttr ".tgi[6].ni[46].nvs" 18305;
 	setAttr ".tgi[6].ni[47].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[47].y" 4728.5712890625;
+	setAttr ".tgi[6].ni[47].y" 17285.71484375;
 	setAttr ".tgi[6].ni[47].nvs" 18305;
 	setAttr ".tgi[6].ni[48].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[48].y" 11034.2861328125;
+	setAttr ".tgi[6].ni[48].y" 6005.71435546875;
 	setAttr ".tgi[6].ni[48].nvs" 18305;
 	setAttr ".tgi[6].ni[49].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[49].y" 16434.28515625;
+	setAttr ".tgi[6].ni[49].y" 12854.2861328125;
 	setAttr ".tgi[6].ni[49].nvs" 18305;
 	setAttr ".tgi[6].ni[50].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[50].y" 27694.28515625;
+	setAttr ".tgi[6].ni[50].y" 5482.85693359375;
 	setAttr ".tgi[6].ni[50].nvs" 18305;
 	setAttr ".tgi[6].ni[51].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[51].y" 30500;
+	setAttr ".tgi[6].ni[51].y" 22645.71484375;
 	setAttr ".tgi[6].ni[51].nvs" 18305;
 	setAttr ".tgi[6].ni[52].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[52].y" 8771.4287109375;
+	setAttr ".tgi[6].ni[52].y" 14131.4287109375;
 	setAttr ".tgi[6].ni[52].nvs" 18305;
 	setAttr ".tgi[6].ni[53].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[53].y" 12080;
+	setAttr ".tgi[6].ni[53].y" 7011.4287109375;
 	setAttr ".tgi[6].ni[53].nvs" 18305;
 	setAttr ".tgi[6].ni[54].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[54].y" 24425.71484375;
+	setAttr ".tgi[6].ni[54].y" 5231.4287109375;
 	setAttr ".tgi[6].ni[54].nvs" 18305;
 	setAttr ".tgi[6].ni[55].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[55].y" 19840;
+	setAttr ".tgi[6].ni[55].y" 16434.28515625;
 	setAttr ".tgi[6].ni[55].nvs" 18305;
-	setAttr ".tgi[6].ni[56].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[56].y" 28448.572265625;
+	setAttr ".tgi[6].ni[56].x" -61.428569793701172;
+	setAttr ".tgi[6].ni[56].y" -341.42855834960938;
 	setAttr ".tgi[6].ni[56].nvs" 18305;
 	setAttr ".tgi[6].ni[57].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[57].y" 10782.857421875;
+	setAttr ".tgi[6].ni[57].y" 14654.2861328125;
 	setAttr ".tgi[6].ni[57].nvs" 18305;
 	setAttr ".tgi[6].ni[58].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[58].y" 5231.4287109375;
+	setAttr ".tgi[6].ni[58].y" 21620;
 	setAttr ".tgi[6].ni[58].nvs" 18305;
 	setAttr ".tgi[6].ni[59].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[59].y" 18040;
+	setAttr ".tgi[6].ni[59].y" 22394.28515625;
 	setAttr ".tgi[6].ni[59].nvs" 18305;
 	setAttr ".tgi[6].ni[60].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[60].y" 6760;
+	setAttr ".tgi[6].ni[60].y" 29222.857421875;
 	setAttr ".tgi[6].ni[60].nvs" 18305;
 	setAttr ".tgi[6].ni[61].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[61].y" 7262.85693359375;
+	setAttr ".tgi[6].ni[61].y" 16977.142578125;
 	setAttr ".tgi[6].ni[61].nvs" 18305;
 	setAttr ".tgi[6].ni[62].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[62].y" 20342.857421875;
+	setAttr ".tgi[6].ni[62].y" 15680;
 	setAttr ".tgi[6].ni[62].nvs" 18305;
-	setAttr ".tgi[6].ni[63].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[63].y" 14654.2861328125;
+	setAttr ".tgi[6].ni[63].x" -910;
+	setAttr ".tgi[6].ni[63].y" 17468.572265625;
 	setAttr ".tgi[6].ni[63].nvs" 18305;
 	setAttr ".tgi[6].ni[64].x" -602.85711669921875;
 	setAttr ".tgi[6].ni[64].y" 26688.572265625;
 	setAttr ".tgi[6].ni[64].nvs" 18305;
 	setAttr ".tgi[6].ni[65].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[65].y" 22394.28515625;
+	setAttr ".tgi[6].ni[65].y" 21117.142578125;
 	setAttr ".tgi[6].ni[65].nvs" 18305;
 	setAttr ".tgi[6].ni[66].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[66].y" 15931.4287109375;
+	setAttr ".tgi[6].ni[66].y" 30228.572265625;
 	setAttr ".tgi[6].ni[66].nvs" 18305;
 	setAttr ".tgi[6].ni[67].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[67].y" 29474.28515625;
+	setAttr ".tgi[6].ni[67].y" 20342.857421875;
 	setAttr ".tgi[6].ni[67].nvs" 18305;
 	setAttr ".tgi[6].ni[68].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[68].y" 27945.71484375;
+	setAttr ".tgi[6].ni[68].y" 9274.2861328125;
 	setAttr ".tgi[6].ni[68].nvs" 18305;
 	setAttr ".tgi[6].ni[69].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[69].y" 24948.572265625;
+	setAttr ".tgi[6].ni[69].y" 16705.71484375;
 	setAttr ".tgi[6].ni[69].nvs" 18305;
 	setAttr ".tgi[6].ni[70].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[70].y" 21368.572265625;
+	setAttr ".tgi[6].ni[70].y" 28700;
 	setAttr ".tgi[6].ni[70].nvs" 18305;
 	setAttr ".tgi[6].ni[71].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[71].y" 14131.4287109375;
+	setAttr ".tgi[6].ni[71].y" 18040;
 	setAttr ".tgi[6].ni[71].nvs" 18305;
 	setAttr ".tgi[6].ni[72].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[72].y" 6005.71435546875;
+	setAttr ".tgi[6].ni[72].y" 11034.2861328125;
 	setAttr ".tgi[6].ni[72].nvs" 18305;
 	setAttr ".tgi[6].ni[73].x" -602.85711669921875;
 	setAttr ".tgi[6].ni[73].y" 17537.142578125;
 	setAttr ".tgi[6].ni[73].nvs" 18305;
 	setAttr ".tgi[6].ni[74].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[74].y" 24697.142578125;
+	setAttr ".tgi[6].ni[74].y" 20845.71484375;
 	setAttr ".tgi[6].ni[74].nvs" 18305;
 	setAttr ".tgi[6].ni[75].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[75].y" 11557.142578125;
+	setAttr ".tgi[6].ni[75].y" 25682.857421875;
 	setAttr ".tgi[6].ni[75].nvs" 18305;
-	setAttr ".tgi[6].ni[76].x" -295.71429443359375;
-	setAttr ".tgi[6].ni[76].y" 21448.572265625;
+	setAttr ".tgi[6].ni[76].x" -602.85711669921875;
+	setAttr ".tgi[6].ni[76].y" 8771.4287109375;
 	setAttr ".tgi[6].ni[76].nvs" 18305;
 	setAttr ".tgi[6].ni[77].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[77].y" 10531.4287109375;
+	setAttr ".tgi[6].ni[77].y" 23148.572265625;
 	setAttr ".tgi[6].ni[77].nvs" 18305;
-	setAttr ".tgi[6].ni[78].x" -295.71429443359375;
-	setAttr ".tgi[6].ni[78].y" 24445.71484375;
+	setAttr ".tgi[6].ni[78].x" -602.85711669921875;
+	setAttr ".tgi[6].ni[78].y" 30500;
 	setAttr ".tgi[6].ni[78].nvs" 18305;
 	setAttr ".tgi[6].ni[79].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[79].y" 28951.427734375;
+	setAttr ".tgi[6].ni[79].y" 10531.4287109375;
 	setAttr ".tgi[6].ni[79].nvs" 18305;
 	setAttr ".tgi[6].ni[80].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[80].y" 19588.572265625;
+	setAttr ".tgi[6].ni[80].y" 12602.857421875;
 	setAttr ".tgi[6].ni[80].nvs" 18305;
 	setAttr ".tgi[6].ni[81].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[81].y" 15680;
+	setAttr ".tgi[6].ni[81].y" 19085.71484375;
 	setAttr ".tgi[6].ni[81].nvs" 18305;
 	setAttr ".tgi[6].ni[82].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[82].y" 11305.7138671875;
+	setAttr ".tgi[6].ni[82].y" 6760;
 	setAttr ".tgi[6].ni[82].nvs" 18305;
 	setAttr ".tgi[6].ni[83].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[83].y" 11828.5712890625;
+	setAttr ".tgi[6].ni[83].y" 24425.71484375;
 	setAttr ".tgi[6].ni[83].nvs" 18305;
 	setAttr ".tgi[6].ni[84].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[84].y" 9274.2861328125;
+	setAttr ".tgi[6].ni[84].y" 10028.5712890625;
 	setAttr ".tgi[6].ni[84].nvs" 18305;
 	setAttr ".tgi[6].ni[85].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[85].y" 25471.427734375;
+	setAttr ".tgi[6].ni[85].y" 15931.4287109375;
 	setAttr ".tgi[6].ni[85].nvs" 18305;
 	setAttr ".tgi[6].ni[86].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[86].y" 26437.142578125;
+	setAttr ".tgi[6].ni[86].y" 18562.857421875;
 	setAttr ".tgi[6].ni[86].nvs" 18305;
-	setAttr ".tgi[6].ni[87].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[87].y" 7514.28564453125;
+	setAttr ".tgi[6].ni[87].x" -295.71429443359375;
+	setAttr ".tgi[6].ni[87].y" 24445.71484375;
 	setAttr ".tgi[6].ni[87].nvs" 18305;
 	setAttr ".tgi[6].ni[88].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[88].y" 14402.857421875;
+	setAttr ".tgi[6].ni[88].y" 7262.85693359375;
 	setAttr ".tgi[6].ni[88].nvs" 18305;
 	setAttr ".tgi[6].ni[89].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[89].y" 14905.7138671875;
+	setAttr ".tgi[6].ni[89].y" 27694.28515625;
 	setAttr ".tgi[6].ni[89].nvs" 18305;
 	setAttr ".tgi[6].ni[90].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[90].y" 19085.71484375;
+	setAttr ".tgi[6].ni[90].y" 10280;
 	setAttr ".tgi[6].ni[90].nvs" 18305;
 	setAttr ".tgi[6].ni[91].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[91].y" 27191.427734375;
+	setAttr ".tgi[6].ni[91].y" 19588.572265625;
 	setAttr ".tgi[6].ni[91].nvs" 18305;
 	setAttr ".tgi[6].ni[92].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[92].y" 21620;
+	setAttr ".tgi[6].ni[92].y" 25220;
 	setAttr ".tgi[6].ni[92].nvs" 18305;
 	setAttr ".tgi[6].ni[93].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[93].y" 9777.142578125;
+	setAttr ".tgi[6].ni[93].y" 6257.14306640625;
 	setAttr ".tgi[6].ni[93].nvs" 18305;
 	setAttr ".tgi[6].ni[94].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[94].y" 30228.572265625;
+	setAttr ".tgi[6].ni[94].y" 26185.71484375;
 	setAttr ".tgi[6].ni[94].nvs" 18305;
 	setAttr ".tgi[6].ni[95].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[95].y" 28700;
+	setAttr ".tgi[6].ni[95].y" 20594.28515625;
 	setAttr ".tgi[6].ni[95].nvs" 18305;
 	setAttr ".tgi[6].ni[96].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[96].y" 25682.857421875;
+	setAttr ".tgi[6].ni[96].y" 27945.71484375;
 	setAttr ".tgi[6].ni[96].nvs" 18305;
 	setAttr ".tgi[6].ni[97].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[97].y" 12854.2861328125;
+	setAttr ".tgi[6].ni[97].y" 19840;
 	setAttr ".tgi[6].ni[97].nvs" 18305;
 	setAttr ".tgi[6].ni[98].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[98].y" 23902.857421875;
+	setAttr ".tgi[6].ni[98].y" 13608.5712890625;
 	setAttr ".tgi[6].ni[98].nvs" 18305;
 	setAttr ".tgi[6].ni[99].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[99].y" 18311.427734375;
+	setAttr ".tgi[6].ni[99].y" 8520;
 	setAttr ".tgi[6].ni[99].nvs" 18305;
 	setAttr ".tgi[6].ni[100].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[100].y" 27442.857421875;
+	setAttr ".tgi[6].ni[100].y" 19337.142578125;
 	setAttr ".tgi[6].ni[100].nvs" 18305;
 	setAttr ".tgi[6].ni[101].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[101].y" 12351.4287109375;
+	setAttr ".tgi[6].ni[101].y" 13105.7138671875;
 	setAttr ".tgi[6].ni[101].nvs" 18305;
 	setAttr ".tgi[6].ni[102].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[102].y" 26185.71484375;
+	setAttr ".tgi[6].ni[102].y" 13880;
 	setAttr ".tgi[6].ni[102].nvs" 18305;
 	setAttr ".tgi[6].ni[103].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[103].y" 22897.142578125;
+	setAttr ".tgi[6].ni[103].y" 9777.142578125;
 	setAttr ".tgi[6].ni[103].nvs" 18305;
 	setAttr ".tgi[6].ni[104].x" -602.85711669921875;
-	setAttr ".tgi[6].ni[104].y" 15428.5712890625;
+	setAttr ".tgi[6].ni[104].y" 29725.71484375;
 	setAttr ".tgi[6].ni[104].nvs" 18305;
 	setAttr ".tgi[7].tn" -type "string" "Untitled_3";
-	setAttr ".tgi[7].vl" -type "double2" -3817.1701779896143 5299.9997893968766 ;
-	setAttr ".tgi[7].vh" -type "double2" 1870.7416839051623 6840.475918660045 ;
+	setAttr ".tgi[7].vl" -type "double2" -3829.395452229101 5290.4759802515628 ;
+	setAttr ".tgi[7].vh" -type "double2" 1893.6812434331869 6840.4759186600977 ;
 	setAttr -s 105 ".tgi[7].ni";
-	setAttr ".tgi[7].ni[0].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[0].y" -1321.4285888671875;
+	setAttr ".tgi[7].ni[0].x" -1136.1343994140625;
+	setAttr ".tgi[7].ni[0].y" 6007.47900390625;
 	setAttr ".tgi[7].ni[0].nvs" 18305;
 	setAttr ".tgi[7].ni[1].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[1].y" -3221.428466796875;
+	setAttr ".tgi[7].ni[1].y" 11412.857421875;
 	setAttr ".tgi[7].ni[1].nvs" 18305;
 	setAttr ".tgi[7].ni[2].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[2].y" -5121.4287109375;
+	setAttr ".tgi[7].ni[2].y" 6315.71435546875;
 	setAttr ".tgi[7].ni[2].nvs" 18305;
 	setAttr ".tgi[7].ni[3].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[3].y" 3058.571533203125;
+	setAttr ".tgi[7].ni[3].y" -235.71427917480469;
 	setAttr ".tgi[7].ni[3].nvs" 18305;
 	setAttr ".tgi[7].ni[4].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[4].y" 1972.857177734375;
+	setAttr ".tgi[7].ni[4].y" -5392.85693359375;
 	setAttr ".tgi[7].ni[4].nvs" 18305;
 	setAttr ".tgi[7].ni[5].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[5].y" -235.71427917480469;
+	setAttr ".tgi[7].ni[5].y" 13524.2861328125;
 	setAttr ".tgi[7].ni[5].nvs" 18305;
 	setAttr ".tgi[7].ni[6].x" -414.28570556640625;
 	setAttr ".tgi[7].ni[6].y" 15152.857421875;
 	setAttr ".tgi[7].ni[6].nvs" 18305;
 	setAttr ".tgi[7].ni[7].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[7].y" -2407.142822265625;
+	setAttr ".tgi[7].ni[7].y" -778.5714111328125;
 	setAttr ".tgi[7].ni[7].nvs" 18305;
 	setAttr ".tgi[7].ni[8].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[8].y" -2678.571533203125;
+	setAttr ".tgi[7].ni[8].y" 2787.142822265625;
 	setAttr ".tgi[7].ni[8].nvs" 18305;
 	setAttr ".tgi[7].ni[9].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[9].y" -2135.71435546875;
+	setAttr ".tgi[7].ni[9].y" 8970;
 	setAttr ".tgi[7].ni[9].nvs" 18305;
 	setAttr ".tgi[7].ni[10].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[10].y" -4578.5712890625;
+	setAttr ".tgi[7].ni[10].y" 10055.7138671875;
 	setAttr ".tgi[7].ni[10].nvs" 18305;
 	setAttr ".tgi[7].ni[11].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[11].y" -2950;
+	setAttr ".tgi[7].ni[11].y" -3764.28564453125;
 	setAttr ".tgi[7].ni[11].nvs" 18305;
 	setAttr ".tgi[7].ni[12].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[12].y" -4850;
+	setAttr ".tgi[7].ni[12].y" 8698.5712890625;
 	setAttr ".tgi[7].ni[12].nvs" 18305;
 	setAttr ".tgi[7].ni[13].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[13].y" 11412.857421875;
+	setAttr ".tgi[7].ni[13].y" -2407.142822265625;
 	setAttr ".tgi[7].ni[13].nvs" 18305;
 	setAttr ".tgi[7].ni[14].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[14].y" 9784.2861328125;
+	setAttr ".tgi[7].ni[14].y" -6535.71435546875;
 	setAttr ".tgi[7].ni[14].nvs" 18305;
 	setAttr ".tgi[7].ni[15].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[15].y" -6264.28564453125;
+	setAttr ".tgi[7].ni[15].y" 307.14285278320312;
 	setAttr ".tgi[7].ni[15].nvs" 18305;
 	setAttr ".tgi[7].ni[16].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[16].y" 830;
+	setAttr ".tgi[7].ni[16].y" -1592.857177734375;
 	setAttr ".tgi[7].ni[16].nvs" 18305;
 	setAttr ".tgi[7].ni[17].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[17].y" 6315.71435546875;
+	setAttr ".tgi[7].ni[17].y" -1321.4285888671875;
 	setAttr ".tgi[7].ni[17].nvs" 18305;
 	setAttr ".tgi[7].ni[18].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[18].y" 3601.428466796875;
+	setAttr ".tgi[7].ni[18].y" 11955.7138671875;
 	setAttr ".tgi[7].ni[18].nvs" 18305;
 	setAttr ".tgi[7].ni[19].x" -414.28570556640625;
 	setAttr ".tgi[7].ni[19].y" 17595.71484375;
 	setAttr ".tgi[7].ni[19].nvs" 18305;
 	setAttr ".tgi[7].ni[20].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[20].y" 14067.142578125;
+	setAttr ".tgi[7].ni[20].y" 5501.4287109375;
 	setAttr ".tgi[7].ni[20].nvs" 18305;
-	setAttr ".tgi[7].ni[21].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[21].y" 1101.4285888671875;
-	setAttr ".tgi[7].ni[21].nvs" 18305;
-	setAttr ".tgi[7].ni[22].x" -721.4285888671875;
-	setAttr ".tgi[7].ni[22].y" 6277.14306640625;
+	setAttr ".tgi[7].ni[21].x" 180;
+	setAttr ".tgi[7].ni[21].y" -6961.4287109375;
+	setAttr ".tgi[7].ni[21].nvs" 18304;
+	setAttr ".tgi[7].ni[22].x" -414.28570556640625;
+	setAttr ".tgi[7].ni[22].y" 2515.71435546875;
 	setAttr ".tgi[7].ni[22].nvs" 18305;
 	setAttr ".tgi[7].ni[23].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[23].y" 18138.572265625;
+	setAttr ".tgi[7].ni[23].y" 14881.4287109375;
 	setAttr ".tgi[7].ni[23].nvs" 18305;
-	setAttr ".tgi[7].ni[24].x" 180;
-	setAttr ".tgi[7].ni[24].y" -6961.4287109375;
-	setAttr ".tgi[7].ni[24].nvs" 18304;
+	setAttr ".tgi[7].ni[24].x" -414.28570556640625;
+	setAttr ".tgi[7].ni[24].y" -4578.5712890625;
+	setAttr ".tgi[7].ni[24].nvs" 18305;
 	setAttr ".tgi[7].ni[25].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[25].y" -4035.71435546875;
+	setAttr ".tgi[7].ni[25].y" 1430;
 	setAttr ".tgi[7].ni[25].nvs" 18305;
 	setAttr ".tgi[7].ni[26].x" -414.28570556640625;
 	setAttr ".tgi[7].ni[26].y" 17867.142578125;
 	setAttr ".tgi[7].ni[26].nvs" 18305;
 	setAttr ".tgi[7].ni[27].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[27].y" 14338.5712890625;
+	setAttr ".tgi[7].ni[27].y" 12710;
 	setAttr ".tgi[7].ni[27].nvs" 18305;
-	setAttr ".tgi[7].ni[28].x" 200;
-	setAttr ".tgi[7].ni[28].y" 6361.4287109375;
+	setAttr ".tgi[7].ni[28].x" -414.28570556640625;
+	setAttr ".tgi[7].ni[28].y" -4850;
 	setAttr ".tgi[7].ni[28].nvs" 18305;
-	setAttr ".tgi[7].ni[29].x" -1136.1343994140625;
-	setAttr ".tgi[7].ni[29].y" 6007.47900390625;
+	setAttr ".tgi[7].ni[29].x" -414.28570556640625;
+	setAttr ".tgi[7].ni[29].y" 3872.857177734375;
 	setAttr ".tgi[7].ni[29].nvs" 18305;
 	setAttr ".tgi[7].ni[30].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[30].y" 6044.28564453125;
+	setAttr ".tgi[7].ni[30].y" 16510;
 	setAttr ".tgi[7].ni[30].nvs" 18305;
 	setAttr ".tgi[7].ni[31].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[31].y" 15967.142578125;
+	setAttr ".tgi[7].ni[31].y" 1701.4285888671875;
 	setAttr ".tgi[7].ni[31].nvs" 18305;
 	setAttr ".tgi[7].ni[32].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[32].y" 12227.142578125;
+	setAttr ".tgi[7].ni[32].y" 3330;
 	setAttr ".tgi[7].ni[32].nvs" 18305;
-	setAttr ".tgi[7].ni[33].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[33].y" 10055.7138671875;
+	setAttr ".tgi[7].ni[33].x" -107.14286041259766;
+	setAttr ".tgi[7].ni[33].y" 6300;
 	setAttr ".tgi[7].ni[33].nvs" 18305;
 	setAttr ".tgi[7].ni[34].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[34].y" 13252.857421875;
+	setAttr ".tgi[7].ni[34].y" -1050;
 	setAttr ".tgi[7].ni[34].nvs" 18305;
 	setAttr ".tgi[7].ni[35].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[35].y" 10598.5712890625;
+	setAttr ".tgi[7].ni[35].y" 15695.7138671875;
 	setAttr ".tgi[7].ni[35].nvs" 18305;
 	setAttr ".tgi[7].ni[36].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[36].y" 8970;
+	setAttr ".tgi[7].ni[36].y" 2244.28564453125;
 	setAttr ".tgi[7].ni[36].nvs" 18305;
 	setAttr ".tgi[7].ni[37].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[37].y" 19495.71484375;
+	setAttr ".tgi[7].ni[37].y" 7130;
 	setAttr ".tgi[7].ni[37].nvs" 18305;
-	setAttr ".tgi[7].ni[38].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[38].y" -6807.14306640625;
+	setAttr ".tgi[7].ni[38].x" 200;
+	setAttr ".tgi[7].ni[38].y" 6361.4287109375;
 	setAttr ".tgi[7].ni[38].nvs" 18305;
 	setAttr ".tgi[7].ni[39].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[39].y" 15695.7138671875;
+	setAttr ".tgi[7].ni[39].y" -5992.85693359375;
 	setAttr ".tgi[7].ni[39].nvs" 18305;
 	setAttr ".tgi[7].ni[40].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[40].y" -4307.14306640625;
+	setAttr ".tgi[7].ni[40].y" -6807.14306640625;
 	setAttr ".tgi[7].ni[40].nvs" 18305;
 	setAttr ".tgi[7].ni[41].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[41].y" 2515.71435546875;
+	setAttr ".tgi[7].ni[41].y" 18138.572265625;
 	setAttr ".tgi[7].ni[41].nvs" 18305;
 	setAttr ".tgi[7].ni[42].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[42].y" 7672.85693359375;
+	setAttr ".tgi[7].ni[42].y" -4035.71435546875;
 	setAttr ".tgi[7].ni[42].nvs" 18305;
 	setAttr ".tgi[7].ni[43].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[43].y" 18410;
+	setAttr ".tgi[7].ni[43].y" -6264.28564453125;
 	setAttr ".tgi[7].ni[43].nvs" 18305;
 	setAttr ".tgi[7].ni[44].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[44].y" 16510;
+	setAttr ".tgi[7].ni[44].y" 3058.571533203125;
 	setAttr ".tgi[7].ni[44].nvs" 18305;
 	setAttr ".tgi[7].ni[45].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[45].y" -5992.85693359375;
+	setAttr ".tgi[7].ni[45].y" 9784.2861328125;
 	setAttr ".tgi[7].ni[45].nvs" 18305;
 	setAttr ".tgi[7].ni[46].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[46].y" 5772.85693359375;
+	setAttr ".tgi[7].ni[46].y" 11141.4287109375;
 	setAttr ".tgi[7].ni[46].nvs" 18305;
 	setAttr ".tgi[7].ni[47].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[47].y" 11141.4287109375;
+	setAttr ".tgi[7].ni[47].y" 14338.5712890625;
 	setAttr ".tgi[7].ni[47].nvs" 18305;
 	setAttr ".tgi[7].ni[48].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[48].y" 19224.28515625;
+	setAttr ".tgi[7].ni[48].y" 16238.5712890625;
 	setAttr ".tgi[7].ni[48].nvs" 18305;
 	setAttr ".tgi[7].ni[49].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[49].y" 14881.4287109375;
+	setAttr ".tgi[7].ni[49].y" 15424.2861328125;
 	setAttr ".tgi[7].ni[49].nvs" 18305;
 	setAttr ".tgi[7].ni[50].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[50].y" -5664.28564453125;
+	setAttr ".tgi[7].ni[50].y" 3601.428466796875;
 	setAttr ".tgi[7].ni[50].nvs" 18305;
 	setAttr ".tgi[7].ni[51].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[51].y" 16781.427734375;
+	setAttr ".tgi[7].ni[51].y" 4687.14306640625;
 	setAttr ".tgi[7].ni[51].nvs" 18305;
 	setAttr ".tgi[7].ni[52].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[52].y" -507.14285278320312;
+	setAttr ".tgi[7].ni[52].y" 17052.857421875;
 	setAttr ".tgi[7].ni[52].nvs" 18305;
 	setAttr ".tgi[7].ni[53].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[53].y" 4958.5712890625;
+	setAttr ".tgi[7].ni[53].y" 6587.14306640625;
 	setAttr ".tgi[7].ni[53].nvs" 18305;
 	setAttr ".tgi[7].ni[54].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[54].y" 8427.142578125;
+	setAttr ".tgi[7].ni[54].y" 19495.71484375;
 	setAttr ".tgi[7].ni[54].nvs" 18305;
 	setAttr ".tgi[7].ni[55].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[55].y" 16238.5712890625;
+	setAttr ".tgi[7].ni[55].y" -5664.28564453125;
 	setAttr ".tgi[7].ni[55].nvs" 18305;
 	setAttr ".tgi[7].ni[56].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[56].y" 4144.28564453125;
+	setAttr ".tgi[7].ni[56].y" 7884.28564453125;
 	setAttr ".tgi[7].ni[56].nvs" 18305;
 	setAttr ".tgi[7].ni[57].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[57].y" 307.14285278320312;
+	setAttr ".tgi[7].ni[57].y" 830;
 	setAttr ".tgi[7].ni[57].nvs" 18305;
-	setAttr ".tgi[7].ni[58].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[58].y" 17052.857421875;
+	setAttr ".tgi[7].ni[58].x" -844.11761474609375;
+	setAttr ".tgi[7].ni[58].y" 6072.85693359375;
 	setAttr ".tgi[7].ni[58].nvs" 18305;
 	setAttr ".tgi[7].ni[59].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[59].y" 9241.4287109375;
+	setAttr ".tgi[7].ni[59].y" 13252.857421875;
 	setAttr ".tgi[7].ni[59].nvs" 18305;
 	setAttr ".tgi[7].ni[60].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[60].y" 3872.857177734375;
+	setAttr ".tgi[7].ni[60].y" -1864.2857666015625;
 	setAttr ".tgi[7].ni[60].nvs" 18305;
 	setAttr ".tgi[7].ni[61].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[61].y" 6587.14306640625;
+	setAttr ".tgi[7].ni[61].y" 11684.2861328125;
 	setAttr ".tgi[7].ni[61].nvs" 18305;
 	setAttr ".tgi[7].ni[62].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[62].y" 5501.4287109375;
+	setAttr ".tgi[7].ni[62].y" 10870;
 	setAttr ".tgi[7].ni[62].nvs" 18305;
 	setAttr ".tgi[7].ni[63].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[63].y" 1430;
+	setAttr ".tgi[7].ni[63].y" 9512.857421875;
 	setAttr ".tgi[7].ni[63].nvs" 18305;
 	setAttr ".tgi[7].ni[64].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[64].y" -1864.2857666015625;
+	setAttr ".tgi[7].ni[64].y" -4307.14306640625;
 	setAttr ".tgi[7].ni[64].nvs" 18305;
 	setAttr ".tgi[7].ni[65].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[65].y" 13524.2861328125;
+	setAttr ".tgi[7].ni[65].y" 10598.5712890625;
 	setAttr ".tgi[7].ni[65].nvs" 18305;
 	setAttr ".tgi[7].ni[66].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[66].y" -778.5714111328125;
+	setAttr ".tgi[7].ni[66].y" 4415.71435546875;
 	setAttr ".tgi[7].ni[66].nvs" 18305;
 	setAttr ".tgi[7].ni[67].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[67].y" 5230;
+	setAttr ".tgi[7].ni[67].y" 12227.142578125;
 	setAttr ".tgi[7].ni[67].nvs" 18305;
 	setAttr ".tgi[7].ni[68].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[68].y" 11955.7138671875;
+	setAttr ".tgi[7].ni[68].y" 17324.28515625;
 	setAttr ".tgi[7].ni[68].nvs" 18305;
 	setAttr ".tgi[7].ni[69].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[69].y" 8155.71435546875;
+	setAttr ".tgi[7].ni[69].y" 5772.85693359375;
 	setAttr ".tgi[7].ni[69].nvs" 18305;
 	setAttr ".tgi[7].ni[70].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[70].y" 558.5714111328125;
+	setAttr ".tgi[7].ni[70].y" 7401.4287109375;
 	setAttr ".tgi[7].ni[70].nvs" 18305;
 	setAttr ".tgi[7].ni[71].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[71].y" -1592.857177734375;
+	setAttr ".tgi[7].ni[71].y" 18952.857421875;
 	setAttr ".tgi[7].ni[71].nvs" 18305;
 	setAttr ".tgi[7].ni[72].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[72].y" 7130;
+	setAttr ".tgi[7].ni[72].y" 10327.142578125;
 	setAttr ".tgi[7].ni[72].nvs" 18305;
-	setAttr ".tgi[7].ni[73].x" -1316.8309326171875;
-	setAttr ".tgi[7].ni[73].y" 6285.91455078125;
-	setAttr ".tgi[7].ni[73].nvs" 18306;
+	setAttr ".tgi[7].ni[73].x" -414.28570556640625;
+	setAttr ".tgi[7].ni[73].y" 6858.5712890625;
+	setAttr ".tgi[7].ni[73].nvs" 18305;
 	setAttr ".tgi[7].ni[74].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[74].y" 17324.28515625;
+	setAttr ".tgi[7].ni[74].y" -2678.571533203125;
 	setAttr ".tgi[7].ni[74].nvs" 18305;
-	setAttr ".tgi[7].ni[75].x" -107.14286041259766;
-	setAttr ".tgi[7].ni[75].y" 6300;
-	setAttr ".tgi[7].ni[75].nvs" 18305;
+	setAttr ".tgi[7].ni[75].x" -1316.8309326171875;
+	setAttr ".tgi[7].ni[75].y" 6285.91455078125;
+	setAttr ".tgi[7].ni[75].nvs" 18306;
 	setAttr ".tgi[7].ni[76].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[76].y" 4687.14306640625;
+	setAttr ".tgi[7].ni[76].y" 16781.427734375;
 	setAttr ".tgi[7].ni[76].nvs" 18305;
 	setAttr ".tgi[7].ni[77].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[77].y" 6858.5712890625;
+	setAttr ".tgi[7].ni[77].y" -3492.857177734375;
 	setAttr ".tgi[7].ni[77].nvs" 18305;
 	setAttr ".tgi[7].ni[78].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[78].y" 14610;
+	setAttr ".tgi[7].ni[78].y" 12498.5712890625;
 	setAttr ".tgi[7].ni[78].nvs" 18305;
-	setAttr ".tgi[7].ni[79].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[79].y" 12498.5712890625;
+	setAttr ".tgi[7].ni[79].x" -721.4285888671875;
+	setAttr ".tgi[7].ni[79].y" 6277.14306640625;
 	setAttr ".tgi[7].ni[79].nvs" 18305;
 	setAttr ".tgi[7].ni[80].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[80].y" 11684.2861328125;
+	setAttr ".tgi[7].ni[80].y" -2950;
 	setAttr ".tgi[7].ni[80].nvs" 18305;
 	setAttr ".tgi[7].ni[81].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[81].y" 8698.5712890625;
+	setAttr ".tgi[7].ni[81].y" 18681.427734375;
 	setAttr ".tgi[7].ni[81].nvs" 18305;
 	setAttr ".tgi[7].ni[82].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[82].y" 9512.857421875;
+	setAttr ".tgi[7].ni[82].y" 8427.142578125;
 	setAttr ".tgi[7].ni[82].nvs" 18305;
 	setAttr ".tgi[7].ni[83].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[83].y" 15424.2861328125;
+	setAttr ".tgi[7].ni[83].y" 8155.71435546875;
 	setAttr ".tgi[7].ni[83].nvs" 18305;
 	setAttr ".tgi[7].ni[84].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[84].y" 10870;
+	setAttr ".tgi[7].ni[84].y" 1972.857177734375;
 	setAttr ".tgi[7].ni[84].nvs" 18305;
 	setAttr ".tgi[7].ni[85].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[85].y" -1050;
+	setAttr ".tgi[7].ni[85].y" 15967.142578125;
 	setAttr ".tgi[7].ni[85].nvs" 18305;
-	setAttr ".tgi[7].ni[86].x" -844.11761474609375;
-	setAttr ".tgi[7].ni[86].y" 6072.85693359375;
+	setAttr ".tgi[7].ni[86].x" -414.28570556640625;
+	setAttr ".tgi[7].ni[86].y" 558.5714111328125;
 	setAttr ".tgi[7].ni[86].nvs" 18305;
 	setAttr ".tgi[7].ni[87].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[87].y" 1701.4285888671875;
+	setAttr ".tgi[7].ni[87].y" 9241.4287109375;
 	setAttr ".tgi[7].ni[87].nvs" 18305;
 	setAttr ".tgi[7].ni[88].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[88].y" 35.714286804199219;
+	setAttr ".tgi[7].ni[88].y" -5121.4287109375;
 	setAttr ".tgi[7].ni[88].nvs" 18305;
 	setAttr ".tgi[7].ni[89].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[89].y" 4415.71435546875;
+	setAttr ".tgi[7].ni[89].y" -507.14285278320312;
 	setAttr ".tgi[7].ni[89].nvs" 18305;
 	setAttr ".tgi[7].ni[90].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[90].y" 2244.28564453125;
+	setAttr ".tgi[7].ni[90].y" 4144.28564453125;
 	setAttr ".tgi[7].ni[90].nvs" 18305;
 	setAttr ".tgi[7].ni[91].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[91].y" 2787.142822265625;
+	setAttr ".tgi[7].ni[91].y" 18410;
 	setAttr ".tgi[7].ni[91].nvs" 18305;
 	setAttr ".tgi[7].ni[92].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[92].y" 13795.7138671875;
+	setAttr ".tgi[7].ni[92].y" 35.714286804199219;
 	setAttr ".tgi[7].ni[92].nvs" 18305;
 	setAttr ".tgi[7].ni[93].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[93].y" 18681.427734375;
+	setAttr ".tgi[7].ni[93].y" 7672.85693359375;
 	setAttr ".tgi[7].ni[93].nvs" 18305;
 	setAttr ".tgi[7].ni[94].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[94].y" -3492.857177734375;
+	setAttr ".tgi[7].ni[94].y" 5230;
 	setAttr ".tgi[7].ni[94].nvs" 18305;
 	setAttr ".tgi[7].ni[95].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[95].y" 12710;
+	setAttr ".tgi[7].ni[95].y" 13795.7138671875;
 	setAttr ".tgi[7].ni[95].nvs" 18305;
 	setAttr ".tgi[7].ni[96].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[96].y" 7884.28564453125;
+	setAttr ".tgi[7].ni[96].y" -2135.71435546875;
 	setAttr ".tgi[7].ni[96].nvs" 18305;
 	setAttr ".tgi[7].ni[97].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[97].y" -3764.28564453125;
+	setAttr ".tgi[7].ni[97].y" 1101.4285888671875;
 	setAttr ".tgi[7].ni[97].nvs" 18305;
 	setAttr ".tgi[7].ni[98].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[98].y" 18952.857421875;
+	setAttr ".tgi[7].ni[98].y" 19224.28515625;
 	setAttr ".tgi[7].ni[98].nvs" 18305;
 	setAttr ".tgi[7].ni[99].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[99].y" 10327.142578125;
+	setAttr ".tgi[7].ni[99].y" 12981.4287109375;
 	setAttr ".tgi[7].ni[99].nvs" 18305;
 	setAttr ".tgi[7].ni[100].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[100].y" 7401.4287109375;
+	setAttr ".tgi[7].ni[100].y" 6044.28564453125;
 	setAttr ".tgi[7].ni[100].nvs" 18305;
 	setAttr ".tgi[7].ni[101].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[101].y" -5392.85693359375;
+	setAttr ".tgi[7].ni[101].y" 4958.5712890625;
 	setAttr ".tgi[7].ni[101].nvs" 18305;
 	setAttr ".tgi[7].ni[102].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[102].y" 12981.4287109375;
+	setAttr ".tgi[7].ni[102].y" 14610;
 	setAttr ".tgi[7].ni[102].nvs" 18305;
 	setAttr ".tgi[7].ni[103].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[103].y" -6535.71435546875;
+	setAttr ".tgi[7].ni[103].y" -3221.428466796875;
 	setAttr ".tgi[7].ni[103].nvs" 18305;
 	setAttr ".tgi[7].ni[104].x" -414.28570556640625;
-	setAttr ".tgi[7].ni[104].y" 3330;
+	setAttr ".tgi[7].ni[104].y" 14067.142578125;
 	setAttr ".tgi[7].ni[104].nvs" 18305;
 	setAttr ".tgi[8].tn" -type "string" "Untitled_4";
-	setAttr ".tgi[8].vl" -type "double2" -32004.485907743168 9695.2377099837304 ;
-	setAttr ".tgi[8].vh" -type "double2" -19683.607276451781 13032.142339291815 ;
+	setAttr ".tgi[8].vl" -type "double2" -32017.901658126295 9685.7139008385948 ;
+	setAttr ".tgi[8].vh" -type "double2" -19661.858193067394 13032.14233929205 ;
 	setAttr ".tgi[9].tn" -type "string" "Untitled_5";
-	setAttr ".tgi[9].vl" -type "double2" 196.33698853526508 -13724.999454617522 ;
-	setAttr ".tgi[9].vh" -type "double2" 4679.8532938928174 -12510.713788583183 ;
+	setAttr ".tgi[9].vl" -type "double2" 184.11171429577931 -13734.523263762891 ;
+	setAttr ".tgi[9].vh" -type "double2" 4702.7928534208422 -12510.713788583183 ;
 	setAttr -s 208 ".tgi[9].ni";
-	setAttr ".tgi[9].ni[0].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[0].y" -25794.28515625;
+	setAttr ".tgi[9].ni[0].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[0].y" -14554.2861328125;
 	setAttr ".tgi[9].ni[0].nvs" 18305;
 	setAttr ".tgi[9].ni[1].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[1].y" -15934.2861328125;
+	setAttr ".tgi[9].ni[1].y" -25794.28515625;
 	setAttr ".tgi[9].ni[1].nvs" 18305;
-	setAttr ".tgi[9].ni[2].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[2].y" -14455.7138671875;
+	setAttr ".tgi[9].ni[2].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[2].y" -22102.857421875;
 	setAttr ".tgi[9].ni[2].nvs" 18305;
 	setAttr ".tgi[9].ni[3].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[3].y" 5085.71435546875;
+	setAttr ".tgi[9].ni[3].y" -71.428573608398438;
 	setAttr ".tgi[9].ni[3].nvs" 18305;
-	setAttr ".tgi[9].ni[4].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[4].y" -15737.142578125;
+	setAttr ".tgi[9].ni[4].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[4].y" -4957.14306640625;
 	setAttr ".tgi[9].ni[4].nvs" 18305;
 	setAttr ".tgi[9].ni[5].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[5].y" -31062.857421875;
+	setAttr ".tgi[9].ni[5].y" -6585.71435546875;
 	setAttr ".tgi[9].ni[5].nvs" 18305;
-	setAttr ".tgi[9].ni[6].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[6].y" -13760;
+	setAttr ".tgi[9].ni[6].x" 2917.142822265625;
+	setAttr ".tgi[9].ni[6].y" 6305.71435546875;
 	setAttr ".tgi[9].ni[6].nvs" 18305;
-	setAttr ".tgi[9].ni[7].x" 1239.9483642578125;
-	setAttr ".tgi[9].ni[7].y" -13804.623046875;
+	setAttr ".tgi[9].ni[7].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[7].y" -24681.427734375;
 	setAttr ".tgi[9].ni[7].nvs" 18305;
-	setAttr ".tgi[9].ni[8].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[8].y" -27450;
+	setAttr ".tgi[9].ni[8].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[8].y" -14948.5712890625;
 	setAttr ".tgi[9].ni[8].nvs" 18305;
-	setAttr ".tgi[9].ni[9].x" 2917.142822265625;
-	setAttr ".tgi[9].ni[9].y" 6305.71435546875;
+	setAttr ".tgi[9].ni[9].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[9].y" -29732.857421875;
 	setAttr ".tgi[9].ni[9].nvs" 18305;
-	setAttr ".tgi[9].ni[10].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[10].y" -10258.5712890625;
+	setAttr ".tgi[9].ni[10].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[10].y" -16032.857421875;
 	setAttr ".tgi[9].ni[10].nvs" 18305;
-	setAttr ".tgi[9].ni[11].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[11].y" -5500;
+	setAttr ".tgi[9].ni[11].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[11].y" -14652.857421875;
 	setAttr ".tgi[9].ni[11].nvs" 18305;
 	setAttr ".tgi[9].ni[12].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[12].y" -25604.28515625;
+	setAttr ".tgi[9].ni[12].y" -1157.142822265625;
 	setAttr ".tgi[9].ni[12].nvs" 18305;
 	setAttr ".tgi[9].ni[13].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[13].y" -20718.572265625;
+	setAttr ".tgi[9].ni[13].y" -17950;
 	setAttr ".tgi[9].ni[13].nvs" 18305;
 	setAttr ".tgi[9].ni[14].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[14].y" -22374.28515625;
+	setAttr ".tgi[9].ni[14].y" -21180;
 	setAttr ".tgi[9].ni[14].nvs" 18305;
 	setAttr ".tgi[9].ni[15].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[15].y" -8222.857421875;
+	setAttr ".tgi[9].ni[15].y" -26527.142578125;
 	setAttr ".tgi[9].ni[15].nvs" 18305;
 	setAttr ".tgi[9].ni[16].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[16].y" -16857.142578125;
+	setAttr ".tgi[9].ni[16].y" 200;
 	setAttr ".tgi[9].ni[16].nvs" 18305;
 	setAttr ".tgi[9].ni[17].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[17].y" 2100;
+	setAttr ".tgi[9].ni[17].y" -28348.572265625;
 	setAttr ".tgi[9].ni[17].nvs" 18305;
 	setAttr ".tgi[9].ni[18].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[18].y" -15835.7138671875;
+	setAttr ".tgi[9].ni[18].y" -14455.7138671875;
 	setAttr ".tgi[9].ni[18].nvs" 18305;
 	setAttr ".tgi[9].ni[19].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[19].y" -3600;
+	setAttr ".tgi[9].ni[19].y" -1700;
 	setAttr ".tgi[9].ni[19].nvs" 18305;
 	setAttr ".tgi[9].ni[20].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[20].y" -29081.427734375;
+	setAttr ".tgi[9].ni[20].y" -11914.2861328125;
 	setAttr ".tgi[9].ni[20].nvs" 18305;
-	setAttr ".tgi[9].ni[21].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[21].y" -13488.5712890625;
+	setAttr ".tgi[9].ni[21].x" 1230;
+	setAttr ".tgi[9].ni[21].y" -14138.5712890625;
 	setAttr ".tgi[9].ni[21].nvs" 18305;
 	setAttr ".tgi[9].ni[22].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[22].y" -24681.427734375;
+	setAttr ".tgi[9].ni[22].y" -7801.4287109375;
 	setAttr ".tgi[9].ni[22].nvs" 18305;
 	setAttr ".tgi[9].ni[23].x" 2111.428466796875;
 	setAttr ".tgi[9].ni[23].y" -12375.7138671875;
 	setAttr ".tgi[9].ni[23].nvs" 18305;
-	setAttr ".tgi[9].ni[24].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[24].y" -14258.5712890625;
+	setAttr ".tgi[9].ni[24].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[24].y" -18221.427734375;
 	setAttr ".tgi[9].ni[24].nvs" 18305;
 	setAttr ".tgi[9].ni[25].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[25].y" 5628.5712890625;
+	setAttr ".tgi[9].ni[25].y" 4000;
 	setAttr ".tgi[9].ni[25].nvs" 18305;
 	setAttr ".tgi[9].ni[26].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[26].y" -10720;
+	setAttr ".tgi[9].ni[26].y" -2242.857177734375;
 	setAttr ".tgi[9].ni[26].nvs" 18305;
-	setAttr ".tgi[9].ni[27].x" 2385.878662109375;
-	setAttr ".tgi[9].ni[27].y" -15051.61328125;
+	setAttr ".tgi[9].ni[27].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[27].y" 5628.5712890625;
 	setAttr ".tgi[9].ni[27].nvs" 18305;
 	setAttr ".tgi[9].ni[28].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[28].y" -24871.427734375;
+	setAttr ".tgi[9].ni[28].y" 471.42855834960938;
 	setAttr ".tgi[9].ni[28].nvs" 18305;
-	setAttr ".tgi[9].ni[29].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[29].y" -7128.5712890625;
+	setAttr ".tgi[9].ni[29].x" 1230;
+	setAttr ".tgi[9].ni[29].y" -13964.2861328125;
 	setAttr ".tgi[9].ni[29].nvs" 18305;
 	setAttr ".tgi[9].ni[30].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[30].y" -19605.71484375;
+	setAttr ".tgi[9].ni[30].y" -14740;
 	setAttr ".tgi[9].ni[30].nvs" 18305;
 	setAttr ".tgi[9].ni[31].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[31].y" 1285.7142333984375;
+	setAttr ".tgi[9].ni[31].y" -19144.28515625;
 	setAttr ".tgi[9].ni[31].nvs" 18305;
 	setAttr ".tgi[9].ni[32].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[32].y" -30492.857421875;
+	setAttr ".tgi[9].ni[32].y" -3057.142822265625;
 	setAttr ".tgi[9].ni[32].nvs" 18305;
 	setAttr ".tgi[9].ni[33].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[33].y" -22835.71484375;
+	setAttr ".tgi[9].ni[33].y" 742.85711669921875;
 	setAttr ".tgi[9].ni[33].nvs" 18305;
-	setAttr ".tgi[9].ni[34].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[34].y" -32582.857421875;
+	setAttr ".tgi[9].ni[34].x" 1537.142822265625;
+	setAttr ".tgi[9].ni[34].y" -13964.2861328125;
 	setAttr ".tgi[9].ni[34].nvs" 18305;
 	setAttr ".tgi[9].ni[35].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[35].y" -16585.71484375;
+	setAttr ".tgi[9].ni[35].y" -31062.857421875;
 	setAttr ".tgi[9].ni[35].nvs" 18305;
 	setAttr ".tgi[9].ni[36].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[36].y" -9797.142578125;
+	setAttr ".tgi[9].ni[36].y" 5085.71435546875;
 	setAttr ".tgi[9].ni[36].nvs" 18305;
 	setAttr ".tgi[9].ni[37].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[37].y" 4542.85693359375;
+	setAttr ".tgi[9].ni[37].y" -29922.857421875;
 	setAttr ".tgi[9].ni[37].nvs" 18305;
-	setAttr ".tgi[9].ni[38].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[38].y" -32012.857421875;
+	setAttr ".tgi[9].ni[38].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[38].y" -14751.4287109375;
 	setAttr ".tgi[9].ni[38].nvs" 18305;
-	setAttr ".tgi[9].ni[39].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[39].y" 742.85711669921875;
+	setAttr ".tgi[9].ni[39].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[39].y" -15540;
 	setAttr ".tgi[9].ni[39].nvs" 18305;
 	setAttr ".tgi[9].ni[40].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[40].y" -20257.142578125;
+	setAttr ".tgi[9].ni[40].y" -20990;
 	setAttr ".tgi[9].ni[40].nvs" 18305;
-	setAttr ".tgi[9].ni[41].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[41].y" -26065.71484375;
+	setAttr ".tgi[9].ni[41].x" 1239.9483642578125;
+	setAttr ".tgi[9].ni[41].y" -13804.623046875;
 	setAttr ".tgi[9].ni[41].nvs" 18305;
 	setAttr ".tgi[9].ni[42].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[42].y" 200;
+	setAttr ".tgi[9].ni[42].y" -18872.857421875;
 	setAttr ".tgi[9].ni[42].nvs" 18305;
-	setAttr ".tgi[9].ni[43].x" 1545.1993408203125;
-	setAttr ".tgi[9].ni[43].y" -13781.681640625;
+	setAttr ".tgi[9].ni[43].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[43].y" 1285.7142333984375;
 	setAttr ".tgi[9].ni[43].nvs" 18305;
-	setAttr ".tgi[9].ni[44].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[44].y" -4685.71435546875;
+	setAttr ".tgi[9].ni[44].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[44].y" -14258.5712890625;
 	setAttr ".tgi[9].ni[44].nvs" 18305;
-	setAttr ".tgi[9].ni[45].x" 1230;
-	setAttr ".tgi[9].ni[45].y" -14138.5712890625;
+	setAttr ".tgi[9].ni[45].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[45].y" -28810;
 	setAttr ".tgi[9].ni[45].nvs" 18305;
 	setAttr ".tgi[9].ni[46].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[46].y" -31822.857421875;
+	setAttr ".tgi[9].ni[46].y" -1971.4285888671875;
 	setAttr ".tgi[9].ni[46].nvs" 18305;
-	setAttr ".tgi[9].ni[47].x" 1497.142822265625;
-	setAttr ".tgi[9].ni[47].y" -2295.71435546875;
+	setAttr ".tgi[9].ni[47].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[47].y" -15638.5712890625;
 	setAttr ".tgi[9].ni[47].nvs" 18305;
 	setAttr ".tgi[9].ni[48].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[48].y" -20528.572265625;
+	setAttr ".tgi[9].ni[48].y" -8222.857421875;
 	setAttr ".tgi[9].ni[48].nvs" 18305;
 	setAttr ".tgi[9].ni[49].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[49].y" -7991.4287109375;
+	setAttr ".tgi[9].ni[49].y" 4542.85693359375;
 	setAttr ".tgi[9].ni[49].nvs" 18305;
 	setAttr ".tgi[9].ni[50].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[50].y" -15342.857421875;
+	setAttr ".tgi[9].ni[50].y" -15145.7138671875;
 	setAttr ".tgi[9].ni[50].nvs" 18305;
-	setAttr ".tgi[9].ni[51].x" 1190;
-	setAttr ".tgi[9].ni[51].y" 1134.2857666015625;
+	setAttr ".tgi[9].ni[51].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[51].y" -14850;
 	setAttr ".tgi[9].ni[51].nvs" 18305;
-	setAttr ".tgi[9].ni[52].x" 2988.571533203125;
-	setAttr ".tgi[9].ni[52].y" -19000;
-	setAttr ".tgi[9].ni[52].nvs" 18304;
+	setAttr ".tgi[9].ni[52].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[52].y" -25332.857421875;
+	setAttr ".tgi[9].ni[52].nvs" 18305;
 	setAttr ".tgi[9].ni[53].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[53].y" -11642.857421875;
+	setAttr ".tgi[9].ni[53].y" -5500;
 	setAttr ".tgi[9].ni[53].nvs" 18305;
 	setAttr ".tgi[9].ni[54].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[54].y" -17318.572265625;
+	setAttr ".tgi[9].ni[54].y" 1557.142822265625;
 	setAttr ".tgi[9].ni[54].nvs" 18305;
-	setAttr ".tgi[9].ni[55].x" 1804.2857666015625;
-	setAttr ".tgi[9].ni[55].y" -9390;
+	setAttr ".tgi[9].ni[55].x" 1537.142822265625;
+	setAttr ".tgi[9].ni[55].y" -14312.857421875;
 	setAttr ".tgi[9].ni[55].nvs" 18305;
 	setAttr ".tgi[9].ni[56].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[56].y" -26255.71484375;
+	setAttr ".tgi[9].ni[56].y" -32202.857421875;
 	setAttr ".tgi[9].ni[56].nvs" 18305;
 	setAttr ".tgi[9].ni[57].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[57].y" -29922.857421875;
+	setAttr ".tgi[9].ni[57].y" -19334.28515625;
 	setAttr ".tgi[9].ni[57].nvs" 18305;
 	setAttr ".tgi[9].ni[58].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[58].y" -71.428573608398438;
+	setAttr ".tgi[9].ni[58].y" -21912.857421875;
 	setAttr ".tgi[9].ni[58].nvs" 18305;
-	setAttr ".tgi[9].ni[59].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[59].y" -29542.857421875;
+	setAttr ".tgi[9].ni[59].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[59].y" -15244.2861328125;
 	setAttr ".tgi[9].ni[59].nvs" 18305;
-	setAttr ".tgi[9].ni[60].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[60].y" -30872.857421875;
+	setAttr ".tgi[9].ni[60].x" 1804.2857666015625;
+	setAttr ".tgi[9].ni[60].y" -9390;
 	setAttr ".tgi[9].ni[60].nvs" 18305;
 	setAttr ".tgi[9].ni[61].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[61].y" -25142.857421875;
+	setAttr ".tgi[9].ni[61].y" -17508.572265625;
 	setAttr ".tgi[9].ni[61].nvs" 18305;
 	setAttr ".tgi[9].ni[62].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[62].y" -18682.857421875;
+	setAttr ".tgi[9].ni[62].y" -13760;
 	setAttr ".tgi[9].ni[62].nvs" 18305;
 	setAttr ".tgi[9].ni[63].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[63].y" -6585.71435546875;
+	setAttr ".tgi[9].ni[63].y" -23297.142578125;
 	setAttr ".tgi[9].ni[63].nvs" 18305;
-	setAttr ".tgi[9].ni[64].x" 1230;
-	setAttr ".tgi[9].ni[64].y" -14312.857421875;
+	setAttr ".tgi[9].ni[64].x" 1804.2857666015625;
+	setAttr ".tgi[9].ni[64].y" -5784.28564453125;
 	setAttr ".tgi[9].ni[64].nvs" 18305;
-	setAttr ".tgi[9].ni[65].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[65].y" -14652.857421875;
+	setAttr ".tgi[9].ni[65].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[65].y" 3728.571533203125;
 	setAttr ".tgi[9].ni[65].nvs" 18305;
 	setAttr ".tgi[9].ni[66].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[66].y" -16395.71484375;
+	setAttr ".tgi[9].ni[66].y" -10720;
 	setAttr ".tgi[9].ni[66].nvs" 18305;
 	setAttr ".tgi[9].ni[67].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[67].y" 4814.28564453125;
+	setAttr ".tgi[9].ni[67].y" -20067.142578125;
 	setAttr ".tgi[9].ni[67].nvs" 18305;
 	setAttr ".tgi[9].ni[68].x" 2111.428466796875;
 	setAttr ".tgi[9].ni[68].y" -31632.857421875;
 	setAttr ".tgi[9].ni[68].nvs" 18305;
 	setAttr ".tgi[9].ni[69].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[69].y" -6314.28564453125;
+	setAttr ".tgi[9].ni[69].y" 2642.857177734375;
 	setAttr ".tgi[9].ni[69].nvs" 18305;
 	setAttr ".tgi[9].ni[70].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[70].y" 5900;
+	setAttr ".tgi[9].ni[70].y" -10068.5712890625;
 	setAttr ".tgi[9].ni[70].nvs" 18305;
 	setAttr ".tgi[9].ni[71].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[71].y" -1157.142822265625;
+	setAttr ".tgi[9].ni[71].y" 5357.14306640625;
 	setAttr ".tgi[9].ni[71].nvs" 18305;
-	setAttr ".tgi[9].ni[72].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[72].y" -27640;
+	setAttr ".tgi[9].ni[72].x" 2418.571533203125;
+	setAttr ".tgi[9].ni[72].y" -2928.571533203125;
 	setAttr ".tgi[9].ni[72].nvs" 18305;
 	setAttr ".tgi[9].ni[73].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[73].y" -15145.7138671875;
+	setAttr ".tgi[9].ni[73].y" -15441.4287109375;
 	setAttr ".tgi[9].ni[73].nvs" 18305;
 	setAttr ".tgi[9].ni[74].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[74].y" 1828.5714111328125;
+	setAttr ".tgi[9].ni[74].y" -16395.71484375;
 	setAttr ".tgi[9].ni[74].nvs" 18305;
-	setAttr ".tgi[9].ni[75].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[75].y" -342.85714721679688;
+	setAttr ".tgi[9].ni[75].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[75].y" -15737.142578125;
 	setAttr ".tgi[9].ni[75].nvs" 18305;
 	setAttr ".tgi[9].ni[76].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[76].y" -28620;
+	setAttr ".tgi[9].ni[76].y" -10530;
 	setAttr ".tgi[9].ni[76].nvs" 18305;
 	setAttr ".tgi[9].ni[77].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[77].y" 3185.71435546875;
+	setAttr ".tgi[9].ni[77].y" -4685.71435546875;
 	setAttr ".tgi[9].ni[77].nvs" 18305;
 	setAttr ".tgi[9].ni[78].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[78].y" -30682.857421875;
+	setAttr ".tgi[9].ni[78].y" -16124.2861328125;
 	setAttr ".tgi[9].ni[78].nvs" 18305;
 	setAttr ".tgi[9].ni[79].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[79].y" -24220;
+	setAttr ".tgi[9].ni[79].y" -11181.4287109375;
 	setAttr ".tgi[9].ni[79].nvs" 18305;
-	setAttr ".tgi[9].ni[80].x" 2917.142822265625;
-	setAttr ".tgi[9].ni[80].y" -8072.85693359375;
-	setAttr ".tgi[9].ni[80].nvs" 19281;
-	setAttr ".tgi[9].ni[81].x" 1230;
-	setAttr ".tgi[9].ni[81].y" -13964.2861328125;
+	setAttr ".tgi[9].ni[80].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[80].y" -20718.572265625;
+	setAttr ".tgi[9].ni[80].nvs" 18305;
+	setAttr ".tgi[9].ni[81].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[81].y" -7128.5712890625;
 	setAttr ".tgi[9].ni[81].nvs" 18305;
-	setAttr ".tgi[9].ni[82].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[82].y" -6042.85693359375;
+	setAttr ".tgi[9].ni[82].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[82].y" -14357.142578125;
 	setAttr ".tgi[9].ni[82].nvs" 18305;
-	setAttr ".tgi[9].ni[83].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[83].y" -29732.857421875;
+	setAttr ".tgi[9].ni[83].x" 1230;
+	setAttr ".tgi[9].ni[83].y" -14312.857421875;
 	setAttr ".tgi[9].ni[83].nvs" 18305;
 	setAttr ".tgi[9].ni[84].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[84].y" -3057.142822265625;
+	setAttr ".tgi[9].ni[84].y" -22374.28515625;
 	setAttr ".tgi[9].ni[84].nvs" 18305;
 	setAttr ".tgi[9].ni[85].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[85].y" -11452.857421875;
+	setAttr ".tgi[9].ni[85].y" -32582.857421875;
 	setAttr ".tgi[9].ni[85].nvs" 18305;
 	setAttr ".tgi[9].ni[86].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[86].y" -10991.4287109375;
+	setAttr ".tgi[9].ni[86].y" 4271.4287109375;
 	setAttr ".tgi[9].ni[86].nvs" 18305;
 	setAttr ".tgi[9].ni[87].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[87].y" -3871.428466796875;
+	setAttr ".tgi[9].ni[87].y" -15011.4287109375;
 	setAttr ".tgi[9].ni[87].nvs" 18305;
-	setAttr ".tgi[9].ni[88].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[88].y" -9335.7138671875;
+	setAttr ".tgi[9].ni[88].x" 1497.142822265625;
+	setAttr ".tgi[9].ni[88].y" -2295.71435546875;
 	setAttr ".tgi[9].ni[88].nvs" 18305;
 	setAttr ".tgi[9].ni[89].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[89].y" -2785.71435546875;
+	setAttr ".tgi[9].ni[89].y" -32772.85546875;
 	setAttr ".tgi[9].ni[89].nvs" 18305;
 	setAttr ".tgi[9].ni[90].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[90].y" -3328.571533203125;
+	setAttr ".tgi[9].ni[90].y" -30872.857421875;
 	setAttr ".tgi[9].ni[90].nvs" 18305;
 	setAttr ".tgi[9].ni[91].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[91].y" -32392.857421875;
+	setAttr ".tgi[9].ni[91].y" 1828.5714111328125;
 	setAttr ".tgi[9].ni[91].nvs" 18305;
 	setAttr ".tgi[9].ni[92].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[92].y" -22564.28515625;
+	setAttr ".tgi[9].ni[92].y" -4414.28564453125;
 	setAttr ".tgi[9].ni[92].nvs" 18305;
 	setAttr ".tgi[9].ni[93].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[93].y" -6857.14306640625;
+	setAttr ".tgi[9].ni[93].y" -14221.4287109375;
 	setAttr ".tgi[9].ni[93].nvs" 18305;
 	setAttr ".tgi[9].ni[94].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[94].y" -20990;
+	setAttr ".tgi[9].ni[94].y" -8412.857421875;
 	setAttr ".tgi[9].ni[94].nvs" 18305;
-	setAttr ".tgi[9].ni[95].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[95].y" -15047.142578125;
+	setAttr ".tgi[9].ni[95].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[95].y" -31822.857421875;
 	setAttr ".tgi[9].ni[95].nvs" 18305;
 	setAttr ".tgi[9].ni[96].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[96].y" -17047.142578125;
+	setAttr ".tgi[9].ni[96].y" -15472.857421875;
 	setAttr ".tgi[9].ni[96].nvs" 18305;
 	setAttr ".tgi[9].ni[97].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[97].y" -5771.4287109375;
+	setAttr ".tgi[9].ni[97].y" 2100;
 	setAttr ".tgi[9].ni[97].nvs" 18305;
 	setAttr ".tgi[9].ni[98].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[98].y" -13298.5712890625;
+	setAttr ".tgi[9].ni[98].y" -28101.427734375;
 	setAttr ".tgi[9].ni[98].nvs" 18305;
-	setAttr ".tgi[9].ni[99].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[99].y" -15441.4287109375;
+	setAttr ".tgi[9].ni[99].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[99].y" -13027.142578125;
 	setAttr ".tgi[9].ni[99].nvs" 18305;
 	setAttr ".tgi[9].ni[100].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[100].y" -8874.2861328125;
+	setAttr ".tgi[9].ni[100].y" -32012.857421875;
 	setAttr ".tgi[9].ni[100].nvs" 18305;
-	setAttr ".tgi[9].ni[101].x" 1032.857177734375;
-	setAttr ".tgi[9].ni[101].y" -14407.142578125;
+	setAttr ".tgi[9].ni[101].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[101].y" -5228.5712890625;
 	setAttr ".tgi[9].ni[101].nvs" 18305;
-	setAttr ".tgi[9].ni[102].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[102].y" -1428.5714111328125;
+	setAttr ".tgi[9].ni[102].x" 1032.857177734375;
+	setAttr ".tgi[9].ni[102].y" -14407.142578125;
 	setAttr ".tgi[9].ni[102].nvs" 18305;
-	setAttr ".tgi[9].ni[103].x" 1537.142822265625;
-	setAttr ".tgi[9].ni[103].y" -14312.857421875;
+	setAttr ".tgi[9].ni[103].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[103].y" -5771.4287109375;
 	setAttr ".tgi[9].ni[103].nvs" 18305;
-	setAttr ".tgi[9].ni[104].x" 2418.571533203125;
-	setAttr ".tgi[9].ni[104].y" 6305.71435546875;
+	setAttr ".tgi[9].ni[104].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[104].y" -20528.572265625;
 	setAttr ".tgi[9].ni[104].nvs" 18305;
 	setAttr ".tgi[9].ni[105].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[105].y" -18872.857421875;
+	setAttr ".tgi[9].ni[105].y" -17318.572265625;
 	setAttr ".tgi[9].ni[105].nvs" 18305;
-	setAttr ".tgi[9].ni[106].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[106].y" -30112.857421875;
+	setAttr ".tgi[9].ni[106].x" 2418.571533203125;
+	setAttr ".tgi[9].ni[106].y" -5091.4287109375;
 	setAttr ".tgi[9].ni[106].nvs" 18305;
-	setAttr ".tgi[9].ni[107].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[107].y" -28101.427734375;
+	setAttr ".tgi[9].ni[107].x" 1545.1993408203125;
+	setAttr ".tgi[9].ni[107].y" -13781.681640625;
 	setAttr ".tgi[9].ni[107].nvs" 18305;
 	setAttr ".tgi[9].ni[108].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[108].y" -17950;
+	setAttr ".tgi[9].ni[108].y" -12104.2861328125;
 	setAttr ".tgi[9].ni[108].nvs" 18305;
 	setAttr ".tgi[9].ni[109].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[109].y" -21180;
+	setAttr ".tgi[9].ni[109].y" -30112.857421875;
 	setAttr ".tgi[9].ni[109].nvs" 18305;
-	setAttr ".tgi[9].ni[110].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[110].y" -15934.2861328125;
+	setAttr ".tgi[9].ni[110].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[110].y" -27911.427734375;
 	setAttr ".tgi[9].ni[110].nvs" 18305;
 	setAttr ".tgi[9].ni[111].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[111].y" -24410;
+	setAttr ".tgi[9].ni[111].y" -10258.5712890625;
 	setAttr ".tgi[9].ni[111].nvs" 18305;
 	setAttr ".tgi[9].ni[112].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[112].y" 6455.71435546875;
+	setAttr ".tgi[9].ni[112].y" -11452.857421875;
 	setAttr ".tgi[9].ni[112].nvs" 18305;
 	setAttr ".tgi[9].ni[113].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[113].y" -15011.4287109375;
+	setAttr ".tgi[9].ni[113].y" -7318.5712890625;
 	setAttr ".tgi[9].ni[113].nvs" 18305;
-	setAttr ".tgi[9].ni[114].x" 2418.571533203125;
-	setAttr ".tgi[9].ni[114].y" -2717.142822265625;
+	setAttr ".tgi[9].ni[114].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[114].y" -23758.572265625;
 	setAttr ".tgi[9].ni[114].nvs" 18305;
 	setAttr ".tgi[9].ni[115].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[115].y" -2242.857177734375;
+	setAttr ".tgi[9].ni[115].y" -17047.142578125;
 	setAttr ".tgi[9].ni[115].nvs" 18305;
 	setAttr ".tgi[9].ni[116].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[116].y" -11181.4287109375;
+	setAttr ".tgi[9].ni[116].y" -6314.28564453125;
 	setAttr ".tgi[9].ni[116].nvs" 18305;
-	setAttr ".tgi[9].ni[117].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[117].y" -14357.142578125;
-	setAttr ".tgi[9].ni[117].nvs" 18305;
+	setAttr ".tgi[9].ni[117].x" 2917.142822265625;
+	setAttr ".tgi[9].ni[117].y" -8072.85693359375;
+	setAttr ".tgi[9].ni[117].nvs" 19281;
 	setAttr ".tgi[9].ni[118].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[118].y" -28348.572265625;
+	setAttr ".tgi[9].ni[118].y" -15201.4287109375;
 	setAttr ".tgi[9].ni[118].nvs" 18305;
 	setAttr ".tgi[9].ni[119].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[119].y" -19334.28515625;
+	setAttr ".tgi[9].ni[119].y" -20257.142578125;
 	setAttr ".tgi[9].ni[119].nvs" 18305;
 	setAttr ".tgi[9].ni[120].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[120].y" 3728.571533203125;
+	setAttr ".tgi[9].ni[120].y" -26255.71484375;
 	setAttr ".tgi[9].ni[120].nvs" 18305;
-	setAttr ".tgi[9].ni[121].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[121].y" -15638.5712890625;
+	setAttr ".tgi[9].ni[121].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[121].y" -614.28570556640625;
 	setAttr ".tgi[9].ni[121].nvs" 18305;
 	setAttr ".tgi[9].ni[122].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[122].y" -2514.28564453125;
+	setAttr ".tgi[9].ni[122].y" -27640;
 	setAttr ".tgi[9].ni[122].nvs" 18305;
 	setAttr ".tgi[9].ni[123].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[123].y" -4142.85693359375;
+	setAttr ".tgi[9].ni[123].y" -12837.142578125;
 	setAttr ".tgi[9].ni[123].nvs" 18305;
-	setAttr ".tgi[9].ni[124].x" 2917.142822265625;
-	setAttr ".tgi[9].ni[124].y" 6665.71435546875;
+	setAttr ".tgi[9].ni[124].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[124].y" -15047.142578125;
 	setAttr ".tgi[9].ni[124].nvs" 18305;
 	setAttr ".tgi[9].ni[125].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[125].y" -27911.427734375;
+	setAttr ".tgi[9].ni[125].y" 1014.2857055664062;
 	setAttr ".tgi[9].ni[125].nvs" 18305;
 	setAttr ".tgi[9].ni[126].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[126].y" -10530;
+	setAttr ".tgi[9].ni[126].y" 2371.428466796875;
 	setAttr ".tgi[9].ni[126].nvs" 18305;
 	setAttr ".tgi[9].ni[127].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[127].y" -7318.5712890625;
+	setAttr ".tgi[9].ni[127].y" -24871.427734375;
 	setAttr ".tgi[9].ni[127].nvs" 18305;
 	setAttr ".tgi[9].ni[128].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[128].y" -14411.4287109375;
+	setAttr ".tgi[9].ni[128].y" -4142.85693359375;
 	setAttr ".tgi[9].ni[128].nvs" 18305;
 	setAttr ".tgi[9].ni[129].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[129].y" -12837.142578125;
+	setAttr ".tgi[9].ni[129].y" -11642.857421875;
 	setAttr ".tgi[9].ni[129].nvs" 18305;
-	setAttr ".tgi[9].ni[130].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[130].y" 471.42855834960938;
+	setAttr ".tgi[9].ni[130].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[130].y" -15342.857421875;
 	setAttr ".tgi[9].ni[130].nvs" 18305;
 	setAttr ".tgi[9].ni[131].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[131].y" -21451.427734375;
+	setAttr ".tgi[9].ni[131].y" -16585.71484375;
 	setAttr ".tgi[9].ni[131].nvs" 18305;
 	setAttr ".tgi[9].ni[132].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[132].y" -23487.142578125;
+	setAttr ".tgi[9].ni[132].y" -18682.857421875;
 	setAttr ".tgi[9].ni[132].nvs" 18305;
-	setAttr ".tgi[9].ni[133].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[133].y" -7530;
+	setAttr ".tgi[9].ni[133].x" 2917.142822265625;
+	setAttr ".tgi[9].ni[133].y" 6665.71435546875;
 	setAttr ".tgi[9].ni[133].nvs" 18305;
 	setAttr ".tgi[9].ni[134].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[134].y" -22102.857421875;
+	setAttr ".tgi[9].ni[134].y" -23025.71484375;
 	setAttr ".tgi[9].ni[134].nvs" 18305;
-	setAttr ".tgi[9].ni[135].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[135].y" -15201.4287109375;
+	setAttr ".tgi[9].ni[135].x" 2385.878662109375;
+	setAttr ".tgi[9].ni[135].y" -15051.61328125;
 	setAttr ".tgi[9].ni[135].nvs" 18305;
 	setAttr ".tgi[9].ni[136].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[136].y" -23758.572265625;
+	setAttr ".tgi[9].ni[136].y" -14411.4287109375;
 	setAttr ".tgi[9].ni[136].nvs" 18305;
-	setAttr ".tgi[9].ni[137].x" 2917.142822265625;
-	setAttr ".tgi[9].ni[137].y" 6475.71435546875;
+	setAttr ".tgi[9].ni[137].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[137].y" -26988.572265625;
 	setAttr ".tgi[9].ni[137].nvs" 18305;
 	setAttr ".tgi[9].ni[138].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[138].y" -9607.142578125;
+	setAttr ".tgi[9].ni[138].y" -25142.857421875;
 	setAttr ".tgi[9].ni[138].nvs" 18305;
-	setAttr ".tgi[9].ni[139].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[139].y" -20067.142578125;
+	setAttr ".tgi[9].ni[139].x" 2418.571533203125;
+	setAttr ".tgi[9].ni[139].y" -6121.4287109375;
 	setAttr ".tgi[9].ni[139].nvs" 18305;
-	setAttr ".tgi[9].ni[140].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[140].y" -14948.5712890625;
+	setAttr ".tgi[9].ni[140].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[140].y" -19795.71484375;
 	setAttr ".tgi[9].ni[140].nvs" 18305;
-	setAttr ".tgi[9].ni[141].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[141].y" -13027.142578125;
+	setAttr ".tgi[9].ni[141].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[141].y" -15835.7138671875;
 	setAttr ".tgi[9].ni[141].nvs" 18305;
-	setAttr ".tgi[9].ni[142].x" 2418.571533203125;
-	setAttr ".tgi[9].ni[142].y" -2928.571533203125;
+	setAttr ".tgi[9].ni[142].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[142].y" -22835.71484375;
 	setAttr ".tgi[9].ni[142].nvs" 18305;
 	setAttr ".tgi[9].ni[143].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[143].y" 5357.14306640625;
+	setAttr ".tgi[9].ni[143].y" -10991.4287109375;
 	setAttr ".tgi[9].ni[143].nvs" 18305;
 	setAttr ".tgi[9].ni[144].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[144].y" -23025.71484375;
+	setAttr ".tgi[9].ni[144].y" -23487.142578125;
 	setAttr ".tgi[9].ni[144].nvs" 18305;
 	setAttr ".tgi[9].ni[145].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[145].y" 2914.28564453125;
+	setAttr ".tgi[9].ni[145].y" 5900;
 	setAttr ".tgi[9].ni[145].nvs" 18305;
-	setAttr ".tgi[9].ni[146].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[146].y" -14554.2861328125;
+	setAttr ".tgi[9].ni[146].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[146].y" -12565.7138671875;
 	setAttr ".tgi[9].ni[146].nvs" 18305;
 	setAttr ".tgi[9].ni[147].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[147].y" -4957.14306640625;
+	setAttr ".tgi[9].ni[147].y" -31442.857421875;
 	setAttr ".tgi[9].ni[147].nvs" 18305;
-	setAttr ".tgi[9].ni[148].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[148].y" -14751.4287109375;
+	setAttr ".tgi[9].ni[148].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[148].y" 2914.28564453125;
 	setAttr ".tgi[9].ni[148].nvs" 18305;
 	setAttr ".tgi[9].ni[149].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[149].y" -25332.857421875;
+	setAttr ".tgi[9].ni[149].y" -28620;
 	setAttr ".tgi[9].ni[149].nvs" 18305;
 	setAttr ".tgi[9].ni[150].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[150].y" -7801.4287109375;
+	setAttr ".tgi[9].ni[150].y" -1428.5714111328125;
 	setAttr ".tgi[9].ni[150].nvs" 18305;
 	setAttr ".tgi[9].ni[151].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[151].y" -14740;
+	setAttr ".tgi[9].ni[151].y" -8874.2861328125;
 	setAttr ".tgi[9].ni[151].nvs" 18305;
-	setAttr ".tgi[9].ni[152].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[152].y" -16032.857421875;
-	setAttr ".tgi[9].ni[152].nvs" 18305;
-	setAttr ".tgi[9].ni[153].x" 1537.142822265625;
-	setAttr ".tgi[9].ni[153].y" -13964.2861328125;
+	setAttr ".tgi[9].ni[152].x" 2988.571533203125;
+	setAttr ".tgi[9].ni[152].y" -19000;
+	setAttr ".tgi[9].ni[152].nvs" 18304;
+	setAttr ".tgi[9].ni[153].x" 2864.28564453125;
+	setAttr ".tgi[9].ni[153].y" -15934.2861328125;
 	setAttr ".tgi[9].ni[153].nvs" 18305;
 	setAttr ".tgi[9].ni[154].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[154].y" -9145.7138671875;
+	setAttr ".tgi[9].ni[154].y" -26717.142578125;
 	setAttr ".tgi[9].ni[154].nvs" 18305;
-	setAttr ".tgi[9].ni[155].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[155].y" -4414.28564453125;
+	setAttr ".tgi[9].ni[155].x" 2418.571533203125;
+	setAttr ".tgi[9].ni[155].y" 6305.71435546875;
 	setAttr ".tgi[9].ni[155].nvs" 18305;
-	setAttr ".tgi[9].ni[156].x" 2418.571533203125;
-	setAttr ".tgi[9].ni[156].y" -6121.4287109375;
+	setAttr ".tgi[9].ni[156].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[156].y" -29081.427734375;
 	setAttr ".tgi[9].ni[156].nvs" 18305;
 	setAttr ".tgi[9].ni[157].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[157].y" -12104.2861328125;
+	setAttr ".tgi[9].ni[157].y" -7530;
 	setAttr ".tgi[9].ni[157].nvs" 18305;
 	setAttr ".tgi[9].ni[158].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[158].y" -10068.5712890625;
+	setAttr ".tgi[9].ni[158].y" -19605.71484375;
 	setAttr ".tgi[9].ni[158].nvs" 18305;
 	setAttr ".tgi[9].ni[159].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[159].y" -614.28570556640625;
+	setAttr ".tgi[9].ni[159].y" -29542.857421875;
 	setAttr ".tgi[9].ni[159].nvs" 18305;
 	setAttr ".tgi[9].ni[160].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[160].y" -12565.7138671875;
+	setAttr ".tgi[9].ni[160].y" -6042.85693359375;
 	setAttr ".tgi[9].ni[160].nvs" 18305;
 	setAttr ".tgi[9].ni[161].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[161].y" -31252.857421875;
+	setAttr ".tgi[9].ni[161].y" -17760;
 	setAttr ".tgi[9].ni[161].nvs" 18305;
 	setAttr ".tgi[9].ni[162].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[162].y" -18411.427734375;
+	setAttr ".tgi[9].ni[162].y" -9335.7138671875;
 	setAttr ".tgi[9].ni[162].nvs" 18305;
 	setAttr ".tgi[9].ni[163].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[163].y" -16124.2861328125;
+	setAttr ".tgi[9].ni[163].y" -21451.427734375;
 	setAttr ".tgi[9].ni[163].nvs" 18305;
 	setAttr ".tgi[9].ni[164].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[164].y" -11914.2861328125;
+	setAttr ".tgi[9].ni[164].y" 4814.28564453125;
 	setAttr ".tgi[9].ni[164].nvs" 18305;
 	setAttr ".tgi[9].ni[165].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[165].y" -23297.142578125;
+	setAttr ".tgi[9].ni[165].y" -27450;
 	setAttr ".tgi[9].ni[165].nvs" 18305;
 	setAttr ".tgi[9].ni[166].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[166].y" -26988.572265625;
+	setAttr ".tgi[9].ni[166].y" -22564.28515625;
 	setAttr ".tgi[9].ni[166].nvs" 18305;
 	setAttr ".tgi[9].ni[167].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[167].y" 3457.142822265625;
+	setAttr ".tgi[9].ni[167].y" -342.85714721679688;
 	setAttr ".tgi[9].ni[167].nvs" 18305;
 	setAttr ".tgi[9].ni[168].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[168].y" -21912.857421875;
+	setAttr ".tgi[9].ni[168].y" -3600;
 	setAttr ".tgi[9].ni[168].nvs" 18305;
 	setAttr ".tgi[9].ni[169].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[169].y" -18221.427734375;
+	setAttr ".tgi[9].ni[169].y" -18411.427734375;
 	setAttr ".tgi[9].ni[169].nvs" 18305;
-	setAttr ".tgi[9].ni[170].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[170].y" -32202.857421875;
+	setAttr ".tgi[9].ni[170].x" 1535.2508544921875;
+	setAttr ".tgi[9].ni[170].y" -14138.5712890625;
 	setAttr ".tgi[9].ni[170].nvs" 18305;
 	setAttr ".tgi[9].ni[171].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[171].y" 4000;
+	setAttr ".tgi[9].ni[171].y" -25604.28515625;
 	setAttr ".tgi[9].ni[171].nvs" 18305;
 	setAttr ".tgi[9].ni[172].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[172].y" -32772.85546875;
+	setAttr ".tgi[9].ni[172].y" -30302.857421875;
 	setAttr ".tgi[9].ni[172].nvs" 18305;
 	setAttr ".tgi[9].ni[173].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[173].y" 1557.142822265625;
+	setAttr ".tgi[9].ni[173].y" -31252.857421875;
 	setAttr ".tgi[9].ni[173].nvs" 18305;
 	setAttr ".tgi[9].ni[174].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[174].y" -8684.2861328125;
+	setAttr ".tgi[9].ni[174].y" -9607.142578125;
 	setAttr ".tgi[9].ni[174].nvs" 18305;
 	setAttr ".tgi[9].ni[175].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[175].y" -21641.427734375;
+	setAttr ".tgi[9].ni[175].y" 3457.142822265625;
 	setAttr ".tgi[9].ni[175].nvs" 18305;
 	setAttr ".tgi[9].ni[176].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[176].y" -26717.142578125;
+	setAttr ".tgi[9].ni[176].y" -13298.5712890625;
 	setAttr ".tgi[9].ni[176].nvs" 18305;
 	setAttr ".tgi[9].ni[177].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[177].y" -30302.857421875;
+	setAttr ".tgi[9].ni[177].y" -32392.857421875;
 	setAttr ".tgi[9].ni[177].nvs" 18305;
 	setAttr ".tgi[9].ni[178].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[178].y" -17760;
+	setAttr ".tgi[9].ni[178].y" -30492.857421875;
 	setAttr ".tgi[9].ni[178].nvs" 18305;
 	setAttr ".tgi[9].ni[179].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[179].y" -1700;
+	setAttr ".tgi[9].ni[179].y" -7991.4287109375;
 	setAttr ".tgi[9].ni[179].nvs" 18305;
 	setAttr ".tgi[9].ni[180].x" 2111.428466796875;
 	setAttr ".tgi[9].ni[180].y" -15662.857421875;
 	setAttr ".tgi[9].ni[180].nvs" 18305;
 	setAttr ".tgi[9].ni[181].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[181].y" 1014.2857055664062;
+	setAttr ".tgi[9].ni[181].y" -13488.5712890625;
 	setAttr ".tgi[9].ni[181].nvs" 18305;
 	setAttr ".tgi[9].ni[182].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[182].y" -5228.5712890625;
+	setAttr ".tgi[9].ni[182].y" -24220;
 	setAttr ".tgi[9].ni[182].nvs" 18305;
 	setAttr ".tgi[9].ni[183].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[183].y" -29271.427734375;
+	setAttr ".tgi[9].ni[183].y" 3185.71435546875;
 	setAttr ".tgi[9].ni[183].nvs" 18305;
 	setAttr ".tgi[9].ni[184].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[184].y" -31442.857421875;
+	setAttr ".tgi[9].ni[184].y" -3328.571533203125;
 	setAttr ".tgi[9].ni[184].nvs" 18305;
 	setAttr ".tgi[9].ni[185].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[185].y" -885.71429443359375;
+	setAttr ".tgi[9].ni[185].y" 6171.4287109375;
 	setAttr ".tgi[9].ni[185].nvs" 18305;
 	setAttr ".tgi[9].ni[186].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[186].y" -14221.4287109375;
+	setAttr ".tgi[9].ni[186].y" -9797.142578125;
 	setAttr ".tgi[9].ni[186].nvs" 18305;
-	setAttr ".tgi[9].ni[187].x" 1535.2508544921875;
-	setAttr ".tgi[9].ni[187].y" -14138.5712890625;
+	setAttr ".tgi[9].ni[187].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[187].y" 6455.71435546875;
 	setAttr ".tgi[9].ni[187].nvs" 18305;
-	setAttr ".tgi[9].ni[188].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[188].y" 2371.428466796875;
+	setAttr ".tgi[9].ni[188].x" 2917.142822265625;
+	setAttr ".tgi[9].ni[188].y" 6475.71435546875;
 	setAttr ".tgi[9].ni[188].nvs" 18305;
 	setAttr ".tgi[9].ni[189].x" 2111.428466796875;
 	setAttr ".tgi[9].ni[189].y" -23948.572265625;
 	setAttr ".tgi[9].ni[189].nvs" 18305;
 	setAttr ".tgi[9].ni[190].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[190].y" 2642.857177734375;
+	setAttr ".tgi[9].ni[190].y" -2514.28564453125;
 	setAttr ".tgi[9].ni[190].nvs" 18305;
 	setAttr ".tgi[9].ni[191].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[191].y" -13950;
+	setAttr ".tgi[9].ni[191].y" -30682.857421875;
 	setAttr ".tgi[9].ni[191].nvs" 18305;
 	setAttr ".tgi[9].ni[192].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[192].y" -28810;
+	setAttr ".tgi[9].ni[192].y" -2785.71435546875;
 	setAttr ".tgi[9].ni[192].nvs" 18305;
 	setAttr ".tgi[9].ni[193].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[193].y" -8412.857421875;
+	setAttr ".tgi[9].ni[193].y" -16857.142578125;
 	setAttr ".tgi[9].ni[193].nvs" 18305;
 	setAttr ".tgi[9].ni[194].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[194].y" -1971.4285888671875;
+	setAttr ".tgi[9].ni[194].y" -15934.2861328125;
 	setAttr ".tgi[9].ni[194].nvs" 18305;
-	setAttr ".tgi[9].ni[195].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[195].y" -15244.2861328125;
+	setAttr ".tgi[9].ni[195].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[195].y" -21641.427734375;
 	setAttr ".tgi[9].ni[195].nvs" 18305;
-	setAttr ".tgi[9].ni[196].x" 1804.2857666015625;
-	setAttr ".tgi[9].ni[196].y" -5784.28564453125;
+	setAttr ".tgi[9].ni[196].x" 1190;
+	setAttr ".tgi[9].ni[196].y" 1134.2857666015625;
 	setAttr ".tgi[9].ni[196].nvs" 18305;
-	setAttr ".tgi[9].ni[197].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[197].y" -15540;
+	setAttr ".tgi[9].ni[197].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[197].y" -29271.427734375;
 	setAttr ".tgi[9].ni[197].nvs" 18305;
-	setAttr ".tgi[9].ni[198].x" 2418.571533203125;
-	setAttr ".tgi[9].ni[198].y" -5091.4287109375;
+	setAttr ".tgi[9].ni[198].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[198].y" -6857.14306640625;
 	setAttr ".tgi[9].ni[198].nvs" 18305;
-	setAttr ".tgi[9].ni[199].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[199].y" -19144.28515625;
+	setAttr ".tgi[9].ni[199].x" 2418.571533203125;
+	setAttr ".tgi[9].ni[199].y" -2717.142822265625;
 	setAttr ".tgi[9].ni[199].nvs" 18305;
 	setAttr ".tgi[9].ni[200].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[200].y" -19795.71484375;
+	setAttr ".tgi[9].ni[200].y" -8684.2861328125;
 	setAttr ".tgi[9].ni[200].nvs" 18305;
 	setAttr ".tgi[9].ni[201].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[201].y" -27178.572265625;
+	setAttr ".tgi[9].ni[201].y" -26065.71484375;
 	setAttr ".tgi[9].ni[201].nvs" 18305;
 	setAttr ".tgi[9].ni[202].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[202].y" 4271.4287109375;
+	setAttr ".tgi[9].ni[202].y" -13950;
 	setAttr ".tgi[9].ni[202].nvs" 18305;
 	setAttr ".tgi[9].ni[203].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[203].y" -17508.572265625;
+	setAttr ".tgi[9].ni[203].y" -24410;
 	setAttr ".tgi[9].ni[203].nvs" 18305;
-	setAttr ".tgi[9].ni[204].x" 2864.28564453125;
-	setAttr ".tgi[9].ni[204].y" -14850;
+	setAttr ".tgi[9].ni[204].x" 2111.428466796875;
+	setAttr ".tgi[9].ni[204].y" -9145.7138671875;
 	setAttr ".tgi[9].ni[204].nvs" 18305;
 	setAttr ".tgi[9].ni[205].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[205].y" -26527.142578125;
+	setAttr ".tgi[9].ni[205].y" -3871.428466796875;
 	setAttr ".tgi[9].ni[205].nvs" 18305;
 	setAttr ".tgi[9].ni[206].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[206].y" 6171.4287109375;
+	setAttr ".tgi[9].ni[206].y" -27178.572265625;
 	setAttr ".tgi[9].ni[206].nvs" 18305;
 	setAttr ".tgi[9].ni[207].x" 2111.428466796875;
-	setAttr ".tgi[9].ni[207].y" -15472.857421875;
+	setAttr ".tgi[9].ni[207].y" -885.71429443359375;
 	setAttr ".tgi[9].ni[207].nvs" 18305;
 	setAttr ".tgi[10].tn" -type "string" "Untitled_6";
-	setAttr ".tgi[10].vl" -type "double2" -2313.6903842526804 -161.9047554712451 ;
-	setAttr ".tgi[10].vh" -type "double2" 3400.5951029677299 1385.7142306509495 ;
+	setAttr ".tgi[10].vl" -type "double2" -2325.9156584921639 -171.42856461661236 ;
+	setAttr ".tgi[10].vh" -type "double2" 3423.5346624957574 1385.7142306509495 ;
 	setAttr -s 195 ".tgi[10].ni";
 	setAttr ".tgi[10].ni[0].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[0].y" -8055.71435546875;
+	setAttr ".tgi[10].ni[0].y" -8564.2861328125;
 	setAttr ".tgi[10].ni[0].nvs" 18304;
-	setAttr ".tgi[10].ni[1].x" 219.35324096679688;
-	setAttr ".tgi[10].ni[1].y" 1103.379150390625;
+	setAttr ".tgi[10].ni[1].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[1].y" -4877.14306640625;
 	setAttr ".tgi[10].ni[1].nvs" 18304;
 	setAttr ".tgi[10].ni[2].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[2].y" 1225.7142333984375;
+	setAttr ".tgi[10].ni[2].y" -427.14285278320312;
 	setAttr ".tgi[10].ni[2].nvs" 18304;
-	setAttr ".tgi[10].ni[3].x" 1052.493408203125;
-	setAttr ".tgi[10].ni[3].y" 889.3575439453125;
-	setAttr ".tgi[10].ni[3].nvs" 18305;
+	setAttr ".tgi[10].ni[3].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[3].y" 12160;
+	setAttr ".tgi[10].ni[3].nvs" 18304;
 	setAttr ".tgi[10].ni[4].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[4].y" -300;
+	setAttr ".tgi[10].ni[4].y" 8472.857421875;
 	setAttr ".tgi[10].ni[4].nvs" 18304;
 	setAttr ".tgi[10].ni[5].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[5].y" -9327.142578125;
+	setAttr ".tgi[10].ni[5].y" -5767.14306640625;
 	setAttr ".tgi[10].ni[5].nvs" 18304;
 	setAttr ".tgi[10].ni[6].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[6].y" -808.5714111328125;
+	setAttr ".tgi[10].ni[6].y" -1317.142822265625;
 	setAttr ".tgi[10].ni[6].nvs" 18304;
 	setAttr ".tgi[10].ni[7].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[7].y" 2497.142822265625;
+	setAttr ".tgi[10].ni[7].y" -45.714286804199219;
 	setAttr ".tgi[10].ni[7].nvs" 18304;
 	setAttr ".tgi[10].ni[8].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[8].y" 335.71429443359375;
+	setAttr ".tgi[10].ni[8].y" 590;
 	setAttr ".tgi[10].ni[8].nvs" 18304;
 	setAttr ".tgi[10].ni[9].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[9].y" -427.14285278320312;
+	setAttr ".tgi[10].ni[9].y" -10725.7138671875;
 	setAttr ".tgi[10].ni[9].nvs" 18304;
 	setAttr ".tgi[10].ni[10].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[10].y" 5675.71435546875;
+	setAttr ".tgi[10].ni[10].y" -10852.857421875;
 	setAttr ".tgi[10].ni[10].nvs" 18304;
 	setAttr ".tgi[10].ni[11].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[11].y" 7837.14306640625;
+	setAttr ".tgi[10].ni[11].y" -8055.71435546875;
 	setAttr ".tgi[10].ni[11].nvs" 18304;
 	setAttr ".tgi[10].ni[12].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[12].y" 10380;
+	setAttr ".tgi[10].ni[12].y" -6911.4287109375;
 	setAttr ".tgi[10].ni[12].nvs" 18304;
-	setAttr ".tgi[10].ni[13].x" 241.35115051269531;
-	setAttr ".tgi[10].ni[13].y" 1005.2171020507812;
+	setAttr ".tgi[10].ni[13].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[13].y" -9072.857421875;
 	setAttr ".tgi[10].ni[13].nvs" 18304;
 	setAttr ".tgi[10].ni[14].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[14].y" -2715.71435546875;
+	setAttr ".tgi[10].ni[14].y" -3097.142822265625;
 	setAttr ".tgi[10].ni[14].nvs" 18304;
 	setAttr ".tgi[10].ni[15].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[15].y" -6148.5712890625;
+	setAttr ".tgi[10].ni[15].y" 3387.142822265625;
 	setAttr ".tgi[10].ni[15].nvs" 18304;
 	setAttr ".tgi[10].ni[16].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[16].y" -8564.2861328125;
+	setAttr ".tgi[10].ni[16].y" -1062.857177734375;
 	setAttr ".tgi[10].ni[16].nvs" 18304;
 	setAttr ".tgi[10].ni[17].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[17].y" -935.71429443359375;
+	setAttr ".tgi[10].ni[17].y" -6530;
 	setAttr ".tgi[10].ni[17].nvs" 18304;
 	setAttr ".tgi[10].ni[18].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[18].y" -7420;
+	setAttr ".tgi[10].ni[18].y" -3987.142822265625;
 	setAttr ".tgi[10].ni[18].nvs" 18304;
 	setAttr ".tgi[10].ni[19].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[19].y" 2751.428466796875;
+	setAttr ".tgi[10].ni[19].y" 6057.14306640625;
 	setAttr ".tgi[10].ni[19].nvs" 18304;
 	setAttr ".tgi[10].ni[20].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[20].y" 5040;
+	setAttr ".tgi[10].ni[20].y" -5258.5712890625;
 	setAttr ".tgi[10].ni[20].nvs" 18304;
 	setAttr ".tgi[10].ni[21].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[21].y" 6692.85693359375;
+	setAttr ".tgi[10].ni[21].y" 1480;
 	setAttr ".tgi[10].ni[21].nvs" 18304;
 	setAttr ".tgi[10].ni[22].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[22].y" 4404.28564453125;
+	setAttr ".tgi[10].ni[22].y" -1952.857177734375;
 	setAttr ".tgi[10].ni[22].nvs" 18304;
 	setAttr ".tgi[10].ni[23].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[23].y" -7038.5712890625;
+	setAttr ".tgi[10].ni[23].y" -3732.857177734375;
 	setAttr ".tgi[10].ni[23].nvs" 18304;
 	setAttr ".tgi[10].ni[24].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[24].y" -681.4285888671875;
+	setAttr ".tgi[10].ni[24].y" -2334.28564453125;
 	setAttr ".tgi[10].ni[24].nvs" 18304;
 	setAttr ".tgi[10].ni[25].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[25].y" 5930;
+	setAttr ".tgi[10].ni[25].y" 1988.5714111328125;
 	setAttr ".tgi[10].ni[25].nvs" 18304;
 	setAttr ".tgi[10].ni[26].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[26].y" -9200;
+	setAttr ".tgi[10].ni[26].y" -7038.5712890625;
 	setAttr ".tgi[10].ni[26].nvs" 18304;
 	setAttr ".tgi[10].ni[27].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[27].y" 7074.28564453125;
+	setAttr ".tgi[10].ni[27].y" 5294.28564453125;
 	setAttr ".tgi[10].ni[27].nvs" 18304;
 	setAttr ".tgi[10].ni[28].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[28].y" 3514.28564453125;
+	setAttr ".tgi[10].ni[28].y" -4114.28564453125;
 	setAttr ".tgi[10].ni[28].nvs" 18304;
 	setAttr ".tgi[10].ni[29].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[29].y" 4658.5712890625;
+	setAttr ".tgi[10].ni[29].y" 1098.5714111328125;
 	setAttr ".tgi[10].ni[29].nvs" 18304;
 	setAttr ".tgi[10].ni[30].x" 438.57144165039062;
 	setAttr ".tgi[10].ni[30].y" 8218.5712890625;
 	setAttr ".tgi[10].ni[30].nvs" 18304;
 	setAttr ".tgi[10].ni[31].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[31].y" 3260;
+	setAttr ".tgi[10].ni[31].y" 8091.4287109375;
 	setAttr ".tgi[10].ni[31].nvs" 18304;
 	setAttr ".tgi[10].ni[32].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[32].y" 9490;
+	setAttr ".tgi[10].ni[32].y" 4277.14306640625;
 	setAttr ".tgi[10].ni[32].nvs" 18304;
 	setAttr ".tgi[10].ni[33].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[33].y" 9235.7138671875;
+	setAttr ".tgi[10].ni[33].y" -2842.857177734375;
 	setAttr ".tgi[10].ni[33].nvs" 18304;
-	setAttr ".tgi[10].ni[34].x" 535.86163330078125;
-	setAttr ".tgi[10].ni[34].y" 972.51812744140625;
+	setAttr ".tgi[10].ni[34].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[34].y" 10380;
 	setAttr ".tgi[10].ni[34].nvs" 18304;
 	setAttr ".tgi[10].ni[35].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[35].y" -9962.857421875;
+	setAttr ".tgi[10].ni[35].y" -8310;
 	setAttr ".tgi[10].ni[35].nvs" 18304;
-	setAttr ".tgi[10].ni[36].x" 203.70147705078125;
-	setAttr ".tgi[10].ni[36].y" 574.90252685546875;
+	setAttr ".tgi[10].ni[36].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[36].y" 3514.28564453125;
 	setAttr ".tgi[10].ni[36].nvs" 18304;
 	setAttr ".tgi[10].ni[37].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[37].y" 11778.5712890625;
+	setAttr ".tgi[10].ni[37].y" -6402.85693359375;
 	setAttr ".tgi[10].ni[37].nvs" 18304;
 	setAttr ".tgi[10].ni[38].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[38].y" -8691.4287109375;
+	setAttr ".tgi[10].ni[38].y" -554.28570556640625;
 	setAttr ".tgi[10].ni[38].nvs" 18304;
 	setAttr ".tgi[10].ni[39].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[39].y" 6438.5712890625;
+	setAttr ".tgi[10].ni[39].y" -8437.142578125;
 	setAttr ".tgi[10].ni[39].nvs" 18304;
 	setAttr ".tgi[10].ni[40].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[40].y" -9835.7138671875;
+	setAttr ".tgi[10].ni[40].y" -9708.5712890625;
 	setAttr ".tgi[10].ni[40].nvs" 18304;
 	setAttr ".tgi[10].ni[41].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[41].y" -10725.7138671875;
+	setAttr ".tgi[10].ni[41].y" 9490;
 	setAttr ".tgi[10].ni[41].nvs" 18304;
 	setAttr ".tgi[10].ni[42].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[42].y" -5004.28564453125;
+	setAttr ".tgi[10].ni[42].y" 3895.71435546875;
 	setAttr ".tgi[10].ni[42].nvs" 18304;
 	setAttr ".tgi[10].ni[43].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[43].y" 9108.5712890625;
+	setAttr ".tgi[10].ni[43].y" 462.85714721679688;
 	setAttr ".tgi[10].ni[43].nvs" 18304;
 	setAttr ".tgi[10].ni[44].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[44].y" 11270;
+	setAttr ".tgi[10].ni[44].y" 11142.857421875;
 	setAttr ".tgi[10].ni[44].nvs" 18304;
 	setAttr ".tgi[10].ni[45].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[45].y" -6275.71435546875;
+	setAttr ".tgi[10].ni[45].y" 971.4285888671875;
 	setAttr ".tgi[10].ni[45].nvs" 18304;
 	setAttr ".tgi[10].ni[46].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[46].y" -10598.5712890625;
+	setAttr ".tgi[10].ni[46].y" 4022.857177734375;
 	setAttr ".tgi[10].ni[46].nvs" 18304;
 	setAttr ".tgi[10].ni[47].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[47].y" 7455.71435546875;
+	setAttr ".tgi[10].ni[47].y" -3478.571533203125;
 	setAttr ".tgi[10].ni[47].nvs" 18304;
-	setAttr ".tgi[10].ni[48].x" 211.80734252929688;
-	setAttr ".tgi[10].ni[48].y" 647.51605224609375;
+	setAttr ".tgi[10].ni[48].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[48].y" -2970;
 	setAttr ".tgi[10].ni[48].nvs" 18304;
 	setAttr ".tgi[10].ni[49].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[49].y" 1098.5714111328125;
+	setAttr ".tgi[10].ni[49].y" 10125.7138671875;
 	setAttr ".tgi[10].ni[49].nvs" 18304;
 	setAttr ".tgi[10].ni[50].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[50].y" 11524.2861328125;
+	setAttr ".tgi[10].ni[50].y" -4241.4287109375;
 	setAttr ".tgi[10].ni[50].nvs" 18304;
 	setAttr ".tgi[10].ni[51].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[51].y" -10344.2861328125;
+	setAttr ".tgi[10].ni[51].y" 335.71429443359375;
 	setAttr ".tgi[10].ni[51].nvs" 18304;
 	setAttr ".tgi[10].ni[52].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[52].y" -10471.4287109375;
+	setAttr ".tgi[10].ni[52].y" 5548.5712890625;
 	setAttr ".tgi[10].ni[52].nvs" 18304;
 	setAttr ".tgi[10].ni[53].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[53].y" -6657.14306640625;
+	setAttr ".tgi[10].ni[53].y" 9871.4287109375;
 	setAttr ".tgi[10].ni[53].nvs" 18304;
 	setAttr ".tgi[10].ni[54].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[54].y" -1952.857177734375;
+	setAttr ".tgi[10].ni[54].y" 10252.857421875;
 	setAttr ".tgi[10].ni[54].nvs" 18304;
 	setAttr ".tgi[10].ni[55].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[55].y" 6565.71435546875;
+	setAttr ".tgi[10].ni[55].y" -5004.28564453125;
 	setAttr ".tgi[10].ni[55].nvs" 18304;
-	setAttr ".tgi[10].ni[56].x" 217.25173950195312;
-	setAttr ".tgi[10].ni[56].y" 762.1029052734375;
+	setAttr ".tgi[10].ni[56].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[56].y" -8691.4287109375;
 	setAttr ".tgi[10].ni[56].nvs" 18304;
-	setAttr ".tgi[10].ni[57].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[57].y" -1825.7142333984375;
+	setAttr ".tgi[10].ni[57].x" 241.35115051269531;
+	setAttr ".tgi[10].ni[57].y" 1005.2171020507812;
 	setAttr ".tgi[10].ni[57].nvs" 18304;
 	setAttr ".tgi[10].ni[58].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[58].y" 6184.28564453125;
+	setAttr ".tgi[10].ni[58].y" -1698.5714111328125;
 	setAttr ".tgi[10].ni[58].nvs" 18304;
 	setAttr ".tgi[10].ni[59].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[59].y" 7328.5712890625;
+	setAttr ".tgi[10].ni[59].y" -10471.4287109375;
 	setAttr ".tgi[10].ni[59].nvs" 18304;
 	setAttr ".tgi[10].ni[60].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[60].y" -5131.4287109375;
+	setAttr ".tgi[10].ni[60].y" 11270;
 	setAttr ".tgi[10].ni[60].nvs" 18304;
 	setAttr ".tgi[10].ni[61].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[61].y" 3387.142822265625;
+	setAttr ".tgi[10].ni[61].y" -172.85714721679688;
 	setAttr ".tgi[10].ni[61].nvs" 18304;
 	setAttr ".tgi[10].ni[62].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[62].y" 10252.857421875;
+	setAttr ".tgi[10].ni[62].y" -6657.14306640625;
 	setAttr ".tgi[10].ni[62].nvs" 18304;
 	setAttr ".tgi[10].ni[63].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[63].y" 5421.4287109375;
+	setAttr ".tgi[10].ni[63].y" 9998.5712890625;
 	setAttr ".tgi[10].ni[63].nvs" 18304;
-	setAttr ".tgi[10].ni[64].x" 231.10641479492188;
-	setAttr ".tgi[10].ni[64].y" 854.95477294921875;
+	setAttr ".tgi[10].ni[64].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[64].y" 4531.4287109375;
 	setAttr ".tgi[10].ni[64].nvs" 18304;
 	setAttr ".tgi[10].ni[65].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[65].y" 9362.857421875;
+	setAttr ".tgi[10].ni[65].y" -7674.28564453125;
 	setAttr ".tgi[10].ni[65].nvs" 18304;
 	setAttr ".tgi[10].ni[66].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[66].y" 7710;
+	setAttr ".tgi[10].ni[66].y" -8182.85693359375;
 	setAttr ".tgi[10].ni[66].nvs" 18304;
-	setAttr ".tgi[10].ni[67].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[67].y" 10761.4287109375;
+	setAttr ".tgi[10].ni[67].x" 219.35324096679688;
+	setAttr ".tgi[10].ni[67].y" 1103.379150390625;
 	setAttr ".tgi[10].ni[67].nvs" 18304;
 	setAttr ".tgi[10].ni[68].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[68].y" -8310;
+	setAttr ".tgi[10].ni[68].y" -7165.71435546875;
 	setAttr ".tgi[10].ni[68].nvs" 18304;
 	setAttr ".tgi[10].ni[69].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[69].y" 1734.2857666015625;
+	setAttr ".tgi[10].ni[69].y" 6184.28564453125;
 	setAttr ".tgi[10].ni[69].nvs" 18304;
 	setAttr ".tgi[10].ni[70].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[70].y" -9454.2861328125;
+	setAttr ".tgi[10].ni[70].y" 7201.4287109375;
 	setAttr ".tgi[10].ni[70].nvs" 18304;
 	setAttr ".tgi[10].ni[71].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[71].y" -3478.571533203125;
+	setAttr ".tgi[10].ni[71].y" 4150;
 	setAttr ".tgi[10].ni[71].nvs" 18304;
 	setAttr ".tgi[10].ni[72].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[72].y" 11651.4287109375;
+	setAttr ".tgi[10].ni[72].y" 7837.14306640625;
 	setAttr ".tgi[10].ni[72].nvs" 18304;
 	setAttr ".tgi[10].ni[73].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[73].y" 717.14288330078125;
+	setAttr ".tgi[10].ni[73].y" 2624.28564453125;
 	setAttr ".tgi[10].ni[73].nvs" 18304;
 	setAttr ".tgi[10].ni[74].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[74].y" -8437.142578125;
+	setAttr ".tgi[10].ni[74].y" 5421.4287109375;
 	setAttr ".tgi[10].ni[74].nvs" 18304;
-	setAttr ".tgi[10].ni[75].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[75].y" 1988.5714111328125;
+	setAttr ".tgi[10].ni[75].x" 218.27693176269531;
+	setAttr ".tgi[10].ni[75].y" 479.0460205078125;
 	setAttr ".tgi[10].ni[75].nvs" 18304;
 	setAttr ".tgi[10].ni[76].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[76].y" 10507.142578125;
+	setAttr ".tgi[10].ni[76].y" 11905.7138671875;
 	setAttr ".tgi[10].ni[76].nvs" 18304;
-	setAttr ".tgi[10].ni[77].x" 220.12565612792969;
-	setAttr ".tgi[10].ni[77].y" 402.7435302734375;
+	setAttr ".tgi[10].ni[77].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[77].y" 5675.71435546875;
 	setAttr ".tgi[10].ni[77].nvs" 18304;
 	setAttr ".tgi[10].ni[78].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[78].y" -3351.428466796875;
+	setAttr ".tgi[10].ni[78].y" -1444.2857666015625;
 	setAttr ".tgi[10].ni[78].nvs" 18304;
 	setAttr ".tgi[10].ni[79].x" 438.57144165039062;
 	setAttr ".tgi[10].ni[79].y" 3641.428466796875;
 	setAttr ".tgi[10].ni[79].nvs" 18304;
 	setAttr ".tgi[10].ni[80].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[80].y" 1861.4285888671875;
+	setAttr ".tgi[10].ni[80].y" -1190;
 	setAttr ".tgi[10].ni[80].nvs" 18304;
 	setAttr ".tgi[10].ni[81].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[81].y" -6021.4287109375;
+	setAttr ".tgi[10].ni[81].y" -9835.7138671875;
 	setAttr ".tgi[10].ni[81].nvs" 18304;
 	setAttr ".tgi[10].ni[82].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[82].y" -1062.857177734375;
+	setAttr ".tgi[10].ni[82].y" 6311.4287109375;
 	setAttr ".tgi[10].ni[82].nvs" 18304;
-	setAttr ".tgi[10].ni[83].x" 218.27693176269531;
-	setAttr ".tgi[10].ni[83].y" 479.0460205078125;
+	setAttr ".tgi[10].ni[83].x" 203.70147705078125;
+	setAttr ".tgi[10].ni[83].y" 574.90252685546875;
 	setAttr ".tgi[10].ni[83].nvs" 18304;
 	setAttr ".tgi[10].ni[84].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[84].y" -9708.5712890625;
+	setAttr ".tgi[10].ni[84].y" -1571.4285888671875;
 	setAttr ".tgi[10].ni[84].nvs" 18304;
 	setAttr ".tgi[10].ni[85].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[85].y" 10125.7138671875;
+	setAttr ".tgi[10].ni[85].y" 2878.571533203125;
 	setAttr ".tgi[10].ni[85].nvs" 18304;
 	setAttr ".tgi[10].ni[86].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[86].y" -5894.28564453125;
+	setAttr ".tgi[10].ni[86].y" -7420;
 	setAttr ".tgi[10].ni[86].nvs" 18304;
 	setAttr ".tgi[10].ni[87].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[87].y" 5548.5712890625;
+	setAttr ".tgi[10].ni[87].y" 1225.7142333984375;
 	setAttr ".tgi[10].ni[87].nvs" 18304;
 	setAttr ".tgi[10].ni[88].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[88].y" 6820;
+	setAttr ".tgi[10].ni[88].y" 9235.7138671875;
 	setAttr ".tgi[10].ni[88].nvs" 18304;
 	setAttr ".tgi[10].ni[89].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[89].y" 5167.14306640625;
+	setAttr ".tgi[10].ni[89].y" -4495.71435546875;
 	setAttr ".tgi[10].ni[89].nvs" 18304;
 	setAttr ".tgi[10].ni[90].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[90].y" 3132.857177734375;
+	setAttr ".tgi[10].ni[90].y" -2207.142822265625;
 	setAttr ".tgi[10].ni[90].nvs" 18304;
-	setAttr ".tgi[10].ni[91].x" 530.31158447265625;
-	setAttr ".tgi[10].ni[91].y" 798.080810546875;
+	setAttr ".tgi[10].ni[91].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[91].y" 9744.2861328125;
 	setAttr ".tgi[10].ni[91].nvs" 18304;
 	setAttr ".tgi[10].ni[92].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[92].y" -4241.4287109375;
+	setAttr ".tgi[10].ni[92].y" 4658.5712890625;
 	setAttr ".tgi[10].ni[92].nvs" 18304;
 	setAttr ".tgi[10].ni[93].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[93].y" 8091.4287109375;
+	setAttr ".tgi[10].ni[93].y" 12032.857421875;
 	setAttr ".tgi[10].ni[93].nvs" 18304;
 	setAttr ".tgi[10].ni[94].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[94].y" -172.85714721679688;
+	setAttr ".tgi[10].ni[94].y" 10507.142578125;
 	setAttr ".tgi[10].ni[94].nvs" 18304;
-	setAttr ".tgi[10].ni[95].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[95].y" -4495.71435546875;
+	setAttr ".tgi[10].ni[95].x" 541.6798095703125;
+	setAttr ".tgi[10].ni[95].y" 466.28366088867188;
 	setAttr ".tgi[10].ni[95].nvs" 18304;
-	setAttr ".tgi[10].ni[96].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[96].y" 81.428573608398438;
+	setAttr ".tgi[10].ni[96].x" 220.12565612792969;
+	setAttr ".tgi[10].ni[96].y" 402.7435302734375;
 	setAttr ".tgi[10].ni[96].nvs" 18304;
 	setAttr ".tgi[10].ni[97].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[97].y" -5385.71435546875;
+	setAttr ".tgi[10].ni[97].y" 8854.2861328125;
 	setAttr ".tgi[10].ni[97].nvs" 18304;
-	setAttr ".tgi[10].ni[98].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[98].y" -7928.5712890625;
+	setAttr ".tgi[10].ni[98].x" 231.10641479492188;
+	setAttr ".tgi[10].ni[98].y" 854.95477294921875;
 	setAttr ".tgi[10].ni[98].nvs" 18304;
 	setAttr ".tgi[10].ni[99].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[99].y" 9871.4287109375;
+	setAttr ".tgi[10].ni[99].y" 844.28570556640625;
 	setAttr ".tgi[10].ni[99].nvs" 18304;
-	setAttr ".tgi[10].ni[100].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[100].y" -9072.857421875;
+	setAttr ".tgi[10].ni[100].x" 535.86163330078125;
+	setAttr ".tgi[10].ni[100].y" 972.51812744140625;
 	setAttr ".tgi[10].ni[100].nvs" 18304;
 	setAttr ".tgi[10].ni[101].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[101].y" -2080;
+	setAttr ".tgi[10].ni[101].y" 11651.4287109375;
 	setAttr ".tgi[10].ni[101].nvs" 18304;
 	setAttr ".tgi[10].ni[102].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[102].y" -6784.28564453125;
+	setAttr ".tgi[10].ni[102].y" -6148.5712890625;
 	setAttr ".tgi[10].ni[102].nvs" 18304;
-	setAttr ".tgi[10].ni[103].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[103].y" -5767.14306640625;
+	setAttr ".tgi[10].ni[103].x" 530.31158447265625;
+	setAttr ".tgi[10].ni[103].y" 798.080810546875;
 	setAttr ".tgi[10].ni[103].nvs" 18304;
 	setAttr ".tgi[10].ni[104].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[104].y" 4785.71435546875;
+	setAttr ".tgi[10].ni[104].y" 9617.142578125;
 	setAttr ".tgi[10].ni[104].nvs" 18304;
 	setAttr ".tgi[10].ni[105].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[105].y" -7292.85693359375;
+	setAttr ".tgi[10].ni[105].y" -6275.71435546875;
 	setAttr ".tgi[10].ni[105].nvs" 18304;
 	setAttr ".tgi[10].ni[106].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[106].y" -1317.142822265625;
+	setAttr ".tgi[10].ni[106].y" 6692.85693359375;
 	setAttr ".tgi[10].ni[106].nvs" 18304;
 	setAttr ".tgi[10].ni[107].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[107].y" 11142.857421875;
+	setAttr ".tgi[10].ni[107].y" -6021.4287109375;
 	setAttr ".tgi[10].ni[107].nvs" 18304;
 	setAttr ".tgi[10].ni[108].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[108].y" 6057.14306640625;
+	setAttr ".tgi[10].ni[108].y" 11524.2861328125;
 	setAttr ".tgi[10].ni[108].nvs" 18304;
 	setAttr ".tgi[10].ni[109].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[109].y" -3987.142822265625;
+	setAttr ".tgi[10].ni[109].y" -5640;
 	setAttr ".tgi[10].ni[109].nvs" 18304;
 	setAttr ".tgi[10].ni[110].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[110].y" 8727.142578125;
+	setAttr ".tgi[10].ni[110].y" 3005.71435546875;
 	setAttr ".tgi[10].ni[110].nvs" 18304;
 	setAttr ".tgi[10].ni[111].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[111].y" 4150;
+	setAttr ".tgi[10].ni[111].y" 2751.428466796875;
 	setAttr ".tgi[10].ni[111].nvs" 18304;
 	setAttr ".tgi[10].ni[112].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[112].y" -8945.7138671875;
+	setAttr ".tgi[10].ni[112].y" -10217.142578125;
 	setAttr ".tgi[10].ni[112].nvs" 18304;
 	setAttr ".tgi[10].ni[113].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[113].y" 4531.4287109375;
+	setAttr ".tgi[10].ni[113].y" 10761.4287109375;
 	setAttr ".tgi[10].ni[113].nvs" 18304;
 	setAttr ".tgi[10].ni[114].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[114].y" -4114.28564453125;
+	setAttr ".tgi[10].ni[114].y" -10090;
 	setAttr ".tgi[10].ni[114].nvs" 18304;
-	setAttr ".tgi[10].ni[115].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[115].y" -4368.5712890625;
+	setAttr ".tgi[10].ni[115].x" 211.80734252929688;
+	setAttr ".tgi[10].ni[115].y" 647.51605224609375;
 	setAttr ".tgi[10].ni[115].nvs" 18304;
 	setAttr ".tgi[10].ni[116].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[116].y" 11015.7138671875;
+	setAttr ".tgi[10].ni[116].y" 5930;
 	setAttr ".tgi[10].ni[116].nvs" 18304;
 	setAttr ".tgi[10].ni[117].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[117].y" 6311.4287109375;
+	setAttr ".tgi[10].ni[117].y" -808.5714111328125;
 	setAttr ".tgi[10].ni[117].nvs" 18304;
-	setAttr ".tgi[10].ni[118].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[118].y" 590;
+	setAttr ".tgi[10].ni[118].x" 217.25173950195312;
+	setAttr ".tgi[10].ni[118].y" 762.1029052734375;
 	setAttr ".tgi[10].ni[118].nvs" 18304;
 	setAttr ".tgi[10].ni[119].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[119].y" -7801.4287109375;
+	setAttr ".tgi[10].ni[119].y" 3768.571533203125;
 	setAttr ".tgi[10].ni[119].nvs" 18304;
 	setAttr ".tgi[10].ni[120].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[120].y" 971.4285888671875;
+	setAttr ".tgi[10].ni[120].y" 11778.5712890625;
 	setAttr ".tgi[10].ni[120].nvs" 18304;
 	setAttr ".tgi[10].ni[121].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[121].y" 8345.7138671875;
+	setAttr ".tgi[10].ni[121].y" -3224.28564453125;
 	setAttr ".tgi[10].ni[121].nvs" 18304;
 	setAttr ".tgi[10].ni[122].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[122].y" -3860;
+	setAttr ".tgi[10].ni[122].y" -935.71429443359375;
 	setAttr ".tgi[10].ni[122].nvs" 18304;
 	setAttr ".tgi[10].ni[123].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[123].y" 5294.28564453125;
+	setAttr ".tgi[10].ni[123].y" 1607.142822265625;
 	setAttr ".tgi[10].ni[123].nvs" 18304;
 	setAttr ".tgi[10].ni[124].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[124].y" 8981.4287109375;
+	setAttr ".tgi[10].ni[124].y" 717.14288330078125;
 	setAttr ".tgi[10].ni[124].nvs" 18304;
 	setAttr ".tgi[10].ni[125].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[125].y" -8818.5712890625;
+	setAttr ".tgi[10].ni[125].y" 8727.142578125;
 	setAttr ".tgi[10].ni[125].nvs" 18304;
 	setAttr ".tgi[10].ni[126].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[126].y" -4877.14306640625;
+	setAttr ".tgi[10].ni[126].y" 1734.2857666015625;
 	setAttr ".tgi[10].ni[126].nvs" 18304;
 	setAttr ".tgi[10].ni[127].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[127].y" 6947.14306640625;
+	setAttr ".tgi[10].ni[127].y" 4785.71435546875;
 	setAttr ".tgi[10].ni[127].nvs" 18304;
 	setAttr ".tgi[10].ni[128].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[128].y" -7547.14306640625;
+	setAttr ".tgi[10].ni[128].y" 2370;
 	setAttr ".tgi[10].ni[128].nvs" 18304;
 	setAttr ".tgi[10].ni[129].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[129].y" -5258.5712890625;
+	setAttr ".tgi[10].ni[129].y" -7292.85693359375;
 	setAttr ".tgi[10].ni[129].nvs" 18304;
 	setAttr ".tgi[10].ni[130].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[130].y" -3224.28564453125;
+	setAttr ".tgi[10].ni[130].y" 6947.14306640625;
 	setAttr ".tgi[10].ni[130].nvs" 18304;
 	setAttr ".tgi[10].ni[131].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[131].y" 9998.5712890625;
+	setAttr ".tgi[10].ni[131].y" 9362.857421875;
 	setAttr ".tgi[10].ni[131].nvs" 18304;
 	setAttr ".tgi[10].ni[132].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[132].y" 11397.142578125;
+	setAttr ".tgi[10].ni[132].y" 8981.4287109375;
 	setAttr ".tgi[10].ni[132].nvs" 18304;
 	setAttr ".tgi[10].ni[133].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[133].y" -8182.85693359375;
+	setAttr ".tgi[10].ni[133].y" -5894.28564453125;
 	setAttr ".tgi[10].ni[133].nvs" 18304;
-	setAttr ".tgi[10].ni[134].x" 541.6798095703125;
-	setAttr ".tgi[10].ni[134].y" 466.28366088867188;
+	setAttr ".tgi[10].ni[134].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[134].y" -7801.4287109375;
 	setAttr ".tgi[10].ni[134].nvs" 18304;
 	setAttr ".tgi[10].ni[135].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[135].y" -5640;
+	setAttr ".tgi[10].ni[135].y" 8345.7138671875;
 	setAttr ".tgi[10].ni[135].nvs" 18304;
 	setAttr ".tgi[10].ni[136].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[136].y" 10634.2861328125;
+	setAttr ".tgi[10].ni[136].y" -9454.2861328125;
 	setAttr ".tgi[10].ni[136].nvs" 18304;
 	setAttr ".tgi[10].ni[137].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[137].y" 9617.142578125;
+	setAttr ".tgi[10].ni[137].y" 2242.857177734375;
 	setAttr ".tgi[10].ni[137].nvs" 18304;
 	setAttr ".tgi[10].ni[138].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[138].y" -1444.2857666015625;
+	setAttr ".tgi[10].ni[138].y" 7710;
 	setAttr ".tgi[10].ni[138].nvs" 18304;
 	setAttr ".tgi[10].ni[139].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[139].y" -4622.85693359375;
+	setAttr ".tgi[10].ni[139].y" -9962.857421875;
 	setAttr ".tgi[10].ni[139].nvs" 18304;
 	setAttr ".tgi[10].ni[140].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[140].y" -3097.142822265625;
+	setAttr ".tgi[10].ni[140].y" 6438.5712890625;
 	setAttr ".tgi[10].ni[140].nvs" 18304;
 	setAttr ".tgi[10].ni[141].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[141].y" -3732.857177734375;
+	setAttr ".tgi[10].ni[141].y" -8818.5712890625;
 	setAttr ".tgi[10].ni[141].nvs" 18304;
 	setAttr ".tgi[10].ni[142].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[142].y" 844.28570556640625;
+	setAttr ".tgi[10].ni[142].y" -8945.7138671875;
 	setAttr ".tgi[10].ni[142].nvs" 18304;
 	setAttr ".tgi[10].ni[143].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[143].y" -6911.4287109375;
+	setAttr ".tgi[10].ni[143].y" 208.57142639160156;
 	setAttr ".tgi[10].ni[143].nvs" 18304;
 	setAttr ".tgi[10].ni[144].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[144].y" -1190;
+	setAttr ".tgi[10].ni[144].y" -7547.14306640625;
 	setAttr ".tgi[10].ni[144].nvs" 18304;
 	setAttr ".tgi[10].ni[145].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[145].y" 4912.85693359375;
+	setAttr ".tgi[10].ni[145].y" -5385.71435546875;
 	setAttr ".tgi[10].ni[145].nvs" 18304;
 	setAttr ".tgi[10].ni[146].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[146].y" -10217.142578125;
+	setAttr ".tgi[10].ni[146].y" 5802.85693359375;
 	setAttr ".tgi[10].ni[146].nvs" 18304;
 	setAttr ".tgi[10].ni[147].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[147].y" -6402.85693359375;
+	setAttr ".tgi[10].ni[147].y" 6565.71435546875;
 	setAttr ".tgi[10].ni[147].nvs" 18304;
 	setAttr ".tgi[10].ni[148].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[148].y" 462.85714721679688;
+	setAttr ".tgi[10].ni[148].y" -3351.428466796875;
 	setAttr ".tgi[10].ni[148].nvs" 18304;
 	setAttr ".tgi[10].ni[149].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[149].y" 8600;
+	setAttr ".tgi[10].ni[149].y" -5512.85693359375;
 	setAttr ".tgi[10].ni[149].nvs" 18304;
 	setAttr ".tgi[10].ni[150].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[150].y" -2461.428466796875;
+	setAttr ".tgi[10].ni[150].y" 1352.857177734375;
 	setAttr ".tgi[10].ni[150].nvs" 18304;
 	setAttr ".tgi[10].ni[151].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[151].y" 9744.2861328125;
+	setAttr ".tgi[10].ni[151].y" -9327.142578125;
 	setAttr ".tgi[10].ni[151].nvs" 18304;
 	setAttr ".tgi[10].ni[152].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[152].y" 4277.14306640625;
+	setAttr ".tgi[10].ni[152].y" 7582.85693359375;
 	setAttr ".tgi[10].ni[152].nvs" 18304;
 	setAttr ".tgi[10].ni[153].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[153].y" 4022.857177734375;
+	setAttr ".tgi[10].ni[153].y" 11397.142578125;
 	setAttr ".tgi[10].ni[153].nvs" 18304;
 	setAttr ".tgi[10].ni[154].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[154].y" -2334.28564453125;
+	setAttr ".tgi[10].ni[154].y" 9108.5712890625;
 	setAttr ".tgi[10].ni[154].nvs" 18304;
-	setAttr ".tgi[10].ni[155].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[155].y" 208.57142639160156;
-	setAttr ".tgi[10].ni[155].nvs" 18304;
+	setAttr ".tgi[10].ni[155].x" 1052.493408203125;
+	setAttr ".tgi[10].ni[155].y" 889.3575439453125;
+	setAttr ".tgi[10].ni[155].nvs" 18305;
 	setAttr ".tgi[10].ni[156].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[156].y" 8854.2861328125;
+	setAttr ".tgi[10].ni[156].y" -6784.28564453125;
 	setAttr ".tgi[10].ni[156].nvs" 18304;
-	setAttr ".tgi[10].ni[157].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[157].y" -45.714286804199219;
+	setAttr ".tgi[10].ni[157].x" 547.59222412109375;
+	setAttr ".tgi[10].ni[157].y" 618.84710693359375;
 	setAttr ".tgi[10].ni[157].nvs" 18304;
 	setAttr ".tgi[10].ni[158].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[158].y" -10090;
+	setAttr ".tgi[10].ni[158].y" 10888.5712890625;
 	setAttr ".tgi[10].ni[158].nvs" 18304;
 	setAttr ".tgi[10].ni[159].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[159].y" -7165.71435546875;
+	setAttr ".tgi[10].ni[159].y" 3260;
 	setAttr ".tgi[10].ni[159].nvs" 18304;
 	setAttr ".tgi[10].ni[160].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[160].y" -2588.571533203125;
+	setAttr ".tgi[10].ni[160].y" -9200;
 	setAttr ".tgi[10].ni[160].nvs" 18304;
 	setAttr ".tgi[10].ni[161].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[161].y" 3895.71435546875;
+	setAttr ".tgi[10].ni[161].y" -5131.4287109375;
 	setAttr ".tgi[10].ni[161].nvs" 18304;
 	setAttr ".tgi[10].ni[162].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[162].y" 11905.7138671875;
+	setAttr ".tgi[10].ni[162].y" 11015.7138671875;
 	setAttr ".tgi[10].ni[162].nvs" 18304;
 	setAttr ".tgi[10].ni[163].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[163].y" -4750;
+	setAttr ".tgi[10].ni[163].y" 81.428573608398438;
 	setAttr ".tgi[10].ni[163].nvs" 18304;
 	setAttr ".tgi[10].ni[164].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[164].y" 1607.142822265625;
+	setAttr ".tgi[10].ni[164].y" 5040;
 	setAttr ".tgi[10].ni[164].nvs" 18304;
 	setAttr ".tgi[10].ni[165].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[165].y" 2878.571533203125;
+	setAttr ".tgi[10].ni[165].y" 3132.857177734375;
 	setAttr ".tgi[10].ni[165].nvs" 18304;
 	setAttr ".tgi[10].ni[166].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[166].y" 12160;
+	setAttr ".tgi[10].ni[166].y" 7964.28564453125;
 	setAttr ".tgi[10].ni[166].nvs" 18304;
 	setAttr ".tgi[10].ni[167].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[167].y" -1698.5714111328125;
+	setAttr ".tgi[10].ni[167].y" -2461.428466796875;
 	setAttr ".tgi[10].ni[167].nvs" 18304;
 	setAttr ".tgi[10].ni[168].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[168].y" -9581.4287109375;
+	setAttr ".tgi[10].ni[168].y" -3605.71435546875;
 	setAttr ".tgi[10].ni[168].nvs" 18304;
 	setAttr ".tgi[10].ni[169].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[169].y" 12032.857421875;
+	setAttr ".tgi[10].ni[169].y" -300;
 	setAttr ".tgi[10].ni[169].nvs" 18304;
 	setAttr ".tgi[10].ni[170].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[170].y" -5512.85693359375;
+	setAttr ".tgi[10].ni[170].y" 1861.4285888671875;
 	setAttr ".tgi[10].ni[170].nvs" 18304;
 	setAttr ".tgi[10].ni[171].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[171].y" -10852.857421875;
+	setAttr ".tgi[10].ni[171].y" -7928.5712890625;
 	setAttr ".tgi[10].ni[171].nvs" 18304;
 	setAttr ".tgi[10].ni[172].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[172].y" -1571.4285888671875;
+	setAttr ".tgi[10].ni[172].y" 7455.71435546875;
 	setAttr ".tgi[10].ni[172].nvs" 18304;
 	setAttr ".tgi[10].ni[173].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[173].y" 5802.85693359375;
+	setAttr ".tgi[10].ni[173].y" 10634.2861328125;
 	setAttr ".tgi[10].ni[173].nvs" 18304;
 	setAttr ".tgi[10].ni[174].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[174].y" -6530;
+	setAttr ".tgi[10].ni[174].y" -4622.85693359375;
 	setAttr ".tgi[10].ni[174].nvs" 18304;
-	setAttr ".tgi[10].ni[175].x" 547.59222412109375;
-	setAttr ".tgi[10].ni[175].y" 618.84710693359375;
+	setAttr ".tgi[10].ni[175].x" 438.57144165039062;
+	setAttr ".tgi[10].ni[175].y" 7328.5712890625;
 	setAttr ".tgi[10].ni[175].nvs" 18304;
 	setAttr ".tgi[10].ni[176].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[176].y" 7582.85693359375;
+	setAttr ".tgi[10].ni[176].y" -2588.571533203125;
 	setAttr ".tgi[10].ni[176].nvs" 18304;
 	setAttr ".tgi[10].ni[177].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[177].y" -3605.71435546875;
+	setAttr ".tgi[10].ni[177].y" 7074.28564453125;
 	setAttr ".tgi[10].ni[177].nvs" 18304;
 	setAttr ".tgi[10].ni[178].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[178].y" 1480;
+	setAttr ".tgi[10].ni[178].y" -4368.5712890625;
 	setAttr ".tgi[10].ni[178].nvs" 18304;
 	setAttr ".tgi[10].ni[179].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[179].y" 2624.28564453125;
+	setAttr ".tgi[10].ni[179].y" -10598.5712890625;
 	setAttr ".tgi[10].ni[179].nvs" 18304;
 	setAttr ".tgi[10].ni[180].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[180].y" -7674.28564453125;
+	setAttr ".tgi[10].ni[180].y" -9581.4287109375;
 	setAttr ".tgi[10].ni[180].nvs" 18304;
 	setAttr ".tgi[10].ni[181].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[181].y" -2207.142822265625;
+	setAttr ".tgi[10].ni[181].y" -681.4285888671875;
 	setAttr ".tgi[10].ni[181].nvs" 18304;
 	setAttr ".tgi[10].ni[182].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[182].y" 3768.571533203125;
+	setAttr ".tgi[10].ni[182].y" 2115.71435546875;
 	setAttr ".tgi[10].ni[182].nvs" 18304;
 	setAttr ".tgi[10].ni[183].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[183].y" 7964.28564453125;
+	setAttr ".tgi[10].ni[183].y" 6820;
 	setAttr ".tgi[10].ni[183].nvs" 18304;
 	setAttr ".tgi[10].ni[184].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[184].y" -2842.857177734375;
+	setAttr ".tgi[10].ni[184].y" 8600;
 	setAttr ".tgi[10].ni[184].nvs" 18304;
 	setAttr ".tgi[10].ni[185].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[185].y" 2242.857177734375;
+	setAttr ".tgi[10].ni[185].y" -10344.2861328125;
 	setAttr ".tgi[10].ni[185].nvs" 18304;
 	setAttr ".tgi[10].ni[186].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[186].y" 1352.857177734375;
+	setAttr ".tgi[10].ni[186].y" -2715.71435546875;
 	setAttr ".tgi[10].ni[186].nvs" 18304;
 	setAttr ".tgi[10].ni[187].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[187].y" 10888.5712890625;
+	setAttr ".tgi[10].ni[187].y" 4912.85693359375;
 	setAttr ".tgi[10].ni[187].nvs" 18304;
 	setAttr ".tgi[10].ni[188].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[188].y" 8472.857421875;
+	setAttr ".tgi[10].ni[188].y" -4750;
 	setAttr ".tgi[10].ni[188].nvs" 18304;
 	setAttr ".tgi[10].ni[189].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[189].y" 2370;
+	setAttr ".tgi[10].ni[189].y" 2497.142822265625;
 	setAttr ".tgi[10].ni[189].nvs" 18304;
 	setAttr ".tgi[10].ni[190].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[190].y" 2115.71435546875;
+	setAttr ".tgi[10].ni[190].y" -3860;
 	setAttr ".tgi[10].ni[190].nvs" 18304;
 	setAttr ".tgi[10].ni[191].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[191].y" -2970;
+	setAttr ".tgi[10].ni[191].y" -2080;
 	setAttr ".tgi[10].ni[191].nvs" 18304;
 	setAttr ".tgi[10].ni[192].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[192].y" -554.28570556640625;
+	setAttr ".tgi[10].ni[192].y" -1825.7142333984375;
 	setAttr ".tgi[10].ni[192].nvs" 18304;
 	setAttr ".tgi[10].ni[193].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[193].y" 7201.4287109375;
+	setAttr ".tgi[10].ni[193].y" 4404.28564453125;
 	setAttr ".tgi[10].ni[193].nvs" 18304;
 	setAttr ".tgi[10].ni[194].x" 438.57144165039062;
-	setAttr ".tgi[10].ni[194].y" 3005.71435546875;
+	setAttr ".tgi[10].ni[194].y" 5167.14306640625;
 	setAttr ".tgi[10].ni[194].nvs" 18304;
 	setAttr ".tgi[11].tn" -type "string" "Untitled_7";
-	setAttr ".tgi[11].vl" -type "double2" -878.57139366013803 3073.5860456671176 ;
-	setAttr ".tgi[11].vh" -type "double2" 1080.952337999194 3939.5089137527652 ;
-	setAttr -s 22 ".tgi[11].ni";
-	setAttr ".tgi[11].ni[0].x" -78.605010986328125;
-	setAttr ".tgi[11].ni[0].y" 3486.973388671875;
-	setAttr ".tgi[11].ni[0].nvs" 18305;
-	setAttr ".tgi[11].ni[1].x" 341.17001342773438;
-	setAttr ".tgi[11].ni[1].y" 3987.362060546875;
-	setAttr ".tgi[11].ni[1].nvs" 18306;
-	setAttr ".tgi[11].ni[2].x" -452.85714721679688;
-	setAttr ".tgi[11].ni[2].y" 145.12605285644531;
+	setAttr ".tgi[11].vl" -type "double2" -1259.3317357115168 2185.8032722345647 ;
+	setAttr ".tgi[11].vh" -type "double2" 487.13060083992121 4026.1614333317789 ;
+	setAttr -s 25 ".tgi[11].ni";
+	setAttr ".tgi[11].ni[0].x" -175.71427917480469;
+	setAttr ".tgi[11].ni[0].y" 3462.857177734375;
+	setAttr ".tgi[11].ni[0].nvs" 18304;
+	setAttr ".tgi[11].ni[1].x" -482.85714721679688;
+	setAttr ".tgi[11].ni[1].y" 3578.571533203125;
+	setAttr ".tgi[11].ni[1].nvs" 18305;
+	setAttr ".tgi[11].ni[2].x" 60;
+	setAttr ".tgi[11].ni[2].y" 68.571426391601562;
 	setAttr ".tgi[11].ni[2].nvs" 18305;
-	setAttr ".tgi[11].ni[3].x" -776.5089111328125;
-	setAttr ".tgi[11].ni[3].y" 3560.8095703125;
-	setAttr ".tgi[11].ni[3].nvs" 18305;
-	setAttr ".tgi[11].ni[4].x" 60;
-	setAttr ".tgi[11].ni[4].y" 68.571426391601562;
+	setAttr ".tgi[11].ni[3].x" -177.80085754394531;
+	setAttr ".tgi[11].ni[3].y" 3366.372314453125;
+	setAttr ".tgi[11].ni[3].nvs" 18306;
+	setAttr ".tgi[11].ni[4].x" -511.0584716796875;
+	setAttr ".tgi[11].ni[4].y" -368.20132446289062;
 	setAttr ".tgi[11].ni[4].nvs" 18305;
-	setAttr ".tgi[11].ni[5].x" -143.73239135742188;
-	setAttr ".tgi[11].ni[5].y" 3640.956787109375;
+	setAttr ".tgi[11].ni[5].x" -175.71427917480469;
+	setAttr ".tgi[11].ni[5].y" 2787.142822265625;
 	setAttr ".tgi[11].ni[5].nvs" 18305;
-	setAttr ".tgi[11].ni[6].x" -439.56591796875;
-	setAttr ".tgi[11].ni[6].y" -147.31231689453125;
-	setAttr ".tgi[11].ni[6].nvs" 18305;
-	setAttr ".tgi[11].ni[7].x" 67.074928283691406;
-	setAttr ".tgi[11].ni[7].y" -374.08914184570312;
+	setAttr ".tgi[11].ni[6].x" -783.48712158203125;
+	setAttr ".tgi[11].ni[6].y" 3166.372314453125;
+	setAttr ".tgi[11].ni[6].nvs" 18306;
+	setAttr ".tgi[11].ni[7].x" 380;
+	setAttr ".tgi[11].ni[7].y" 48.571430206298828;
 	setAttr ".tgi[11].ni[7].nvs" 18305;
-	setAttr ".tgi[11].ni[8].x" 380;
-	setAttr ".tgi[11].ni[8].y" 48.571430206298828;
+	setAttr ".tgi[11].ni[8].x" -481.3817138671875;
+	setAttr ".tgi[11].ni[8].y" 3367.142822265625;
 	setAttr ".tgi[11].ni[8].nvs" 18305;
-	setAttr ".tgi[11].ni[9].x" 100;
-	setAttr ".tgi[11].ni[9].y" 3160;
-	setAttr ".tgi[11].ni[9].nvs" 18304;
-	setAttr ".tgi[11].ni[10].x" 267.2213134765625;
-	setAttr ".tgi[11].ni[10].y" 3760.302490234375;
-	setAttr ".tgi[11].ni[10].nvs" 18305;
-	setAttr ".tgi[11].ni[11].x" 157.14285278320312;
-	setAttr ".tgi[11].ni[11].y" -268.57144165039062;
-	setAttr ".tgi[11].ni[11].nvs" 18304;
-	setAttr ".tgi[11].ni[12].x" 585.72003173828125;
-	setAttr ".tgi[11].ni[12].y" 3601.39892578125;
+	setAttr ".tgi[11].ni[9].x" -481.373046875;
+	setAttr ".tgi[11].ni[9].y" 2895.65869140625;
+	setAttr ".tgi[11].ni[9].nvs" 18305;
+	setAttr ".tgi[11].ni[10].x" -177.19837951660156;
+	setAttr ".tgi[11].ni[10].y" 2620.111083984375;
+	setAttr ".tgi[11].ni[10].nvs" 18304;
+	setAttr ".tgi[11].ni[11].x" -452.01681518554688;
+	setAttr ".tgi[11].ni[11].y" -67.142860412597656;
+	setAttr ".tgi[11].ni[11].nvs" 18305;
+	setAttr ".tgi[11].ni[12].x" -1097.142822265625;
+	setAttr ".tgi[11].ni[12].y" 2945.71435546875;
 	setAttr ".tgi[11].ni[12].nvs" 18305;
-	setAttr ".tgi[11].ni[13].x" 555.19085693359375;
-	setAttr ".tgi[11].ni[13].y" 3708.571533203125;
+	setAttr ".tgi[11].ni[13].x" 157.14285278320312;
+	setAttr ".tgi[11].ni[13].y" -268.57144165039062;
 	setAttr ".tgi[11].ni[13].nvs" 18304;
-	setAttr ".tgi[11].ni[14].x" -401.58309936523438;
-	setAttr ".tgi[11].ni[14].y" 3800.471923828125;
+	setAttr ".tgi[11].ni[14].x" -482.85714721679688;
+	setAttr ".tgi[11].ni[14].y" 2685.71435546875;
 	setAttr ".tgi[11].ni[14].nvs" 18305;
-	setAttr ".tgi[11].ni[15].x" 203.20433044433594;
-	setAttr ".tgi[11].ni[15].y" 3461.929931640625;
-	setAttr ".tgi[11].ni[15].nvs" 18305;
-	setAttr ".tgi[11].ni[16].x" -452.01681518554688;
-	setAttr ".tgi[11].ni[16].y" -67.142860412597656;
+	setAttr ".tgi[11].ni[15].x" 219.14651489257812;
+	setAttr ".tgi[11].ni[15].y" 3055.935302734375;
+	setAttr ".tgi[11].ni[15].nvs" 18304;
+	setAttr ".tgi[11].ni[16].x" -439.56591796875;
+	setAttr ".tgi[11].ni[16].y" -147.31231689453125;
 	setAttr ".tgi[11].ni[16].nvs" 18305;
-	setAttr ".tgi[11].ni[17].x" -183.52940368652344;
-	setAttr ".tgi[11].ni[17].y" 341.8487548828125;
+	setAttr ".tgi[11].ni[17].x" -452.85714721679688;
+	setAttr ".tgi[11].ni[17].y" 145.12605285644531;
 	setAttr ".tgi[11].ni[17].nvs" 18305;
-	setAttr ".tgi[11].ni[18].x" 320;
-	setAttr ".tgi[11].ni[18].y" -307.14285278320312;
-	setAttr ".tgi[11].ni[18].nvs" 18304;
-	setAttr ".tgi[11].ni[19].x" -511.0584716796875;
-	setAttr ".tgi[11].ni[19].y" -368.20132446289062;
-	setAttr ".tgi[11].ni[19].nvs" 18305;
-	setAttr ".tgi[11].ni[20].x" -454.53781127929688;
-	setAttr ".tgi[11].ni[20].y" 354.87396240234375;
+	setAttr ".tgi[11].ni[18].x" -183.52940368652344;
+	setAttr ".tgi[11].ni[18].y" 341.8487548828125;
+	setAttr ".tgi[11].ni[18].nvs" 18305;
+	setAttr ".tgi[11].ni[19].x" -175.71427917480469;
+	setAttr ".tgi[11].ni[19].y" 3674.28564453125;
+	setAttr ".tgi[11].ni[19].nvs" 18306;
+	setAttr ".tgi[11].ni[20].x" -1097.142822265625;
+	setAttr ".tgi[11].ni[20].y" 3115.71435546875;
 	setAttr ".tgi[11].ni[20].nvs" 18305;
-	setAttr ".tgi[11].ni[21].x" -440.745849609375;
-	setAttr ".tgi[11].ni[21].y" -265.59909057617188;
+	setAttr ".tgi[11].ni[21].x" 67.074928283691406;
+	setAttr ".tgi[11].ni[21].y" -374.08914184570312;
 	setAttr ".tgi[11].ni[21].nvs" 18305;
+	setAttr ".tgi[11].ni[22].x" -454.53781127929688;
+	setAttr ".tgi[11].ni[22].y" 354.87396240234375;
+	setAttr ".tgi[11].ni[22].nvs" 18305;
+	setAttr ".tgi[11].ni[23].x" 320;
+	setAttr ".tgi[11].ni[23].y" -307.14285278320312;
+	setAttr ".tgi[11].ni[23].nvs" 18304;
+	setAttr ".tgi[11].ni[24].x" -440.745849609375;
+	setAttr ".tgi[11].ni[24].y" -265.59909057617188;
+	setAttr ".tgi[11].ni[24].nvs" 18305;
 select -ne :time1;
 	setAttr ".o" 0;
 select -ne :hardwareRenderingGlobals;
@@ -46792,10 +46816,10 @@ select -ne :defaultShaderList1;
 select -ne :postProcessList1;
 	setAttr -s 2 ".p";
 select -ne :defaultRenderUtilityList1;
-	setAttr -s 8 ".u";
+	setAttr -s 10 ".u";
 select -ne :defaultRenderingList1;
 select -ne :defaultTextureList1;
-	setAttr -s 8 ".tx";
+	setAttr -s 10 ".tx";
 select -ne :initialShadingGroup;
 	setAttr -s 29 ".dsm";
 	setAttr ".ro" yes;
@@ -46821,42 +46845,42 @@ connectAttr "j2.tx" "pasted__effector1.tx";
 connectAttr "j2.ty" "pasted__effector1.ty";
 connectAttr "j2.tz" "pasted__effector1.tz";
 connectAttr "layer5.di" "mainPainting.do";
-connectAttr "pot_0_g_00.sfPaintColor" "mainPaintingShape.pts[0].pc";
-connectAttr "pot_0_g_00.sfPaintOpacity" "mainPaintingShape.pts[0].pvis";
-connectAttr "pot_0_g_00.sfPaintTravel" "mainPaintingShape.pts[0].ptvl";
-connectAttr "pot_0_g_00.sfPaintCustomId" "mainPaintingShape.pts[0].pcid";
-connectAttr "pot_1_g_01.sfPaintColor" "mainPaintingShape.pts[1].pc";
-connectAttr "pot_1_g_01.sfPaintOpacity" "mainPaintingShape.pts[1].pvis";
-connectAttr "pot_1_g_01.sfPaintTravel" "mainPaintingShape.pts[1].ptvl";
-connectAttr "pot_1_g_01.sfPaintCustomId" "mainPaintingShape.pts[1].pcid";
-connectAttr "pot_2_g_02.sfPaintColor" "mainPaintingShape.pts[2].pc";
-connectAttr "pot_2_g_02.sfPaintOpacity" "mainPaintingShape.pts[2].pvis";
-connectAttr "pot_2_g_02.sfPaintTravel" "mainPaintingShape.pts[2].ptvl";
-connectAttr "pot_2_g_02.sfPaintCustomId" "mainPaintingShape.pts[2].pcid";
-connectAttr "pot_3_g_03.sfPaintColor" "mainPaintingShape.pts[3].pc";
-connectAttr "pot_3_g_03.sfPaintOpacity" "mainPaintingShape.pts[3].pvis";
-connectAttr "pot_3_g_03.sfPaintTravel" "mainPaintingShape.pts[3].ptvl";
-connectAttr "pot_3_g_03.sfPaintCustomId" "mainPaintingShape.pts[3].pcid";
-connectAttr "pot_4_g_04.sfPaintColor" "mainPaintingShape.pts[4].pc";
-connectAttr "pot_4_g_04.sfPaintOpacity" "mainPaintingShape.pts[4].pvis";
-connectAttr "pot_4_g_04.sfPaintTravel" "mainPaintingShape.pts[4].ptvl";
-connectAttr "pot_4_g_04.sfPaintCustomId" "mainPaintingShape.pts[4].pcid";
-connectAttr "pot_5_g_05.sfPaintColor" "mainPaintingShape.pts[5].pc";
-connectAttr "pot_5_g_05.sfPaintOpacity" "mainPaintingShape.pts[5].pvis";
-connectAttr "pot_5_g_05.sfPaintTravel" "mainPaintingShape.pts[5].ptvl";
-connectAttr "pot_5_g_05.sfPaintCustomId" "mainPaintingShape.pts[5].pcid";
-connectAttr "pot_6_g_06.sfPaintColor" "mainPaintingShape.pts[6].pc";
-connectAttr "pot_6_g_06.sfPaintOpacity" "mainPaintingShape.pts[6].pvis";
-connectAttr "pot_6_g_06.sfPaintTravel" "mainPaintingShape.pts[6].ptvl";
-connectAttr "pot_6_g_06.sfPaintCustomId" "mainPaintingShape.pts[6].pcid";
-connectAttr "pot_7_g_07.sfPaintColor" "mainPaintingShape.pts[7].pc";
-connectAttr "pot_7_g_07.sfPaintOpacity" "mainPaintingShape.pts[7].pvis";
-connectAttr "pot_7_g_07.sfPaintTravel" "mainPaintingShape.pts[7].ptvl";
-connectAttr "pot_7_g_07.sfPaintCustomId" "mainPaintingShape.pts[7].pcid";
-connectAttr "pot_8_g_08.sfPaintColor" "mainPaintingShape.pts[8].pc";
-connectAttr "pot_8_g_08.sfPaintOpacity" "mainPaintingShape.pts[8].pvis";
-connectAttr "pot_8_g_08.sfPaintTravel" "mainPaintingShape.pts[8].ptvl";
-connectAttr "pot_8_g_08.sfPaintCustomId" "mainPaintingShape.pts[8].pcid";
+connectAttr "pot_0_g_01.sfPaintColor" "mainPaintingShape.pts[0].pc";
+connectAttr "pot_0_g_01.sfPaintOpacity" "mainPaintingShape.pts[0].pvis";
+connectAttr "pot_0_g_01.sfPaintTravel" "mainPaintingShape.pts[0].ptvl";
+connectAttr "pot_0_g_01.sfPaintCustomId" "mainPaintingShape.pts[0].pcid";
+connectAttr "pot_1_g_02.sfPaintColor" "mainPaintingShape.pts[1].pc";
+connectAttr "pot_1_g_02.sfPaintOpacity" "mainPaintingShape.pts[1].pvis";
+connectAttr "pot_1_g_02.sfPaintTravel" "mainPaintingShape.pts[1].ptvl";
+connectAttr "pot_1_g_02.sfPaintCustomId" "mainPaintingShape.pts[1].pcid";
+connectAttr "pot_2_g_04.sfPaintColor" "mainPaintingShape.pts[2].pc";
+connectAttr "pot_2_g_04.sfPaintOpacity" "mainPaintingShape.pts[2].pvis";
+connectAttr "pot_2_g_04.sfPaintTravel" "mainPaintingShape.pts[2].ptvl";
+connectAttr "pot_2_g_04.sfPaintCustomId" "mainPaintingShape.pts[2].pcid";
+connectAttr "pot_3_g_06.sfPaintColor" "mainPaintingShape.pts[3].pc";
+connectAttr "pot_3_g_06.sfPaintOpacity" "mainPaintingShape.pts[3].pvis";
+connectAttr "pot_3_g_06.sfPaintTravel" "mainPaintingShape.pts[3].ptvl";
+connectAttr "pot_3_g_06.sfPaintCustomId" "mainPaintingShape.pts[3].pcid";
+connectAttr "pot_4_g_08.sfPaintColor" "mainPaintingShape.pts[4].pc";
+connectAttr "pot_4_g_08.sfPaintOpacity" "mainPaintingShape.pts[4].pvis";
+connectAttr "pot_4_g_08.sfPaintTravel" "mainPaintingShape.pts[4].ptvl";
+connectAttr "pot_4_g_08.sfPaintCustomId" "mainPaintingShape.pts[4].pcid";
+connectAttr "pot_5_g_10.sfPaintColor" "mainPaintingShape.pts[5].pc";
+connectAttr "pot_5_g_10.sfPaintOpacity" "mainPaintingShape.pts[5].pvis";
+connectAttr "pot_5_g_10.sfPaintTravel" "mainPaintingShape.pts[5].ptvl";
+connectAttr "pot_5_g_10.sfPaintCustomId" "mainPaintingShape.pts[5].pcid";
+connectAttr "pot_6_g_12.sfPaintColor" "mainPaintingShape.pts[6].pc";
+connectAttr "pot_6_g_12.sfPaintOpacity" "mainPaintingShape.pts[6].pvis";
+connectAttr "pot_6_g_12.sfPaintTravel" "mainPaintingShape.pts[6].ptvl";
+connectAttr "pot_6_g_12.sfPaintCustomId" "mainPaintingShape.pts[6].pcid";
+connectAttr "pot_7_g_14.sfPaintColor" "mainPaintingShape.pts[7].pc";
+connectAttr "pot_7_g_14.sfPaintOpacity" "mainPaintingShape.pts[7].pvis";
+connectAttr "pot_7_g_14.sfPaintTravel" "mainPaintingShape.pts[7].ptvl";
+connectAttr "pot_7_g_14.sfPaintCustomId" "mainPaintingShape.pts[7].pcid";
+connectAttr "pot_8_g_15.sfPaintColor" "mainPaintingShape.pts[8].pc";
+connectAttr "pot_8_g_15.sfPaintOpacity" "mainPaintingShape.pts[8].pvis";
+connectAttr "pot_8_g_15.sfPaintTravel" "mainPaintingShape.pts[8].ptvl";
+connectAttr "pot_8_g_15.sfPaintCustomId" "mainPaintingShape.pts[8].pcid";
 connectAttr "displaceShape.w" "mainPaintingShape.dmsh";
 connectAttr "collectStrokesBG.out" "mainPaintingShape.stks[1]";
 connectAttr "collectStrokesFine.out" "mainPaintingShape.stks[2]";
@@ -46935,211 +46959,210 @@ connectAttr "pasted__expression5.out[7]" "pasted__ikHandle1_poleVectorConstraint
 connectAttr "groupParts1.og" "displaceShape.i";
 connectAttr "groupId35.id" "displaceShape.iog.og[0].gid";
 connectAttr "probePointsSet.mwc" "displaceShape.iog.og[0].gco";
-connectAttr "cImgSkel1.osk" "skGraphShape.simg";
-connectAttr "plane1.wm" "skGraphShape.pmat";
+connectAttr "skChainNode1.out" "skGraphShape.chn";
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.odb" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "transformGeometry3.og" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|handle|handleShape.i"
 		;
@@ -47147,3469 +47170,3469 @@ connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.owb" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_0_g_00.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_0_g_01.sfPaintColor" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_0_g_00.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_0_g_01.sfPaintOpacity" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_0_g_00.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_0_g_01.sfPaintTravel" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_0_g_00.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_0_g_01.sfPaintCustomId" "|rack1|holes|holeRot_00|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.odb" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.owb" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_1_g_01.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_1_g_02.sfPaintColor" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_1_g_01.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_1_g_02.sfPaintOpacity" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_1_g_01.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_1_g_02.sfPaintTravel" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_1_g_01.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_1_g_02.sfPaintCustomId" "|rack1|holes|holeRot_01|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.odb" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.owb" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_2_g_02.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_2_g_04.sfPaintColor" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_2_g_02.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_2_g_04.sfPaintOpacity" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_2_g_02.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_2_g_04.sfPaintTravel" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_2_g_02.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_2_g_04.sfPaintCustomId" "|rack1|holes|holeRot_02|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.odb" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.owb" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_3_g_03.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_3_g_06.sfPaintColor" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_3_g_03.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_3_g_06.sfPaintOpacity" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_3_g_03.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_3_g_06.sfPaintTravel" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_3_g_03.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_3_g_06.sfPaintCustomId" "|rack1|holes|holeRot_03|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.odb" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.owb" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_4_g_04.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_4_g_08.sfPaintColor" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_4_g_04.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_4_g_08.sfPaintOpacity" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_4_g_04.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_4_g_08.sfPaintTravel" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_4_g_04.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_4_g_08.sfPaintCustomId" "|rack1|holes|holeRot_04|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.odb" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.owb" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_5_g_05.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_5_g_10.sfPaintColor" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_5_g_05.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_5_g_10.sfPaintOpacity" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_5_g_05.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_5_g_10.sfPaintTravel" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_5_g_05.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_5_g_10.sfPaintCustomId" "|rack1|holes|holeRot_05|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.odb" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.owb" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_6_g_06.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_6_g_12.sfPaintColor" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_6_g_06.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_6_g_12.sfPaintOpacity" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_6_g_06.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_6_g_12.sfPaintTravel" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_6_g_06.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_6_g_12.sfPaintCustomId" "|rack1|holes|holeRot_06|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.odb" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.owb" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_7_g_07.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_7_g_14.sfPaintColor" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_7_g_07.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_7_g_14.sfPaintOpacity" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_7_g_07.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_7_g_14.sfPaintTravel" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_7_g_07.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_7_g_14.sfPaintCustomId" "|rack1|holes|holeRot_07|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesDip.out" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.odb" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|dip_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.stks[0]"
 		;
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b00|b0Shape0.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.stks[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b01|b0Shape1.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.stks[0]"
 		;
 connectAttr "bpx_2_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b02|b0Shape2.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.stks[0]"
 		;
 connectAttr "bpx_3_portrait_set_B7_6mm_new7_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b03|b0Shape3.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.stks[0]"
 		;
 connectAttr "bpx_4_portrait_set_B9_6mm_new9_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b04|b0Shape4.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.stks[0]"
 		;
 connectAttr "bpx_5_portrait_set_B9_9mm_new9_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b05|b0Shape5.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.stks[0]"
 		;
 connectAttr "bpx_6_portrait_set_B10_10mm_new10_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b06|b0Shape6.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.stks[0]"
 		;
 connectAttr "bpx_7_portrait_set_B9_12mm_new9_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b07|b0Shape7.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.stks[0]"
 		;
 connectAttr "bpx_8_portrait_set_B10_15mm_new10_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b08|b0Shape8.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09|b0Shape9.stks[0]"
 		;
 connectAttr "bpx_9_portrait_set_B10_18mm_new10_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09|b0Shape9.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09|b0Shape9.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b09|b0Shape9.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10|bShape10.stks[0]"
 		;
 connectAttr "bpx_10_portrait_set_B10_22mm_new10_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10|bShape10.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10|bShape10.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10|bShape10.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10|bShape10.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b10|bShape10.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11|bShape11.stks[0]"
 		;
 connectAttr "bpx_11_portrait_set_B21_23mm_corn18_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11|bShape11.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11|bShape11.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11|bShape11.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11|bShape11.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b11|bShape11.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12|bShape12.stks[0]"
 		;
 connectAttr "bpx_12_portrait_set_B23_30mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12|bShape12.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12|bShape12.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12|bShape12.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12|bShape12.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b12|bShape12.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13|bShape13.stks[0]"
 		;
 connectAttr "bpx_13_portrait_set_B23_38mm_lgsash_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13|bShape13.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13|bShape13.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13|bShape13.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13|bShape13.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b13|bShape13.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.stks[0]"
 		;
 connectAttr "bpx_14_portrait_set_B18_45mm_na_flatShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b14|bShape14.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15|bShape15.stks[0]"
 		;
 connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15|bShape15.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15|bShape15.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15|bShape15.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15|bShape15.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b15|bShape15.pts[0].pcid"
 		;
 connectAttr "collectStrokesWipe.out" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.stks[0]"
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.owb" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.bsh[0]"
 		;
-connectAttr "pot_8_g_08.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
+connectAttr "pot_8_g_15.sfPaintColor" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.pts[0].pc"
 		;
-connectAttr "pot_8_g_08.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
+connectAttr "pot_8_g_15.sfPaintOpacity" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.pts[0].pvis"
 		;
-connectAttr "pot_8_g_08.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
+connectAttr "pot_8_g_15.sfPaintTravel" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.pts[0].ptvl"
 		;
-connectAttr "pot_8_g_08.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
+connectAttr "pot_8_g_15.sfPaintCustomId" "|rack1|holes|holeRot_08|holeTrans|wipe_loc|b16|bShape16.pts[0].pcid"
 		;
 connectAttr ":defaultColorMgtGlobals.cme" "imagePlaneShape2.cme";
 connectAttr ":defaultColorMgtGlobals.cfe" "imagePlaneShape2.cmcf";
@@ -50622,17 +50645,17 @@ relationship "link" ":lightLinker1" ":initialShadingGroup.message" ":defaultLigh
 relationship "link" ":lightLinker1" ":initialParticleSE.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "girderShaderSG.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "surfaceShader1SG.message" ":defaultLightSet.message";
-relationship "link" ":lightLinker1" "sx_g_00_SG.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "sx_g_01_SG.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "sx_g_02_SG.message" ":defaultLightSet.message";
-relationship "link" ":lightLinker1" "sx_g_03_SG.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "sx_g_04_SG.message" ":defaultLightSet.message";
-relationship "link" ":lightLinker1" "sx_g_05_SG.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "sx_g_06_SG.message" ":defaultLightSet.message";
-relationship "link" ":lightLinker1" "sx_g_07_SG.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" "sx_g_08_SG.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" "sx_g_10_SG.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" "sx_g_12_SG.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" "sx_g_14_SG.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "pasted__typeBlinn1SG.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "pasted__pasted__typeBlinn1SG.message" ":defaultLightSet.message";
-relationship "link" ":lightLinker1" "sx_g_08_SG.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" "sx_g_15_SG.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "pasted__cable_04SG4.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "pasted__cable_04SG5.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "pasted__cable_04SG6.message" ":defaultLightSet.message";
@@ -50641,17 +50664,17 @@ relationship "shadowLink" ":lightLinker1" ":initialShadingGroup.message" ":defau
 relationship "shadowLink" ":lightLinker1" ":initialParticleSE.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "girderShaderSG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "surfaceShader1SG.message" ":defaultLightSet.message";
-relationship "shadowLink" ":lightLinker1" "sx_g_00_SG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "sx_g_01_SG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "sx_g_02_SG.message" ":defaultLightSet.message";
-relationship "shadowLink" ":lightLinker1" "sx_g_03_SG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "sx_g_04_SG.message" ":defaultLightSet.message";
-relationship "shadowLink" ":lightLinker1" "sx_g_05_SG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "sx_g_06_SG.message" ":defaultLightSet.message";
-relationship "shadowLink" ":lightLinker1" "sx_g_07_SG.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" "sx_g_08_SG.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" "sx_g_10_SG.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" "sx_g_12_SG.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" "sx_g_14_SG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "pasted__typeBlinn1SG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "pasted__pasted__typeBlinn1SG.message" ":defaultLightSet.message";
-relationship "shadowLink" ":lightLinker1" "sx_g_08_SG.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" "sx_g_15_SG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "pasted__cable_04SG4.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "pasted__cable_04SG5.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "pasted__cable_04SG6.message" ":defaultLightSet.message";
@@ -51511,8 +51534,6 @@ connectAttr "planeShape1.msg" "MayaNodeEditorSavedTabsInfo1.tgi[0].ni[0].dn";
 connectAttr "plane1.msg" "MayaNodeEditorSavedTabsInfo1.tgi[0].ni[1].dn";
 connectAttr "skGraphShape.msg" "MayaNodeEditorSavedTabsInfo1.tgi[0].ni[2].dn";
 connectAttr "cImgSkel1.msg" "MayaNodeEditorSavedTabsInfo1.tgi[0].ni[3].dn";
-connectAttr "cImgSkel1.osk" "skeletonStroke1.simg";
-connectAttr "plane1.wm" "skeletonStroke1.pmat";
 connectAttr "bpx_0_portrait_set_B8_1mm_new8_roundShape.opb" "skeletonStroke1.bsh[0]"
 		;
 connectAttr "bpx_1_portrait_set_B7_4mm_new7_roundShape.opb" "skeletonStroke1.bsh[1]"
@@ -51547,6 +51568,7 @@ connectAttr "bpx_15_portrait_set_B35_55mm_corn35_flatShape.opb" "skeletonStroke1
 		;
 connectAttr "bpx_16_portrait_set_B36_7mm_chinese35_roundShape.opb" "skeletonStroke1.bsh[16]"
 		;
+connectAttr "skChainNode1.out" "skeletonStroke1.chn";
 connectAttr "longWipeBShape.ws" "longWipeBShape_SC.crv";
 connectAttr "longWipeB.v" "longWipeBShape_SC.act";
 connectAttr "longWipeAShape.ws" "longWipeAShape_SC.crv";
@@ -51631,51 +51653,6 @@ connectAttr "longWipeAShape_SC.out" "collectStrokesWipe.stks[0]";
 connectAttr "longWipeBShape_SC.out" "collectStrokesWipe.stks[1]";
 connectAttr "backWipeShape_SC.out" "collectStrokesWipe.stks[2]";
 connectAttr "polyCylinder5.out" "transformGeometry3.ig";
-connectAttr "pot_0_g_00.sfPaintColor" "sx_g_00.c";
-connectAttr "sx_g_00.oc" "sx_g_00_SG.ss";
-connectAttr "pot_0_g_00Shape.iog" "sx_g_00_SG.dsm" -na;
-connectAttr "sx_g_00_SG.msg" "materialInfo58.sg";
-connectAttr "sx_g_00.msg" "materialInfo58.m";
-connectAttr "pot_1_g_01.sfPaintColor" "sx_g_01.c";
-connectAttr "sx_g_01.oc" "sx_g_01_SG.ss";
-connectAttr "pot_1_g_01Shape.iog" "sx_g_01_SG.dsm" -na;
-connectAttr "sx_g_01_SG.msg" "materialInfo59.sg";
-connectAttr "sx_g_01.msg" "materialInfo59.m";
-connectAttr "pot_2_g_02.sfPaintColor" "sx_g_02.c";
-connectAttr "sx_g_02.oc" "sx_g_02_SG.ss";
-connectAttr "pot_2_g_02Shape.iog" "sx_g_02_SG.dsm" -na;
-connectAttr "sx_g_02_SG.msg" "materialInfo60.sg";
-connectAttr "sx_g_02.msg" "materialInfo60.m";
-connectAttr "pot_3_g_03.sfPaintColor" "sx_g_03.c";
-connectAttr "sx_g_03.oc" "sx_g_03_SG.ss";
-connectAttr "pot_3_g_03Shape.iog" "sx_g_03_SG.dsm" -na;
-connectAttr "sx_g_03_SG.msg" "materialInfo61.sg";
-connectAttr "sx_g_03.msg" "materialInfo61.m";
-connectAttr "pot_4_g_04.sfPaintColor" "sx_g_04.c";
-connectAttr "sx_g_04.oc" "sx_g_04_SG.ss";
-connectAttr "pot_4_g_04Shape.iog" "sx_g_04_SG.dsm" -na;
-connectAttr "sx_g_04_SG.msg" "materialInfo62.sg";
-connectAttr "sx_g_04.msg" "materialInfo62.m";
-connectAttr "pot_5_g_05.sfPaintColor" "sx_g_05.c";
-connectAttr "sx_g_05.oc" "sx_g_05_SG.ss";
-connectAttr "pot_5_g_05Shape.iog" "sx_g_05_SG.dsm" -na;
-connectAttr "sx_g_05_SG.msg" "materialInfo63.sg";
-connectAttr "sx_g_05.msg" "materialInfo63.m";
-connectAttr "pot_6_g_06.sfPaintColor" "sx_g_06.c";
-connectAttr "sx_g_06.oc" "sx_g_06_SG.ss";
-connectAttr "pot_6_g_06Shape.iog" "sx_g_06_SG.dsm" -na;
-connectAttr "sx_g_06_SG.msg" "materialInfo64.sg";
-connectAttr "sx_g_06.msg" "materialInfo64.m";
-connectAttr "pot_7_g_07.sfPaintColor" "sx_g_07.c";
-connectAttr "sx_g_07.oc" "sx_g_07_SG.ss";
-connectAttr "pot_7_g_07Shape.iog" "sx_g_07_SG.dsm" -na;
-connectAttr "sx_g_07_SG.msg" "materialInfo65.sg";
-connectAttr "sx_g_07.msg" "materialInfo65.m";
-connectAttr "pot_8_g_08.sfPaintColor" "sx_g_08.c";
-connectAttr "sx_g_08.oc" "sx_g_08_SG.ss";
-connectAttr "pot_8_g_08Shape.iog" "sx_g_08_SG.dsm" -na;
-connectAttr "sx_g_08_SG.msg" "materialInfo66.sg";
-connectAttr "sx_g_08.msg" "materialInfo66.m";
 connectAttr "cImgShader21.oc" "surfaceShader1.oc";
 connectAttr "surfaceShader1.oc" "surfaceShader1SG.ss";
 connectAttr "pPlaneShape1.iog" "surfaceShader1SG.dsm" -na;
@@ -51697,6 +51674,58 @@ connectAttr "cImgSkel1.obi" "cImgShader22.in";
 connectAttr "cImgSkel1.osk" "axisImg1.simg";
 connectAttr "place2dTexture39.o" "cImgShader23.uv";
 connectAttr "axisImg1.out" "cImgShader23.in";
+connectAttr "cImgFile4.out" "skChainNode1.img";
+connectAttr "plane1.wm" "skChainNode1.pmat";
+connectAttr "cImgFile4.out" "cImgGate1.in";
+connectAttr "place2dTexture40.o" "cImgShader24.uv";
+connectAttr "cImgGate1.out" "cImgShader24.in";
+connectAttr "place2dTexture41.o" "cImgShader25.uv";
+connectAttr "cImgShader24.in" "cImgShader25.in";
+connectAttr "pot_0_g_01.sfPaintColor" "sx_g_01.c";
+connectAttr "sx_g_01.oc" "sx_g_01_SG.ss";
+connectAttr "pot_0_g_01Shape.iog" "sx_g_01_SG.dsm" -na;
+connectAttr "sx_g_01_SG.msg" "materialInfo68.sg";
+connectAttr "sx_g_01.msg" "materialInfo68.m";
+connectAttr "pot_1_g_02.sfPaintColor" "sx_g_02.c";
+connectAttr "sx_g_02.oc" "sx_g_02_SG.ss";
+connectAttr "pot_1_g_02Shape.iog" "sx_g_02_SG.dsm" -na;
+connectAttr "sx_g_02_SG.msg" "materialInfo69.sg";
+connectAttr "sx_g_02.msg" "materialInfo69.m";
+connectAttr "pot_2_g_04.sfPaintColor" "sx_g_04.c";
+connectAttr "sx_g_04.oc" "sx_g_04_SG.ss";
+connectAttr "pot_2_g_04Shape.iog" "sx_g_04_SG.dsm" -na;
+connectAttr "sx_g_04_SG.msg" "materialInfo70.sg";
+connectAttr "sx_g_04.msg" "materialInfo70.m";
+connectAttr "pot_3_g_06.sfPaintColor" "sx_g_06.c";
+connectAttr "sx_g_06.oc" "sx_g_06_SG.ss";
+connectAttr "pot_3_g_06Shape.iog" "sx_g_06_SG.dsm" -na;
+connectAttr "sx_g_06_SG.msg" "materialInfo71.sg";
+connectAttr "sx_g_06.msg" "materialInfo71.m";
+connectAttr "pot_4_g_08.sfPaintColor" "sx_g_08.c";
+connectAttr "sx_g_08.oc" "sx_g_08_SG.ss";
+connectAttr "pot_4_g_08Shape.iog" "sx_g_08_SG.dsm" -na;
+connectAttr "sx_g_08_SG.msg" "materialInfo72.sg";
+connectAttr "sx_g_08.msg" "materialInfo72.m";
+connectAttr "pot_5_g_10.sfPaintColor" "sx_g_10.c";
+connectAttr "sx_g_10.oc" "sx_g_10_SG.ss";
+connectAttr "pot_5_g_10Shape.iog" "sx_g_10_SG.dsm" -na;
+connectAttr "sx_g_10_SG.msg" "materialInfo73.sg";
+connectAttr "sx_g_10.msg" "materialInfo73.m";
+connectAttr "pot_6_g_12.sfPaintColor" "sx_g_12.c";
+connectAttr "sx_g_12.oc" "sx_g_12_SG.ss";
+connectAttr "pot_6_g_12Shape.iog" "sx_g_12_SG.dsm" -na;
+connectAttr "sx_g_12_SG.msg" "materialInfo74.sg";
+connectAttr "sx_g_12.msg" "materialInfo74.m";
+connectAttr "pot_7_g_14.sfPaintColor" "sx_g_14.c";
+connectAttr "sx_g_14.oc" "sx_g_14_SG.ss";
+connectAttr "pot_7_g_14Shape.iog" "sx_g_14_SG.dsm" -na;
+connectAttr "sx_g_14_SG.msg" "materialInfo75.sg";
+connectAttr "sx_g_14.msg" "materialInfo75.m";
+connectAttr "pot_8_g_15.sfPaintColor" "sx_g_15.c";
+connectAttr "sx_g_15.oc" "sx_g_15_SG.ss";
+connectAttr "pot_8_g_15Shape.iog" "sx_g_15_SG.dsm" -na;
+connectAttr "sx_g_15_SG.msg" "materialInfo76.sg";
+connectAttr "sx_g_15.msg" "materialInfo76.m";
 connectAttr "displaceShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[0].ni[0].dn";
 connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[0].ni[1].dn"
 		;
@@ -51706,899 +51735,901 @@ connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[2].ni[0].dn
 		;
 connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[3].ni[0].dn"
 		;
-connectAttr "mainProjection.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[0].dn";
-connectAttr "place2dTexture34.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[1].dn"
-		;
+connectAttr "displaceShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[0].dn";
+connectAttr "cImgShader17.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[1].dn";
 connectAttr "cImgPngFile3.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[2].dn";
 connectAttr "mainProjectionShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[3].dn"
 		;
-connectAttr "cImgShader17.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[4].dn";
-connectAttr "displaceShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[5].dn";
-connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[6].dn"
+connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[4].dn"
 		;
-connectAttr "ramp13.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[7].dn";
-connectAttr "cImgPngFile3.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[0].dn";
-connectAttr "crv_Shape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[1].dn";
-connectAttr "mainProjectionShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[2].dn"
+connectAttr "mainProjection.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[5].dn";
+connectAttr "ramp13.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[6].dn";
+connectAttr "place2dTexture34.msg" "MayaNodeEditorSavedTabsInfo.tgi[4].ni[7].dn"
 		;
-connectAttr "place2dTexture30.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[3].dn"
+connectAttr "mainProjectionShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[0].dn"
 		;
-connectAttr "strk_2.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[4].dn";
-connectAttr "cImgShader17.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[5].dn";
-connectAttr "crv_2.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[6].dn";
-connectAttr "collectStrokesFine.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[7].dn"
+connectAttr "ramp13.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[1].dn";
+connectAttr "strk_2.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[2].dn";
+connectAttr "collectStrokesFine.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[3].dn"
 		;
-connectAttr "ramp13.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[8].dn";
-connectAttr "mainProjection.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[9].dn";
+connectAttr "place2dTexture30.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[4].dn"
+		;
+connectAttr "crv_2.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[5].dn";
+connectAttr "cImgShader17.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[6].dn";
+connectAttr "cImgPngFile3.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[7].dn";
+connectAttr "mainProjection.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[8].dn";
+connectAttr "crv_Shape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[9].dn";
 connectAttr "collectStrokesBG.msg" "MayaNodeEditorSavedTabsInfo.tgi[5].ni[10].dn"
 		;
-connectAttr "strk_7.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[0].dn";
-connectAttr "strk_62.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[1].dn";
-connectAttr "strk_69.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[2].dn";
-connectAttr "strk_92.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[3].dn";
-connectAttr "strk_27.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[4].dn";
-connectAttr "strk_29.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[5].dn";
-connectAttr "strk_12.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[6].dn";
-connectAttr "strk_49.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[7].dn";
+connectAttr "strk_24.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[0].dn";
+connectAttr "strk_68.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[1].dn";
+connectAttr "strk_85.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[2].dn";
+connectAttr "strk_30.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[3].dn";
+connectAttr "strk_80.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[4].dn";
+connectAttr "strk_43.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[5].dn";
+connectAttr "strk_63.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[6].dn";
+connectAttr "strk_76.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[7].dn";
 connectAttr "strk_41.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[8].dn";
-connectAttr "strk_63.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[9].dn";
-connectAttr "strk_8.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[10].dn";
-connectAttr "strk_96.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[11].dn";
-connectAttr "strk_100.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[12].dn";
-connectAttr "strk_59.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[13].dn";
-connectAttr "strk_56.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[14].dn";
-connectAttr "strk_60.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[15].dn";
-connectAttr "strk_75.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[16].dn";
-connectAttr "strk_10.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[17].dn";
-connectAttr "strk_78.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[18].dn";
-connectAttr "strk_90.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[19].dn";
-connectAttr "strk_51.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[20].dn";
-connectAttr "strk_43.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[21].dn";
-connectAttr "mainProjection.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[22].dn";
-connectAttr "strk_82.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[23].dn";
-connectAttr "mainProjectionShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[24].dn"
+connectAttr "strk_73.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[9].dn";
+connectAttr "strk_97.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[10].dn";
+connectAttr "strk_19.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[11].dn";
+connectAttr "strk_3.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[12].dn";
+connectAttr "strk_38.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[13].dn";
+connectAttr "strk_94.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[14].dn";
+connectAttr "strk_6.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[15].dn";
+connectAttr "strk_50.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[16].dn";
+connectAttr "collectStrokesBG.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[17].dn"
 		;
-connectAttr "strk_26.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[25].dn";
-connectAttr "strk_86.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[26].dn";
-connectAttr "strk_40.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[27].dn";
-connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[28].dn"
+connectAttr "strk_48.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[18].dn";
+connectAttr "strk_93.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[19].dn";
+connectAttr "strk_36.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[20].dn";
+connectAttr "strk_11.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[21].dn";
+connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[22].dn"
 		;
-connectAttr "strk_58.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[29].dn";
-connectAttr "strk_24.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[30].dn";
-connectAttr "strk_66.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[31].dn";
-connectAttr "strk_35.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[32].dn";
-connectAttr "strk_9.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[33].dn";
-connectAttr "strk_97.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[34].dn";
-connectAttr "strk_101.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[35].dn";
-connectAttr "strk_84.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[36].dn";
-connectAttr "strk_98.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[37].dn";
-connectAttr "strk_48.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[38].dn";
-connectAttr "strk_19.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[39].dn";
-connectAttr "strk_15.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[40].dn";
-connectAttr "place2dTexture35.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[41].dn"
+connectAttr "place2dTexture35.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[23].dn"
 		;
-connectAttr "strk_53.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[42].dn";
-connectAttr "strk_67.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[43].dn";
-connectAttr "strk_94.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[44].dn";
-connectAttr "strk_74.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[45].dn";
-connectAttr "strk_81.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[46].dn";
-connectAttr "strk_14.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[47].dn";
-connectAttr "bg_87_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[48].dn";
-connectAttr "bg_88_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[49].dn";
-connectAttr "strk_46.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[50].dn";
-connectAttr "strk_0.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[51].dn";
-connectAttr "strk_71.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[52].dn";
-connectAttr "strk_68.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[53].dn";
-connectAttr "strk_47.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[54].dn";
-connectAttr "strk_77.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[55].dn";
-connectAttr "strk_89.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[56].dn";
-connectAttr "strk_31.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[57].dn";
-connectAttr "strk_54.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[58].dn";
-connectAttr "strk_95.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[59].dn";
-connectAttr "strk_99.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[60].dn";
-connectAttr "strk_103.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[61].dn";
-connectAttr "strk_33.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[62].dn";
-connectAttr "strk_79.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[63].dn";
+connectAttr "strk_74.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[24].dn";
+connectAttr "strk_98.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[25].dn";
+connectAttr "strk_82.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[26].dn";
+connectAttr "strk_26.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[27].dn";
+connectAttr "strk_60.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[28].dn";
+connectAttr "strk_92.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[29].dn";
+connectAttr "strk_56.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[30].dn";
+connectAttr "strk_14.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[31].dn";
+connectAttr "strk_40.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[32].dn";
+connectAttr "strk_31.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[33].dn";
+connectAttr "strk_70.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[34].dn";
+connectAttr "strk_78.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[35].dn";
+connectAttr "strk_58.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[36].dn";
+connectAttr "strk_101.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[37].dn";
+connectAttr "strk_42.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[38].dn";
+connectAttr "strk_65.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[39].dn";
+connectAttr "strk_49.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[40].dn";
+connectAttr "strk_83.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[41].dn";
+connectAttr "strk_17.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[42].dn";
+connectAttr "strk_22.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[43].dn";
+connectAttr "strk_20.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[44].dn";
+connectAttr "strk_18.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[45].dn";
+connectAttr "strk_89.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[46].dn";
+connectAttr "strk_67.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[47].dn";
+connectAttr "strk_2.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[48].dn";
+connectAttr "strk_45.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[49].dn";
+connectAttr "strk_27.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[50].dn";
+connectAttr "strk_96.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[51].dn";
+connectAttr "strk_28.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[52].dn";
+connectAttr "strk_35.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[53].dn";
+connectAttr "strk_54.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[54].dn";
+connectAttr "bg_88_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[55].dn";
+connectAttr "mainProjectionShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[56].dn"
+		;
+connectAttr "strk_79.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[57].dn";
+connectAttr "strk_52.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[58].dn";
+connectAttr "strk_4.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[59].dn";
+connectAttr "strk_7.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[60].dn";
+connectAttr "strk_10.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[61].dn";
+connectAttr "strk_37.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[62].dn";
+connectAttr "mainProjection.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[63].dn";
 connectAttr "strk_57.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[64].dn";
-connectAttr "strk_4.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[65].dn";
-connectAttr "strk_72.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[66].dn";
-connectAttr "strk_83.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[67].dn";
-connectAttr "strk_39.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[68].dn";
-connectAttr "strk_73.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[69].dn";
-connectAttr "strk_65.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[70].dn";
-connectAttr "strk_28.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[71].dn";
-connectAttr "strk_2.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[72].dn";
+connectAttr "strk_8.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[65].dn";
+connectAttr "strk_64.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[66].dn";
+connectAttr "strk_33.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[67].dn";
+connectAttr "strk_21.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[68].dn";
+connectAttr "strk_15.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[69].dn";
+connectAttr "strk_25.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[70].dn";
+connectAttr "strk_95.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[71].dn";
+connectAttr "bg_87_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[72].dn";
 connectAttr "strk_32.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[73].dn";
-connectAttr "strk_11.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[74].dn";
-connectAttr "strk_80.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[75].dn";
-connectAttr "collectStrokesBG.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[76].dn"
+connectAttr "strk_90.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[74].dn";
+connectAttr "ramp14.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[75].dn";
+connectAttr "strk_71.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[76].dn";
+connectAttr "strk_66.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[77].dn";
+connectAttr "strk_0.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[78].dn";
+connectAttr "strk_34.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[79].dn";
+connectAttr "strk_29.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[80].dn";
+connectAttr "strk_13.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[81].dn";
+connectAttr "strk_99.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[82].dn";
+connectAttr "strk_47.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[83].dn";
+connectAttr "strk_62.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[84].dn";
+connectAttr "strk_72.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[85].dn";
+connectAttr "strk_51.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[86].dn";
+connectAttr "collectStrokesFine.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[87].dn"
 		;
-connectAttr "strk_34.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[77].dn";
-connectAttr "collectStrokesFine.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[78].dn"
+connectAttr "strk_103.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[88].dn";
+connectAttr "strk_46.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[89].dn";
+connectAttr "strk_84.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[90].dn";
+connectAttr "strk_102.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[91].dn";
+connectAttr "strk_9.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[92].dn";
+connectAttr "strk_81.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[93].dn";
+connectAttr "strk_91.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[94].dn";
+connectAttr "strk_75.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[95].dn";
+connectAttr "strk_39.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[96].dn";
+connectAttr "strk_77.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[97].dn";
+connectAttr "strk_59.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[98].dn";
+connectAttr "strk_86.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[99].dn";
+connectAttr "strk_100.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[100].dn";
+connectAttr "strk_69.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[101].dn";
+connectAttr "strk_12.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[102].dn";
+connectAttr "strk_44.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[103].dn";
+connectAttr "strk_53.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[104].dn";
+connectAttr "place2dTexture30.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[0].dn"
 		;
-connectAttr "strk_85.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[79].dn";
-connectAttr "strk_102.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[80].dn";
-connectAttr "strk_37.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[81].dn";
-connectAttr "strk_17.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[82].dn";
-connectAttr "strk_20.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[83].dn";
-connectAttr "strk_21.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[84].dn";
-connectAttr "strk_70.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[85].dn";
-connectAttr "strk_22.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[86].dn";
-connectAttr "strk_93.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[87].dn";
-connectAttr "strk_6.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[88].dn";
-connectAttr "strk_76.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[89].dn";
-connectAttr "strk_13.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[90].dn";
-connectAttr "strk_36.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[91].dn";
-connectAttr "strk_52.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[92].dn";
-connectAttr "strk_44.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[93].dn";
-connectAttr "strk_64.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[94].dn";
-connectAttr "strk_25.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[95].dn";
-connectAttr "ramp14.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[96].dn";
-connectAttr "strk_45.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[97].dn";
-connectAttr "strk_38.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[98].dn";
-connectAttr "strk_3.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[99].dn";
-connectAttr "strk_30.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[100].dn";
-connectAttr "strk_18.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[101].dn";
-connectAttr "strk_91.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[102].dn";
-connectAttr "strk_42.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[103].dn";
-connectAttr "strk_50.msg" "MayaNodeEditorSavedTabsInfo.tgi[6].ni[104].dn";
-connectAttr "strk_7.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[0].dn";
-connectAttr "strk_62.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[1].dn";
-connectAttr "strk_69.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[2].dn";
-connectAttr "strk_92.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[3].dn";
-connectAttr "strk_27.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[4].dn";
-connectAttr "strk_29.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[5].dn";
+connectAttr "strk_59.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[1].dn";
+connectAttr "strk_10.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[2].dn";
+connectAttr "strk_29.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[3].dn";
+connectAttr "strk_18.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[4].dn";
+connectAttr "strk_83.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[5].dn";
 connectAttr "strk_12.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[6].dn";
-connectAttr "strk_49.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[7].dn";
-connectAttr "strk_41.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[8].dn";
-connectAttr "strk_63.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[9].dn";
-connectAttr "strk_8.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[10].dn";
-connectAttr "strk_96.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[11].dn";
-connectAttr "strk_100.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[12].dn";
-connectAttr "strk_59.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[13].dn";
-connectAttr "strk_56.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[14].dn";
-connectAttr "strk_60.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[15].dn";
-connectAttr "strk_75.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[16].dn";
-connectAttr "strk_10.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[17].dn";
-connectAttr "strk_78.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[18].dn";
+connectAttr "strk_39.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[7].dn";
+connectAttr "strk_52.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[8].dn";
+connectAttr "strk_101.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[9].dn";
+connectAttr "strk_35.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[10].dn";
+connectAttr "strk_45.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[11].dn";
+connectAttr "strk_20.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[12].dn";
+connectAttr "strk_49.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[13].dn";
+connectAttr "strk_42.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[14].dn";
+connectAttr "strk_95.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[15].dn";
+connectAttr "strk_32.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[16].dn";
+connectAttr "strk_7.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[17].dn";
+connectAttr "strk_65.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[18].dn";
 connectAttr "strk_90.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[19].dn";
-connectAttr "strk_51.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[20].dn";
-connectAttr "strk_43.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[21].dn";
-connectAttr "mainProjection.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[22].dn";
-connectAttr "strk_82.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[23].dn";
-connectAttr "mainProjectionShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[24].dn"
+connectAttr "strk_57.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[20].dn";
+connectAttr "mainProjectionShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[21].dn"
 		;
-connectAttr "strk_26.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[25].dn";
+connectAttr "strk_15.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[22].dn";
+connectAttr "strk_0.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[23].dn";
+connectAttr "strk_8.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[24].dn";
+connectAttr "strk_4.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[25].dn";
 connectAttr "strk_86.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[26].dn";
-connectAttr "strk_40.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[27].dn";
-connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[28].dn"
+connectAttr "strk_1.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[27].dn";
+connectAttr "strk_100.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[28].dn";
+connectAttr "strk_33.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[29].dn";
+connectAttr "strk_94.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[30].dn";
+connectAttr "strk_6.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[31].dn";
+connectAttr "strk_50.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[32].dn";
+connectAttr "collectStrokesBG.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[33].dn"
 		;
-connectAttr "place2dTexture30.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[29].dn"
+connectAttr "strk_93.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[34].dn";
+connectAttr "strk_48.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[35].dn";
+connectAttr "strk_36.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[36].dn";
+connectAttr "strk_11.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[37].dn";
+connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[38].dn"
 		;
-connectAttr "strk_58.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[30].dn";
-connectAttr "strk_24.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[31].dn";
-connectAttr "strk_66.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[32].dn";
-connectAttr "strk_35.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[33].dn";
-connectAttr "strk_9.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[34].dn";
-connectAttr "strk_97.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[35].dn";
-connectAttr "strk_101.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[36].dn";
-connectAttr "strk_84.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[37].dn";
-connectAttr "strk_98.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[38].dn";
-connectAttr "strk_48.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[39].dn";
-connectAttr "strk_19.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[40].dn";
-connectAttr "strk_15.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[41].dn";
-connectAttr "strk_53.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[42].dn";
-connectAttr "strk_67.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[43].dn";
-connectAttr "strk_94.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[44].dn";
-connectAttr "strk_74.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[45].dn";
-connectAttr "strk_81.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[46].dn";
-connectAttr "strk_14.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[47].dn";
-connectAttr "strk_46.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[48].dn";
-connectAttr "strk_0.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[49].dn";
-connectAttr "strk_71.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[50].dn";
-connectAttr "strk_68.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[51].dn";
-connectAttr "strk_47.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[52].dn";
-connectAttr "strk_77.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[53].dn";
-connectAttr "strk_89.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[54].dn";
-connectAttr "strk_31.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[55].dn";
-connectAttr "strk_54.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[56].dn";
-connectAttr "strk_95.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[57].dn";
-connectAttr "strk_99.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[58].dn";
-connectAttr "strk_103.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[59].dn";
-connectAttr "strk_33.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[60].dn";
-connectAttr "strk_79.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[61].dn";
-connectAttr "strk_57.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[62].dn";
-connectAttr "strk_4.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[63].dn";
-connectAttr "strk_72.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[64].dn";
-connectAttr "strk_83.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[65].dn";
-connectAttr "strk_39.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[66].dn";
-connectAttr "strk_73.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[67].dn";
-connectAttr "strk_65.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[68].dn";
-connectAttr "strk_28.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[69].dn";
-connectAttr "strk_2.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[70].dn";
-connectAttr "strk_32.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[71].dn";
-connectAttr "strk_11.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[72].dn";
-connectAttr "cImgPngFile3.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[73].dn";
-connectAttr "strk_80.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[74].dn";
-connectAttr "collectStrokesBG.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[75].dn"
+connectAttr "strk_74.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[39].dn";
+connectAttr "strk_98.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[40].dn";
+connectAttr "strk_82.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[41].dn";
+connectAttr "strk_26.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[42].dn";
+connectAttr "strk_60.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[43].dn";
+connectAttr "strk_92.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[44].dn";
+connectAttr "strk_56.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[45].dn";
+connectAttr "strk_14.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[46].dn";
+connectAttr "strk_40.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[47].dn";
+connectAttr "strk_31.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[48].dn";
+connectAttr "strk_70.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[49].dn";
+connectAttr "strk_78.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[50].dn";
+connectAttr "strk_34.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[51].dn";
+connectAttr "strk_99.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[52].dn";
+connectAttr "strk_79.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[53].dn";
+connectAttr "strk_84.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[54].dn";
+connectAttr "strk_71.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[55].dn";
+connectAttr "ramp14.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[56].dn";
+connectAttr "strk_75.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[57].dn";
+connectAttr "cImgShader17.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[58].dn";
+connectAttr "strk_9.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[59].dn";
+connectAttr "strk_72.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[60].dn";
+connectAttr "strk_17.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[61].dn";
+connectAttr "strk_22.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[62].dn";
+connectAttr "strk_21.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[63].dn";
+connectAttr "strk_19.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[64].dn";
+connectAttr "strk_97.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[65].dn";
+connectAttr "strk_13.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[66].dn";
+connectAttr "strk_66.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[67].dn";
+connectAttr "strk_80.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[68].dn";
+connectAttr "strk_81.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[69].dn";
+connectAttr "strk_30.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[70].dn";
+connectAttr "strk_38.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[71].dn";
+connectAttr "strk_3.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[72].dn";
+connectAttr "strk_85.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[73].dn";
+connectAttr "strk_41.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[74].dn";
+connectAttr "cImgPngFile3.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[75].dn";
+connectAttr "strk_68.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[76].dn";
+connectAttr "strk_25.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[77].dn";
+connectAttr "strk_37.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[78].dn";
+connectAttr "mainProjection.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[79].dn";
+connectAttr "strk_96.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[80].dn";
+connectAttr "strk_64.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[81].dn";
+connectAttr "strk_89.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[82].dn";
+connectAttr "strk_28.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[83].dn";
+connectAttr "strk_27.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[84].dn";
+connectAttr "strk_24.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[85].dn";
+connectAttr "strk_2.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[86].dn";
+connectAttr "strk_103.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[87].dn";
+connectAttr "strk_69.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[88].dn";
+connectAttr "strk_47.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[89].dn";
+connectAttr "strk_54.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[90].dn";
+connectAttr "strk_67.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[91].dn";
+connectAttr "strk_76.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[92].dn";
+connectAttr "strk_53.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[93].dn";
+connectAttr "strk_73.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[94].dn";
+connectAttr "strk_44.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[95].dn";
+connectAttr "strk_63.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[96].dn";
+connectAttr "strk_43.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[97].dn";
+connectAttr "strk_46.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[98].dn";
+connectAttr "strk_91.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[99].dn";
+connectAttr "strk_58.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[100].dn";
+connectAttr "strk_77.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[101].dn";
+connectAttr "strk_102.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[102].dn";
+connectAttr "strk_62.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[103].dn";
+connectAttr "strk_51.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[104].dn";
+connectAttr "|rack1|holes|holeRot_04|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[0].dn"
 		;
-connectAttr "strk_34.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[76].dn";
-connectAttr "strk_85.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[77].dn";
-connectAttr "strk_102.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[78].dn";
-connectAttr "strk_37.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[79].dn";
-connectAttr "strk_17.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[80].dn";
-connectAttr "strk_20.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[81].dn";
-connectAttr "strk_21.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[82].dn";
-connectAttr "strk_70.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[83].dn";
-connectAttr "strk_22.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[84].dn";
-connectAttr "strk_93.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[85].dn";
-connectAttr "cImgShader17.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[86].dn";
-connectAttr "strk_6.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[87].dn";
-connectAttr "strk_76.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[88].dn";
-connectAttr "strk_13.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[89].dn";
-connectAttr "strk_36.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[90].dn";
-connectAttr "strk_52.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[91].dn";
-connectAttr "strk_44.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[92].dn";
-connectAttr "strk_64.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[93].dn";
-connectAttr "strk_25.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[94].dn";
-connectAttr "strk_1.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[95].dn";
-connectAttr "ramp14.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[96].dn";
-connectAttr "strk_45.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[97].dn";
-connectAttr "strk_38.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[98].dn";
-connectAttr "strk_3.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[99].dn";
-connectAttr "strk_30.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[100].dn";
-connectAttr "strk_18.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[101].dn";
-connectAttr "strk_91.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[102].dn";
-connectAttr "strk_42.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[103].dn";
-connectAttr "strk_50.msg" "MayaNodeEditorSavedTabsInfo.tgi[7].ni[104].dn";
-connectAttr "strk_65.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[0].dn";
-connectAttr "pin_48_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[1].dn";
-connectAttr "|rack1|holes|holeRot_17|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[2].dn"
+connectAttr "strk_65.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[1].dn";
+connectAttr "strk_92.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[2].dn";
+connectAttr "strk_76.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[3].dn";
+connectAttr "strk_79.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[4].dn";
+connectAttr "strk_36.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[5].dn";
+connectAttr "mainPainting.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[6].dn";
+connectAttr "pin_20_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[7].dn";
+connectAttr "|rack1|holes|holeRot_19|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[8].dn"
 		;
-connectAttr "strk_24.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[3].dn";
-connectAttr "|rack1|holes|holeRot_14|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[4].dn"
+connectAttr "pin_29_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[9].dn";
+connectAttr "|rack1|holes|holeRot_10|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[10].dn"
 		;
-connectAttr "pin_35_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[5].dn";
-connectAttr "pin_50_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[6].dn";
-connectAttr "spiralShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[7].dn";
-connectAttr "pin_61_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[8].dn";
-connectAttr "mainPainting.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[9].dn";
-connectAttr "strk_47.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[10].dn";
-connectAttr "strk_83.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[11].dn";
-connectAttr "pin_49_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[12].dn";
-connectAttr "strk_90.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[13].dn";
-connectAttr "pin_36_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[14].dn";
-connectAttr "pin_38_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[15].dn";
-connectAttr "pin_22_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[16].dn";
-connectAttr "strk_26.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[17].dn";
-connectAttr "|rack1|holes|holeRot_00|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[18].dn"
+connectAttr "|rack1|holes|holeRot_18|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[11].dn"
 		;
-connectAttr "strk_81.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[19].dn";
-connectAttr "pin_23_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[20].dn";
-connectAttr "strk_69.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[21].dn";
-connectAttr "pin_20_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[22].dn";
+connectAttr "strk_48.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[12].dn";
+connectAttr "strk_52.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[13].dn";
+connectAttr "strk_103.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[14].dn";
+connectAttr "pin_21_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[15].dn";
+connectAttr "strk_44.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[16].dn";
+connectAttr "strk_41.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[17].dn";
+connectAttr "|rack1|holes|holeRot_17|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[18].dn"
+		;
+connectAttr "strk_57.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[19].dn";
+connectAttr "pin_1_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[20].dn";
+connectAttr "longWipeBShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[21].dn";
+connectAttr "pin_12_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[22].dn";
 connectAttr "pin_2_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[23].dn";
-connectAttr "|rack1|holes|holeRot_03|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[24].dn"
+connectAttr "pin_46_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[24].dn";
+connectAttr "strk_46.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[25].dn";
+connectAttr "strk_102.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[26].dn";
+connectAttr "strk_93.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[27].dn";
+connectAttr "strk_34.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[28].dn";
+connectAttr "backWipeShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[29].dn";
+connectAttr "strk_63.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[30].dn";
+connectAttr "pin_24_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[31].dn";
+connectAttr "strk_45.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[32].dn";
+connectAttr "strk_101.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[33].dn";
+connectAttr "backWipeShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[34].dn"
 		;
-connectAttr "strk_93.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[25].dn";
-connectAttr "strk_27.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[26].dn";
-connectAttr "|rack1|holes|holeRot_09|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[27].dn"
+connectAttr "pin_35_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[35].dn";
+connectAttr "strk_24.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[36].dn";
+connectAttr "pin_63_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[37].dn";
+connectAttr "|rack1|holes|holeRot_07|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[38].dn"
 		;
-connectAttr "strk_38.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[28].dn";
-connectAttr "pin_19_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[29].dn";
-connectAttr "pin_3_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[30].dn";
-connectAttr "strk_85.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[31].dn";
-connectAttr "pin_54_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[32].dn";
-connectAttr "pin_34_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[33].dn";
-connectAttr "pin_18_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[34].dn";
-connectAttr "strk_54.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[35].dn";
-connectAttr "strk_17.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[36].dn";
-connectAttr "strk_71.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[37].dn";
-connectAttr "pin_53_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[38].dn";
-connectAttr "strk_101.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[39].dn";
-connectAttr "strk_67.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[40].dn";
-connectAttr "pin_40_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[41].dn";
-connectAttr "strk_44.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[42].dn";
-connectAttr "sourceDipShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[43].dn"
+connectAttr "|rack1|holes|holeRot_02|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[39].dn"
 		;
-connectAttr "strk_0.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[44].dn";
-connectAttr "longWipeBShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[45].dn";
-connectAttr "pin_52_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[46].dn";
-connectAttr "layer4.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[47].dn";
-connectAttr "pin_25_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[48].dn";
-connectAttr "strk_1.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[49].dn";
-connectAttr "|rack1|holes|holeRot_08|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[50].dn"
+connectAttr "pin_31_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[40].dn";
+connectAttr "spiralShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[41].dn";
+connectAttr "strk_75.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[42].dn";
+connectAttr "strk_85.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[43].dn";
+connectAttr "|rack1|holes|holeRot_03|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[44].dn"
 		;
-connectAttr "layerManager.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[51].dn";
-connectAttr "mainProjectionShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[52].dn"
+connectAttr "strk_68.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[45].dn";
+connectAttr "strk_98.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[46].dn";
+connectAttr "|rack1|holes|holeRot_15|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[47].dn"
 		;
-connectAttr "strk_97.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[53].dn";
-connectAttr "pin_4_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[54].dn";
-connectAttr "cImgShader17.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[55].dn";
-connectAttr "strk_25.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[56].dn";
-connectAttr "pin_63_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[57].dn";
-connectAttr "strk_76.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[58].dn";
-connectAttr "pin_8_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[59].dn";
-connectAttr "pin_26_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[60].dn";
-connectAttr "pin_43_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[61].dn";
-connectAttr "pin_37_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[62].dn";
-connectAttr "strk_36.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[63].dn";
-connectAttr "longWipeAShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[64].dn";
-connectAttr "|rack1|holes|holeRot_18|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[65].dn"
+connectAttr "pin_38_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[48].dn";
+connectAttr "strk_71.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[49].dn";
+connectAttr "|rack1|holes|holeRot_06|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[50].dn"
 		;
-connectAttr "pin_62_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[66].dn";
-connectAttr "strk_77.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[67].dn";
+connectAttr "|rack1|holes|holeRot_12|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[51].dn"
+		;
+connectAttr "strk_39.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[52].dn";
+connectAttr "strk_83.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[53].dn";
+connectAttr "strk_11.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[54].dn";
+connectAttr "longWipeAShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[55].dn"
+		;
+connectAttr "pin_33_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[56].dn";
+connectAttr "strk_35.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[57].dn";
+connectAttr "pin_58_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[58].dn";
+connectAttr "|rack1|holes|holeRot_05|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[59].dn"
+		;
+connectAttr "cImgShader17.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[60].dn";
+connectAttr "strk_2.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[61].dn";
+connectAttr "pin_50_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[62].dn";
+connectAttr "pin_32_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[63].dn";
+connectAttr "mainProjection.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[64].dn";
+connectAttr "strk_86.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[65].dn";
+connectAttr "strk_27.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[66].dn";
+connectAttr "pin_44_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[67].dn";
 connectAttr "pin_42_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[68].dn";
-connectAttr "strk_6.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[69].dn";
-connectAttr "strk_84.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[70].dn";
-connectAttr "strk_48.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[71].dn";
-connectAttr "strk_31.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[72].dn";
-connectAttr "|rack1|holes|holeRot_06|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[73].dn"
+connectAttr "strk_4.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[69].dn";
+connectAttr "pin_10_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[70].dn";
+connectAttr "strk_42.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[71].dn";
+connectAttr "skeletonStroke1.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[72].dn"
 		;
-connectAttr "strk_58.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[74].dn";
-connectAttr "strk_18.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[75].dn";
-connectAttr "pin_45_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[76].dn";
-connectAttr "strk_12.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[77].dn";
-connectAttr "pin_68_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[78].dn";
-connectAttr "pin_15_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[79].dn";
-connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[80].dn"
+connectAttr "|rack1|holes|holeRot_11|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[73].dn"
 		;
-connectAttr "backWipeShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[81].dn";
-connectAttr "strk_91.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[82].dn";
-connectAttr "pin_29_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[83].dn";
-connectAttr "strk_45.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[84].dn";
-connectAttr "pin_14_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[85].dn";
-connectAttr "pin_16_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[86].dn";
-connectAttr "strk_43.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[87].dn";
-connectAttr "strk_7.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[88].dn";
-connectAttr "strk_59.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[89].dn";
-connectAttr "strk_73.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[90].dn";
-connectAttr "pin_9_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[91].dn";
-connectAttr "strk_3.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[92].dn";
-connectAttr "strk_50.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[93].dn";
-connectAttr "pin_31_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[94].dn";
-connectAttr "|rack1|holes|holeRot_01|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[95].dn"
+connectAttr "pin_62_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[74].dn";
+connectAttr "|rack1|holes|holeRot_14|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[75].dn"
 		;
-connectAttr "strk_9.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[96].dn";
-connectAttr "strk_40.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[97].dn";
-connectAttr "pin_67_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[98].dn";
-connectAttr "|rack1|holes|holeRot_11|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[99].dn"
+connectAttr "pin_59_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[76].dn";
+connectAttr "strk_0.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[77].dn";
+connectAttr "strk_78.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[78].dn";
+connectAttr "strk_32.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[79].dn";
+connectAttr "strk_90.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[80].dn";
+connectAttr "pin_19_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[81].dn";
+connectAttr "|rack1|holes|holeRot_13|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[82].dn"
 		;
-connectAttr "strk_66.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[100].dn";
-connectAttr "planeShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[101].dn";
-connectAttr "strk_62.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[102].dn";
-connectAttr "longWipeAShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[103].dn"
+connectAttr "longWipeAShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[83].dn";
+connectAttr "pin_36_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[84].dn";
+connectAttr "pin_18_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[85].dn";
+connectAttr "strk_56.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[86].dn";
+connectAttr "pin_0_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[87].dn";
+connectAttr "layer4.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[88].dn";
+connectAttr "pin_57_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[89].dn";
+connectAttr "pin_26_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[90].dn";
+connectAttr "strk_58.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[91].dn";
+connectAttr "strk_13.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[92].dn";
+connectAttr "pin_6_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[93].dn";
+connectAttr "strk_20.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[94].dn";
+connectAttr "pin_52_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[95].dn";
+connectAttr "pin_7_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[96].dn";
+connectAttr "strk_26.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[97].dn";
+connectAttr "pin_51_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[98].dn";
+connectAttr "strk_82.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[99].dn";
+connectAttr "pin_53_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[100].dn";
+connectAttr "strk_19.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[101].dn";
+connectAttr "planeShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[102].dn";
+connectAttr "strk_40.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[103].dn";
+connectAttr "pin_25_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[104].dn";
+connectAttr "pin_4_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[105].dn";
+connectAttr "collectStrokesBG.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[106].dn"
 		;
-connectAttr "layer5.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[104].dn";
-connectAttr "strk_75.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[105].dn";
-connectAttr "pin_64_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[106].dn";
-connectAttr "pin_51_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[107].dn";
-connectAttr "strk_52.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[108].dn";
-connectAttr "strk_103.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[109].dn";
-connectAttr "|rack1|holes|holeRot_16|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[110].dn"
+connectAttr "sourceDipShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[107].dn"
 		;
-connectAttr "strk_99.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[111].dn";
-connectAttr "plane1.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[112].dn";
-connectAttr "pin_0_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[113].dn";
-connectAttr "displaceShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[114].dn";
-connectAttr "strk_102.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[115].dn";
-connectAttr "strk_32.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[116].dn";
-connectAttr "|rack1|holes|holeRot_13|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[117].dn"
+connectAttr "strk_51.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[108].dn";
+connectAttr "pin_64_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[109].dn";
+connectAttr "pin_65_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[110].dn";
+connectAttr "strk_47.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[111].dn";
+connectAttr "pin_14_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[112].dn";
+connectAttr "ramp14.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[113].dn";
+connectAttr "pin_60_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[114].dn";
+connectAttr "strk_9.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[115].dn";
+connectAttr "strk_6.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[116].dn";
+connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[117].dn"
 		;
-connectAttr "strk_41.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[118].dn";
-connectAttr "strk_35.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[119].dn";
-connectAttr "strk_86.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[120].dn";
-connectAttr "|rack1|holes|holeRot_15|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[121].dn"
+connectAttr "strk_22.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[118].dn";
+connectAttr "strk_67.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[119].dn";
+connectAttr "strk_25.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[120].dn";
+connectAttr "strk_10.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[121].dn";
+connectAttr "strk_31.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[122].dn";
+connectAttr "pin_39_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[123].dn";
+connectAttr "|rack1|holes|holeRot_01|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[124].dn"
 		;
-connectAttr "strk_95.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[122].dn";
-connectAttr "strk_80.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[123].dn";
-connectAttr "skGraphShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[124].dn";
-connectAttr "pin_65_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[125].dn";
-connectAttr "pin_59_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[126].dn";
-connectAttr "ramp14.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[127].dn";
-connectAttr "strk_89.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[128].dn";
-connectAttr "pin_39_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[129].dn";
-connectAttr "strk_34.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[130].dn";
-connectAttr "pin_41_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[131].dn";
-connectAttr "strk_94.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[132].dn";
-connectAttr "strk_28.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[133].dn";
-connectAttr "strk_92.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[134].dn";
-connectAttr "strk_22.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[135].dn";
-connectAttr "pin_60_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[136].dn";
-connectAttr "pasted__layer8.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[137].dn"
+connectAttr "strk_37.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[125].dn";
+connectAttr "strk_72.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[126].dn";
+connectAttr "strk_38.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[127].dn";
+connectAttr "strk_80.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[128].dn";
+connectAttr "strk_97.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[129].dn";
+connectAttr "|rack1|holes|holeRot_08|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[130].dn"
 		;
-connectAttr "pin_27_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[138].dn";
-connectAttr "pin_44_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[139].dn";
-connectAttr "|rack1|holes|holeRot_19|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[140].dn"
+connectAttr "strk_54.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[131].dn";
+connectAttr "pin_37_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[132].dn";
+connectAttr "skGraphShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[133].dn";
+connectAttr "strk_15.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[134].dn";
+connectAttr "|rack1|holes|holeRot_09|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[135].dn"
 		;
-connectAttr "strk_82.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[141].dn";
-connectAttr "skeletonStroke1.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[142].dn"
+connectAttr "strk_89.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[136].dn";
+connectAttr "pin_47_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[137].dn";
+connectAttr "pin_43_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[138].dn";
+connectAttr "collectStrokesFine.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[139].dn"
 		;
-connectAttr "strk_42.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[143].dn";
-connectAttr "strk_15.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[144].dn";
-connectAttr "strk_70.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[145].dn";
-connectAttr "|rack1|holes|holeRot_04|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[146].dn"
+connectAttr "strk_21.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[140].dn";
+connectAttr "|rack1|holes|holeRot_00|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[141].dn"
 		;
-connectAttr "strk_79.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[147].dn";
-connectAttr "|rack1|holes|holeRot_07|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[148].dn"
+connectAttr "pin_34_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[142].dn";
+connectAttr "pin_16_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[143].dn";
+connectAttr "strk_94.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[144].dn";
+connectAttr "strk_84.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[145].dn";
+connectAttr "strk_64.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[146].dn";
+connectAttr "pin_55_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[147].dn";
+connectAttr "strk_70.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[148].dn";
+connectAttr "pin_45_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[149].dn";
+connectAttr "strk_62.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[150].dn";
+connectAttr "strk_66.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[151].dn";
+connectAttr "mainProjectionShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[152].dn"
 		;
-connectAttr "strk_39.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[149].dn";
-connectAttr "pin_12_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[150].dn";
-connectAttr "strk_63.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[151].dn";
-connectAttr "|rack1|holes|holeRot_10|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[152].dn"
+connectAttr "|rack1|holes|holeRot_16|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[153].dn"
 		;
-connectAttr "backWipeShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[153].dn"
+connectAttr "strk_30.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[154].dn";
+connectAttr "layer5.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[155].dn";
+connectAttr "pin_23_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[156].dn";
+connectAttr "strk_28.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[157].dn";
+connectAttr "pin_3_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[158].dn";
+connectAttr "pin_8_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[159].dn";
+connectAttr "strk_91.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[160].dn";
+connectAttr "pin_5_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[161].dn";
+connectAttr "strk_7.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[162].dn";
+connectAttr "pin_41_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[163].dn";
+connectAttr "strk_77.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[164].dn";
+connectAttr "pin_61_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[165].dn";
+connectAttr "strk_3.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[166].dn";
+connectAttr "strk_18.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[167].dn";
+connectAttr "strk_81.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[168].dn";
+connectAttr "strk_29.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[169].dn";
+connectAttr "longWipeBShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[170].dn"
 		;
-connectAttr "pin_17_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[154].dn";
-connectAttr "strk_13.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[155].dn";
-connectAttr "collectStrokesFine.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[156].dn"
-		;
-connectAttr "strk_51.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[157].dn";
-connectAttr "pin_10_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[158].dn";
-connectAttr "strk_10.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[159].dn";
-connectAttr "strk_64.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[160].dn";
-connectAttr "pin_66_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[161].dn";
-connectAttr "strk_29.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[162].dn";
-connectAttr "strk_78.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[163].dn";
-connectAttr "pin_1_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[164].dn";
-connectAttr "pin_32_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[165].dn";
-connectAttr "pin_47_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[166].dn";
-connectAttr "strk_8.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[167].dn";
-connectAttr "pin_58_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[168].dn";
-connectAttr "pin_46_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[169].dn";
-connectAttr "pin_33_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[170].dn";
-connectAttr "strk_46.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[171].dn";
-connectAttr "pin_57_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[172].dn";
-connectAttr "strk_11.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[173].dn";
-connectAttr "cImgShader20.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[174].dn";
-connectAttr "strk_49.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[175].dn";
-connectAttr "strk_30.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[176].dn";
-connectAttr "pin_56_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[177].dn";
-connectAttr "pin_5_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[178].dn";
-connectAttr "strk_57.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[179].dn";
+connectAttr "pin_49_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[171].dn";
+connectAttr "pin_56_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[172].dn";
+connectAttr "pin_66_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[173].dn";
+connectAttr "pin_27_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[174].dn";
+connectAttr "strk_8.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[175].dn";
+connectAttr "pin_67_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[176].dn";
+connectAttr "pin_9_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[177].dn";
+connectAttr "pin_54_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[178].dn";
+connectAttr "strk_1.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[179].dn";
 connectAttr "strk_14.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[180].dn";
-connectAttr "strk_37.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[181].dn";
-connectAttr "strk_19.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[182].dn";
-connectAttr "strk_33.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[183].dn";
-connectAttr "pin_55_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[184].dn";
-connectAttr "strk_60.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[185].dn";
-connectAttr "pin_6_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[186].dn";
-connectAttr "longWipeBShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[187].dn"
+connectAttr "strk_69.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[181].dn";
+connectAttr "pin_15_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[182].dn";
+connectAttr "strk_12.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[183].dn";
+connectAttr "strk_73.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[184].dn";
+connectAttr "strk_96.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[185].dn";
+connectAttr "strk_17.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[186].dn";
+connectAttr "plane1.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[187].dn";
+connectAttr "pasted__layer8.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[188].dn"
 		;
-connectAttr "strk_72.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[188].dn";
 connectAttr "strk_53.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[189].dn";
-connectAttr "strk_4.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[190].dn";
-connectAttr "strk_100.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[191].dn";
-connectAttr "strk_68.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[192].dn";
-connectAttr "strk_20.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[193].dn";
-connectAttr "strk_98.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[194].dn";
-connectAttr "|rack1|holes|holeRot_05|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[195].dn"
+connectAttr "strk_95.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[190].dn";
+connectAttr "pin_68_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[191].dn";
+connectAttr "strk_59.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[192].dn";
+connectAttr "pin_22_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[193].dn";
+connectAttr "pin_48_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[194].dn";
+connectAttr "strk_49.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[195].dn";
+connectAttr "layerManager.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[196].dn";
+connectAttr "strk_33.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[197].dn";
+connectAttr "strk_50.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[198].dn";
+connectAttr "displaceShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[199].dn";
+connectAttr "cImgShader20.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[200].dn";
+connectAttr "pin_40_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[201].dn";
+connectAttr "strk_100.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[202].dn";
+connectAttr "strk_99.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[203].dn";
+connectAttr "pin_17_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[204].dn";
+connectAttr "strk_43.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[205].dn";
+connectAttr "strk_74.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[206].dn";
+connectAttr "strk_60.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[207].dn";
+connectAttr "|rack1|rack_translate|legsC|group48|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[0].dn"
 		;
-connectAttr "mainProjection.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[196].dn"
+connectAttr "|rack1|rack_translate|legsC|group48|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[1].dn"
 		;
-connectAttr "|rack1|holes|holeRot_02|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[197].dn"
+connectAttr "pot_5_g_10.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[2].dn";
+connectAttr "|rack1|holes|holeRot_17|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[3].dn"
 		;
-connectAttr "collectStrokesBG.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[198].dn"
+connectAttr "|rack1|rack_translate|legsA|group48|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[4].dn"
 		;
-connectAttr "pin_24_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[199].dn";
-connectAttr "strk_21.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[200].dn";
-connectAttr "strk_74.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[201].dn";
-connectAttr "strk_56.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[202].dn";
-connectAttr "strk_2.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[203].dn";
-connectAttr "|rack1|holes|holeRot_12|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[204].dn"
+connectAttr "|rack1|rack_translate|legsC|group48|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[5].dn"
 		;
-connectAttr "pin_21_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[205].dn";
-connectAttr "strk_96.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[206].dn";
-connectAttr "pin_7_stc.msg" "MayaNodeEditorSavedTabsInfo.tgi[9].ni[207].dn";
-connectAttr "pot_0_g_00.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[0].dn";
-connectAttr "spiralShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[1].dn";
-connectAttr "pot_3_g_03.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[2].dn";
-connectAttr "collectStrokesDip.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[3].dn"
+connectAttr "pot_1_g_02.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[6].dn";
+connectAttr "|rack1|holes|holeRot_03|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[7].dn"
 		;
-connectAttr "|rack1|holes|holeRot_06|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[4].dn"
+connectAttr "|rack1|holes|holeRot_04|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[8].dn"
 		;
-connectAttr "|rack1|holes|holeRot_16|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[5].dn"
+connectAttr "|rack1|holes|holeRot_02|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[9].dn"
 		;
-connectAttr "|rack1|holes|holeRot_06|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[6].dn"
+connectAttr "|rack1|rack_translate|legsC|group48|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[10].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group48|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[7].dn"
+connectAttr "pot_0_g_01.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[11].dn";
+connectAttr "|rack1|rack_translate|legsB|group23|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[12].dn"
 		;
-connectAttr "pot_2_g_02Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[8].dn"
+connectAttr "|rack1|holes|holeRot_15|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[13].dn"
 		;
-connectAttr "pot_5_g_05.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[9].dn";
-connectAttr "pot_8_g_08Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[10].dn"
+connectAttr "|rack1|rack_translate|legsC|group23|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[14].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group23|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[11].dn"
+connectAttr "|rack1|holes|holeRot_13|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[15].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group48|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[12].dn"
+connectAttr "|rack1|holes|holeRot_04|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[16].dn"
 		;
-connectAttr "spiral.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[13].dn";
-connectAttr "|rack1|holes|holeRot_00|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[14].dn"
+connectAttr "|rack1|rack_translate|legsB|group48|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[17].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group23|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[15].dn"
+connectAttr "|rack1|rack_translate|legsC|group23|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[18].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group48|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[16].dn"
+connectAttr "pot_10_pistachio.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[19].dn"
 		;
-connectAttr "|rack1|holes|holeRot_03|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[17].dn"
+connectAttr "|rack1|rack_translate|legsA|group48|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[20].dn"
 		;
-connectAttr "pot_2_g_02.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[18].dn";
-connectAttr "pot_8_g_08.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[19].dn";
-connectAttr "|rack1|holes|holeRot_09|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[20].dn"
+connectAttr "|rack1|rack_translate|legsB|group23|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[21].dn"
 		;
-connectAttr "pot_11_caramel.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[21].dn"
+connectAttr "|rack1|holes|holeRot_07|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[22].dn"
 		;
-connectAttr "|rack1|holes|holeRot_13|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[22].dn"
+connectAttr "|rack1|holes|holeRot_07|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[23].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group48|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[23].dn"
+connectAttr "pot_4_g_08.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[24].dn";
+connectAttr "|rack1|holes|holeRot_06|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[25].dn"
 		;
-connectAttr "|rack1|holes|holeRot_05|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[24].dn"
+connectAttr "|rack1|rack_translate|legsC|group48|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[26].dn"
 		;
-connectAttr "|rack1|holes|holeRot_08|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[25].dn"
+connectAttr "|rack1|holes|holeRot_10|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[27].dn"
 		;
-connectAttr "|rack1|holes|holeRot_16|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[26].dn"
+connectAttr "|rack1|rack_translate|legsC|group23|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[28].dn"
 		;
-connectAttr "|rack1|holes|holeRot_15|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[27].dn"
-		;
-connectAttr "|rack1|holes|holeRot_13|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[28].dn"
-		;
-connectAttr "|rack1|holes|holeRot_11|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[29].dn"
+connectAttr "|rack1|rack_translate|legsB|group23|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[29].dn"
 		;
 connectAttr "|rack1|rack_translate|legsA|group48|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[30].dn"
 		;
-connectAttr "|rack1|holes|holeRot_15|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[31].dn"
+connectAttr "|rack1|holes|holeRot_13|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[31].dn"
 		;
-connectAttr "|rack1|holes|holeRot_13|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[32].dn"
+connectAttr "pot_10_pistachioShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[32].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group48|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[33].dn"
+connectAttr "|rack1|rack_translate|legsC|group48|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[33].dn"
 		;
-connectAttr "sourceDipShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[34].dn"
+connectAttr "|rack1|rack_translate|legsA|group48|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[34].dn"
 		;
-connectAttr "|rack1|holes|holeRot_16|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[35].dn"
+connectAttr "|rack1|rack_translate|legsA|group23|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[35].dn"
 		;
-connectAttr "longWipeBShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[36].dn"
+connectAttr "|rack1|holes|holeRot_13|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[36].dn"
 		;
-connectAttr "|rack1|holes|holeRot_18|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[37].dn"
+connectAttr "|rack1|rack_translate|legsB|group48|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[37].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group23|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[38].dn"
+connectAttr "|rack1|holes|holeRot_05|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[38].dn"
 		;
-connectAttr "|rack1|holes|holeRot_09|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[39].dn"
+connectAttr "|rack1|rack_translate|legsA|group23|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[39].dn"
 		;
-connectAttr "|rack1|holes|holeRot_11|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[40].dn"
+connectAttr "|rack1|holes|holeRot_15|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[40].dn"
 		;
-connectAttr "|rack1|holes|holeRot_02|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[41].dn"
+connectAttr "|rack1|holes|holeRot_13|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[41].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group48|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[42].dn"
+connectAttr "|rack1|holes|holeRot_03|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[42].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group48|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[43].dn"
+connectAttr "pot_4_g_08Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[43].dn"
 		;
-connectAttr "|rack1|holes|holeRot_19|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[44].dn"
+connectAttr "|rack1|holes|holeRot_19|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[44].dn"
 		;
-connectAttr "|rack1|holes|holeRot_01|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[45].dn"
+connectAttr "|rack1|holes|holeRot_01|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[45].dn"
 		;
-connectAttr "|rack1|holes|holeRot_02|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[46].dn"
+connectAttr "|rack1|holes|holeRot_14|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[46].dn"
 		;
-connectAttr "pot_9_redbushShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[47].dn"
+connectAttr "|rack1|rack_translate|legsC|group23|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[47].dn"
 		;
-connectAttr "longWipeB.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[48].dn";
-connectAttr "|rack1|rack_translate|legsB|group23|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[49].dn"
+connectAttr "|rack1|rack_translate|legsC|group48|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[48].dn"
 		;
-connectAttr "|rack1|holes|holeRot_18|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[50].dn"
+connectAttr "|rack1|rack_translate|legsA|group23|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[49].dn"
 		;
-connectAttr "|rack1|holes|holeRot_16|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[51].dn"
+connectAttr "|rack1|rack_translate|legsA|group48|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[50].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group23|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[52].dn"
+connectAttr "pot_2_g_04Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[51].dn"
 		;
-connectAttr "|rack1|holes|holeRot_02|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[53].dn"
+connectAttr "|rack1|holes|holeRot_08|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[52].dn"
 		;
-connectAttr "|rack1|holes|holeRot_07|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[54].dn"
+connectAttr "|rack1|rack_translate|legsA|group23|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[53].dn"
 		;
-connectAttr "|rack1|holes|holeRot_10|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[55].dn"
+connectAttr "|rack1|rack_translate|legsA|group48|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[54].dn"
 		;
-connectAttr "longWipeAShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[56].dn"
+connectAttr "|rack1|rack_translate|legsC|group48|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[55].dn"
 		;
-connectAttr "|rack1|holes|holeRot_07|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[57].dn"
+connectAttr "|rack1|rack_translate|legsA|group23|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[56].dn"
 		;
-connectAttr "|rack1|holes|holeRot_11|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[58].dn"
+connectAttr "spiral.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[57].dn";
+connectAttr "|rack1|holes|holeRot_04|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[58].dn"
 		;
-connectAttr "pot_9_redbush.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[59].dn";
-connectAttr "|rack1|rack_translate|legsA|group23|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[60].dn"
+connectAttr "|rack1|rack_translate|legsA|group23|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[59].dn"
 		;
-connectAttr "|rack1|holes|holeRot_13|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[61].dn"
+connectAttr "|rack1|holes|holeRot_19|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[60].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group48|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[62].dn"
+connectAttr "|rack1|holes|holeRot_01|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[61].dn"
 		;
-connectAttr "pot_11_caramelShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[63].dn"
+connectAttr "|rack1|holes|holeRot_02|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[62].dn"
 		;
-connectAttr "longWipeA.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[64].dn";
-connectAttr "|rack1|holes|holeRot_16|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[65].dn"
+connectAttr "|rack1|holes|holeRot_14|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[63].dn"
 		;
-connectAttr "|rack1|holes|holeRot_15|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[66].dn"
+connectAttr "|rack1|holes|holeRot_12|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[64].dn"
 		;
-connectAttr "|rack1|holes|holeRot_19|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[67].dn"
+connectAttr "|rack1|holes|holeRot_02|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[65].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group23|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[68].dn"
+connectAttr "|rack1|holes|holeRot_00|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[66].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group23|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[69].dn"
+connectAttr "spiralShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[67].dn";
+connectAttr "|rack1|rack_translate|top.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[68].dn"
 		;
-connectAttr "|rack1|holes|holeRot_16|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[70].dn"
+connectAttr "|rack1|holes|holeRot_11|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[69].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group23|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[71].dn"
+connectAttr "|rack1|holes|holeRot_14|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[70].dn"
 		;
-connectAttr "|rack1|holes|holeRot_18|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[72].dn"
+connectAttr "|rack1|holes|holeRot_14|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[71].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group23|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[73].dn"
+connectAttr "|rack1|rack_translate|legsA|group23|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[72].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group23|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[74].dn"
+connectAttr "|rack1|rack_translate|legsB|group48|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[73].dn"
 		;
-connectAttr "|rack1|holes|holeRot_06|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[75].dn"
+connectAttr "pot_11_caramelShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[74].dn"
 		;
-connectAttr "|rack1|holes|holeRot_18|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[76].dn"
+connectAttr "backWipe.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[75].dn";
+connectAttr "|rack1|holes|holeRot_18|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[76].dn"
 		;
-connectAttr "backWipeShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[77].dn";
-connectAttr "|rack1|rack_translate|legsC|group23|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[78].dn"
+connectAttr "pot_8_g_15Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[77].dn"
+		;
+connectAttr "|rack1|holes|holeRot_04|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[78].dn"
 		;
 connectAttr "|rack1|holes|holeRot_13|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[79].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group48|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[80].dn"
+connectAttr "pot_3_g_06Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[80].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group48|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[81].dn"
+connectAttr "|rack1|holes|holeRot_11|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[81].dn"
 		;
-connectAttr "|rack1|holes|holeRot_04|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[82].dn"
+connectAttr "|rack1|holes|holeRot_14|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[82].dn"
 		;
-connectAttr "backWipe.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[83].dn";
-connectAttr "|rack1|holes|holeRot_15|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[84].dn"
+connectAttr "longWipeBShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[83].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group23|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[85].dn"
+connectAttr "|rack1|holes|holeRot_05|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[84].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group48|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[86].dn"
+connectAttr "|rack1|rack_translate|legsB|group48|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[85].dn"
 		;
-connectAttr "|rack1|holes|holeRot_08|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[87].dn"
+connectAttr "pot_2_g_04.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[86].dn";
+connectAttr "pot_3_g_06.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[87].dn";
+connectAttr "|rack1|rack_translate|legsA|group48|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[88].dn"
 		;
-connectAttr "|rack1|holes|holeRot_10|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[88].dn"
+connectAttr "|rack1|holes|holeRot_01|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[89].dn"
 		;
-connectAttr "|rack1|holes|holeRot_09|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[89].dn"
+connectAttr "|rack1|holes|holeRot_05|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[90].dn"
 		;
-connectAttr "|rack1|holes|holeRot_15|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[90].dn"
+connectAttr "|rack1|holes|holeRot_12|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[91].dn"
 		;
-connectAttr "longWipeAShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[91].dn"
+connectAttr "|rack1|holes|holeRot_11|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[92].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group48|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[92].dn"
+connectAttr "|rack1|holes|holeRot_18|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[93].dn"
 		;
-connectAttr "|rack1|holes|holeRot_13|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[93].dn"
+connectAttr "|rack1|holes|holeRot_18|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[94].dn"
 		;
-connectAttr "|rack1|holes|holeRot_01|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[94].dn"
+connectAttr "backWipeShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[95].dn"
 		;
-connectAttr "|rack1|holes|holeRot_01|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[95].dn"
+connectAttr "backWipeShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[96].dn";
+connectAttr "|rack1|holes|holeRot_12|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[97].dn"
 		;
-connectAttr "pot_7_g_07Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[96].dn"
+connectAttr "longWipeA.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[98].dn";
+connectAttr "|rack1|rack_translate|legsB|group48|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[99].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group23|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[97].dn"
+connectAttr "sourceDipShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[100].dn"
 		;
-connectAttr "pot_0_g_00Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[98].dn"
+connectAttr "|rack1|holes|holeRot_18|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[101].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group23|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[99].dn"
+connectAttr "|rack1|rack_translate|legsB|group23|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[102].dn"
 		;
-connectAttr "|rack1|holes|holeRot_15|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[100].dn"
+connectAttr "longWipeAShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[103].dn"
 		;
-connectAttr "pot_1_g_01Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[101].dn"
+connectAttr "|rack1|holes|holeRot_12|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[104].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group23|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[102].dn"
+connectAttr "|rack1|holes|holeRot_01|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[105].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group48|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[103].dn"
+connectAttr "pot_11_caramel.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[106].dn"
 		;
-connectAttr "|rack1|holes|holeRot_11|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[104].dn"
+connectAttr "|rack1|rack_translate|legsC|group48|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[107].dn"
 		;
-connectAttr "|rack1|rack_translate|top|topShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[105].dn"
+connectAttr "|rack1|holes|holeRot_18|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[108].dn"
 		;
-connectAttr "pot_1_g_01.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[106].dn";
-connectAttr "|rack1|holes|holeRot_19|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[107].dn"
+connectAttr "|rack1|rack_translate|legsB|group23|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[109].dn"
 		;
-connectAttr "pot_10_pistachio.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[108].dn"
+connectAttr "|rack1|rack_translate|legsB|group48|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[110].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group23|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[109].dn"
+connectAttr "pot_8_g_15.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[111].dn";
+connectAttr "|rack1|holes|holeRot_17|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[112].dn"
 		;
-connectAttr "|rack1|holes|holeRot_12|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[110].dn"
+connectAttr "|rack1|holes|holeRot_19|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[113].dn"
 		;
-connectAttr "|rack1|holes|holeRot_14|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[111].dn"
+connectAttr "|rack1|holes|holeRot_17|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[114].dn"
 		;
-connectAttr "|rack1|holes|holeRot_17|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[112].dn"
+connectAttr "longWipeB.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[115].dn";
+connectAttr "|rack1|holes|holeRot_08|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[116].dn"
 		;
-connectAttr "|rack1|holes|holeRot_12|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[113].dn"
+connectAttr "|rack1|holes|holeRot_06|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[117].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group23|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[114].dn"
+connectAttr "longWipeAShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[118].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group48|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[115].dn"
+connectAttr "|rack1|holes|holeRot_14|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[119].dn"
 		;
-connectAttr "|rack1|holes|holeRot_19|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[116].dn"
+connectAttr "|rack1|holes|holeRot_18|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[120].dn"
 		;
-connectAttr "|rack1|holes|holeRot_14|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[117].dn"
+connectAttr "|rack1|holes|holeRot_06|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[121].dn"
 		;
-connectAttr "|rack1|holes|holeRot_04|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[118].dn"
+connectAttr "|rack1|holes|holeRot_03|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[122].dn"
 		;
-connectAttr "|rack1|holes|holeRot_00|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[119].dn"
+connectAttr "|rack1|rack_translate|legsB|group23|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[123].dn"
 		;
-connectAttr "|rack1|holes|holeRot_01|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[120].dn"
+connectAttr "|rack1|rack_translate|legsC|group23|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[124].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group48|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[121].dn"
+connectAttr "|rack1|holes|holeRot_12|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[125].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group23|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[122].dn"
+connectAttr "|rack1|rack_translate|legsB|group23|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[126].dn"
 		;
-connectAttr "|rack1|holes|holeRot_10|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[123].dn"
+connectAttr "|rack1|holes|holeRot_11|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[127].dn"
 		;
-connectAttr "|rack1|holes|holeRot_17|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[124].dn"
+connectAttr "|rack1|rack_translate|legsB|group48|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[128].dn"
 		;
-connectAttr "|rack1|holes|holeRot_08|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[125].dn"
+connectAttr "|rack1|rack_translate|top|topShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[129].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group48|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[126].dn"
+connectAttr "|rack1|holes|holeRot_12|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[130].dn"
 		;
-connectAttr "|rack1|holes|holeRot_12|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[127].dn"
+connectAttr "|rack1|holes|holeRot_16|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[131].dn"
 		;
-connectAttr "|rack1|holes|holeRot_00|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[128].dn"
+connectAttr "|rack1|holes|holeRot_17|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[132].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group48|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[129].dn"
+connectAttr "|rack1|rack_translate|legsC|group48|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[133].dn"
 		;
-connectAttr "|rack1|holes|holeRot_06|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[130].dn"
+connectAttr "|rack1|holes|holeRot_00|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[134].dn"
 		;
-connectAttr "|rack1|holes|holeRot_14|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[131].dn"
+connectAttr "|rack1|rack_translate|legsA|group48|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[135].dn"
 		;
-connectAttr "|rack1|holes|holeRot_19|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[132].dn"
+connectAttr "|rack1|holes|holeRot_16|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[136].dn"
 		;
-connectAttr "|rack1|holes|holeRot_00|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[133].dn"
+connectAttr "pot_6_g_12Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[137].dn"
 		;
-connectAttr "backWipeShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[134].dn"
+connectAttr "|rack1|holes|holeRot_15|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[138].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group23|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[135].dn"
+connectAttr "|rack1|holes|holeRot_16|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[139].dn"
 		;
-connectAttr "|rack1|holes|holeRot_17|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[136].dn"
+connectAttr "|rack1|holes|holeRot_09|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[140].dn"
 		;
-connectAttr "|rack1|holes|holeRot_12|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[137].dn"
+connectAttr "|rack1|holes|holeRot_08|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[141].dn"
 		;
-connectAttr "|rack1|holes|holeRot_04|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[138].dn"
+connectAttr "|rack1|holes|holeRot_17|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[142].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group23|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[139].dn"
+connectAttr "pot_7_g_14.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[143].dn";
+connectAttr "|rack1|holes|holeRot_00|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[144].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group23|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[140].dn"
+connectAttr "|rack1|rack_translate|legsB|group23|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[145].dn"
 		;
-connectAttr "|rack1|holes|holeRot_07|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[141].dn"
+connectAttr "|rack1|holes|holeRot_08|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[146].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group48|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[142].dn"
+connectAttr "|rack1|holes|holeRot_10|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[147].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group23|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[143].dn"
+connectAttr "|rack1|rack_translate|legsC|group23|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[148].dn"
 		;
-connectAttr "pot_3_g_03Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[144].dn"
+connectAttr "|rack1|rack_translate|legsB|group23|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[149].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group23|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[145].dn"
+connectAttr "|rack1|holes|holeRot_03|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[150].dn"
 		;
-connectAttr "|rack1|holes|holeRot_17|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[146].dn"
+connectAttr "|rack1|holes|holeRot_16|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[151].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group48|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[147].dn"
+connectAttr "|rack1|holes|holeRot_09|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[152].dn"
 		;
-connectAttr "pot_4_g_04Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[148].dn"
+connectAttr "|rack1|holes|holeRot_19|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[153].dn"
 		;
-connectAttr "|rack1|holes|holeRot_10|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[149].dn"
+connectAttr "|rack1|rack_translate|legsA|group48|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[154].dn"
 		;
-connectAttr "pot_5_g_05Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[150].dn"
+connectAttr "collectStrokesDip.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[155].dn"
 		;
-connectAttr "|rack1|holes|holeRot_12|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[151].dn"
+connectAttr "|rack1|rack_translate|legsB|group23|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[156].dn"
 		;
-connectAttr "pot_10_pistachioShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[152].dn"
+connectAttr "longWipeBShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[157].dn"
 		;
-connectAttr "|rack1|holes|holeRot_14|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[153].dn"
+connectAttr "|rack1|holes|holeRot_19|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[158].dn"
 		;
-connectAttr "pot_4_g_04.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[154].dn";
-connectAttr "pot_7_g_07.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[155].dn";
-connectAttr "|rack1|holes|holeRot_12|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[156].dn"
+connectAttr "|rack1|holes|holeRot_15|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[159].dn"
 		;
-connectAttr "|rack1|holes|holeRot_03|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[157].dn"
+connectAttr "|rack1|holes|holeRot_16|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[160].dn"
 		;
-connectAttr "|rack1|holes|holeRot_17|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[158].dn"
+connectAttr "|rack1|rack_translate|legsA|group23|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[161].dn"
 		;
-connectAttr "|rack1|rack_translate|top.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[159].dn"
+connectAttr "|rack1|holes|holeRot_19|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[162].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group48|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[160].dn"
+connectAttr "pot_7_g_14Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[163].dn"
 		;
-connectAttr "|rack1|holes|holeRot_03|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[161].dn"
+connectAttr "|rack1|holes|holeRot_09|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[164].dn"
 		;
-connectAttr "|rack1|holes|holeRot_18|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[162].dn"
+connectAttr "|rack1|holes|holeRot_15|holeTrans|dip_loc|pot.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[165].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group23|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[163].dn"
+connectAttr "|rack1|rack_translate|legsA|group23|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[166].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group23|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[164].dn"
+connectAttr "pot_5_g_10Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[167].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group48|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[165].dn"
+connectAttr "|rack1|rack_translate|legsC|group23|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[168].dn"
 		;
-connectAttr "|rack1|holes|holeRot_17|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[166].dn"
+connectAttr "|rack1|holes|holeRot_06|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[169].dn"
 		;
-connectAttr "|rack1|holes|holeRot_04|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[167].dn"
+connectAttr "|rack1|rack_translate|legsB|group48|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[170].dn"
 		;
-connectAttr "|rack1|holes|holeRot_07|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[168].dn"
+connectAttr "pot_0_g_01Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[171].dn"
 		;
-connectAttr "|rack1|holes|holeRot_18|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[169].dn"
+connectAttr "pot_9_redbushShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[172].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group23|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[170].dn"
+connectAttr "|rack1|holes|holeRot_17|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[173].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group48|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[171].dn"
+connectAttr "|rack1|rack_translate|legsC|group23|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[174].dn"
 		;
-connectAttr "|rack1|holes|holeRot_05|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[172].dn"
+connectAttr "pot_9_redbush.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[175].dn"
 		;
-connectAttr "|rack1|holes|holeRot_08|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[173].dn"
+connectAttr "|rack1|rack_translate|legsB|group48|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[176].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group48|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[174].dn"
+connectAttr "|rack1|holes|holeRot_15|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[177].dn"
 		;
-connectAttr "longWipeBShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[175].dn"
+connectAttr "|rack1|rack_translate|legsA|group48|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[178].dn"
 		;
-connectAttr "|rack1|holes|holeRot_09|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[176].dn"
+connectAttr "|rack1|holes|holeRot_02|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[179].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group23|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[177].dn"
+connectAttr "|rack1|holes|holeRot_07|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[180].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group23|topPlate|topPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[178].dn"
+connectAttr "|rack1|holes|holeRot_05|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[181].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group48|topPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[179].dn"
+connectAttr "pot_6_g_12.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[182].dn";
+connectAttr "|rack1|holes|holeRot_10|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[183].dn"
 		;
-connectAttr "|rack1|holes|holeRot_02|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[180].dn"
+connectAttr "|rack1|holes|holeRot_10|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[184].dn"
 		;
-connectAttr "|rack1|holes|holeRot_05|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[181].dn"
+connectAttr "|rack1|holes|holeRot_16|holeTrans|wipe_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[185].dn"
 		;
-connectAttr "|rack1|holes|holeRot_14|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[182].dn"
+connectAttr "|rack1|holes|holeRot_00|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[186].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group23|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[183].dn"
+connectAttr "|rack1|rack_translate|legsA|group23|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[187].dn"
 		;
-connectAttr "|rack1|rack_translate|legsC|group48|group19|pCylinder1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[184].dn"
+connectAttr "|rack1|rack_translate|legsC|group23|group19|pSphere1|pSphereShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[188].dn"
 		;
-connectAttr "pot_6_g_06Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[185].dn"
+connectAttr "|rack1|rack_translate|legsB|group48|bottomPlate|bottomPlateShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[189].dn"
 		;
-connectAttr "|rack1|holes|holeRot_03|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[186].dn"
+connectAttr "|rack1|rack_translate|legsC|group23|bottomPlate.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[190].dn"
 		;
-connectAttr "|rack1|holes|holeRot_19|holeTrans|dip_loc|pot|potShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[187].dn"
+connectAttr "pot_1_g_02Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[191].dn"
 		;
-connectAttr "|rack1|rack_translate|legsA|group48|group19|pSphere1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[188].dn"
+connectAttr "|rack1|holes|holeRot_07|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[192].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group48|group19|pCylinder2|pCylinderShape2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[189].dn"
+connectAttr "|rack1|holes|holeRot_13|holeTrans|wipe_loc|wipe_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[193].dn"
 		;
-connectAttr "pot_6_g_06.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[190].dn";
-connectAttr "|rack1|rack_translate|legsC|group48|group19|pCylinder1|pCylinderShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[191].dn"
+connectAttr "|rack1|holes|holeRot_09|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[194].dn"
 		;
-connectAttr "|rack1|holes|holeRot_05|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[192].dn"
+connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[0].dn"
 		;
-connectAttr "|rack1|holes|holeRot_14|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[193].dn"
+connectAttr "cImgSkel1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[1].dn";
+connectAttr "|rack1|holes|holeRot_09|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[2].dn"
 		;
-connectAttr "|rack1|rack_translate|legsB|group48|group19|pCylinder2.msg" "MayaNodeEditorSavedTabsInfo.tgi[10].ni[194].dn"
+connectAttr "skGraphShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[3].dn";
+connectAttr "sourceDipShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[4].dn"
 		;
-connectAttr "cImgShader21.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[0].dn";
-connectAttr "axisImg1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[1].dn";
-connectAttr "longWipeBShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[2].dn"
+connectAttr "surfaceShader1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[5].dn";
+connectAttr "skChainNode1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[6].dn";
+connectAttr "planeShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[7].dn";
+connectAttr "skeletonStroke1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[8].dn"
 		;
-connectAttr "cImgFile4.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[3].dn";
-connectAttr "|rack1|holes|holeRot_09|holeTrans.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[4].dn"
+connectAttr "cImgShader21.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[9].dn";
+connectAttr "cImgShader24.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[10].dn";
+connectAttr "longWipeAShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[11].dn"
 		;
-connectAttr "plane1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[5].dn";
-connectAttr "|rack1|holes|holeRot_09|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[6].dn"
+connectAttr "cImgFile4.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[12].dn";
+connectAttr "pot_1_g_02Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[13].dn"
 		;
-connectAttr "collectStrokesDip.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[7].dn"
+connectAttr "cImgGate1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[14].dn";
+connectAttr "pPlaneShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[15].dn";
+connectAttr "|rack1|holes|holeRot_09|holeTrans|dip_loc.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[16].dn"
 		;
-connectAttr "planeShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[8].dn";
-connectAttr "pPlaneShape1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[9].dn";
-connectAttr "skeletonStroke1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[10].dn"
+connectAttr "longWipeBShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[17].dn"
 		;
-connectAttr "pot_1_g_01Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[11].dn"
+connectAttr "collectStrokesWipe.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[18].dn"
 		;
-connectAttr "skGraphShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[12].dn";
-connectAttr "mainPaintingShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[13].dn"
+connectAttr "axisImg1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[19].dn";
+connectAttr "plane1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[20].dn";
+connectAttr "collectStrokesDip.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[21].dn"
 		;
-connectAttr "cImgSkel1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[14].dn";
-connectAttr "surfaceShader1.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[15].dn"
+connectAttr "backWipeShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[22].dn"
 		;
-connectAttr "longWipeAShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[16].dn"
+connectAttr "pot_0_g_01Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[23].dn"
 		;
-connectAttr "collectStrokesWipe.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[17].dn"
-		;
-connectAttr "pot_0_g_00Shape.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[18].dn"
-		;
-connectAttr "sourceDipShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[19].dn"
-		;
-connectAttr "backWipeShape_SC.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[20].dn"
-		;
-connectAttr "|rack1|holes|holeRot_09|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[21].dn"
+connectAttr "|rack1|holes|holeRot_09|holeTrans|dip_loc|dip_locShape.msg" "MayaNodeEditorSavedTabsInfo.tgi[11].ni[24].dn"
 		;
 connectAttr "girderShaderSG.pa" ":renderPartition.st" -na;
 connectAttr "pasted__typeBlinn1SG.pa" ":renderPartition.st" -na;
@@ -52607,16 +52638,16 @@ connectAttr "pasted__cable_04SG4.pa" ":renderPartition.st" -na;
 connectAttr "pasted__cable_04SG5.pa" ":renderPartition.st" -na;
 connectAttr "pasted__cable_04SG6.pa" ":renderPartition.st" -na;
 connectAttr "typeBlinn1SG.pa" ":renderPartition.st" -na;
-connectAttr "sx_g_00_SG.pa" ":renderPartition.st" -na;
+connectAttr "surfaceShader1SG.pa" ":renderPartition.st" -na;
 connectAttr "sx_g_01_SG.pa" ":renderPartition.st" -na;
 connectAttr "sx_g_02_SG.pa" ":renderPartition.st" -na;
-connectAttr "sx_g_03_SG.pa" ":renderPartition.st" -na;
 connectAttr "sx_g_04_SG.pa" ":renderPartition.st" -na;
-connectAttr "sx_g_05_SG.pa" ":renderPartition.st" -na;
 connectAttr "sx_g_06_SG.pa" ":renderPartition.st" -na;
-connectAttr "sx_g_07_SG.pa" ":renderPartition.st" -na;
 connectAttr "sx_g_08_SG.pa" ":renderPartition.st" -na;
-connectAttr "surfaceShader1SG.pa" ":renderPartition.st" -na;
+connectAttr "sx_g_10_SG.pa" ":renderPartition.st" -na;
+connectAttr "sx_g_12_SG.pa" ":renderPartition.st" -na;
+connectAttr "sx_g_14_SG.pa" ":renderPartition.st" -na;
+connectAttr "sx_g_15_SG.pa" ":renderPartition.st" -na;
 connectAttr "girderShader.msg" ":defaultShaderList1.s" -na;
 connectAttr "pasted__typeBlinn1.msg" ":defaultShaderList1.s" -na;
 connectAttr "pasted__pasted__typeBlinn1.msg" ":defaultShaderList1.s" -na;
@@ -52624,16 +52655,16 @@ connectAttr "pasted__rubber4.msg" ":defaultShaderList1.s" -na;
 connectAttr "pasted__rubber5.msg" ":defaultShaderList1.s" -na;
 connectAttr "pasted__rubber6.msg" ":defaultShaderList1.s" -na;
 connectAttr "typeBlinn1.msg" ":defaultShaderList1.s" -na;
-connectAttr "sx_g_00.msg" ":defaultShaderList1.s" -na;
+connectAttr "surfaceShader1.msg" ":defaultShaderList1.s" -na;
 connectAttr "sx_g_01.msg" ":defaultShaderList1.s" -na;
 connectAttr "sx_g_02.msg" ":defaultShaderList1.s" -na;
-connectAttr "sx_g_03.msg" ":defaultShaderList1.s" -na;
 connectAttr "sx_g_04.msg" ":defaultShaderList1.s" -na;
-connectAttr "sx_g_05.msg" ":defaultShaderList1.s" -na;
 connectAttr "sx_g_06.msg" ":defaultShaderList1.s" -na;
-connectAttr "sx_g_07.msg" ":defaultShaderList1.s" -na;
 connectAttr "sx_g_08.msg" ":defaultShaderList1.s" -na;
-connectAttr "surfaceShader1.msg" ":defaultShaderList1.s" -na;
+connectAttr "sx_g_10.msg" ":defaultShaderList1.s" -na;
+connectAttr "sx_g_12.msg" ":defaultShaderList1.s" -na;
+connectAttr "sx_g_14.msg" ":defaultShaderList1.s" -na;
+connectAttr "sx_g_15.msg" ":defaultShaderList1.s" -na;
 connectAttr "place2dTexture1.msg" ":defaultRenderUtilityList1.u" -na;
 connectAttr "place2dTexture30.msg" ":defaultRenderUtilityList1.u" -na;
 connectAttr "place2dTexture34.msg" ":defaultRenderUtilityList1.u" -na;
@@ -52642,6 +52673,8 @@ connectAttr "place2dTexture36.msg" ":defaultRenderUtilityList1.u" -na;
 connectAttr "place2dTexture37.msg" ":defaultRenderUtilityList1.u" -na;
 connectAttr "place2dTexture38.msg" ":defaultRenderUtilityList1.u" -na;
 connectAttr "place2dTexture39.msg" ":defaultRenderUtilityList1.u" -na;
+connectAttr "place2dTexture40.msg" ":defaultRenderUtilityList1.u" -na;
+connectAttr "place2dTexture41.msg" ":defaultRenderUtilityList1.u" -na;
 connectAttr "defaultRenderLayer.msg" ":defaultRenderingList1.r" -na;
 connectAttr "ramp1.msg" ":defaultTextureList1.tx" -na;
 connectAttr "cImgShader17.msg" ":defaultTextureList1.tx" -na;
@@ -52651,6 +52684,8 @@ connectAttr "cImgShader20.msg" ":defaultTextureList1.tx" -na;
 connectAttr "cImgShader21.msg" ":defaultTextureList1.tx" -na;
 connectAttr "cImgShader22.msg" ":defaultTextureList1.tx" -na;
 connectAttr "cImgShader23.msg" ":defaultTextureList1.tx" -na;
+connectAttr "cImgShader24.msg" ":defaultTextureList1.tx" -na;
+connectAttr "cImgShader25.msg" ":defaultTextureList1.tx" -na;
 connectAttr "ramp1.oc" ":lambert1.it";
 connectAttr "|rack1|holes|holeRot_12|holeTrans|dip_loc|pot|potShape.iog" ":initialShadingGroup.dsm"
 		 -na;

@@ -8,6 +8,7 @@
 #include "stroke.h"
 #include "skGraph.h"
 
+
 class skeletonStrokeNode : public strokeNode
 {
 public:
@@ -59,18 +60,27 @@ private:
   std::vector< std::pair<int, float> > getBrushRadii(
     MDataBlock &data) const;
 
-  static MObject aSkeletonImage;
+  // static MObject aSkeletonImage;
 
-  static MObject aBrushFilter;/**/
+  // static MObject aImage;
+  // static MObject aThreshold;
+  // static MObject aMedian;
+  // static MObject aInvert;
+  // static MObject aMaxIterations;
 
-  static MObject aPruneLength;
-  static MObject aMinPixels;
-  static MObject aSpanPixels;
-  static MObject aProjectionMatrix;
 
+  // static MObject aMinBranchTwigLength;
+  // static MObject aMinLooseTwigLength;
+
+  // static MObject aSpanPixels;
+  // static MObject aMaxWidthPixels;
+
+  // static MObject aProjectionMatrix;
+
+  static MObject aChains;
+
+  static MObject aBrushFilter;
   static MObject aBrushes;
-  // static MObject aBrushWidth;
-  // static MObject aBrushActive;
 
   static MObject aStrokeLength;
   static MObject aOverlap;

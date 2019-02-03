@@ -33,7 +33,7 @@
 #include <attrUtils.h>
 
 
-#include "cImgFloatData.h"
+#include "skChainData.h"
 #include "cImgUtils.h"
 
 
@@ -69,14 +69,10 @@ static float circle[][4] = {
 	{sin(gap * 15),  cos(gap * 15), 0.0f, 1.0f}
 };
 
-MObject skGraphNode::aMaxRadius;
-MObject skGraphNode::aPruneLength;
 
 
-MObject skGraphNode::aProjectionMatrix;
-MObject skGraphNode::aSkeletonImage;
-MObject skGraphNode::aMinPixels;
-MObject skGraphNode::aPixelStep;
+MObject skGraphNode::aChains;
+
 
 MObject skGraphNode::aOutPoints;
 MObject skGraphNode::aOutParams;
@@ -116,48 +112,11 @@ MStatus skGraphNode::initialize()
 	MFnNumericAttribute nAttr;
 	MFnTypedAttribute tAttr;
 
-	MFnMatrixAttribute mAttr;
 
-
-	// MFloatMatrix identity;
-	// identity.setToIdentity();
-
-	MFloatMatrix identity;
-	identity.setToIdentity();
-	aProjectionMatrix = mAttr.create( "projectionMatrix", "pmat",
-	                                  MFnMatrixAttribute::kFloat );
-	mAttr.setStorable( false );
-	mAttr.setHidden( false );
-	mAttr.setKeyable(true);
-	mAttr.setDefault(identity);
-	addAttribute(aProjectionMatrix);
-
-	aPruneLength = nAttr.create("pruneLength", "prl", MFnNumericData::kInt);
-	nAttr.setDefault( 2 );
-	nAttr.setKeyable( true );
-	st = addAttribute( aPruneLength ); mser
-
-
-	aMaxRadius = nAttr.create("maxRadius", "mxr", MFnNumericData::kFloat);
-	nAttr.setDefault( 20 );
-	nAttr.setKeyable( true );
-	st = addAttribute( aMaxRadius ); mser
-
-	aSkeletonImage = tAttr.create("skeletonImage", "simg", cImgFloatData::id ) ;
+	aChains = tAttr.create("chains", "chn", skChainData::id ) ;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st = addAttribute( aSkeletonImage ); mser;
-
-	aMinPixels = nAttr.create("minPixels", "mnpx", MFnNumericData::kInt);
-	nAttr.setDefault( 2 );
-	nAttr.setKeyable( true );
-	st = addAttribute( aMinPixels ); mser
-
-
-	aPixelStep = nAttr.create("pixelStep", "pxs", MFnNumericData::kInt);
-	nAttr.setDefault( 2 );
-	nAttr.setKeyable( true );
-	st = addAttribute( aPixelStep ); mser
+	st = addAttribute( aChains ); mser;
 
 
 	aPointSize = nAttr.create("pointSize", "psz", MFnNumericData::kFloat);
@@ -242,62 +201,49 @@ MStatus skGraphNode::initialize()
 	nAttr.setDefault(true);
 	addAttribute(aRandomChainColor);
 
-	attributeAffects( aPruneLength, aOutPoints);
-	attributeAffects( aPruneLength, aOutRadius);
-	attributeAffects( aPruneLength, aOutCounts);
-	attributeAffects( aPruneLength, aOutParams);
-
-
-
-	attributeAffects( aMaxRadius, aOutPoints);
-	attributeAffects( aMaxRadius, aOutRadius);
-	attributeAffects( aMaxRadius, aOutCounts);
-	attributeAffects( aMaxRadius, aOutParams);
-
-
-	attributeAffects( aMinPixels, aOutPoints);
-	attributeAffects( aMinPixels, aOutRadius);
-	attributeAffects( aMinPixels, aOutCounts);
-	attributeAffects( aMinPixels, aOutParams);
-
-	attributeAffects( aPixelStep, aOutPoints);
-	attributeAffects( aPixelStep, aOutRadius);
-	attributeAffects( aPixelStep, aOutCounts);
-	attributeAffects( aPixelStep, aOutParams);
-
-	attributeAffects( aSkeletonImage, aOutPoints);
-	attributeAffects( aSkeletonImage, aOutRadius);
-	attributeAffects( aSkeletonImage, aOutCounts);
-	attributeAffects( aSkeletonImage, aOutParams);
-
-
-	attributeAffects( aProjectionMatrix, aOutPoints);
-	attributeAffects( aProjectionMatrix, aOutRadius);
-	attributeAffects( aProjectionMatrix, aOutCounts);
-	attributeAffects( aProjectionMatrix, aOutParams);
+	attributeAffects( aChains, aOutPoints);
+	attributeAffects( aChains, aOutRadius);
+	attributeAffects( aChains, aOutCounts);
+	attributeAffects( aChains, aOutParams);
 
 
 	return (MS::kSuccess );
 }
 
 
-// CImg<float> *skGraphNode::getImage(MDataBlock &data, MObject &attribute )
-// {
-// 	MStatus st;
-// 	MDataHandle hImageData = data.inputValue(attribute, &st);
-// 	if (st.error()) {	return 0;}
-// 	MObject dImageData = hImageData.data();
-// 	MFnPluginData fnImageData( dImageData , &st);
-// 	if (st.error()) {	return 0;}
-// 	cImgFloatData *imageData = (cImgFloatData *)fnImageData.data();
-// 	return imageData->fImg;
-// }
+
+MStatus  skGraphNode::extract(
+
+  MDataBlock &data, MVectorArray &points, MDoubleArray &params,
+  MDoubleArray &radius, MIntArray &counts) const
+{
+
+	MStatus st;
+
+	MDataHandle hChains = data.inputValue(aChains, &st); msert;
+	MObject dChains = hChains.data();
+	MFnPluginData fnChains( dChains , &st); msert;
+	skChainData *scData = (skChainData *)fnChains.data( &st); msert;
+	const std::vector<skChain> *geom = scData->fGeometry;
+	if ((! geom) || geom->size() == 0 ) {
+		return MS::kUnknownParameter;
+	}
+
+	std::vector< skChain >::const_iterator iter;
+	for (iter = geom->begin(); iter != geom->end();  iter++)
+	{
+		iter->appendPoints(points);
+		iter->appendParams(params);
+		iter->appendRadii(radius);
+		counts.append(iter->size());
+	}
+	return MS::kSuccess;
+}
 
 
 MStatus skGraphNode::compute(const MPlug &plug, MDataBlock &data)
 {
 	MStatus st;
-	// cerr << plug.name() << endl;
 	if (! (
 	      plug == aOutCounts
 	      ||  plug == aOutPoints
@@ -307,73 +253,13 @@ MStatus skGraphNode::compute(const MPlug &plug, MDataBlock &data)
 		return (MS::kUnknownParameter );
 	}
 
-
 	MVectorArray resultPoints;
-	MDoubleArray resultRadius;
 	MDoubleArray resultParams;
+	MDoubleArray resultRadius;
 	MIntArray resultCounts;
 
+	extract(  data, resultPoints, resultParams, resultRadius, resultCounts );
 
-	int minBranchLength =  data.inputValue(aPruneLength).asInt();
-	int step =  data.inputValue(aPixelStep).asInt();
-	int minPixels =  data.inputValue(aMinPixels).asInt();
-	int maxRadius =  data.inputValue(aMaxRadius).asFloat();
-
-	CImg<float>  *pImage = cImgUtils::getFloatImage(data, skGraphNode::aSkeletonImage );
-
-
-	MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
-
-	if (! pImage) {
-		outputData(skGraphNode::aOutPoints, data, resultPoints );
-		outputData(skGraphNode::aOutParams, data, resultParams );
-		outputData(skGraphNode::aOutRadius, data, resultRadius );
-		outputData(skGraphNode::aOutCounts, data, resultCounts );
-		return MS::kSuccess;
-	}
-
-	int firstBuilt, afterPrune, afterLooseTwigs, afterDetach;
-	skGraph g(pImage);
-	firstBuilt = g.numNodes();
-
-
-	g.prune(minBranchLength);
-	afterPrune = g.numNodes();
-	g.verify();
-
-	g.removeLooseTwigs(minPixels);
-	afterLooseTwigs = g.numNodes();
-
-
-	g.detachBranches();
-	afterDetach = g.numNodes();
-
-	cerr << "built:" << firstBuilt << " afterPrune:" << afterPrune << " afterLooseTwigs:" <<
-	     afterLooseTwigs << " afterDetach:" << afterDetach << endl;
-
-
-	std::vector< skChain > chains;
-
-	// cerr << "GET CHAINS WITH ARGS: " << endl;
-	// cerr << projection << endl;
-	// cerr << "step:" << step << "Min Pixels:" <<  minPixels << endl;
-
-
-	g.getChains(projection, chains, step/*, minPixels*/);
-
-	std::vector< skChain >::const_iterator iter;
-	for (iter = chains.begin(); iter != chains.end();  iter++)
-	{
-		iter->appendPoints(resultPoints);
-		iter->appendRadii(resultRadius);
-		iter->appendParams(resultParams);
-		resultCounts.append(iter->size());
-	}
-
-
-	// cerr <<  ", " << resultPoints.length() << ", " << resultParams.length() << ", " <<
-	//      resultRadius.length() << ", " << resultCounts.length() << endl;
-	// JPMDBG;
 	outputData(skGraphNode::aOutPoints, data, resultPoints );
 	outputData(skGraphNode::aOutParams, data, resultParams );
 	outputData(skGraphNode::aOutRadius, data, resultRadius );

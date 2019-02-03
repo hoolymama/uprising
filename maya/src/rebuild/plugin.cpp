@@ -10,7 +10,7 @@
 
 
 #include "skGraphNode.h"
-#include "skGraphImage.h"
+// #include "skGraphImage.h"
 
 #include "skeletonStrokeNode.h"
 #include "paintingNode.h"
@@ -18,6 +18,10 @@
 #include "collectStrokes.h"
 #include "paintingCmd.h"
 #include "brushCmd.h"
+
+#include "skChainData.h"
+
+#include "skChainNode.h"
 
 // #include "quadricShape.cpp"
 
@@ -44,6 +48,11 @@ MStatus initializePlugin( MObject obj)
 	//                       &quadricShapeUI::creator  );
 
 
+	st = plugin.registerData( "skChainData", skChainData::id,
+	                          skChainData::creator ); mser;
+
+
+
 	st = plugin.registerData( "brushData", brushData::id,
 	                          brushData::creator ); mser;
 
@@ -54,6 +63,10 @@ MStatus initializePlugin( MObject obj)
 
 	st = plugin.registerData( "paintingData", paintingData::id,
 	                          paintingData::creator ); mser;
+
+
+	st = plugin.registerNode( "skChainNode", skChainNode::id, skChainNode::creator,
+	                          skChainNode::initialize); msert;
 
 	st = plugin.registerNode( "strokeNode", strokeNode::id, strokeNode::creator,
 	                          strokeNode::initialize); msert;
@@ -79,8 +92,8 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "skGraph", skGraphNode::id, skGraphNode::creator,
 	                          skGraphNode::initialize, MPxNode::kLocatorNode ); msert;
 
-	st = plugin.registerNode( "skGraphImage", skGraphImage::id, skGraphImage::creator,
-	                          skGraphImage::initialize ); msert;
+	// st = plugin.registerNode( "skGraphImage", skGraphImage::id, skGraphImage::creator,
+	//                           skGraphImage::initialize ); msert;
 
 
 
@@ -116,8 +129,10 @@ MStatus uninitializePlugin( MObject obj)
 
 	st = plugin.deregisterNode( collectStrokes::id ); mser;
 
-	st = plugin.deregisterNode( skGraphImage::id ); mser;
+	// st = plugin.deregisterNode( skGraphImage::id ); mser;
+
 	st = plugin.deregisterNode( skGraphNode::id ); mser;
+
 	st = plugin.deregisterNode( brushNode::id ); mser;
 
 	st = plugin.deregisterNode( painting::id ); mser;
@@ -128,11 +143,17 @@ MStatus uninitializePlugin( MObject obj)
 
 	st = plugin.deregisterNode( strokeNode::id ); mser;
 
+	st = plugin.deregisterNode( skChainNode::id ); mser;
+
 	st = plugin.deregisterData( paintingData::id ); mser;
 
 	st = plugin.deregisterData( strokeData::id ); mser;
 
 	st = plugin.deregisterData( brushData::id ); mser;
+
+
+
+	st = plugin.deregisterData( skChainData::id ); mser;
 
 	// plugin.deregisterNode( quadricShape::id );
 
