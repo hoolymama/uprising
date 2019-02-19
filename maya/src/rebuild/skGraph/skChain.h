@@ -1,5 +1,3 @@
-
-
 #ifndef _skChain_H
 #define _skChain_H
 #include <vector>

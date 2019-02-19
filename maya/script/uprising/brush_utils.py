@@ -39,6 +39,11 @@ def brush_name(**kw):
 def create_brush_geo(**kw):
 
     name = brush_name(**kw)
+    try:
+        pm.PyNode(name)
+        pm.delete(name)
+    except:
+        pass
     geo = pm.createNode("brushNode")
     geo.getParent().rename(name)
 
@@ -90,6 +95,38 @@ def validate_brush_data(data):
             continue
         result.append(row)
     return result
+
+
+
+def setup_probe_from_sheet():
+    service = sheets._get_service()
+    result = service.spreadsheets().values().get(
+        spreadsheetId=sheets.SHEETS["Measurements"],
+        range='Brushes!A3:N3').execute()
+
+    row = result.get('values', [])[0]
+    row = [uutl.numeric(s) for s in row]
+    kw = {
+            "id":0,
+            "physical_id":0,
+            "x": row[1],
+            "y": row[2],
+            "z": row[13],
+            "bristle_height": row[4],
+            "width": row[5],
+            "name": row[6],
+            "shape": row[7],
+            "painting_param": row[8],
+            "dip_param": row[9],
+            "wipe_param": row[10],
+            "retention": row[11],
+            "trans_param": row[12],
+            "pouch": "calibration",
+            "prefix": "bpx"
+        }
+    return create_brush_geo(**kw)
+
+
 
 
 def setup_brushes_from_sheet(pouch_name):

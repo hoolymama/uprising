@@ -44,13 +44,13 @@ def publish_proposal(
         frame_range,
         clean_top):
     maya_scenes_dir = os.path.join(proposals_dir, "maya", "scenes")
-    mkdir_p(maya_scenes_dir)
+    uutl.mkdir_p(maya_scenes_dir)
     timestamp = get_timestamp()
 
     write_maya_scene(maya_scenes_dir, timestamp)
 
     media_dir = os.path.join(proposals_dir, "media", timestamp)
-    mkdir_p(media_dir)
+    uutl.mkdir_p(media_dir)
     # title, body = split_desc(description)
 
     write_info(
@@ -168,9 +168,9 @@ def publish_sequence(
     # print dip_wipe_packs
 
     recordings_dir = os.path.join(export_dir, "recordings")
-    mkdir_p(recordings_dir)
+    uutl.mkdir_p(recordings_dir)
     design_dir = os.path.join(export_dir, "design")
-    mkdir_p(design_dir)
+    uutl.mkdir_p(design_dir)
 
     if save_unfiltered_snapshot:
 
@@ -185,7 +185,7 @@ def publish_sequence(
         run_hook(pre_frame_py)
         timestamp = get_timestamp(frame)
         ts_dir = get_ts_dir(export_dir, timestamp)
-        mkdir_p(ts_dir)
+        uutl.mkdir_p(ts_dir)
         desc, notes = split_desc(description.replace("#f", str(frame)))
         # print "Desc: %s" % desc
         # print "Notes: %s" % notes
@@ -239,21 +239,39 @@ def publish_calibration_program(directory, node):
     clean_rdk()
     timestamp = get_timestamp()
     ts_dir = get_ts_dir(calibration_dir, timestamp)
-    mkdir_p(ts_dir)
+    uutl.mkdir_p(ts_dir)
     with uutl.minimize_robodk():
         studio = Studio(calibration_node=node)
         studio.write()
     write_program(RL, ts_dir, "xx", timestamp)
 
 
-def mkdir_p(path):
-    try:
-        os.makedirs(path)
-    except OSError as exc:
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise
+# def publish_rack_calibration_program(directory, node):
+#     RL = Robolink()
+#     calibration_dir = os.path.join(directory, "calibrations")
+
+#     clean_rdk()
+#     timestamp = get_timestamp()
+#     ts_dir = get_ts_dir(calibration_dir, timestamp)
+#     uutl.mkdir_p(ts_dir)
+#     with uutl.minimize_robodk():
+#         studio = Studio(calibration_node=node)
+#         studio.write()
+#     write_program(RL, ts_dir, "xx", timestamp)
+
+
+
+
+
+
+# def mkdir_p(path):
+#     try:
+#         os.makedirs(path)
+#     except OSError as exc:
+#         if exc.errno == errno.EEXIST and os.path.isdir(path):
+#             pass
+#         else:
+#             raise
 
 
 def choose_publish_dir():
@@ -265,6 +283,11 @@ def choose_publish_dir():
         return
     return entries[0]
 
+
+def get_calibration_dir():
+    result = os.path.join(pm.workspace.getPath(), 'export', 'calibrations')
+    uutl.mkdir_p(result)
+    return result
 
 def choose_proposal_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'proposals')

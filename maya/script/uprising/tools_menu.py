@@ -9,9 +9,13 @@ import uprising_util as uutl
 import json
 import csv
 from brush import Brush
+import palette_utils as putl
 
 def create():
     menu = pm.menu(label="Tools", tearOff=True)
+
+ 
+ 
     pm.menuItem( label="Bake mapped paintIds", command=pm.Callback(on_bake_paint_ids) )
     pm.menuItem( label="Make dip combinations", command=pm.Callback(setup_dip.doit) )
     pm.menuItem( label="Zero displacement mesh", command=pm.Callback(zero_disp_mesh) )

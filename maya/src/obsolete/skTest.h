@@ -1,6 +1,6 @@
 
-#ifndef _skChainNode_H
-#define _skChainNode_H
+#ifndef _skTest_H
+#define _skTest_H
 
 #include <maya/MVector.h>
 #include <maya/MFnDependencyNode.h>
@@ -20,11 +20,11 @@
 // #include "stroke.h"
 
 
-class skChainNode : public MPxNode
+class skTest : public MPxNode
 {
 public:
-  skChainNode();
-  virtual ~skChainNode();
+  skTest();
+  virtual ~skTest();
 
   static void *creator();
   static MStatus initialize();
@@ -46,10 +46,8 @@ private:
   static MObject aMaxIterations;
 
 
-  static MObject aRadiusMult;
-  static MObject aRadiusOffset;
-  static MObject aMaxStampWidthPixels;
-
+  static MObject aMult;
+  static MObject aOffset;
 
 
   static MObject aMinBranchTwigLength;

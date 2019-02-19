@@ -124,7 +124,7 @@ skGraph::~skGraph()
     }
 }
 
-void skGraph::draw(CImg<unsigned char>  &image) const
+void skGraph::draw(CImg<unsigned char>  &image, int maxStampWidthPixels) const
 {
     if (!(
                 image.width() == m_width &&
@@ -143,11 +143,12 @@ void skGraph::draw(CImg<unsigned char>  &image) const
             iter++)
     {
         coord c = iter->first;
-        image.draw_circle(c.x, c.y, int(iter->second->radius), color);
+        int circleRadius = std::min(maxStampWidthPixels, int(iter->second->radius));
+        image.draw_circle(c.x, c.y, circleRadius, color);
     }
 }
 
-void skGraph::clampWidth(int maxWidth)
+void skGraph::clampRadius(int maxWidth)
 {
     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
             iter != m_nodes.end();
@@ -158,6 +159,17 @@ void skGraph::clampWidth(int maxWidth)
         {
             node->radius = maxWidth;
         }
+    }
+}
+
+void skGraph::adjustRadius(float mult, float offset)
+{
+    for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
+            iter != m_nodes.end();
+            iter++)
+    {
+        skNode *node = iter->second;
+        node->radius = std::max(0.0f, ((node->radius * mult) + offset));
     }
 }
 

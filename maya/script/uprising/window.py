@@ -14,7 +14,9 @@ from uprising import (
     tools_menu,
     export_menu,
     curves_menu,
-    images_menu)
+    images_menu,
+    palette_menu,
+    brush_menu)
 
 
 # import uprising.logger_setup
@@ -40,7 +42,7 @@ import const
 import sheets
 import curve_utils
 import brush_utils
-import paint_utils
+import palette_utils
 import board_utils
 
 import culling
@@ -64,7 +66,7 @@ reload(callbacks)
 
 reload(curve_utils)
 reload(brush_utils)
-reload(paint_utils)
+reload(palette_utils)
 reload(board_utils)
 reload(painting)
 reload(program)
@@ -89,6 +91,10 @@ reload(tools_menu)
 reload(curves_menu)
 reload(images_menu)
 reload(export_menu)
+
+reload(palette_menu)
+reload(brush_menu)
+
 
 
 
@@ -155,6 +161,12 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.images_menu = images_menu.create()
+
+        pm.setParent(self.menuBarLayout)
+        self.palette_menu = palette_menu.create()
+
+        pm.setParent(self.menuBarLayout)
+        self.brush_menu = brush_menu.create()
 
         pm.setParent(self.menuBarLayout)
         self.export_menu = export_menu.create()

@@ -4,7 +4,7 @@ import pymel.core as pm
 from paint import Paint
 from brush import Brush
 import curve_utils as cutl
-import paint_utils as putl
+import palette_utils as putl
 
 import uprising.uprising_util as uutl
 import logging

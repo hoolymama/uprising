@@ -1,7 +1,7 @@
 
 import pymel.core as pm
 import brush_utils as butl
-import paint_utils as putl
+import palette_utils as putl
 import board_utils as bdutl
 import uprising_util as uutl
 import pymel.core.uitypes as gui
@@ -50,10 +50,7 @@ class SetupTab(gui.FormLayout):
                 value=0,
                 annotation='Only set depth of the board')
             pm.setParent("..")
-        # with uutl.activatable(state=False):
-        #     self.setup_rack_tf = pm.textFieldGrp(
-        #         label='Setup rack', text='rack_name')
-
+ 
         with uutl.activatable(state=False):
             self.probes_ctl = pm.floatFieldGrp(
                 numberOfFields=2,
@@ -119,10 +116,7 @@ class SetupTab(gui.FormLayout):
             bdutl.setup_board_from_sheet(painting_node, name, depth_only)
             # bdutl.generate_probes(painting_node)
 
-        # if do_rack:
-        #     name = pm.textFieldGrp(self.setup_rack_tf, q=True, text=True)
-        #     putl.setup_rack_from_sheet(dip_node)
-
+  
         gen_probes = pm.floatFieldGrp(self.probes_ctl, q=True, en=True)
         if gen_probes:
             offset, approach_dist = pm.floatFieldGrp(
@@ -167,14 +161,7 @@ class SetupTab(gui.FormLayout):
         var = ("upov_setup_paints_tf", "default")
         pm.textFieldGrp(self.setup_paints_tf, e=True, text=pm.optionVar.get(var[0],var[1]))
 
-        # rack
-        # var = ("upov_setup_rack_tf_en", True)
-        # pm.textFieldGrp(self.setup_rack_tf, e=True, en=pm.optionVar.get(var[0],var[1]))
-        # uutl.conform_activatable_checkbox(self.setup_rack_tf)
-
-        # var = ("upov_setup_rack_tf", "default")
-        # pm.textFieldGrp(self.setup_rack_tf, e=True, text=pm.optionVar.get(var[0],var[1]))
-
+         
         # probes
         var = ("upov_probes_ctl_en", True)
         pm.floatFieldGrp(self.probes_ctl, e=True, en=pm.optionVar.get(var[0],var[1]))
@@ -218,13 +205,7 @@ class SetupTab(gui.FormLayout):
         var ="upov_setup_paints_tf"
         pm.optionVar[var] = pm.textFieldGrp(self.setup_paints_tf, q=True, text=True)
 
-        # # rack
-        # var = "upov_setup_rack_tf_en"
-        # pm.optionVar[var] = pm.textFieldGrp(self.setup_rack_tf, q=True, en=True)
-
-        # var ="upov_setup_rack_tf"
-        # pm.optionVar[var] = pm.textFieldGrp(self.setup_rack_tf, q=True, text=True)
-
+        
         # probes
         var = "upov_probes_ctl_en"
         pm.optionVar[var] = pm.floatFieldGrp(self.probes_ctl, q=True, en=True)

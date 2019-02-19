@@ -4,15 +4,23 @@ import pymel.core as pm
 # import const as k
 
 from robolink import (
+    Robolink,
+    ITEM_TYPE_ROBOT,
     INSTRUCTION_COMMENT,
     INSTRUCTION_SHOW_MESSAGE
 )
+
+# self.RL = Robolink()
+# self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
+
 # import robodk as rdk
 
 from paint import Paint
 from brush import Brush
 # from stroke import Stroke
 from cluster import (Cluster)
+
+
 
 from uprising_util import PaintingError
 import uprising_util as uutl
@@ -31,8 +39,10 @@ def paint_and_brush_name(paint, brush):
 
 class Painting(object):
 
-    def __init__(self, node, robot):
+    def __init__(self, node ):
         logger.debug("Initialize Painting")
+        self.RL = Robolink()
+        self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
         self.node = node
         self.brushes = Brush.brushes(node)
         self.paints = Paint.paints(node)
@@ -42,9 +52,9 @@ class Painting(object):
             "angular_speed": self.node.attr("angularSpeed").get(),
             "rounding": self.node.attr("approximationDistance").get() * 10
         }
-        self._create_clusters(robot)
+        self._create_clusters()
 
-    def _create_clusters(self, robot):
+    def _create_clusters(self):
 
         num_clusters = pm.paintingQuery(self.node, clusterCount=True)
 
@@ -57,7 +67,7 @@ class Painting(object):
             brush = self.brushes.get(brush_id)
             paint = self.paints.get(paint_id)
   
-            cluster = Cluster(i, self.node, robot, brush, paint)
+            cluster = Cluster(i, self.node, self.robot, brush, paint)
             self.clusters.append(cluster)
 
 
@@ -75,6 +85,9 @@ class Painting(object):
     #         cluster.write(studio, self.motion)
 
  
+
+ 
+
 
 class Calibration(Painting):
 
@@ -98,12 +111,15 @@ class Calibration(Painting):
             pm.warning("No probes")
             raise PaintingError("No probes for calibration")
 
-    def _create_clusters(self, robot):
+    def _create_clusters(self):
         pass
 
     def write(self, studio):
+        # RL = Robolink()
+        # robot =  RL.Item('', ITEM_TYPE_ROBOT)
+
         self.brush.write()
-        self.tool = studio.RL.Item(self.brush.name)
+        self.tool = self.RL.Item(self.brush.name)
         if not self.tool.Valid():
             raise PaintingError(
                 "SERIOUS RISK OF DAMAGE! Can't find valid tool!")
@@ -137,7 +153,7 @@ class Calibration(Painting):
             INSTRUCTION_SHOW_MESSAGE)
         self.program.Pause()
 
-    def _write_probe_stops(self, a, b, studio):
+    def _write_probe_stops(self, a, b):
         if a and b:
             approach_a = pm.PyNode("%s|approach" % a)
             approach_b = pm.PyNode("%s|approach" % b)
@@ -158,32 +174,32 @@ class Calibration(Painting):
                     tmat.setTranslation(tx_a, "world")
                     name = "%s_stop_%d" % (b, i)
                     target = self._create_a_target(
-                        tmat.asMatrix(), name, studio)
+                        tmat.asMatrix(), name)
                     self.program.addMoveJ(target)
 
-    def _create_a_target(self, mat, name, studio):
+    def _create_a_target(self, mat, name):
         tool_pose = uutl.maya_to_robodk_mat(mat)
         flange_pose = tool_pose * self.brush.matrix.invH()
-        target = studio.RL.AddTarget(name, self.frame, studio.robot)
-        joints = studio.robot.SolveIK(flange_pose, k.FACING_BOARD_JOINTS)
+        target = self.RL.AddTarget(name, self.frame, self.robot)
+        joints = self.robot.SolveIK(flange_pose, k.FACING_BOARD_JOINTS)
         target.setPose(tool_pose)
         target.setJoints(joints)
         return target
 
-    def _write_one_probe(self, probe_node, studio):
+    def _write_one_probe(self, probe_node):
         base_name = "%s_%s" % (probe_node, self.PROBE_SUFFIX)
         base_node = pm.PyNode("%s|%s" % (probe_node, self.PROBE_SUFFIX))
         base_mat = base_node.attr("worldMatrix[0]").get()
 
         base_target = self._create_a_target(
-            base_mat, base_name, studio)
+            base_mat, base_name)
 
         approach_name = "%s_approach" % probe_node
         approach_node = pm.PyNode("%s|approach" % probe_node)
         approach_mat = approach_node.attr("worldMatrix[0]").get()
 
         approach_target = self._create_a_target(
-            approach_mat, approach_name, studio)
+            approach_mat, approach_name)
 
         self.program.RunInstruction(("Moving to %s" % probe_node),
                                     INSTRUCTION_COMMENT)
@@ -194,6 +210,7 @@ class Calibration(Painting):
             INSTRUCTION_SHOW_MESSAGE)
         self.program.Pause()
         self.program.addMoveL(approach_target)
+
 
 
 class Verification(Calibration):

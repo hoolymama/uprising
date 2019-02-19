@@ -34,13 +34,27 @@ public:
     void getEdges(MVectorArray &result) const;
     void getRadius(MDoubleArray &result) const;
     bool hasJunctions() const;
-    // void getChains(std::vector< skChain > &chains, int step = 1, int minPixels = 2 ) const;
+
     void getChains(     const  MFloatMatrix &projection ,
                         std::vector< skChain > &chains,
                         int step/*,  int minPixels*/)  ;
 
-    void draw(CImg<unsigned char>  &image) const;
-    void clampWidth(int maxWidth);
+    // void  draw(
+    //     CImg<unsigned char>  &image,
+    //     float mult = 1.0,
+    //     float offset = 0.0,
+    //     bool adjustStampAtMaxOnly = true) const;
+
+    void  draw(
+        CImg<unsigned char>  &image,
+        int maxStampWidthPixels) const;
+
+    void clampRadius(int maxWidth);
+
+
+    void adjustRadius(float mult, float offset);
+
+
     void prune(int minBranchLength);
     void detachBranches();
 

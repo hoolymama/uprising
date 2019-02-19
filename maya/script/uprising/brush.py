@@ -74,7 +74,7 @@ class Brush(object):
             plugs=True
         )[0]
 
-        return Brush._brush_at_plug(index, plug)
+        return Brush.brush_at_plug(index, plug)
 
     @classmethod
     def brush_set_at_index(cls, index):
@@ -94,12 +94,12 @@ class Brush(object):
         brush_atts = ["outPaintBrush", "outDipBrush", "outWipeBrush"]
         for brush_att in brush_atts:
             plug = brush_node.attr(brush_att)
-            result[brush_att] =Brush._brush_at_plug(index, plug)
+            result[brush_att] =Brush.brush_at_plug(index, plug)
         return result
 
 
     @classmethod
-    def _brush_at_plug(cls, index, plug):
+    def brush_at_plug(cls, index, plug):
         vals = [index, str(plug)]
         matrix = pm.dt.Matrix(pm.brushQuery(plug, tcp=True))
         vals.append(matrix)

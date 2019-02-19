@@ -7,7 +7,7 @@
 #include <strokeNode.h>
 #include "stroke.h"
 #include "skGraph.h"
-
+#include "skChain.h"
 
 class skeletonStrokeNode : public strokeNode
 {

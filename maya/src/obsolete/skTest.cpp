@@ -29,49 +29,48 @@
 #include "errorMacros.h"
 // #include "texUtils.h"
 
-#include "skGraph/skGraph.h"
+#include "skGraph.h"
 
-#include "skChainNode.h"
-
-
-MObject skChainNode::aImage;
-
-MObject skChainNode::aMinGate;
-MObject skChainNode::aMaxGate;
-
-MObject skChainNode::aMedian;
-// MObject skChainNode::aInvert;
-MObject skChainNode::aMaxIterations;
-MObject skChainNode::aMinBranchTwigLength;
-MObject skChainNode::aMinLooseTwigLength;
-MObject skChainNode::aSpanPixels;
-MObject skChainNode::aMaxWidthPixels;
-MObject skChainNode::aProjectionMatrix;
-
-MObject skChainNode::aRadiusMult;
-MObject skChainNode::aRadiusOffset;
-// MObject skChainNode::aMult;
-// MObject skChainNode::aOffset;
-MObject skChainNode::aMaxStampWidthPixels;
-
-MObject skChainNode::aOutput;
+#include "skTest.h"
 
 
+MObject skTest::aImage;
 
-MTypeId skChainNode::id( k_skChainNode );
+MObject skTest::aMinGate;
+MObject skTest::aMaxGate;
 
-skChainNode::skChainNode() {}
+MObject skTest::aMedian;
+// MObject skTest::aInvert;
+MObject skTest::aMaxIterations;
+MObject skTest::aMinBranchTwigLength;
+MObject skTest::aMinLooseTwigLength;
+MObject skTest::aSpanPixels;
+MObject skTest::aMaxWidthPixels;
+MObject skTest::aProjectionMatrix;
 
-skChainNode::~skChainNode() {}
 
-void *skChainNode::creator() {
-  return new skChainNode();
+MObject skTest::aMult;
+MObject skTest::aOffset;
+
+
+MObject skTest::aOutput;
+
+
+
+MTypeId skTest::id( k_skTest );
+
+skTest::skTest() {}
+
+skTest::~skTest() {}
+
+void *skTest::creator() {
+  return new skTest();
 }
 
 
 /// Post constructor
 void
-skChainNode::postConstructor()
+skTest::postConstructor()
 {
   MPxNode::postConstructor();
   setExistWithoutOutConnections(true);
@@ -82,10 +81,10 @@ skChainNode::postConstructor()
 // const double epsilon = 0.0001;
 
 
-MStatus skChainNode::initialize()
+MStatus skTest::initialize()
 {
   MStatus st;
-  MString method("skChainNode::initialize");
+  MString method("skTest::initialize");
 
   MFnNumericAttribute nAttr;
   MFnTypedAttribute tAttr;
@@ -166,28 +165,19 @@ MStatus skChainNode::initialize()
 
 
 
-  aRadiusMult = nAttr.create( "radiusMult", "rml", MFnNumericData::kFloat);
+  aMult = nAttr.create( "aStampMult", "sml", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(1.0f);
-  st = addAttribute(aRadiusMult); mser;
+  st = addAttribute(aMult); mser;
 
-  aRadiusOffset = nAttr.create( "radiusOffset", "rof", MFnNumericData::kFloat);
+  aOffset = nAttr.create( "aStampOffset", "sof", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(0.0f);
-  st = addAttribute(aRadiusOffset); mser;
-
-  aMaxStampWidthPixels = nAttr.create( "maxStampWidthPixels", "mswpx",
-                                       MFnNumericData::kInt);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setKeyable(true);
-  nAttr.setMin(1);
-  nAttr.setDefault(10);
-  st = addAttribute(aMaxStampWidthPixels); mser;
+  st = addAttribute(aOffset); mser;
 
 
 
@@ -218,17 +208,15 @@ MStatus skChainNode::initialize()
   attributeAffects( aMaxWidthPixels, aOutput);
   attributeAffects( aProjectionMatrix, aOutput);
 
-  attributeAffects( aRadiusMult, aOutput);
-  attributeAffects( aRadiusOffset, aOutput);
-  attributeAffects( aMaxStampWidthPixels, aOutput);
-
+  attributeAffects( aMult, aOutput);
+  attributeAffects( aOffset, aOutput);
 
   return ( MS::kSuccess );
 
 }
 
 
-MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data )
+MStatus skTest::compute(const MPlug &plug, MDataBlock &data )
 {
   MStatus st;
   if (plug != aOutput) {
@@ -252,14 +240,14 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data )
 }
 
 
-MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
+MStatus skTest::generate(MDataBlock &data, std::vector<skChain> *geom)
 {
   MStatus st;
 
 
   CImg<unsigned char>  *pImage = cImgUtils::getImage(data, aImage );
-  int minGate = data.inputValue(aMinGate).asInt() - 1;
-  int maxGate = data.inputValue(aMaxGate).asInt() + 1;
+  int minGate = data.inputValue(aMinGate).asInt();
+  int maxGate = data.inputValue(aMaxGate).asInt();
 
   // bool invert = data.inputValue(aInvert).asBool();
   int median = data.inputValue(aMedian).asInt();
@@ -270,9 +258,9 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
   int step =  data.inputValue(aSpanPixels).asInt();
   int maxWidthPixels =  data.inputValue(aMaxWidthPixels).asInt();
 
-  float radiusMult = data.inputValue(aRadiusMult).asFloat();
-  float radiusOffset = data.inputValue(aRadiusOffset).asFloat();
-  int maxStampWidthPixels =  data.inputValue(aMaxStampWidthPixels).asInt();
+  float mult = data.inputValue(aMult).asFloat();
+  float offset = data.inputValue(aOffset).asFloat();
+
 
   if (maxWidthPixels < 1)
   {
@@ -309,9 +297,9 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
         }
       }
     }
-    skGraph g(mat); // build
     // now we have the Medial Axis Transform (mat) and (image)
 
+    skGraph g(mat); // build
     g.prune(minBranchLength);
     g.removeLooseTwigs(minLooseTwigLength);
     if (! g.numNodes())
@@ -321,15 +309,12 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
     // limit brush size
     g.clampRadius(maxWidthPixels);
 
-    g.draw(image, maxStampWidthPixels);
-
-    g.adjustRadius(radiusMult , radiusOffset);
-
 
     g.detachBranches();
     g.getChains(projection, *geom, step);
 
     // then paint black over the image
+    g.draw(image, mult, offset);
     if (image.sum() < minLooseTwigLength)
     {
       break;

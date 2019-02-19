@@ -27,6 +27,7 @@
 
 #include <jMayaIds.h>
 #include "errorMacros.h"
+
 #include "skChainData.h"
 
 const double rad_to_deg = (180 / 3.1415927);

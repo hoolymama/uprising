@@ -1,0 +1,46 @@
+
+global proc AEskChainNodeReplace (string $nodeAttr) {
+ 	setUITemplate -pst attributeEditorTemplate;
+ 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $ctl = "AEskChainNodeImageCtl";
+ 	attrNavigationControlGrp -e -at $nodeAttr $ctl;
+ 	setUITemplate -ppt;
+}
+global proc AEskChainNodeNew (string $nodeAttr) {
+ 	string $ctl = "AEskChainNodeImageCtl";
+ 	attrNavigationControlGrp -l "" $ctl;
+ 	AEskChainNodeReplace($nodeAttr);
+}
+
+global proc AEskChainNodeTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	editorTemplate -cl 0  -beginLayout "Image Attributes";		
+	editorTemplate -callCustom "AEskChainNodeNew" "AEskChainNodeReplace" "image";
+	editorTemplate -addControl "minGate";
+	editorTemplate -addControl "maxGate";
+	editorTemplate -addControl "median";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Radius Attributes";	
+	editorTemplate -addControl "maxWidthPixels";	
+ 	editorTemplate -addControl "maxStampWidthPixels";
+ 	editorTemplate -addControl "radiusMult";
+ 	editorTemplate -addControl "radiusOffset";
+ 	editorTemplate -endLayout;
+
+ 
+
+
+	editorTemplate -cl 0  -beginLayout "Chain Attributes";		
+	editorTemplate -addControl "maxIterations";
+	editorTemplate -addControl "minBranchTwigLength";
+	editorTemplate -addControl "minLooseTwigLength";
+	editorTemplate -addControl "spanPixels";
+	editorTemplate -addControl "maxWidthPixels";
+	editorTemplate -endLayout;
+
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}
