@@ -8,12 +8,12 @@
 # description: Learn how to use this tool.
 ---
 
-h4. <%= item[:product_name] %> is a toolkit for submitting jobs to Pixar's tractor.
+h4. <%= item[:product_name] %> is a system for making fine art with a robot.
 
 <hr>
 <%= figure_tag('', '','images/hens.jpg','left') %>
 <hr>
 
 
-The word *<%= item[:product_name] %>* is a collective noun for chicks.
+The word *<%= item[:product_name] %>* is a collective noun for robots.
 
