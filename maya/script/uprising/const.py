@@ -13,7 +13,6 @@ FACING_BOARD_JOINTS = [-90, -90, 90, 0, 0, 0]
 
 FACING_RACK_JOINTS = [0, -60, 90, 0, 60, 0]
 
-
 RACK_PAUSE_MESSAGE = "Please enter gauge reading for"
 
 RACK_POT_DEPTH = 3.7 # 3.5 next time
