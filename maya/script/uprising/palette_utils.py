@@ -1,6 +1,7 @@
 import pymel.core as pm
 import stroke_factory_utils as sfu
 import uprising.uprising_util as uutl
+import sheets
 
 def get_pot_handle_pairs():
    return zip (

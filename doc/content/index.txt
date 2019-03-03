@@ -11,7 +11,7 @@
 h4. <%= item[:product_name] %> is a system for making fine art with a robot.
 
 <hr>
-<%= figure_tag('', '','images/hens.jpg','left') %>
+<%= figure_tag('', '','images/robot_paint.jpg','left') %>
 <hr>
 
 
