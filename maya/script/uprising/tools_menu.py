@@ -10,6 +10,7 @@ import json
 import csv
 from brush import Brush
 import palette_utils as putl
+import board_utils as bdutl
 
 def create():
     menu = pm.menu(label="Tools", tearOff=True)
@@ -18,7 +19,7 @@ def create():
  
     pm.menuItem( label="Bake mapped paintIds", command=pm.Callback(on_bake_paint_ids) )
     pm.menuItem( label="Make dip combinations", command=pm.Callback(setup_dip.doit) )
-    pm.menuItem( label="Zero displacement mesh", command=pm.Callback(zero_disp_mesh) )
+    pm.menuItem( label="Zero displacement mesh", command=pm.Callback(bdutl.zero_disp_mesh) )
     
     pm.menuItem( label="Print stats", command=pm.Callback(on_print_stats) )
     pm.menuItem( label="Print stats range", command=pm.Callback(on_print_stats_range) )
@@ -94,13 +95,13 @@ def on_bake_paint_ids():
     cutl.show_objects(visible_curves)
 
 
-def zero_disp_mesh():
-    painting_node = pm.PyNode("mainPaintingShape")
-    disp_mesh = pm.listConnections(painting_node.attr("displacementMesh"), s=True, d=False)[0]
-    for v in disp_mesh.vtx:
-        pos = v.getPosition(space="world")
-        pos.z = 0
-        v.setPosition(pos, space="world")
+# def zero_disp_mesh():
+#     painting_node = pm.PyNode("mainPaintingShape")
+#     disp_mesh = pm.listConnections(painting_node.attr("displacementMesh"), s=True, d=False)[0]
+#     for v in disp_mesh.vtx:
+#         pos = v.getPosition(space="world")
+#         pos.z = 0
+#         v.setPosition(pos, space="world")
  
 def on_connect_texture(attribute):
     curves = pm.ls(

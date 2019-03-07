@@ -1,11 +1,15 @@
+import os
+
 from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 
+creds_folder = os.environ["UPRISING_CREDENTIALS_FOLDER"]
+
 SHEETS = {"Measurements": '1ZwXuS9Yb2YTZ9NRldzn1ecA5dtihZaZtXPo7VAYCl1s'}
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
-STORE = file.Storage('/Users/julian/dev/w/uprising/token.json')
-CREDENTIALS = '/Users/julian/dev/w/uprising/credentials.json'
+STORE = file.Storage(os.path.join(creds_folder, 'token.json'))
+CREDENTIALS = os.path.join(creds_folder, 'credentials.json')
 
 
 def _get_service():

@@ -1,46 +1,24 @@
 
 #include <maya/MIOStream.h>
-// #include <math.h>
-// #include <algorithm>
-// #include <map>
 
 #include <maya/MFnPluginData.h>
-// #include <maya/MPoint.h>
 
 #include <maya/MString.h>
 #include <maya/MFloatMatrix.h>
 #include <maya/MFnTypedAttribute.h>
-
-
-
 #include <maya/MFnUnitAttribute.h>
-
 #include <maya/MFnNumericAttribute.h>
-
 #include <maya/MFnMatrixAttribute.h>
-
-
-
 #include "cImgUtils.h"
-
-
 #include <jMayaIds.h>
-// #include "mayaMath.h"
 #include "errorMacros.h"
-// #include "texUtils.h"
-
 #include "skGraph/skGraph.h"
-
 #include "skChainNode.h"
 
 
 MObject skChainNode::aImage;
 
-MObject skChainNode::aMinGate;
-MObject skChainNode::aMaxGate;
 
-MObject skChainNode::aMedian;
-// MObject skChainNode::aInvert;
 MObject skChainNode::aMaxIterations;
 MObject skChainNode::aMinBranchTwigLength;
 MObject skChainNode::aMinLooseTwigLength;
@@ -50,8 +28,7 @@ MObject skChainNode::aProjectionMatrix;
 
 MObject skChainNode::aRadiusMult;
 MObject skChainNode::aRadiusOffset;
-// MObject skChainNode::aMult;
-// MObject skChainNode::aOffset;
+
 MObject skChainNode::aMaxStampWidthPixels;
 
 MObject skChainNode::aOutput;
@@ -68,18 +45,12 @@ void *skChainNode::creator() {
   return new skChainNode();
 }
 
-
-/// Post constructor
 void
 skChainNode::postConstructor()
 {
   MPxNode::postConstructor();
   setExistWithoutOutConnections(true);
 }
-
-
-
-// const double epsilon = 0.0001;
 
 
 MStatus skChainNode::initialize()
@@ -95,34 +66,6 @@ MStatus skChainNode::initialize()
   tAttr.setStorable(false);
   tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   st = addAttribute( aImage ); mser;
-
-  aMinGate = nAttr.create( "minGate", "mng", MFnNumericData::kInt);
-  nAttr.setHidden(false);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setDefault(1);
-  st = addAttribute(aMinGate);
-
-  aMaxGate = nAttr.create( "maxGate", "mxg", MFnNumericData::kInt);
-  nAttr.setHidden(false);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setDefault(1);
-  st = addAttribute(aMaxGate);
-
-  aMedian = nAttr.create( "median", "med", MFnNumericData::kInt);
-  nAttr.setHidden(false);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setDefault(1);
-  st = addAttribute(aMedian);
-
-  // aInvert = nAttr.create( "invert", "inv", MFnNumericData::kBoolean);
-  // nAttr.setHidden(false);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setDefault(false);
-  // st = addAttribute(aInvert);
 
   aMaxIterations = nAttr.create( "maxIterations", "mxi", MFnNumericData::kInt);
   nAttr.setHidden(false);
@@ -154,8 +97,6 @@ MStatus skChainNode::initialize()
   nAttr.setDefault(10);
   st = addAttribute(aSpanPixels); mser;
 
-
-
   aMaxWidthPixels = nAttr.create( "maxWidthPixels", "mwpx", MFnNumericData::kInt);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -163,8 +104,6 @@ MStatus skChainNode::initialize()
   nAttr.setMin(1);
   nAttr.setDefault(10);
   st = addAttribute(aMaxWidthPixels); mser;
-
-
 
   aRadiusMult = nAttr.create( "radiusMult", "rml", MFnNumericData::kFloat);
   nAttr.setStorable(true);
@@ -208,9 +147,7 @@ MStatus skChainNode::initialize()
 
 
   attributeAffects( aImage, aOutput);
-  attributeAffects( aMinGate, aOutput);
-  attributeAffects( aMaxGate, aOutput);
-  attributeAffects( aMedian, aOutput);
+
   attributeAffects( aMaxIterations, aOutput);
   attributeAffects( aMinBranchTwigLength, aOutput);
   attributeAffects( aMinLooseTwigLength, aOutput);
@@ -243,7 +180,10 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data )
   std::vector < skChain > *geom = newData->fGeometry;
   geom->clear();
 
-  generate(data, geom);
+  st = generate(data, geom);
+  // if (st.error()) {
+  //   return (MS::kUnknownParameter );
+  // }
 
   hOutput.set(newData);
   data.setClean(plug);
@@ -258,11 +198,12 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
 
 
   CImg<unsigned char>  *pImage = cImgUtils::getImage(data, aImage );
-  int minGate = data.inputValue(aMinGate).asInt() - 1;
-  int maxGate = data.inputValue(aMaxGate).asInt() + 1;
+  int w = pImage->width();
+  int h = pImage->height();
+  if (! (w && h)) {
+    return MS::kUnknownParameter;
+  }
 
-  // bool invert = data.inputValue(aInvert).asBool();
-  int median = data.inputValue(aMedian).asInt();
   int maxIterations = data.inputValue(aMaxIterations).asInt();
   MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
   int minBranchLength =  data.inputValue(aMinBranchTwigLength).asInt();
@@ -279,19 +220,11 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
     maxWidthPixels = 1;
   }
 
-  CImg<unsigned char> image = pImage->get_norm().normalize(0, 255);
-
-  cimg_forXY(image, x, y)
-  {
-    unsigned char val = image(x, y) ;
-    image(x, y) = (val > minGate && val < maxGate) ? 1 : 0;
-  }
-
-  int w = image.width();
-  int h = image.height();
+  CImg<unsigned char> image = pImage->get_norm().normalize(0, 1);
 
 
-  if (median) { image.blur_median(median); }
+
+  // if (median) { image.blur_median(median); }
 
   for (int i = 0; i < maxIterations; ++i)
   {

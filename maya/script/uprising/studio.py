@@ -45,6 +45,8 @@ class Studio(object):
         self.home_approach = None
         self.painting_program = None
         self.rack_cal_program = None
+        self.board_cal_program = None
+        
         dip_wipe_packs =  kw.get("dip_wipe_packs", [])
         self.dip_programs = self._build_dip_programs(dip_wipe_packs)
 
@@ -56,10 +58,15 @@ class Studio(object):
 
         if  kw.get("rack_calibration"):
             logger.debug("Studio rack_calibration")
-            rack_node = pm.PyNode("RACK1_CONTEXT")
-            self.rack_cal_program = prg.RackCalibration("rx", rack_node)
+            # node = pm.PyNode("RACK1_CONTEXT")
+            self.rack_cal_program = prg.RackCalibration("rx")
                  
 
+        if  kw.get("board_calibration"):
+            logger.debug("Studio board_calibration")
+            # node = pm.PyNode("mainPaintingGroup")
+            self.board_cal_program = prg.BoardCalibration("bx")
+                 
         # if ver_node:
         #     logger.debug("Studio ver_node %s" % ver_node)
         #     with uutl.final_position(ver_node):
@@ -134,9 +141,15 @@ class Studio(object):
                 self.rack_cal_program.write(
                     self.tool_approach,
                     self.home_approach)
+
+        if self.board_cal_program:
+            top_node = pm.PyNode("mainPaintingGroup")
+            with uutl.final_position(top_node):
+                self.board_cal_program.write(
+                    self.tool_approach,
+                    self.home_approach)
  
 
-  
         
 
         # logger.debug("making frames")

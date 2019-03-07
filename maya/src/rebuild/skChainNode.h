@@ -2,23 +2,22 @@
 #ifndef _skChainNode_H
 #define _skChainNode_H
 
-#include <maya/MVector.h>
-#include <maya/MFnDependencyNode.h>
+// #include <maya/MVector.h>
+// #include <maya/MFnDependencyNode.h>
 
-#include <maya/MFnNurbsCurve.h>
-#include <maya/MVectorArray.h>
+// #include <maya/MFnNurbsCurve.h>
+// #include <maya/MVectorArray.h>
 
 #include <maya/MPxNode.h>
 
-#include <maya/MDGMessage.h>
-#include <maya/MDGModifier.h>
+// #include <maya/MDGMessage.h>
+// #include <maya/MDGModifier.h>
 
-#include "cImgData.h"
+// #include "cImgData.h"
 #include "skChainData.h"
-#include "skGraph.h"
+#include "skChain.h"
 
-// #include "stroke.h"
-
+// #include "skGraph.h"
 
 class skChainNode : public MPxNode
 {
@@ -39,10 +38,6 @@ private:
   MStatus  generate(MDataBlock &data, std::vector<skChain> *geom);
 
   static MObject aImage;
-  static MObject aMinGate;
-  static MObject aMaxGate;
-  static MObject aMedian;
-  // static MObject aInvert;
   static MObject aMaxIterations;
 
 

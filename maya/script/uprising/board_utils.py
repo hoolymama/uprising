@@ -98,7 +98,15 @@ def setup_board_from_sheet(node, name, depth_only):
         # for k in corners:
         #     tmp_locs[k].attr("translate").set(*corners[k]["new_pos"])
 
+def zero_disp_mesh():
+    painting_node = pm.PyNode("mainPaintingShape")
+    disp_mesh = pm.listConnections(painting_node.attr("displacementMesh"), s=True, d=False)[0]
+    for v in disp_mesh.vtx:
+        pos = v.getPosition(space="world")
+        pos.z = 0
+        v.setPosition(pos, space="world")
 
+        
 def _verts(disp_mesh):
     try:
         verts = [item for sublist in  pm.sets("probePointsSet", q=True) for item in sublist]

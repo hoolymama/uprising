@@ -34,7 +34,6 @@ logger = logging.getLogger('uprising')
 def paint_and_brush_name(paint, brush):
     return "%s_%d_%s_%d" % (paint.name, paint.id, brush.name, brush.id)
 
-# should be a singleton
 
 
 class Painting(object):
@@ -75,20 +74,6 @@ class Painting(object):
         for brush in self.brushes:
             self.brushes[brush].write()
 
-    # def write(self, studio):
-
-    #     logger.debug("Write program")
-    #     for brush in self.brushes:
-    #         self.brushes[brush].write(studio)
-
-    #     for cluster in self.clusters:
-    #         cluster.write(studio, self.motion)
-
- 
-
- 
-
-
 class Calibration(Painting):
 
     PROGRAM_NAME = "xx"
@@ -115,8 +100,7 @@ class Calibration(Painting):
         pass
 
     def write(self, studio):
-        # RL = Robolink()
-        # robot =  RL.Item('', ITEM_TYPE_ROBOT)
+
 
         self.brush.write()
         self.tool = self.RL.Item(self.brush.name)

@@ -2,7 +2,6 @@ import robodk as rdk
 
 import uprising_util as uutl
 from uprising_util import StrokeError
-# from robolink import (COLLISION_ON, COLLISION_OFF, ITEM_TYPE_ROBOT)
 
 CONFIG_MASK = "000"
 
@@ -24,25 +23,19 @@ class Target(object):
  
     def configure(self):
         self.joint_pose =  self.joint_poses[0]
-        # self.linear = bool(last_mat)  
 
     def name(self, prefix):
-        # print "%s_t%d" % (prefix, self.id)
         return "%s_t%d" % (prefix, self.id)
 
-    def write(self, prefix, program, frame, studio):
+    def write(self, prefix, program, frame,  RL, robot):
         target_name = self.name(prefix)
-        # print target_name
-        # print frame
-        
-        rdk_target = studio.RL.AddTarget(target_name, frame, studio.robot)
+        rdk_target = RL.AddTarget(target_name, frame, robot)
         rdk_target.setPose(self.tool_pose)
         rdk_target.setJoints(self.joint_pose)
         if self.linear:
             program.addMoveL(rdk_target)
         else:
             program.addMoveJ(rdk_target)
-
 
 class ArrivalTarget(Target):
 
@@ -58,8 +51,3 @@ class DepartureTarget(Target):
 
     def name(self, prefix):
         return "%s_dp%d" % (prefix, self.id)
-
-    # def configure(self, robot):
-    #     self.joint_pose =  self.joint_poses[0]
-    #     # self.linear = True  
-

@@ -16,7 +16,9 @@ from uprising import (
     curves_menu,
     images_menu,
     palette_menu,
-    brush_menu)
+    brush_menu,
+    calibration_menu
+        )
 
 
 # import uprising.logger_setup
@@ -94,6 +96,7 @@ reload(export_menu)
 
 reload(palette_menu)
 reload(brush_menu)
+reload(calibration_menu)
 
 
 
@@ -164,6 +167,10 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.palette_menu = palette_menu.create()
+
+        pm.setParent(self.menuBarLayout)
+        self.calibration_menu = calibration_menu.create()
+
 
         pm.setParent(self.menuBarLayout)
         self.brush_menu = brush_menu.create()
