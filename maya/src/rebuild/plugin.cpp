@@ -22,7 +22,7 @@
 #include "skChainData.h"
 
 #include "skChainNode.h"
-
+#include "gateRamp.h"
 // #include "quadricShape.cpp"
 
 
@@ -56,13 +56,13 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerData( "brushData", brushData::id,
 	                          brushData::creator ); mser;
 
-
-
 	st = plugin.registerData( "strokeData", strokeData::id,
 	                          strokeData::creator ); mser;
 
 	st = plugin.registerData( "paintingData", paintingData::id,
 	                          paintingData::creator ); mser;
+
+
 
 
 	st = plugin.registerNode( "skChainNode", skChainNode::id, skChainNode::creator,
@@ -95,12 +95,15 @@ MStatus initializePlugin( MObject obj)
 	// st = plugin.registerNode( "skGraphImage", skGraphImage::id, skGraphImage::creator,
 	//                           skGraphImage::initialize ); msert;
 
-
-
-
-
 	st = plugin.registerNode( "collectStrokes", collectStrokes::id, collectStrokes::creator,
 	                          collectStrokes::initialize ); msert;
+
+
+	st = plugin.registerNode( "gateRamp", gateRamp::id, gateRamp::creator,
+	                          gateRamp::initialize ); msert;
+
+
+
 
 	st = plugin.registerCommand( "paintingQuery", paintingCmd::creator ,
 	                             paintingCmd::newSyntax); mser;
@@ -126,6 +129,10 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterCommand( "brushCmd" ); mser;
 
 	st = plugin.deregisterCommand( "paintingCmd" ); mser;
+
+	st = plugin.deregisterNode( gateRamp::id ); mser;
+
+
 
 	st = plugin.deregisterNode( collectStrokes::id ); mser;
 

@@ -29,10 +29,10 @@ class PaintingTab(gui.FormLayout):
  
         
         pm.rowLayout(
-            numberOfColumns=5, columnWidth5=(
-                110, 60, 60, 60, 80), columnAlign=(
+            numberOfColumns=4, columnWidth4=(
+                110, 60, 60, 60), columnAlign=(
                 1, 'right'), columnAttach=[
-                (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2), (5, 'both', 2) ])
+                (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2) ])
 
         pm.text(label='Propagate ramps')
 
@@ -49,11 +49,11 @@ class PaintingTab(gui.FormLayout):
             label='Twist',
             command=pm.Callback(self.on_propagate_twist_ramp))
 
-        flat_only = 1
-        self.flat_only_cb = pm.checkBox(
-            label='Flat only',
-            value=flat_only,
-            annotation='Only propagate flat brush ramps')
+        # flat_only = 1
+        # self.flat_only_cb = pm.checkBox(
+        #     label='Flat only',
+        #     value=flat_only,
+        #     annotation='Only propagate flat brush ramps')
 
         pm.setParent('..')
 
@@ -156,17 +156,17 @@ class PaintingTab(gui.FormLayout):
     #         "strokeProfileRamp", "strokeProfileScale", flat)
 
     def on_propagate_tilt_ramp(self):
-        flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
-        cutl.propagate_ramp_attribute("brushTiltRamp", "brushTiltRange", flat)
+        # flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
+        cutl.propagate_ramp_attribute("brushTiltRamp", "brushTiltRange")
 
     def on_propagate_bank_ramp(self):
-        flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
-        cutl.propagate_ramp_attribute("brushBankRamp", "brushBankRange", flat)
+        # flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
+        cutl.propagate_ramp_attribute("brushBankRamp", "brushBankRange")
 
     def on_propagate_twist_ramp(self):
-        flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
+        # flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
         cutl.propagate_ramp_attribute(
-            "brushTwistRamp", "brushTwistRange", flat)
+            "brushTwistRamp", "brushTwistRange")
  
     def on_rename_inputs(self):
         templates = [

@@ -48,7 +48,9 @@ class Studio(object):
         self.board_cal_program = None
         
         dip_wipe_packs =  kw.get("dip_wipe_packs", [])
-        self.dip_programs = self._build_dip_programs(dip_wipe_packs)
+
+        with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+            self.dip_programs = self._build_dip_programs(dip_wipe_packs)
 
         ptg_node = kw.get("painting_node")
         if ptg_node:
@@ -91,7 +93,6 @@ class Studio(object):
     def _write_canvas(self):
         canvas_frame = uutl.create_frame("cx_frame")
         painting_node = pm.PyNode("mainPaintingShape")
-        disp_tx = None
         with uutl.zero_position(painting_node):
             disp_meshes = pm.listConnections(
                 painting_node.attr("displacementMesh"), s=True, d=False)
@@ -127,7 +128,8 @@ class Studio(object):
             logger.debug("write dip_programs")
             for dip in self.dip_programs:
                 dip.write(self)
-            Paint.write_geos()
+            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+                Paint.write_geos()
             logger.debug("DONE write dips")
 
         if self.painting_program:

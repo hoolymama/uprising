@@ -28,7 +28,7 @@ class Program(object):
     def write(self):
         self.program = uutl.create_program(self.program_name)
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
-
+        # self.program.ShowInstructions(False)
 
 class MainProgram(Program):
     def __init__(self, name, node):
@@ -60,14 +60,14 @@ class MainProgram(Program):
             cluster.write(self.program, self.frame, motion, RL, robot)
 
         self.program.addMoveJ(studio.home_approach)
-        self.program.ShowInstructions(False)
+        # self.program.ShowInstructions(False)
 
 
 class DipProgram(Program):
 
     @staticmethod
     def generate_program_name(paint_id, brush_id):
-        return "p{}_b{}".format(paint_id, brush_id)
+        return "p{:02d}_b{:02d}".format(paint_id, brush_id)
 
     def __init__(self, name, dip_node, wipe_node):
         super(DipProgram, self).__init__(name)

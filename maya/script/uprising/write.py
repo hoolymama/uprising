@@ -31,10 +31,10 @@ def split_desc(desc):
 
 def clean_rdk():
     pass
-    # RL = Robolink()
-    # for station in RL.getOpenStations():
-    #     station.Delete()
-    # RL.AddFile(CLEAN_FILE)
+    RL = Robolink()
+    for station in RL.getOpenStations():
+        station.Delete()
+    RL.AddFile(CLEAN_FILE)
 
 
 def publish_proposal(
@@ -163,7 +163,6 @@ def publish_sequence(
     # print "dip_node: %s" % dip_node
 
     painting_node = pm.PyNode("mainPaintingShape")
-    dip_wipe_packs = _get_dip_wipe_packs(painting_node)
 
     # print dip_wipe_packs
 
@@ -182,6 +181,8 @@ def publish_sequence(
 
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
+        dip_wipe_packs = _get_dip_wipe_packs(painting_node)
+
         run_hook(pre_frame_py)
         timestamp = get_timestamp(frame)
         ts_dir = get_ts_dir(export_dir, timestamp)
@@ -226,6 +227,7 @@ def publish_robodk_painting(ts_dir, timestamp, **kw):
         studio.write()
     write_station(RL, ts_dir, timestamp)
 
+    # RL.ShowRoboDK()
     if kw.get("painting_node"):
         write_program(RL, ts_dir, "px", timestamp)
     if kw.get("verification_node"):
@@ -302,7 +304,7 @@ def choose_proposal_dir():
 def get_timestamp(suffix=None):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
 
-    if suffix:
+    if suffix is not None:
         timestamp = "%s_%s" % (timestamp, suffix)
     return timestamp
 
@@ -388,6 +390,10 @@ def setup_clean_top(painting_node):
 
 
 def write_program(RL, ts_dir, progname, timestamp):
+    RL = Robolink()
+    # RL.TIMEOUT = 600 # in seconds
+    # RL.COM.settimeout(RL.TIMEOUT)
+
     prog_filename = "%s_%s" % (progname.upper(), timestamp)
     program = RL.Item(progname)
     if program.Valid():

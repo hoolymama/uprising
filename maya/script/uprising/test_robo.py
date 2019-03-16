@@ -2,29 +2,39 @@
 import random
 import math
 
-
-arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-
-num = len(arr)
-step = 3
-
-spans = int(math.ceil((num - 1) / step))
-print("spans:%s" % spans)
-
-nverts = spans + 1
-print("nverts:%s" % nverts)
+from robolink import *
 
 
-for i in range(nverts):
-    fraction = i / float(spans)
-    param = (num - 1) * fraction
-    # print("param:%s" % param)
-    leftid = int(math.floor(param))
-    rightid = int(math.ceil(param))
-    weight = math.ceil(param) - param if not leftid == rightid else 1
-    print("frac:%s\t\tparam:%s\t\tL:%s R:%s\t\tweight:%s" %
-          (fraction, param, leftid, rightid, weight))
+# arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+
+# num = len(arr)
+# step = 3
+
+# spans = int(math.ceil((num - 1) / step))
+# print("spans:%s" % spans)
+
+# nverts = spans + 1
+# print("nverts:%s" % nverts)
+
+
+# for i in range(nverts):
+#     fraction = i / float(spans)
+#     param = (num - 1) * fraction
+#     # print("param:%s" % param)
+#     leftid = int(math.floor(param))
+#     rightid = int(math.ceil(param))
+#     weight = math.ceil(param) - param if not leftid == rightid else 1
+#     print("frac:%s\t\tparam:%s\t\tL:%s R:%s\t\tweight:%s" %
+#           (fraction, param, leftid, rightid, weight))
     # print("L:%s R:%s" % (leftid, rightid))
+
+RL = Robolink()
+
+print RL.TIMEOUT
+# Change the default timeout here, in seconds:
+RL.TIMEOUT = 120 # in seconds
+RL.COM.settimeout(RL.TIMEOUT)
+
 
 
 # # # # # # # # # # # # # # # # # #
