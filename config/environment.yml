@@ -1,11 +1,11 @@
 ---
-configuration: debug
+configuration: release
 product_name: uprising
 product_description: Robot painting tools.
 configuration_debug:
   product_revision: 2017.dev.999
 configuration_release:
-  product_revision: 1.3.0
+  product_revision: 1.4.0
 author_name: Julian Mann
 author_email: julian.mann@gmail.com
 os_darwin64:
