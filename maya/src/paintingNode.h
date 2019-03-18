@@ -21,7 +21,7 @@
 
 #include "brush.h"
 #include "paint.h"
-#include "strokeGeom.h"
+#include "stroke.h"
 
 
 class painting : public MPxLocatorNode
@@ -50,7 +50,8 @@ public:
 
 
   static  MTypeId   id;
-
+  static  MString   drawDbClassification;
+  static  MString   drawRegistrantId;
 
   enum Spac { kParametric, kArcLen };
   enum TargetDisplay {kTargetsNone, kTargetsPoint, kTargetsLine, kTargetsMatrix };
@@ -67,7 +68,6 @@ public:
     kLayerId,
     kCustomBrushId,
     kCustomPaintId
-
   };
 
 
@@ -77,12 +77,9 @@ public:
 
 private:
 
-  bool findInSortDefinition(StrokeSortFilterKey key,
-                            const std::vector< std::pair <StrokeSortFilterKey, StrokeSortDirection> >
-                            &sortDefinition);
+  MStatus collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes);
 
-  MStatus populateStrokePool(MDataBlock &data,
-                             std::vector<strokeGeom> &strokePool);
+  MStatus addStrokes(MDataBlock &data, paintingGeom *pGeom);
 
   void setWireDrawColor(M3dView &view,  M3dView::DisplayStatus status);
 
@@ -95,9 +92,6 @@ private:
   void drawWireframe(const paintingGeom &geom, M3dView &view, const MDagPath &path,
                      M3dView::DisplayStatus status ) ;
 
-  void drawWireframeApproach( const paintingGeom &geom, M3dView &view, const MDagPath &path,
-                              M3dView:: DisplayStatus status );
-
   void drawWireframeArrows(
     const paintingGeom &geom, M3dView &view,
     const MDagPath &path,
@@ -107,7 +101,11 @@ private:
     const paintingGeom &geom, M3dView &view,
     const MDagPath &path, M3dView::DisplayStatus status );
 
-  void  drawWireframeStops(
+
+
+
+
+  void  drawWireframePivots(
     const paintingGeom &geom, M3dView &view,
     const MDagPath &path,
     M3dView:: DisplayStatus status );
@@ -119,76 +117,12 @@ private:
   void drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
                   M3dView::DisplayStatus status ) ;
 
+  static MObject aStrokes;
 
-  MStatus overrideBrushIds(MDataBlock &data,  std::vector<strokeGeom> &strokePool);
-  MStatus  overridePaintIds(MDataBlock &data, std::vector<strokeGeom> &strokePool);
-
-  MStatus filterStrokes(MDataBlock &data,  std::vector<strokeGeom> &strokePool);
-  MStatus sortStrokes(MDataBlock &data, std::vector<strokeGeom> &strokePool);
-  // MStatus setData(MDataBlock &block, MObject &attribute,
-  //                 const MMatrixArray &data) ;
-
-  // MStatus getData( MObject &attribute,  MIntArray &array);
-
-  // MStatus getData( MObject &attribute,  MDoubleArray &array);
-
-  // MStatus getData( MObject &attribute,  MVectorArray &array);
-  // MStatus getData( MArrayDataHandle &ha,  strokeCurveGeom *result);
-
-
-  void getUVs(std::vector<strokeGeom> &strokePool, MFloatArray &uVals,
-              MFloatArray &vVals);
-
-  bool hasTexture(const MObject &attribute);
-
-  MStatus getTextureName(const MObject &attribute,
-                         MString &name) const ;
-
-  MStatus sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,
-                          MFloatArray &vVals, MIntArray &result, short range) const;
-
-  MStatus sampleUVTexture(const MObject &attribute,  MFloatArray &uVals,
-                          MFloatArray &vVals, MFloatVectorArray &result) const ;
-
-  static MObject aStrokeCurves;
-
-
-  static MObject aBrushIdTexture;
-  static MObject aPaintIdTexture;
-
-  // static MObject aStrokeSort;
-
-
-  static MObject aStrokeSortKey;
-  static MObject aStrokeSortDirection;
-  static MObject aStrokeSortList;
-  static MObject aStrokeSortTexture;
-  static MObject aApplySort;
-
-  static MObject aStrokeFilterKey;
-  static MObject aStrokeFilterOperator;
-  static MObject aStrokeFilterOperand;
-  static MObject aStrokeFilterList;
-  static MObject aStrokeFilterTexture;
-
-  static MObject aApplyFilters;
-
-
-  static MObject aStartFrom;
-  static MObject aEndAt;
-
-
-
-
-  // static MObject aStrokeGate;
-
-
-  // static MObject aStrokeSorts;
-
-
-  static MObject aBrushIdTextureRange;
-  static MObject aPaintIdTextureRange;
-
+  static MObject aApproachDistanceStart;
+  static MObject aApproachDistanceMid;
+  static MObject aApproachDistanceEnd;
+  static MObject aApproachDistance;
 
   static MObject aRotateOrder;
   static MObject aOutputUnit;
@@ -198,9 +132,6 @@ private:
   static MObject aPlaneMatrix;
   static MObject aDisplacementMesh; // cm
 
-  // static MObject aDipApproachObject;
-  // static MObject aToolChangeApproachObject;
-  // static MObject aHomeApproachObject;
 
   static MObject aLinearSpeed; // cm/sec
   static MObject aAngularSpeed; // per sec
@@ -208,13 +139,6 @@ private:
   static MObject aMaxPointToPointDistance; // cm
 
 
-  static MObject  aBrushMatrix;
-  static MObject  aBrushRetention;
-  static MObject  aBrushWidth;
-  static MObject  aBrushShape;
-  static MObject  aBrushTip;
-  static MObject  aBrushPhysicalId;
-  static MObject  aBrushCustomId;
   static MObject  aBrushes;
 
   static MObject  aPaintColorR;
@@ -228,14 +152,19 @@ private:
 
 
 
+  paintingData *m_pd;
+
+  // Public because it's needed by PaintingtDrawOverride
+public:
+
+
   static MObject  aPointSize;
   static MObject  aLineLength;
   static MObject  aLineThickness;
   static MObject  aDisplayTargets;
-  static MObject  aDisplayLift;
-  static MObject  aDisplayApproach;
+
   static MObject  aDisplayClusterPath;
-  static MObject  aDisplayStops;
+  static MObject  aDisplayPivots;
 
   static MObject  aDisplayIds;
   static MObject  aDisplayParentIds;
@@ -248,61 +177,11 @@ private:
 
   static MObject  aArrowheadSize;
 
-
-
   static MObject  aStackGap;
-
-  // static MObject  aOutTargets; // local
 
   static MObject aOutput;
 
-  // output
 
-  // for actual output
-
-  // static MObject  aOutCounts;
-  // static MObject  aOutBrushIds;
-  // static MObject  aOutPaintIds;
-  // static MObject  aOutCurveIds;
-
-  // static MObject  aOutClusters;
-  // static MObject  aOutTangents; // local
-
-  // static MObject  aOutPosition; // world
-  // static MObject  aOutRotation; // world
-
-
-  // static MObject  aOutBrushWidths;
-  // static MObject  aOutPaintColors;
-  // static MObject  aOutPaintOpacities;
-  // static MObject  aOutForceDips;
-
-  // static MObject  aOutArcLengths;
-
-  // static MObject  aOutApproachStarts;
-  // static MObject  aOutApproachEnds;
-
-  // static MObject  aOutPlaneMatrixWorld;
-
-
-  // display
-  // static MObject aDisplayPoints;
-  // static MObject aDisplayBrush;
-  // static MObject aDisplayApproach;
-  // static MObject aDisplayIds;
-
-  // static MObject aDisplayBrushLift;
-  // static MObject aDisplaySegmentOutlines;
-  // static MObject aSegmentOutlineThickness;
-
-  // static MObject aDisplaySegments;
-  // static MObject aNormalLength;
-  // static MObject aPointSize;
-  // static MObject aWireColor;
-
-  // static MObject aStackGap;
-
-  paintingData *m_pd;
 
 
 };
@@ -326,6 +205,10 @@ static void makeDefaultConnections(  MObject &node, void *clientData )
   {
     stat.perror("painting ERROR :: callback unable to make matrix connections");
   }
+
+
+
+
 }
 }
 

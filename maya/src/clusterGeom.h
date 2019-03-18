@@ -8,7 +8,7 @@
 #include "paint.h"
 #include "brush.h"
 
-#include "strokeGeom.h"
+#include "stroke.h"
 
 class clusterGeom
 {
@@ -38,22 +38,31 @@ public:
 
 	double travel() const ;
 
-	const std::vector<strokeGeom> &strokes() const ;
+	const std::vector<Stroke> &strokes() const ;
 
-	void pushStroke(const strokeGeom &s);
+	void pushStroke(const Stroke &s, int parentIndex) ;
 
 
-	void setPreStops(double threshold);
+	void  setApproaches(double approachStart, double approachMid,
+	                    double approachEnd, double ptpThresh);
+
+
+	// void setPreStops(double threshold);
 	// clusterGeom &operator=( const clusterGeom &other );
 
 	void displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
-	friend ostream &operator<<(ostream &os, const clusterGeom &geom);
+	void offsetBrushContact(const Brush &brush);
+
+	// friend ostream &operator<<(ostream &os, const clusterGeom &geom);
 
 private:
 
 
-	std::vector<strokeGeom> m_strokes;
+	void setDeparture(double approachMid, double approachEnd);
+	void setArrival(double approachStart, double approachMid, double ptpThresh);
+
+	std::vector<Stroke> m_strokes;
 	Reason m_reason;
 	MString m_name;
 	short m_paintId;

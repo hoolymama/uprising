@@ -18,5 +18,3 @@ os_win64:
 requirements:
 - name: maya
   version: ==2014
-- name: litter
-  version: ! '>=0.1.0'

@@ -5,12 +5,10 @@ from uprising import (
     painting_tab,
     setup_tab,
     validate_tab,
-    # selection_tab,
     publish_tab,
     rings_design_tab,
     rings_setup_tab,
     proposal_tab,
-    # keys_tab,
     tools_menu,
     export_menu,
     curves_menu,
@@ -104,6 +102,10 @@ reload(calibration_menu)
 class RobotWindow(gui.Window):
 
     def __init__(self):
+
+        if not pm.pluginInfo("Uprising", query=True, loaded=True):
+            pm.loadPlugin('Uprising')
+
         others = pm.lsUI(windows=True)
         for win in others:
             if pm.window(win, q=True, title=True) == "Robot Tools":

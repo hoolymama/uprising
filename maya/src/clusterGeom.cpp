@@ -27,8 +27,9 @@ double clusterGeom::travelCutoff() const {
 	return m_travelCutoff;
 }
 
-void clusterGeom::pushStroke(const strokeGeom &s) {
+void clusterGeom::pushStroke(const Stroke &s, int parentIndex) {
 	m_strokes.push_back(s);
+	m_strokes.back().setParentId(parentIndex);
 	m_travel += s.arcLength();
 }
 
@@ -49,57 +50,107 @@ double clusterGeom::travel() const {
 	return m_travel;
 }
 
-const std::vector<strokeGeom> &clusterGeom::strokes() const {
+const std::vector<Stroke> &clusterGeom::strokes() const {
 	return m_strokes;
 }
 
-void clusterGeom::setPreStops(double threshold)
+void clusterGeom::setDeparture(double approachMid, double approachEnd)
 {
-	std::vector<strokeGeom>::iterator iter;
-	iter = m_strokes.begin();
-	MMatrix lastA = iter->endApproach();
-	MPoint lastPoint(lastA[3][0], lastA[3][1], lastA[3][2]);
-	iter++;
-	for (; iter != m_strokes.end(); iter++)
-	{
-		const MMatrix &currentA = iter->startApproach();
-
-
-		MPoint currentPoint(currentA[3][0], currentA[3][1], currentA[3][2]);
-
-		double dist = lastPoint.distanceTo(currentPoint);
-
-		if (dist > threshold) {
-			int num_inbetweens = int(dist / threshold);
-			for (int i = 0; i < num_inbetweens; ++i)
-			{
-				double fraction = (i + 1) / double(num_inbetweens + 1);
-				MPoint newPoint((lastPoint * (1.0 - fraction)) + (currentPoint * fraction));
-				MMatrix newMat(lastA);
-				if (fraction > 0.5) {
-					newMat = MMatrix(currentA);
-				}
-				newMat[3][0] = newPoint.x;
-				newMat[3][1] = newPoint.y;
-				newMat[3][2] = newPoint.z;
-				iter->addPreStop(newMat);
-			}
+	for (auto iter = m_strokes.begin(); iter != m_strokes.end(); iter++) {
+		if (std::next(iter) == m_strokes.end()) { // last
+			iter->setDeparture(approachEnd);
 		}
-		lastA = iter->endApproach();
-		lastPoint = MPoint(lastA[3][0], lastA[3][1], lastA[3][2]);
+		else {
+			iter->setDeparture(approachMid);
+		}
 	}
 }
+
+void clusterGeom::setArrival(double approachStart, double approachMid,
+                             double ptpThresh)
+{
+	for (auto iter = m_strokes.begin(); iter != m_strokes.end(); iter++) {
+		if (iter == m_strokes.begin())
+		{
+			iter->setArrival(approachStart);
+		}
+		else {
+			iter->setArrival(approachMid, ptpThresh, *(std::prev(iter)));
+		}
+	}
+}
+
+
+
+void  clusterGeom::setApproaches(double approachStart, double approachMid,
+                                 double approachEnd, double ptpThresh )
+{
+	setDeparture(approachMid, approachEnd);
+	setArrival(approachStart, approachMid, ptpThresh);
+}
+
+
 
 
 
 void clusterGeom::displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap)
 {
-	std::vector<strokeGeom>::iterator iter;
+	std::vector<Stroke>::iterator iter;
 	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
 	{
 		iter->displace(meshFn, ap);
 	}
 }
+
+void clusterGeom::offsetBrushContact(const Brush &brush)
+{
+	std::vector<Stroke>::iterator iter;
+	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
+	{
+		iter->offsetBrushContact( brush);
+	}
+}
+
+
+
+
+// void clusterGeom::setPreStops(double threshold)
+// {
+// 	std::vector<Stroke>::iterator iter;
+// 	iter = m_strokes.begin();
+// 	MMatrix lastA = iter->endApproach();
+// 	MPoint lastPoint(lastA[3][0], lastA[3][1], lastA[3][2]);
+// 	iter++;
+// 	for (; iter != m_strokes.end(); iter++)
+// 	{
+// 		const MMatrix &currentA = iter->startApproach();
+
+
+// 		MPoint currentPoint(currentA[3][0], currentA[3][1], currentA[3][2]);
+
+// 		double dist = lastPoint.distanceTo(currentPoint);
+
+// 		if (dist > threshold) {
+// 			int num_inbetweens = int(dist / threshold);
+// 			for (int i = 0; i < num_inbetweens; ++i)
+// 			{
+// 				double fraction = (i + 1) / double(num_inbetweens + 1);
+// 				MPoint newPoint((lastPoint * (1.0 - fraction)) + (currentPoint * fraction));
+// 				MMatrix newMat(lastA);
+// 				if (fraction > 0.5) {
+// 					newMat = MMatrix(currentA);
+// 				}
+// 				newMat[3][0] = newPoint.x;
+// 				newMat[3][1] = newPoint.y;
+// 				newMat[3][2] = newPoint.z;
+// 				iter->addPreStop(newMat);
+// 			}
+// 		}
+// 		lastA = iter->endApproach();
+// 		lastPoint = MPoint(lastA[3][0], lastA[3][1], lastA[3][2]);
+// 	}
+// }
+
 
 /* Is this assignment the same as default. If so remove it. */
 /*clusterGeom &clusterGeom::operator=( const clusterGeom &other )
@@ -116,32 +167,34 @@ void clusterGeom::displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap)
 	return *this;
 }
 */
-ostream &operator<<(ostream &os, const clusterGeom &g)
-{
-	MString reason;
-	if (g.m_reason == clusterGeom::kTool) {
-		reason = "Tool";
-	}
-	else if (g.m_reason == clusterGeom::kDip) {
-		reason = "Dip";
-	} if (g.m_reason == clusterGeom::kTcp) {
-		reason = "Tcp";
-	}
-	else {
-		reason = "NONE!!";
-	}
 
-	os << " Reason:" << reason ;
-	os << " TravelCutoff:" <<  g.m_travelCutoff;
-	os << " Travel:" <<  g.m_travel;
-	os << " Brush Id:" <<  g.m_brushId;
-	os << " Paint Id:" <<  g.m_paintId << "\n";
 
-	os << " " << g.m_strokes.size() << " Strokes: [\n" ;
-	for (auto const &stroke : g.m_strokes) {
-		os << " " << stroke << ",\n";
-	}
-	os << " ]\n";
-	return os;
-}
+// ostream &operator<<(ostream &os, const clusterGeom &g)
+// {
+// 	MString reason;
+// 	if (g.m_reason == clusterGeom::kTool) {
+// 		reason = "Tool";
+// 	}
+// 	else if (g.m_reason == clusterGeom::kDip) {
+// 		reason = "Dip";
+// 	} if (g.m_reason == clusterGeom::kTcp) {
+// 		reason = "Tcp";
+// 	}
+// 	else {
+// 		reason = "NONE!!";
+// 	}
+
+// 	os << " Reason:" << reason ;
+// 	os << " TravelCutoff:" <<  g.m_travelCutoff;
+// 	os << " Travel:" <<  g.m_travel;
+// 	os << " Brush Id:" <<  g.m_brushId;
+// 	os << " Paint Id:" <<  g.m_paintId << "\n";
+
+// 	os << " " << g.m_strokes.size() << " Strokes: [\n" ;
+// 	for (auto const &stroke : g.m_strokes) {
+// 		os << " " << stroke << ",\n";
+// 	}
+// 	os << " ]\n";
+// 	return os;
+// }
 

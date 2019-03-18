@@ -32,7 +32,7 @@ templates:
 - maya_plugin
 - gl
 source_files:
-- src/rebuild/**/*.cpp
+- src/**/*.cpp
 - ../../kettle/src/maya/mayaMath.cpp
 - ../../kit/maya/src/cImgData.cpp
 - ../../kit/maya/src/cImgFloatData.cpp

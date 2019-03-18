@@ -52,27 +52,29 @@
 #define kStrokeRotationsFlag "-sr"
 #define kStrokeRotationsFlagL "-strokeRotations"
 
-#define kStrokeStopPositionsFlag "-ssp"
-#define kStrokeStopPositionsFlagL "-strokeStopPositions"
+#define kStrokeArrivalPositionsFlag "sap"
+#define kStrokeArrivalPositionsFlagL "strokeArrivalPositions"
 
-#define kStrokeStopRotationsFlag "-ssr"
-#define kStrokeStopRotationsFlagL "-strokeStopRotations"
+#define kStrokeArrivalRotationsFlag "sar"
+#define kStrokeArrivalRotationsFlagL "strokeArrivalRotations"
+
+#define kStrokeDeparturePositionFlag "sdp"
+#define kStrokeDeparturePositionFlagL "strokeDeparturePosition"
+
+#define kStrokeDepartureRotationFlag "sdr"
+#define kStrokeDepartureRotationFlagL "strokeDepartureRotation"
 
 #define kStrokeTangentsFlag "-st"
 #define kStrokeTangentsFlagL "-strokeTangents"
 
-#define kStrokeDirectionFlag "-sd"
-#define kStrokeDirectionFlagL "-strokeDirection"
+#define kStrokeBackstrokeFlag "-sb"
+#define kStrokeBackstrokeFlagL "-strokeBackstroke"
 
 #define kStrokeArcLengthFlag "-sal"
 #define kStrokeArcLengthFlagL "-strokeArcLength"
 
 #define kStrokeParentIndexFlag "-spi"
 #define kStrokeParentIndexFlagL "-strokeParentIndex"
-
-
-#define kStrokeNormalFlag "-sn"
-#define kStrokeNormalFlagL "-strokeNormal"
 
 #define kDipCombinationsFlag "-dc"
 #define kDipCombinationsFlagL "-dipCombinations"
@@ -127,23 +129,25 @@ private:
 	MStatus handleStrokeRotationsFlag(const paintingGeom &geom, MArgDatabase &argData,
 	                                  const MMatrix &worldMatrix);
 
-	MStatus  handleStrokeStopPositionsFlag(const paintingGeom &geom, MArgDatabase &argData,
-	                                       const MMatrix &worldMatrix);
+	MStatus  handleStrokeArrivalPositionsFlag(const paintingGeom &geom, MArgDatabase &argData,
+	    const MMatrix &worldMatrix);
+	MStatus  handleStrokeArrivalRotationsFlag(const paintingGeom &geom, MArgDatabase &argData,
+	    const MMatrix &worldMatrix);
+	MStatus handleStrokeDeparturePositionFlag(const paintingGeom &geom, MArgDatabase &argData,
+	    const MMatrix &worldMatrix);
+	MStatus handleStrokeDepartureRotationFlag(const paintingGeom &geom, MArgDatabase &argData,
+	    const MMatrix &worldMatrix);
 
-	MStatus handleStrokeStopRotationsFlag(const paintingGeom &geom, MArgDatabase &argData,
-	                                      const MMatrix &worldMatrix);
 
 	MStatus handleStrokeTangentsFlag(const paintingGeom &geom, MArgDatabase &argData,
 	                                 const MMatrix &worldMatrix);
 
-	MStatus handleStrokeDirectionFlag(const paintingGeom &geom, MArgDatabase &argData);
+	MStatus handleStrokeBackstrokeFlag(const paintingGeom &geom, MArgDatabase &argData);
+
 
 	MStatus handleStrokeArcLengthFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleStrokeParentIndexFlag(const paintingGeom &geom, MArgDatabase &argData);
-
-	MStatus handleStrokeNormalFlag(const paintingGeom &geom, MArgDatabase &argData,
-	                               const MMatrix &worldMatrix);
 
 	MStatus handleDipCombinationsFlag(const paintingGeom &geom) ;
 
@@ -155,5 +159,5 @@ private:
 
 };
 
-#endif	//	!__paintingCmd_H__
+#endif	//	!____
 
