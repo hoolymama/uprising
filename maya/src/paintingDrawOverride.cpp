@@ -11,7 +11,7 @@
 #include "paintingDrawOverride.h"
 #include "brush.h"
 
-PaintingDrawOverride::PaintingDrawOverride(const MObject &obj)
+paintingDrawOverride::paintingDrawOverride(const MObject &obj)
 	: MHWRender::MPxDrawOverride(obj, NULL, false)
 {
 
@@ -27,7 +27,7 @@ PaintingDrawOverride::PaintingDrawOverride(const MObject &obj)
 
 }
 
-PaintingDrawOverride::~PaintingDrawOverride() {
+paintingDrawOverride::~paintingDrawOverride() {
 	fPainting = NULL;
 	if (fModelEditorChangedCbId != 0)
 	{
@@ -42,11 +42,11 @@ PaintingDrawOverride::~PaintingDrawOverride() {
 	}
 }
 
-void PaintingDrawOverride::markDirty(void *clientData)
+void paintingDrawOverride::markDirty(void *clientData)
 {
 	// Mark the node as being dirty so that it can update on display appearance
 	// switch among wireframe and shaded.
-	PaintingDrawOverride *ovr = static_cast<PaintingDrawOverride *>(clientData);
+	paintingDrawOverride *ovr = static_cast<paintingDrawOverride *>(clientData);
 	if (ovr && ovr->fPainting)
 	{
 		MHWRender::MRenderer::setGeometryDrawDirty(ovr->fPainting->thisMObject());
@@ -55,26 +55,26 @@ void PaintingDrawOverride::markDirty(void *clientData)
 
 
 
-MHWRender::DrawAPI PaintingDrawOverride::supportedDrawAPIs() const
+MHWRender::DrawAPI paintingDrawOverride::supportedDrawAPIs() const
 {
 	// this plugin supports both GL and DX
 	return (MHWRender::kOpenGL | MHWRender::kDirectX11 | MHWRender::kOpenGLCoreProfile);
 }
 
-bool PaintingDrawOverride::isBounded( const MDagPath &objPath,
+bool paintingDrawOverride::isBounded( const MDagPath &objPath,
                                       const MDagPath &cameraPath ) const
 {
 	return false;
 }
 
-MBoundingBox PaintingDrawOverride::boundingBox(
+MBoundingBox paintingDrawOverride::boundingBox(
   const MDagPath &objPath,
   const MDagPath &cameraPath) const
 {
 	return MBoundingBox();
 }
 
-MUserData *PaintingDrawOverride::prepareForDraw(
+MUserData *paintingDrawOverride::prepareForDraw(
   const MDagPath &objPath,
   const MDagPath &cameraPath,
   const MHWRender::MFrameContext &frameContext,
@@ -102,6 +102,7 @@ MUserData *PaintingDrawOverride::prepareForDraw(
 	MPlug(paintingObj, painting::aDisplayTargets).getValue(data->displayTargets);
 	MPlug(paintingObj, painting::aDisplayClusterPath).getValue(data->displayClusterPath);
 	MPlug(paintingObj, painting::aDisplayPivots).getValue(data->displayPivots);
+	MPlug(paintingObj, painting::aDisplayContactWidth).getValue(data->displayContactWidth);
 	MPlug(paintingObj, painting::aDisplayIds).getValue(data->displayIds);
 	MPlug(paintingObj, painting::aDisplayParentIds).getValue(data->displayParentIds);
 	MPlug(paintingObj, painting::aDisplayLayerIds).getValue(data->displayLayerIds);
@@ -134,7 +135,7 @@ MUserData *PaintingDrawOverride::prepareForDraw(
 }
 
 
-void PaintingDrawOverride::addUIDrawables(
+void paintingDrawOverride::addUIDrawables(
   const MDagPath &objPath,
   MHWRender::MUIDrawManager &drawManager,
   const MHWRender::MFrameContext &context,
@@ -161,7 +162,7 @@ void PaintingDrawOverride::addUIDrawables(
 }
 
 
-void PaintingDrawOverride::drawShaded(
+void paintingDrawOverride::drawShaded(
   MHWRender::MUIDrawManager &drawManager,
   const PaintingDrawData *cdata)
 {
@@ -177,7 +178,7 @@ void PaintingDrawOverride::drawShaded(
 		{
 			stackHeight += cdata->stackGap;
 			MPointArray triangles;
-			stroke.getTriangleStrip( brush, stackHeight,  triangles);
+			stroke.getTriangleStrip( brush, stackHeight,  triangles, cdata->displayContactWidth);
 			drawManager.mesh(
 			  MHWRender::MUIDrawManager::kTriStrip , triangles);
 		}
@@ -185,7 +186,7 @@ void PaintingDrawOverride::drawShaded(
 	drawManager.endDrawable();
 }
 
-void PaintingDrawOverride::drawWireframe(
+void paintingDrawOverride::drawWireframe(
   MHWRender::MUIDrawManager &drawManager,
   const PaintingDrawData *cdata)
 {
@@ -197,7 +198,7 @@ void PaintingDrawOverride::drawWireframe(
 }
 
 
-void PaintingDrawOverride::drawWireframeTargets(
+void paintingDrawOverride::drawWireframeTargets(
   MHWRender::MUIDrawManager &drawManager,
   const PaintingDrawData *cdata)
 {
@@ -217,7 +218,7 @@ void PaintingDrawOverride::drawWireframeTargets(
 }
 
 
-void PaintingDrawOverride::drawWireframeTargetsPoint(
+void paintingDrawOverride::drawWireframeTargetsPoint(
   MHWRender::MUIDrawManager &drawManager,
   const PaintingDrawData *cdata)
 {
@@ -239,7 +240,7 @@ void PaintingDrawOverride::drawWireframeTargetsPoint(
 }
 
 
-void PaintingDrawOverride::drawWireframeTargetsLine(
+void paintingDrawOverride::drawWireframeTargetsLine(
   MHWRender::MUIDrawManager &drawManager,
   const PaintingDrawData *cdata)
 {
@@ -263,7 +264,7 @@ void PaintingDrawOverride::drawWireframeTargetsLine(
 	drawManager.endDrawable();
 }
 
-void PaintingDrawOverride::drawWireframeTargetsMatrix(
+void paintingDrawOverride::drawWireframeTargetsMatrix(
   MHWRender::MUIDrawManager &drawManager,
   const PaintingDrawData *cdata)
 {
@@ -292,7 +293,7 @@ void PaintingDrawOverride::drawWireframeTargetsMatrix(
 	drawManager.endDrawable();
 }
 
-void PaintingDrawOverride::drawWireframeBorders(
+void paintingDrawOverride::drawWireframeBorders(
   MHWRender::MUIDrawManager &drawManager,
   const PaintingDrawData *cdata )
 {
@@ -308,7 +309,7 @@ void PaintingDrawOverride::drawWireframeBorders(
 			stackHeight +=  cdata->stackGap;
 
 			MPointArray lineLoop;
-			stroke.getBorderLoop(brush, stackHeight, lineLoop);
+			stroke.getBorderLoop(brush, stackHeight, lineLoop, cdata->displayContactWidth);
 			drawManager.mesh(
 			  MHWRender::MUIDrawManager::kClosedLine , lineLoop);
 		}
@@ -317,7 +318,7 @@ void PaintingDrawOverride::drawWireframeBorders(
 }
 
 
-void PaintingDrawOverride::drawWireframeClusterPath(
+void paintingDrawOverride::drawWireframeClusterPath(
   MHWRender::MUIDrawManager
   &drawManager, const PaintingDrawData *cdata  )
 {
@@ -345,7 +346,7 @@ void PaintingDrawOverride::drawWireframeClusterPath(
 
 
 
-void PaintingDrawOverride::drawWireframeArrows(
+void paintingDrawOverride::drawWireframeArrows(
   MHWRender::MUIDrawManager &drawManager, const PaintingDrawData *cdata )
 {
 
@@ -388,7 +389,7 @@ void PaintingDrawOverride::drawWireframeArrows(
 
 
 
-void PaintingDrawOverride::drawWireframePivots(
+void paintingDrawOverride::drawWireframePivots(
   MHWRender::MUIDrawManager &drawManager, const PaintingDrawData *cdata )
 {
 	if (! cdata->displayPivots) {
@@ -412,7 +413,7 @@ void PaintingDrawOverride::drawWireframePivots(
 
 
 
-void PaintingDrawOverride::drawIds(
+void paintingDrawOverride::drawIds(
   MHWRender::MUIDrawManager &drawManager, const PaintingDrawData *cdata )
 {
 
@@ -458,7 +459,7 @@ void PaintingDrawOverride::drawIds(
 
 
 
-void PaintingDrawOverride::drawLines( MHWRender::MUIDrawManager &drawManager,
+void paintingDrawOverride::drawLines( MHWRender::MUIDrawManager &drawManager,
                                       const MPointArray &starts,
                                       const MVectorArray &directions,
                                       double length )
@@ -474,7 +475,7 @@ void PaintingDrawOverride::drawLines( MHWRender::MUIDrawManager &drawManager,
 }
 
 
-void PaintingDrawOverride::drawLines( MHWRender::MUIDrawManager &drawManager,
+void paintingDrawOverride::drawLines( MHWRender::MUIDrawManager &drawManager,
                                       const MPointArray &starts,
                                       const MVectorArray &directions, double length,
                                       const MColor &color )

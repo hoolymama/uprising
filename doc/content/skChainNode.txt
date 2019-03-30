@@ -1,0 +1,89 @@
+---
+title: skChainNode
+author: Julian Mann
+email: julian.mann@gmail.com
+keywords: 
+created_at: 24 March 2019
+test_scene: 
+description: Generate a collection of chains from which to build strokes.
+plugin: Uprising
+type: Maya Node
+---
+h3. Synopsis
+
+This node takes a black and white image as input. It tries to make chains inside the white areas. 
+
+It first generates a medial axis transform (MAT), which is a one pixel wide skeleton that runs through the white areas. Each pixel in the MAT stores the distance (in pixels) to the nearest black pixel, which is effectively the stroke width.
+
+However, our available brushes are limited in size, so this node allows you to limit the radius of chains it builds. This means it has to iterate a number of times to cover all the white areas.
+  
+On each iteration it:
+1. Generates the skeleton in white areas of image.
+2. Remove loose twigs and small branches.
+3. Clamps the radii to maxWidthPixels.
+4. Then it uses that skeleton to paint black over a copy of the input image. For example, if the image started off as a pickled gherkin shape about 20 pixels wide, and maxStampWidthPixels is limited to 10 pixels, then it will remove a 10 pixel wide swathe along the center of the gherkin, leaving 2 X 5 pixel wide white areas in the image.
+5 That new image is now used for the next step of input.
+
+On each step, the generated skeletons are added to a collection. They all know their radii at every point, which will be less than or equal to maxWidthPixels. 
+
+If this process paints out all the white, it stops iterating. Otherwise it stops at maxIterations.
+
+Note, maxStampWithPixels is the width used to paint out the image during iterations, but maxWidthPixels is the radius stored in the chain. This means if maxWidthPixels is greater than maxStampWithPixels, there will be some lateral overlap between strokes in the same blob.
+
+After all skeletons have been generated, they are broken up into chains. In other words, structures with no junctions, which makes it possible to turn them into strokes later.
+
+Once they are chains, we remove some links so as to make the structure lighter. If spanPixels is 10, then we remove 9 out of every 10 links.
+
+RadiusMult and RadiusOffset should probably not be used. Mult should stay at 1 and offset at 0.
+
+The simplest way to see how this node works is to connect a gated image to its input, and connect the output to a skGraphNode, which is a locator that shows the chains. You will also need to connect a the ws matrix from a projection node (a construction plane is a good choice.)
+
+h3. Detailed Attribute Description
+
+table(d1).
+|_(atname). Name (short name) |_(attype). Type|_(atdefault). Default|_(atflags). Flags|
+
+table(d1).
+|(atname). image (img) |(attype). cImgData|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!|
+|\4(atdesc). The black and white image that will be used for making the skeletons.|
+
+table(d1).
+|(atname). maxIterations (mxi) |(attype). long|(atdefault). 5|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!!site_images/storable.gif(storable)!|
+|\4(atdesc). How many times to successively stamp out areas of the image in order to cover it with limited sized brushes.|
+
+table(d1).
+|(atname). minBranchTwigLength (mbtl) |(attype). long|(atdefault). 1|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/keyable.gif(keyable)!!site_images/connectable.gif(connectable)!!site_images/storable.gif(storable)!|
+|\4(atdesc). Remove branches that are shorter than this length.|
+
+table(d1).
+|(atname). minLooseTwigLength (mltl) |(attype). long|(atdefault). 1|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/keyable.gif(keyable)!!site_images/connectable.gif(connectable)!!site_images/storable.gif(storable)!|
+|\4(atdesc). Remove isolated twigs that are shorter than this length.|
+
+table(d1).
+|(atname). spanPixels (spx) |(attype). long|(atdefault). 10|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/keyable.gif(keyable)!!site_images/connectable.gif(connectable)!!site_images/storable.gif(storable)!|
+|\4(atdesc). Somplify the chains by subsampling.|
+
+table(d1).
+|(atname). maxWidthPixels (mwpx) |(attype). long|(atdefault). 10|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/keyable.gif(keyable)!!site_images/connectable.gif(connectable)!!site_images/storable.gif(storable)!|
+|\4(atdesc). The width to clamp the brush width at, in pixels.|
+
+table(d1).
+|(atname). radiusMult (rml) |(attype). float|(atdefault). 1|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/keyable.gif(keyable)!!site_images/connectable.gif(connectable)!!site_images/storable.gif(storable)!|
+|\4(atdesc). You can multiply the resulting brush width. This happens after all chains have been generated, so does not affect the stamping process.|
+
+table(d1).
+|(atname). radiusOffset (rof) |(attype). float|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/keyable.gif(keyable)!!site_images/connectable.gif(connectable)!!site_images/storable.gif(storable)!|
+|\4(atdesc). You can add to the resulting brush width. This happens after all chains have been generated, so does not affect the stamping process.|
+
+table(d1).
+|(atname). maxStampWidthPixels (mswpx) |(attype). long|(atdefault). 10|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/keyable.gif(keyable)!!site_images/connectable.gif(connectable)!!site_images/storable.gif(storable)!|
+|\4(atdesc). This is the radius used to stamp out areas of the image during the iterations. If lower than maxWidthPixels, it will stamp out thinner areas, thereby creating some overlap with adjacent strokes.|
+
+table(d1).
+|(atname). projectionMatrix (pmat) |(attype). fltMatrix|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/keyable.gif(keyable)!!site_images/connectable.gif(connectable)!|
+|\4(atdesc). The projection that is used to calculate the real world radii of the chains that are being generated. The output chains need to carry this information so that the skeletonStrokeNode can select the best brush.|
+
+table(d1).
+|(atname). output (out) |(attype). skChainData|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!|
+|\4(atdesc). Custom data type to provide an array of chains to another node. Currently, only a skeletonStroke node or a skGraph node can accept this data type.|
+

@@ -30,6 +30,9 @@ public:
 	bool displayPaintIds;
 	bool displayRepeatIds;
 
+	bool displayContactWidth;
+
+
 	float pointSize;
 	float lineLength;
 	float lineThickness;

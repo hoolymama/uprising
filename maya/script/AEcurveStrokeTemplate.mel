@@ -1,3 +1,7 @@
+source "AEpaintingUtilFuncs";
+source "AEstrokeNodeInclude";
+
+
 global proc AEcurveStrokeTemplate ( string $nodeName )
 {
 

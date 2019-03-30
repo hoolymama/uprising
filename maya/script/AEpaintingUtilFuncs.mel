@@ -1,11 +1,44 @@
+global proc string nodeFromNodeAttr(string $nodeAttr){
+	string $buff[];
+	tokenize $nodeAttr ".[]" $buff;
+	return $buff[0];
+}
+
+global proc string   attrFromNodeAttr(string $nodeAttr){
+	string $buff[];
+	int $n = `tokenize $nodeAttr "." $buff`;
+	string $result = "";
+	if ($n >1) {
+		$result = $buff[1];
+		if ($n >2) {
+			for ($i=2;$i<$n;$i++){
+				$result += ("."+$buff[$i]);	
+			}
+		}
+
+	}
+	return  $result ;
+}
+
+
+global proc int findNextNonExistentIndex ( string $plug ) {
+	int $mi[] = `getAttr -mi $plug`;
+	int $siz = `size  $mi`;
+	if (! $siz) return 0;	
+	$mi = `sort $mi`; // just in case
+	for ($i=0;$i< $siz;$i++) {
+		if ( $mi[$i] > $i) return $i;
+	}
+	return $siz;
+}
+
+
 global proc string[] AEpaintingGetEnumStrings(string $node, string $att) {
 	string $enumStr[] = `attributeQuery -listEnum  -node $node $att`;
 	string $result[];
 	int $nt = tokenize($enumStr[0], ":", $result);
 	return $result;
 }
-
- 
 
 global proc onPaintingOptionMenuChange(string $enum, string $plug) {
 	string $node = `match "^[^\.]*" $plug`;
@@ -27,7 +60,7 @@ global proc AEpaintingSetOptionMenuToAttrVal( string $menu, string $plug)
 
 global proc string AEpaintingMakeOptionMenu(string $plug, string $att) {
 
- 	string $node = attr.nodeFromNodeAttr($plug);
+ 	string $node = nodeFromNodeAttr($plug);
 	string $itemNames[] = AEpaintingGetEnumStrings($node, $att);
 
 	string $fullPlug = ($plug+"."+$att);

@@ -8,7 +8,7 @@
  	setParent $columnLayout;
  	global int $gTextColumnWidthIndex;
 
- 	string $node = attr.nodeFromNodeAttr($plug);
+ 	string $node = nodeFromNodeAttr($plug);
 
  	string $label = ("Filters: " + $index);
 
@@ -33,13 +33,13 @@
 
 global proc onAddStrokeFilterEntry(string $nodeAttr)
 {
-	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+	int $nextIndex =  findNextNonExistentIndex($nodeAttr);
 	setAttr  ($nodeAttr+"["+$nextIndex+"].strokeFilterKey")  0;
 }
 
  global proc AEstrokeNodeFilterListReplace (string $nodeAttr) {
 
- 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $node = nodeFromNodeAttr($nodeAttr);
  	string $col = "AEaddstrokeNodeFilterListCol";
 
  	setParent ..;

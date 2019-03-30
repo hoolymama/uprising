@@ -7,13 +7,13 @@
 #include <maya/MPxLocatorNode.h>
 #include <maya/MDGMessage.h>
 #include <maya/MDGModifier.h>
+#include <maya/MVectorArray.h>
 
 #include <maya/MObject.h>
 #include <maya/MPxNode.h>
 #include "skGraph.h"
-#include "CImg.h"
 
-using namespace cimg_library;
+// using namespace cimg_library;
 
 class skGraphNode : public MPxLocatorNode
 {
@@ -36,16 +36,11 @@ public:
   MStatus compute(const MPlug &plug, MDataBlock &data);
 
   static  MTypeId   id;
-
-private:
-
-  MStatus    extract(
-    MDataBlock &data, MVectorArray &points, MDoubleArray &params,
-    MDoubleArray &radius, MIntArray &counts) const;
+  static  MString   drawDbClassification;
+  static  MString   drawRegistrantId;
 
 
 
-  static MObject aChains;
   static  MObject aPointSize;
   static  MObject aColor1;
   static  MObject aColor2;
@@ -63,8 +58,15 @@ private:
 
 
 
+private:
+
+  MStatus    extract(
+    MDataBlock &data, MVectorArray &points, MDoubleArray &params,
+    MDoubleArray &radius, MIntArray &counts) const;
 
 
+
+  static MObject aChains;
 
 };
 

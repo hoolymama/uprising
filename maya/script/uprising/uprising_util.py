@@ -43,10 +43,10 @@ def minimize_robodk():
         yield
     except Exception:
         t, v, tb = sys.exc_info()
-        RL.ShowRoboDK()
         raise t, v, tb
-    RL.ShowRoboDK()
-
+    finally:
+        RL.ShowRoboDK()
+ 
 
 # @contextmanager
 # def minimize_robodk():

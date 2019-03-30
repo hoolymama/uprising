@@ -4,7 +4,6 @@ global proc uprising.channelMenu(string $parent) {
 	setParent -m $parent;
 
 	menuItem -label "Add channels to Wedgie"  -c "channel.channelBoxEnumerator \"wedgie.addChannel\"" wedgieRegisterChannelsItem;
-//	menuItem -label "Remove channels from Wedgie"  -c "channel.channelBoxEnumerator \"wedgie.deregisterChannel\""  wedgieDeregisterChannelsItem;
 
 	setParent -m $parent;
 	

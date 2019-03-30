@@ -1,0 +1,84 @@
+//Maya ASCII 2017ff04 scene
+//Name: skChainNode
+//Last modified: Mon, Mar 25, 2019 01:23:00 AM
+//Codeset: UTF-8
+requires maya "2017ff04";
+requires -nodeType "skChainNode" -dataType "skChainData" -dataType "brushData" -dataType "strokeData"
+		 -dataType "paintingData" "Uprising" "2017.dev.999";
+currentUnit -l centimeter -a degree -t film;
+fileInfo "application" "maya";
+fileInfo "product" "Maya 2017";
+fileInfo "version" "2017";
+fileInfo "cutIdentifier" "201702071345-1015190";
+fileInfo "osv" "Mac OS X 10.12.6";
+createNode skChainNode -n "skChainNode1";
+	rename -uid "2A6037CA-EB4A-4310-55BF-1CBA74139625";
+	addAttr -ci true -sn "docMeta_Author" -ln "docMeta_Author" -dt "string";
+	addAttr -ci true -sn "docMeta_Email" -ln "docMeta_Email" -dt "string";
+	addAttr -ci true -sn "docMeta_Keywords" -ln "docMeta_Keywords" -dt "string";
+	addAttr -ci true -sn "docMeta_TestScene" -ln "docMeta_TestScene" -dt "string";
+	addAttr -ci true -sn "docMeta_Description" -ln "docMeta_Description" -dt "string";
+	addAttr -ci true -sn "docBlock_Synopsis" -ln "docBlock_Synopsis" -dt "string";
+	addAttr -ci true -sn "docAttr_Image" -ln "docAttr_Image" -dt "string";
+	addAttr -ci true -sn "docAttr_MaxIterations" -ln "docAttr_MaxIterations" -dt "string";
+	addAttr -ci true -sn "docAttr_MinBranchTwigLength" -ln "docAttr_MinBranchTwigLength" 
+		-dt "string";
+	addAttr -ci true -sn "docAttr_MinLooseTwigLength" -ln "docAttr_MinLooseTwigLength" 
+		-dt "string";
+	addAttr -ci true -sn "docAttr_SpanPixels" -ln "docAttr_SpanPixels" -dt "string";
+	addAttr -ci true -sn "docAttr_MaxWidthPixels" -ln "docAttr_MaxWidthPixels" -dt "string";
+	addAttr -ci true -sn "docAttr_RadiusMult" -ln "docAttr_RadiusMult" -dt "string";
+	addAttr -ci true -sn "docAttr_RadiusOffset" -ln "docAttr_RadiusOffset" -dt "string";
+	addAttr -ci true -sn "docAttr_MaxStampWidthPixels" -ln "docAttr_MaxStampWidthPixels" 
+		-dt "string";
+	addAttr -ci true -sn "docAttr_ProjectionMatrix" -ln "docAttr_ProjectionMatrix" -dt "string";
+	addAttr -ci true -sn "docAttr_Output" -ln "docAttr_Output" -dt "string";
+	setAttr ".docMeta_Author" -type "string" "Julian Mann";
+	setAttr ".docMeta_Email" -type "string" "julian.mann@gmail.com";
+	setAttr ".docMeta_Keywords" -type "string" "";
+	setAttr ".docMeta_TestScene" -type "string" "";
+	setAttr ".docMeta_Description" -type "string" "Generate a collection of chains from which to build strokes.";
+	setAttr ".docBlock_Synopsis" -type "string" (
+		"This node takes a black and white image as input. It tries to make chains inside the white areas. \n\nIt first generates a medial axis transform (MAT), which is a one pixel wide skeleton that runs through the white areas. Each pixel in the MAT stores the distance (in pixels) to the nearest black pixel, which is effectively the stroke width.\n\nHowever, our available brushes are limited in size, so this node allows you to limit the radius of chains it builds. This means it has to iterate a number of times to cover all the white areas.\n  \nOn each iteration it:\n1. Generates the skeleton in white areas of image.\n2. Remove loose twigs and small branches.\n3. Clamps the radii to maxWidthPixels.\n4. Then it uses that skeleton to paint black over a copy of the input image. For example, if the image started off as a pickled gherkin shape about 20 pixels wide, and maxStampWidthPixels is limited to 10 pixels, then it will remove a 10 pixel wide swathe along the center of the gherkin, leaving 2 X 5 pixel wide white areas in the image.\n"
+		+ "5 That new image is now used for the next step of input.\n\nOn each step, the generated skeletons are added to a collection. They all know their radii at every point, which will be less than or equal to maxWidthPixels. \n\nIf this process paints out all the white, it stops iterating. Otherwise it stops at maxIterations.\n\nNote, maxStampWithPixels is the width used to paint out the image during iterations, but maxWidthPixels is the radius stored in the chain. This means if maxWidthPixels is greater than maxStampWithPixels, there will be some lateral overlap between strokes in the same blob.\n\nAfter all skeletons have been generated, they are broken up into chains. In other words, structures with no junctions, which makes it possible to turn them into strokes later.\n\nOnce they are chains, we remove some links so as to make the structure lighter. If spanPixels is 10, then we remove 9 out of every 10 links.\n\nRadiusMult and RadiusOffset should probably not be used. Mult should stay at 1 and offset at 0.\n\nThe simplest way to see how this node works is to connect a gated image to its input, and connect the output to a skGraphNode, which is a locator that shows the chains. You will also need to connect a the ws matrix from a projection node (a construction plane is a good choice.) \n"
+		+ "\n\n\n");
+	setAttr ".docAttr_Image" -type "string" "The black and white image that will be used for making the skeletons.";
+	setAttr ".docAttr_MaxIterations" -type "string" "How many times to successively stamp out areas of the image in order to cover it with limited sized brushes.";
+	setAttr ".docAttr_MinBranchTwigLength" -type "string" "Remove branches that are shorter than this length.";
+	setAttr ".docAttr_MinLooseTwigLength" -type "string" "Remove isolated twigs that are shorter than this length.";
+	setAttr ".docAttr_SpanPixels" -type "string" "Somplify the chains by subsampling.";
+	setAttr ".docAttr_MaxWidthPixels" -type "string" "The width to clamp the brush width at, in pixels.";
+	setAttr ".docAttr_RadiusMult" -type "string" "You can multiply the resulting brush width. This happens after all chains have been generated, so does not affect the stamping process.";
+	setAttr ".docAttr_RadiusOffset" -type "string" "You can add to the resulting brush width. This happens after all chains have been generated, so does not affect the stamping process.";
+	setAttr ".docAttr_MaxStampWidthPixels" -type "string" "This is the radius used to stamp out areas of the image during the iterations. If lower than maxWidthPixels, it will stamp out thinner areas, thereby creating some overlap with adjacent strokes.";
+	setAttr ".docAttr_ProjectionMatrix" -type "string" "The projection that is used to calculate the real world radii of the chains that are being generated. The output chains need to carry this information so that the skeletonStrokeNode can select the best brush.";
+	setAttr ".docAttr_Output" -type "string" "Custom data type to provide an array of chains to another node. Currently, only a skeletonStroke node or a skGraph node can accept this data type.";
+select -ne :time1;
+	setAttr ".o" 1;
+	setAttr ".unw" 1;
+select -ne :hardwareRenderingGlobals;
+	setAttr ".otfna" -type "stringArray" 22 "NURBS Curves" "NURBS Surfaces" "Polygons" "Subdiv Surface" "Particles" "Particle Instance" "Fluids" "Strokes" "Image Planes" "UI" "Lights" "Cameras" "Locators" "Joints" "IK Handles" "Deformers" "Motion Trails" "Components" "Hair Systems" "Follicles" "Misc. UI" "Ornaments"  ;
+	setAttr ".otfva" -type "Int32Array" 22 0 1 1 1 1 1
+		 1 1 1 0 0 0 0 0 0 0 0 0
+		 0 0 0 0 ;
+	setAttr ".fprt" yes;
+select -ne :renderPartition;
+	setAttr -s 2 ".st";
+select -ne :renderGlobalsList1;
+select -ne :defaultShaderList1;
+	setAttr -s 4 ".s";
+select -ne :postProcessList1;
+	setAttr -s 2 ".p";
+select -ne :defaultRenderingList1;
+select -ne :initialShadingGroup;
+	setAttr ".ro" yes;
+select -ne :initialParticleSE;
+	setAttr ".ro" yes;
+select -ne :defaultResolution;
+	setAttr ".pa" 1;
+select -ne :hardwareRenderGlobals;
+	setAttr ".ctrs" 256;
+	setAttr ".btrs" 512;
+select -ne :ikSystem;
+	setAttr -s 4 ".sol";
+// End of skChainNode

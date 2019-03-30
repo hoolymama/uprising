@@ -1,3 +1,7 @@
+source "AEpaintingUtilFuncs";
+source "AEsortFilterInclude";
+source "AEbrushPaintOverrideInclude";
+
  
 global proc AEstrokeNodeInclude ( string $nodeName )
 {

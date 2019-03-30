@@ -47,8 +47,8 @@ class Cluster(object):
             self.strokes.append(stroke)
 
     def change_tool_message(self):
-        return "Change Tool: {} B:({:d}) - P:({:d})".format(
-            self.brush.name, self.brush.physical_id, self.paint.id)
+        return "Change to: Brs({:d}) - Pnt({:d}) {}".format(
+          self.brush.physical_id, self.paint.id, self.brush.name)
 
     def name(self, program):
         return "{}_c{}".format(program.Name(), self.id)

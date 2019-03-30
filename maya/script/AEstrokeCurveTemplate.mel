@@ -1,3 +1,6 @@
+source "AEstrokeNodeInclude";
+
+
 global proc AEstrokeCurveTemplate ( string $nodeName )
 {
 

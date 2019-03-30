@@ -285,16 +285,20 @@ void Target::getBorderPoints(
   MPoint &left,
   MPoint &right,
   double width,
-  bool flat) const
+  bool flat,
+  bool displayContactWidth) const
 {
 
 	double contact = m_contact;
+	if (flat || (!displayContactWidth))
+	{
+		contact = 1.0;
+	}
 	MPoint p = position() ;
 	MVector xOffset;
 	if (flat) {
 		xOffset = (((MVector::xAxis * m_matrix) ^ MVector::zAxis)^
 		           MVector::zAxis).normal();
-		contact = 1.0;
 	}
 	else {
 		xOffset = (m_tangent ^ MVector::zAxis).normal();

@@ -1,4 +1,7 @@
- 
+source "AEstrokeNodeSortList";
+source "AEstrokeNodeFilterList";
+
+
 global proc AEsortFilterInclude (string $nodeName)
 {
 

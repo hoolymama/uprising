@@ -15,6 +15,8 @@ maya_icon_copy_files:
 - icons/*.png
 - icons/*.xbm
 - icons/*.xpm
+robodk_copy_files:
+- ../robodk/*
 maya_modules_erb_files:
 - ./*.mod.erb
 include_paths:

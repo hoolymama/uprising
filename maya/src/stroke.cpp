@@ -615,7 +615,7 @@ void Stroke::getPoints(MFloatPointArray &result, double stackHeight,
 
 	result.clear();
 	MPointArray pts;
-	getPoints(pts, withTraversal);
+	getPoints(pts, stackHeight, withTraversal);
 	for (int i = 0; i < pts.length(); ++i)
 	{
 		result.append(pts[i]);
@@ -715,7 +715,8 @@ void Stroke::getBorders(
   MPointArray &lefts,
   MPointArray &rights,
   const Brush &brush,
-  double stackHeight) const
+  double stackHeight,
+  bool displayContactWidth) const
 {
 	unsigned len = m_targets.size();
 	lefts.setLength(len);
@@ -724,13 +725,13 @@ void Stroke::getBorders(
 	MFloatVector stackOffset =  MVector::zAxis * stackHeight;
 	double width = brush.width() * 0.5;
 
-	bool flat = (brush.shape() == Brush::kFlat) ;
+	bool flat = (brush.shape() == Brush::kFlat ) ;
 	std::vector<Target>::const_iterator citer;
 	unsigned i = 0;
 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++, i++) {
 		MPoint &left = lefts[i];
 		MPoint &right = rights[i];
-		citer->getBorderPoints(left, right, width, flat);
+		citer->getBorderPoints(left, right, width, flat, displayContactWidth);
 		left += stackOffset;
 		right += stackOffset;
 	}
@@ -739,7 +740,8 @@ void Stroke::getBorders(
 void Stroke::getBorderLoop(
   const Brush &brush,
   double stackHeight,
-  MPointArray &result) const
+  MPointArray &result,
+  bool displayContactWidth) const
 {
 	unsigned len = m_targets.size() * 2;
 
@@ -747,13 +749,13 @@ void Stroke::getBorderLoop(
 
 	MVector stackOffset =  MVector::zAxis * stackHeight;
 	double width = brush.width() * 0.5;
-	bool flat = (brush.shape() == Brush::kFlat) ;
+	bool flat = (brush.shape() == Brush::kFlat  ) ;
 	std::vector<Target>::const_iterator citer;
 	unsigned i = 0;
 	unsigned j = len - 1;
 
 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++, i ++, j--) {
-		citer->getBorderPoints(result[i], result[j], width, flat);
+		citer->getBorderPoints(result[i], result[j], width, flat, displayContactWidth);
 		result[i] += stackOffset;
 		result[j] += stackOffset;
 	}
@@ -763,7 +765,8 @@ void Stroke::getBorderLoop(
 void Stroke::getTriangleStrip(
   const Brush &brush,
   double stackHeight,
-  MPointArray &result) const
+  MPointArray &result,
+  bool displayContactWidth) const
 {
 	unsigned len = m_targets.size();
 	result.setLength(len * 2);
@@ -771,12 +774,12 @@ void Stroke::getTriangleStrip(
 	MVector stackOffset =  MVector::zAxis * stackHeight;
 	double width = brush.width() * 0.5;
 
-	bool flat = (brush.shape() == Brush::kFlat) ;
+	bool flat = (brush.shape() == Brush::kFlat  ) ;
 	std::vector<Target>::const_iterator citer;
 	unsigned i = 0;
 
 	for (citer = m_targets.begin() ; citer != m_targets.end(); citer++, i += 2) {
-		citer->getBorderPoints(result[i], result[i + 1], width, flat);
+		citer->getBorderPoints(result[i], result[i + 1], width, flat, displayContactWidth);
 		result[i] += stackOffset;
 		result[i + 1] += stackOffset;
 	}

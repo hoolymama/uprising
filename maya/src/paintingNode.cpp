@@ -118,6 +118,8 @@ MObject painting::aDisplayClusterPath;
 
 MObject painting::aDisplayPivots;
 
+MObject painting::aDisplayContactWidth;
+
 MObject painting::aDisplayIds;
 MObject painting::aDisplayParentIds;
 MObject painting::aDisplayLayerIds;
@@ -327,6 +329,16 @@ MStatus painting::initialize()
   eAttr.setReadable(true);
   eAttr.setDefault(painting::kTargetsNone);
   addAttribute(aDisplayTargets );
+
+
+
+  aDisplayContactWidth = nAttr.create( "displayContactWidth", "dcwd",
+                                       MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayContactWidth );
 
 
   aDisplayClusterPath = nAttr.create( "displayClusterPath", "dcpt",
@@ -554,34 +566,7 @@ MStatus painting::compute( const MPlug &plug, MDataBlock &data )
 
 }
 
-// void painting::collectStrokes(MDataBlock &data,std::vector<Stroke> &strokes)
-// {
-//   MStatus st;
-//   MArrayDataHandle hStrokes = data.inputValue(aStrokes, &st); msert;
-//   unsigned nInputs = hStrokes.elementCount();
-//   // int gid = 0;
-//   for (unsigned i = 0; i < nInputs; i++, hStrokes.next()) {
-//     int index = hStrokes.elementIndex(&st);
-//     MDataHandle hStrokeInput = hStrokes.inputValue(&st);
-//     if (st.error()) {
-//       continue;
-//     }
-//     MObject dStrokeInput = hStrokeInput.data();
-//     MFnPluginData fnStrokeInput( dStrokeInput , &st);
-//     if (st.error()) {
-//       continue;
-//     }
-//     strokeData *sData = (strokeData *)fnStrokeInput.data();
-//     // strokeCurveGeom *strokeGeom = strokeData->fGeometry;
-//     const std::vector<Stroke> *strokeGeom = sData->fGeometry;
 
-//     // const std::vector<Stroke> &strokes = strokeGeom->strokes();
-//     std::vector<Stroke>::const_iterator citer;
-//     for (citer = strokeGeom->begin(); citer != strokeGeom->end(); citer++) {
-//       strokes.push_back(*citer);
-//     }
-//   }
-// }
 
 MStatus painting::addStrokes(MDataBlock &data, paintingGeom *pGeom)
 {
@@ -959,6 +944,10 @@ void painting::drawWireframeBorders(
   setWireDrawColor(view, status);
   MObject thisObj = thisMObject();
 
+
+  bool displayContactWidth;
+  MPlug(thisObj, aDisplayContactWidth).getValue(displayContactWidth);
+
   double lineThickness;
   MPlug(thisObj, aLineThickness).getValue(lineThickness);
 
@@ -982,7 +971,7 @@ void painting::drawWireframeBorders(
       MPointArray lefts;
       MPointArray rights;
 
-      stroke.getBorders(lefts, rights, brush, stackHeight);
+      stroke.getBorders(lefts, rights, brush, stackHeight, displayContactWidth);
 
       unsigned len = lefts.length();
       if (! len) {
@@ -1089,6 +1078,11 @@ void painting::drawShaded(const paintingGeom &geom, M3dView &view,
 
   MObject thisObj = thisMObject();
 
+
+  bool displayContactWidth;
+  MPlug(thisObj, aDisplayContactWidth).getValue(displayContactWidth);
+
+
   double stackGap;
   MPlug(thisObj, aStackGap).getValue(stackGap);
   double stackHeight = 0.0;
@@ -1113,7 +1107,7 @@ void painting::drawShaded(const paintingGeom &geom, M3dView &view,
       MPointArray lefts;
       MPointArray rights;
 
-      stroke.getBorders(lefts, rights, brush, stackHeight);
+      stroke.getBorders(lefts, rights, brush, stackHeight, displayContactWidth);
 
       unsigned len = lefts.length();
       if (! len) {

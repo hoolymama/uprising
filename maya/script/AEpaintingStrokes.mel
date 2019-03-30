@@ -1,7 +1,8 @@
 
+
  global proc AEpaintingStrokesReplace (string $nodeAttr) {
 
- 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $node = nodeFromNodeAttr($nodeAttr);
  	string $col = "AEaddPaintingStrokesCol";
 
  		

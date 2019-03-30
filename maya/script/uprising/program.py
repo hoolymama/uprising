@@ -28,6 +28,7 @@ class Program(object):
     def write(self):
         self.program = uutl.create_program(self.program_name)
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
+        self.program.ShowInstructions(False)
         # self.program.ShowInstructions(False)
 
 class MainProgram(Program):
@@ -38,29 +39,29 @@ class MainProgram(Program):
     def write(self, studio):
         RL = Robolink()
         robot = RL.Item('', ITEM_TYPE_ROBOT)
-
         super(MainProgram, self).write()
+
         self.painting.write_brushes()
-
         motion = self.painting.motion
-        for cluster in self.painting.clusters:
 
-            if cluster.reason == "tool":
-                self.program.addMoveJ(studio.tool_approach)
-                self.program.RunInstruction(cluster.change_tool_message(),
-                                            INSTRUCTION_SHOW_MESSAGE)
-                self.program.Pause()
+        with uutl.minimize_robodk():
+            for cluster in self.painting.clusters:
 
-            dip_program_name = DipProgram.generate_program_name(
-                cluster.paint.id, cluster.brush.id)
+                if cluster.reason == "tool":
+                    self.program.addMoveJ(studio.tool_approach)
+                    self.program.RunInstruction(cluster.change_tool_message(),
+                                                INSTRUCTION_SHOW_MESSAGE)
+                    self.program.Pause()
 
-            self.program.RunInstruction(
-                dip_program_name, INSTRUCTION_CALL_PROGRAM)
+                dip_program_name = DipProgram.generate_program_name(
+                    cluster.paint.id, cluster.brush.id)
 
-            cluster.write(self.program, self.frame, motion, RL, robot)
+                self.program.RunInstruction(
+                    dip_program_name, INSTRUCTION_CALL_PROGRAM)
 
-        self.program.addMoveJ(studio.home_approach)
-        # self.program.ShowInstructions(False)
+                cluster.write(self.program, self.frame, motion, RL, robot)
+
+            self.program.addMoveJ(studio.home_approach)
 
 
 class DipProgram(Program):
@@ -72,8 +73,8 @@ class DipProgram(Program):
     def __init__(self, name, dip_node, wipe_node):
         super(DipProgram, self).__init__(name)
 
-        print "DIP {}".format(dip_node)
-        print "WIP {}".format(wipe_node)
+        # print "DIP {}".format(dip_node)
+        # print "WIP {}".format(wipe_node)
 
         self.dip_painting = ptg.Painting(dip_node)
         self.wipe_painting = ptg.Painting(wipe_node)
@@ -86,27 +87,28 @@ class DipProgram(Program):
         self.dip_painting.write_brushes()
         self.wipe_painting.write_brushes()
 
-        self.program.RunInstruction(
-            "Dip with tool %s" %
-            self.dip_painting.clusters[0].brush.node_name, INSTRUCTION_COMMENT)
+        with uutl.minimize_robodk():
+            self.program.RunInstruction(
+                "Dip with tool %s" %
+                self.dip_painting.clusters[0].brush.node_name, INSTRUCTION_COMMENT)
 
-        self.program.addMoveJ(studio.dip_approach)
+            self.program.addMoveJ(studio.dip_approach)
 
-        for cluster in self.dip_painting.clusters:
-            cluster.write(
+            for cluster in self.dip_painting.clusters:
+                cluster.write(
 
-                self.program,
-                self.frame,
-                self.dip_painting.motion, RL, robot)
+                    self.program,
+                    self.frame,
+                    self.dip_painting.motion, RL, robot)
 
-        for cluster in self.wipe_painting.clusters:
-            cluster.write(
+            for cluster in self.wipe_painting.clusters:
+                cluster.write(
 
-                self.program,
-                self.frame,
-                self.wipe_painting.motion, RL, robot)
+                    self.program,
+                    self.frame,
+                    self.wipe_painting.motion, RL, robot)
 
-        self.program.addMoveJ(studio.dip_approach)
+            self.program.addMoveJ(studio.dip_approach)
 
 
 class CalibrationProgram(Program):

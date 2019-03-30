@@ -1,5 +1,5 @@
-#ifndef clapperHw_H
-#define clapperHw_H
+#ifndef paintingDrawOverride_H
+#define paintingDrawOverride_H
 
 // Viewport 2.0 includes
 
@@ -27,33 +27,15 @@
 #include "paintingDrawData.h"
 
 
-// #ifdef _WIN32
-
-// #define WIN32_LEAN_AND_MEAN
-// #include <d3d11.h>
-// #include <d3dx11.h>
-// #include <d3dcompiler.h>
-
-// #ifndef D3DCOMPILE_ENABLE_STRICTNESS
-// #define D3DCOMPILE_ENABLE_STRICTNESS D3D10_SHADER_ENABLE_STRICTNESS
-// #define D3DCOMPILE_DEBUG D3D10_SHADER_DEBUG
-// #endif
-
-// #include <xnamath.h>
-
-// #endif //_WIN32
-
-
-
-class PaintingDrawOverride : public MHWRender::MPxDrawOverride {
+class paintingDrawOverride : public MHWRender::MPxDrawOverride {
 public:
 
 	static MHWRender::MPxDrawOverride *Creator(const MObject &obj)
 	{
-		return new PaintingDrawOverride(obj);
+		return new paintingDrawOverride(obj);
 	}
 
-	virtual ~PaintingDrawOverride();
+	virtual ~paintingDrawOverride();
 
 	virtual MHWRender::DrawAPI supportedDrawAPIs() const;
 
@@ -87,8 +69,8 @@ public:
 
 	virtual void handleTraceMessage( const MString &message ) const
 	{
-		MGlobal::displayInfo("footPrintDrawOverride: " + message);
-		cerr <<  "footPrintDrawOverride: " << message.asChar() << endl;
+		MGlobal::displayInfo("paintingDrawOverride: " + message);
+		cerr <<  "paintingDrawOverride: " << message.asChar() << endl;
 
 	}
 
@@ -143,7 +125,7 @@ private:
 	  MHWRender::MUIDrawManager &drawManager, const MPointArray &starts,
 	  const MVectorArray &directions, double length,  const MColor &color );
 
-	PaintingDrawOverride(const MObject &obj);
+	paintingDrawOverride(const MObject &obj);
 
 	static void markDirty(void *clientData);
 

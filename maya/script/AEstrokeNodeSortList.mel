@@ -8,7 +8,7 @@
  	setParent $columnLayout;
  	global int $gTextColumnWidthIndex;
 
- 	string $node = attr.nodeFromNodeAttr($plug);
+ 	string $node = nodeFromNodeAttr($plug);
 
  	string $label = ("Sort ctiteria: " + $index);
 
@@ -32,14 +32,14 @@
 
 global proc onAddStrokeSortEntry(string $nodeAttr)
 {
-	int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
+	int $nextIndex = findNextNonExistentIndex($nodeAttr);
 	setAttr  ($nodeAttr+"["+$nextIndex+"].strokeSortKey")  0;
 }
 
 
  global proc AEstrokeNodeSortListReplace (string $nodeAttr) {
 
- 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $node = nodeFromNodeAttr($nodeAttr);
  	string $col = "AEaddstrokeNodeSortListCol";
 
  	setParent ..;

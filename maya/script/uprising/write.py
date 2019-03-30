@@ -15,7 +15,7 @@ import setup_dip
 import callbacks
 
 
-CLEAN_FILE = "/Users/julian/projects/robot/stations/clean.rdk"
+CLEAN_FILE = os.path.join(os.environ["UPRISING_PROJECT_PATH"] , "robodk", "clean.rdk")
 
 
 def split_desc(desc):
@@ -30,7 +30,6 @@ def split_desc(desc):
 
 
 def clean_rdk():
-    pass
     RL = Robolink()
     for station in RL.getOpenStations():
         station.Delete()
@@ -222,9 +221,9 @@ def publish_robodk_painting(ts_dir, timestamp, **kw):
     RL = Robolink()
     clean_rdk()
 
-    with uutl.minimize_robodk():
-        studio = Studio(**kw)
-        studio.write()
+    # with uutl.minimize_robodk():
+    studio = Studio(**kw)
+    studio.write()
     write_station(RL, ts_dir, timestamp)
 
     # RL.ShowRoboDK()
@@ -242,9 +241,9 @@ def publish_calibration_program(directory, node):
     timestamp = get_timestamp()
     ts_dir = get_ts_dir(calibration_dir, timestamp)
     uutl.mkdir_p(ts_dir)
-    with uutl.minimize_robodk():
-        studio = Studio(calibration_node=node)
-        studio.write()
+    # with uutl.minimize_robodk():
+    studio = Studio(calibration_node=node)
+    studio.write()
     write_program(RL, ts_dir, "xx", timestamp)
 
 

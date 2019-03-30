@@ -1,4 +1,6 @@
- global proc AEstrokeFactoryCurvesAddMultiWidget(string $plug, string $columnLayout, int $index) {
+source "AEpaintingUtilFuncs";
+ 
+global proc AEstrokeFactoryCurvesAddMultiWidget(string $plug, string $columnLayout, int $index) {
 
  	string $label = ("No curve: " + $index);
  	string $input[] = `listConnections -s 1 -d 0 ($plug+".curve")`;
@@ -46,17 +48,11 @@
  	setParent ..;
 
  }
-// global proc AEstrokeFactoryAddSelectedCurves(string $nodeAttr) {
-// 	string $curves[] = `ls -sl -dag -leaf -type "nurbsCurve"`;
-// 	for ($curve in $curves) {
-// 		int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
-// 		connectAttr -f ($curve+".worldSpace[0]") ($nodeAttr+"["+$nextIndex+"].curve");
-// 	}
-// }
+ 
 
  global proc AEpaintingCurvesReplace (string $nodeAttr) {
 
- 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $node = nodeFromNodeAttr($nodeAttr);
  	string $col = "AEaddStrokeFactoryCurvesCol";
 
  	setParent ..;

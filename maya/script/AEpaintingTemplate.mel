@@ -1,3 +1,7 @@
+source "AEpaintingUtilFuncs";
+source "AEpaintingPaints";
+source "AEpaintingBrushes";
+source "AEpaintingStrokes";
 
  global proc     AEpaintingTemplate(string $nodeName)
  {
@@ -22,10 +26,15 @@
 	editorTemplate -addControl "arrowheadSize";
 	
 	editorTemplate -beginNoOptimize;
+
+
 	editorTemplate -addControl "displayTargets";
 	editorTemplate -addControl "displayPivots";
 	editorTemplate -addControl "displayArrows";
 	editorTemplate -addControl "displayClusterPath";
+	editorTemplate -addControl "displayContactWidth";
+	
+	editorTemplate -addSeparator;
 
 	editorTemplate -addControl "displayIds";
 	editorTemplate -addControl "displayParentIds";
@@ -36,11 +45,7 @@
 	editorTemplate -addControl "idDisplayOffset";
 	
 	editorTemplate -endNoOptimize;
-
-	
 	editorTemplate -addControl "stackGap"; 
-
-
   editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Paints";
@@ -56,17 +61,12 @@
  	editorTemplate -endLayout;
 
 
-	// editorTemplate -suppress "strokes";
-
  	editorTemplate -suppress "outTargets";
- 
  	editorTemplate -suppress "outCounts";
-
  	editorTemplate -suppress "inMatrix";
 
 	AElocatorInclude $nodeName;
 	
-
 	editorTemplate -suppress "values" ;
 	editorTemplate -suppress "useObjectColor" ;
 	editorTemplate -suppress "objectColor" ;

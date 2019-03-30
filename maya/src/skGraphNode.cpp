@@ -93,6 +93,8 @@ MObject skGraphNode::aRandomChainColor;
 
 
 MTypeId skGraphNode:: id(k_skGraphNode );
+MString skGraphNode::drawDbClassification("drawdb/geometry/skGraphNode");
+MString skGraphNode::drawRegistrantId("skGraphNodePlugin");
 
 skGraphNode:: skGraphNode() {}
 

@@ -223,16 +223,20 @@ public:
 	  MPointArray &lefts,
 	  MPointArray &rights,
 	  const Brush &brush,
-	  double stackHeight) const;
+	  double stackHeight,
+	  bool displayContactWidth) const;
+
 	void getBorderLoop(
 	  const Brush &brush,
 	  double stackHeight,
-	  MPointArray &result) const;
+	  MPointArray &result,
+	  bool displayContactWidth) const;
 
 	void getTriangleStrip(
 	  const Brush &brush,
 	  double stackHeight,
-	  MPointArray &result) const;
+	  MPointArray &result,
+	  bool displayContactWidth) const;
 
 
 

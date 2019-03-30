@@ -83,7 +83,8 @@ public:
 	  MPoint &left,
 	  MPoint &right,
 	  double width,
-	  bool flat = false) const;
+	  bool flat = false,
+	  bool displayContactWidth = true) const;
 
 	void setContact(double contact);
 

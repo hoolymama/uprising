@@ -23,11 +23,8 @@
 
 #include "skChainNode.h"
 #include "gateRamp.h"
-// #include "quadricShape.cpp"
-
-
-
 #include "paintingDrawOverride.h"
+#include "skGraphNodeDrawOverride.h"
 
 
 
@@ -86,7 +83,7 @@ MStatus initializePlugin( MObject obj)
 	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
 	       painting::drawDbClassification,
 	       painting::drawRegistrantId,
-	       PaintingDrawOverride::Creator); mser;
+	       paintingDrawOverride::Creator); mser;
 
 
 
@@ -96,7 +93,16 @@ MStatus initializePlugin( MObject obj)
 
 
 	st = plugin.registerNode( "skGraph", skGraphNode::id, skGraphNode::creator,
-	                          skGraphNode::initialize, MPxNode::kLocatorNode ); msert;
+	                          skGraphNode::initialize, MPxNode::kLocatorNode,
+	                          &skGraphNode::drawDbClassification); msert;
+
+	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+	       skGraphNode::drawDbClassification,
+	       skGraphNode::drawRegistrantId,
+	       skGraphNodeDrawOverride::Creator); mser;
+
+
+
 
 	st = plugin.registerNode( "collectStrokes", collectStrokes::id, collectStrokes::creator,
 	                          collectStrokes::initialize ); msert;
@@ -137,6 +143,11 @@ MStatus uninitializePlugin( MObject obj)
 
 
 	st = plugin.deregisterNode( collectStrokes::id ); mser;
+
+	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+	       skGraphNode::drawDbClassification,
+	       skGraphNode::drawRegistrantId); mser;
+
 
 	st = plugin.deregisterNode( skGraphNode::id ); mser;
 

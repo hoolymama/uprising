@@ -1,6 +1,10 @@
- 
+source "AEpaintingUtilFuncs";
+source "AEsortFilterInclude";
+source "AEbrushPaintOverrideInclude";
 
- global proc AEcollectStrokesTemplate ( string $nodeName )
+
+
+global proc AEcollectStrokesTemplate ( string $nodeName )
 {
 
 	editorTemplate -beginScrollLayout;

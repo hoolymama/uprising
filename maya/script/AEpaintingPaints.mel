@@ -1,3 +1,4 @@
+
  global proc AEPaintingPaintsAddMultiWidget(string $plug, string $columnLayout, int $index) {
 
  	string $label = ("No paint : " + $index);
@@ -16,9 +17,7 @@
  	attrControlGrp -attribute ($plug +".paintOpacity");
  	attrControlGrp -attribute ($plug +".paintTravel");
  	attrControlGrp -attribute ($plug +".paintCustomId");
- 	
-
-
+ 
  	string $removeCmd = ("deleteUI " + $cl+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
 
@@ -28,7 +27,7 @@
 
  global proc AEpaintingPaintsReplace (string $nodeAttr) {
 
- 	string $node = attr.nodeFromNodeAttr($nodeAttr);
+ 	string $node = nodeFromNodeAttr($nodeAttr);
  	string $col = "AEaddPaintingPaintsCol";
 
  	setParent ..;
@@ -45,9 +44,6 @@
  		AEPaintingPaintsAddMultiWidget ($plug, $col, $indices[$i]) ;
  	}
  	setParent ..;
-
- 	// int $nextIndex = attr.findNextNonExistentIndex($nodeAttr);
- 	// button -e -c ( "setAttr " + $nodeAttr+"["+$nextIndex+"].paintOpacity 0.5" ) "AEaddPaintingPaintsBtn";
 
  }
 

@@ -174,6 +174,7 @@ public:
   static MObject  aDisplayRepeatIds;
 
   static MObject  aIdDisplayOffset;
+  static MObject  aDisplayContactWidth;
 
   static MObject  aArrowheadSize;
 

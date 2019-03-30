@@ -6,6 +6,8 @@ outliner_convert_cmd: 'convert  -resize 20x20'
 
 icon_convert_cmd: 'convert'
 
+robodk_destination: 'robodk'
+
 maya_icon_destination: 'maya/icons'
 
 maya_script_destination:  'maya/scripts'
