@@ -44,8 +44,8 @@ def create():
     pm.menuItem(label="Connect brushIds to skeletons",
                 command=pm.Callback(on_connect_brushids_to_skeleton))
 
-    pm.menuItem(label="Send brushes from selected paintings",
-                command=pm.Callback(on_send_brushes))
+    # pm.menuItem(label="Send brushes from selected paintings",
+    #             command=pm.Callback(on_send_brushes))
 
     pm.menuItem(label="Connect texture", subMenu=True)
     pm.menuItem(
@@ -92,13 +92,7 @@ def on_connect_brushids_to_skeleton():
     butl.connect_skels(painting, skels)
 
 
-def on_send_brushes():
-    paintings = pm.ls(sl=True, dag=True, leaf=True, type="painting")
-    uutl.delete_tools()
-    for painting in paintings:
-        brushes = Brush.brushes(painting)
-        for brush in brushes:
-            brushes[brush].write()
+
 
 
 def _bake_first_paint_id(painting, curve):

@@ -30,12 +30,29 @@ from robolink import *
 
 RL = Robolink()
 
-print RL.TIMEOUT
+# print RL.TIMEOUT
 # Change the default timeout here, in seconds:
-RL.TIMEOUT = 120 # in seconds
-RL.COM.settimeout(RL.TIMEOUT)
+# RL.TIMEOUT = 120 # in seconds
+# RL.COM.settimeout(RL.TIMEOUT)
+ 
+# frame =  RL.Item('frm')
+frame = RL.AddFrame('frm')
 
 
+robot = RL.Item('', ITEM_TYPE_ROBOT)
+
+RL.AddTarget("tgt", frame,  robot)
+RL.AddTarget("tgt", frame,  robot)
+
+# target = RL.Item("tgt")
+# print "T", type(target)
+
+# prg = RL.AddProgram("prg")
+
+# prg.addMoveL(target)
+
+# target1 =  RL.Item("foobar")
+# print target.Valid()
 
 # # # # # # # # # # # # # # # # # #
 # class WeightedRandomizer:
@@ -266,7 +283,7 @@ def save_prog():
     RL.ProgramStart(prog_filename, ddir, "KUKA_KRC4_RN", robot)
     # RL.RunProgram('px', True)
     robot.RunInstruction("px", INSTRUCTION_CALL_PROGRAM)
-    # RL.RunMessage("foo")
+    # RL.RunMessage("tgt")
     RL.Finish()
 
 
@@ -476,7 +493,7 @@ def save_prog():
 #     [0, 0, 0, 1]
 # ]
 
-# tool_item = RL.Item("foo")
+# tool_item = RL.Item("tgt")
 # if tool_item.Valid():
 #     tool_item.Delete()
 
@@ -485,7 +502,7 @@ def save_prog():
 #     shape.Delete()
 
 # robot = RL.Item('', ITEM_TYPE_ROBOT)
-# tool_item = robot.AddTool(rdk.Mat(mat), "foo")
+# tool_item = robot.AddTool(rdk.Mat(mat), "tgt")
 # shape = RL.AddShape(triangles)
 
 

@@ -31,6 +31,9 @@ import studio
 
 import painting
 import program
+# import calibration_program
+# import pick_place_program
+
 import paint
 import brush
 import stroke
@@ -50,51 +53,53 @@ import props
 import images
 import callbacks
 
-
-reload(studio)
-reload(uprising_util)
-reload(paint)
-reload(brush)
-reload(target)
-reload(stroke)
-reload(cluster)
-reload(write)
-reload(setup_dip)
-reload(const)
-reload(images)
-reload(callbacks)
-
-reload(curve_utils)
-reload(brush_utils)
-reload(palette_utils)
-reload(board_utils)
-reload(painting)
 reload(program)
+reload(studio)
 
-reload(stroke_factory_utils)
-reload(sheets)
+# reload(uprising_util)
+# reload(paint)
+# reload(brush)
+# reload(target)
+# reload(stroke)
+# reload(cluster)
+# reload(write)
+# reload(setup_dip)
+# reload(const)
+# reload(images)
+# reload(callbacks)
 
-reload(painting_tab)
-reload(setup_tab)
+# reload(curve_utils)
+# reload(brush_utils)
+# reload(palette_utils)
+# reload(board_utils)
+# reload(painting)
+# # reload(pick_place_program)
+# # reload(calibration_program)
+# reload(program)
+
+# reload(stroke_factory_utils)
+# reload(sheets)
+
+# reload(painting_tab)
+# reload(setup_tab)
  
 reload(props)
-reload(validate_tab)
-# reload(selection_tab)
-reload(publish_tab)
-reload(proposal_tab)
-reload(rings_design_tab)
-reload(rings_setup_tab)
-# reload(keys_tab)
-reload(culling)
+# reload(validate_tab)
+# reload(publish_tab)
+# reload(proposal_tab)
+# reload(rings_design_tab)
+# reload(rings_setup_tab)
 
-reload(tools_menu)
-reload(curves_menu)
-reload(images_menu)
-reload(export_menu)
+# reload(culling)
 
-reload(palette_menu)
-reload(brush_menu)
-reload(calibration_menu)
+# reload(tools_menu)
+# reload(curves_menu)
+# reload(images_menu)
+# reload(export_menu)
+
+# reload(palette_menu)
+# reload(brush_menu)
+# reload(calibration_menu)
 
 
 

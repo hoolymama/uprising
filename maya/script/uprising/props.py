@@ -55,7 +55,7 @@ def send(objects, parent=None):
     transforms = pm.ls(objects, transforms=True)
     for xf in transforms:
         xf = pm.duplicate(xf, rr=True)[0]
-        hi = pm.ls(sl=True, dag=True, transforms=True)
+        hi = pm.ls(xf, dag=True, transforms=True)
         for node in hi:
             for att in ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]:
                 node.attr(att).setLocked(False)

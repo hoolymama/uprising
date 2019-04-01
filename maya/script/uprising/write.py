@@ -15,7 +15,6 @@ import setup_dip
 import callbacks
 
 
-CLEAN_FILE = os.path.join(os.environ["UPRISING_PROJECT_PATH"] , "robodk", "clean.rdk")
 
 
 def split_desc(desc):
@@ -29,11 +28,7 @@ def split_desc(desc):
     return result
 
 
-def clean_rdk():
-    RL = Robolink()
-    for station in RL.getOpenStations():
-        station.Delete()
-    RL.AddFile(CLEAN_FILE)
+
 
 
 def publish_proposal(
@@ -67,65 +62,6 @@ def publish_proposal(
         clean_top)
 
 
-def _get_dip_wipe_packs(painting_node):
-
-    result = {}
-    racks = ["rack1"]
-
-    dip_combinations = setup_dip.dip_combination_ids(painting_node)
-
-    for combo in dip_combinations:
-
-        dip_ptg_path = "rack*|holes|holeRot_{:02d}|holeTrans|dip_loc|b{:02d}|*".format(
-            combo["paint"], combo["brush"])
-        wipe_ptg_path = "rack*|holes|holeRot_{:02d}|holeTrans|wipe_loc|b{:02d}|*".format(
-            combo["paint"], combo["brush"])
-
-        paint_key = "p{:02d}".format(combo["paint"])
-        brush_key = "b{:02d}".format(combo["brush"])
-
-        print "{} -- {}".format(dip_ptg_path, wipe_ptg_path)
-        try:
-            dip_ptg = pm.ls(dip_ptg_path, type="painting")[0]
-            wipe_ptg = pm.ls(wipe_ptg_path, type="painting")[0]
-        except IndexError:
-            raise IndexError("Either dip or wipe node is missing: for {} {}".format(paint_key, brush_key))
-
-        if paint_key not in result:
-            result[paint_key] = {}
-        result[paint_key][brush_key] = {
-            "dip": dip_ptg,
-            "wipe": wipe_ptg,
-            "name": "{}_{}".format(paint_key, brush_key)
-        }
-
-    # paint_regex = re.compile(r"^.*_(\d+)\|holeTrans$")
-    # brush_regex = re.compile(r"^.*\|holeTrans\|.*\|b(\d+)\|.*$")
-
-    # holes = pm.ls("rack*|holes|holeRot_*|holeTrans")
-    # for hole in holes:
-    #     paint_id = "p{}".format(paint_regex.match(str(hole)).groups()[0])
-
-    #     current = {}
-    #     dip_shapes = pm.ls(
-    #         "{}|dip_loc|*".format(holes[0]), dag=True, leaf=True, type="painting")
-    #     wipe_shapes = pm.ls(
-    #         "{}|wipe_loc|*".format(holes[0]), dag=True, leaf=True, type="painting")
-    #     dip_wipes = zip(dip_shapes, wipe_shapes)
-    #     for dw in dip_wipes:
-    #         brush_id = "b{}".format(
-    #             brush_regex.match(str(dw[0])).groups()[0])
-    #         current[brush_id] = {
-    #             "dip": dw[0],
-    #             "wipe": dw[1],
-    #             "name": "{}_{}".format(paint_id, brush_id)
-    #         }
-    #     if current:
-    #         result[paint_id] = current
-
-    return result
-
-
 def run_hook(code):
     if not code:
         return
@@ -144,24 +80,11 @@ def run_hook(code):
 
 
 def publish_sequence(
-        export_dir,
-        # painting_node,
-        # dip_wipe_packs,
-        description,
-        medium,
-        ground,
-        frame_range,
-        do_painting,
-        do_verify,
-        save_unfiltered_snapshot,
-        pre_frame_py):
-    # RL = Robolink()
-    # clean_rdk()
-    # print "x" * 20
-    # print "painting_node: %s" % painting_node
-    # print "dip_node: %s" % dip_node
-
-    painting_node = pm.PyNode("mainPaintingShape")
+    export_dir,
+    frame_range,
+    auto,
+    save_unfiltered_snapshot
+):
 
     # print dip_wipe_packs
 
@@ -180,101 +103,42 @@ def publish_sequence(
 
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
-        dip_wipe_packs = _get_dip_wipe_packs(painting_node)
 
-        run_hook(pre_frame_py)
+        # run_hook(pre_frame_py)
         timestamp = get_timestamp(frame)
         ts_dir = get_ts_dir(export_dir, timestamp)
         uutl.mkdir_p(ts_dir)
-        desc, notes = split_desc(description.replace("#f", str(frame)))
-        # print "Desc: %s" % desc
-        # print "Notes: %s" % notes
-
-        # setup_dip.doit()
+        # desc, notes = split_desc(description.replace("#f", str(frame)))
 
         write_maya_scene(ts_dir, timestamp)
-        write_csv(export_dir, timestamp, desc, notes, medium, ground)
+        write_csv(export_dir, timestamp)
 
         write_ref_image(ts_dir, timestamp)
+
+        RL = Robolink()
+        # clean_rdk()
+        studio = Studio(
+            do_painting=True, 
+            do_auto_change=auto, 
+            do_dips=True)
+        
+        studio.write()
+        write_program(RL, ts_dir, "px", timestamp)
+
+        # dip_wipe_packs = _get_dip_wipe_packs()
+        # if auto:
+        #     pick_place_packs = _get_pick_place_packs()
 
         # write_log(
         #     painting_node,
         #     # dip_wipe_packs,
         #     ts_dir,
         #     timestamp,
-        #     desc,
-        #     notes,
         #     frame)
 
-        if do_painting or do_verify:
-            kw = {}
-            if do_painting:
-                kw["painting_node"] = painting_node
-                kw["dip_wipe_packs"] = dip_wipe_packs
-            if do_verify:
-                kw["verification_node"] = painting_node
+        # publish_robodk_painting( ts_dir, timestamp, auto)
 
-            publish_robodk_painting(ts_dir, timestamp, **kw)
-
-
-def publish_robodk_painting(ts_dir, timestamp, **kw):
-    RL = Robolink()
-    clean_rdk()
-
-    # with uutl.minimize_robodk():
-    studio = Studio(**kw)
-    studio.write()
-    write_station(RL, ts_dir, timestamp)
-
-    # RL.ShowRoboDK()
-    if kw.get("painting_node"):
-        write_program(RL, ts_dir, "px", timestamp)
-    if kw.get("verification_node"):
-        write_program(RL, ts_dir, "vx", timestamp)
-
-
-def publish_calibration_program(directory, node):
-    RL = Robolink()
-    calibration_dir = os.path.join(directory, "calibrations")
-
-    clean_rdk()
-    timestamp = get_timestamp()
-    ts_dir = get_ts_dir(calibration_dir, timestamp)
-    uutl.mkdir_p(ts_dir)
-    # with uutl.minimize_robodk():
-    studio = Studio(calibration_node=node)
-    studio.write()
-    write_program(RL, ts_dir, "xx", timestamp)
-
-
-# def publish_rack_calibration_program(directory, node):
-#     RL = Robolink()
-#     calibration_dir = os.path.join(directory, "calibrations")
-
-#     clean_rdk()
-#     timestamp = get_timestamp()
-#     ts_dir = get_ts_dir(calibration_dir, timestamp)
-#     uutl.mkdir_p(ts_dir)
-#     with uutl.minimize_robodk():
-#         studio = Studio(calibration_node=node)
-#         studio.write()
-#     write_program(RL, ts_dir, "xx", timestamp)
-
-
-
-
-
-
-# def mkdir_p(path):
-#     try:
-#         os.makedirs(path)
-#     except OSError as exc:
-#         if exc.errno == errno.EEXIST and os.path.isdir(path):
-#             pass
-#         else:
-#             raise
-
-
+ 
 def choose_publish_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'export')
     entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
@@ -289,6 +153,7 @@ def get_calibration_dir():
     result = os.path.join(pm.workspace.getPath(), 'export', 'calibrations')
     uutl.mkdir_p(result)
     return result
+
 
 def choose_proposal_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'proposals')

@@ -72,8 +72,8 @@ def _read_triangulation(sheet_range):
 
 def _generate_calibration(which):
     kw = {
-        "rack_calibration": which == "rack",
-        "board_calibration": which == "board"
+        "do_rack_calibration": which == "rack",
+        "do_board_calibration": which == "board"
     }
     prefix = "rx" if which == "rack" else "bx"
 

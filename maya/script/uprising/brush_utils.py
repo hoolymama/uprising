@@ -96,13 +96,11 @@ def validate_brush_data(data):
         result.append(row)
     return result
 
-
-
-def setup_probe_from_sheet():
+def setup_custom_brush_from_sheet(cell):
     service = sheets._get_service()
     result = service.spreadsheets().values().get(
         spreadsheetId=sheets.SHEETS["Measurements"],
-        range='Brushes!A3:N3').execute()
+        range='Brushes!{}'.format(cell)).execute()
 
     row = result.get('values', [])[0]
     row = [uutl.numeric(s) for s in row]
@@ -121,12 +119,16 @@ def setup_probe_from_sheet():
             "wipe_param": row[10],
             "retention": row[11],
             "trans_param": row[12],
-            "pouch": "calibration",
+            "pouch": "utility",
             "prefix": "bpx"
         }
     return create_brush_geo(**kw)
 
+def setup_probe_from_sheet():
+    return setup_custom_brush_from_sheet("A3:N3")
 
+def setup_gripper_from_sheet():
+    return setup_custom_brush_from_sheet("A4:N4")
 
 
 def setup_brushes_from_sheet(pouch_name):

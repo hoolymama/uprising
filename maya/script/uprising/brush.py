@@ -65,6 +65,15 @@ class Brush(object):
                 brush_set[key].write()
 
     @classmethod
+    def write_connected_brushes():
+        painting = pm.PyNode("mainPaintingShape")
+        brushes = Brush.brushes(painting)
+        for brush in brushes:
+            brushes[brush].write()
+
+
+
+    @classmethod
     def brush_at_index(cls, node, index):
 
         plug = node.attr(

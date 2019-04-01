@@ -3,28 +3,18 @@ import pymel.core as pm
 
 from paint import Paint
 from brush import Brush
-import curve_utils as cutl
 import palette_utils as putl
 
-import uprising.uprising_util as uutl
+ 
 import logging
 logger = logging.getLogger('uprising')
 
 
-# DIP_CURVE_DEFAULTS = [
-#     ("followStroke", 0),
-#     ("strokeLength", 1000),
-#     ("randomOverlapFactor", 0),
-#     ("randomLengthFactor", 0),
-#     ("repeats", 0),
-#     ("overlap", 0)
-# ]
+ 
 
 
-
-
-
-def dip_combination_ids(painting_node):
+def dip_combination_ids():
+    painting_node = pm.PyNode("mainPaintingShape")
     result = []
     combos = pm.paintingQuery(painting_node, dc=True)
     for i in range(0, len(combos), 2):
@@ -37,15 +27,16 @@ def dip_combination_ids(painting_node):
     return result
 
 
-def dip_combinations(painting_node):
+def dip_combinations():
 
+    painting_node = pm.PyNode("mainPaintingShape")
     result = {}
 
     brushes = Brush.brushes(painting_node)
     paints = Paint.paints(painting_node)
 
     combos = pm.paintingQuery(painting_node, dc=True)
-    # print combos
+
 
     for i in range(0, len(combos), 2):
         brush_id = int(combos[i])
@@ -70,31 +61,7 @@ def delete_if_exist(name):
         pm.delete(name)
     except BaseException:
         pass
-
-
-# def duplicate_and_connect(src_grp, dip_node, paint_id, brush_id):
-
-#     grp_name = "dcx_p%02d_b%02d" % (paint_id, brush_id)
-#     delete_if_exist(grp_name)
-#     grp = cutl.duplicate_grp_with_stroke_curves(
-#         src_grp, grp_name, True, ["brushId", "paintId"])
-#     grp.rename(grp_name)
-#     curves = grp.getChildren()
-
-#     for i, curve in enumerate(curves):
-#         name = "dcx_p%02d_b%02d_c%02d" % (paint_id, brush_id, i)
-#         curve.rename(name)
-#         shape = pm.listRelatives(curve, children=True)[0]
-#         stroke_curve = shape.attr("worldSpace[0]").connections(
-#             destination=True, source=False)[0]
-
-#         first = (i == 0)
-#         cutl.connect_curve_to_painting(
-#             stroke_curve, dip_node, connect_to="next_available")
-#         stroke_curve.attr("brushId").set(brush_id)
-#         stroke_curve.attr("paintId").set(paint_id)
-
-#     return grp
+ 
 
 
 def _get_curve_strokes(parent):
@@ -187,6 +154,8 @@ def doit():
             dip_ptg_node = _create_painting_node("dip", brushes[bkey], paints[pkey], dip_stroke_node)
             wipe_ptg_node = _create_painting_node("wipe", brushes[bkey], paints[pkey], wipe_stroke_node)
  
+
+
 
 
  

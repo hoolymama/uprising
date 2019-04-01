@@ -43,12 +43,12 @@ class ValidateTab(gui.FormLayout):
         )
 
         self.send_paintings_cb = pm.checkBoxGrp(
-            numberOfCheckBoxes=4,
+            numberOfCheckBoxes=3,
             height=30,
             label='Create components',
-            labelArray4=['Painting', 'Dips', "Calibrate", "Verify"],
-            valueArray4=[False, False, False, False],
-            columnWidth5=(180, 90, 90, 90, 90)
+            labelArray3=['Painting', 'Dips', "Pick & place"],
+            valueArray3=[False, False, False],
+            columnWidth4=(180, 90, 90, 90)
         )
 
         self.send_selected_props_cb = pm.checkBoxGrp(

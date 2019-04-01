@@ -124,22 +124,4 @@ def setup_paints_from_sheet(palette_name):
         colors.append(color)
     set_up_rack(colors)
 
-
-# def generate_rack_calibration():
-#     timestamp = write.get_timestamp()
-#     cdir = os.path.join(pm.workspace.getPath(), 'export', 'calibrations', 'rack', timestamp)
-#     uutl.mkdir_p(cdir)
-#     studio = Studio(rack_calibration=True)
-#     #     studio.write()
-#     # write_station(RL, ts_dir, timestamp)
-
-#     # if kw.get("painting_node"):
-#     #     write_program(RL, ts_dir, "px", timestamp)
-
-
-
-# def read_rack_calibration():
-#     pass
-
-
  

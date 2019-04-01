@@ -10,6 +10,11 @@ from contextlib import contextmanager
 PI = 3.14159265359
 
 
+CLEAN_FILE = os.path.join(
+    os.environ["UPRISING_PROJECT_PATH"],
+    "robodk",
+    "clean.rdk")
+
 from robolink import (
     Robolink,
     ITEM_TYPE_ROBOT,
@@ -222,15 +227,17 @@ def create_program(name):
     return RL.AddProgram(name)
 
 
-def create_frame(name):
+def create_frame(name, force=True):
     RL = Robolink()
     frame = RL.Item(name)
     if frame.Valid():
-        frame.Delete()
+        if force:
+            frame.Delete()
+        else:
+            return frame
     frame = RL.AddFrame(name)
     frame.setPose(rdk.eye())
     return frame
-
 
 def delete_tools():
     RL = Robolink()
@@ -277,7 +284,12 @@ def _create_joint_target(obj, name, frame):
     RL = Robolink()
     robot = RL.Item('', ITEM_TYPE_ROBOT)
     mat = obj.attr("worldMatrix[0]").get()
+
+    if name == "home_approach":
+        print "mat before", mat 
     mat = maya_to_robodk_mat(mat)
+    if name == "home_approach":
+        print "mat after", mat 
     joint_poses = config_000_poses(mat)
     if not joint_poses:
         raise Exception(
@@ -291,6 +303,13 @@ def _create_joint_target(obj, name, frame):
     target.setAsJointTarget()
     target.setJoints(joints)
     return target
+
+
+def clean_rdk():
+    RL = Robolink()
+    for station in RL.getOpenStations():
+        station.Delete()
+    RL.AddFile(CLEAN_FILE)
 
 # def config_first_pose(pose):
 #     RL = Robolink()
@@ -307,3 +326,7 @@ def _create_joint_target(obj, name, frame):
 #         if key == "000":
 #             result.append(joint_pose)
 #     return result
+
+
+
+

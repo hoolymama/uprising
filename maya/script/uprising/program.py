@@ -11,10 +11,14 @@ from robolink import (
     ITEM_TYPE_ROBOT,
     INSTRUCTION_COMMENT,
     INSTRUCTION_SHOW_MESSAGE,
-    INSTRUCTION_CALL_PROGRAM
+    INSTRUCTION_CALL_PROGRAM,
+    INSTRUCTION_INSERT_CODE
 )
 
 import const as k
+import logging
+logger = logging.getLogger('uprising')
+
 
 
 class ProgramError(Exception):
@@ -27,24 +31,24 @@ class Program(object):
 
     def write(self):
         self.program = uutl.create_program(self.program_name)
-        self.frame = uutl.create_frame("{}_frame".format(self.program_name))
         self.program.ShowInstructions(False)
-        # self.program.ShowInstructions(False)
+         
 
 class MainProgram(Program):
-    def __init__(self, name, node):
+    def __init__(self, name):
         super(MainProgram, self).__init__(name)
-        self.painting = ptg.Painting(node)
+        self.painting = ptg.Painting(pm.PyNode("mainPaintingShape"))
 
     def write(self, studio):
-        RL = Robolink()
-        robot = RL.Item('', ITEM_TYPE_ROBOT)
+        # RL = Robolink()
+        # robot = RL.Item('', ITEM_TYPE_ROBOT)
         super(MainProgram, self).write()
-
-        self.painting.write_brushes()
-        motion = self.painting.motion
-
+        self.frame = uutl.create_frame("{}_frame".format(self.program_name))
+       
         with uutl.minimize_robodk():
+            self.painting.write_brushes()
+            motion = self.painting.motion
+
             for cluster in self.painting.clusters:
 
                 if cluster.reason == "tool":
@@ -59,7 +63,7 @@ class MainProgram(Program):
                 self.program.RunInstruction(
                     dip_program_name, INSTRUCTION_CALL_PROGRAM)
 
-                cluster.write(self.program, self.frame, motion, RL, robot)
+                cluster.write(self.program, self.frame, motion, studio.RL, studio.robot)
 
             self.program.addMoveJ(studio.home_approach)
 
@@ -80,10 +84,12 @@ class DipProgram(Program):
         self.wipe_painting = ptg.Painting(wipe_node)
 
     def write(self, studio):
-        RL = Robolink()
-        robot = RL.Item('', ITEM_TYPE_ROBOT)
-
+        # RL = Robolink()
+        # robot = RL.Item('', ITEM_TYPE_ROBOT)
+        
         super(DipProgram, self).write()
+        self.frame = studio.dips_frame
+
         self.dip_painting.write_brushes()
         self.wipe_painting.write_brushes()
 
@@ -99,16 +105,18 @@ class DipProgram(Program):
 
                     self.program,
                     self.frame,
-                    self.dip_painting.motion, RL, robot)
+                    self.dip_painting.motion, studio.RL, studio.robot)
 
             for cluster in self.wipe_painting.clusters:
                 cluster.write(
 
                     self.program,
                     self.frame,
-                    self.wipe_painting.motion, RL, robot)
+                    self.wipe_painting.motion, studio.RL, studio.robot)
 
             self.program.addMoveJ(studio.dip_approach)
+
+ 
 
 
 class CalibrationProgram(Program):
@@ -126,7 +134,7 @@ class CalibrationProgram(Program):
     @staticmethod
     def _make_locator(parent, name, pos, **kw):
         rel = kw.get("relative", False)
-        rot = kw.get("rotation", pm.dt.Vector(0,180,0))
+        rot = kw.get("rotation", pm.dt.Vector(0, 180, 0))
         path = "{}|{}".format(parent, name)
         try:
             n = pm.PyNode(path)
@@ -145,6 +153,8 @@ class CalibrationProgram(Program):
 
     def write(self, tool_approach, home_approach):
         super(CalibrationProgram, self).write()
+        self.frame = uutl.create_frame("{}_frame".format(self.program_name))
+       
         self.brush.write()
         self.tool = self.RL.Item(self.brush.name)
         if not self.tool.Valid():
@@ -158,10 +168,10 @@ class CalibrationProgram(Program):
             "Starting calibration",
             INSTRUCTION_COMMENT)
         self.program.addMoveJ(tool_approach)
+        self.program.Pause()
         self.program.RunInstruction(
             "Attach calibration Tool: {}".format(
                 self.brush.name), INSTRUCTION_SHOW_MESSAGE)
-        self.program.Pause()
 
         self.write_locator_packs()
 
@@ -257,6 +267,7 @@ class RackCalibration(CalibrationProgram):
 
         self.program.addMoveJ(approach_target)
         self.program.addMoveL(base_target)
+        self.program.Pause()
         self.program.RunInstruction(
             "{} {} in the {} column, cell {}{}".format(
                 k.CAL_PAUSE_MESSAGE,
@@ -265,13 +276,12 @@ class RackCalibration(CalibrationProgram):
                 row,
                 column[which]),
             INSTRUCTION_SHOW_MESSAGE)
-        self.program.Pause()
         self.program.addMoveL(approach_target)
 
     def _setup_locators(self):
         locators = []
         i = 0
-        rot = pm.dt.Vector(0,180, 0)
+        rot = pm.dt.Vector(0, 180, 0)
         for pot, handle in self.pot_handle_pairs:
 
             parent = pot.getParent().getParent()
@@ -295,7 +305,7 @@ class RackCalibration(CalibrationProgram):
             i += 1
         return locators
 
-
+################# CALIBRATION ################# 
 class BoardCalibration(CalibrationProgram):
 
     def __init__(self, name):
@@ -337,13 +347,13 @@ class BoardCalibration(CalibrationProgram):
 
         self.program.addMoveJ(approach_target)
         self.program.addMoveL(base_target)
+        self.program.Pause()
         self.program.RunInstruction(
             "{} {} in cell B {}".format(
                 k.CAL_PAUSE_MESSAGE,
                 pack["name"],
                 row),
             INSTRUCTION_SHOW_MESSAGE)
-        self.program.Pause()
         self.program.addMoveL(approach_target)
 
     def _setup_locators(self):
@@ -353,16 +363,145 @@ class BoardCalibration(CalibrationProgram):
                 "probePointsSet",
                 q=True) for item in sublist]
         parent = pm.PyNode("|mainPaintingGroup|jpos|probes")
-        rot = pm.dt.Vector(180,0, -90)
+        rot = pm.dt.Vector(180, 0, -90)
         for i, v in enumerate(verts):
             index = int(str(v).split("[")[1].split("]")[0])
             px, py, _ = v.getPosition(space="world")
             name = "board_cal_{:02}".format(index)
             pack = {"name": name, "id": i}
             pack["base_loc"] = CalibrationProgram._make_locator(
-                parent, "base_{}".format(name), pm.dt.Vector(px, py, 0.0) , relative=False, rotation=rot)
+                parent, "base_{}".format(name), pm.dt.Vector(
+                    px, py, 0.0), relative=False, rotation=rot)
             pack["approach_loc"] = CalibrationProgram._make_locator(
                 parent, "approach_{}".format(name), pm.dt.Vector(
-                    px, py, k.CAL_APPROACH_HEIGHT),relative=False, rotation=rot)
+                    px, py, k.CAL_APPROACH_HEIGHT), relative=False, rotation=rot)
             locators.append(pack)
         return locators
+
+################# PICK PLACE ################# 
+
+
+
+
+class PickPlaceProgram(Program):
+ 
+    @staticmethod
+    def generate_program_name(brush_id):
+        raise NotImplementedError
+
+    def __init__(self, brush, pack, name):
+       
+        super(PickPlaceProgram, self).__init__(name)
+
+        # self.RL = Robolink()
+        # self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
+        self.brush = brush
+        self.pack = pack
+        self.targets = {}
+
+    def write(self, studio):
+        self.frame = studio.pick_place_frame 
+        super(PickPlaceProgram, self).write()
+
+        self.brush.write()
+        self.tool = studio.RL.Item(self.brush.name)
+        if not self.tool.Valid():
+            raise ProgramError(
+                "No Gripper Brush. Risk of damage. Can't continue.")
+
+        self.program.setSpeed(self.pack["lin_speed"], self.pack["ang_speed"])
+        self.program.setRounding(self.pack["rounding"])
+        self.program.setPoseTool(self.tool)
+
+
+
+        self.pin_target = self._create_target_from_pack("pin", studio.RL, studio.robot)
+        self.pin_ap_target = self._create_target_from_pack("pin_ap", studio.RL, studio.robot)
+        self.clear_target = self._create_target_from_pack("clear", studio.RL, studio.robot)
+        self.clear_ap_target = self._create_target_from_pack("clear_ap", studio.RL, studio.robot)
+ 
+
+    def _create_target_from_pack(self, key, RL, robot):
+        return self._create_a_target( 
+            self.pack[key].attr("worldMatrix[0]").get(),
+            "pick_place_{}_{:02d}".format( key, self.pack["brush_id"]),
+            k.FACING_RACK_JOINTS, RL, robot)
+
+    def _create_a_target(self, mat, name, facing_joints,RL, robot ):
+        target =  RL.Item(name)
+        if target.Valid():
+            return target
+        tool_pose = uutl.maya_to_robodk_mat(mat)
+        flange_pose = tool_pose * self.brush.matrix.invH()
+        target = RL.AddTarget(name,  self.frame,  robot)
+        joints = robot.SolveIK(flange_pose, facing_joints)
+        target.setPose(tool_pose)
+        target.setJoints(joints)
+        return target
+
+class PickProgram(PickPlaceProgram):
+
+    @staticmethod
+    def generate_program_name(brush_id):
+        return "pick_{:02d}".format(brush_id)
+     
+
+    def __init__(self, brush, pack):
+        name = PickProgram.generate_program_name(pack["brush_id"])
+        super(PickProgram, self).__init__(brush, pack, name)
+
+    def write(self, studio):
+        # logger.debug("PickProgram WRITE")
+        # self.program = uutl.create_program(self.program_name)
+        # self.program.ShowInstructions(False)
+
+        with uutl.minimize_robodk():
+            super(PickProgram, self).write(studio)
+     
+            self.program.RunInstruction( "Starting pick", INSTRUCTION_COMMENT)
+            self.program.addMoveJ(self.pin_ap_target)
+            self.program.addMoveL(self.pin_target)
+            self.program.Pause()
+
+            self.program.RunInstruction( "Gripper closes here",  INSTRUCTION_SHOW_MESSAGE)
+            self.program.RunInstruction('$OUT[1]=FALSE', INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction('$OUT[2]=TRUE', INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction('WAIT FOR ($IN[1])', INSTRUCTION_INSERT_CODE)
+
+            self.program.addMoveL(self.clear_target)
+            self.program.addMoveL(self.clear_ap_target)
+     
+
+
+class PlaceProgram(PickPlaceProgram):
+    
+    @staticmethod
+    def generate_program_name(brush_id):
+        return "place_{:02d}".format(brush_id)
+     
+    def __init__(self, brush, pack):
+        name = PlaceProgram.generate_program_name(pack["brush_id"])
+        super(PlaceProgram, self).__init__(brush, pack, name)
+
+
+    def write(self, studio):
+        # logger.debug("PlaceProgram WRITE")
+        # self.program = uutl.create_program(self.program_name)
+        # self.program.ShowInstructions(False)
+        with uutl.minimize_robodk():
+            super(PlaceProgram, self).write(studio)
+     
+            self.program.RunInstruction( "Starting place", INSTRUCTION_COMMENT)
+            self.program.addMoveJ(self.clear_ap_target)
+            self.program.addMoveL(self.clear_target)
+            self.program.addMoveL(self.pin_target)
+            self.program.Pause()
+
+            self.program.RunInstruction( "Gripper opens here",  INSTRUCTION_SHOW_MESSAGE)
+            self.program.RunInstruction('$OUT[2]=FALSE', INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction('$OUT[1]=TRUE', INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction('WAIT FOR ($IN[2])', INSTRUCTION_INSERT_CODE)
+
+            self.program.addMoveL(self.pin_ap_target)
+     
+
