@@ -66,6 +66,15 @@ def minimize_robodk():
 #     # RL.ShowRoboDK()
 
 
+
+
+@contextmanager
+def at_height(node, h):
+    old =  node.attr("tz").get() 
+    node.attr("tz").set(h)
+    yield
+    node.attr("tz").set(old)
+
 @contextmanager
 def final_position(*nodes):
     remember = []
@@ -285,11 +294,9 @@ def _create_joint_target(obj, name, frame):
     robot = RL.Item('', ITEM_TYPE_ROBOT)
     mat = obj.attr("worldMatrix[0]").get()
 
-    if name == "home_approach":
-        print "mat before", mat 
+ 
     mat = maya_to_robodk_mat(mat)
-    if name == "home_approach":
-        print "mat after", mat 
+ 
     joint_poses = config_000_poses(mat)
     if not joint_poses:
         raise Exception(

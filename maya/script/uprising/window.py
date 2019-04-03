@@ -99,7 +99,7 @@ reload(props)
 
 # reload(palette_menu)
 # reload(brush_menu)
-# reload(calibration_menu)
+reload(calibration_menu)
 
 
 

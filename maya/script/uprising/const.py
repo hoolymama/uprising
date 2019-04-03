@@ -15,7 +15,7 @@ FACING_RACK_JOINTS = [0, -60, 90, 0, 60, 0]
 
 RACK_POT_DEPTH = 3.7 # 3.5 next time
 RACK_HANDLE_HEIGHT = 3.8 #4.5 next time
-
+RACK_HOLDER_HEIGHT = 23.0
 
 CAL_PAUSE_MESSAGE = "Please enter gauge reading for"
 CAL_APPROACH_HEIGHT = 20

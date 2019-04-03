@@ -16,7 +16,8 @@ from robolink import (
 from program import (
     MainProgram,
     DipProgram,
-    RackCalibration,
+    PotCalibration,
+    HolderCalibration,
     BoardCalibration,
     PickProgram,
     PlaceProgram)
@@ -61,7 +62,7 @@ def get_dip_wipe_packs():
         paint_key = "p{:02d}".format(combo["paint"])
         brush_key = "b{:02d}".format(combo["brush"])
 
-        print "{} -- {}".format(dip_ptg_path, wipe_ptg_path)
+        # print "{} -- {}".format(dip_ptg_path, wipe_ptg_path)
         try:
             dip_ptg = pm.ls(dip_ptg_path, type="painting")[0]
             wipe_ptg = pm.ls(wipe_ptg_path, type="painting")[0]
@@ -81,24 +82,29 @@ def get_dip_wipe_packs():
     return result
 
 
-def get_pick_place_packs():
+def get_pick_place_packs(all_holders=False):
     result = {}
-    # racks = ["rack1"]
     painting = pm.PyNode("mainPaintingShape")
-    dc = pm.paintingQuery(painting, dc=True)
-    bids = sorted(set(dc[::2]))
-    holders_node = pm.PyNode("|RACK1_CONTEXT|j1|rack1|holders")
+    if all_holders:
+        bids = [int(n[-2:])
+                for n in pm.ls("RACK1_CONTEXT|j1|rack1|holders|holderRot*")]
+    else:
+        dc = pm.paintingQuery(painting, dc=True)
+        bids = set(dc[::2])
+
+    holders_node = pm.PyNode("RACK1_CONTEXT|j1|rack1|holders")
     path_attributes = {
         "lin_speed": holders_node.attr("linearSpeed").get() * 10,
         "ang_speed": holders_node.attr("angularSpeed").get(),
         "rounding": holders_node.attr("approximationDistance").get() * 10,
-
     }
     for bid in bids:
         key = "b{:02d}".format(bid)
         trans = "holderRot{:02d}|holderTrans".format(bid)
         result[key] = {
+            "trans_node": pm.PyNode(trans),
             "brush_id": bid,
+            "probe": pm.PyNode("{}|probe_loc".format(trans)),
             "pin": pm.PyNode("{}|pin_loc".format(trans)),
             "pin_ap": pm.PyNode("{}|pin_approach_loc".format(trans)),
             "clear": pm.PyNode("{}|clear_loc".format(trans)),
@@ -117,13 +123,14 @@ class Studio(object):
         self.RL = Robolink()
         self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
 
-
         self.approaches_frame = None
         self.dip_approach = None
         self.tool_approach = None
         self.home_approach = None
         self.painting_program = None
         self.rack_cal_program = None
+        self.pot_cal_program = None
+        self.holder_cal_program = None
         self.board_cal_program = None
         self.dip_programs = []
         self.pick_place_programs = []
@@ -132,8 +139,10 @@ class Studio(object):
         do_painting = kw.get("do_painting")
         do_dips = kw.get("do_dips")
         do_auto_change = kw.get("do_auto_change")
+
         do_board_calibration = kw.get("do_board_calibration")
-        do_rack_calibration = kw.get("do_rack_calibration")
+        do_pot_calibration = kw.get("do_pot_calibration")
+        do_holder_calibration = kw.get("do_holder_calibration")
 
         if do_dips:
             logger.debug("Studio: dips")
@@ -150,9 +159,14 @@ class Studio(object):
             with uutl.final_position(pm.PyNode("mainPaintingShape")):
                 self.painting_program = MainProgram("px")
 
-        if do_rack_calibration:
-            logger.debug("Studio: rack_calibration")
-            self.rack_cal_program = RackCalibration("rx")
+        if do_pot_calibration:
+            logger.debug("Studio:  pot_calibration")
+            self.pot_cal_program = PotCalibration("pot")
+
+        if do_holder_calibration:
+            packs = get_pick_place_packs(True)
+            logger.debug("Studio:  holder_calibration")
+            self.holder_cal_program = HolderCalibration("holder", packs)
 
         if do_board_calibration:
             logger.debug("Studio: board_calibration")
@@ -213,9 +227,9 @@ class Studio(object):
             pm.PyNode(HOME_TARGET), "home_approach", self.approaches_frame)
         self.dip_approach = uutl._create_joint_target(
             pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame)
- 
+
     def write(self):
- 
+
         if self.do_approaches:
             self._write_approaches()
 
@@ -239,9 +253,15 @@ class Studio(object):
                 for prog in self.pick_place_programs:
                     prog.write(self)
 
-        if self.rack_cal_program:
+        if self.pot_cal_program:
             with uutl.final_position(rack_context):
-                self.rack_cal_program.write(
+                self.pot_cal_program.write(
+                    self.tool_approach,
+                    self.home_approach)
+
+        if self.holder_cal_program:
+            with uutl.final_position(rack_context):
+                self.holder_cal_program.write(
                     self.tool_approach,
                     self.home_approach)
 

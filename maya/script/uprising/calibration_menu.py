@@ -18,13 +18,25 @@ def create():
         label="Read rack triangulation",
         command=pm.Callback(read_rack_triangulation))
 
+    pm.menuItem(divider=True)
+    
     pm.menuItem(
-        label="Generate rack calibration",
-        command=pm.Callback(generate_rack_calibration))
+        label="Generate paintpot calibration",
+        command=pm.Callback(generate_pot_calibration))
 
     pm.menuItem(
-        label="Read rack calibration",
-        command=pm.Callback(read_rack_calibration))
+        label="Read paintpot calibration",
+        command=pm.Callback(read_pot_calibration))
+
+    pm.menuItem(divider=True)
+    
+    pm.menuItem(
+        label="Generate holder calibration",
+        command=pm.Callback(generate_holder_calibration))
+
+    pm.menuItem(
+        label="Read holder calibration",
+        command=pm.Callback(read_holder_calibration))
 
     pm.setParent("..", menu=True)
 
@@ -72,10 +84,11 @@ def _read_triangulation(sheet_range):
 
 def _generate_calibration(which):
     kw = {
-        "do_rack_calibration": which == "rack",
-        "do_board_calibration": which == "board"
+        "do_pot_calibration": which == "pot",
+        "do_holder_calibration": which == "holder",
+        "do_board_calibration": which == "board",
     }
-    prefix = "rx" if which == "rack" else "bx"
+    # prefix = "rx" if which == "rack" else "bx"
 
     timestamp = write.get_timestamp()
     calib_dir = os.path.join(
@@ -87,31 +100,33 @@ def _generate_calibration(which):
     uutl.mkdir_p(calib_dir)
     studio = Studio(**kw)
     studio.write()
-    write.write_program(Robolink(), calib_dir, prefix, timestamp)
+    write.write_program(Robolink(), calib_dir, which, timestamp)
 
-
-def _set_precise(geo, gauge_reading, probe_height):
-    new_pos = probe_height + (gauge_reading * 0.1) - 1.0
-    geo.getParent().attr("tz").set(new_pos)
 
 
 def read_rack_triangulation():
     _read_triangulation('Rack!A1:D3')
 
-
-def generate_rack_calibration():
-    _generate_calibration("rack")
-
-
 def read_board_triangulation():
     _read_triangulation('Board!A1:D3')
 
 
+
+def generate_pot_calibration():
+    _generate_calibration("pot")
+
+def generate_holder_calibration():
+    _generate_calibration("holder")
+
 def generate_board_calibration():
     _generate_calibration("board")
+ 
+def _set_precise(xf, gauge_reading, probe_height):
+    new_pos = probe_height + (gauge_reading * 0.1) - 1.0
+    xf.attr("tz").set(new_pos)
 
 
-def read_rack_calibration():
+def read_pot_calibration():
     service = sheets._get_service()
     result = service.spreadsheets().values().get(
         spreadsheetId=sheets.SHEETS["Measurements"],
@@ -121,14 +136,30 @@ def read_rack_calibration():
 
     pots = putl.get_pots()
     handles = putl.get_handles()
-    print "{} {} {}".format(len(data), len(pots), len(handles))
     if not (len(data) == len(pots) and len(data) == len(handles)):
         raise IndexError("Sheet data and number of pots are different lengths")
 
     for row in data:
         i = int(uutl.numeric(row[0]))
-        _set_precise(pots[i], uutl.numeric(row[1]), -k.RACK_POT_DEPTH)
-        _set_precise(handles[i], uutl.numeric(row[2]), k.RACK_HANDLE_HEIGHT)
+        _set_precise(pots[i].getParent(), uutl.numeric(row[1]), -k.RACK_POT_DEPTH)
+        _set_precise(handles[i].getParent(), uutl.numeric(row[2]), k.RACK_HANDLE_HEIGHT)
+
+
+def read_holder_calibration():
+    service = sheets._get_service()
+    result = service.spreadsheets().values().get(
+        spreadsheetId=sheets.SHEETS["Measurements"],
+        range='Rack!A6:D25').execute()
+
+    data = result.get('values', [])
+
+    holders = pm.ls("RACK1_CONTEXT|j1|rack1|holders|holderRot*|holderTrans")
+    if not  len(data) == len(holders):
+        raise IndexError("Sheet data and number of holders are different")
+
+    for row in data:
+        i = int(uutl.numeric(row[0]))
+        _set_precise(holders[i], uutl.numeric(row[3]), k.RACK_HOLDER_HEIGHT)
 
 
 def read_board_calibration():

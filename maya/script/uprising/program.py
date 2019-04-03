@@ -218,10 +218,10 @@ class CalibrationProgram(Program):
         return target
 
 
-class RackCalibration(CalibrationProgram):
+class PotCalibration(CalibrationProgram):
 
     def __init__(self, name):
-        super(RackCalibration, self).__init__(name)
+        super(PotCalibration, self).__init__(name)
         self.pot_handle_pairs = putl.get_pot_handle_pairs()
         self.locators = self._setup_locators()
 
@@ -304,6 +304,54 @@ class RackCalibration(CalibrationProgram):
             locators.append(pack)
             i += 1
         return locators
+
+
+class HolderCalibration(CalibrationProgram):
+
+    # Height of holder that is aligned with a perfect
+    # flat perspex top. 
+    
+
+    def __init__(self, name, packs):
+        super(HolderCalibration, self).__init__(name)
+        self.locators = packs
+
+    def write_locator_packs(self):
+        bids = sorted(self.locators.keys())
+        for bid in bids: 
+            pack = self.locators[bid]
+            with uutl.at_height(pack["trans_node"], k.RACK_HOLDER_HEIGHT):
+                self._write_one_probe(self.locators[bid])
+
+    def _write_one_probe(self, pack):
+
+        self.program.RunInstruction( "Moving to holder {}".format(pack["brush_id"]), INSTRUCTION_COMMENT)
+
+        row = k.CAL_SHEET_FIRST_ROW + int(pack["brush_id"])
+
+        base_target = self._create_a_target(
+            pack["probe"].attr("worldMatrix[0]").get(),
+            "base_{:02d}".format(pack["brush_id"]),
+            k.FACING_RACK_JOINTS
+        )
+
+        approach_target = self._create_a_target(
+            pack["pin_ap"].attr("worldMatrix[0]").get(),
+            "approach_{:02d}".format(pack["brush_id"]),
+            k.FACING_RACK_JOINTS
+        )
+
+        self.program.addMoveJ(approach_target)
+        self.program.addMoveL(base_target)
+        self.program.RunInstruction(
+            "{} holder_{:02d} in the holder column, cell {}D".format(
+                k.CAL_PAUSE_MESSAGE,
+                pack["brush_id"], 
+                row),
+            INSTRUCTION_SHOW_MESSAGE)
+        self.program.Pause()
+        self.program.addMoveL(approach_target)
+ 
 
 ################# CALIBRATION ################# 
 class BoardCalibration(CalibrationProgram):
