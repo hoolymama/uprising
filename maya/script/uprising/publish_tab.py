@@ -27,20 +27,7 @@ class PublishTab(gui.FormLayout):
             pass
 
         self.on_current_frame_cb_change()
-        # self.on_context_rb_change()
-        # self.on_components_cb_change()
-
-    # def on_context_rb_change(self):
-    #     val = pm.radioButtonGrp(
-    #         self.context_rb, query=True, sl=True)
-    #     pm.checkBoxGrp(self.components_cb, edit=True, en=(val == 2))
-
-    # def on_components_cb_change(self):
-    #     do_painting, do_verify = pm.checkBoxGrp(
-    #         self.components_cb, q=True, valueArray2=True)
-
-        # pm.rowLayout(self.anim_row, edit=True, en=do_painting)
-
+ 
     def create_ui(self):
         pm.setParent(self.column)
 
@@ -48,8 +35,8 @@ class PublishTab(gui.FormLayout):
             height=30,
             label='Context',
             labelArray3=[
-                "Manual painting",
-                "Auto painting",
+                "Bayonet painting",
+                "Gripper painting",
                 "Snapshot only"],
             sl=1,
             numberOfRadioButtons=3
@@ -57,43 +44,12 @@ class PublishTab(gui.FormLayout):
 
         )
 
-        # self.calibration_cb = pm.checkBoxGrp(
-        #     numberOfCheckBoxes=1,
-        #     height=30,
-        #     label='Calibration only',
-        #     value1=False,
-        #     columnWidth2=(180, 300),
-        #     changeCommand=pm.Callback(self.on_calibration_cb_change)
-        # )
-
-        # self.components_cb = pm.checkBoxGrp(
-        #     numberOfCheckBoxes=3,
-        #     height=30,
-        #     label='Components',
-        #     labelArray3=['Painting', "Dips", "Pick & Place"],
-        #     valueArray3=[True, True, True],
-        #     columnWidth4=(180, 200, 200, 200)
-        #     # ,changeCommand=pm.Callback(self.on_components_cb_change)
-        # )
-
-        # self.create_description_ui()
 
         pm.setParent(self.column)
         min_frame = int(pm.playbackOptions(min=True, query=True))
         max_frame = int(pm.playbackOptions(max=True, query=True))
 
-        # with uutl.activatable(state=False):
-        #     self.pre_frame_py_tf = pm.textFieldButtonGrp(
-        #         label='Pre-frame python',
-        #         text='load_numbered_brush_pouch,test_set',
-        #         buttonLabel='Go',
-        #         columnWidth3=(
-        #             140,
-        #             200,
-        #             50),
-        #         buttonCommand=pm.Callback(
-        #             self.test_python_callback))
-
+ 
         self.anim_row = pm.rowLayout(height=30,
                                      numberOfColumns=2,
                                      columnWidth2=(
@@ -118,11 +74,7 @@ class PublishTab(gui.FormLayout):
 
         pm.setParent('..')
 
-        # self.save_maya_only_cb = pm.checkBoxGrp(
-        #     label='Skip RoboDK',
-        #     ann="Save Maya files only",
-        #     value1=False)
-
+ 
         self.save_unfiltered_snapshot = pm.checkBoxGrp(
             height=30,
             label='Save unfiltered snapshot',
@@ -138,84 +90,7 @@ class PublishTab(gui.FormLayout):
     def on_current_frame_cb_change(self):
         state = pm.checkBox(self.current_frame_cb, query=True, value=True)
         pm.intFieldGrp(self.frame_if, edit=True, enable=(not state))
-
-    # def create_description_ui(self):
-
-    #     form = pm.formLayout()
-
-    #     self.description_tf = pm.scrollField(
-    #         nl=5, wordWrap=True, text="Description...")
-
-    #     self.ground_tf = pm.textField()
-    #     self.medium_tf = pm.textField()
-    #     self.palette_name_tf = pm.textField()
-
-    #     load_but = pm.button(
-    #         width=100,
-    #         label="Load",
-    #         command=pm.Callback(self.on_load_notes))
-    #     save_but = pm.button(
-    #         width=100,
-    #         label="Save",
-    #         command=pm.Callback(self.on_save_notes))
-
-    #     form.attachForm(load_but, 'top', 2)
-    #     form.attachPosition(load_but, 'left', 2, 80)
-    #     form.attachPosition(load_but, 'bottom', 2, 50)
-    #     form.attachForm(load_but, 'right', 2)
-
-    #     form.attachPosition(save_but, 'top', 2, 50)
-    #     form.attachPosition(save_but, 'left', 2, 80)
-    #     form.attachForm(save_but, 'bottom', 2)
-    #     form.attachForm(save_but, 'right', 2)
-
-    #     form.attachNone(self.medium_tf, 'top')
-    #     form.attachForm(self.medium_tf, 'left', 2)
-    #     form.attachForm(self.medium_tf, 'bottom', 2)
-    #     form.attachPosition(self.medium_tf, 'right', 2, 27)
-
-    #     form.attachNone(self.palette_name_tf, 'top')
-    #     form.attachControl(self.palette_name_tf, 'left', 2, self.medium_tf)
-    #     form.attachForm(self.palette_name_tf, 'bottom', 2)
-    #     form.attachPosition(self.palette_name_tf, 'right', 2, 54)
-
-    #     form.attachNone(self.ground_tf, 'top')
-    #     form.attachControl(self.ground_tf, 'left', 2, self.palette_name_tf)
-    #     form.attachForm(self.ground_tf, 'bottom', 2)
-    #     form.attachControl(self.ground_tf, 'right', 2, save_but)
-
-    #     form.attachForm(self.description_tf, 'left', 2)
-    #     form.attachControl(self.description_tf, 'right', 2, load_but)
-    #     form.attachForm(self.description_tf, 'top', 2)
-    #     form.attachControl(self.description_tf, 'bottom', 2, self.medium_tf)
-
-    # def on_load_notes(self):
-    #     assembly = pm.PyNode("mainPaintingGroup")
-    #     notes_att, ground_att, medium_att, palette_name_att = sfu.ensure_painting_has_notes(
-    #         assembly)
-    #     notes = notes_att.get()
-    #     ground = ground_att.get()
-    #     medium = medium_att.get()
-    #     palette_name = palette_name_att.get()
-
-    #     pm.scrollField(self.description_tf, edit=True, text=notes)
-    #     pm.textField(self.ground_tf, edit=True, text=ground)
-    #     pm.textField(self.medium_tf, edit=True, text=medium)
-    #     pm.textField(self.palette_name_tf, edit=True, text=palette_name)
-
-    # def on_save_notes(self):
-    #     assembly = pm.PyNode("mainPaintingGroup")
-    #     notes = pm.scrollField(self.description_tf, query=True, text=True)
-    #     medium = pm.textField(self.medium_tf, query=True, text=True)
-    #     ground = pm.textField(self.ground_tf, query=True, text=True)
-    #     palette_name = pm.textField(
-    #         self.palette_name_tf, query=True, text=True)
-    #     notes_att, ground_att, medium_att, palette_name_att = sfu.ensure_painting_has_notes(
-    #         assembly)
-    #     notes_att.set(notes)
-    #     ground_att.set(ground)
-    #     medium_att.set(medium)
-    #     palette_name_att.set(palette_name)
+ 
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -242,36 +117,10 @@ class PublishTab(gui.FormLayout):
 
     def populate(self):
         pass
-        # val = "default"
-        # if "up_setup_palette_name" in pm.optionVar:
-        #     val = pm.optionVar["up_setup_palette_name"]
-        # print val
-        # pm.textFieldGrp(self.setup_paints_tf, e=True, text=val)
-
+ 
     def save(self):
         pass
-        # val = pm.textFieldButtonGrp(self.setup_paints_tf, q=True, text=True)
-        # pm.optionVar["up_setup_palette_name"] = val
-
-    # def test_python_callback(self):
-
-    #     pre_frame_py = pm.textFieldButtonGrp(
-    #         self.pre_frame_py_tf,
-    #         q=True,
-    #         text=True)
-
-    #     kw = {
-    #         "frame": pm.currentTime(q=True),
-    #         "painting_node": pm.PyNode("mainPaintingShape"),
-    #         "dip_node": pm.PyNode("dipPaintingShape")
-    #     }
-
-    #     args = pre_frame_py.split(",")
-    #     cmd = args[0]
-    #     args = [uutl.numeric(a.strip()) for a in args[1:]]
-    #     method = getattr(callbacks, cmd)
-    #     res = method(*args, **kw)
-    #     print res
+ 
 
     def _get_frames(self):
         current_only = pm.checkBox(
@@ -307,9 +156,7 @@ class PublishTab(gui.FormLayout):
 
         painting_node = pm.PyNode("mainPaintingShape")
 
-        # do_painting, do_dips, do_pick_place = pm.checkBoxGrp(
-        #     self.components_cb, q=True, valueArray3=True)
-
+ 
         current_only = pm.checkBox(
             self.current_frame_cb, query=True, value=True)
         frames = self._get_frames()

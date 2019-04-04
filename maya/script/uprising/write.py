@@ -103,13 +103,11 @@ def publish_sequence(
 
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
-
-        # run_hook(pre_frame_py)
+ 
         timestamp = get_timestamp(frame)
         ts_dir = get_ts_dir(export_dir, timestamp)
         uutl.mkdir_p(ts_dir)
-        # desc, notes = split_desc(description.replace("#f", str(frame)))
-
+ 
         write_maya_scene(ts_dir, timestamp)
         write_csv(export_dir, timestamp)
 
@@ -129,12 +127,12 @@ def publish_sequence(
         # if auto:
         #     pick_place_packs = _get_pick_place_packs()
 
-        # write_log(
-        #     painting_node,
-        #     # dip_wipe_packs,
-        #     ts_dir,
-        #     timestamp,
-        #     frame)
+        write_log(
+            painting_node,
+            # dip_wipe_packs,
+            ts_dir,
+            timestamp,
+            frame)
 
         # publish_robodk_painting( ts_dir, timestamp, auto)
 
@@ -177,15 +175,8 @@ def get_ts_dir(containing_dir, timestamp):
     return os.path.join(containing_dir, timestamp)
 
 
-def write_csv(export_dir, timestamp, description, notes, medium, ground):
-    if description:
-        description = (" ").join(description.replace(",", " - ").splitlines())
-    else:
-        description = "none"
-    if notes:
-        notes = (" ").join(notes.replace(",", " - ").splitlines())
-    else:
-        notes = "none"
+def write_csv(export_dir, timestamp):
+
     fn = os.path.join(export_dir, "session_entries.csv")
     export_root = os.path.join(pm.workspace.getPath(), 'export')
     folder = export_dir.replace(export_root, "")
@@ -193,13 +184,13 @@ def write_csv(export_dir, timestamp, description, notes, medium, ground):
     line = (",").join([folder,
                        "ID",
                        timestamp,
-                       description,
-                       medium,
-                       ground,
+                       "description",
+                       "acrylic",
+                       "canvas board",
                        "1",
                        "LINK",
                        "Waiting",
-                       notes])
+                       "notes"])
 
     with open(fn, 'a+') as the_file:
         the_file.write(line)
@@ -281,17 +272,16 @@ def write_maya_scene(ts_dir, timestamp):
 
 def used_paints_and_brushes(painting_node):
     dc = pm.paintingQuery(painting_node, dc=True)
-    bids = sorted(set(dc[::2]))
-    pids = sorted(set(dc[1::2]))
+    bids =  dc[::2]
+    pids =  dc[1::2]
     paints = Paint.paints(painting_node)
     brushes = Brush.brushes(painting_node)
     used_paints = [paints[_id] for _id in pids]
     used_brushes = [brushes[_id] for _id in bids]
-    return (used_paints, used_brushes)
+    return zip(used_brushes, used_paints)
 
 
 def painting_stats(node):
-    print "painting_stats {}".format(str(node))
     cluster_count = pm.paintingQuery(node, cc=True)
     stroke_count = 0
     reason_result = {"dip": 0, "tool": 0, "tcp": 0}
@@ -315,59 +305,35 @@ def painting_stats(node):
         "avg_stroke_travel_per_cluster": avg_travel_per_cluster
     }
     return result
+ 
+def used_brushes(painting_node):
+    ids = pm.paintingQuery(painting_node, dc=True)[0::2]
+    ids = sorted(set(ids))
+    brushes = Brush.brushes(painting_node)
+    return [brushes[_id] for _id in ids]
 
-
-# def _painting_stats(node):
-#     cluster_count = pm.paintingQuery(node, cc=True)
-#     stroke_count = 0
-#     reason_result = {"dip": 0, "tool": 0, "tcp": 0}
-#     for i in range(cluster_count):
-#         stroke_count += pm.paintingQuery(node, ci=i, sc=True)
-#         reason = pm.paintingQuery(node, ci=i, clusterReason=True)
-#         reason_result[reason] += 1
-#     strokes_per_cluster = stroke_count / float(cluster_count)
-
-#     result = {
-#         "Cluster count": cluster_count,
-#         "Stroke count": stroke_count,
-#         "Strokes per cluster": strokes_per_cluster,
-#         "Tool changes": reason_result["tool"],
-#         "Dip only changes": reason_result["dip"],
-#         "Tcp only changes": reason_result["tcp"]
-#     }
-#     return result
-
-def _used_paints(painting_node):
+def used_paints(painting_node):
     ids = pm.paintingQuery(painting_node, dc=True)[1::2]
     ids = sorted(set(ids))
     paints = Paint.paints(painting_node)
     return [paints[_id] for _id in ids]
 
 
-def write_log(
-        painting_node,
-        # dip_node,
-        ts_dir,
-        timestamp,
-        description,
-        notes,
-        frame):
+ 
 
+def write_log( ts_dir, timestamp, frame):
+
+    painting_node = pm.PyNode("mainPaintingShape")
     dip_combos = setup_dip.dip_combinations(painting_node)
-
-    print ""
+ 
     pnt_stats = painting_stats(painting_node)
     # dip_stats = painting_stats(dip_node)
 
-    paints_in_use = _used_paints(painting_node)
-    paints_in_use, brushes_in_use = used_paints_and_brushes(painting_node)
+    # paints_in_use = used_paints(painting_node)
+    brush_paint_pairs = used_paints_and_brushes(painting_node)
 
     log_file = os.path.join(ts_dir, "log.txt")
     with open(log_file, 'w') as the_file:
-        the_file.write("Description:\n")
-        the_file.write("%s\n\n" % description)
-        the_file.write("Notes:\n")
-        the_file.write("%s\n\n" % notes)
 
         the_file.write("Timestamp: %s\n\n" % timestamp)
 
@@ -378,31 +344,22 @@ def write_log(
             the_file.write("%s: %s\n" % (k, pnt_stats[k]))
         the_file.write("\n")
 
-        # the_file.write("\n")
-        # the_file.write("Dip node stats:\n")
-        # for k in dip_stats:
-        #     the_file.write("%s: %s\n" % (k, dip_stats[k]))
-
         the_file.write("\n")
-        the_file.write("Paints in use:\n")
-        for paint in paints_in_use:
-            the_file.write("%s\t:%s\n" % (paint.id, paint.name))
+        the_file.write("Brush + aint pairs:\n")
+        for brush, paint in brush_paint_pairs:
+            the_file.write("{}({:02d}) + {}({:02d})".format(brush.node_name, brush.id, paint.name, paint.id))
         the_file.write("\n")
 
-        the_file.write("Brushes in use:\n")
-        for brush in brushes_in_use:
-            the_file.write("%s\t:%s\n" % (brush.id, brush.node_name))
         the_file.write("\n")
-
-        the_file.write("Dip combinations:\n")
-        for k in dip_combos:
-            the_file.write("%s\n" % k)
+        the_file.write("Used brushes:\n")
+        for brush in used_brushes(painting_node):
+            the_file.write("{}({:02d})".format(brush.node_name, brush.id))
+ 
         the_file.write("\n")
-
-        # err_str = "TRUE" if write_error else "FALSE"
-        # the_file.write("Errors while writing: %s\n" % err_str)
-
-
+        the_file.write("Used paints:\n")
+        for paint in used_paints(painting_node):
+            the_file.write("{}({:02d})".format(paint.name, paint.id))
+ 
 def write_info(
         painting_node,
         proposals_dir,

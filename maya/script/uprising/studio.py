@@ -157,7 +157,7 @@ class Studio(object):
         if do_painting:
             logger.debug("Studio: main_painting")
             with uutl.final_position(pm.PyNode("mainPaintingShape")):
-                self.painting_program = MainProgram("px")
+                self.painting_program = MainProgram("px", use_gripper=do_auto_change)
 
         if do_pot_calibration:
             logger.debug("Studio:  pot_calibration")

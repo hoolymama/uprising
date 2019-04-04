@@ -35,9 +35,29 @@ class Program(object):
          
 
 class MainProgram(Program):
-    def __init__(self, name):
+    def __init__(self, name, use_gripper=False):
         super(MainProgram, self).__init__(name)
         self.painting = ptg.Painting(pm.PyNode("mainPaintingShape"))
+        self.use_gripper=use_gripper
+
+
+    def _change_tool(self, last_brush_id, cluster, studio):
+        if self.use_gripper:
+            if last_brush_id is not None:
+                # put the last brush back
+                place_program_name = PlaceProgram.generate_program_name(last_brush_id)
+                self.program.RunInstruction(
+                    place_program_name, INSTRUCTION_CALL_PROGRAM)
+
+            pick_program_name = PickProgram.generate_program_name(cluster.brush.id)
+            self.program.RunInstruction(
+                pick_program_name, INSTRUCTION_CALL_PROGRAM)
+        else:
+            self.program.addMoveJ(studio.tool_approach)
+            self.program.RunInstruction(cluster.change_tool_message(),
+                                    INSTRUCTION_SHOW_MESSAGE)
+            self.program.Pause()
+
 
     def write(self, studio):
         # RL = Robolink()
@@ -49,21 +69,24 @@ class MainProgram(Program):
             self.painting.write_brushes()
             motion = self.painting.motion
 
+            last_brush_id = None
             for cluster in self.painting.clusters:
-
                 if cluster.reason == "tool":
-                    self.program.addMoveJ(studio.tool_approach)
-                    self.program.RunInstruction(cluster.change_tool_message(),
-                                                INSTRUCTION_SHOW_MESSAGE)
-                    self.program.Pause()
+                    self._change_tool(last_brush_id, cluster , studio)
+                    last_brush_id = cluster.brush.id
 
                 dip_program_name = DipProgram.generate_program_name(
                     cluster.paint.id, cluster.brush.id)
-
                 self.program.RunInstruction(
                     dip_program_name, INSTRUCTION_CALL_PROGRAM)
 
                 cluster.write(self.program, self.frame, motion, studio.RL, studio.robot)
+
+            if self.use_gripper:
+                place_program_name = PlaceProgram.generate_program_name(last_brush_id)
+                self.program.RunInstruction(
+                    place_program_name, INSTRUCTION_CALL_PROGRAM)
+
 
             self.program.addMoveJ(studio.home_approach)
 

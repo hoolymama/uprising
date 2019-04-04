@@ -153,21 +153,22 @@ def on_print_stats():
     print "-" * 50
 
     # dip_node = pm.PyNode("dipPaintingShape")
-    print "Dip combinations:"
-    for k in setup_dip.dip_combinations(painting_node):
-        print "%s" % k
+    brush_paint_pairs = write.used_paints_and_brushes(painting_node)
+    print "Brush / Paint pairs:"
+    for brush, paint in brush_paint_pairs:
+        print "{}({:02d}) + {}({:02d})".format(brush.node_name, brush.id, paint.name, paint.id)
+ 
+    print "Brushes in use:"
+    for brush in write.used_brushes(painting_node):
+        print "%s\t:%s" % (brush.id, brush.node_name)
     print "\n"
 
-    paints, brushes = write.used_paints_and_brushes(painting_node)
+
     print "Paints in use:"
-    for paint in paints:
+    for paint in write.used_paints(painting_node):
         print "%s\t:%s" % (paint.id, paint.name)
     print "\n"
 
-    print "Brushes in use:"
-    for brush in brushes:
-        print "%s\t:%s" % (brush.id, brush.node_name)
-    print "\n"
 
     print "Painting node stats:"
     p_stats = write.painting_stats(painting_node)

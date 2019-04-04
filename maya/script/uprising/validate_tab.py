@@ -46,7 +46,7 @@ class ValidateTab(gui.FormLayout):
             numberOfCheckBoxes=3,
             height=30,
             label='Create components',
-            labelArray3=['Painting', 'Dips', "Pick & place"],
+            labelArray3=['Painting', 'Pick & place', "Dips"],
             valueArray3=[False, False, False],
             columnWidth4=(180, 90, 90, 90)
         )
@@ -221,99 +221,73 @@ status        : %s
                 text += "%s : %s\n" % (k, metadata[k])
         return text
 
+    def _get_frames(self):
+        current_only = pm.checkBox(
+            self.current_frame_cb, query=True, value=True)
+        if current_only:
+            frame = int(pm.currentTime(query=True))
+            frames = (frame, frame)
+        else:
+            frames = (
+                pm.intFieldGrp(
+                    self.frame_if,
+                    query=True,
+                    value1=True),
+                pm.intFieldGrp(
+                    self.frame_if,
+                    query=True,
+                    value2=True))
+        return frames
+
     def do_simple_validation(self):
 
         send = pm.checkBoxGrp(
             self.send_paintings_cb,
             query=True,
-            valueArray4=True)
+            valueArray3=True)
 
-        kw = {}
-        if send[0]:
-            kw["painting_node"] = pm.PyNode("mainPaintingShape")
-        if send[1]:
-            kw["dip_node"] = pm.PyNode("dipPaintingShape")
-        if send[2]:
-            kw["calibration_node"] = pm.PyNode("mainPaintingShape")
-        if send[3]:
-            kw["verification_node"] = pm.PyNode("mainPaintingShape")
+        kw = {
+            "do_painting": send[0], 
+            "do_auto_change": send[1], 
+            "do_dips": send[2]
+        }
 
-        send_selected_props = pm.checkBoxGrp(
-            self.send_selected_props_cb, query=True, value1=True)
-
-        # send_brushes = pm.checkBoxGrp(
-        #     self.send_brushes_cb, query=True, value1=True)
-
+ 
+        if  pm.checkBoxGrp( self.send_selected_props_cb, query=True, value1=True):
+            props.send(pm.ls(selection=True))
 
 
         result = []
 
-        if sum(send):
-            current_only = pm.checkBox(
-                self.current_frame_cb, query=True, value=True)
-            if current_only:
-                frame = int(pm.currentTime(query=True))
-                frames = (frame, frame)
-            else:
-                frames = (
-                    pm.intFieldGrp(
-                        self.frame_if,
-                        query=True,
-                        value1=True),
-                    pm.intFieldGrp(
-                        self.frame_if,
-                        query=True,
-                        value2=True))
+        if not sum(send):
+            return
 
-            try:
-                with uutl.minimize_robodk():
-                    for f in range(frames[0], (frames[1] + 1)):
-                        pm.currentTime(f)
+        frames = self._get_frames()
 
-                        studio = Studio(**kw)
-                        studio.write()
+        try:
+            for f in range(frames[0], (frames[1] + 1)):
+                pm.currentTime(f)
+                studio = Studio(**kw)
+                studio.write()
 
-                        if kw.get("painting_node"):
-                            p_stats = write.painting_stats(kw["painting_node"])
-                            p_stats["frame"] = f
-                            validation_info = self.validate_path(
-                                studio.painting_program)
-                            result.append((validation_info, p_stats))
+                if kw.get("do_painting"):
+                    p_stats = write.painting_stats(pm.PyNode("mainPaintingShape"))
+                    p_stats["frame"] = f
+                    validation_info = self.validate_path(
+                        studio.painting_program.program)
+                    result.append((validation_info, p_stats))
 
-            except Exception:
-                t, v, tb = sys.exc_info()
-                if result:
-                    for msg, stats in result:
-                        print self.format_path_result(msg, **stats)
-                raise t, v, tb
-            else:
-                if result:
-                    for msg, stats in result:
-                        print self.format_path_result(msg, **stats)
-
-            # msg = self.format_path_result(path_result, {})
-            # pm.confirmDialog(
-            #     title='Path validation result',
-            #     message=msg,
-            #     button=['OK'],
-            #     defaultButton='OK',
-            #     cancelButton='OK',
-            #     dismissString='OK')
-
-        if send_selected_props:
-            props.send(pm.ls(selection=True))
-
-
-        # if send_brushes:
-        #     self.send_brushes()
-
-
-
-    # def send_brushes(self):
-    #    uutl.delete_tools()
-
-       
-
+        except Exception:
+            t, v, tb = sys.exc_info()
+            if result:
+                for msg, stats in result:
+                    print self.format_path_result(msg, **stats)
+            raise t, v, tb
+        else:
+            if result:
+                for msg, stats in result:
+                    print self.format_path_result(msg, **stats)
+ 
 
     def do_retries_validation(self):
         """Repetitively retry with different values until success.

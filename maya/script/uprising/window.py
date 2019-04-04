@@ -81,10 +81,10 @@ reload(studio)
 # reload(sheets)
 
 # reload(painting_tab)
-# reload(setup_tab)
+# reload(setup_tab)Pick & place
  
 reload(props)
-# reload(validate_tab)
+reload(validate_tab)
 # reload(publish_tab)
 # reload(proposal_tab)
 # reload(rings_design_tab)
