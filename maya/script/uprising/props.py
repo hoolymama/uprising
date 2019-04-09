@@ -71,8 +71,6 @@ def send_selected():
     send(transforms)
 
 
-
-
 # def brush_triangles(brushName):
 
 #     data = pm.brushQuery -tri -w  "bpx_2_portrait_set_B9_6mm_new9_roundShape";

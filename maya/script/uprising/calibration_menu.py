@@ -87,6 +87,7 @@ def _generate_calibration(which):
         "do_pot_calibration": which == "pot",
         "do_holder_calibration": which == "holder",
         "do_board_calibration": which == "board",
+        "use_gripper": pm.optionVar.get("upov_tool_type") == "gripper"
     }
     # prefix = "rx" if which == "rack" else "bx"
 

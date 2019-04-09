@@ -80,7 +80,15 @@ class MainProgram(Program):
                 self.program.RunInstruction(
                     dip_program_name, INSTRUCTION_CALL_PROGRAM)
 
+                # go to the approach at the center of the painting
+                # Why? On a big painting, the lower corners could be
+                # lower than the rack and a joint move from the far end 
+                # of the rack could cause the wrist to collide with the 
+                # rack. 
+                self.program.addMoveJ(studio.dip_approach)
                 cluster.write(self.program, self.frame, motion, studio.RL, studio.robot)
+                self.program.addMoveJ(studio.dip_approach)
+
 
             if self.use_gripper:
                 place_program_name = PlaceProgram.generate_program_name(last_brush_id)
@@ -121,7 +129,7 @@ class DipProgram(Program):
                 "Dip with tool %s" %
                 self.dip_painting.clusters[0].brush.node_name, INSTRUCTION_COMMENT)
 
-            self.program.addMoveJ(studio.dip_approach)
+            # self.program.addMoveJ(studio.dip_approach)
 
             for cluster in self.dip_painting.clusters:
                 cluster.write(
@@ -137,16 +145,16 @@ class DipProgram(Program):
                     self.frame,
                     self.wipe_painting.motion, studio.RL, studio.robot)
 
-            self.program.addMoveJ(studio.dip_approach)
+            # self.program.addMoveJ(studio.dip_approach)
 
  
 
 
 class CalibrationProgram(Program):
 
-    def __init__(self, name):
+    def __init__(self, name, use_gripper):
         super(CalibrationProgram, self).__init__(name)
-
+        self.use_gripper = use_gripper
         self.RL = Robolink()
         self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
         self.brush = self._get_probe_brush()
@@ -178,11 +186,17 @@ class CalibrationProgram(Program):
         super(CalibrationProgram, self).write()
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
        
-        self.brush.write()
+        self.brush.write(self.RL, self.robot)
         self.tool = self.RL.Item(self.brush.name)
         if not self.tool.Valid():
             raise ProgramError(
                 "No Probe Brush. Risk of damage. Can't continue.")
+
+        if self.use_gripper:
+            self.write_probe_attach_gripper()
+        else:
+            self.write_probe_attach_bayonet(tool_approach)
+
 
         self.program.setSpeed(k.CAL_LINEAR_SPEED, k.CAL_ANGULAR_SPEED)
         self.program.setRounding(k.CAL_ROUNDING_DISTANCE)
@@ -190,15 +204,31 @@ class CalibrationProgram(Program):
         self.program.RunInstruction(
             "Starting calibration",
             INSTRUCTION_COMMENT)
+        
+        self.write_locator_packs()
+
+        if self.use_gripper:
+            self.write_probe_detach_gripper()
+
+        self.program.addMoveJ(home_approach)
+
+    def write_probe_attach_gripper(self):
+        pick_program_name = PickProgram.generate_program_name(0)
+        self.program.RunInstruction(
+            pick_program_name, INSTRUCTION_CALL_PROGRAM)
+
+    def write_probe_detach_gripper(self):
+        place_program_name = PlaceProgram.generate_program_name(0)
+        self.program.RunInstruction(
+            place_program_name, INSTRUCTION_CALL_PROGRAM)
+
+    def write_probe_attach_bayonet(self, tool_approach):
+
         self.program.addMoveJ(tool_approach)
         self.program.Pause()
         self.program.RunInstruction(
             "Attach calibration Tool: {}".format(
                 self.brush.name), INSTRUCTION_SHOW_MESSAGE)
-
-        self.write_locator_packs()
-
-        self.program.addMoveJ(home_approach)
 
     def write_locator_packs(self):
         raise NotImplementedError
@@ -243,8 +273,8 @@ class CalibrationProgram(Program):
 
 class PotCalibration(CalibrationProgram):
 
-    def __init__(self, name):
-        super(PotCalibration, self).__init__(name)
+    def __init__(self, name, use_gripper):
+        super(PotCalibration, self).__init__(name, use_gripper)
         self.pot_handle_pairs = putl.get_pot_handle_pairs()
         self.locators = self._setup_locators()
 
@@ -335,9 +365,9 @@ class HolderCalibration(CalibrationProgram):
     # flat perspex top. 
     
 
-    def __init__(self, name, packs):
-        super(HolderCalibration, self).__init__(name)
-        self.locators = packs
+    def __init__(self, name, use_gripper):
+        super(HolderCalibration, self).__init__(name, use_gripper)
+        self.locators = putl.get_pick_place_packs("all")
 
     def write_locator_packs(self):
         bids = sorted(self.locators.keys())
@@ -379,8 +409,8 @@ class HolderCalibration(CalibrationProgram):
 ################# CALIBRATION ################# 
 class BoardCalibration(CalibrationProgram):
 
-    def __init__(self, name):
-        super(BoardCalibration, self).__init__(name)
+    def __init__(self, name, use_gripper):
+        super(BoardCalibration, self).__init__(name, use_gripper)
         top_node = pm.PyNode("mainPaintingGroup")
         top_node.attr("zeroPosition").set(1)
         self.locators = self._setup_locators()
@@ -474,13 +504,13 @@ class PickPlaceProgram(Program):
         self.frame = studio.pick_place_frame 
         super(PickPlaceProgram, self).write()
 
-        self.brush.write()
+        self.brush.write(studio.RL, studio.robot)
         self.tool = studio.RL.Item(self.brush.name)
         if not self.tool.Valid():
             raise ProgramError(
                 "No Gripper Brush. Risk of damage. Can't continue.")
 
-        self.program.setSpeed(self.pack["lin_speed"], self.pack["ang_speed"])
+        
         self.program.setRounding(self.pack["rounding"])
         self.program.setPoseTool(self.tool)
 
@@ -531,6 +561,8 @@ class PickProgram(PickPlaceProgram):
      
             self.program.RunInstruction( "Starting pick", INSTRUCTION_COMMENT)
             self.program.addMoveJ(self.pin_ap_target)
+
+            self.program.setSpeed(self.pack["precision_lin_speed"], self.pack["ang_speed"])
             self.program.addMoveL(self.pin_target)
             self.program.Pause()
 
@@ -540,6 +572,7 @@ class PickProgram(PickPlaceProgram):
             self.program.RunInstruction('WAIT FOR ($IN[1])', INSTRUCTION_INSERT_CODE)
 
             self.program.addMoveL(self.clear_target)
+            self.program.setSpeed(self.pack["lin_speed"], self.pack["ang_speed"])
             self.program.addMoveL(self.clear_ap_target)
      
 
@@ -564,7 +597,9 @@ class PlaceProgram(PickPlaceProgram):
      
             self.program.RunInstruction( "Starting place", INSTRUCTION_COMMENT)
             self.program.addMoveJ(self.clear_ap_target)
+            self.program.setSpeed(self.pack["lin_speed"], self.pack["ang_speed"])
             self.program.addMoveL(self.clear_target)
+            self.program.setSpeed(self.pack["precision_lin_speed"], self.pack["ang_speed"])
             self.program.addMoveL(self.pin_target)
             self.program.Pause()
 

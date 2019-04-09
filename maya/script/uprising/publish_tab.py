@@ -6,6 +6,7 @@ import write
 import datetime
 import uprising_util as uutl
 import stroke_factory_utils as sfu
+
 import pymel.core.uitypes as gui
 
 import callbacks
@@ -29,21 +30,6 @@ class PublishTab(gui.FormLayout):
         self.on_current_frame_cb_change()
  
     def create_ui(self):
-        pm.setParent(self.column)
-
-        self.context_rb = pm.radioButtonGrp(
-            height=30,
-            label='Context',
-            labelArray3=[
-                "Bayonet painting",
-                "Gripper painting",
-                "Snapshot only"],
-            sl=1,
-            numberOfRadioButtons=3
-            # ,changeCommand=pm.Callback(  self.on_context_rb_change   )
-
-        )
-
 
         pm.setParent(self.column)
         min_frame = int(pm.playbackOptions(min=True, query=True))
@@ -95,7 +81,7 @@ class PublishTab(gui.FormLayout):
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        save_but = pm.button(label='Save', command=pm.Callback(self.save))
+        save_but = pm.button(label='Save',en=False, command=pm.Callback(self.save))
         go_but = pm.button(
             label='Go', command=pm.Callback(
                 self.on_go))
@@ -141,15 +127,7 @@ class PublishTab(gui.FormLayout):
                 value2=True))
 
     def on_go(self):
-
-        context = pm.radioButtonGrp(
-            self.context_rb, query=True, sl=True)
-
-        if context == 3:
-            # snapshot
-            self.make_snapshot()
-            return
-
+ 
         export_dir = write.choose_publish_dir()
         if not export_dir:
             return
@@ -164,7 +142,7 @@ class PublishTab(gui.FormLayout):
         save_unfiltered_snapshot = pm.checkBoxGrp(
             self.save_unfiltered_snapshot, query=True, value1=True)
 
-        auto = (context == 2)
+        auto = pm.optionVar.get("upov_tool_type") == "gripper"
         write.publish_sequence(
             export_dir,
             frames,
@@ -172,13 +150,4 @@ class PublishTab(gui.FormLayout):
             save_unfiltered_snapshot
         )
 
-    def make_snapshot(self):
-        res = pm.intFieldGrp(self.snap_size_if, query=True, value1=True)
-        export_dir = os.path.join(pm.workspace.getPath(), 'export')
-        entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
-                                 dialogStyle=2, fileMode=3, dir=export_dir)
-        if not entries:
-            pm.displayWarning('Nothing Selected')
-            return
-        timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
-        write.write_ref_image(entries[0], timestamp, res)
+    

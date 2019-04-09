@@ -8,15 +8,15 @@ from uprising import (
     publish_tab,
     rings_design_tab,
     rings_setup_tab,
-    proposal_tab,
+    # proposal_tab,
     tools_menu,
     export_menu,
     curves_menu,
     images_menu,
     palette_menu,
-    brush_menu,
+    tool_type_menu,
     calibration_menu
-        )
+)
 
 
 # import uprising.logger_setup
@@ -48,13 +48,11 @@ import brush_utils
 import palette_utils
 import board_utils
 
-import culling
 import props
 import images
-import callbacks
 
-reload(program)
-reload(studio)
+# reload(program)
+# reload(studio)
 
 # reload(uprising_util)
 # reload(paint)
@@ -66,42 +64,35 @@ reload(studio)
 # reload(setup_dip)
 # reload(const)
 # reload(images)
-# reload(callbacks)
+
 
 # reload(curve_utils)
 # reload(brush_utils)
 # reload(palette_utils)
 # reload(board_utils)
 # reload(painting)
-# # reload(pick_place_program)
-# # reload(calibration_program)
+
 # reload(program)
 
 # reload(stroke_factory_utils)
 # reload(sheets)
 
 # reload(painting_tab)
-# reload(setup_tab)Pick & place
- 
-reload(props)
-reload(validate_tab)
-# reload(publish_tab)
-# reload(proposal_tab)
-# reload(rings_design_tab)
-# reload(rings_setup_tab)
+# reload(setup_tab)
 
-# reload(culling)
+# reload(props)
+# reload(validate_tab)
+# reload(publish_tab)
+
 
 # reload(tools_menu)
 # reload(curves_menu)
 # reload(images_menu)
 # reload(export_menu)
-
 # reload(palette_menu)
-# reload(brush_menu)
-reload(calibration_menu)
+# reload(calibration_menu)
 
-
+# reload(tool_type_menu)
 
 
 class RobotWindow(gui.Window):
@@ -121,6 +112,7 @@ class RobotWindow(gui.Window):
         self.setWidthHeight([500, 500])
 
         self.menuBarLayout = pm.menuBarLayout()
+
         self.tabs = pm.tabLayout(
             changeCommand=pm.Callback(
                 self.on_tab_changed))
@@ -128,7 +120,7 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.setup_tab = setup_tab.SetupTab()
         self.tabs.setTabLabel((self.setup_tab, "Setup"))
- 
+
         pm.setParent(self.tabs)
         self.painting_tab = painting_tab.PaintingTab()
         self.tabs.setTabLabel((self.painting_tab, "Painting"))
@@ -141,28 +133,14 @@ class RobotWindow(gui.Window):
         self.rings_setup_tab = rings_setup_tab.RingsSetupTab()
         self.tabs.setTabLabel((self.rings_setup_tab, "Ring setup"))
 
-        # pm.setParent(self.tabs)
-        # self.keys_tab = keys_tab.KeysTab()
-        # self.tabs.setTabLabel((self.keys_tab, "Keys"))
-
-        # pm.setParent(self.tabs)
-        # self.selection_tab = selection_tab.SelectionTab()
-        # self.tabs.setTabLabel((self.selection_tab, "Selection"))
-
         pm.setParent(self.tabs)
         self.validate_tab = validate_tab.ValidateTab()
         self.tabs.setTabLabel((self.validate_tab, "Validate"))
-
 
         pm.setParent(self.tabs)
         self.publish_tab = publish_tab.PublishTab()
         self.tabs.setTabLabel((self.publish_tab, "Publish"))
 
-        pm.setParent(self.tabs)
-        self.proposal_tab = proposal_tab.ProposalTab()
-        self.tabs.setTabLabel((self.proposal_tab, "Proposal"))
-
-        # menus
         pm.setParent(self.menuBarLayout)
         self.tools_menu = tools_menu.create()
 
@@ -178,13 +156,11 @@ class RobotWindow(gui.Window):
         pm.setParent(self.menuBarLayout)
         self.calibration_menu = calibration_menu.create()
 
-
-        pm.setParent(self.menuBarLayout)
-        self.brush_menu = brush_menu.create()
-
         pm.setParent(self.menuBarLayout)
         self.export_menu = export_menu.create()
 
+        pm.setParent(self.menuBarLayout)
+        self.tool_type_menu = tool_type_menu.create()
 
         self.show()
         self.setResizeToFitChildren()

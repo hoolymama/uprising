@@ -117,19 +117,13 @@ def publish_sequence(
         # clean_rdk()
         studio = Studio(
             do_painting=True, 
-            do_auto_change=auto, 
+            use_gripper=auto, 
             do_dips=True)
         
         studio.write()
         write_program(RL, ts_dir, "px", timestamp)
 
-        # dip_wipe_packs = _get_dip_wipe_packs()
-        # if auto:
-        #     pick_place_packs = _get_pick_place_packs()
-
         write_log(
-            painting_node,
-            # dip_wipe_packs,
             ts_dir,
             timestamp,
             frame)

@@ -29,5 +29,10 @@ def create():
 
     pm.setParent("..", menu=True)
 
+    pm.menuItem(
+        label="Clean palette",
+        command=pm.Callback(
+            putl.clean_palette))
+
     return menu
 

@@ -5,28 +5,11 @@ from paint import Paint
 from brush import Brush
 import palette_utils as putl
 
- 
+
 import logging
 logger = logging.getLogger('uprising')
 
-
  
-
-
-def dip_combination_ids():
-    painting_node = pm.PyNode("mainPaintingShape")
-    result = []
-    combos = pm.paintingQuery(painting_node, dc=True)
-    for i in range(0, len(combos), 2):
-        result.append(
-            {
-                "brush": int(combos[i]),
-                "paint": int(combos[i + 1])
-            }
-        )
-    return result
-
-
 def dip_combinations():
 
     painting_node = pm.PyNode("mainPaintingShape")
@@ -36,7 +19,6 @@ def dip_combinations():
     paints = Paint.paints(painting_node)
 
     combos = pm.paintingQuery(painting_node, dc=True)
-
 
     for i in range(0, len(combos), 2):
         brush_id = int(combos[i])
@@ -61,7 +43,6 @@ def delete_if_exist(name):
         pm.delete(name)
     except BaseException:
         pass
- 
 
 
 def _get_curve_strokes(parent):
@@ -91,33 +72,11 @@ def _find_nodes_by_short_name(nodes, name):
     return [n for n in nodes if n.split("|")[-1] == name]
 
 
-def _create_painting_node(which, brush, paint, strokes_node):
-    ptg_node = pm.createNode("painting")
-    ptg_node.attr("linearSpeed").set(100)
-    ptg_node.attr("angularSpeed").set(70.000)
-    ptg_node.attr("approximationDistance").set(2)
-    ptg_node.attr("maxPointToPointDistance").set(15)
-    ptg_node.attr("approachDistanceStart").set(20)
-    ptg_node.attr("approachDistanceMid").set(2.5)
-    ptg_node.attr("approachDistanceEnd").set(5)
+def _create_painting_node(which, brush, paint, strokes_node, src_painting):
 
-    ptg_node.attr("pointSize").set(1)
-    ptg_node.attr("lineLength").set(1)
-    ptg_node.attr("lineThickness").set(1)
-    ptg_node.attr("displayPivots").set(0)
-    ptg_node.attr("displayClusterPath").set(0)
-    ptg_node.attr("displayIds").set(0)
-    ptg_node.attr("displayParentIds").set(0)
-    ptg_node.attr("displayLayerIds").set(0)
-    ptg_node.attr("displayBrushIds").set(0)
-    ptg_node.attr("displayPaintIds").set(0)
-    ptg_node.attr("displayRepeatIds").set(0)
-    ptg_node.attr("arrowheadSize").set(0)
-
-    # ptg_name = "p{:02d}_b{:02d}_{}".format(paint.id, brush.id, which)
-    ptg_name = "b{:02d}".format(brush.id)
-    ptg_xf = ptg_node.getParent()
-    ptg_xf.rename(ptg_name)
+    ptg_xf = pm.duplicate(src_painting)[0]
+    ptg_node = ptg_xf.getShapes()[0]
+    ptg_xf.rename("b{:02d}".format(brush.id))
 
     strokes_node.attr("output") >> ptg_node.attr("strokes[0]")
 
@@ -134,31 +93,67 @@ def _create_painting_node(which, brush, paint, strokes_node):
 
     pm.parent(ptg_xf, locator, relative=True)
 
+    # connect everything up
+    atts = [
+        "linearSpeed",
+        "angularSpeed",
+        "approximationDistance",
+        "maxPointToPointDistance",
+        "approachDistanceStart",
+        "approachDistanceMid",
+        "approachDistanceEnd",
+        "pointSize",
+        "lineLength",
+        "lineThickness",
+        "displayPivots",
+        "displayClusterPath",
+        "displayIds",
+        "displayParentIds",
+        "displayLayerIds",
+        "displayBrushIds",
+        "displayPaintIds",
+        "displayRepeatIds",
+        "arrowheadSize",
+        "displayTargets",
+        "displayContactWidth",
+        "stackGap",
+        "idDisplayOffset"
+    ]
+    for att in atts:
+        src_painting.attr(att) >> ptg_node.attr(att)
+     
+
     return ptg_node
 
 
 def doit():
     node = pm.PyNode("mainPaintingShape")
-    brushes = Brush.brushes (node)
+    brushes = Brush.brushes(node)
     paints = Paint.paints(node)
 
     dip_stroke_node = pm.PyNode("collectStrokesDip")
     wipe_stroke_node = pm.PyNode("collectStrokesWipe")
-    
+
+    dip_ctrl_painting = pm.PyNode("brushes|curves|dip|dipPaintingControl")
+    wipe_ctrl_painting = pm.PyNode("brushes|curves|wipe|wipePaintingControl")
+
     _delete_paintings_under("rack1")
-
-
 
     for pkey in paints:
         for bkey in brushes:
-            dip_ptg_node = _create_painting_node("dip", brushes[bkey], paints[pkey], dip_stroke_node)
-            wipe_ptg_node = _create_painting_node("wipe", brushes[bkey], paints[pkey], wipe_stroke_node)
- 
+            _create_painting_node(
+                "dip",
+                brushes[bkey],
+                paints[pkey],
+                dip_stroke_node,
+                dip_ctrl_painting)
+            _create_painting_node(
+                "wipe",
+                brushes[bkey],
+                paints[pkey],
+                wipe_stroke_node,
+                wipe_ctrl_painting)
 
-
-
-
- 
 
 # def doit():
 #     print "!!!!!!!!!!!!!!!!! SETUP DIP & WIPE !!!!!!!!!!!!!!!!!!!!!!!!"
@@ -176,4 +171,3 @@ def doit():
 
 #         dip_ptg_node = _create_painting_node("dip", b, p, dip_stroke_node)
 #         wipe_ptg_node = _create_painting_node("wipe", b, p, wipe_stroke_node)
-

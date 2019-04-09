@@ -47,25 +47,10 @@ class ValidateTab(gui.FormLayout):
             height=30,
             label='Create components',
             labelArray3=['Painting', 'Pick & place', "Dips"],
-            valueArray3=[False, False, False],
+            valueArray3=[True, True, True],
             columnWidth4=(180, 90, 90, 90)
         )
 
-        self.send_selected_props_cb = pm.checkBoxGrp(
-            label='Send selected props',
-            value1=0,
-            height=30,
-            columnWidth2=(
-                180,
-                120))
-
-        # self.send_brushes_cb = pm.checkBoxGrp(
-        #     label='Send brushes',
-        #     value1=0,
-        #     height=30,
-        #     columnWidth2=(
-        #         180,
-        #         120))
 
         self.anim_row = pm.rowLayout(
             numberOfColumns=2, columnWidth2=(
@@ -146,11 +131,12 @@ class ValidateTab(gui.FormLayout):
 
     def initialize_ui(self):
         self.on_collapse_change()
+        self.on_current_frame_cb_change()
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        save_but = pm.button(label='Save', command=pm.Callback(self.save))
+        save_but = pm.button(label='Save',en=False,  command=pm.Callback(self.save))
         go_but = pm.button(label='Go', command=pm.Callback(self.on_go))
 
         self.attachForm(self.column, 'left', 2)
@@ -169,6 +155,28 @@ class ValidateTab(gui.FormLayout):
         self.attachForm(go_but, 'bottom', 2)
 
     def populate(self):
+
+
+        # var = ("upov_validate_create_comps", True)
+        # pm.rowLayout(
+        #     self.spacing_row,
+        #     e=True,
+        #     en=pm.optionVar.get(
+        #         var[0],
+        #         var[1]))
+        # uutl.conform_activatable_checkbox(self.spacing_row)
+
+        # self.send_paintings_cb = pm.checkBoxGrp(
+        #     numberOfCheckBoxes=3,
+        #     height=30,
+        #     label='Create components',
+        #     labelArray3=['Painting', 'Pick & place', "Dips"],
+        #     valueArray3=[False, False, False],
+        #     columnWidth4=(180, 90, 90, 90)
+        # )
+
+
+
         pass
         # val = "default"
         # if "up_setup_palette_name" in pm.optionVar:
@@ -248,18 +256,16 @@ status        : %s
 
         kw = {
             "do_painting": send[0], 
-            "do_auto_change": send[1], 
+            "use_gripper": send[1], 
             "do_dips": send[2]
         }
-
+        print "-" * 30
+        print kw
+        print "-" * 30
  
-        if  pm.checkBoxGrp( self.send_selected_props_cb, query=True, value1=True):
-            props.send(pm.ls(selection=True))
-
-
         result = []
 
-        if not sum(send):
+        if not any(send):
             return
 
         frames = self._get_frames()

@@ -119,7 +119,7 @@ class PaintingTab(gui.FormLayout):
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        save_but = pm.button(label='Save', command=pm.Callback(self.save))
+        save_but = pm.button(label='Save',en=False, command=pm.Callback(self.save))
         go_but = pm.button(label='Go')
 
         self.attachForm(self.column, 'left', 2)

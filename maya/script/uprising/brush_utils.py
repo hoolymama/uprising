@@ -75,7 +75,7 @@ def remove_brush_multi_atts(*nodes):
 
 def delete_brushes(painting_node):
     try:
-        pm.delete("|brushes|brushNodes")
+        pm.delete("brushes|brushNodes")
     except pm.MayaNodeError:
         pass
     remove_brush_multi_atts(painting_node)
@@ -138,12 +138,12 @@ def setup_brushes_from_sheet(pouch_name):
     delete_brushes(painting_node)
 
     try:
-        brush_nodes_grp = pm.PyNode("|brushes|brushNodes")
+        brush_nodes_grp = pm.PyNode("brushes|brushNodes")
     except BaseException:
         g = pm.group(empty=True)
-        pm.parent(g, pm.PyNode("|brushes"))
+        pm.parent(g, pm.PyNode("brushes"))
         g.rename("brushNodes")
-        brush_nodes_grp = pm.PyNode("|brushes|brushNodes")
+        brush_nodes_grp = pm.PyNode("brushes|brushNodes")
 
     for i, row in enumerate(data):
         row = [uutl.numeric(s) for s in row]
@@ -256,12 +256,12 @@ def set_stroke_curve_att_from_brush_tip(attribute, mult=1, offset=0):
 #     delete_brushes(painting_node, dip_node, wipe_node)
 
 #     try:
-#         brush_nodes_grp = pm.PyNode("|brushes|brushNodes")
+#         brush_nodes_grp = pm.PyNode("brushes|brushNodes")
 #     except:
 #         g = pm.group(empty=True)
-#         pm.parent(g, pm.PyNode("|brushes"))
+#         pm.parent(g, pm.PyNode("brushes"))
 #         g.rename("brushNodes")
-#         brush_nodes_grp = pm.PyNode("|brushes|brushNodes")
+#         brush_nodes_grp = pm.PyNode("brushes|brushNodes")
 
 #     # prepare for dip curves
 #     dip_curves_src = "brushes|dipCurves|defaultSource"

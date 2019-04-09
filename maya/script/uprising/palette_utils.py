@@ -38,9 +38,13 @@ def select_used_handles():
 def select_handles():
     pm.select(get_handles())
 
-
-
-
+def clean_palette():
+    painting_node = pm.PyNode("mainPaintingShape")
+    delete_paints(painting_node)
+    for painting in  pm.ls("rack*|holes|holeRot*|holeTrans", dag=True, leaf=True, type="painting"):
+        pm.delete(painting.getParent())
+    for pot in pm.ls("rack*|holes|holeRot*|holeTrans|dip_loc|pot*"):
+        pot.rename("pot")
 
 def validate_paint_data(data):
     if not len(data):
@@ -125,3 +129,91 @@ def setup_paints_from_sheet(palette_name):
     set_up_rack(colors)
 
  
+
+
+def dip_combination_ids():
+    painting_node = pm.PyNode("mainPaintingShape")
+    result = []
+    combos = pm.paintingQuery(painting_node, dc=True)
+    for i in range(0, len(combos), 2):
+        result.append(
+            {
+                "brush": int(combos[i]),
+                "paint": int(combos[i + 1])
+            }
+        )
+    return result
+
+
+
+def get_dip_wipe_packs():
+
+    result = {}
+    # racks = ["rack1"]
+
+    dip_combinations = dip_combination_ids()
+
+    for combo in dip_combinations:
+
+        dip_ptg_path = "rack*|holes|holeRot_{:02d}|holeTrans|dip_loc|b{:02d}|*".format(
+            combo["paint"], combo["brush"])
+        wipe_ptg_path = "rack*|holes|holeRot_{:02d}|holeTrans|wipe_loc|b{:02d}|*".format(
+            combo["paint"], combo["brush"])
+
+        paint_key = "p{:02d}".format(combo["paint"])
+        brush_key = "b{:02d}".format(combo["brush"])
+
+        # print "{} -- {}".format(dip_ptg_path, wipe_ptg_path)
+        try:
+            dip_ptg = pm.ls(dip_ptg_path, type="painting")[0]
+            wipe_ptg = pm.ls(wipe_ptg_path, type="painting")[0]
+        except IndexError:
+            raise IndexError(
+                "Either dip or wipe node is missing: for {} {}".format(
+                    paint_key, brush_key))
+
+        if paint_key not in result:
+            result[paint_key] = {}
+        result[paint_key][brush_key] = {
+            "dip": dip_ptg,
+            "wipe": wipe_ptg,
+            "name": "{}_{}".format(paint_key, brush_key)
+        }
+
+    return result
+
+
+def get_pick_place_packs(brush_ids="used"):
+    result = {}
+    painting = pm.PyNode("mainPaintingShape")
+    if brush_ids == "all":
+        bids = [int(n[-2:])
+                for n in pm.ls("RACK1_CONTEXT|j1|rack1|holders|holderRot*")]
+    elif brush_ids == "used":
+        dc = pm.paintingQuery(painting, dc=True)
+        bids = set(dc[::2])
+    else :
+        bids = brush_ids
+
+
+    holders_node = pm.PyNode("RACK1_CONTEXT|j1|rack1|holders")
+    path_attributes = {
+        "lin_speed": holders_node.attr("linearSpeed").get() * 10,
+        "precision_lin_speed": holders_node.attr("precisionLinearSpeed").get() * 10,
+        "ang_speed": holders_node.attr("angularSpeed").get(),
+        "rounding": holders_node.attr("approximationDistance").get() * 10,
+    }
+    for bid in bids:
+        key = "b{:02d}".format(bid)
+        trans = "holderRot{:02d}|holderTrans".format(bid)
+        result[key] = {
+            "trans_node": pm.PyNode(trans),
+            "brush_id": bid,
+            "probe": pm.PyNode("{}|probe_loc".format(trans)),
+            "pin": pm.PyNode("{}|pin_loc".format(trans)),
+            "pin_ap": pm.PyNode("{}|pin_approach_loc".format(trans)),
+            "clear": pm.PyNode("{}|clear_loc".format(trans)),
+            "clear_ap": pm.PyNode("{}|clear_approach_loc".format(trans))
+        }
+        result[key].update(path_attributes)
+    return result

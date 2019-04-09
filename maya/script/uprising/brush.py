@@ -37,13 +37,13 @@ class Brush(object):
     def is_flat(self):
         return self.shape == 0
 
-    def write(self):
-        RL = Robolink()
-        robot = RL.Item('', ITEM_TYPE_ROBOT)
+    def write(self, RL, robot):
+
         old_brush = RL.Item(self.name)
         if old_brush.Valid():
             return
 
+        # print "WRITE BRUSH", self.name
         triangles = uutl.to_vector_array(pm.brushQuery(self.plug, tri=True))
         triangles = [[t.x * 10, t.y * 10, t.z * 10]  for t in triangles]
 
@@ -55,22 +55,37 @@ class Brush(object):
 
 
     @classmethod
-    def write_used_brushes():
+    def write_used_brushes(cls):
+        RL = Robolink()
+        robot = RL.Item('', ITEM_TYPE_ROBOT)
+
         painting = pm.PyNode("mainPaintingShape")
         dc = pm.paintingQuery(painting, dc=True)
         bids = sorted(set(dc[::2]))
         for bid in bids:
             brush_set = Brush.brush_set_at_index(bid)
             for key in brush_set:
-                brush_set[key].write()
+                brush_set[key].write(RL, robot)
 
     @classmethod
-    def write_connected_brushes():
+    def write_connected_brushes(cls):
+        RL = Robolink()
+        robot = RL.Item('', ITEM_TYPE_ROBOT)
         painting = pm.PyNode("mainPaintingShape")
         brushes = Brush.brushes(painting)
         for brush in brushes:
-            brushes[brush].write()
+            brushes[brush].write(RL, robot)
 
+    @classmethod
+    def write_selected_brushes(cls):
+        RL = Robolink()
+        robot = RL.Item('', ITEM_TYPE_ROBOT)
+        brushNodes = pm.ls(selection=True, dag=True, leaf=True, type="brushNode")
+        brush_atts = ["outPaintBrush", "outDipBrush", "outWipeBrush"]
+        for brush_node in brushNodes:
+            for brush_att in brush_atts:
+                plug = brush_node.attr(brush_att)
+                Brush.brush_at_plug(0, plug).write(RL, robot)
 
 
     @classmethod
