@@ -19,7 +19,7 @@ def create():
         command=pm.Callback(read_rack_triangulation))
 
     pm.menuItem(divider=True)
-    
+
     pm.menuItem(
         label="Generate paintpot calibration",
         command=pm.Callback(generate_pot_calibration))
@@ -29,7 +29,7 @@ def create():
         command=pm.Callback(read_pot_calibration))
 
     pm.menuItem(divider=True)
-    
+
     pm.menuItem(
         label="Generate holder calibration",
         command=pm.Callback(generate_holder_calibration))
@@ -56,10 +56,32 @@ def create():
 
     pm.setParent("..", menu=True)
 
+    pm.menuItem(
+        label="Generate Pick/Place exercise",
+        command=pm.Callback(generate_pick_place_exercise))
     return menu
 
 ########################################
 ########################################
+
+
+def generate_pick_place_exercise():
+    if not pm.optionVar.get("upov_tool_type") == "gripper":
+        pm.error("Can't generate pick and place without gripper")
+
+    timestamp = write.get_timestamp()
+    ppdir = os.path.join(
+        pm.workspace.getPath(),
+        'export',
+        'calibrations',
+        "pap",
+        timestamp)
+    uutl.mkdir_p(ppdir)
+    studio = Studio(do_pap_exercise=True)
+    studio.write()
+    write.write_program(Robolink(), ppdir, "pap", timestamp)
+
+
 
 
 def _read_triangulation(sheet_range):

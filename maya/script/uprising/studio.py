@@ -21,7 +21,8 @@ from program import (
     HolderCalibration,
     BoardCalibration,
     PickProgram,
-    PlaceProgram)
+    PlaceProgram,
+    PapExerciseProgram)
 
  
 import brush_utils as butl
@@ -66,6 +67,7 @@ class Studio(object):
         self.board_cal_program = None
         self.dip_programs = []
         self.pick_place_programs = []
+        self.exercise_program = None
 
         print "STUDIO KW"
         print kw
@@ -74,6 +76,7 @@ class Studio(object):
         do_painting = kw.get("do_painting")
         do_dips = kw.get("do_dips")
         use_gripper = kw.get("use_gripper")
+        do_pap_exercise = kw.get("do_pap_exercise")
 
         do_board_calibration = kw.get("do_board_calibration")
         do_pot_calibration = kw.get("do_pot_calibration")
@@ -115,6 +118,10 @@ class Studio(object):
                 with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                     self.pick_place_programs = self._build_pick_place_programs([0])
 
+        if do_pap_exercise:
+            self.exercise_program = PapExerciseProgram("pap")
+            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+                self.pick_place_programs = self._build_pick_place_programs("all")
 
 
     def _build_dip_programs(self):
@@ -176,7 +183,9 @@ class Studio(object):
             with uutl.final_position(rack_context):
                 Paint.write_geos()
 
-
+        if self.exercise_program:
+            self.exercise_program.write(self)
+            
         if self.pick_place_programs:
             self.pick_place_frame = uutl.create_frame("pick_place_frame")
             with uutl.final_position(rack_context):
