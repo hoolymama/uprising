@@ -1,5 +1,5 @@
 ---
-configuration: release
+configuration: debug
 product_name: uprising
 product_description: Robot painting tools.
 configuration_debug:

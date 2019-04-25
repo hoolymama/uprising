@@ -21,9 +21,9 @@ public:
 
 	void add(const skPoint &pt);
 
-	void appendPoints(MPointArray &positions) const;
+	void appendPointsTo(MPointArray &positions) const;
 
-	void appendPoints(MVectorArray &positions) const;
+	void appendPointsTo(MVectorArray &positions) const;
 
 	// int getContacts( MDoubleArray &contacts, double maxWidth) const;
 
@@ -33,11 +33,15 @@ public:
 	//   const std::vector< std::pair<int, float> > &widths) const;
 
 
+	const skPoint &operator[] (const int index) const ;
 
-	void appendRadii( MFloatArray &radii) const;
-	void appendRadii( MDoubleArray &radii) const;
 
-	void appendParams( MDoubleArray &params) const;
+
+
+	void appendRadiiTo( MFloatArray &radii) const;
+	void appendRadiiTo( MDoubleArray &radii) const;
+
+	void appendParamsTo( MDoubleArray &params) const;
 
 	void interpolate(int step, skChain &result) const;
 

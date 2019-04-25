@@ -234,9 +234,9 @@ MStatus  skGraphNode::extract(
 	std::vector< skChain >::const_iterator iter;
 	for (iter = geom->begin(); iter != geom->end();  iter++)
 	{
-		iter->appendPoints(points);
-		iter->appendParams(params);
-		iter->appendRadii(radius);
+		iter->appendPointsTo(points);
+		iter->appendParamsTo(params);
+		iter->appendRadiiTo(radius);
 		counts.append(iter->size());
 	}
 	return MS::kSuccess;

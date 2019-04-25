@@ -8,6 +8,8 @@
 #include "stroke.h"
 #include "skGraph.h"
 #include "skChain.h"
+#include "brush.h"
+
 
 class skeletonStrokeNode : public strokeNode
 {
@@ -36,14 +38,24 @@ private:
     std::vector< std::pair<int, Brush> > &brushes,
     Brush::Shape filter = Brush::kRound) const;
 
-  int  getContacts(
+  // int  getContacts(
+  //   const skChain &chain,
+  //   const std::vector< std::pair<int, Brush> > &brushes,
+  //   MDoubleArray &contacts) const;
+
+
+  void getContacts(
     const skChain &chain,
-    const std::vector< std::pair<int, Brush> > &brushes,
+    const std::pair<int, Brush> &indexedBrush,
     MDoubleArray &contacts) const;
+
+  const std::pair<int, Brush>  selectBrush(
+    const skChain &chain,
+    const std::vector< std::pair<int, Brush> > &brushes) const;
 
 
   unsigned int getStrokeBoundaries(
-    const MObject  &dCurve,
+    const MObject   &dCurve,
     float strokeLength,
     float overlap,
     MVectorArray &result

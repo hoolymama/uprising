@@ -24,6 +24,11 @@ int skChain::size() const
 	return points.size();
 }
 
+const skPoint &skChain::operator[] (const int index) const
+{
+	return points[index];
+}
+
 
 void skChain::add(const skPoint &pt)
 {
@@ -39,7 +44,7 @@ void skChain::add(const skPoint &pt)
 
 
 
-void skChain::appendPoints(MPointArray &positions) const
+void skChain::appendPointsTo(MPointArray &positions) const
 {
 	std::vector< skPoint >::const_iterator iter;
 	for (iter = points.begin(); iter != points.end(); iter++)
@@ -48,7 +53,7 @@ void skChain::appendPoints(MPointArray &positions) const
 	}
 }
 
-void skChain::appendPoints(MVectorArray &positions) const
+void skChain::appendPointsTo(MVectorArray &positions) const
 {
 	std::vector< skPoint >::const_iterator iter;
 	for (iter = points.begin(); iter != points.end(); iter++)
@@ -124,7 +129,7 @@ const float &skChain::minRadius() const
 
 
 
-void skChain::appendRadii( MDoubleArray &radii) const
+void skChain::appendRadiiTo( MDoubleArray &radii) const
 {
 	std::vector< skPoint >::const_iterator iter;
 	for (iter = points.begin(); iter != points.end(); iter++)
@@ -133,7 +138,7 @@ void skChain::appendRadii( MDoubleArray &radii) const
 	}
 }
 
-void skChain::appendRadii( MFloatArray &radii) const
+void skChain::appendRadiiTo( MFloatArray &radii) const
 {
 	std::vector< skPoint >::const_iterator iter;
 	for (iter = points.begin(); iter != points.end(); iter++)
@@ -142,7 +147,7 @@ void skChain::appendRadii( MFloatArray &radii) const
 	}
 }
 
-void skChain::appendParams( MDoubleArray &params) const
+void skChain::appendParamsTo( MDoubleArray &params) const
 {
 	int num = points.size();
 	double last = num - 1.0;

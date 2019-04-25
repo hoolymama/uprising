@@ -211,14 +211,9 @@ MStatus skeletonStrokeNode::collectBrushes(
     return MS::kSuccess;
 }
 
-
-
-
-
-int skeletonStrokeNode::getContacts(
+const std::pair<int, Brush> skeletonStrokeNode::selectBrush(
     const skChain &chain,
-    const std::vector< std::pair<int, Brush> > &brushes,
-    MDoubleArray &contacts) const
+    const std::vector< std::pair<int, Brush> > &brushes) const
 {
     /*
     The brushes are already sorted widest to finest. We test each brush in turn to
@@ -228,58 +223,117 @@ int skeletonStrokeNode::getContacts(
     going to have to use it.
 
     If there are no brushes (should never happen!!),
-    then we return -1, meaning we cant actually paint the stroke.
+    then we return a pair with key -1.
     */
 
-
-    int index = -1;
-    float brushRadius =  1.0;
-    bool isFlat = false;
+    std::pair<int, Brush> result = std::make_pair(-1, Brush());
 
     std::vector< std::pair<int, Brush> >::const_iterator brushIter;
     for (brushIter = brushes.begin(); brushIter != brushes.end(); brushIter++)
     {
         float brushRad = brushIter->second.width() * 0.5;
-
         if (brushRad <= chain.maxRadius()) {
             if (brushIter == brushes.begin() ) { // use this
-                index = brushIter->first;
-                brushRadius = brushRad;
-                isFlat =  brushIter->second.isFlat();
+                result = *brushIter;
             }
             break;
         }
-        index = brushIter->first;
-        brushRadius = brushRad;
-        isFlat =  brushIter->second.isFlat();
+        result = *brushIter;
     }
-
-    /*
-    Now we have a brush
-
-    */
+    return result;
+}
 
 
-    MFloatArray radii;
-    chain.appendRadii(radii);
 
-    if (isFlat)
+void skeletonStrokeNode::getContacts(
+    const skChain &chain,
+    const std::pair<int, Brush> &indexedBrush,
+    MDoubleArray &contacts) const
+{
+    // MFloatArray radii;
+    // chain.appendRadiiTo(radii);
+
+
+    contacts.clear();
+    if ( indexedBrush.second.isFlat())
     {
-        for (int i = 0; i < radii.length(); ++i)
-        {
-            contacts.append( 1.0);
-        }
+        contacts = MDoubleArray( chain.size(), 1.0);
     }
     else {
-        for (int i = 0; i < radii.length(); ++i)
+        float brushRadius = indexedBrush.second.width() * 0.5;
+        for (int i = 0; i < chain.size(); ++i)
         {
             contacts.append(
-                fmin( radii[i] / brushRadius, 1.0)
+                fmin( (chain[i].radius / brushRadius) , 1.0)
             );
         }
     }
-    return index;
 }
+// int skeletonStrokeNode::getContacts(
+//     const skChain &chain,
+//     const std::vector< std::pair<int, Brush> > &brushes,
+//     MDoubleArray &contacts) const
+// {
+//     /*
+//     The brushes are already sorted widest to finest. We test each brush in turn to
+//     see if it is big enough for the stroke. When we come across the first brush that
+//     is too small, we select the previous brush. It will in theory be the best suited.
+//     If the first brush (the biggest brush) is too small for the stroke, we're just
+//     going to have to use it.
+
+//     If there are no brushes (should never happen!!),
+//     then we return -1, meaning we cant actually paint the stroke.
+//     */
+
+
+//     int index = -1;
+//     float brushRadius =  1.0;
+//     bool isFlat = false;
+
+//     std::vector< std::pair<int, Brush> >::const_iterator brushIter;
+//     for (brushIter = brushes.begin(); brushIter != brushes.end(); brushIter++)
+//     {
+//         float brushRad = brushIter->second.width() * 0.5;
+
+//         if (brushRad <= chain.maxRadius()) {
+//             if (brushIter == brushes.begin() ) { // use this
+//                 index = brushIter->first;
+//                 brushRadius = brushRad;
+//                 isFlat =  brushIter->second.isFlat();
+//             }
+//             break;
+//         }
+//         index = brushIter->first;
+//         brushRadius = brushRad;
+//         isFlat =  brushIter->second.isFlat();
+//     }
+
+//     /*
+//     Now we have a brush
+
+//     */
+
+
+//     MFloatArray radii;
+//     chain.appendRadiiTo(radii);
+
+//     if (isFlat)
+//     {
+//         for (int i = 0; i < radii.length(); ++i)
+//         {
+//             contacts.append( 1.0);
+//         }
+//     }
+//     else {
+//         for (int i = 0; i < radii.length(); ++i)
+//         {
+//             contacts.append(
+//                 fmin( radii[i] / brushRadius, 1.0)
+//             );
+//         }
+//     }
+//     return index;
+// }
 
 
 MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
@@ -291,6 +345,11 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     if (! data.inputValue(aActive).asBool()) {
         return MS:: kSuccess;
     }
+
+    MObject thisObj = thisMObject();
+    MFnDependencyNode fnNode(thisObj);
+    MString nodeName = fnNode.name();
+
     //////////////////////////////////////////////////////////////
     double pointDensity = data.inputValue(aPointDensity).asDouble();
     if (pointDensity < 0.001) {
@@ -349,14 +408,16 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
 
 
 
-    MObject thisObj = thisMObject();
-
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
     Brush::Shape filter = Brush::Shape(data.inputValue(aBrushFilter).asShort());
 
     std::vector< std::pair<int, Brush> > brushes;
     st = collectBrushes(data, brushes  , filter);
+    if (! brushes.size()) {
+        MGlobal::displayWarning("No brushes: " + nodeName);
+        return MS::kUnknownParameter;
+    }
 
 
     std::vector<skChain>::const_iterator citer;
@@ -364,18 +425,22 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     {
         MPointArray editPoints;
         MDoubleArray contacts;
-        citer->appendPoints(editPoints );
+        citer->appendPointsTo(editPoints );
 
 
         /*
         getContacts does 2 jobs (bad boy). It gets the contacts, and it also
         selects the best brush.
         */
-        int selectedBrushId  = getContacts(*citer, brushes, contacts);
-        if (selectedBrushId == -1)
-        {
-            selectedBrushId = brushId;
-        }
+
+        const std::pair<int, Brush> selectedBrush = selectBrush(*citer, brushes);
+        getContacts(*citer, selectedBrush, contacts);
+        int selectedBrushId = selectedBrush.first;
+        // int selectedBrushId  = getContacts(*citer, brushes, contacts);
+        // if (selectedBrushId == -1)
+        // {
+        //     selectedBrushId = brushId;
+        // }
 
 
         MFnNurbsCurve curveFn;
