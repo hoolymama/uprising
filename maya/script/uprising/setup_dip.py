@@ -134,10 +134,10 @@ def doit():
     dip_stroke_node = pm.PyNode("collectStrokesDip")
     wipe_stroke_node = pm.PyNode("collectStrokesWipe")
 
-    dip_ctrl_painting = pm.PyNode("brushes|curves|dip|dipPaintingControl")
-    wipe_ctrl_painting = pm.PyNode("brushes|curves|wipe|wipePaintingControl")
+    dip_ctrl_painting = pm.PyNode("BRUSHES|curves|dip|dipPaintingControl")
+    wipe_ctrl_painting = pm.PyNode("BRUSHES|curves|wipe|wipePaintingControl")
 
-    _delete_paintings_under("rack1")
+    _delete_paintings_under("RACK1_CONTEXT|j1|rack")
 
     for pkey in paints:
         for bkey in brushes:
@@ -154,20 +154,3 @@ def doit():
                 wipe_stroke_node,
                 wipe_ctrl_painting)
 
-
-# def doit():
-#     print "!!!!!!!!!!!!!!!!! SETUP DIP & WIPE !!!!!!!!!!!!!!!!!!!!!!!!"
-#     # painting_node =
-#     combinations = dip_combinations(pm.PyNode("mainPaintingShape"))
-
-#     dip_stroke_node = pm.PyNode("collectStrokesDip")
-#     wipe_stroke_node = pm.PyNode("collectStrokesWipe")
-
-#     _delete_paintings_under("rack1")
-
-#     for combo in combinations:
-#         b = combinations[combo]["brush"]
-#         p = combinations[combo]["paint"]
-
-#         dip_ptg_node = _create_painting_node("dip", b, p, dip_stroke_node)
-#         wipe_ptg_node = _create_painting_node("wipe", b, p, wipe_stroke_node)

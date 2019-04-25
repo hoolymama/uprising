@@ -1,8 +1,44 @@
 
-import random
-import math
+# import random
+# import math
 
 from robolink import *
+
+
+# import os
+# import pymel.core as pm
+
+# import uprising.uprising_util as uutl
+
+from robolink import Robolink
+import sheets
+
+
+def  get_flange_mode():
+    service = sheets._get_service()
+    result = service.spreadsheets().values().get(
+        spreadsheetId=sheets.SHEETS["Measurements"],
+        range='Brushes!A2:A2').execute()
+
+    print    result['values'][0][0]
+    
+
+get_flange_mode()
+
+    # data = result.get('values', [])
+
+    # for row in data:
+    #     loc_name = row[0]
+    #     try:
+    #         node = pm.PyNode(loc_name)
+    #     except pm.MayaNodeError:
+    #         node = pm.spaceLocator()
+    #         node.rename(loc_name)
+
+    #     vals = [uutl.numeric(x) * 0.1 for x in row[1:4]]
+    #     node.attr("translate").set(*vals)
+
+
 
 
 # arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -28,7 +64,7 @@ from robolink import *
 #           (fraction, param, leftid, rightid, weight))
     # print("L:%s R:%s" % (leftid, rightid))
 
-RL = Robolink()
+# RL = Robolink()
 
 # print RL.TIMEOUT
 # Change the default timeout here, in seconds:
@@ -36,13 +72,13 @@ RL = Robolink()
 # RL.COM.settimeout(RL.TIMEOUT)
  
 # frame =  RL.Item('frm')
-frame = RL.AddFrame('frm')
+# frame = RL.AddFrame('frm')
 
 
-robot = RL.Item('', ITEM_TYPE_ROBOT)
+# robot = RL.Item('', ITEM_TYPE_ROBOT)
 
-RL.AddTarget("tgt", frame,  robot)
-RL.AddTarget("tgt", frame,  robot)
+# RL.AddTarget("tgt", frame,  robot)
+# RL.AddTarget("tgt", frame,  robot)
 
 # target = RL.Item("tgt")
 # print "T", type(target)

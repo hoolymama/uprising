@@ -3,6 +3,7 @@ import pymel.core as pm
 import palette_utils as putl
 import write
 import uprising.uprising_util as uutl
+import props
 from studio import Studio
 from robolink import Robolink
 import sheets
@@ -13,6 +14,11 @@ def create():
     menu = pm.menu(label="Calibration", tearOff=True)
 
     pm.menuItem(label="Rack setup", subMenu=True)
+
+    pm.menuItem(
+        label="Create manual triangulation program",
+        command=pm.Callback(create_manual_triangulation))
+
 
     pm.menuItem(
         label="Read rack triangulation",
@@ -37,6 +43,17 @@ def create():
     pm.menuItem(
         label="Read holder calibration",
         command=pm.Callback(read_holder_calibration))
+
+
+    pm.menuItem(divider=True)
+
+    pm.menuItem(
+        label="Generate perspex calibration",
+        command=pm.Callback(generate_perspex_calibration))
+
+    pm.menuItem(
+        label="Read perspex calibration",
+        command=pm.Callback(read_perspex_calibration))
 
     pm.setParent("..", menu=True)
 
@@ -67,7 +84,8 @@ def create():
 
 def generate_pick_place_exercise():
     if not pm.optionVar.get("upov_tool_type") == "gripper":
-        pm.error("Can't generate pick and place without gripper")
+        pm.error("Can't generate pick and place without gripper. Set it in robot tools menu.")
+
 
     timestamp = write.get_timestamp()
     ppdir = os.path.join(
@@ -79,6 +97,7 @@ def generate_pick_place_exercise():
     uutl.mkdir_p(ppdir)
     studio = Studio(do_pap_exercise=True)
     studio.write()
+    
     write.write_program(Robolink(), ppdir, "pap", timestamp)
 
 
@@ -88,7 +107,7 @@ def _read_triangulation(sheet_range):
     service = sheets._get_service()
     result = service.spreadsheets().values().get(
         spreadsheetId=sheets.SHEETS["Measurements"],
-        range='Board!A1:D3').execute()
+        range=sheet_range).execute()
 
     data = result.get('values', [])
 
@@ -101,15 +120,18 @@ def _read_triangulation(sheet_range):
             node.rename(loc_name)
 
         vals = [uutl.numeric(x) * 0.1 for x in row[1:4]]
+        print "{} - set {} {} {}".format(node, vals[0], vals[1],vals[2])
         node.attr("translate").set(*vals)
 
 
-def _generate_calibration(which):
+def _generate_calibration(which, *reference_geo):
+    # transforms = pm.ls(selection=True, transforms=True)
     kw = {
+        "do_manual_triangulation": which == "tri",
         "do_pot_calibration": which == "pot",
         "do_holder_calibration": which == "holder",
         "do_board_calibration": which == "board",
-        "use_gripper": pm.optionVar.get("upov_tool_type") == "gripper"
+        "do_perspex_calibration": which == "perspex"
     }
     # prefix = "rx" if which == "rack" else "bx"
 
@@ -125,6 +147,7 @@ def _generate_calibration(which):
     studio.write()
     write.write_program(Robolink(), calib_dir, which, timestamp)
 
+    props.send(reference_geo)
 
 
 def read_rack_triangulation():
@@ -133,13 +156,32 @@ def read_rack_triangulation():
 def read_board_triangulation():
     _read_triangulation('Board!A1:D3')
 
+    height = (pm.PyNode("board_TL").attr("translate").get() -  pm.PyNode("board_BL").attr("translate").get()).length() 
+    width = (pm.PyNode("board_TR").attr("translate").get() -  pm.PyNode("board_TL").attr("translate").get()).length() 
 
+    pm.PyNode("canvas").attr("width").set(width)
+    pm.PyNode("canvas").attr("height").set(height)
+
+
+def create_manual_triangulation():
+    ref_geo = pm.PyNode("rackTop")
+    _generate_calibration("tri", ref_geo)
 
 def generate_pot_calibration():
-    _generate_calibration("pot")
+    ref_geo = [pm.PyNode("rackTop")]
+    ref_geo += pm.ls("holes|*|holeTrans|dip_loc|pot")
+    ref_geo += pm.ls("holes|*|holeTrans|wipe_loc|handle")
+    _generate_calibration("pot", *ref_geo)
 
 def generate_holder_calibration():
-    _generate_calibration("holder")
+    ref_geo = [pm.PyNode("rackTop")]
+    ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
+    _generate_calibration("holder", *ref_geo)
+
+def generate_perspex_calibration():
+    ref_geo = pm.PyNode("rackTop") 
+    _generate_calibration("perspex", ref_geo)
+
 
 def generate_board_calibration():
     _generate_calibration("board")
@@ -162,29 +204,61 @@ def read_pot_calibration():
     if not (len(data) == len(pots) and len(data) == len(handles)):
         raise IndexError("Sheet data and number of pots are different lengths")
 
+
+    pot_depth = pm.PyNode("rack|holes").attr("calibrationPotDepth").get()
+    handle_height = pm.PyNode("rack|holes").attr(
+        "calibrationHandleHeight").get()
+
+
+
     for row in data:
         i = int(uutl.numeric(row[0]))
-        _set_precise(pots[i].getParent(), uutl.numeric(row[1]), -k.RACK_POT_DEPTH)
-        _set_precise(handles[i].getParent(), uutl.numeric(row[2]), k.RACK_HANDLE_HEIGHT)
+        _set_precise(pots[i].getParent(), uutl.numeric(row[1]), pot_depth)
+        _set_precise(handles[i].getParent(), uutl.numeric(row[2]), handle_height)
 
 
 def read_holder_calibration():
     service = sheets._get_service()
     result = service.spreadsheets().values().get(
         spreadsheetId=sheets.SHEETS["Measurements"],
-        range='Rack!A6:D25').execute()
+        range='Rack!A6:G25').execute()
 
     data = result.get('values', [])
 
-    holders = pm.ls("RACK1_CONTEXT|j1|rack1|holders|holderRot*|holderTrans")
+    holders = pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*|holderTrans")
     if not  len(data) == len(holders):
         raise IndexError("Sheet data and number of holders are different")
 
     for row in data:
         i = int(uutl.numeric(row[0]))
+        # Setting Z (height)
         _set_precise(holders[i], uutl.numeric(row[3]), k.RACK_HOLDER_HEIGHT)
 
+        holders[i].attr("ty").set(uutl.numeric(row[4])* 0.1)
+        holders[i].attr("tx").set((uutl.numeric(row[5])* 0.1) + k.RACK_HOLDER_DISTANCE)
+ 
 
+def read_perspex_calibration():
+    service = sheets._get_service()
+    result = service.spreadsheets().values().get(
+        spreadsheetId=sheets.SHEETS["Measurements"],
+        range='Rack!A6:G17').execute()
+
+    packs =  putl.get_perspex_packs()
+    pack_len = len(packs)
+    data = result.get('values', [])
+    for row in data:
+        i = int(uutl.numeric(row[0]))
+        if i < pack_len:
+            pack = packs[i]
+            print "ROW:", row
+            if row[6]:
+                dup = pm.duplicate(pack["base"]) 
+                dup = dup[0]
+                _set_precise(dup, uutl.numeric(row[6]), 0)
+                dup.rename("Calib_{}".format(pack["name"]))
+                pm.parent(dup, world=True)
+ 
 def read_board_calibration():
     service = sheets._get_service()
     result = service.spreadsheets().values().get(
@@ -192,8 +266,6 @@ def read_board_calibration():
         range='Board!A6:B17').execute()
 
     data = result.get('values', [])
-    top_node = pm.PyNode("mainPaintingGroup")
-    top_node.attr("zeroPosition").set(1)
 
     verts = [item for sublist in pm.sets(
         "probePointsSet", q=True) for item in sublist]
@@ -201,6 +273,7 @@ def read_board_calibration():
     if not (len(data) == len(verts)):
         raise IndexError("Sheet data and number of verts are different lengths")
 
+    # with uutl.zero_position(pm.PyNode("mainPaintingGroup")):
     for val, vtx in  zip( zip(*data)[1]  , verts):
         pos = vtx.getPosition(space="world")
         pos.z = (uutl.numeric(val) * 0.1) - 1.0

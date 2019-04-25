@@ -82,7 +82,8 @@ def run_hook(code):
 def publish_sequence(
     export_dir,
     frame_range,
-    auto,
+    pause,
+    wait,
     save_unfiltered_snapshot
 ):
 
@@ -117,16 +118,17 @@ def publish_sequence(
         # clean_rdk()
         studio = Studio(
             do_painting=True, 
-            use_gripper=auto, 
-            do_dips=True)
+            do_dips=True,
+            pause=pause,
+            wait=wait)
         
         studio.write()
         write_program(RL, ts_dir, "px", timestamp)
 
-        write_log(
-            ts_dir,
-            timestamp,
-            frame)
+        # write_log(
+        #     ts_dir,
+        #     timestamp,
+        #     frame)
 
         # publish_robodk_painting( ts_dir, timestamp, auto)
 
@@ -242,13 +244,24 @@ def write_program(RL, ts_dir, progname, timestamp):
     RL = Robolink()
     # RL.TIMEOUT = 600 # in seconds
     # RL.COM.settimeout(RL.TIMEOUT)
-
+    print "WRITING"
     prog_filename = "%s_%s" % (progname.upper(), timestamp)
+    print "prog_filename", prog_filename
     program = RL.Item(progname)
+
+    program.setName(prog_filename)
+    program.MakeProgram(ts_dir)
+    program.setName(progname)
+    print "ts_dir" , ts_dir
+    
     if program.Valid():
-        program.setName(prog_filename)
-        program.MakeProgram(ts_dir)
-        program.setName(progname)
+        print "VALID" 
+        # 
+        # program.setName(prog_filename)
+        # program.MakeProgram(ts_dir)
+        # program.setName(progname)
+    else:
+        print "INVALID" 
 
 
 def write_station(RL, ts_dir, timestamp):
@@ -318,7 +331,7 @@ def used_paints(painting_node):
 def write_log( ts_dir, timestamp, frame):
 
     painting_node = pm.PyNode("mainPaintingShape")
-    dip_combos = setup_dip.dip_combinations(painting_node)
+    dip_combos = setup_dip.dip_combinations()
  
     pnt_stats = painting_stats(painting_node)
     # dip_stats = painting_stats(dip_node)

@@ -3,48 +3,63 @@ import stroke_factory_utils as sfu
 import uprising.uprising_util as uutl
 import sheets
 
+ 
 def get_pot_handle_pairs():
-   return zip (
-    pm.ls("rack*|holes|holeRot*|holeTrans|dip_loc|pot*"), 
-    pm.ls("rack*|holes|holeRot*|holeTrans|wipe_loc|handle")
+    return zip(
+        pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*"),
+        pm.ls("rack|holes|holeRot*|holeTrans|wipe_loc|handle")
     )
 
+
 def get_used_pot_handle_pairs():
-    return [pair for pair in get_pot_handle_pairs() if not pair[0].split("|")[-1] == "pot"]
+    return [pair for pair in get_pot_handle_pairs(
+    ) if not pair[0].split("|")[-1] == "pot"]
 
 
 def get_used_pots():
-    return zip(*get_used_pot_handle_pairs())[0] 
+    return zip(*get_used_pot_handle_pairs())[0]
+
 
 def get_pots():
-   return zip(*get_pot_handle_pairs())[0] 
+    return zip(*get_pot_handle_pairs())[0]
+
 
 def select_used_pots():
     pm.select(get_used_pots())
+
 
 def select_pots():
     pm.select(get_pots())
 
 
 def get_used_handles():
-    return zip(*get_used_pot_handle_pairs())[1] 
+    return zip(*get_used_pot_handle_pairs())[1]
+
 
 def get_handles():
-    return zip(*get_pot_handle_pairs())[1] 
+    return zip(*get_pot_handle_pairs())[1]
+
 
 def select_used_handles():
     pm.select(get_used_handles())
 
+
 def select_handles():
     pm.select(get_handles())
+
 
 def clean_palette():
     painting_node = pm.PyNode("mainPaintingShape")
     delete_paints(painting_node)
-    for painting in  pm.ls("rack*|holes|holeRot*|holeTrans", dag=True, leaf=True, type="painting"):
+    for painting in pm.ls(
+        "rack|holes|holeRot*|holeTrans",
+        dag=True,
+        leaf=True,
+            type="painting"):
         pm.delete(painting.getParent())
-    for pot in pm.ls("rack*|holes|holeRot*|holeTrans|dip_loc|pot*"):
+    for pot in pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*"):
         pot.rename("pot")
+
 
 def validate_paint_data(data):
     if not len(data):
@@ -53,27 +68,36 @@ def validate_paint_data(data):
         if not len(row) > 4:
             raise ValueError("Invalid paint data from Google sheets")
 
+
 def delete_shaders():
     if pm.ls("sx_*"):
         pm.delete("sx_*")
+
 
 def delete_paints(node):
     indices = node.attr("paints").getArrayIndices()
     for i in indices:
         pm.removeMultiInstance(node.attr("paints[%d]" % i), b=True)
 
+
 def set_up_rack(colors):
-    pots = pm.ls("rack*|holes|holeRot*|holeTrans|dip_loc|pot*")
+    pots = pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*")
     used_pot_cols = set_pot_colors(pots, colors)
     used_pots = zip(*used_pot_cols)[0]
     connect_pots(used_pots)
+
 
 def set_pot_colors(pots, colors):
     pot_cols = zip(pots, colors)
     delete_shaders()
     for geo, color in pot_cols:
-        geo.rename("pot_%s_%s" % (color["index"], color["name"]))
-        ss = pm.shadingNode('lambert', asShader=True, name=("sx_%s" % color["name"]))
+        # geo.rename("pot_%s_%s" % (color["index"], color["name"]))
+        ss = pm.shadingNode(
+            'lambert',
+            asShader=True,
+            name=(
+                "sx_%s" %
+                color["name"]))
         sg = pm.sets(
             renderable=True,
             noSurfaceShader=True,
@@ -83,7 +107,7 @@ def set_pot_colors(pots, colors):
         pm.sets(sg, edit=True, forceElement=geo)
         geo.attr("sfPaintColor") >> ss.attr('color')
         try:
-            geo.attr("sfPaintColor").set([color["r"],color["g"],color["b"]])
+            geo.attr("sfPaintColor").set([color["r"], color["g"], color["b"]])
         except RuntimeError:
             pm.warning("Can't set tray color. Skipping")
         try:
@@ -94,25 +118,34 @@ def set_pot_colors(pots, colors):
         code_att.set(color["code"])
     return pot_cols
 
+
 def connect_pots(pots):
     painting_node = pm.PyNode("mainPaintingShape")
     delete_paints(painting_node)
     for i, pot in enumerate(pots):
         connect_paint_to_node(pot, painting_node, i)
- 
+
+
 def connect_paint_to_node(pot, node, connect_to="next_available"):
     index = sfu.get_index(node, "paints.paintTravel", connect_to)
-    whitelist = ["double", "float", "short", "bool", "string","float3", "double3"]
+    whitelist = [
+        "double",
+        "float",
+        "short",
+        "bool",
+        "string",
+        "float3",
+        "double3"]
     atts = node.attr("paints[%d]" % index).getChildren()
     for att in atts:
         att_type = att.type()
         if att_type in whitelist:
             sfu.create_and_connect_driver(pot, att)
 
- 
+
 def setup_paints_from_sheet(palette_name):
-    resource =  sheets.get_resource_by_name(palette_name, "Paints")
-    data =  resource["data"]
+    resource = sheets.get_resource_by_name(palette_name, "Paints")
+    data = resource["data"]
 
     validate_paint_data(data)
     colors = []
@@ -127,8 +160,6 @@ def setup_paints_from_sheet(palette_name):
         }
         colors.append(color)
     set_up_rack(colors)
-
- 
 
 
 def dip_combination_ids():
@@ -146,18 +177,85 @@ def dip_combination_ids():
 
 
 
+def get_pot_handle_packs():
+    result = []
+    for i, p in enumerate(pm.ls("RACK1_CONTEXT|j1|rack|holes|holeRot*|holeTrans")):
+        _1,_2, pot_base, pot_ap, handle_base, handle_ap  = [x for x in p.getChildren(type='transform')]
+        name =   "ph_{:02d}".format(i)
+        result.append({
+            "pot_base": pot_base,
+            "pot_approach": pot_ap,
+            "handle_base": handle_base,
+            "handle_approach": handle_ap,
+            "name": name,
+            "index": i
+        })
+    return result
+ 
+
+
+def get_pick_place_packs(brush_ids="used"):
+    result = {}
+    painting = pm.PyNode("mainPaintingShape")
+    if brush_ids == "all":
+        bids = [int(n[-2:])
+                for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
+    elif brush_ids == "used":
+        dc = pm.paintingQuery(painting, dc=True)
+        bids = set(dc[::2])
+    else:
+        bids = brush_ids
+
+    holders_node = pm.PyNode("RACK1_CONTEXT|j1|rack|holders")
+    path_attributes = {
+        "lin_speed": holders_node.attr("linearSpeed").get() * 10,
+        "precision_lin_speed": holders_node.attr("precisionLinearSpeed").get() * 10,
+        "ang_speed": holders_node.attr("angularSpeed").get(),
+        "rounding": holders_node.attr("approximationDistance").get() * 10,
+    }
+    for bid in bids:
+        key = "b{:02d}".format(bid)
+        trans = "holderRot{:02d}|holderTrans".format(bid)
+        result[key] = {
+            "trans_node": pm.PyNode(trans),
+            "brush_id": bid,
+            "probe": pm.PyNode("{}|probe_loc".format(trans)),
+            "pin": pm.PyNode("{}|pin_loc".format(trans)),
+            "pin_ap": pm.PyNode("{}|pin_approach_loc".format(trans)),
+            "clear": pm.PyNode("{}|clear_loc".format(trans)),
+            "clear_ap": pm.PyNode("{}|clear_approach_loc".format(trans))
+        }
+        result[key].update(path_attributes)
+    return result
+
+
+def get_perspex_packs():
+    result = []
+
+    for i, p in enumerate(pm.ls("RACK1_CONTEXT|j1|rack|probes|rackCalRot*|rackCalLocal" , v=True)):
+        approach, base = [x for x in p.getChildren(type='transform')]
+        name = base.split("|")[0]
+        result.append({
+            "base": base,
+            "approach": approach,
+            "name": name,
+            "index": i
+        })
+    return result
+
+
 def get_dip_wipe_packs():
 
     result = {}
-    # racks = ["rack1"]
+ 
 
     dip_combinations = dip_combination_ids()
 
     for combo in dip_combinations:
 
-        dip_ptg_path = "rack*|holes|holeRot_{:02d}|holeTrans|dip_loc|b{:02d}|*".format(
+        dip_ptg_path = "rack|holes|holeRot_{:02d}|holeTrans|dip_loc|b{:02d}|*".format(
             combo["paint"], combo["brush"])
-        wipe_ptg_path = "rack*|holes|holeRot_{:02d}|holeTrans|wipe_loc|b{:02d}|*".format(
+        wipe_ptg_path = "rack|holes|holeRot_{:02d}|holeTrans|wipe_loc|b{:02d}|*".format(
             combo["paint"], combo["brush"])
 
         paint_key = "p{:02d}".format(combo["paint"])
@@ -180,40 +278,4 @@ def get_dip_wipe_packs():
             "name": "{}_{}".format(paint_key, brush_key)
         }
 
-    return result
-
-
-def get_pick_place_packs(brush_ids="used"):
-    result = {}
-    painting = pm.PyNode("mainPaintingShape")
-    if brush_ids == "all":
-        bids = [int(n[-2:])
-                for n in pm.ls("RACK1_CONTEXT|j1|rack1|holders|holderRot*")]
-    elif brush_ids == "used":
-        dc = pm.paintingQuery(painting, dc=True)
-        bids = set(dc[::2])
-    else :
-        bids = brush_ids
-
-
-    holders_node = pm.PyNode("RACK1_CONTEXT|j1|rack1|holders")
-    path_attributes = {
-        "lin_speed": holders_node.attr("linearSpeed").get() * 10,
-        "precision_lin_speed": holders_node.attr("precisionLinearSpeed").get() * 10,
-        "ang_speed": holders_node.attr("angularSpeed").get(),
-        "rounding": holders_node.attr("approximationDistance").get() * 10,
-    }
-    for bid in bids:
-        key = "b{:02d}".format(bid)
-        trans = "holderRot{:02d}|holderTrans".format(bid)
-        result[key] = {
-            "trans_node": pm.PyNode(trans),
-            "brush_id": bid,
-            "probe": pm.PyNode("{}|probe_loc".format(trans)),
-            "pin": pm.PyNode("{}|pin_loc".format(trans)),
-            "pin_ap": pm.PyNode("{}|pin_approach_loc".format(trans)),
-            "clear": pm.PyNode("{}|clear_loc".format(trans)),
-            "clear_ap": pm.PyNode("{}|clear_approach_loc".format(trans))
-        }
-        result[key].update(path_attributes)
     return result

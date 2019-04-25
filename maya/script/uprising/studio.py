@@ -3,9 +3,11 @@
 import pymel.core as pm
 import uprising_util as uutl
 import palette_utils as putl  
+import sheets
 
 from paint import Paint
 import props
+ 
 
 from robolink import (
     Robolink,
@@ -20,9 +22,11 @@ from program import (
     PotCalibration,
     HolderCalibration,
     BoardCalibration,
+    PerspexCalibration,
     PickProgram,
     PlaceProgram,
-    PapExerciseProgram)
+    PapExerciseProgram,
+    ManualTriangulation)
 
  
 import brush_utils as butl
@@ -65,22 +69,42 @@ class Studio(object):
         self.pot_cal_program = None
         self.holder_cal_program = None
         self.board_cal_program = None
+        self.perspex_cal_program = None
+        self.manual_tri_program = None
+
+
         self.dip_programs = []
         self.pick_place_programs = []
         self.exercise_program = None
+ 
 
-        print "STUDIO KW"
-        print kw
+        self.pause=kw.get("pause", 200)
+        self.wait=kw.get("wait", True)
+        
 
+        # "use_gripper": pm.optionVar.get("upov_tool_type") == "gripper"
+        use_gripper = pm.optionVar.get("upov_tool_type") == "gripper"
+
+        sheet_use_gripper = sheets.get_flange_mode() == "GRIPPER"
+        
+
+        print "sheet_use_gripper", sheet_use_gripper
+        print "use_gripper", use_gripper
+
+        err_msg = "Make sure Robot tools Gripper mode is set to the same as in the Brushes Spreadsheet"
+        if (int(use_gripper) + int(sheet_use_gripper)) == 1:
+            pm.warning(err_msg)
+             
 
         do_painting = kw.get("do_painting")
         do_dips = kw.get("do_dips")
-        use_gripper = kw.get("use_gripper")
         do_pap_exercise = kw.get("do_pap_exercise")
 
         do_board_calibration = kw.get("do_board_calibration")
         do_pot_calibration = kw.get("do_pot_calibration")
         do_holder_calibration = kw.get("do_holder_calibration")
+        do_perspex_calibration = kw.get("do_perspex_calibration")
+        do_manual_triangulation = kw.get("do_manual_triangulation")
 
         if do_painting:
             logger.debug("Studio: main_painting")
@@ -111,6 +135,21 @@ class Studio(object):
                 with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                     self.pick_place_programs = self._build_pick_place_programs([0])
 
+        if do_perspex_calibration:
+            logger.debug("Studio:  perspex_calibration")
+            self.perspex_cal_program = PerspexCalibration("perspex", use_gripper)
+            if use_gripper:
+                with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+                    self.pick_place_programs = self._build_pick_place_programs([0])
+
+
+        if do_manual_triangulation:
+            logger.debug("Studio:  manual_triangulation")
+            self.manual_tri_program = ManualTriangulation("triangulation", use_gripper)
+            if use_gripper:
+                with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+                    self.pick_place_programs = self._build_pick_place_programs([0])
+
         if do_board_calibration:
             logger.debug("Studio: board_calibration")
             self.board_cal_program = BoardCalibration("bx", use_gripper)
@@ -137,6 +176,7 @@ class Studio(object):
                             pack["name"],
                             pack["dip"],
                             pack["wipe"]))
+        print packs
         return result
 
     def _build_pick_place_programs(self, brush_ids):
@@ -166,6 +206,12 @@ class Studio(object):
         self.dip_approach = uutl._create_joint_target(
             pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame)
 
+    def _write_rack_and_holder_geo(self):
+        ref_geo = [pm.PyNode("rackTop")]
+        ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
+        props.send(ref_geo)
+    
+
     def write(self):
 
         self._write_approaches()
@@ -185,12 +231,15 @@ class Studio(object):
 
         if self.exercise_program:
             self.exercise_program.write(self)
-            
+            with uutl.final_position(rack_context):
+                self._write_rack_and_holder_geo()
+
         if self.pick_place_programs:
             self.pick_place_frame = uutl.create_frame("pick_place_frame")
             with uutl.final_position(rack_context):
                 for prog in self.pick_place_programs:
                     prog.write(self)
+                self._write_rack_and_holder_geo()
 
         if self.pot_cal_program:
             with uutl.final_position(rack_context):
@@ -203,6 +252,20 @@ class Studio(object):
                 self.holder_cal_program.write(
                     self.tool_approach,
                     self.home_approach)
+                self._write_rack_and_holder_geo()
+
+        if self.perspex_cal_program:
+            with uutl.final_position(rack_context):
+                self.perspex_cal_program.write(
+                    self.tool_approach,
+                    self.home_approach)
+                self._write_rack_and_holder_geo()
+
+        if self.manual_tri_program:
+            self.manual_tri_program.write(
+                self.tool_approach,
+                self.home_approach)
+        
 
         if self.board_cal_program:
             with uutl.final_position(painting_context):

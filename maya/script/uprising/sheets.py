@@ -98,3 +98,14 @@ def get_raw_board_data():
 
 
     return (values, offset, ground)
+
+
+
+def  get_flange_mode():
+    service = _get_service()
+    result = service.spreadsheets().values().get(
+        spreadsheetId=SHEETS["Measurements"],
+        range='Brushes!A2:A2').execute()
+
+    return result['values'][0][0]
+

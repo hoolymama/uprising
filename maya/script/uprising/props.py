@@ -50,6 +50,17 @@ def send_object(node, parent):
         shape.setColor(list(color))
         shape.setVisible(True, visible_frame=False)
 
+def mesh_triangles(node):
+    meshes = pm.PyNode(node).getChildren(allDescendents=True, type="mesh")
+    triangles = []
+    for mesh in meshes:    
+        points = mesh.getPoints(space='world')
+        _, vids = mesh.getTriangles()
+        for vid in vids:
+            triangles.append(
+                [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10])
+    return triangles
+
 
 def send(objects, parent=None):
     transforms = pm.ls(objects, transforms=True)

@@ -76,6 +76,14 @@ def at_height(node, h):
     node.attr("tz").set(old)
 
 @contextmanager
+def at_position(node, x, y, z):
+    old =  node.attr("t").get() 
+    node.attr("t").set(x, y, z)
+    yield
+    node.attr("t").set(old)
+
+
+@contextmanager
 def final_position(*nodes):
     remember = []
     for node in nodes:

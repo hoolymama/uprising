@@ -33,10 +33,8 @@
 const double rad_to_deg = (180 / 3.1415927);
 
 MObject skeletonStrokeNode::aChains;
-
 MObject skeletonStrokeNode::aBrushFilter;
 MObject skeletonStrokeNode::aBrushes;
-
 MObject skeletonStrokeNode::aStrokeLength;
 MObject skeletonStrokeNode::aOverlap;
 MObject skeletonStrokeNode::aBrushRampScope;
@@ -200,6 +198,11 @@ MStatus skeletonStrokeNode::collectBrushes(
         }
     }
 
+    /*
+    Sort from largest to smallest. This is to help us select the best available brush.
+
+
+    */
     std::sort(brushes.begin(), brushes.end(),
               [](const std::pair<int, Brush> &a, const std::pair<int, Brush> &b) -> bool
     {
@@ -209,37 +212,53 @@ MStatus skeletonStrokeNode::collectBrushes(
 }
 
 
+
+
+
 int skeletonStrokeNode::getContacts(
     const skChain &chain,
     const std::vector< std::pair<int, Brush> > &brushes,
     MDoubleArray &contacts) const
 {
     /*
+    The brushes are already sorted widest to finest. We test each brush in turn to
+    see if it is big enough for the stroke. When we come across the first brush that
+    is too small, we select the previous brush. It will in theory be the best suited.
+    If the first brush (the biggest brush) is too small for the stroke, we're just
+    going to have to use it.
 
-    If the first brush (the biggest brush) is too small for the stroke
+    If there are no brushes (should never happen!!),
     then we return -1, meaning we cant actually paint the stroke.
     */
+
 
     int index = -1;
     float brushRadius =  1.0;
     bool isFlat = false;
-    // std::vector< std::pair<int, Brush> >::const_iterator selected_brush = brushes.find(-1);
 
     std::vector< std::pair<int, Brush> >::const_iterator brushIter;
     for (brushIter = brushes.begin(); brushIter != brushes.end(); brushIter++)
     {
         float brushRad = brushIter->second.width() * 0.5;
-        if (brushRad < chain.maxRadius() && (brushIter != brushes.begin() ))
-        {
+
+        if (brushRad <= chain.maxRadius()) {
+            if (brushIter == brushes.begin() ) { // use this
+                index = brushIter->first;
+                brushRadius = brushRad;
+                isFlat =  brushIter->second.isFlat();
+            }
             break;
         }
         index = brushIter->first;
         brushRadius = brushRad;
         isFlat =  brushIter->second.isFlat();
     }
+
     /*
+    Now we have a brush
 
     */
+
 
     MFloatArray radii;
     chain.appendRadii(radii);
@@ -347,7 +366,12 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
         MDoubleArray contacts;
         citer->appendPoints(editPoints );
 
-        int selectedBrushId  = getContacts(*citer, brushes,  contacts);
+
+        /*
+        getContacts does 2 jobs (bad boy). It gets the contacts, and it also
+        selects the best brush.
+        */
+        int selectedBrushId  = getContacts(*citer, brushes, contacts);
         if (selectedBrushId == -1)
         {
             selectedBrushId = brushId;

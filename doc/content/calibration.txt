@@ -1,0 +1,83 @@
+---
+title: Calibration
+description: Calibrate the rack and the board.
+type: Tutorial
+---
+
+<% @figure_counter = 1 %>
+
+h3(#contents). Contents
+
+"Introduction":calibration.html#introduction
+"Rack Triangulation":calibration.html#rack-triangulation
+"Pot Calibration":calibration.html#pot-calibration
+"Holder Calibration":calibration.html#holder-calibration
+
+h3(#introduction). Introduction
+
+The robot can't see, so in order to know where the rack and the canvas are, they must be surveyed. In particular, when the gripper grips things, it must be precise in order to avoid damage or a faulty grip. 
+
+For both the rack and the board, the triangulations need to be performed before generating subsequent precise calibrations.
+
+h3(#rack-triangulation). Rack Triangulation
+
+Before doing precise calibrations, we need to define a plane that the rack lives in. We need to measure the points above the three legs front-left, front-right, back-middle, when looking from the robot's point of view. These three measurements need to be done by hand. There is however a program to make it a little easier. It sets up the probe tool so all you have to do is move the robot and record the values.
+
+h4. To generate a rack triangulation program:
+
+* Open robot tools.
+* Be sure to set BAYONET in both robot tools and the brushes spreadsheet.
+* Choose Calibration->Rack Setup->Create manual triangulation program.
+* Find the program in the current project under export/calibrations/tri.
+
+When you run it on the robot, it will ask you to attach the tool. When you advance it will pause again and ask you to move the robot manually and record the values. 
+
+Try to get an accurate measurement above the center's of the legs. The tip of the probe should just touch the perspex without creating a reading. Enter the values TCP translation values in the Rack spreadsheet.
+
+h4. To read a rack triangulation program:
+
+* Choose Calibration->Rack Setup->Read rack triangulation.
+
+The values will be applied to locators with the same names as the first column in the spreadsheet. Don't change these names. 
+
+There is a joint, constrained at each end and with a polevector constraint to help define the plane. The three constraints are get their positions from the three locators mentioned. The constraints are only active when zeroposition is turned off on the top node of the rack.  
+
+h3(#pot-calibration). Pot Calibration
+
+
+h4. To generate a pot calibration program:
+
+* Open robot tools.
+* Be sure to set BAYONET in both robot tools and the brushes spreadsheet.
+* Choose Calibration->Rack Setup->Create paintpot calibration.
+* Find the program in the current project under export/calibrations/pot.
+
+When you run the program, enter the values for pots and handles in columns B and C of the Rack spreadsheet. Then read the values back on to the pots in CG 
+
+h4. To read in a pot calibration:
+
+* Choose Calibration->Rack Setup->Read paintpot calibration.
+
+h3(#holder-calibration). Holder Calibration
+
+h4. To generate a holder calibration program:
+
+* Open robot tools.
+* Be sure to set BAYONET in both robot tools and the brushes spreadsheet.
+* Choose Calibration->Rack Setup->Create holder calibration.
+* Find the program in the current project under export/calibrations/holder.
+
+When you run the program, enter the value displayed on the gauge in column D of the Rack spreadsheet. 
+If you notice the end of the probe is to the left by say 2mm, enter 2 in column E. If its too far to the right, make the number negative - e.g. -2. 
+If the probe is too far to the back of the slot, make the mm number positive in column F. If its too far forward, make it negative.
+ 
+h4. To read in a holder calibration:
+
+* Choose Calibration->Rack Setup->Read holder calibration. All the holderTrans nodes will be adjusted.
+
+
+
+h3. Work in progress
+
+
+Have Fun!

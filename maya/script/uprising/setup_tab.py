@@ -90,16 +90,9 @@ class SetupTab(gui.FormLayout):
     def on_go(self):
         self.save()
 
-        # do_board = pm.rowLayout(self.setup_board_row, q=True, en=True)
         do_brushes = pm.textFieldGrp(self.setup_brushes_tf, q=True, en=True)
         do_paints = pm.textFieldGrp(self.setup_paints_tf, q=True, en=True)
-        # do_rack = pm.textFieldGrp(self.setup_rack_tf, q=True, en=True)
-        # do_calibration = pm.textFieldGrp(self.read_calibration_tf, q=True, en=True)
-
-
-        painting_node = pm.PyNode("mainPaintingShape")
-        # rack = pm.PyNode("rack1")
-
+  
 
         if do_brushes:
             name = pm.textFieldGrp(self.setup_brushes_tf, q=True, text=True)
@@ -110,22 +103,6 @@ class SetupTab(gui.FormLayout):
             putl.setup_paints_from_sheet(name)
 
 
-        # if do_board:
-        #     name = pm.textFieldGrp(self.setup_board_tf, q=True, text=True)
-        #     depth_only = pm.checkBox(self.depth_only_cb, q=True, v=True)
-        #     bdutl.setup_board_from_sheet(painting_node, name, depth_only)
-        #     # bdutl.generate_probes(painting_node)
-
-  
-        # gen_probes = pm.floatFieldGrp(self.probes_ctl, q=True, en=True)
-        # if gen_probes:
-        #     offset, approach_dist = pm.floatFieldGrp(
-        #         self.probes_ctl, q=True, v=True)
-        #     bdutl.generate_probes(painting_node, offset, approach_dist)
-
-        # if do_calibration:
-        #     name = pm.textFieldGrp(self.read_calibration_tf, q=True, text=True)
-        #     bdutl.set_board_vertices_from_sheets(painting_node, name)
 
         if do_brushes or do_paints:
             setup_dip.doit()
@@ -133,17 +110,6 @@ class SetupTab(gui.FormLayout):
 
 
     def populate(self):
-
-        # board
-        # var = ("upov_setup_board_row_en", True)
-        # pm.rowLayout(self.setup_board_row, e=True, en=pm.optionVar.get(var[0],var[1]))
-        # uutl.conform_activatable_checkbox(self.setup_board_row)
-
-        # var = ("upov_setup_board_tf", "default")
-        # pm.textFieldGrp(self.setup_board_tf, e=True, text=pm.optionVar.get(var[0],var[1]))
-
-        # var = ("upov_depth_only_cb", False)
-        # pm.checkBox(self.depth_only_cb, e=True, value=pm.optionVar.get(var[0],var[1]))
 
         # brushes
         var = ("upov_setup_brushes_tf_en", True)

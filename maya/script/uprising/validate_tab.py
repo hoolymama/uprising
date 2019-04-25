@@ -25,11 +25,12 @@ class ValidateTab(gui.FormLayout):
         self.create_action_buttons()
 
     def on_collapse_change(self):
-        state = pm.frameLayout(
-            self.retries_frame_wg,
-            query=True,
-            collapse=True)
-        pm.frameLayout(self.simple_frame_wg, edit=True, en=state)
+        pass
+        # state = pm.frameLayout(
+        #     self.retries_frame_wg,
+        #     query=True,
+        #     collapse=True)
+        # pm.frameLayout(self.simple_frame_wg, edit=True, en=state)
 
     def create_ui(self):
         pm.setParent(self.column)
@@ -81,7 +82,7 @@ class ValidateTab(gui.FormLayout):
         self.retries_frame_wg = pm.frameLayout(
             collapsable=True,
             collapse=True,
-            en=True,
+            en=False,
             labelVisible=True,
             label="Retries",
             ec=pm.Callback(self.on_collapse_change),
@@ -256,12 +257,9 @@ status        : %s
 
         kw = {
             "do_painting": send[0], 
-            "use_gripper": send[1], 
+            "do_pick_place":  send[1], 
             "do_dips": send[2]
         }
-        print "-" * 30
-        print kw
-        print "-" * 30
  
         result = []
 

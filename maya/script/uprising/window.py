@@ -6,8 +6,8 @@ from uprising import (
     setup_tab,
     validate_tab,
     publish_tab,
-    rings_design_tab,
-    rings_setup_tab,
+    # rings_design_tab,
+    # rings_setup_tab,
     # proposal_tab,
     tools_menu,
     export_menu,
@@ -22,34 +22,34 @@ from uprising import (
 # import uprising.logger_setup
 
 
-import setup_dip
-# from setup_dip import setup_dip_factory
+# import setup_dip
+# # from setup_dip import setup_dip_factory
 
-import stroke_factory_utils
+# import stroke_factory_utils
 
-import studio
+# import studio
 
-import painting
-import program
-# import calibration_program
-# import pick_place_program
+# import painting
+# import program
+# # import calibration_program
+# # import pick_place_program
 
-import paint
-import brush
-import stroke
-import cluster
-import target
-import write
-import uprising_util
-import const
-import sheets
-import curve_utils
-import brush_utils
-import palette_utils
-import board_utils
+# import paint
+# import brush
+# import stroke
+# import cluster
+# import target
+# import write
+# import uprising_util
+# import const
+# import sheets
+# import curve_utils
+# import brush_utils
+# import palette_utils
+# import board_utils
 
-import props
-import images
+# import props
+# import images
 
 # reload(program)
 # reload(studio)
@@ -82,7 +82,7 @@ import images
 
 # reload(props)
 # reload(validate_tab)
-# reload(publish_tab)
+reload(publish_tab)
 
 
 # reload(tools_menu)
@@ -125,13 +125,13 @@ class RobotWindow(gui.Window):
         self.painting_tab = painting_tab.PaintingTab()
         self.tabs.setTabLabel((self.painting_tab, "Painting"))
 
-        pm.setParent(self.tabs)
-        self.rings_design_tab = rings_design_tab.RingsDesignTab()
-        self.tabs.setTabLabel((self.rings_design_tab, "Ring design"))
+        # pm.setParent(self.tabs)
+        # self.rings_design_tab = rings_design_tab.RingsDesignTab()
+        # self.tabs.setTabLabel((self.rings_design_tab, "Ring design"))
 
-        pm.setParent(self.tabs)
-        self.rings_setup_tab = rings_setup_tab.RingsSetupTab()
-        self.tabs.setTabLabel((self.rings_setup_tab, "Ring setup"))
+        # pm.setParent(self.tabs)
+        # self.rings_setup_tab = rings_setup_tab.RingsSetupTab()
+        # self.tabs.setTabLabel((self.rings_setup_tab, "Ring setup"))
 
         pm.setParent(self.tabs)
         self.validate_tab = validate_tab.ValidateTab()

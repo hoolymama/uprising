@@ -6,7 +6,6 @@ import re
 import math
 import random
 import logging
-import uprising_util as uutl
 from uprising.sequence import Sequence
 from wrandom import StepRandomizer
 
@@ -147,8 +146,7 @@ def connect_curve_to_painting(curve, painting_node, **kw):
             stroke_curve.attr(
                 "brushTwistRamp[0].brushTwistRamp_FloatValue").set(0.5)
 
-    # plane.attr("worldMatrix[0]") >> stroke_curve.attr("planeMatrix")
-    # print "connect_to: %s" % connect_to
+
     if connect_to:
         index = sfu.get_index(painting_node, "strokes.", connect_to)
         stroke_curve.attr("output") >> painting_node.attr(
@@ -280,61 +278,6 @@ def ensure_grp_has_stroke_curves(src, existing_curves_grp):
     return existing_curves_grp
 
 
-# def generate_brush_dip_curves(lift, force):
-
-#     src = "brushes|dipCurves|defaultSource"
-
-#     # tmp - ensure freeze_transforms on src so we can reliably offset them
-#     pm.makeIdentity(src, t=True, r=True, s=True)
-
-#     pm.PyNode("brushes").attr("visibility").set(True)
-#     node = pm.PyNode("dipPaintingShape")
-#     if not node:
-#         raise IndexError("Can't find dipPaintingShape")
-#     # brushes = pm.ls(
-#     #     "brushes|dipBrushes|bdx*",
-#     #     selection=True,
-#     #     dag=True,
-#     #     leaf=True)
-#     # if not brushes:
-#     dip_brushes = pm.ls("brushes|dipBrushes|bdx*", dag=True, leaf=True)
-#     painting_brushes = pm.ls(
-#         "brushes|paintingBrushes|bpx*",
-#         dag=True,
-#         leaf=True)
-
-#     brushes = zip(dip_brushes, painting_brushes)
-
-#     for dip_brush, painting_brush in brushes:
-#         brush_tf = dip_brush.getParent()
-#         name = "_".join(["bdcx"] + brush_tf.name().split("|")
-#                         [-1].split("_")[1:])
-
-#         logger.debug("name: %s" % name)
-#         full_name = "brushes|dipCurves|%s" % name
-#         logger.debug("full_name: %s" % full_name)
-
-#         if force:
-#             if pm.objExists(full_name):
-#                 pm.delete(full_name)
-#         if not pm.objExists(full_name):
-#             grp = duplicate_grp_with_stroke_curves(src, full_name)
-#         else:
-#             grp = ensure_grp_has_stroke_curves(src, pm.PyNode(full_name))
-
-#         # lift higher if weight is low so wipes off less paint.
-#         wipe_offset = painting_brush.getParent().attr(
-#             "tz").get() - dip_brush.getParent().attr("tz").get()
-#         wipe_offset = wipe_offset * lift
-
-#         for wipe_curve in grp.getChildren()[1:]:
-#             wipe_curve.attr("tz").set(wipe_offset)
-
-#     # for curve in curves:
-#     #     cutl.connect_curve_to_painting(curve, node, connect_to="next_available")
-
-#     # cutl.generate_brush_dip_curves(dip_painting_node,dip_curves_grp, dip_brushes )
-
 def delete_strokes_from(nodes):
     for node in nodes:
         conns = node.attr("strokes").connections(s=True, d=False)
@@ -391,27 +334,6 @@ def delete_curve_instances(curves):
     for painting in paintings:
         remove_unconnected_curve_plugs(painting)
 
-
-# def update_curve_sf():
-#     node = pm.ls(selection=True, dag=True, leaf=True, type="strokeFactory")
-#     if not node:
-#         raise IndexError("No strokeFactory node selected")
-#     curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve")
-#     for curve in curves:
-#         update_curve_connections(curve, node[0])
-
-
-# def update_curve_connections(curve, node):
-#     conns = curve.attr("worldSpace[0]").connections(
-#         type="strokeFactory", plugs=True)
-#     for conn in conns:
-#         found = re.compile(r'curves\[([0-9]+)].curve').search(str(conn))
-#         if found:
-#             index = int(found.group(1))
-#             # print "WANT TO CONNECT: %s to index %d" % (curve, index)
-#             connect_curve_to_painting(curve, node, connect_to=index)
-#         else:
-#             print "%s not connected - "
 
 
 def do_random_all(curves, r_indices, id_attr, set_key):
@@ -524,71 +446,6 @@ def _assign_random_resource(
                 steps,
                 power,
                 set_key)
-
-#          mode = "random_existing"
-
-
-#     if steps < 1:  # mode = random_all
-#         r_indices = list(seq.intersection(r_indices))
-#         do_random_all(curves, r_indices, id_attr,set_key)
-
-#     else:
-#         try:
-#             seq = Sequence.create(spec)
-#             do_random_last(curves, r_indices, id_attr,set_key)
-#             mode = "random_last"
-#         except RuntimeError:
-
-    # r_indices = list(seq.intersection(r_indices))
-
-    # num = len(r_indices)
-    # if steps > num:
-    #     steps = num
-    # randomizer = StepRandomizer(steps, power)
-    # if num:
-    #     last = num - 1
-    #     if steps > 0: # do step_randomizer
-
-    #         prev_index = None
-    #         for curve in curves:
-    #             stroke_curve = get_stroke_node(curve)
-    #             attr = stroke_curve.attr(id_attr)
-    #             if prev_index is None:
-    #                 rand_index = random.randint(0, last)
-    #             else:
-    #                 rand_index = (prev_index + randomizer.random()) % num
-    #             resource_id = r_indices[rand_index]
-    #             try:
-    #                 attr.set(resource_id)
-    #                 if set_key:
-    #                     attr.setKey(value=resource_id)
-    #                 prev_index = rand_index # only set prev is we successfully set the resource
-    #             except RuntimeError:
-    #                 pm.warning("Skipping locked attribute %s" % attr)
-
-    #     else: # do naive randomizer
-    #         for curve in curves:
-    #             stroke_curve = get_stroke_node(curve)
-    #             attr = stroke_curve.attr(id_attr)
-    #             rand_int = random.randint(0, last)
-    #             index = r_indices[rand_int]
-    #             try:
-    #                 attr.set(index)
-    #                 if set_key:
-    #                     attr.setKey(value=index)
-    #             except RuntimeError:
-    #                 pm.warning("Skipping locked attribute %s" % attr)
-
-
-# def assign_random_paints(curve_packs, spec, set_key=False):
-#     curves, _, orig_ids = zip(*curve_packs)
-#     _assign_random_resource(curves, orig_ids, "paints", "paintId", spec, set_key)
-
-
-# def assign_random_brushes(curve_packs, spec, set_key=False):
-#      curves, orig_ids , _= zip(*curve_packs)
-#     _assign_random_resource(curves, orig_ids, "brushes", "brushId", spec, set_key)
-
 
 def get_extent(node, stroke_curve, curve, side="outer"):
     brushId = stroke_curve.attr("brushId").get()
@@ -963,38 +820,3 @@ def show_objects(obs):
         except RuntimeError:
             pm.warning("Can't change visibility for %s" % xf)
 
-
-# def get_index(node, att, connect_to):
-
-#     array_att, connection_att  = att.split(".")
-#     indices = node.attr(array_att).getArrayIndices()
-#     index = 0
-#     if connect_to == "next_available":
-#         if not indices:
-#             return 0
-#         while(True):
-#             if index not in indices:
-#                 break
-#             full_att =  "%s[%d]" % (array_att, index)
-#             if connection_att:
-#                 full_att = "%s.%s" % (full_att, connection_att);
-#             elif not pm.listConnections(node.attr(full_att), source=True, destination=False):
-#                 break
-#             index += 1
-#     elif connect_to == "at_end":
-#         if not indices:
-#             return 0
-#         index = indices[-1] + 1
-#     else:
-#         index = connect_to
-#     return index
-
-
-# def propagate_ramp_attribute(brushTiltRam):
-#     curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve", ni=True, ut=True, v=True)
-
-# def propagate_ramp_attribute(brushBankRamp):
-#     curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve", ni=True, ut=True, v=True)
-
-# def propagate_ramp_attribute(brushTwistRamp):
-#     curves = pm.ls(selection=True, dag=True, leaf=True, type="nurbsCurve", ni=True, ut=True, v=True)
