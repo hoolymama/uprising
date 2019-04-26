@@ -35,8 +35,6 @@ Brush::Brush(
 	m_retention(retention),
 	m_transHeightParam(transHeightParam)
 {
-	// cerr << "Brush ctor : " <<  bristleHeight << " -->> " << m_bristleHeight << endl;
-
 
 }
 

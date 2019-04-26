@@ -173,7 +173,7 @@ def setup_brushes_from_sheet(pouch_name):
         pm.parent(geo.getParent(), brush_nodes_grp)
         geo.attr("outPaintBrush") >> painting_node.attr("brushes[%d]" % i)
 
-    connect_skels(painting_node, pm.ls(type="skeletonStroke"))
+    # connect_skels(painting_node, pm.ls(type="skeletonStroke"))
     
 
 

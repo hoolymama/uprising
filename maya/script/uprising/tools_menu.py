@@ -41,8 +41,8 @@ def create():
             on_print_paint_and_brush_stats,
             "csv"))
 
-    pm.menuItem(label="Connect brushIds to skeletons",
-                command=pm.Callback(on_connect_brushids_to_skeleton))
+    # pm.menuItem(label="Connect brushIds to skeletons",
+    #             command=pm.Callback(on_connect_brushids_to_skeleton))
 
     # pm.menuItem(label="Send brushes from selected paintings",
     #             command=pm.Callback(on_send_brushes))

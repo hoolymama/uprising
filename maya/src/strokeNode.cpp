@@ -670,7 +670,7 @@ MStatus strokeNode::compute(const MPlug &plug, MDataBlock &data )
   strokeData *newData = (strokeData * )fnOut.data(&st); mser;
 
   std::vector < Stroke > *geom = newData->fGeometry;
-  st = generateStrokeGeometry(data, geom); mser;
+  st = generateStrokeGeometry(data, geom);
 
   assignUVs(data, geom);
   overrideBrushIds(data, geom);

@@ -59,6 +59,7 @@ class PublishTab(gui.FormLayout):
 
         pm.setParent('..')
 
+
         self.anim_row = pm.rowLayout(height=30,
                                      numberOfColumns=2,
                                      columnWidth2=(

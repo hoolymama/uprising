@@ -44,6 +44,15 @@ class MainProgram(Program):
     def _change_tool(self, last_brush_id, cluster, studio):
         if self.use_gripper:
             if last_brush_id is not None:
+
+                # Slightly Hacky. 
+                # If using the gripper, but not actually changing the brush,
+                # then don't bother placing and repicking.
+                if last_brush_id == cluster.brush.id:
+                    
+                    return
+
+
                 # put the last brush back
                 place_program_name = PlaceProgram.generate_program_name(
                     last_brush_id)
@@ -82,8 +91,11 @@ class MainProgram(Program):
 
 
             last_brush_id = None
+            last_paint_id = None
+            
             for cluster in self.painting.clusters:
                 if cluster.reason == "tool":
+
                     self._change_tool(last_brush_id, cluster, studio)
                     last_brush_id = cluster.brush.id
 

@@ -6,6 +6,8 @@ from uprising import (
     setup_tab,
     validate_tab,
     publish_tab,
+    brush_assign_tab,
+    
     # rings_design_tab,
     # rings_setup_tab,
     # proposal_tab,
@@ -83,7 +85,7 @@ from uprising import (
 # reload(props)
 # reload(validate_tab)
 reload(publish_tab)
-
+reload(brush_assign_tab)
 
 # reload(tools_menu)
 # reload(curves_menu)
@@ -120,6 +122,11 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.setup_tab = setup_tab.SetupTab()
         self.tabs.setTabLabel((self.setup_tab, "Setup"))
+
+        pm.setParent(self.tabs)
+        self.brush_assign_tab = brush_assign_tab.BrushAssignTab()
+        self.tabs.setTabLabel((self.brush_assign_tab, "Assign brushes"))
+
 
         pm.setParent(self.tabs)
         self.painting_tab = painting_tab.PaintingTab()

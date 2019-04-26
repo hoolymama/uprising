@@ -11,6 +11,7 @@
 #include "paintingDrawOverride.h"
 #include "brush.h"
 
+
 paintingDrawOverride::paintingDrawOverride(const MObject &obj)
 	: MHWRender::MPxDrawOverride(obj, NULL, false)
 {
@@ -414,7 +415,7 @@ void paintingDrawOverride::drawWireframePivots(
 
 
 void paintingDrawOverride::drawIds(
-  MHWRender::MUIDrawManager &drawManager, const PaintingDrawData *cdata )
+  MHWRender::MUIDrawManager &drawManager, const PaintingDrawData *cdata)
 {
 
 	if (! (

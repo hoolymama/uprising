@@ -15,11 +15,11 @@ class SetupTab(gui.FormLayout):
         pm.setParent(self)
         self.column = pm.columnLayout()
         self.column.adjustableColumn(True)
-        self.create_butttons()
+        self.create_buttons()
         self.create_action_buttons_and_layout()
         self.populate()
 
-    def create_butttons(self):
+    def create_buttons(self):
         pm.setParent(self.column)
 
 

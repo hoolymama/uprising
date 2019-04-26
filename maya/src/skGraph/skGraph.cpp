@@ -212,15 +212,15 @@ skNode *skGraph::_addNode(const coord &c, float radius)
 void skGraph::_connect(coord from, coord to)
 {
     std::map<coord, skNode *>::const_iterator fromiter = m_nodes.find(from);
-    if (fromiter == m_nodes.end())
-    {
-        cerr << "fromiter == m_nodes.end()" << endl;
-    }
+    // if (fromiter == m_nodes.end())
+    // {
+    //     cerr << "fromiter == m_nodes.end()" << endl;
+    // }
     std::map<coord, skNode *>::const_iterator toiter = m_nodes.find(to);
-    if (toiter == m_nodes.end())
-    {
-        cerr << "toiter == m_nodes.end()" << endl;
-    }
+    // if (toiter == m_nodes.end())
+    // {
+    //     cerr << "toiter == m_nodes.end()" << endl;
+    // }
 
     fromiter->second->neighbors.insert(*toiter);
     toiter->second->neighbors.insert(*fromiter);

@@ -83,7 +83,6 @@ MUserData *skGraphNodeDrawOverride::prepareForDraw(
 )
 {
 	MStatus st;
-	cerr << "PREP FOR DRAW"  << endl;
 
 	skGraphNodeDrawData *data = dynamic_cast<skGraphNodeDrawData *>(oldData);
 	if (!data) {
@@ -184,19 +183,19 @@ void skGraphNodeDrawOverride::addUIDrawables(
 
 	if (cdata->drawPoints)
 	{
-		cerr << "drawPoints(drawManager, cdata)"  << endl;
+		// cerr << "drawPoints(drawManager, cdata)"  << endl;
 
 		drawPoints(drawManager, cdata);
 	}
 	if (cdata->drawEdges)
 	{
-		cerr << "drawEdges(drawManager, cdata)"  << endl;
+		// cerr << "drawEdges(drawManager, cdata)"  << endl;
 
 		drawEdges(drawManager, cdata);
 	}
 	if (cdata->drawCircles)
 	{
-		cerr << "drawCircles(drawManager, cdata)"  << endl;
+		// cerr << "drawCircles(drawManager, cdata)"  << endl;
 
 		drawCircles(drawManager, cdata);
 	}

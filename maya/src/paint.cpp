@@ -35,12 +35,10 @@ std::map<int, Paint> Paint::factory(
 
 
 		double travel = hComp.child(travelAttribute).asDouble() ;
-		// short customId = hComp.child(customIdAttribute).asShort() ;
 
 		result[index] = Paint(index, color, travel);
 
 
-		// cerr << result[index] << endl;
 	}
 	return result;
 }

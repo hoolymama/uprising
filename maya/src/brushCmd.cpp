@@ -30,9 +30,6 @@ MSyntax brushCmd::newSyntax()
 
 	syn.addFlag( kTrianglesFlag	, kTrianglesFlagL);
 	syn.addFlag( kTcpFlag	, kTcpFlagL);
-	// syn.addFlag( kPaintingFlag	, kPaintingFlagL);
-	// syn.addFlag( kDipFlag	, kDipFlagL);
-	// syn.addFlag( kWipeFlag	, kWipeFlagL);
 
 
 	syn.setObjectType(MSyntax::kSelectionList, 1, 1);
@@ -65,15 +62,12 @@ MStatus brushCmd::doIt( const MArgList &args )
 
 	MPlug brushPlug;
 	st = 	brushIter.getPlug (brushPlug);
-	// cerr << "PLUG NAME: " << brushPlug.name() << endl;
 
 	MFnDependencyNode brushFn( brushObject );
 	if (brushFn.typeId() != brushNode::id) {
 		displayError(msg);
 		return MS::kUnknownParameter;
 	}
-
-	// MPlug plugBrushData = 	brushFn.findPlug (dataPlugName, true, &st);
 
 	MObject dbrushData;
 	st = brushPlug.getValue(dbrushData);
