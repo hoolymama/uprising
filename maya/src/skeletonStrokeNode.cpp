@@ -11,7 +11,7 @@
 
 #include <maya/MFnMatrixAttribute.h>
 
-
+#include <maya/MFnUnitAttribute.h>
 #include <maya/MFnNurbsCurveData.h>
 
 #include "skeletonStrokeNode.h"
@@ -38,7 +38,8 @@ MObject skeletonStrokeNode::aBrushes;
 MObject skeletonStrokeNode::aStrokeLength;
 MObject skeletonStrokeNode::aOverlap;
 MObject skeletonStrokeNode::aBrushRampScope;
-
+MObject skeletonStrokeNode::aSplitAngle;
+MObject skeletonStrokeNode::aSplitTestInterval;
 
 
 MTypeId skeletonStrokeNode:: id(k_skeletonStrokeNode );
@@ -62,6 +63,7 @@ MStatus skeletonStrokeNode:: initialize()
     MFnEnumAttribute eAttr;
     MFnCompoundAttribute cAttr;
     MFnMatrixAttribute mAttr;
+    MFnUnitAttribute uAttr;
 
     inheritAttributesFrom("strokeNode");
 
@@ -112,19 +114,190 @@ MStatus skeletonStrokeNode:: initialize()
     st = addAttribute(aBrushFilter);
     mser;
 
+    ;
+
+
+    aSplitAngle = uAttr.create( "splitAngle", "span",
+                                MFnUnitAttribute::kAngle );
+    uAttr.setHidden( false );
+    uAttr.setKeyable( true );
+    uAttr.setStorable(true);
+    st = addAttribute(aSplitAngle); mser;
+
+    aSplitTestInterval = nAttr.create("splitTestInterval", "spti", MFnNumericData:: kFloat);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    st = addAttribute(aSplitTestInterval);
+    mser;
+
+
+
+
     attributeAffects(aChains, aOutput);
     attributeAffects(aBrushFilter, aOutput);
     attributeAffects(aBrushes, aOutput);
     attributeAffects(aStrokeLength, aOutput);
     attributeAffects(aOverlap, aOutput);
     attributeAffects(aBrushRampScope, aOutput);
+    attributeAffects(aSplitAngle, aOutput);
+    attributeAffects(aSplitTestInterval, aOutput);
 
     return (MS::kSuccess );
 }
 
+/*
+void skeletonStrokeNode::splitOnAngle(const MPointArray &points, double splitThreshold,
+                                      const MVector &planeNormal, std::vector<MPointArray> &result) const
+{
+    MPointArray curr;
+    int len = points.length();
+    MVector lastVec; // start as zero
+
+    double leftExtent  = 0;
+    double rightExtent = 0;
+    double accumAngle = 0;
+    curr.append(points[0]);
+
+    for (int i = 1; i < len; i++) {
+        MPoint lastPt = points[(i - 1)];
+        MPoint thisPt = points[i];
+        MVector thisVec = (thisPt - lastPt).normal();
+
+        if (lastVec != MVector::zero) {
+            // there is a last vec and a new vec, so test to see if we exceeded
+            MQuaternion q(lastVec, thisVec);
+            double angle;
+            MVector axis(MVector::zAxis);
+            bool rotated = q.getAxisAngle(axis, angle);
+            if (rotated) {
+                double dir = (axis * planeNormal  < 0) ? -1.0 : 1.0 ;
+                accumAngle += (dir * angle);
+                if (accumAngle < leftExtent) {leftExtent = accumAngle;}
+                if (accumAngle > rightExtent) {rightExtent = accumAngle;}
+
+                if ((rightExtent - leftExtent) > splitThreshold)
+                {   // need to start a new array
+                    result.push_back(curr);
+                    curr = MPointArray();
+                    curr.append(points[i - 1]);
+
+                    leftExtent  = 0;
+                    rightExtent = 0;
+                    accumAngle = 0;
+                }
+            }
+        }
+
+        curr.append(points[i]);
+        lastVec = thisVec;
+    }
+    flowPointsList.push_back(curr);
+}
+*/
+double skeletonStrokeNode::findEndDist(
+    const MObject  &dCurve,
+    double startDist,
+    double endDist,
+    double splitAngle,
+    double splitTestInterval ) const
+{
+
+    double leftExtent  = 0;
+    double rightExtent = 0;
+    double accumAngle = 0;
+    double currDist = startDist;
+    MFnNurbsCurve curveFn(dCurve);
+    double param = curveFn.findParamFromLength(startDist);
+    MVector lastTangent = curveFn.tangent(param);
+    double angle;
+    MVector axis(MVector::zAxis);
+    bool foundEnd = false;
+    do
+    {
+        currDist += splitTestInterval;
+        if (currDist > endDist) {
+            return endDist;
+        }
+        param = curveFn.findParamFromLength(currDist);
+        MVector tangent =  curveFn.tangent(param);
+
+        MQuaternion q(lastTangent, tangent);
+        lastTangent = tangent;
+
+        bool rotated = q.getAxisAngle(axis, angle);
+
+        if (! rotated) { continue; }
+
+        double dir = (axis * MVector::zAxis  < 0) ? -1.0 : 1.0 ;
+        accumAngle += (dir * angle);
+        if (accumAngle < leftExtent) {leftExtent = accumAngle;}
+        if (accumAngle > rightExtent) {rightExtent = accumAngle;}
+        foundEnd = ( (rightExtent - leftExtent) > splitAngle);
+    }
+    while (! foundEnd);
+    return currDist;
+}
+
 
 unsigned int skeletonStrokeNode::getStrokeBoundaries(
-    const MObject  &dCurve,
+    const MObject   &dCurve,
+    float strokeLength,
+    float overlap,
+    double splitAngle,
+    double splitTestInterval,
+    MVectorArray &result
+) const  {
+    const double epsilon = 0.0001;
+
+    MStatus st = MS::kSuccess;
+
+    MFnNurbsCurve curveFn(dCurve, &st);
+    if (st.error()) { return 0; }
+
+    double curveLen = curveFn.length(epsilon);
+    double startDist = 0;
+    double endDist;
+
+    if (strokeLength < 0.1) // 1mm
+    {
+        strokeLength = 0.1;
+    }
+    if (overlap >= strokeLength) {
+        overlap = 0.0;
+    }
+
+
+
+
+    do {
+        endDist = fmin((startDist + strokeLength), curveLen);
+
+        if (splitAngle > 0.0001 && splitTestInterval > 0.01) {
+            endDist = findEndDist(dCurve, startDist, endDist, splitAngle, splitTestInterval);
+        }
+
+        result.append(MVector(startDist, endDist));
+        /* last time around hit the end */
+        if (endDist >= curveLen) { break; }
+
+        double halfLastLength = (endDist - startDist) / 2;
+        if (overlap > halfLastLength) {
+            startDist = endDist - halfLastLength;
+        }
+        else {
+            startDist = endDist - overlap;
+        }
+        if (startDist >= curveLen) { break; }
+    }
+    while ( true );
+
+    return result.length();
+}
+
+
+
+unsigned int skeletonStrokeNode::getStrokeBoundaries(
+    const MObject   &dCurve,
     float strokeLength,
     float overlap,
     MVectorArray &result
@@ -400,6 +573,13 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
 
 
 
+    double splitAngle =  data.inputValue(aSplitAngle).asAngle().asRadians();
+    double splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
+
+
+
+
+
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
     Brush::Shape filter = Brush::Shape(data.inputValue(aBrushFilter).asShort());
@@ -438,7 +618,9 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
         double curveLength = curveFn.length(epsilon);
 
         MVectorArray boundaries;
-        if (! getStrokeBoundaries(dCurve, strokeLength, overlap, boundaries)) {
+
+        if (! getStrokeBoundaries(dCurve, strokeLength, overlap, splitAngle, splitTestInterval,
+                                  boundaries)) {
             continue;
         }
 

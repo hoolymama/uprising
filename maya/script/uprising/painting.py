@@ -18,7 +18,7 @@ class Painting(object):
         self.RL = Robolink()
         self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
         self.node = node
-        self.brushes = Brush.brushes(node)
+        self.brushes = Brush.used_brushes(node)
         self.paints = Paint.paints(node)
         self.clusters = []
         self.motion = {

@@ -76,35 +76,34 @@ class Studio(object):
         self.dip_programs = []
         self.pick_place_programs = []
         self.exercise_program = None
- 
 
         self.pause=kw.get("pause", 200)
         self.wait=kw.get("wait", True)
-        
 
         # "use_gripper": pm.optionVar.get("upov_tool_type") == "gripper"
         use_gripper = pm.optionVar.get("upov_tool_type") == "gripper"
 
         sheet_use_gripper = sheets.get_flange_mode() == "GRIPPER"
-        
 
         print "sheet_use_gripper", sheet_use_gripper
         print "use_gripper", use_gripper
 
         err_msg = "Make sure Robot tools Gripper mode is set to the same as in the Brushes Spreadsheet"
         if (int(use_gripper) + int(sheet_use_gripper)) == 1:
-            pm.warning(err_msg)
-             
+            pm.error(err_msg)
+            return
 
         do_painting = kw.get("do_painting")
         do_dips = kw.get("do_dips")
         do_pap_exercise = kw.get("do_pap_exercise")
-
         do_board_calibration = kw.get("do_board_calibration")
         do_pot_calibration = kw.get("do_pot_calibration")
         do_holder_calibration = kw.get("do_holder_calibration")
         do_perspex_calibration = kw.get("do_perspex_calibration")
         do_manual_triangulation = kw.get("do_manual_triangulation")
+        # Must explicitly ask for pick and place to be generated, even 
+        # if gripper on. Otherwise we can't do partials, like validation.
+        do_pick_and_place = kw.get("do_pick_and_place") and use_gripper
 
         if do_painting:
             logger.debug("Studio: main_painting")
@@ -116,7 +115,7 @@ class Studio(object):
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.dip_programs = self._build_dip_programs()
 
-        if use_gripper:
+        if do_pick_and_place:
             logger.debug("Studio: pick_place_programs")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.pick_place_programs = self._build_pick_place_programs("used")

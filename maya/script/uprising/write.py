@@ -114,14 +114,16 @@ def publish_sequence(
 
         write_ref_image(ts_dir, timestamp)
 
+        use_gripper = pm.optionVar.get("upov_tool_type") == "gripper"
         RL = Robolink()
         # clean_rdk()
         studio = Studio(
             do_painting=True, 
             do_dips=True,
+            do_pick_and_place=use_gripper,
             pause=pause,
             wait=wait)
-        
+    
         studio.write()
         write_program(RL, ts_dir, "px", timestamp)
 

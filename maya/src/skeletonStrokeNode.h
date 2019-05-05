@@ -62,6 +62,24 @@ private:
     const std::vector< std::pair<int, Brush> > &brushes) const;
 
 
+  double findEndDist(
+    const MObject  &dCurve,
+    double startDist,
+    double endDist,
+    double steerThreshold,
+    double steerTestInterval ) const  ;
+
+
+
+  unsigned int  getStrokeBoundaries(
+    const MObject   &dCurve,
+    float strokeLength,
+    float overlap,
+    double steerThreshold,
+    double steerTestInterval,
+    MVectorArray &result
+  ) const  ;
+
   unsigned int getStrokeBoundaries(
     const MObject   &dCurve,
     float strokeLength,
@@ -106,7 +124,8 @@ private:
   static MObject aOverlap;
   static MObject aBrushRampScope;
 
-
+  static MObject aSplitAngle;
+  static MObject aSplitTestInterval;
 
 
 

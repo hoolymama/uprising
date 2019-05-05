@@ -7,8 +7,8 @@ from studio import Studio
 def create():
     menu = pm.menu(label="Export", tearOff=True)
 
-    pm.menuItem(label="Used Brushes",
-                command=pm.Callback(Brush.write_used_brushes))
+    pm.menuItem(label="Used brush sets",
+                command=pm.Callback(Brush.write_used_brush_sets))
 
     pm.menuItem(label="Connected brushes",
                 command=pm.Callback(Brush.write_connected_brushes))

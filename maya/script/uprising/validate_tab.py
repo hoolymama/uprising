@@ -254,10 +254,11 @@ status        : %s
             self.send_paintings_cb,
             query=True,
             valueArray3=True)
-
+        use_gripper = pm.optionVar.get("upov_tool_type") == "gripper"
+        
         kw = {
             "do_painting": send[0], 
-            "do_pick_place":  send[1], 
+            "do_pick_and_place":  send[1] and use_gripper, 
             "do_dips": send[2]
         }
  

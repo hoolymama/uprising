@@ -49,9 +49,7 @@ class MainProgram(Program):
                 # If using the gripper, but not actually changing the brush,
                 # then don't bother placing and repicking.
                 if last_brush_id == cluster.brush.id:
-                    
                     return
-
 
                 # put the last brush back
                 place_program_name = PlaceProgram.generate_program_name(

@@ -36,7 +36,6 @@ global proc AEstrokeNodeInclude ( string $nodeName )
  	editorTemplate -addControl "transitionBlendMethod";
  	
 	editorTemplate -endLayout;
-
 	editorTemplate -cl 0  -beginLayout "Target rotation";		
 	editorTemplate -addControl "followStroke" ;
 	editorTemplate -cl 0  -beginLayout "Tilt";	

@@ -55,7 +55,7 @@ class Brush(object):
 
 
     @classmethod
-    def write_used_brushes(cls):
+    def write_used_brush_sets(cls):
         RL = Robolink()
         robot = RL.Item('', ITEM_TYPE_ROBOT)
 
@@ -154,16 +154,13 @@ class Brush(object):
 
 
 
-    # @classmethod
-    # def used_brushes(cls, node):
-    #     num_brushes = len(node.attr("brushes").getArrayIndices())
-    #     result = {}
-    #     found_brushes = 0
-    #     for index in node.attr("curves").getArrayIndices():
-    #         brush_id = node.attr("curves[%d].brushId" % index).get()
-    #         if brush_id not in result:
-    #             result[brush_id] = Brush.brush_at_index(node, brush_id)
-    #             found_brushes += 1
-    #             if found_brushes == num_brushes:
-    #                 break
-    #     return result
+    @classmethod
+    def used_brushes(cls, node):
+        dc = pm.paintingQuery(node, dc=True)
+        bids = sorted(set(dc[::2]))
+        result = {}
+        for brush_id in bids:
+            result[brush_id] = Brush.brush_at_index(node, brush_id)
+        return result
+
+ 

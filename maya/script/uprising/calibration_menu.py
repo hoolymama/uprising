@@ -125,13 +125,18 @@ def _read_triangulation(sheet_range):
 
 
 def _generate_calibration(which, *reference_geo):
-    # transforms = pm.ls(selection=True, transforms=True)
+    
+    # Even if use_gripper is ON here, it may be off in the spreadsheet,
+    # and then the Studio will error out. This gripper/bayonete choice
+    # logic really needs a cleanup.
+    use_gripper = pm.optionVar.get("upov_tool_type") == "gripper"
     kw = {
         "do_manual_triangulation": which == "tri",
         "do_pot_calibration": which == "pot",
         "do_holder_calibration": which == "holder",
         "do_board_calibration": which == "board",
-        "do_perspex_calibration": which == "perspex"
+        "do_perspex_calibration": which == "perspex",
+        "do_pick_and_place": use_gripper
     }
     # prefix = "rx" if which == "rack" else "bx"
 

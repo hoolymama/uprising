@@ -10,18 +10,18 @@ global proc AEskeletonStrokeTemplate ( string $nodeName )
  
 
 
-	editorTemplate -cl 0  -beginLayout "Skeleton Attributes";		
-	editorTemplate -addControl "skeletonImage";
-	editorTemplate -addControl "minPixels";
-	editorTemplate -addControl "spanPixels";
-	editorTemplate -addControl "projectionMatrix";
+	editorTemplate -cl 0  -beginLayout "Stroke Attributes";		
 	editorTemplate -addControl "strokeLength";
 	editorTemplate -addControl "overlap";
-	editorTemplate -addControl "brushRampScope";
-	editorTemplate -addControl "brushFilter";
+	editorTemplate -addControl "splitAngle";
+	editorTemplate -addControl "splitTestInterval";
 	editorTemplate -endLayout;
 
+	editorTemplate -cl 0  -beginLayout "Brush Attributes";	
+	editorTemplate -addControl "brushRampScope";
+	editorTemplate -addControl "brushFilter";
 	editorTemplate -addControl "brushWidths";
+	editorTemplate -endLayout;
 
 	AEstrokeNodeInclude( $nodeName);
 
