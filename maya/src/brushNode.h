@@ -80,6 +80,8 @@ private:
   static MObject aOutDipBrush;
   static MObject aOutWipeBrush;
 
+  static MObject aCustomId;
+
 };
 
 

@@ -103,7 +103,7 @@ protected:
 
   static MObject  aEntryLength;
   static MObject  aExitLength;
-
+  static MObject  aTransitionBlendMethod;
 
   static MObject  aBrushId;
   static MObject  aPaintId;

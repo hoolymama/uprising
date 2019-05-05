@@ -14,12 +14,10 @@ global proc AEstrokeNodeInclude ( string $nodeName )
  	editorTemplate -addControl "seed" ;
 	editorTemplate -endLayout;
 
-
 	editorTemplate -cl 0  -beginLayout "Ids";		
 	editorTemplate -addControl "layerId" ;
 	editorTemplate -endLayout;
 	
-
 	AEbrushPaintOverrideInclude($nodeName, 1);
 
 	editorTemplate -cl 0  -beginLayout "Stroke repeats";		
@@ -35,6 +33,8 @@ global proc AEstrokeNodeInclude ( string $nodeName )
 	editorTemplate -cl 0  -beginLayout "Height profile";
  	editorTemplate -addControl "entryLength";
  	editorTemplate -addControl "exitLength";
+ 	editorTemplate -addControl "transitionBlendMethod";
+ 	
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0  -beginLayout "Target rotation";		
@@ -55,25 +55,19 @@ global proc AEstrokeNodeInclude ( string $nodeName )
 
 	editorTemplate -cl 0  -beginLayout "Pivots";		
 	editorTemplate -addControl "pivotFraction" ;
-	// editorTemplate -addControl "repeatPivot" ;
 	editorTemplate -endLayout;
 
-
 	editorTemplate -cl 0  -beginLayout "Translation";		
-		editorTemplate -addControl "translationTexture";
+	editorTemplate -addControl "translationTexture";
 	editorTemplate -addControl "translationSampleDistance";
 	editorTemplate -addControl "translationScale";
 	editorTemplate -endLayout;
 
-
 	editorTemplate -cl 0  -beginLayout "Rotation";		
-			editorTemplate -addControl "rotationTexture";
+	editorTemplate -addControl "rotationTexture";
 	editorTemplate -addControl "rotationScale";
 
 	editorTemplate -endLayout;
 
- 
- 
-	
 }
 

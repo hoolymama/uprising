@@ -17,6 +17,7 @@ public:
 
 	Brush(
 	  int physicalId,
+	  int customId,
 	  const MFloatVector &tip,
 	  float bristleHeight,
 	  float tcpParam,
@@ -41,6 +42,8 @@ public:
 	const float &retention() const;
 	float transHeight() const;
 	int physicalId() const;
+	int customId() const;
+
 
 	bool matches(Shape filter) const;
 
@@ -57,6 +60,8 @@ public:
 private:
 
 	int m_physicalId;
+	int m_customId;
+
 	float m_width;
 	float m_bristleHeight;
 	float m_retention;

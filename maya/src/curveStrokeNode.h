@@ -19,7 +19,7 @@ public:
 
   static  MTypeId   id;
 
-  enum Spac { kParametric, kArcLen };
+  // enum Spac { kParametric, kArcLen };
 
   enum SubcurveMethod { kLength, kBookends };
 

@@ -45,6 +45,7 @@ unsigned Stroke::create(
   double endDist,
   double entryLength,
   double exitLength,
+  TransitionBlendMethod transBlendMethod,
   double pointDensity,
   const StrokeRotationSpec &rotSpec,
   const StrokeRepeatSpec &repeatSpec,
@@ -54,6 +55,7 @@ unsigned Stroke::create(
   int brushId,
   int paintId,
   int layerId,
+  int customBrushId,
   std::vector<Stroke> *strokes
 ) {
 	/* This is the motherstroke. Determine whether forward or back */
@@ -74,12 +76,14 @@ unsigned Stroke::create(
 	  endDist,
 	  entryLength,
 	  exitLength,
+	  transBlendMethod,
 	  pointDensity,
 	  pivotParam,
 	  strokeId,
 	  brushId,
 	  paintId,
 	  layerId,
+	  customBrushId,
 	  repeatId,
 	  backstroke);
 
@@ -145,12 +149,14 @@ Stroke::Stroke(
   double endDist,
   double entryLength,
   double exitLength,
+  TransitionBlendMethod transBlendMethod,
   double density,
   double pivotParam,
   int strokeId,
   int brushId,
   int paintId,
   int layerId,
+  int customBrushId,
   int repeatId,
   bool backstroke)	:
 	m_targets(),
@@ -158,10 +164,12 @@ Stroke::Stroke(
 	m_arcLength(),
 	m_entryLength(entryLength),
 	m_exitLength(exitLength),
+	m_transitionBlendMethod(transBlendMethod),
 	m_strokeId(strokeId),
 	m_brushId(brushId),
 	m_paintId(paintId),
 	m_layerId(layerId),
+	m_customBrushId(customBrushId),
 	m_repeatId(repeatId),
 	m_backstroke(backstroke),
 	m_arrivals(),
@@ -430,6 +438,10 @@ int Stroke::layerId() const
 {
 	return m_layerId;
 }
+int Stroke::customBrushId() const
+{
+	return m_customBrushId;
+}
 
 int Stroke::brushId() const {
 	return m_brushId;
@@ -440,6 +452,9 @@ int Stroke::paintId() const {
 
 void Stroke::setBrushId(int val) {
 	m_brushId = val;
+}
+void Stroke::setCustomBrushId(int val) {
+	m_customBrushId = val;
 }
 void Stroke::setPaintId(int val) {
 	m_paintId = val;
@@ -484,6 +499,14 @@ void Stroke::appendBrushIdToSortStack(bool ascending)
 	m_sortStack.append(val);
 }
 
+
+void Stroke::appendCustomBrushIdToSortStack(bool ascending)
+{
+	int val = ascending ? int(m_customBrushId) : -int(m_customBrushId);
+	m_sortStack.append(val);
+}
+
+
 void Stroke::appendPaintIdToSortStack(bool ascending)
 {
 	int val = ascending ? int(m_paintId) : -int(m_paintId);
@@ -501,6 +524,14 @@ void Stroke::appendRepeatIdToSortStack(bool ascending)
 	int val = ascending ? int(m_repeatId) : -int(m_repeatId);
 	m_sortStack.append(val);
 }
+
+void Stroke::appendTargetCountToSortStack(bool ascending)
+{
+	int num = m_targets.size();
+	int val = ascending ? num : -num;
+	m_sortStack.append(val);
+}
+
 
 // void Stroke::appendCustomBrushIdToSortStack(bool ascending)
 // {
@@ -560,6 +591,12 @@ bool Stroke::testBrushId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(m_brushId, op, value);
 }
+
+bool Stroke::testCustomBrushId(FilterOperator op, int value) const
+{
+	return  testAgainstValue(m_customBrushId, op, value);
+}
+
 bool Stroke::testPaintId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(m_paintId, op, value);
@@ -572,6 +609,11 @@ bool Stroke::testRepeatId(FilterOperator op, int value) const
 {
 	return  testAgainstValue(m_repeatId, op, value);
 }
+bool Stroke::testTargetCount(FilterOperator op, int value) const
+{
+	return  testAgainstValue(m_targets.size(), op, value);
+}
+
 // bool Stroke::testCustomBrushId(FilterOperator op, int value) const
 // {
 // 	return  testAgainstValue(int(m_customBrushId), op, value);
@@ -921,7 +963,17 @@ void Stroke::setTransitionContact( )
 			break;
 		}
 		double contact = param / m_entry_param;
-		contact = fmin(contact, iter->contact());
+
+		if (m_transitionBlendMethod == Stroke::kTransitionMin) {
+			contact = fmin(contact, iter->contact());
+		}
+		else if (m_transitionBlendMethod == Stroke::kTransitionMax)
+		{
+			contact = fmax(contact, iter->contact());
+		}
+		else { // kTransitionBlend
+			contact =  (contact + iter->contact()) * 0.5 ;
+		}
 		iter->setContact(contact);
 	}
 
@@ -933,7 +985,16 @@ void Stroke::setTransitionContact( )
 			break;
 		}
 		double contact = (1.0 - param) / (1.0 - m_exit_param);
-		contact = fmin(contact, riter->contact());
+		if (m_transitionBlendMethod == Stroke::kTransitionMin) {
+			contact = fmin(contact, riter->contact());
+		}
+		else if (m_transitionBlendMethod == Stroke::kTransitionMax)
+		{
+			contact = fmax(contact, riter->contact());
+		}
+		else { // kTransitionBlend
+			contact =  (contact + riter->contact()) * 0.5 ;
+		}
 		riter->setContact(contact);
 	}
 }

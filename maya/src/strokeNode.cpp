@@ -79,7 +79,7 @@ MObject strokeNode::aStrokeDirection;
 
 MObject strokeNode::aEntryLength;
 MObject strokeNode::aExitLength;
-
+MObject strokeNode::aTransitionBlendMethod;
 
 MObject strokeNode::aBrushId;
 MObject strokeNode::aPaintId;
@@ -224,6 +224,19 @@ MStatus strokeNode::initialize()
   nAttr.setStorable(true);
   nAttr.setDefault( 1.0 );
   st = addAttribute(aExitLength); mser;
+
+
+
+  aTransitionBlendMethod = eAttr.create("transitionBlendMethod", "tbm",
+                                        Stroke::kTransitionMin);
+  eAttr.addField("minimum", Stroke::kTransitionMin);
+  eAttr.addField("maximum", Stroke::kTransitionMax);
+  eAttr.addField("blend", Stroke::kTransitionBlend);
+  eAttr.setKeyable(true);
+  eAttr.setHidden(false);
+  st = addAttribute(aTransitionBlendMethod);
+  mser;
+
 
   aRepeats = nAttr.create("repeats", "rpts", MFnNumericData::kShort);
   nAttr.setHidden( false );
@@ -424,14 +437,15 @@ MStatus strokeNode::initialize()
 
   aStrokeSortKey = eAttr.create("strokeSortKey", "stsk", Stroke::kBrushId);
   eAttr.addField("Id", Stroke::kStrokeId);
-
   eAttr.addField("Brush Id", Stroke::kBrushId);
   eAttr.addField("Paint Id", Stroke::kPaintId);
   eAttr.addField("Repeat Id", Stroke::kRepeatId);
+  eAttr.addField("Layer Id", Stroke::kLayerId);
+  eAttr.addField("Target Count", Stroke::kTargetCount);
+  eAttr.addField("Custom Brush Id", Stroke::kCustomBrushId);
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
-  eAttr.addField("Layer Id", Stroke::kLayerId);
 
   aStrokeSortDirection = eAttr.create("strokeSortDirection", "stsd",
                                       Stroke::kSortAscending);
@@ -460,14 +474,15 @@ MStatus strokeNode::initialize()
 
   aStrokeFilterKey = eAttr.create("strokeFilterKey", "stfk", Stroke::kBrushId);
   eAttr.addField("Id", Stroke::kStrokeId);
-
   eAttr.addField("Brush Id", Stroke::kBrushId);
   eAttr.addField("Paint Id", Stroke::kPaintId);
   eAttr.addField("Repeat Id", Stroke::kRepeatId);
+  eAttr.addField("Layer Id", Stroke::kLayerId);
+  eAttr.addField("Target Count", Stroke::kTargetCount);
+  eAttr.addField("Custom Brush Id", Stroke::kCustomBrushId);
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
-  eAttr.addField("Layer Id", Stroke::kLayerId);
 
   eAttr.setHidden( false );
   eAttr.setKeyable( true );
@@ -595,6 +610,9 @@ MStatus strokeNode::initialize()
 
   st = attributeAffects(aEntryLength, aOutput);
   st = attributeAffects(aExitLength, aOutput);
+  st = attributeAffects(aTransitionBlendMethod, aOutput);
+
+
 
   st = attributeAffects(aBrushTiltRamp, aOutput);
   st = attributeAffects(aBrushBankRamp, aOutput);
@@ -641,9 +659,6 @@ MStatus strokeNode::initialize()
 
   st = attributeAffects(aRotationScale, aOutput);
   st = attributeAffects(aTranslationScale, aOutput);
-
-
-
 
   return ( MS::kSuccess );
 
@@ -1006,6 +1021,18 @@ void strokeNode::filterStrokes(MDataBlock &data,  std::vector<Stroke> *geom) con
                                  [op, value](const Stroke & stroke)
         { return stroke.testRepeatId(op, value) == false; }   );
         break;
+      case Stroke::kTargetCount:
+        new_end = std::remove_if(geom->begin(), geom->end(),
+                                 [op, value](const Stroke & stroke)
+        { return stroke.testTargetCount(op, value) == false; }   );
+        break;
+
+      case Stroke::kCustomBrushId:
+        new_end = std::remove_if(geom->begin(), geom->end(),
+                                 [op, value](const Stroke & stroke)
+        { return stroke.testCustomBrushId(op, value) == false; }   );
+        break;
+
 
       case Stroke::kMapRed:
         if (useFilterMap) {
@@ -1027,6 +1054,7 @@ void strokeNode::filterStrokes(MDataBlock &data,  std::vector<Stroke> *geom) con
                                    [op, value](const Stroke & stroke)
           { return stroke.testMapBlueId(op, value) == false; }   );
         }
+
         break;
       default:
         break;
@@ -1139,6 +1167,13 @@ void strokeNode::sortStrokes(MDataBlock &data,   std::vector<Stroke> *geom) cons
       case Stroke::kRepeatId:
         for ( iter = geom->begin(); iter != geom->end(); iter++) {iter->appendRepeatIdToSortStack(ascending);}
         break;
+      case Stroke::kTargetCount:
+        for ( iter = geom->begin(); iter != geom->end(); iter++) {iter->appendTargetCountToSortStack(ascending);}
+        break;
+      case Stroke::kCustomBrushId:
+        for ( iter = geom->begin(); iter != geom->end(); iter++) {iter->appendCustomBrushIdToSortStack(ascending);}
+        break;
+
       case Stroke::kMapRed:
         if (useSortMap) {
           for ( iter = geom->begin(); iter != geom->end(); iter++) {iter->appendMapRedIdToSortStack(ascending);}

@@ -53,25 +53,25 @@ public:
   static  MString   drawDbClassification;
   static  MString   drawRegistrantId;
 
-  enum Spac { kParametric, kArcLen };
+  // enum Spac { kParametric, kArcLen };
   enum TargetDisplay {kTargetsNone, kTargetsPoint, kTargetsLine, kTargetsMatrix };
 
-  enum StrokeSortFilterKey {
-    kId,
-    kParentId,
-    kBrushId,
-    kPaintId,
-    kRepeatId,
-    kMapRed,
-    kMapGreen,
-    kMapBlue,
-    kLayerId,
-    kCustomBrushId,
-    kCustomPaintId
-  };
+  // enum StrokeSortFilterKey {
+  //   kId,
+  //   kParentId,
+  //   kBrushId,
+  //   kPaintId,
+  //   kRepeatId,
+  //   kMapRed,
+  //   kMapGreen,
+  //   kMapBlue,
+  //   kLayerId,
+  //   kCustomBrushId,
+  //   kCustomPaintId
+  // };
 
 
-  enum StrokeSortDirection { kSortAscending,  kSortDescending};
+  // enum StrokeSortDirection { kSortAscending,  kSortDescending};
 
   static MObject aInMatrix;
 

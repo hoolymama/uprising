@@ -193,6 +193,9 @@ MStatus collectStrokes::initialize()
   eAttr.addField("Repeat Id", Stroke::kRepeatId);
   eAttr.addField("Layer Id", Stroke::kLayerId);
   eAttr.addField("Parent Id", Stroke::kParentId);
+  eAttr.addField("Target Count", Stroke::kTargetCount);
+  eAttr.addField("Custom Brush Id", Stroke::kCustomBrushId);
+
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
@@ -228,6 +231,9 @@ MStatus collectStrokes::initialize()
   eAttr.addField("Repeat Id", Stroke::kRepeatId);
   eAttr.addField("Layer Id", Stroke::kLayerId);
   eAttr.addField("Parent Id", Stroke::kParentId);
+  eAttr.addField("Target Count", Stroke::kTargetCount);
+  eAttr.addField("Custom Brush Id", Stroke::kCustomBrushId);
+
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
@@ -595,6 +601,11 @@ void collectStrokes::filterStrokes(MDataBlock &data,  std::vector<Stroke> *geom)
                                  [op, value](const Stroke & stroke)
         { return stroke.testRepeatId(op, value) == false; }   );
         break;
+      case Stroke::kTargetCount:
+        new_end = std::remove_if(geom->begin(), geom->end(),
+                                 [op, value](const Stroke & stroke)
+        { return stroke.testTargetCount(op, value) == false; }   );
+        break;
       case Stroke::kLayerId:
         new_end = std::remove_if(geom->begin(), geom->end(),
                                  [op, value](const Stroke & stroke)
@@ -605,6 +616,14 @@ void collectStrokes::filterStrokes(MDataBlock &data,  std::vector<Stroke> *geom)
                                  [op, value](const Stroke & stroke)
         { return stroke.testParentId(op, value) == false; }   );
         break;
+
+      case Stroke::kCustomBrushId:
+        new_end = std::remove_if(geom->begin(), geom->end(),
+                                 [op, value](const Stroke & stroke)
+        { return stroke.testCustomBrushId(op, value) == false; }   );
+        break;
+
+
       case Stroke::kMapRed:
         if (useFilterMap) {
           new_end = std::remove_if(geom->begin(), geom->end(),
@@ -740,6 +759,14 @@ void collectStrokes::sortStrokes(MDataBlock &data,   std::vector<Stroke> *geom) 
       case Stroke::kRepeatId:
         for ( iter = geom->begin(); iter != geom->end(); iter++) {iter->appendRepeatIdToSortStack(ascending);}
         break;
+      case Stroke::kTargetCount:
+        for ( iter = geom->begin(); iter != geom->end(); iter++) {iter->appendTargetCountToSortStack(ascending);}
+        break;
+
+      case Stroke::kCustomBrushId:
+        for ( iter = geom->begin(); iter != geom->end(); iter++) {iter->appendCustomBrushIdToSortStack(ascending);}
+        break;
+
       case Stroke::kMapRed:
         if (useSortMap) {
           for ( iter = geom->begin(); iter != geom->end(); iter++) {iter->appendMapRedIdToSortStack(ascending);}

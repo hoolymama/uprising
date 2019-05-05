@@ -99,6 +99,9 @@ MObject brushNode::aOutPaintBrush;
 MObject brushNode::aOutDipBrush;
 MObject brushNode::aOutWipeBrush;
 
+MObject brushNode::aCustomId;
+
+
 MStatus brushNode::initialize()
 {
   MStatus st;
@@ -245,6 +248,13 @@ MStatus brushNode::initialize()
 
 
 
+  aCustomId  = nAttr.create("customId", "cid", MFnNumericData::kInt);
+  nAttr.setHidden( false );
+  nAttr.setKeyable( true );
+  nAttr.setDefault( 0);
+  addAttribute(aCustomId);
+
+
   attributeAffects(aPhysicalId, aOutPaintBrush);
   attributeAffects(aWidth, aOutPaintBrush);
   attributeAffects(aTip, aOutPaintBrush);
@@ -255,6 +265,7 @@ MStatus brushNode::initialize()
   attributeAffects(aRetention, aOutPaintBrush);
   attributeAffects(aShape, aOutPaintBrush);
   attributeAffects(aTransHeightParam, aOutPaintBrush);
+  attributeAffects(aCustomId, aOutPaintBrush);
 
   attributeAffects(aPhysicalId, aOutDipBrush);
   attributeAffects(aWidth, aOutDipBrush);
@@ -266,6 +277,7 @@ MStatus brushNode::initialize()
   attributeAffects(aRetention, aOutDipBrush);
   attributeAffects(aShape, aOutDipBrush);
   attributeAffects(aTransHeightParam, aOutDipBrush);
+  attributeAffects(aCustomId, aOutDipBrush);
 
   attributeAffects(aPhysicalId, aOutWipeBrush);
   attributeAffects(aWidth, aOutWipeBrush);
@@ -277,6 +289,7 @@ MStatus brushNode::initialize()
   attributeAffects(aRetention, aOutWipeBrush);
   attributeAffects(aShape, aOutWipeBrush);
   attributeAffects(aTransHeightParam, aOutWipeBrush);
+  attributeAffects(aCustomId, aOutWipeBrush);
 
 
   return ( MS::kSuccess );
@@ -329,7 +342,10 @@ MStatus brushNode::compute( const MPlug &plug, MDataBlock &data )
   Brush::Shape shape =  Brush::Shape(data.inputValue( aShape).asShort());
   float transHeightParam = data.inputValue( aTransHeightParam).asFloat();
 
+  int customId = data.inputValue( aCustomId).asInt();
+
   Brush paintingBrush( physicalId,
+                       customId,
                        tip,
                        bristleHeight,
                        paintingParam,
@@ -339,6 +355,7 @@ MStatus brushNode::compute( const MPlug &plug, MDataBlock &data )
                        transHeightParam);
 
   Brush dipBrush( physicalId,
+                  customId,
                   tip,
                   bristleHeight,
                   dipParam,
@@ -348,6 +365,7 @@ MStatus brushNode::compute( const MPlug &plug, MDataBlock &data )
                   transHeightParam);
 
   Brush wipeBrush( physicalId,
+                   customId,
                    tip,
                    bristleHeight,
                    wipeParam,

@@ -25,7 +25,7 @@
 class Stroke {
 public:
 
-	// enum Scope { kStroke, kTravelStroke, kCurve };
+	enum TransitionBlendMethod { kTransitionMin, kTransitionMax, kTransitionBlend };
 
 	enum DirectionMethod { kForwards, kBackwards, kStartUppermost, kEndUppermost  };
 
@@ -44,6 +44,8 @@ public:
 		kRepeatId,
 		kLayerId,
 		kParentId,
+		kTargetCount,
+		kCustomBrushId,
 		kMapRed,
 		kMapGreen,
 		kMapBlue,
@@ -51,6 +53,8 @@ public:
 
 
 	enum SortDirection { kSortAscending,  kSortDescending};
+
+
 
 	static double interpContact(const MDoubleArray &contacts, const double &uniformParam);
 
@@ -65,6 +69,7 @@ public:
 	  double endDist,
 	  double entryLength,
 	  double exitLength,
+	  TransitionBlendMethod transBlendMethod,
 	  double pointDensity,
 	  const StrokeRotationSpec &rotSpec,
 	  const StrokeRepeatSpec &repeatSpec,
@@ -74,6 +79,7 @@ public:
 	  int brushId,
 	  int paintId,
 	  int layerId,
+	  int customBrushId,
 	  std::vector<Stroke> *strokes
 	) ;
 
@@ -89,12 +95,14 @@ public:
 	  double endDist,
 	  double entryLength,
 	  double exitLength,
+	  TransitionBlendMethod transBlendMethod,
 	  double density,
 	  double pivotParam,
 	  int strokeId,
 	  int brushId,
 	  int paintId,
 	  int layerId,
+	  int customBrushId,
 	  int repeatId,
 	  bool backstroke);
 
@@ -153,18 +161,20 @@ public:
 
 
 	int layerId() const;
+	int customBrushId() const;
 
 	int brushId() const ;
 	int paintId() const ;
 
 	void setBrushId(int val) ;
+	void setCustomBrushId(int val) ;
+
 	void setPaintId(int val) ;
 	void setSortColor(const MFloatVector &color);
 	void setFilterColor(const MFloatVector &color);
 
 	void appendStrokeIdToSortStack(bool ascending);
 	void appendParentIdToSortStack(bool ascending);
-
 
 	void appendBrushIdToSortStack(bool ascending);
 
@@ -173,8 +183,9 @@ public:
 	void appendLayerIdToSortStack(bool ascending);
 
 	void appendRepeatIdToSortStack(bool ascending);
+	void appendTargetCountToSortStack(bool ascending);
 
-	// void appendCustomBrushIdToSortStack(bool ascending);
+	void appendCustomBrushIdToSortStack(bool ascending);
 
 	// void appendCustomPaintIdToSortStack(bool ascending);
 
@@ -190,7 +201,9 @@ public:
 	bool testPaintId(FilterOperator op, int value) const;
 	bool testLayerId(FilterOperator op, int value) const;
 	bool testRepeatId(FilterOperator op, int value) const;
-	// bool testCustomBrushId(FilterOperator op, int value) const;
+	bool testTargetCount(FilterOperator op, int value) const;
+
+	bool testCustomBrushId(FilterOperator op, int value) const;
 	// bool testCustomPaintId(FilterOperator op, int value) const;
 	bool testMapRedId(FilterOperator op, int value) const;
 	bool testMapGreenId(FilterOperator op, int value) const;
@@ -311,6 +324,8 @@ private:
 	double m_arcLength;
 	double m_entryLength;
 	double m_exitLength;
+
+	TransitionBlendMethod m_transitionBlendMethod;
 	int m_repeatId;
 
 	// from  strokeGeom
@@ -320,7 +335,7 @@ private:
 	int m_paintId;
 	int m_layerId;
 	// int m_customPaintId;
-	// int m_customBrushId;
+	int m_customBrushId;
 
 	float m_u;
 	float m_v;

@@ -260,6 +260,12 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
 
     double entryLength = data.inputValue(aEntryLength).asDouble();
     double exitLength = data.inputValue(aExitLength).asDouble();
+
+
+    Stroke::TransitionBlendMethod transitionBlendMethod = Stroke::TransitionBlendMethod(
+                data.inputValue(
+                    aTransitionBlendMethod).asShort());
+
     Stroke::DirectionMethod strokeDirection = Stroke::DirectionMethod(data.inputValue(
                 aStrokeDirection).asShort());
 
@@ -313,6 +319,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
                                        endDist,
                                        entryLength,
                                        exitLength,
+                                       transitionBlendMethod,
                                        pointDensity,
                                        rotSpec,
                                        repeatSpec,
@@ -322,6 +329,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
                                        brushId,
                                        paintId,
                                        layerId,
+                                       brushId,
                                        pStrokes);
     }
 

@@ -20,7 +20,7 @@ def create():
     return menu
 
 
-def make_snapshot(self):
+def make_snapshot():
     res = 1024
     export_dir = os.path.join(pm.workspace.getPath(), 'export')
     entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",

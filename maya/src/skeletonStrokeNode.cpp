@@ -51,7 +51,6 @@ void *skeletonStrokeNode::creator() {
     return new skeletonStrokeNode();
 }
 
-const double epsilon = 0.0001;
 
 
 MStatus skeletonStrokeNode:: initialize()
@@ -130,6 +129,7 @@ unsigned int skeletonStrokeNode::getStrokeBoundaries(
     float overlap,
     MVectorArray &result
 ) const  {
+    const double epsilon = 0.0001;
 
     MStatus st = MS::kSuccess;
 
@@ -269,71 +269,57 @@ void skeletonStrokeNode::getContacts(
         }
     }
 }
-// int skeletonStrokeNode::getContacts(
-//     const skChain &chain,
-//     const std::vector< std::pair<int, Brush> > &brushes,
-//     MDoubleArray &contacts) const
-// {
-//     /*
-//     The brushes are already sorted widest to finest. We test each brush in turn to
-//     see if it is big enough for the stroke. When we come across the first brush that
-//     is too small, we select the previous brush. It will in theory be the best suited.
-//     If the first brush (the biggest brush) is too small for the stroke, we're just
-//     going to have to use it.
-
-//     If there are no brushes (should never happen!!),
-//     then we return -1, meaning we cant actually paint the stroke.
-//     */
 
 
-//     int index = -1;
-//     float brushRadius =  1.0;
-//     bool isFlat = false;
+void skeletonStrokeNode::getPointsAndContacts(
+    const skChain &chain,
+    const std::pair<int, Brush> &indexedBrush,
+    float entryLength,
+    float exitLength,
+    MDoubleArray &contacts,
+    MPointArray &points) const
+{
 
-//     std::vector< std::pair<int, Brush> >::const_iterator brushIter;
-//     for (brushIter = brushes.begin(); brushIter != brushes.end(); brushIter++)
-//     {
-//         float brushRad = brushIter->second.width() * 0.5;
+    std::vector< skPoint >::const_iterator p0, p1;
+    p1 = chain.points().begin(); // 0
+    p0 = std::next(p1); // 1
+    skPoint entryPoint = skPoint::extrapolate(*p0, *p1, entryLength);
 
-//         if (brushRad <= chain.maxRadius()) {
-//             if (brushIter == brushes.begin() ) { // use this
-//                 index = brushIter->first;
-//                 brushRadius = brushRad;
-//                 isFlat =  brushIter->second.isFlat();
-//             }
-//             break;
-//         }
-//         index = brushIter->first;
-//         brushRadius = brushRad;
-//         isFlat =  brushIter->second.isFlat();
-//     }
+    p1 = std::prev(chain.points().end()); // -1
+    p0 =  std::prev(p1); // -2
+    skPoint exitPoint = skPoint::extrapolate(*p0, *p1, exitLength);
 
-//     /*
-//     Now we have a brush
+    contacts.clear();
+    points.clear();
 
-//     */
+    points.append(entryPoint.x, entryPoint.y, 0.0);
+    chain.appendPointsTo(points);
+    points.append(exitPoint.x, exitPoint.y, 0.0);
+
+    if ( indexedBrush.second.isFlat())
+    {
+        contacts = MDoubleArray( chain.size() + 2, 1.0);
+        return;
+    }
+
+    float brushWidth = indexedBrush.second.width();
+    if (brushWidth < epsilon) {
+        brushWidth = 1.0;
+    }
+    float brushRadiusRecip  = 2.0 / brushWidth;
 
 
-//     MFloatArray radii;
-//     chain.appendRadiiTo(radii);
+    contacts.append(fmin( (entryPoint.radius * brushRadiusRecip) , 1.0));
+    for (int  i = 0; i < chain.size(); ++i)
+    {
+        contacts.append(
+            fmin( (chain[i].radius * brushRadiusRecip) , 1.0)
+        );
+    }
+    contacts.append(fmin( (exitPoint.radius * brushRadiusRecip) , 1.0));
 
-//     if (isFlat)
-//     {
-//         for (int i = 0; i < radii.length(); ++i)
-//         {
-//             contacts.append( 1.0);
-//         }
-//     }
-//     else {
-//         for (int i = 0; i < radii.length(); ++i)
-//         {
-//             contacts.append(
-//                 fmin( radii[i] / brushRadius, 1.0)
-//             );
-//         }
-//     }
-//     return index;
-// }
+}
+
 
 
 MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
@@ -358,6 +344,12 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
 
     double entryLength = data.inputValue(aEntryLength).asDouble();
     double exitLength = data.inputValue(aExitLength).asDouble();
+
+    Stroke::TransitionBlendMethod transitionBlendMethod = Stroke::TransitionBlendMethod(
+                data.inputValue(
+                    aTransitionBlendMethod).asShort());
+
+
     Stroke::DirectionMethod strokeDirection = Stroke::DirectionMethod(data.inputValue(
                 aStrokeDirection).asShort());
 
@@ -425,22 +417,17 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     {
         MPointArray editPoints;
         MDoubleArray contacts;
-        citer->appendPointsTo(editPoints );
+        // citer->appendPointsTo(editPoints );
 
-
-        /*
-        getContacts does 2 jobs (bad boy). It gets the contacts, and it also
-        selects the best brush.
-        */
 
         const std::pair<int, Brush> selectedBrush = selectBrush(*citer, brushes);
-        getContacts(*citer, selectedBrush, contacts);
+        // getContacts(*citer, selectedBrush, contacts);
+
+        getPointsAndContacts(*citer, selectedBrush, entryLength, exitLength, contacts,
+                             editPoints);
+
         int selectedBrushId = selectedBrush.first;
-        // int selectedBrushId  = getContacts(*citer, brushes, contacts);
-        // if (selectedBrushId == -1)
-        // {
-        //     selectedBrushId = brushId;
-        // }
+        int customBrushId = selectedBrush.second.customId();
 
 
         MFnNurbsCurve curveFn;
@@ -468,6 +455,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
                                            endDist,
                                            entryLength,
                                            exitLength,
+                                           transitionBlendMethod,
                                            pointDensity,
                                            rotSpec,
                                            repeatSpec,
@@ -477,6 +465,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
                                            selectedBrushId,
                                            paintId,
                                            layerId,
+                                           customBrushId,
                                            pStrokes);
         }
     }

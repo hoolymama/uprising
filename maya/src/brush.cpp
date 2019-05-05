@@ -7,6 +7,7 @@
 
 Brush::Brush() :
 	m_physicalId(-1),
+	m_customId(-1),
 	m_width(1.0f),
 	m_bristleHeight(1.0f),
 	m_retention(1.0f),
@@ -18,6 +19,7 @@ Brush::Brush() :
 
 Brush::Brush(
   int physicalId,
+  int customId,
   const MFloatVector &tip,
   float bristleHeight,
   float tcpParam,
@@ -27,6 +29,7 @@ Brush::Brush(
   float transHeightParam)
 	:
 	m_physicalId(physicalId),
+	m_customId(customId),
 	m_tip(tip),
 	m_bristleHeight(bristleHeight),
 	m_tcpParam(tcpParam),
@@ -229,6 +232,12 @@ int Brush::physicalId() const
 	return m_physicalId;
 }
 
+int Brush::customId() const
+{
+	return m_customId;
+}
+
+
 const float &Brush::width() const
 {
 	return m_width;
@@ -264,6 +273,8 @@ ostream &operator<<(ostream &os, const Brush &b)
 	os << " retention:" << b.m_retention;
 	os << " tip:" << b.m_tip;
 	os << " physicalId:" << b.m_physicalId;
+	os << " customId:" << b.m_customId;
+
 	os << " shape:" << shapeStr;
 	return os;
 }

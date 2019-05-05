@@ -23,7 +23,7 @@ public:
 
   static  MTypeId   id;
 
-  enum Spac { kParametric, kArcLen };
+  // enum Spac { kParametric, kArcLen };
 
   enum SubcurveMethod { kLength, kBookends };
 
@@ -48,6 +48,14 @@ private:
     const skChain &chain,
     const std::pair<int, Brush> &indexedBrush,
     MDoubleArray &contacts) const;
+
+  void getPointsAndContacts(
+    const skChain &chain,
+    const std::pair<int, Brush> &indexedBrush,
+    float entryLength,
+    float exitLength,
+    MDoubleArray &contacts,
+    MPointArray &points) const;
 
   const std::pair<int, Brush>  selectBrush(
     const skChain &chain,
@@ -97,6 +105,10 @@ private:
   static MObject aStrokeLength;
   static MObject aOverlap;
   static MObject aBrushRampScope;
+
+
+
+
 
 };
 

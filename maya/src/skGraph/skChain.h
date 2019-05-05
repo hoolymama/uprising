@@ -49,9 +49,10 @@ public:
 	const float &maxRadius() const;
 	const float &minRadius() const;
 
+	const std::vector< skPoint > &points() const;
 
 private:
-	std::vector< skPoint > points;
+	std::vector< skPoint > m_points;
 
 	float m_maxRadius;
 	float m_minRadius;
