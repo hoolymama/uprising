@@ -34,6 +34,7 @@ public:
   static MObject aBrushTiltRamp;
   static MObject aBrushBankRamp;
   static MObject aBrushTwistRamp;
+  static MObject aLocalContact;
 protected:
 
 
@@ -89,6 +90,8 @@ protected:
 
 
   void transformStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;
+
+  static MObject  aMinimumPoints;
 
   static MObject  aPointDensity;
   static MObject  aRepeats;

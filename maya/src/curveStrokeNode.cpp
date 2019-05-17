@@ -32,6 +32,9 @@ MObject curveStrokeNode::aRandomOverlapFactor;
 MObject curveStrokeNode::aOverlap;
 MObject curveStrokeNode::aBrushRampScope;
 
+MObject curveStrokeNode::aContactRamp;
+MObject curveStrokeNode::aContactRampResolution;
+
 MTypeId curveStrokeNode:: id(k_curveStrokeNode );
 
 curveStrokeNode:: curveStrokeNode() {}
@@ -127,6 +130,19 @@ MStatus curveStrokeNode:: initialize()
     st = addAttribute(aBrushRampScope);
     mser;
 
+
+    aContactRamp  = MRampAttribute::createCurveRamp("contactRamp", "crmp");
+    st = addAttribute( aContactRamp ); mser;
+
+    aContactRampResolution = nAttr.create("contactRampResolution", "crrs",
+                                          MFnNumericData::kInt); mser;
+    nAttr.setDefault(8);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setStorable(true);
+    nAttr.setWritable(true);
+    st = addAttribute(aContactRampResolution); mser;
+
     st = attributeAffects(aCurve, aOutput);
     st = attributeAffects(aSubcurveMin, aOutput);
     st = attributeAffects(aSubcurveMax, aOutput);
@@ -141,6 +157,8 @@ MStatus curveStrokeNode:: initialize()
     st = attributeAffects(aSubcurveMethod, aOutput);
 
     st = attributeAffects(aBrushRampScope, aOutput);
+    st = attributeAffects(aContactRamp, aOutput);
+    st = attributeAffects(aContactRampResolution, aOutput);
 
     return (MS::kSuccess );
 }
@@ -257,9 +275,11 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
     if (pointDensity < 0.001) {
         pointDensity = 0.001;
     }
+    int minimumPoints = data.inputValue(aMinimumPoints).asInt();
 
     double entryLength = data.inputValue(aEntryLength).asDouble();
     double exitLength = data.inputValue(aExitLength).asDouble();
+    bool localContact = data.inputValue(aLocalContact).asBool();
 
 
     Stroke::TransitionBlendMethod transitionBlendMethod = Stroke::TransitionBlendMethod(
@@ -275,6 +295,11 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
     rotSpec.tiltRampAtt =  strokeNode::aBrushTiltRamp;
     rotSpec.bankRampAtt =  strokeNode::aBrushBankRamp;
     rotSpec.twistRampAtt =  strokeNode::aBrushTwistRamp;
+
+    MRampAttribute contactRampAttr( thisMObject(), aContactRamp, &st ); msert;
+
+    int contactRampResolution = data.inputValue(aContactRampResolution).asInt();
+
 
     MDataHandle hRangeHandle = data.inputValue(aBrushTiltRange);
     rotSpec.tiltRampMin = hRangeHandle.child(aBrushTiltRangeMin).asAngle().asRadians();
@@ -303,7 +328,28 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
     int layerId = data.inputValue(aLayerId).asInt();
 
 
-    MDoubleArray dummyContacts;
+    //////////////////////////
+    MDoubleArray contacts;
+    if (contactRampResolution < 2)
+    {
+        contactRampResolution = 2;
+    }
+    float gap = 1.0f / float(contactRampResolution - 1);
+
+    for (int i = 0; i < contactRampResolution; ++i)
+    {
+        float sample = float(i) * gap;
+        float res;
+        contactRampAttr.getValueAtPosition( sample, res, &st ); mser;
+        // cerr <<endl sample << ", ";
+        /* We want the ramp to visually agree with the motion of the brush
+        1.0 on the ramp is high - so 0 is full contact. Therefore, reverse
+        the value.
+        */
+        contacts.append(double(1.0 - res));
+    }
+    // cerr << endl << "contacts" << contacts << endl;
+    //////////////////////////
 
     MObject thisObj = thisMObject();
     for (int strokeId = 0; strokeId < boundaries.length(); ++strokeId) {
@@ -313,7 +359,8 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
         unsigned strokeGroupSize = Stroke::create(
                                        thisObj,
                                        dCurve,
-                                       dummyContacts,
+                                       contacts,
+                                       localContact,
                                        curveLength,
                                        startDist,
                                        endDist,
@@ -321,6 +368,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
                                        exitLength,
                                        transitionBlendMethod,
                                        pointDensity,
+                                       minimumPoints,
                                        rotSpec,
                                        repeatSpec,
                                        strokeDirection,

@@ -7,6 +7,8 @@ from uprising import (
     validate_tab,
     publish_tab,
     brush_assign_tab,
+    brush_test_tab,
+    
     
     # rings_design_tab,
     # rings_setup_tab,
@@ -16,6 +18,8 @@ from uprising import (
     curves_menu,
     images_menu,
     palette_menu,
+    info_menu,
+    
     tool_type_menu,
     calibration_menu
 )
@@ -39,13 +43,13 @@ from uprising import (
 # import paint
 # import brush
 # import stroke
-# import cluster
+import cluster
 # import target
 # import write
 # import uprising_util
 # import const
 # import sheets
-# import curve_utils
+import curve_utils
 # import brush_utils
 # import palette_utils
 # import board_utils
@@ -61,14 +65,14 @@ from uprising import (
 # reload(brush)
 # reload(target)
 # reload(stroke)
-# reload(cluster)
+reload(cluster)
 # reload(write)
 # reload(setup_dip)
 # reload(const)
 # reload(images)
 
 
-# reload(curve_utils)
+reload(curve_utils)
 # reload(brush_utils)
 # reload(palette_utils)
 # reload(board_utils)
@@ -83,12 +87,15 @@ from uprising import (
 # reload(setup_tab)
 
 # reload(props)
-# reload(validate_tab)
+reload(validate_tab)
 reload(publish_tab)
 reload(brush_assign_tab)
+reload(brush_test_tab)
 
 # reload(tools_menu)
-# reload(curves_menu)
+reload(info_menu)
+
+reload(curves_menu)
 # reload(images_menu)
 # reload(export_menu)
 # reload(palette_menu)
@@ -113,6 +120,7 @@ class RobotWindow(gui.Window):
         self.setIconName('Robot Tools')
         self.setWidthHeight([500, 500])
 
+
         self.menuBarLayout = pm.menuBarLayout()
 
         self.tabs = pm.tabLayout(
@@ -123,9 +131,20 @@ class RobotWindow(gui.Window):
         self.setup_tab = setup_tab.SetupTab()
         self.tabs.setTabLabel((self.setup_tab, "Setup"))
 
+
+
+        pm.setParent(self.tabs)
+        self.brush_test_tab = brush_test_tab.BrushTestTab()
+        self.tabs.setTabLabel((self.brush_test_tab, "Brush test"))
+
+
+
+
         pm.setParent(self.tabs)
         self.brush_assign_tab = brush_assign_tab.BrushAssignTab()
         self.tabs.setTabLabel((self.brush_assign_tab, "Assign brushes"))
+
+
 
 
         pm.setParent(self.tabs)
@@ -159,6 +178,10 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.palette_menu = palette_menu.create()
+
+        pm.setParent(self.menuBarLayout)
+        self.info_menu = info_menu.create()
+
 
         pm.setParent(self.menuBarLayout)
         self.calibration_menu = calibration_menu.create()

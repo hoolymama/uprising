@@ -14,7 +14,8 @@ from robolink import (
     INSTRUCTION_COMMENT,
     INSTRUCTION_SHOW_MESSAGE,
     INSTRUCTION_CALL_PROGRAM,
-    INSTRUCTION_INSERT_CODE
+    INSTRUCTION_INSERT_CODE,
+    COLLISION_OFF
 )
 
 import const as k
@@ -29,10 +30,24 @@ class ProgramError(Exception):
 class Program(object):
     def __init__(self, name, **kw):
         self.program_name = name
+        self.program = None
 
     def write(self):
         self.program = uutl.create_program(self.program_name)
         self.program.ShowInstructions(False)
+
+    def validate_path(self):
+        if self.program:
+            RL = Robolink()
+            update_result = self.program.Update(COLLISION_OFF)
+            return {
+                "instructions": update_result[0],
+                "time": update_result[1],
+                "distance": update_result[2],
+                "completion": update_result[3],
+                "problems": update_result[4],
+                "status": "SUCCESS" if (update_result[3] == 1.0) else "FAILURE"
+            }
 
 
 class MainProgram(Program):
@@ -763,9 +778,7 @@ class PlaceProgram(PickPlaceProgram):
         super(PlaceProgram, self).__init__(brush, pack, name)
 
     def write(self, studio):
-        # logger.debug("PlaceProgram WRITE")
-        # self.program = uutl.create_program(self.program_name)
-        # self.program.ShowInstructions(False)
+
         pause_ms = -1 if studio.wait else studio.pause
         pause_ms = int(pause_ms)
         with uutl.minimize_robodk():

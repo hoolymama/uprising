@@ -181,9 +181,9 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data )
   geom->clear();
 
   st = generate(data, geom);
-  // if (st.error()) {
-  //   return (MS::kUnknownParameter );
-  // }
+  if (st.error()) {
+    return (MS::kUnknownParameter );
+  }
 
   hOutput.set(newData);
   data.setClean(plug);
@@ -196,14 +196,21 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
 {
   MStatus st;
 
-
+  // JPMDBG;
   CImg<unsigned char>  *pImage = cImgUtils::getImage(data, aImage );
+  // JPMDBG;
+  if (! pImage)
+  {
+    return MS::kUnknownParameter;
+  }
+  // JPMDBG;
   int w = pImage->width();
   int h = pImage->height();
+  // JPMDBG;
   if (! (w && h)) {
     return MS::kUnknownParameter;
   }
-
+  // JPMDBG;
   int maxIterations = data.inputValue(aMaxIterations).asInt();
   MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
   int minBranchLength =  data.inputValue(aMinBranchTwigLength).asInt();

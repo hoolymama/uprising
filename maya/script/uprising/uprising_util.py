@@ -1,6 +1,7 @@
 import sys
 import os
 import errno
+import json
 import robodk as rdk
 import pymel.core as pm
 from contextlib import contextmanager
@@ -325,6 +326,16 @@ def clean_rdk():
     for station in RL.getOpenStations():
         station.Delete()
     RL.AddFile(CLEAN_FILE)
+
+def show_in_window(data, **kw):
+    title= kw.get("title", "Window")
+    result_json = json.dumps( data , indent=2)
+    pm.window(width=600,  height=800, title=title)
+    pm.frameLayout(cll=False, lv=False)
+    pm.scrollField(text=result_json, editable=False, wordWrap=False)
+    pm.showWindow()
+
+
 
 # def config_first_pose(pose):
 #     RL = Robolink()

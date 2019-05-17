@@ -29,14 +29,13 @@ class PaintingTab(gui.FormLayout):
  
         
         pm.rowLayout(
-            numberOfColumns=4, columnWidth4=(
-                110, 60, 60, 60), columnAlign=(
+            numberOfColumns=5, columnWidth5=(
+                110, 60, 60, 60, 60), columnAlign=(
                 1, 'right'), columnAttach=[
-                (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2) ])
+                (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2) , (5, 'both', 2)])
 
         pm.text(label='Propagate ramps')
 
- 
         pm.button(
             label='Tilt',
             command=pm.Callback(self.on_propagate_tilt_ramp))
@@ -48,6 +47,11 @@ class PaintingTab(gui.FormLayout):
         pm.button(
             label='Twist',
             command=pm.Callback(self.on_propagate_twist_ramp))
+
+        pm.button(
+            label='Contact',
+            command=pm.Callback(self.on_propagate_contact_ramp))
+
 
         # flat_only = 1
         # self.flat_only_cb = pm.checkBox(
@@ -167,6 +171,10 @@ class PaintingTab(gui.FormLayout):
         # flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
         cutl.propagate_ramp_attribute(
             "brushTwistRamp", "brushTwistRange")
+
+    def on_propagate_contact_ramp(self):
+        cutl.propagate_ramp_attribute(
+            "contactRamp", "contactRampResolution")
  
     def on_rename_inputs(self):
         templates = [

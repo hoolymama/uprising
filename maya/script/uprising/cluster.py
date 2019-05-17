@@ -1,13 +1,10 @@
 
-from robolink import (
-    INSTRUCTION_SHOW_MESSAGE,
-    INSTRUCTION_COMMENT,
-    INSTRUCTION_CALL_PROGRAM)
+from robolink import INSTRUCTION_COMMENT
 
 
 from uprising_util import ClusterError
 from stroke import Stroke
-import uprising_util as uutl
+
 import pymel.core as pm
 
 
@@ -31,12 +28,12 @@ class Cluster(object):
         self.build_strokes()
 
     def build_strokes(self):
-        logger.debug("Cluster %d build strokes" % self.id)
+        # logger.debug("Cluster %d build strokes" % self.id)
         self.strokes = []
         num_strokes = pm.paintingQuery(
             self.node, clusterIndex=self.id, strokeCount=True)
         for i in range(num_strokes):
-            logger.debug("Stroke %d" % i)
+            # logger.debug("Stroke %d" % i)
             stroke = Stroke(
                 self.id,
                 i,

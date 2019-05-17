@@ -31,6 +31,11 @@ class Brush(object):
         
 
 
+    def __str__(self):
+        # Override to print a readable string
+        return ', '.join(['{key}={value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
+
+
     def is_round(self):
         return self.shape == 1
 
@@ -127,7 +132,7 @@ class Brush(object):
         vals = [index, str(plug)]
         matrix = pm.dt.Matrix(pm.brushQuery(plug, tcp=True))
         vals.append(matrix)
-        for att in [  "width",  "retention",  "tip",  "physicalId",  "shape" ]:
+        for att in [  "width",  "retention",  "tip",  "physicalId", "shape" ]:
             vals.append(plug.node().attr(att).get())
         return Brush(*vals)
 

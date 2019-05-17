@@ -237,7 +237,6 @@ int Brush::customId() const
 	return m_customId;
 }
 
-
 const float &Brush::width() const
 {
 	return m_width;

@@ -331,6 +331,7 @@ MStatus brushNode::compute( const MPlug &plug, MDataBlock &data )
   MFloatVector tip = data.inputValue( aTip ).asFloatVector();
 
   int physicalId = data.inputValue( aPhysicalId).asInt();
+
   float width = data.inputValue( aWidth).asFloat();
   float bristleHeight = data.inputValue( aBristleHeight).asFloat();
   // cerr << "compute bristleHeight " <<  bristleHeight << endl;

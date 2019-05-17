@@ -42,6 +42,7 @@ public:
 	const float &retention() const;
 	float transHeight() const;
 	int physicalId() const;
+
 	int customId() const;
 
 
@@ -61,7 +62,6 @@ private:
 
 	int m_physicalId;
 	int m_customId;
-
 	float m_width;
 	float m_bristleHeight;
 	float m_retention;

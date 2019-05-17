@@ -55,6 +55,9 @@ protected:
   static MObject aForceDip;
   static MObject aBrushRampScope;
 
+  static MObject aContactRamp;
+  static MObject aContactRampResolution;
+
   static MObject  aApproachDistanceStart;
   static MObject  aApproachDistanceMid;
   static MObject  aApproachDistanceEnd;

@@ -418,30 +418,30 @@ const std::pair<int, Brush> skeletonStrokeNode::selectBrush(
 
 
 
-void skeletonStrokeNode::getContacts(
-    const skChain &chain,
-    const std::pair<int, Brush> &indexedBrush,
-    MDoubleArray &contacts) const
-{
-    // MFloatArray radii;
-    // chain.appendRadiiTo(radii);
+// void skeletonStrokeNode::getContacts(
+//     const skChain &chain,
+//     const std::pair<int, Brush> &indexedBrush,
+//     MDoubleArray &contacts) const
+// {
+//     // MFloatArray radii;
+//     // chain.appendRadiiTo(radii);
 
 
-    contacts.clear();
-    if ( indexedBrush.second.isFlat())
-    {
-        contacts = MDoubleArray( chain.size(), 1.0);
-    }
-    else {
-        float brushRadius = indexedBrush.second.width() * 0.5;
-        for (int i = 0; i < chain.size(); ++i)
-        {
-            contacts.append(
-                fmin( (chain[i].radius / brushRadius) , 1.0)
-            );
-        }
-    }
-}
+//     contacts.clear();
+//     if ( indexedBrush.second.isFlat())
+//     {
+//         contacts = MDoubleArray( chain.size(), 1.0);
+//     }
+//     else {
+//         float brushRadius = indexedBrush.second.width() * 0.5;
+//         for (int i = 0; i < chain.size(); ++i)
+//         {
+//             contacts.append(
+//                 fmin( (chain[i].radius / brushRadius) , 1.0)
+//             );
+//         }
+//     }
+// }
 
 
 void skeletonStrokeNode::getPointsAndContacts(
@@ -514,9 +514,12 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     if (pointDensity < 0.001) {
         pointDensity = 0.001;
     }
+    int minimumPoints = data.inputValue(aMinimumPoints).asInt();
 
     double entryLength = data.inputValue(aEntryLength).asDouble();
     double exitLength = data.inputValue(aExitLength).asDouble();
+    bool localContact = data.inputValue(aLocalContact).asBool();
+
 
     Stroke::TransitionBlendMethod transitionBlendMethod = Stroke::TransitionBlendMethod(
                 data.inputValue(
@@ -615,6 +618,16 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
         MObject curveData = dataCreator.create( &st ); mser;
         MObject dCurve = curveFn.createWithEditPoints(   editPoints, 3, MFnNurbsCurve::kOpen,
                          true, false, true, curveData, &st);
+
+        MDoubleArray knotVals;
+        st = curveFn.getKnots(knotVals);
+        int numKnots =  knotVals.length();
+        double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
+        for (int i = 0; i < numKnots; ++i)
+        {
+            knotVals[i] =  knotVals[i] * maxValRecip;
+        }
+        curveFn.setKnots(knotVals, 0, (numKnots - 1));
         double curveLength = curveFn.length(epsilon);
 
         MVectorArray boundaries;
@@ -632,6 +645,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
                                            thisObj,
                                            dCurve,
                                            contacts,
+                                           localContact,
                                            curveLength,
                                            startDist,
                                            endDist,
@@ -639,6 +653,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
                                            exitLength,
                                            transitionBlendMethod,
                                            pointDensity,
+                                           minimumPoints,
                                            rotSpec,
                                            repeatSpec,
                                            strokeDirection,

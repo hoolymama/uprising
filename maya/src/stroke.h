@@ -64,6 +64,7 @@ public:
 	  const MObject &thisObj,
 	  const MObject &dCurve,
 	  const MDoubleArray &contacts,
+	  bool localContact,
 	  double curveLength,
 	  double startDist,
 	  double endDist,
@@ -71,6 +72,7 @@ public:
 	  double exitLength,
 	  TransitionBlendMethod transBlendMethod,
 	  double pointDensity,
+	  int minimumPoints,
 	  const StrokeRotationSpec &rotSpec,
 	  const StrokeRepeatSpec &repeatSpec,
 	  DirectionMethod strokeDirection,
@@ -90,6 +92,7 @@ public:
 	Stroke(
 	  const MObject &curveObject ,
 	  const MDoubleArray &contacts,
+	  bool localContact,
 	  double curveLength,
 	  double startDist,
 	  double endDist,
@@ -97,6 +100,7 @@ public:
 	  double exitLength,
 	  TransitionBlendMethod transBlendMethod,
 	  double density,
+	  int minimumPoints,
 	  double pivotParam,
 	  int strokeId,
 	  int brushId,
@@ -274,7 +278,6 @@ public:
 
 	void offsetBrushContact(const Brush &brush);
 
-
 	const Target &departure() const;
 
 	void setDeparture(double offset);
@@ -320,7 +323,7 @@ private:
 
 	std::vector<Target> m_targets;  // flat targets with 3d rotations
 
-
+	bool m_localContact;
 	double m_arcLength;
 	double m_entryLength;
 	double m_exitLength;
@@ -359,17 +362,22 @@ inline double Stroke::interpContact(const MDoubleArray &contacts,
                                     const double &uniformParam)
 {
 	int len = contacts.length();
-	int rindex = ceil(uniformParam);
-	if ( len < (rindex + 1)) { 	return 1.0; }
-	int lindex = floor(uniformParam);
-	if (lindex != rindex)
+	int last = (len - 1);
+	if (uniformParam >= 1.0f)
 	{
-		double w = double(rindex) - uniformParam;
-		return contacts[lindex] * w + contacts[rindex] * (1.0 - w);
+		return contacts[last];
 	}
-	return contacts[lindex];
-}
+	else if (uniformParam <= 0.0f)
 
+	{
+		return contacts[0];
+	}
+	float t = uniformParam * last;
+	float r = t - floor(t);
+	int lindex = int(t);
+	return (contacts[lindex] * (1 - r)) + (contacts[(lindex + 1)] * (r));
+
+}
 
 
 #endif

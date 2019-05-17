@@ -40,6 +40,7 @@ unsigned Stroke::create(
   const MObject &thisObj,
   const MObject &dCurve,
   const MDoubleArray &contacts,
+  bool localContact,
   double curveLength,
   double startDist,
   double endDist,
@@ -47,6 +48,7 @@ unsigned Stroke::create(
   double exitLength,
   TransitionBlendMethod transBlendMethod,
   double pointDensity,
+  int minimumPoints,
   const StrokeRotationSpec &rotSpec,
   const StrokeRepeatSpec &repeatSpec,
   DirectionMethod strokeDirection,
@@ -71,6 +73,7 @@ unsigned Stroke::create(
 	Stroke motherStroke(
 	  dCurve,
 	  contacts,
+	  localContact,
 	  curveLength,
 	  startDist,
 	  endDist,
@@ -78,6 +81,7 @@ unsigned Stroke::create(
 	  exitLength,
 	  transBlendMethod,
 	  pointDensity,
+	  minimumPoints,
 	  pivotParam,
 	  strokeId,
 	  brushId,
@@ -129,6 +133,7 @@ unsigned Stroke::create(
 Stroke::Stroke()	:
 	m_targets(),
 	m_pivot(),
+	m_localContact(),
 	m_arcLength(0),
 	m_entryLength(),
 	m_exitLength(),
@@ -144,6 +149,7 @@ Stroke::Stroke()	:
 Stroke::Stroke(
   const MObject &curveObject ,
   const MDoubleArray &contacts,
+  bool localContact,
   double curveLength,
   double startDist,
   double endDist,
@@ -151,6 +157,7 @@ Stroke::Stroke(
   double exitLength,
   TransitionBlendMethod transBlendMethod,
   double density,
+  int minimumPoints,
   double pivotParam,
   int strokeId,
   int brushId,
@@ -158,9 +165,10 @@ Stroke::Stroke(
   int layerId,
   int customBrushId,
   int repeatId,
-  bool backstroke)	:
+  bool backstroke):
 	m_targets(),
 	m_pivot(),
+	m_localContact(localContact),
 	m_arcLength(),
 	m_entryLength(entryLength),
 	m_exitLength(exitLength),
@@ -180,8 +188,10 @@ Stroke::Stroke(
 	MFnNurbsCurve curveFn(curveObject);
 	double strokeRange = endDist - startDist; // can be negative
 	unsigned numPoints = unsigned(density * fabs(strokeRange));
-	if (numPoints < 2) { numPoints = 2; }
+	if (minimumPoints < 2) { minimumPoints = 2; }
+	if (numPoints < minimumPoints) { numPoints = minimumPoints; }
 	double gap = strokeRange / (numPoints - 1) ; // can be negative
+
 	for (unsigned i = 0; i < numPoints; i++) {
 
 
@@ -193,6 +203,7 @@ Stroke::Stroke(
 		tangent.z = 0;
 		tangent.normalize();
 		double contact = Stroke::interpContact(contacts, uniformParam);
+
 		MPoint pt;
 		curveFn.getPointAtParam(uniformParam, pt, MSpace::kObject);
 
@@ -200,9 +211,6 @@ Stroke::Stroke(
 		  Target(pt, tangent, strokeParam, curveParam, contact)
 		);
 
-		// m_targets.push_back(
-		//   Target(curveFn, dist, startDist, strokeRange, curveLength)
-		// );
 	}
 
 	double pivotDist = startDist  + (strokeRange * pivotParam);
@@ -1006,14 +1014,17 @@ void Stroke::offsetBrushContact(const Brush &brush)
 	float height = brush.transHeight();
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin() ; iter != m_targets.end(); iter++) {
-		iter->offsetBy(
-		  MVector(
-		    0.0,
-		    0.0,
-		    ((1.0 - iter->contact()) * height)
-		  ));
+
+		float dist = (1.0 - iter->contact()) * height;
+		if (m_localContact) {
+			iter->offsetLocalZ(-dist);
+		}
+		else {
+			iter->offsetBy(MVector::zAxis * dist);
+		}
 	}
 }
+
 
 
 

@@ -44,6 +44,9 @@ Target::Target(
 	m_matrix[3][2] = pt.z;
 }
 
+
+
+
 Target::Target(
   const MFnNurbsCurve &curveFn,
   double dist,
@@ -226,6 +229,18 @@ const double &Target::curveParam() const
 }
 
 void Target::offsetBy(const MVector &offset) {
+	m_matrix[3][0] = m_matrix[3][0] + offset.x;
+	m_matrix[3][1] = m_matrix[3][1] + offset.y;
+	m_matrix[3][2] = m_matrix[3][2] + offset.z;
+}
+
+
+/* This is like sliding in or out along the brush axis*/
+void Target::offsetLocalZ(double dist) {
+
+	MVector offset = MVector(m_matrix[2][0] , m_matrix[2][1] ,
+	                         m_matrix[2][2] ).normal() * dist;
+
 	m_matrix[3][0] = m_matrix[3][0] + offset.x;
 	m_matrix[3][1] = m_matrix[3][1] + offset.y;
 	m_matrix[3][2] = m_matrix[3][2] + offset.z;

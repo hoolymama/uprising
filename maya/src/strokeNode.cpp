@@ -65,6 +65,8 @@ const double rad_to_deg = (180 / 3.1415927);
 const double deg_to_rad = (3.1415927 / 180);
 
 
+MObject strokeNode::aMinimumPoints;
+
 MObject strokeNode::aPointDensity;
 
 MObject strokeNode::aRepeats;
@@ -80,6 +82,7 @@ MObject strokeNode::aStrokeDirection;
 MObject strokeNode::aEntryLength;
 MObject strokeNode::aExitLength;
 MObject strokeNode::aTransitionBlendMethod;
+MObject strokeNode::aLocalContact;
 
 MObject strokeNode::aBrushId;
 MObject strokeNode::aPaintId;
@@ -90,6 +93,8 @@ MObject strokeNode::aStrokeCountFactor;
 
 MObject strokeNode::aPivotFraction;
 MObject strokeNode::aRepeatPivot;
+
+
 
 
 MObject strokeNode::aBrushTiltRamp;
@@ -192,6 +197,13 @@ MStatus strokeNode::initialize()
   st = addAttribute(aStrokeCountFactor); mser;
 
 
+  aMinimumPoints = nAttr.create("minimumPoints", "mnpts", MFnNumericData::kInt); mser;
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setWritable(true);
+  st = addAttribute(aMinimumPoints); mser;
+
   aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData::kDouble);
   nAttr.setHidden( false );
   nAttr.setKeyable( true );
@@ -225,6 +237,13 @@ MStatus strokeNode::initialize()
   nAttr.setDefault( 1.0 );
   st = addAttribute(aExitLength); mser;
 
+  aLocalContact = nAttr.create( "localContact", "lcon", MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(true);
+  addAttribute(aLocalContact);
 
 
   aTransitionBlendMethod = eAttr.create("transitionBlendMethod", "tbm",
@@ -587,6 +606,7 @@ MStatus strokeNode::initialize()
 
 
   st = attributeAffects(aPointDensity, aOutput);
+  st = attributeAffects(aMinimumPoints, aOutput);
 
 
   st = attributeAffects(aStrokeDirection, aOutput);
@@ -610,8 +630,9 @@ MStatus strokeNode::initialize()
 
   st = attributeAffects(aEntryLength, aOutput);
   st = attributeAffects(aExitLength, aOutput);
-  st = attributeAffects(aTransitionBlendMethod, aOutput);
+  st = attributeAffects(aLocalContact, aOutput);
 
+  st = attributeAffects(aTransitionBlendMethod, aOutput);
 
 
   st = attributeAffects(aBrushTiltRamp, aOutput);

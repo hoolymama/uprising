@@ -60,6 +60,9 @@ public:
 
 	void offsetBy(const MVector &offset) ;
 
+	void offsetLocalZ(double dist);
+
+
 	double distanceTo(const Target &other) const;
 
 	MMatrix directionMatrix(bool backstroke) const;

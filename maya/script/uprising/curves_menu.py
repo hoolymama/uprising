@@ -26,10 +26,10 @@ def create():
         command=pm.Callback(duplicate_curves_to_painting))
 
     pm.menuItem(
-        label='Add curves to painting in order',
-        ann="Add selected curves to selected painting node. If they are already connected, disconnect and add in the order they are selected",
+        label='Add curves to painting/collector in order',
+        ann="Add selected curves to selected painting node or collectStrokes node. If they are already connected, disconnect and add in the order they are selected",
         command=pm.Callback(
-            add_curves_to_painting))
+            add_curves_to_strokes_att))
 
     pm.menuItem(
         label='Add new curves as clones',
@@ -119,33 +119,33 @@ def duplicate_curves_to_painting():
     for curve in curves:
         cutl.duplicate_curve_to_painting(curve)
 
-def add_curves_to_painting():
-    node = pm.ls(selection=True, dag=True, leaf=True, type="painting")[0]
-    if not node:
-        raise IndexError("No painting node selected")
+def add_curves_to_strokes_att():
+    dest_node = pm.ls(selection=True, dag=True, leaf=True, type=("painting", "collectStrokes") )[0]
+    if not dest_node:
+        raise IndexError("No painting or collectStrokes node selected")
     curves = pm.ls(
         selection=True,
         dag=True,
         leaf=True,
-        type=("nurbsCurve", "curveStroke"),
+        type="nurbsCurve",
         ni=True)
 
-    stroke_curves = pm.listConnections(
+    stroke_nodes = pm.listConnections(
         curves, d=True,
         s=False,
         type="curveStroke")
 
     painting_conns = pm.listConnections(
-        stroke_curves, d=True,
+        stroke_nodes, d=True,
         s=False,
-        type="painting",
+        type=("painting", "collectStrokes"),
         c=True, p=True)
     for conn in painting_conns:
         conn[0] // conn[1]
 
     for curve in curves:
-        cutl.connect_curve_to_painting(
-            curve, node, connect_to="next_available")
+        cutl.connect_curve_to_strokes_att(
+            curve, dest_node, connect_to="next_available")
 
 def add_curves_using_source_strokes():
 

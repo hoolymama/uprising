@@ -112,6 +112,19 @@ def get_stroke_node(curve):
         return conns[0]
 
 
+def get_stroke_nodes(objs):
+    result = []
+    for c in objs:
+        if "strokeNode" in pm.nodeType(c, i=True):
+            result.append(c)
+            continue
+
+        c = get_stroke_node(c)
+        if c:
+            result.append(c)
+    return result
+
+
 def connect_curve_using_src(curve, src, dest):
     stroke = pm.duplicate(src, rr=True, ic=True)[0]
 
@@ -124,32 +137,32 @@ def connect_curve_using_src(curve, src, dest):
         pm.parent(curve.getParent(), "%s|curves" % top)
 
 
-def connect_curve_to_painting(curve, painting_node, **kw):
+def connect_curve_to_strokes_att(curve, strokes_dest_node, **kw):
 
     connect_to = kw.get("connect_to", None)
 
     crv = pm.PyNode(curve)
-    if crv.type() == "curveStroke":
-        stroke_curve = crv
-    else:
-        stroke_curve = get_stroke_node(curve)
-        if not stroke_curve:
-            c_names = curve.name().split("|")
-            sc_name = "%s_SC" % curve.name()
-            stroke_curve = pm.createNode("curveStroke", name=sc_name)
-            curve.attr("worldSpace[0]") >> stroke_curve.attr("curve")
 
-            stroke_curve.attr(
-                "brushTiltRamp[0].brushTiltRamp_FloatValue").set(0.5)
-            stroke_curve.attr(
-                "brushBankRamp[0].brushBankRamp_FloatValue").set(0.5)
-            stroke_curve.attr(
-                "brushTwistRamp[0].brushTwistRamp_FloatValue").set(0.5)
+    stroke_curve = get_stroke_node(curve)
+    if not stroke_curve:
+        c_name = curve.name().split("|")[-1]
+        sc_name = "%s_SC" % c_name
+        stroke_curve = pm.createNode("curveStroke", name=sc_name)
+        curve.attr("worldSpace[0]") >> stroke_curve.attr("curve")
 
+        stroke_curve.attr(
+            "brushTiltRamp[0].brushTiltRamp_FloatValue").set(0.5)
+        stroke_curve.attr(
+            "brushBankRamp[0].brushBankRamp_FloatValue").set(0.5)
+        stroke_curve.attr(
+            "brushTwistRamp[0].brushTwistRamp_FloatValue").set(0.5)
+
+        stroke_curve.attr(
+            "contactRamp[0].contactRamp_FloatValue").set(0)
 
     if connect_to:
-        index = sfu.get_index(painting_node, "strokes.", connect_to)
-        stroke_curve.attr("output") >> painting_node.attr(
+        index = sfu.get_index(strokes_dest_node, "strokes.", connect_to)
+        stroke_curve.attr("output") >> strokes_dest_node.attr(
             "strokes[%d]" % index)
 
     return stroke_curve
@@ -335,7 +348,6 @@ def delete_curve_instances(curves):
         remove_unconnected_curve_plugs(painting)
 
 
-
 def do_random_all(curves, r_indices, id_attr, set_key):
     num = len(r_indices)
     if not num:
@@ -446,6 +458,7 @@ def _assign_random_resource(
                 steps,
                 power,
                 set_key)
+
 
 def get_extent(node, stroke_curve, curve, side="outer"):
     brushId = stroke_curve.attr("brushId").get()
@@ -576,17 +589,14 @@ def duplicate_into_gaps(curves):
         stroke_curve.attr("paintId").set(7)
 
 
-def propagate_ramp_attribute(att, rangeAtt):
-    stroke_nodes = pm.ls(
-        selection=True,
-        dag=True,
-        leaf=True,
-        type="strokeNode",
-        ni=True)
+def propagate_ramp_attribute(att, auxAtt):
+    nodes = pm.ls(selection=True)
+    stroke_nodes = get_stroke_nodes(nodes)
+
 
     last_node = stroke_nodes[-1]
     if last_node:
-        rangeVals = last_node.attr(rangeAtt).get()
+        auxVal = last_node.attr(auxAtt).get()
         indices = last_node.attr(att).getArrayIndices()
         for stroke_node in stroke_nodes[:-1]:
             indices_to_clear = stroke_node.attr(att).getArrayIndices()
@@ -595,7 +605,7 @@ def propagate_ramp_attribute(att, rangeAtt):
                     stroke_node.attr(
                         "%s[%d]" %
                         (att, itc)), b=True)
-            stroke_node.attr(rangeAtt).set(rangeVals)
+            stroke_node.attr(auxAtt).set(auxVal)
             for index in indices:
                 for suffix in ["Position", "FloatValue", "Interp"]:
                     att_str = "%s[%d].%s_%s" % (att, index, att, suffix)
@@ -775,7 +785,7 @@ def contain_strokes_in_mesh(curves, mesh):
             connect_to_containment(curve, ctn)
 
 
-def curve_vis_active_connection(curves, connect):
+def curve_vis_active_connection(curves, connect=True):
     for curve in curves:
         try:
             stroke_curve = get_stroke_node(curve)
@@ -819,4 +829,3 @@ def show_objects(obs):
             xf.attr("visibility").set(1)
         except RuntimeError:
             pm.warning("Can't change visibility for %s" % xf)
-
