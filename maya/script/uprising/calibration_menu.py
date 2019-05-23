@@ -140,6 +140,9 @@ def _generate_calibration(which, *reference_geo):
     }
     # prefix = "rx" if which == "rack" else "bx"
 
+    print "K" * 20
+    print kw
+
     timestamp = write.get_timestamp()
     calib_dir = os.path.join(
         pm.workspace.getPath(),
@@ -150,9 +153,8 @@ def _generate_calibration(which, *reference_geo):
     uutl.mkdir_p(calib_dir)
     studio = Studio(**kw)
     studio.write()
-    write.write_program(Robolink(), calib_dir, which, timestamp)
-
-    props.send(reference_geo)
+    # write.write_program(Robolink(), calib_dir, which, timestamp)
+    # props.send(reference_geo)
 
 
 def read_rack_triangulation():

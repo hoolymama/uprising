@@ -339,6 +339,7 @@ MStatus brushNode::compute( const MPlug &plug, MDataBlock &data )
       )  ) { return ( MS::kUnknownParameter ); }
 
   MFloatVector tip = data.inputValue( aTip ).asFloatVector();
+  cerr << "brushNode::compute TIP" << tip <<  endl;
 
   int physicalId = data.inputValue( aPhysicalId).asInt();
 

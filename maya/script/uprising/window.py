@@ -99,7 +99,7 @@ reload(curves_menu)
 # reload(images_menu)
 # reload(export_menu)
 # reload(palette_menu)
-# reload(calibration_menu)
+reload(calibration_menu)
 
 # reload(tool_type_menu)
 

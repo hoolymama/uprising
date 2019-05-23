@@ -28,9 +28,6 @@ public:
 	  float contactPower);
 
 	// Brush &operator=(const Brush &rhs);
-
-
-
 	// Brush(const Brush &rhs);
 
 	~Brush();
@@ -65,6 +62,7 @@ private:
 
 	int m_physicalId;
 	int m_customId;
+	MFloatVector m_tip;
 	float m_width;
 	float m_bristleHeight;
 	float m_retention;
@@ -72,8 +70,6 @@ private:
 	Shape m_shape;
 	float m_transHeightParam;
 	float m_contactPower;
-
-	MFloatVector m_tip;
 
 
 };

@@ -43,7 +43,7 @@ Brush::Brush(
 	m_contactPower(contactPower)
 
 {
-
+	cerr << "Brush::Brush tip" << tip << " -- " << m_tip << endl;
 }
 
 Brush::~Brush() {}
@@ -53,7 +53,16 @@ MFloatMatrix Brush::tcp() const
 
 	MFloatMatrix result;
 	result.setToIdentity();
-	MFloatVector p(m_tip - MFloatVector( 0.0,  0.0, (m_bristleHeight * m_tcpParam)));
+
+	// MFloatVector p = m_tip;
+	// cerr << "m_tip = " << m_tip << endl;
+
+	MFloatVector p = m_tip - MFloatVector( 0.0,  0.0, (m_bristleHeight * m_tcpParam));
+
+	// MFloatVector p(m_tip - MFloatVector( 0.0,  0.0, (m_bristleHeight * m_tcpParam)));
+	// cerr << "PPP VECTOR = " << p << endl;
+	// cerr << "TIP VECTOR = " << m_tip << endl;
+	// cerr << "TCP VECTOR = " << p << endl;
 
 	result[3][0] = p.x;
 	result[3][1] = p.y;
@@ -121,7 +130,7 @@ void appendCube(const MFloatPointArray &verts, MFloatPointArray &triangles)
 
 void Brush::getTriangles(MFloatPointArray &triangles) const
 {
-
+	cerr <<  "CALLING TRIANGLES" << endl;
 	float majorRadius = m_width * 0.5;
 	float minorRadius = majorRadius;
 	float ferruleHeight = 1.0f;
