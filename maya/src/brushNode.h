@@ -71,6 +71,8 @@ private:
   static MObject aRetention;
   static MObject aShape;
   static MObject aTransHeightParam;
+  static MObject aContactPower;
+
 
   static MObject aLineLength;
   static MObject aLineThickness;

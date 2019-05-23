@@ -24,7 +24,8 @@ public:
 	  float width,
 	  Shape shape,
 	  float retention,
-	  float transHeightParam);
+	  float transHeightParam,
+	  float contactPower);
 
 	// Brush &operator=(const Brush &rhs);
 
@@ -41,6 +42,8 @@ public:
 
 	const float &retention() const;
 	float transHeight() const;
+	float contactPower() const;
+
 	int physicalId() const;
 
 	int customId() const;
@@ -68,6 +71,8 @@ private:
 	float m_tcpParam;
 	Shape m_shape;
 	float m_transHeightParam;
+	float m_contactPower;
+
 	MFloatVector m_tip;
 
 

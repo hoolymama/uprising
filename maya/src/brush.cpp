@@ -13,7 +13,9 @@ Brush::Brush() :
 	m_retention(1.0f),
 	m_tip(),
 	m_shape(Brush::kRound),
-	m_transHeightParam(1.0)
+	m_transHeightParam(1.0),
+	m_contactPower(1.0)
+
 {}
 
 
@@ -26,7 +28,8 @@ Brush::Brush(
   float width,
   Shape shape,
   float retention,
-  float transHeightParam)
+  float transHeightParam,
+  float contactPower)
 	:
 	m_physicalId(physicalId),
 	m_customId(customId),
@@ -36,7 +39,9 @@ Brush::Brush(
 	m_width(width),
 	m_shape(shape),
 	m_retention(retention),
-	m_transHeightParam(transHeightParam)
+	m_transHeightParam(transHeightParam),
+	m_contactPower(contactPower)
+
 {
 
 }
@@ -227,6 +232,11 @@ float Brush::transHeight() const
 	return m_transHeightParam * m_bristleHeight * m_tcpParam;
 }
 
+float Brush::contactPower() const
+{
+	return m_contactPower;
+}
+
 int Brush::physicalId() const
 {
 	return m_physicalId;
@@ -273,6 +283,8 @@ ostream &operator<<(ostream &os, const Brush &b)
 	os << " tip:" << b.m_tip;
 	os << " physicalId:" << b.m_physicalId;
 	os << " customId:" << b.m_customId;
+	os << " transHeightParam:" << b.m_transHeightParam;
+	os << " contactPower:" << b.m_contactPower;
 
 	os << " shape:" << shapeStr;
 	return os;

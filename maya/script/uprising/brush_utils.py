@@ -62,6 +62,7 @@ def create_brush_geo(**kw):
     geo.attr("retention").set(kw["retention"])
     geo.attr("shape").set(shape_index)
     geo.attr("transHeightParam").set(kw["trans_param"])
+    geo.attr("contactPower").set(kw["contact_power"])
 
     return geo
 
@@ -121,6 +122,7 @@ def setup_custom_brush_from_sheet(cell):
             "wipe_param": row[10],
             "retention": row[11],
             "trans_param": row[12],
+            "contact_power": 1,
             "pouch": "utility",
             "prefix": "bpx"
         }
@@ -165,6 +167,7 @@ def setup_brushes_from_sheet(pouch_name):
             "wipe_param": row[10],
             "retention": row[11],
             "trans_param": row[12],
+            "contact_power": row[14],
             "pouch": pouch["name"],
             "prefix": "bpx"
         }

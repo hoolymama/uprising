@@ -91,6 +91,9 @@ MObject brushNode::aWipeParam;
 MObject brushNode::aRetention;
 MObject brushNode::aShape;
 MObject brushNode::aTransHeightParam;
+MObject brushNode::aContactPower;
+
+
 
 MObject brushNode::aLineLength;
 MObject brushNode::aLineThickness;
@@ -205,12 +208,16 @@ MStatus brushNode::initialize()
   aTransHeightParam =  nAttr.create( "transHeightParam", "thp", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setSoftMax(100.0);
-  // nAttr.setDefault(20.0);
   nAttr.setKeyable(true);
   addAttribute(aTransHeightParam);
 
+  aContactPower =  nAttr.create( "contactPower", "ctp", MFnNumericData::kFloat);
+  nAttr.setMin(0.00f);
+  nAttr.setDefault(1.0);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aContactPower);
 
 
   aLineLength = nAttr.create( "lineLength", "lln", MFnNumericData::kFloat);
@@ -265,6 +272,7 @@ MStatus brushNode::initialize()
   attributeAffects(aRetention, aOutPaintBrush);
   attributeAffects(aShape, aOutPaintBrush);
   attributeAffects(aTransHeightParam, aOutPaintBrush);
+  attributeAffects(aContactPower, aOutPaintBrush);
   attributeAffects(aCustomId, aOutPaintBrush);
 
   attributeAffects(aPhysicalId, aOutDipBrush);
@@ -277,6 +285,7 @@ MStatus brushNode::initialize()
   attributeAffects(aRetention, aOutDipBrush);
   attributeAffects(aShape, aOutDipBrush);
   attributeAffects(aTransHeightParam, aOutDipBrush);
+  attributeAffects(aContactPower, aOutDipBrush);
   attributeAffects(aCustomId, aOutDipBrush);
 
   attributeAffects(aPhysicalId, aOutWipeBrush);
@@ -289,6 +298,7 @@ MStatus brushNode::initialize()
   attributeAffects(aRetention, aOutWipeBrush);
   attributeAffects(aShape, aOutWipeBrush);
   attributeAffects(aTransHeightParam, aOutWipeBrush);
+  attributeAffects(aContactPower, aOutWipeBrush);
   attributeAffects(aCustomId, aOutWipeBrush);
 
 
@@ -342,6 +352,7 @@ MStatus brushNode::compute( const MPlug &plug, MDataBlock &data )
   float retention = data.inputValue( aRetention).asFloat();
   Brush::Shape shape =  Brush::Shape(data.inputValue( aShape).asShort());
   float transHeightParam = data.inputValue( aTransHeightParam).asFloat();
+  float contactPower = data.inputValue( aContactPower).asFloat();
 
   int customId = data.inputValue( aCustomId).asInt();
 
@@ -353,7 +364,8 @@ MStatus brushNode::compute( const MPlug &plug, MDataBlock &data )
                        width,
                        shape,
                        retention,
-                       transHeightParam);
+                       transHeightParam,
+                       contactPower);
 
   Brush dipBrush( physicalId,
                   customId,
@@ -363,7 +375,8 @@ MStatus brushNode::compute( const MPlug &plug, MDataBlock &data )
                   width,
                   shape,
                   99999999.0,
-                  transHeightParam);
+                  transHeightParam,
+                  contactPower);
 
   Brush wipeBrush( physicalId,
                    customId,
@@ -373,7 +386,8 @@ MStatus brushNode::compute( const MPlug &plug, MDataBlock &data )
                    width,
                    shape,
                    99999999.0,
-                   transHeightParam);
+                   transHeightParam,
+                   contactPower);
 
   outputData(data, aOutPaintBrush, paintingBrush);
   outputData(data, aOutDipBrush, dipBrush);

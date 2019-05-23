@@ -243,6 +243,7 @@ def setup_clean_top(painting_node):
 
 
 def write_program(RL, ts_dir, progname, timestamp):
+    print "XXXXXXXXXXXXXXXX  TS_DIR", ts_dir
     RL = Robolink()
     # RL.TIMEOUT = 600 # in seconds
     # RL.COM.settimeout(RL.TIMEOUT)

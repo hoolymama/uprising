@@ -1012,10 +1012,11 @@ void Stroke::setTransitionContact( )
 void Stroke::offsetBrushContact(const Brush &brush)
 {
 	float height = brush.transHeight();
+	float power = brush.contactPower();
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin() ; iter != m_targets.end(); iter++) {
-
-		float dist = (1.0 - iter->contact()) * height;
+		float dist = (1.0 - iter->contact());
+		dist = pow(dist, power) * height;
 		if (m_localContact) {
 			iter->offsetLocalZ(-dist);
 		}

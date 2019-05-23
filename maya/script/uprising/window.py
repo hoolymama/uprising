@@ -45,12 +45,12 @@ from uprising import (
 # import stroke
 import cluster
 # import target
-# import write
+import write
 # import uprising_util
 # import const
 # import sheets
 import curve_utils
-# import brush_utils
+import brush_utils
 # import palette_utils
 # import board_utils
 
@@ -66,14 +66,14 @@ import curve_utils
 # reload(target)
 # reload(stroke)
 reload(cluster)
-# reload(write)
+reload(write)
 # reload(setup_dip)
 # reload(const)
 # reload(images)
 
 
 reload(curve_utils)
-# reload(brush_utils)
+reload(brush_utils)
 # reload(palette_utils)
 # reload(board_utils)
 # reload(painting)
