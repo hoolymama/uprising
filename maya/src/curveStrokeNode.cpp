@@ -64,6 +64,8 @@ MStatus curveStrokeNode:: initialize()
     aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve, & st); mser;
     tAttr.setReadable(false);
     tAttr.setStorable(false);
+    tAttr.setKeyable(true);
+
     st = addAttribute(aCurve); mser;
 
 

@@ -1,11 +1,11 @@
 ---
-configuration: ${UPRISING_CONFIGURATION}
+configuration: ${FLAK_CONFIGURATION}
 product_name: uprising
 product_description: Robot painting tools.
 configuration_debug:
   product_revision: 2017.dev.999
 configuration_release:
-  product_revision: ${UPRISING_RELEASE_VERSION}
+  product_revision: ${FLAK_RELEASE_VERSION}
 author_name: Julian Mann
 author_email: julian.mann@gmail.com
 os_darwin64:

@@ -117,6 +117,8 @@ MStatus skGraphNode::initialize()
 
 	aChains = tAttr.create("chains", "chn", skChainData::id ) ;
 	tAttr.setStorable(false);
+	tAttr.setKeyable(true);
+
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	st = addAttribute( aChains ); mser;
 

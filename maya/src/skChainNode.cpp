@@ -64,6 +64,8 @@ MStatus skChainNode::initialize()
 
   aImage = tAttr.create("image", "img", cImgData::id ) ;
   tAttr.setStorable(false);
+  tAttr.setKeyable(false);
+
   tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   st = addAttribute( aImage ); mser;
 

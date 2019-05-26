@@ -148,6 +148,7 @@ MStatus collectStrokes::initialize()
   tAttr.setReadable(false);
   tAttr.setStorable(false);
   tAttr.setArray(true);
+  tAttr.setKeyable(true);
   tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   addAttribute(aStrokes);
 
@@ -159,6 +160,7 @@ MStatus collectStrokes::initialize()
   aProjection = mAttr.create( "projection", "prj",  MFnMatrixAttribute::kDouble );
   mAttr.setStorable( false );
   mAttr.setHidden( true );
+  mAttr.setKeyable(true);
   mAttr.setDefault(identity);
   addAttribute(aProjection);
 
