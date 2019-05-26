@@ -7,7 +7,8 @@ import sheets
 
 from paint import Paint
 import props
- 
+import const as k
+
 
 from robolink import (
     Robolink,
@@ -105,6 +106,7 @@ class Studio(object):
         # if gripper on. Otherwise we can't do partials, like validation.
         do_pick_and_place = kw.get("do_pick_and_place") and use_gripper
 
+
         if do_painting:
             logger.debug("Studio: main_painting")
             with uutl.final_position(pm.PyNode("mainPaintingShape")):
@@ -122,21 +124,21 @@ class Studio(object):
 
         if do_pot_calibration:
             logger.debug("Studio:  pot_calibration")
-            self.pot_cal_program = PotCalibration("pot",  use_gripper)
+            self.pot_cal_program = PotCalibration(k.POT_CALIBRATION_PROGRAM_NAME,  use_gripper)
             if use_gripper:
                 with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                     self.pick_place_programs = self._build_pick_place_programs([0])
 
         if do_holder_calibration:
             logger.debug("Studio:  holder_calibration")
-            self.holder_cal_program = HolderCalibration("holder", use_gripper)
+            self.holder_cal_program = HolderCalibration(k.HOLDER_CALIBRATION_PROGRAM_NAME, use_gripper)
             if use_gripper:
                 with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                     self.pick_place_programs = self._build_pick_place_programs([0])
 
         if do_perspex_calibration:
             logger.debug("Studio:  perspex_calibration")
-            self.perspex_cal_program = PerspexCalibration("perspex", use_gripper)
+            self.perspex_cal_program = PerspexCalibration(k.PERSPEX_CALIBRATION_PROGRAM_NAME, use_gripper)
             if use_gripper:
                 with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                     self.pick_place_programs = self._build_pick_place_programs([0])
@@ -144,20 +146,20 @@ class Studio(object):
 
         if do_manual_triangulation:
             logger.debug("Studio:  manual_triangulation")
-            self.manual_tri_program = ManualTriangulation("triangulation", use_gripper)
+            self.manual_tri_program = ManualTriangulation(k.TRI_CALIBRATION_PROGRAM_NAME, use_gripper)
             if use_gripper:
                 with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                     self.pick_place_programs = self._build_pick_place_programs([0])
 
         if do_board_calibration:
             logger.debug("Studio: board_calibration")
-            self.board_cal_program = BoardCalibration("bx", use_gripper)
+            self.board_cal_program = BoardCalibration(k.BOARD_CALIBRATION_PROGRAM_NAME, use_gripper)
             if use_gripper:
                 with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                     self.pick_place_programs = self._build_pick_place_programs([0])
 
         if do_pap_exercise:
-            self.exercise_program = PapExerciseProgram("pap")
+            self.exercise_program = PapExerciseProgram(k.PAP_EXERCISE_PROGRAM_NAME)
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.pick_place_programs = self._build_pick_place_programs("all")
 

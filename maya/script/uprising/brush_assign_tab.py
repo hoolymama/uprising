@@ -43,7 +43,10 @@ class BrushAssignTab(gui.FormLayout):
 
 
     def reload(self):
-        painting = pm.PyNode("mainPaintingShape")
+        try:
+            painting = pm.PyNode("mainPaintingShape")
+        except pm.MayaNodeError:
+            return
         connected_indices = self._connected_brush_indices(painting) 
         pm.textFieldGrp(self._main_tf, edit=True, text=connected_indices)
 

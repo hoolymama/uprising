@@ -43,7 +43,6 @@ Brush::Brush(
 	m_contactPower(contactPower)
 
 {
-	cerr << "Brush::Brush tip" << tip << " -- " << m_tip << endl;
 }
 
 Brush::~Brush() {}
@@ -130,7 +129,6 @@ void appendCube(const MFloatPointArray &verts, MFloatPointArray &triangles)
 
 void Brush::getTriangles(MFloatPointArray &triangles) const
 {
-	cerr <<  "CALLING TRIANGLES" << endl;
 	float majorRadius = m_width * 0.5;
 	float minorRadius = majorRadius;
 	float ferruleHeight = 1.0f;

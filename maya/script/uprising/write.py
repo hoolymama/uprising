@@ -6,7 +6,7 @@ import datetime
 import pymel.core as pm
 import uprising_util as uutl
 
-from robolink import (Robolink, ITEM_TYPE_STATION)
+from robolink import (Robolink, ITEM_TYPE_STATION,ITEM_TYPE_PROGRAM)
 from studio import Studio
 from paint import Paint
 from brush import Brush
@@ -245,12 +245,18 @@ def setup_clean_top(painting_node):
 def write_program(RL, ts_dir, progname, timestamp):
     print "XXXXXXXXXXXXXXXX  TS_DIR", ts_dir
     RL = Robolink()
+
+    sel = RL.Selection()
+    for item in sel:
+        print "Item:", item.Name()
+
  
-    print "WRITING"
+    # print "WRITING"
     prog_filename = "%s_%s" % (progname.upper(), timestamp)
     print "prog_filename", prog_filename
-    program = RL.Item(progname)
-
+    program = RL.Item(progname, ITEM_TYPE_PROGRAM)
+    print "program" , program
+    print "program.Name()" , program.Name()
     program.setName(prog_filename)
     program.MakeProgram(ts_dir)
     program.setName(progname)
