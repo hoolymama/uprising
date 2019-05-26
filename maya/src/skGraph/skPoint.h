@@ -14,6 +14,11 @@ public:
 
 
 
+	skPoint():
+		x(),
+		y(),
+		radius()
+	{	}
 
 	skPoint(float xval, float yval, float rval):
 		x(xval),

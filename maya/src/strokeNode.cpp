@@ -718,6 +718,22 @@ MStatus strokeNode::compute(const MPlug &plug, MDataBlock &data )
   // should probably go before assignUVs in case pivot moves
   transformStrokes(data, geom);
 
+
+  // std::vector<Stroke>::const_iterator iter = geom->begin();
+  // for (unsigned i = 0; iter != geom->end(); iter++, i++)
+  // {
+  //   cerr << "-------------------------" << endl;
+  //   std::vector<Target>::const_iterator titer;
+
+  //   for (titer = iter->targets().begin(); titer != iter->targets().end(); titer++) {
+  //     cerr  << " -- Param:" << titer->param() << " -- Tangent" <<
+  //           titer->tangent() << endl;
+  //   }
+  // }
+
+
+
+
   hOutput.set(newData);
   data.setClean(plug);
 

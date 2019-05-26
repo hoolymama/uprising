@@ -94,6 +94,8 @@ unsigned Stroke::create(
 	motherStroke.setRotations(thisObj, rotSpec);
 	motherStroke.setTransitionContact();
 
+
+
 	repeatId++;
 
 
@@ -199,7 +201,9 @@ Stroke::Stroke(
 		double strokeParam = (dist - startDist) / strokeRange;
 		double curveParam = dist / curveLength;
 		double uniformParam = curveFn.findParamFromLength(dist);
+
 		MVector tangent = curveFn.tangent(uniformParam);
+
 		tangent.z = 0;
 		tangent.normalize();
 		double contact = Stroke::interpContact(contacts, uniformParam);
@@ -967,9 +971,10 @@ void Stroke::setTransitionContact( )
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin() ; iter != m_targets.end(); iter++) {
 		const double &param = iter->param();
-		if (param > m_entry_param ) {
+		if (param >= m_entry_param ) {
 			break;
 		}
+		// cerr << "m_entry_param" << m_entry_param << endl;
 		double contact = param / m_entry_param;
 
 		if (m_transitionBlendMethod == Stroke::kTransitionMin) {
@@ -992,6 +997,7 @@ void Stroke::setTransitionContact( )
 		if (param <= m_exit_param ) {
 			break;
 		}
+		// cerr << " (1.0 - m_exit_param)" <<  (1.0 - m_exit_param) << endl;
 		double contact = (1.0 - param) / (1.0 - m_exit_param);
 		if (m_transitionBlendMethod == Stroke::kTransitionMin) {
 			contact = fmin(contact, riter->contact());
