@@ -617,7 +617,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     {
         MPointArray editPoints;
         MDoubleArray contacts;
-        JPMDBG;
+
         const std::pair<int, Brush> selectedBrush = selectBrush(*citer, brushes);
 
         getPointsAndContacts(*citer, selectedBrush, entryLength, exitLength, contacts,
@@ -625,40 +625,31 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
         int selectedBrushId = selectedBrush.first;
         int customBrushId = selectedBrush.second.customId();
 
-        JPMDBG;
         MFnNurbsCurve curveFn;
         MFnNurbsCurveData dataCreator;
         MObject curveData = dataCreator.create( &st ); mser;
-        cerr << "editPoints" << editPoints << endl;
+        // cerr << "editPoints" << editPoints << endl;
         MObject dCurve = curveFn.createWithEditPoints(   editPoints, 3, MFnNurbsCurve::kOpen,
                          true, false, false, curveData, &st);
 
-        JPMDBG;
         MDoubleArray knotVals;
         st = curveFn.getKnots(knotVals);
-        JPMDBG;
         int numKnots =  knotVals.length();
-        cerr << "numKnots:" <<  numKnots << " --- " << knotVals[(numKnots - 1)] << endl;
+        // cerr << "numKnots:" <<  numKnots << " --- " << knotVals[(numKnots - 1)] << endl;
         double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
 
-        JPMDBG;
         for (int i = 0; i < numKnots; ++i)
         {
             knotVals[i] =  knotVals[i] * maxValRecip;
         }
 
-        JPMDBG;
         curveFn.setKnots(knotVals, 0, (numKnots - 1));
-        JPMDBG;
         double curveLength = curveFn.length(epsilon);
-        JPMDBG;
         MVectorArray boundaries;
-        JPMDBG;
         if (! getStrokeBoundaries(dCurve, strokeLength, overlap, splitAngle, splitTestInterval,
                                   boundaries)) {
             continue;
         }
-        JPMDBG;
         for (int strokeId = 0; strokeId < boundaries.length(); ++strokeId) {
             const double &startDist = boundaries[strokeId].x;
             const double &endDist = boundaries[strokeId].y;
@@ -687,7 +678,6 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
                                            customBrushId,
                                            pStrokes);
         }
-        JPMDBG;
     }
 
     return MS::kSuccess;
