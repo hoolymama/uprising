@@ -116,6 +116,12 @@ class ValidateTab(gui.FormLayout):
             numberOfFields=1,
             value1=5)
 
+        self.try_existing_first_cb = pm.checkBoxGrp(
+            label='Try current first',
+            value1=0,
+            annotation='Before trying the set range of values, try the existing value')
+
+
         self.retries_add_objs_btn = pm.button(
             label='Load selected',
             command=pm.Callback(self.on_load_selected))
@@ -292,6 +298,10 @@ class ValidateTab(gui.FormLayout):
         return vals
 
     def fetch_packs(self):
+
+        try_existing = pm.checkBoxGrp(self.try_existing_first_cb, query=True, value1=True)
+
+
         attribute = pm.textFieldGrp(
             self.varying_attrib_wg, query=True, text=True)
 
@@ -303,29 +313,32 @@ class ValidateTab(gui.FormLayout):
             int_field, toggle = pm.formLayout(form, q=True, ca=True)
             frame = pm.intFieldGrp(int_field, q=True, value1=True)
             node = pm.intFieldGrp(int_field, q=True, label=True)
-            active = pm.checkBox(toggle, q=True, value=True)
-            if active:
-                if frame not in result:
-                    result[frame] = []
-                    plug = pm.PyNode(node).attr(attribute)
+            do_retry = pm.checkBox(toggle, q=True, value=True)
+ 
+            if frame not in result:
+                result[frame] = []
 
-                    if plug.get(lock=True):
-                        pm.error("{} is locked. Can't adjust.")
-                    if plug.inputs():
-                        pm.error("{} has input connections. Can't adjust.")
+            plug = pm.PyNode(node).attr(attribute)
 
-                    initial_value = plug.get()
-                    result[frame].append({
-                        "plug": plug,
-                        "values": [initial_value] + vals,
-                        "frame": frame
-                    })
+            if plug.get(lock=True):
+                pm.error("{} is locked. Can't adjust.")
+            if plug.inputs():
+                pm.error("{} has input connections. Can't adjust.")
+
+            initial_values = [plug.get()] if try_existing else []
+
+            result[frame].append({
+                "plug": plug,
+                "values": initial_values + vals,
+                "frame": frame,
+                "do_retry": do_retry
+            })
         return result
 
         # pm.warning("Aborting")
 
     def do_retries(self):
-        start_frame = pm.currentTime(query=True)
+        # start_frame = pm.currentTime(query=True)
 
         packs = self.fetch_packs()
         # print packs
@@ -335,38 +348,40 @@ class ValidateTab(gui.FormLayout):
         results = []
         self.deactivate_all(packs)
         for frame in frames:
-            pm.currentTime(frame)
+            # pm.currentTime(frame)
             pack = packs[frame]
             self.activate_pack(pack)
-            retries_result = self.do_retries_for_pack(pack)
-            results.append(retries_result)
+            if any(entry["do_retry"] for entry in pack):
+                retries_result = self.do_retries_for_pack(pack)
+                results.append(retries_result)
             self.deactivate_pack(pack)
 
         failed = False
         for res in results:
             if not res["solved"]:
                 failed = True
-                print "Frame: {} UNSOLVED".format(res["frame"])
+                print "Pack number: {} UNSOLVED".format(res["frame"])
 
         if not failed:
             print "All frames succeeded"
 
         self.activate_all(packs)
 
-        pm.currentTime(start_frame)
+        # pm.currentTime(start_frame)
         uutl.show_in_window(results, title="Retries results")
 
     def activate_all(self, packs):
         for k in packs:
-            self.activate_pack(packs[k])
+            self.activate_pack(packs[k], True)
 
     def deactivate_all(self, packs):
         for k in packs:
             self.deactivate_pack(packs[k])
 
-    def activate_pack(self, pack):
+    def activate_pack(self, pack, everything=False):
         for entry in pack:
-            entry["plug"].node().attr("active").set(True)
+            if everything==True or  entry["do_retry"]:
+                entry["plug"].node().attr("active").set(True)
 
     def deactivate_pack(self, pack):
         for entry in pack:
