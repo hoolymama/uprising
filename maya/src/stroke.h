@@ -77,6 +77,7 @@ public:
 	  const StrokeRepeatSpec &repeatSpec,
 	  DirectionMethod strokeDirection,
 	  double pivotParam,
+	  double paintFlow,
 	  int strokeId,
 	  int brushId,
 	  int paintId,
@@ -102,6 +103,7 @@ public:
 	  double density,
 	  int minimumPoints,
 	  double pivotParam,
+	  double paintFlow,
 	  int strokeId,
 	  int brushId,
 	  int paintId,
@@ -145,6 +147,8 @@ public:
 	const double &entryLength() const;
 
 	const double &exitLength() const;
+
+	const double &paintFlow() const;
 
 	const Target &pivot() const ;
 
@@ -327,6 +331,7 @@ private:
 	double m_arcLength;
 	double m_entryLength;
 	double m_exitLength;
+	double m_paintFlow;
 
 	TransitionBlendMethod m_transitionBlendMethod;
 	int m_repeatId;

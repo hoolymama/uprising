@@ -19,6 +19,11 @@ global proc AEstrokeNodeInclude ( string $nodeName )
 	editorTemplate -addControl "layerId" ;
 	editorTemplate -endLayout;
 	
+	editorTemplate -cl 0  -beginLayout "Flow";		
+ 	editorTemplate -addControl "paintFlowFactor" ;
+	editorTemplate -endLayout;
+	
+
 	AEbrushPaintOverrideInclude($nodeName, 1);
 
 	editorTemplate -cl 0  -beginLayout "Stroke repeats";		

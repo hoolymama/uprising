@@ -136,13 +136,6 @@ MStatus collectStrokes::initialize()
   MFnEnumAttribute eAttr;
   MFnMatrixAttribute mAttr;
   MFnCompoundAttribute cAttr;
-  // MFnGenericAttribute gAttr;
-
-
-
-
-
-
 
   aStrokes = tAttr.create( "strokes", "stks", strokeData::id );
   tAttr.setReadable(false);
@@ -163,29 +156,6 @@ MStatus collectStrokes::initialize()
   mAttr.setKeyable(true);
   mAttr.setDefault(identity);
   addAttribute(aProjection);
-
-
-
-  // aStrokeCountFactor = nAttr.create( "strokeCountFactor",
-  //                                    "stcf", MFnNumericData::kDouble);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setKeyable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setMax(1.0);
-  // nAttr.setDefault(1.0);
-  // st = addAttribute(aStrokeCountFactor); mser;
-
-  // aSeed = nAttr.create( "seed", "sd", MFnNumericData::kInt);
-  // nAttr.setHidden(false);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setKeyable(true);
-  // nAttr.setDefault(0);
-  // st = addAttribute(aSeed); mser;
-
-
-  ////////////
 
   aStrokeSortKey = eAttr.create("strokeSortKey", "stsk", Stroke::kBrushId);
   eAttr.addField("Id", Stroke::kStrokeId);

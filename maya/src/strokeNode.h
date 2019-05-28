@@ -38,21 +38,6 @@ public:
 protected:
 
 
-
-  // bool findInSortDefinition( Stroke::SortFilterKey key,
-  //                            const std::vector< std::pair <Stroke::SortFilterKey, Stroke::SortDirection> >
-  //                            &sortDefinition)
-
-
-  // bool  hasTexture(const MObject &attribute);
-  // MStatus getTextureName(const MObject &attribute,
-  //                        MString &name) const ;
-  // MStatus  getMappedValues( const std::vector<Stroke> &strokes,
-  //                           const MObject &attribute, MFloatVectorArray &result);
-
-  // MStatus sampleUVTexture(const MString &textureName,   MFloatArray &uVals,
-  //                         MFloatArray &vVals, MFloatVectorArray &result) const;
-
   void getUVs(std::vector<Stroke> &strokePool, MFloatArray &uVals,
               MFloatArray &vVals) const;
 
@@ -116,6 +101,9 @@ protected:
 
   static MObject  aPivotFraction;
   static MObject  aRepeatPivot;
+
+  static MObject  aPaintFlowFactor;
+
 
 
   static MObject  aBrushTiltRangeMin;

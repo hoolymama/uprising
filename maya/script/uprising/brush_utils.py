@@ -63,6 +63,7 @@ def create_brush_geo(**kw):
     geo.attr("shape").set(shape_index)
     geo.attr("transHeightParam").set(kw["trans_param"])
     geo.attr("contactPower").set(kw["contact_power"])
+    geo.attr("customId").set(kw["physical_id"])
 
     return geo
 

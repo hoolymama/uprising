@@ -79,6 +79,9 @@ MObject strokeNode::aSeed;
 
 MObject strokeNode::aStrokeDirection;
 
+MObject strokeNode::aPaintFlowFactor;
+
+
 MObject strokeNode::aEntryLength;
 MObject strokeNode::aExitLength;
 MObject strokeNode::aTransitionBlendMethod;
@@ -195,6 +198,17 @@ MStatus strokeNode::initialize()
   nAttr.setMax(1.0);
   nAttr.setDefault(1.0);
   st = addAttribute(aStrokeCountFactor); mser;
+
+
+  aPaintFlowFactor = nAttr.create( "paintFlowFactor",
+                                   "pffc", MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setMin(0.001);
+  nAttr.setDefault(1.0);
+  st = addAttribute(aPaintFlowFactor); mser;
+
 
 
   aMinimumPoints = nAttr.create("minimumPoints", "mnpts", MFnNumericData::kInt); mser;
@@ -611,6 +625,9 @@ MStatus strokeNode::initialize()
 
   st = attributeAffects(aStrokeDirection, aOutput);
 
+
+
+  st = attributeAffects(aPaintFlowFactor, aOutput);
 
   st = attributeAffects(aRepeats, aOutput);
   st = attributeAffects(aRepeatOffset, aOutput);

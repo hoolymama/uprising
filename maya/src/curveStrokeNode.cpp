@@ -293,6 +293,10 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
 
     double pivotParam = data.inputValue(aPivotFraction).asDouble();
 
+
+    double paintFlow = data.inputValue(aPaintFlowFactor).asDouble();
+
+
     StrokeRotationSpec rotSpec;
     rotSpec.tiltRampAtt =  strokeNode::aBrushTiltRamp;
     rotSpec.bankRampAtt =  strokeNode::aBrushBankRamp;
@@ -375,6 +379,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
                                        repeatSpec,
                                        strokeDirection,
                                        pivotParam,
+                                       paintFlow,
                                        strokeId,
                                        brushId,
                                        paintId,

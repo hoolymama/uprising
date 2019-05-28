@@ -333,11 +333,14 @@ class ValidateTab(gui.FormLayout):
         frames = sorted(packs.keys())
         # print frames
         results = []
+        self.deactivate_all(packs)
         for frame in frames:
             pm.currentTime(frame)
             pack = packs[frame]
+            self.activate_pack(pack)
             retries_result = self.do_retries_for_pack(pack)
             results.append(retries_result)
+            self.deactivate_pack(pack)
 
         failed = False
         for res in results:
@@ -348,9 +351,28 @@ class ValidateTab(gui.FormLayout):
         if not failed:
             print "All frames succeeded"
 
+        self.activate_all(packs)
 
         pm.currentTime(start_frame)
         uutl.show_in_window(results, title="Retries results")
+
+    def activate_all(self, packs):
+        for k in packs:
+            self.activate_pack(packs[k])
+
+    def deactivate_all(self, packs):
+        for k in packs:
+            self.deactivate_pack(packs[k])
+
+    def activate_pack(self, pack):
+        for entry in pack:
+            entry["plug"].node().attr("active").set(True)
+
+    def deactivate_pack(self, pack):
+        for entry in pack:
+            entry["plug"].node().attr("active").set(False)
+
+
 
 
     def do_retries_for_pack(self, pack):

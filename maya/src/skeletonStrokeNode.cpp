@@ -538,6 +538,8 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     bool localContact = data.inputValue(aLocalContact).asBool();
 
 
+    double paintFlow = data.inputValue(aPaintFlowFactor).asDouble();
+
     Stroke::TransitionBlendMethod transitionBlendMethod = Stroke::TransitionBlendMethod(
                 data.inputValue(
                     aTransitionBlendMethod).asShort());
@@ -671,6 +673,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
                                            repeatSpec,
                                            strokeDirection,
                                            pivotParam,
+                                           paintFlow,
                                            strokeId,
                                            selectedBrushId,
                                            paintId,

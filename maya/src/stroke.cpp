@@ -53,6 +53,7 @@ unsigned Stroke::create(
   const StrokeRepeatSpec &repeatSpec,
   DirectionMethod strokeDirection,
   double pivotParam,
+  double paintFlow,
   int strokeId,
   int brushId,
   int paintId,
@@ -83,6 +84,7 @@ unsigned Stroke::create(
 	  pointDensity,
 	  minimumPoints,
 	  pivotParam,
+	  paintFlow,
 	  strokeId,
 	  brushId,
 	  paintId,
@@ -139,6 +141,7 @@ Stroke::Stroke()	:
 	m_arcLength(0),
 	m_entryLength(),
 	m_exitLength(),
+	m_paintFlow(1.0),
 	m_repeatId(),
 	m_arrivals(),
 	m_departure()
@@ -161,6 +164,7 @@ Stroke::Stroke(
   double density,
   int minimumPoints,
   double pivotParam,
+  double paintFlow,
   int strokeId,
   int brushId,
   int paintId,
@@ -175,6 +179,7 @@ Stroke::Stroke(
 	m_entryLength(entryLength),
 	m_exitLength(exitLength),
 	m_transitionBlendMethod(transBlendMethod),
+	m_paintFlow(paintFlow),
 	m_strokeId(strokeId),
 	m_brushId(brushId),
 	m_paintId(paintId),
@@ -421,6 +426,13 @@ const std::vector<Target> &Stroke::targets() const {
 const double &Stroke::arcLength() const {
 	return m_arcLength;
 }
+
+
+
+const double &Stroke::paintFlow() const {
+	return m_paintFlow;
+}
+
 
 unsigned Stroke::size() const {
 	return m_targets.size();
