@@ -108,8 +108,14 @@ def publish_sequence(
         timestamp = get_timestamp(frame)
         ts_dir = get_ts_dir(export_dir, timestamp)
         uutl.mkdir_p(ts_dir)
- 
-        write_maya_scene(ts_dir, timestamp)
+        
+        # Only write maya scene on first frame because
+        # otherwise student version prompts for user input
+        # each time.
+        if frame == frame_range[0]:
+            write_maya_scene(ts_dir, timestamp)
+
+
         write_csv(export_dir, timestamp)
 
         write_ref_image(ts_dir, timestamp)
