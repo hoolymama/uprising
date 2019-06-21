@@ -88,7 +88,7 @@ def publish_sequence(
 ):
 
     # print dip_wipe_packs
-
+    painting_node = pm.PyNode("mainPaintingShape")
     recordings_dir = os.path.join(export_dir, "recordings")
     uutl.mkdir_p(recordings_dir)
     design_dir = os.path.join(export_dir, "design")
@@ -114,6 +114,15 @@ def publish_sequence(
         # each time.
         if frame == frame_range[0]:
             write_maya_scene(ts_dir, timestamp)
+
+        # There can be an error if the painting contains no strokes.
+        # In that case, we just want to skip the frame.    
+        try:
+            pm.paintingQuery(painting_node, cc=True)
+        except RuntimeError as ex:
+            pm.displayWarning(ex.message)
+            continue
+
 
 
         write_csv(export_dir, timestamp)

@@ -339,7 +339,7 @@ class ValidateTab(gui.FormLayout):
 
     def do_retries(self):
         # start_frame = pm.currentTime(query=True)
-
+  
         packs = self.fetch_packs()
         # print packs
 
@@ -351,19 +351,28 @@ class ValidateTab(gui.FormLayout):
             # pm.currentTime(frame)
             pack = packs[frame]
             self.activate_pack(pack)
+
             if any(entry["do_retry"] for entry in pack):
                 retries_result = self.do_retries_for_pack(pack)
                 results.append(retries_result)
             self.deactivate_pack(pack)
 
         failed = False
+        some_empty = False
         for res in results:
             if not res["solved"]:
                 failed = True
                 print "Pack number: {} UNSOLVED".format(res["frame"])
+            else: # solved 
+                if res["attempts"] == -1:
+                    some_empty = True
+
 
         if not failed:
-            print "All frames succeeded"
+            if some_empty:
+                print "All frames succeeded, some were empty"
+            else:
+                print "All frames succeeded"
 
         self.activate_all(packs)
 
@@ -403,6 +412,15 @@ class ValidateTab(gui.FormLayout):
         # painting_node = pm.PyNode("mainPaintingShape")
         print "{0} RUNNING RETRIES FRAME: {1} {0}".format(
             "*" * 20, result["frame"])
+
+        painting_node = pm.PyNode("mainPaintingShape")
+        try:
+            num_clusters = pm.paintingQuery(painting_node, cc=True)
+        except RuntimeError as ex:
+            pm.displayWarning(ex.message)
+            result["solved"] = True
+            return result
+
 
         with uutl.minimize_robodk():
             count = len(pack[0]["values"])
