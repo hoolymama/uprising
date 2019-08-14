@@ -60,7 +60,7 @@ class MainProgram(Program):
         if self.use_gripper:
             if last_brush_id is not None:
 
-                # Slightly Hacky. 
+                # Slightly Hacky.
                 # If using the gripper, but not actually changing the brush,
                 # then don't bother placing and repicking.
                 if last_brush_id == cluster.brush.id:
@@ -102,10 +102,9 @@ class MainProgram(Program):
             self.program.RunInstruction(
                 'WAIT FOR ($IN[2])', INSTRUCTION_INSERT_CODE)
 
-
             last_brush_id = None
             last_paint_id = None
-            
+
             for cluster in self.painting.clusters:
                 if cluster.reason == "tool":
 
@@ -178,7 +177,8 @@ class PapExerciseProgram(Program):
             ###########################
             self.program.Pause()
             self.program.RunInstruction(
-                "About to replace brush {:02d} and go home.".format(last_brush_id),
+                "About to replace brush {:02d} and go home.".format(
+                    last_brush_id),
                 INSTRUCTION_SHOW_MESSAGE)
 
             place_program_name = PlaceProgram.generate_program_name(
@@ -247,6 +247,7 @@ class CalibrationProgram(Program):
         self.use_gripper = use_gripper
         self.RL = Robolink()
         self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
+        self.robot.setParam("PostProcessor", "KUKA KRC4")
         self.brush = self._get_probe_brush()
         if not self.brush:
             raise ProgramError(
@@ -663,7 +664,6 @@ class PickPlaceProgram(Program):
         self.pack = pack
         self.targets = {}
 
-
     def write_brush(self, studio):
 
         old_brush = studio.RL.Item(self.brush.name)
@@ -677,11 +677,9 @@ class PickPlaceProgram(Program):
         studio.robot.setPoseTool(tool_item)
         shape.Delete()
 
-
     def write(self, studio):
         self.frame = studio.pick_place_frame
         super(PickPlaceProgram, self).write()
-
 
         self.write_brush(studio)
         # self.brush.write(studio.RL, studio.robot)
@@ -749,7 +747,6 @@ class PickProgram(PickPlaceProgram):
                 self.pack["ang_speed"])
             self.program.addMoveL(self.pin_target)
 
-
             self.program.RunInstruction(
                 "Gripper closes here", INSTRUCTION_SHOW_MESSAGE)
             self.program.Pause(pause_ms)
@@ -794,7 +791,6 @@ class PlaceProgram(PickPlaceProgram):
                 self.pack["precision_lin_speed"],
                 self.pack["ang_speed"])
             self.program.addMoveL(self.pin_target)
-
 
             self.program.RunInstruction(
                 "Gripper opens here", INSTRUCTION_SHOW_MESSAGE)

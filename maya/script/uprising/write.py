@@ -6,15 +6,13 @@ import datetime
 import pymel.core as pm
 import uprising_util as uutl
 
-from robolink import (Robolink, ITEM_TYPE_STATION,ITEM_TYPE_PROGRAM)
+from robolink import (Robolink, ITEM_TYPE_STATION, ITEM_TYPE_PROGRAM)
 from studio import Studio
 from paint import Paint
 from brush import Brush
 
 import setup_dip
 import callbacks
-
-
 
 
 def split_desc(desc):
@@ -26,9 +24,6 @@ def split_desc(desc):
     if n > 1:
         result[1] = "\n".join(lines[1:])
     return result
-
-
-
 
 
 def publish_proposal(
@@ -84,7 +79,8 @@ def publish_sequence(
     frame_range,
     pause,
     wait,
-    save_unfiltered_snapshot
+    save_unfiltered_snapshot,
+    write_geo
 ):
 
     # print dip_wipe_packs
@@ -104,11 +100,11 @@ def publish_sequence(
 
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
- 
+
         timestamp = get_timestamp(frame)
         ts_dir = get_ts_dir(export_dir, timestamp)
         uutl.mkdir_p(ts_dir)
-        
+
         # Only write maya scene on first frame because
         # otherwise student version prompts for user input
         # each time.
@@ -116,14 +112,12 @@ def publish_sequence(
             write_maya_scene(ts_dir, timestamp)
 
         # There can be an error if the painting contains no strokes.
-        # In that case, we just want to skip the frame.    
+        # In that case, we just want to skip the frame.
         try:
             pm.paintingQuery(painting_node, cc=True)
         except RuntimeError as ex:
             pm.displayWarning(ex.message)
             continue
-
-
 
         write_csv(export_dir, timestamp)
 
@@ -133,12 +127,13 @@ def publish_sequence(
         RL = Robolink()
         # clean_rdk()
         studio = Studio(
-            do_painting=True, 
+            do_painting=True,
             do_dips=True,
             do_pick_and_place=use_gripper,
+            do_rack_and_holder_geo=write_geo,
             pause=pause,
             wait=wait)
-    
+
         studio.write()
         write_program(RL, ts_dir, "px", timestamp)
 
@@ -149,7 +144,7 @@ def publish_sequence(
 
         # publish_robodk_painting( ts_dir, timestamp, auto)
 
- 
+
 def choose_publish_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'export')
     entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
@@ -265,26 +260,25 @@ def write_program(RL, ts_dir, progname, timestamp):
     for item in sel:
         print "Item:", item.Name()
 
- 
     # print "WRITING"
     prog_filename = "%s_%s" % (progname.upper(), timestamp)
     print "prog_filename", prog_filename
     program = RL.Item(progname, ITEM_TYPE_PROGRAM)
-    print "program" , program
-    print "program.Name()" , program.Name()
+    print "program", program
+    print "program.Name()", program.Name()
     program.setName(prog_filename)
     program.MakeProgram(ts_dir)
     program.setName(progname)
-    print "ts_dir" , ts_dir
-    
+    print "ts_dir", ts_dir
+
     if program.Valid():
-        print "VALID" 
-        # 
+        print "VALID"
+        #
         # program.setName(prog_filename)
         # program.MakeProgram(ts_dir)
         # program.setName(progname)
     else:
-        print "INVALID" 
+        print "INVALID"
 
 
 def write_station(RL, ts_dir, timestamp):
@@ -302,8 +296,8 @@ def write_maya_scene(ts_dir, timestamp):
 
 def used_paints_and_brushes(painting_node):
     dc = pm.paintingQuery(painting_node, dc=True)
-    bids =  dc[::2]
-    pids =  dc[1::2]
+    bids = dc[::2]
+    pids = dc[1::2]
     paints = Paint.paints(painting_node)
     brushes = Brush.brushes(painting_node)
     used_paints = [paints[_id] for _id in pids]
@@ -335,12 +329,14 @@ def painting_stats(node):
         "avg_stroke_travel_per_cluster": avg_travel_per_cluster
     }
     return result
- 
+
+
 def used_brushes(painting_node):
     ids = pm.paintingQuery(painting_node, dc=True)[0::2]
     ids = sorted(set(ids))
     brushes = Brush.brushes(painting_node)
     return [brushes[_id] for _id in ids]
+
 
 def used_paints(painting_node):
     ids = pm.paintingQuery(painting_node, dc=True)[1::2]
@@ -349,13 +345,11 @@ def used_paints(painting_node):
     return [paints[_id] for _id in ids]
 
 
- 
-
-def write_log( ts_dir, timestamp, frame):
+def write_log(ts_dir, timestamp, frame):
 
     painting_node = pm.PyNode("mainPaintingShape")
     dip_combos = setup_dip.dip_combinations()
- 
+
     pnt_stats = painting_stats(painting_node)
     # dip_stats = painting_stats(dip_node)
 
@@ -377,19 +371,21 @@ def write_log( ts_dir, timestamp, frame):
         the_file.write("\n")
         the_file.write("Brush + aint pairs:\n")
         for brush, paint in brush_paint_pairs:
-            the_file.write("{}({:02d}) + {}({:02d})".format(brush.node_name, brush.id, paint.name, paint.id))
+            the_file.write(
+                "{}({:02d}) + {}({:02d})".format(brush.node_name, brush.id, paint.name, paint.id))
         the_file.write("\n")
 
         the_file.write("\n")
         the_file.write("Used brushes:\n")
         for brush in used_brushes(painting_node):
             the_file.write("{}({:02d})".format(brush.node_name, brush.id))
- 
+
         the_file.write("\n")
         the_file.write("Used paints:\n")
         for paint in used_paints(painting_node):
             the_file.write("{}({:02d})".format(paint.name, paint.id))
- 
+
+
 def write_info(
         painting_node,
         proposals_dir,

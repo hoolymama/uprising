@@ -50,7 +50,7 @@ class PublishTab(gui.FormLayout):
 
         self.gripper_wait_cb = pm.checkBox(
             label='Wait for user',
-            value=1,
+            value=0,
             annotation='Make the gripper wait for user confirmations before shutting',
             changeCommand=pm.Callback(self.on_wait_cb_change))
 
@@ -61,6 +61,11 @@ class PublishTab(gui.FormLayout):
             annotation='Make the gripper pause before and after gripping or releasing',)
 
         pm.setParent('..')
+
+        self.write_geo_cb = pm.checkBox(
+            label='Write rack and holder geo (slow)',
+            value=0,
+            annotation='Write out the geo to Robodk. It adds extra time so best to only do it when testing a single chunk')
 
         self.anim_row = pm.rowLayout(height=30,
                                      numberOfColumns=2,
@@ -196,6 +201,9 @@ class PublishTab(gui.FormLayout):
 
     def on_go(self):
 
+        write_geo = pm.checkBox(
+            self.write_geo_cb, query=True, value=True)
+
         export_dir = write.choose_publish_dir()
         if not export_dir:
             return
@@ -212,5 +220,6 @@ class PublishTab(gui.FormLayout):
             frames,
             pause,
             wait,
-            save_unfiltered_snapshot
+            save_unfiltered_snapshot,
+            write_geo
         )

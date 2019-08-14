@@ -25,6 +25,7 @@ def send_object(node, parent):
     """
     RL = Robolink()
     robot = RL.Item('', ITEM_TYPE_ROBOT)
+    robot.setParam("PostProcessor", "KUKA KRC4")
     name = node.name()
 
     if isinstance(node, pm.nodetypes.Transform):
@@ -50,10 +51,11 @@ def send_object(node, parent):
         shape.setColor(list(color))
         shape.setVisible(True, visible_frame=False)
 
+
 def mesh_triangles(node):
     meshes = pm.PyNode(node).getChildren(allDescendents=True, type="mesh")
     triangles = []
-    for mesh in meshes:    
+    for mesh in meshes:
         points = mesh.getPoints(space='world')
         _, vids = mesh.getTriangles()
         for vid in vids:
@@ -86,7 +88,7 @@ def send_selected():
 
 #     data = pm.brushQuery -tri -w  "bpx_2_portrait_set_B9_6mm_new9_roundShape";
 
-    
+
 #     for t in triangles:
 #     for vid in vids:
 #         triangles.append(
@@ -95,6 +97,3 @@ def send_selected():
 #     shape.setParent(parent)
 #     shape.setName(name)
 #     shape.setVisible(True, visible_frame=False)
-
-
-

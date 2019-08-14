@@ -1,3 +1,8 @@
+from robolink import (
+    Robolink,
+    ITEM_TYPE_ROBOT,
+    ITEM_TYPE_TOOL,
+    ITEM_TYPE_PROGRAM)
 import sys
 import os
 import errno
@@ -16,11 +21,6 @@ CLEAN_FILE = os.path.join(
     "robodk",
     "clean.rdk")
 
-from robolink import (
-    Robolink,
-    ITEM_TYPE_ROBOT,
-    ITEM_TYPE_TOOL,
-    ITEM_TYPE_PROGRAM)
 
 # RL = Robolink()
 
@@ -52,7 +52,7 @@ def minimize_robodk():
         raise t, v, tb
     finally:
         RL.ShowRoboDK()
- 
+
 
 # @contextmanager
 # def minimize_robodk():
@@ -67,18 +67,17 @@ def minimize_robodk():
 #     # RL.ShowRoboDK()
 
 
-
-
 @contextmanager
 def at_height(node, h):
-    old =  node.attr("tz").get() 
+    old = node.attr("tz").get()
     node.attr("tz").set(h)
     yield
     node.attr("tz").set(old)
 
+
 @contextmanager
 def at_position(node, x, y, z):
-    old =  node.attr("t").get() 
+    old = node.attr("t").get()
     node.attr("t").set(x, y, z)
     yield
     node.attr("t").set(old)
@@ -89,10 +88,10 @@ def final_position(*nodes):
     remember = []
     for node in nodes:
         asy = assembly(node)
-        remember.append([asy, asy.attr("zeroPosition").get()]) 
+        remember.append([asy, asy.attr("zeroPosition").get()])
         asy.attr("zeroPosition").set(False)
     yield
-    for asy , rem in remember:
+    for asy, rem in remember:
         asy.attr("zeroPosition").set(rem)
 
 
@@ -257,6 +256,7 @@ def create_frame(name, force=True):
     frame.setPose(rdk.eye())
     return frame
 
+
 def delete_tools():
     RL = Robolink()
     for t in RL.ItemList(filter=ITEM_TYPE_TOOL):
@@ -286,6 +286,7 @@ def config_000_poses(pose):
     configs = {}
     result = []
     robot = RL.Item('', ITEM_TYPE_ROBOT)
+    robot.setParam("PostProcessor", "KUKA KRC4")
     ik = robot.SolveIK_All(pose)
     siz = ik.size()
     if not (ik and siz[0] and siz[1] and (len(ik.list()) > 5)):
@@ -303,9 +304,8 @@ def _create_joint_target(obj, name, frame):
     robot = RL.Item('', ITEM_TYPE_ROBOT)
     mat = obj.attr("worldMatrix[0]").get()
 
- 
     mat = maya_to_robodk_mat(mat)
- 
+
     joint_poses = config_000_poses(mat)
     if not joint_poses:
         raise Exception(
@@ -327,14 +327,14 @@ def clean_rdk():
         station.Delete()
     RL.AddFile(CLEAN_FILE)
 
+
 def show_in_window(data, **kw):
-    title= kw.get("title", "Window")
-    result_json = json.dumps( data , indent=2)
+    title = kw.get("title", "Window")
+    result_json = json.dumps(data, indent=2)
     pm.window(width=600,  height=800, title=title)
     pm.frameLayout(cll=False, lv=False)
     pm.scrollField(text=result_json, editable=False, wordWrap=False)
     pm.showWindow()
-
 
 
 # def config_first_pose(pose):
@@ -352,7 +352,3 @@ def show_in_window(data, **kw):
 #         if key == "000":
 #             result.append(joint_pose)
 #     return result
-
-
-
-

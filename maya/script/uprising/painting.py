@@ -17,6 +17,7 @@ class Painting(object):
     def __init__(self, node):
         self.RL = Robolink()
         self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
+        self.robot.setParam("PostProcessor", "KUKA KRC4")
         self.node = node
         self.brushes = Brush.used_brushes(node)
         self.paints = Paint.paints(node)
