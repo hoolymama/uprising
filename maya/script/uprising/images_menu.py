@@ -17,7 +17,33 @@ def create():
         label="Publish snapshot",
         command=pm.Callback(make_snapshot))
 
+    # pm.menuItem(
+    #     label="Prepare face detection",
+    #     command=pm.Callback(detect_face))
+
     return menu
+
+
+# def detect_face():
+#     nodes = pm.ls(selection=True, type="cImgFile")
+#     if len(nodes):
+#         fn = pm.PyNode("cImgFile1").attr("imageFilename").get()
+#     else:
+#         images_dir = os.path.join(pm.workspace.getPath(), 'sourceimages')
+#         entries = pm.fileDialog2(
+#             caption="Choose Image file",
+#             okCaption="Open",
+#             fileFilter="*.*",
+#             dialogStyle=2,
+#             fileMode=1,
+#             dir=images_dir)
+#         if not entries:
+#             pm.displayWarning('Nothing Selected')
+#             return
+#         else:
+#             fn = entries[0]
+#     print fn
+#     images.detect_face(fn)
 
 
 def make_snapshot():
@@ -92,5 +118,22 @@ def show_image_in_monitor():
             else:
                 pack["shader"] = _make_and_connect_shader(att)
             swatches.append(pack)
+
+    try:
+        attr = o.attr("outColor")
+        swatches.append({
+            "attr": attr,
+            "shader": o
+        })
+    except:
+        try:
+            attr = o.attr("output")
+            swatches.append({
+                "attr": attr,
+                "shader": o
+            })
+        except:
+            pass
+        pass
 
     _make_swatch_ui(swatches)

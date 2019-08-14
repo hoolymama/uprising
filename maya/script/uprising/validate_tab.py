@@ -20,7 +20,7 @@ class ValidateTab(gui.FormLayout):
     def __init__(self):
         self.setNumberOfDivisions(100)
         pm.setParent(self)
- 
+
         self.simple_ui = self.create_simple_ui()
         pm.setParent(self)
         self.retries_ui = self.create_retries_ui()
@@ -98,7 +98,7 @@ class ValidateTab(gui.FormLayout):
             label='Attribute', text='splitAngle')
 
         self.varying_range_wg = pm.floatFieldGrp(
-            numberOfFields=2, label='Range', value1=0, value2=360.0)
+            numberOfFields=2, label='Range', value1=270, value2=0.0)
 
         self.varying_step_type_wg = pm.radioButtonGrp(
             label='Step Type',
@@ -114,13 +114,12 @@ class ValidateTab(gui.FormLayout):
         self.num_retries_wg = pm.intFieldGrp(
             label='Attempts',
             numberOfFields=1,
-            value1=5)
+            value1=12)
 
         self.try_existing_first_cb = pm.checkBoxGrp(
             label='Try current first',
             value1=0,
             annotation='Before trying the set range of values, try the existing value')
-
 
         self.retries_add_objs_btn = pm.button(
             label='Load selected',
@@ -208,8 +207,6 @@ class ValidateTab(gui.FormLayout):
 
         print json.dumps(packs, indent=2)
 
-  
-
     def _get_frames(self):
         current_only = pm.checkBox(
             self.current_frame_cb, query=True, value=True)
@@ -264,8 +261,9 @@ class ValidateTab(gui.FormLayout):
         except Exception:
             t, v, tb = sys.exc_info()
             if result:
-                uutl.show_in_window(result, title="Simple validation results (incomplete)")
-            raise t, v, tb 
+                uutl.show_in_window(
+                    result, title="Simple validation results (incomplete)")
+            raise t, v, tb
         else:
             if result:
                 uutl.show_in_window(result, title="Simple validation results")
@@ -277,9 +275,6 @@ class ValidateTab(gui.FormLayout):
     #     pm.frameLayout(cll=False, lv=False)
     #     pm.scrollField(text=result_json, editable=False, wordWrap=False)
     #     pm.showWindow()
-
-
-
 
     def get_step_values(self):
         count = pm.intFieldGrp(self.num_retries_wg, query=True, value1=True)
@@ -299,8 +294,8 @@ class ValidateTab(gui.FormLayout):
 
     def fetch_packs(self):
 
-        try_existing = pm.checkBoxGrp(self.try_existing_first_cb, query=True, value1=True)
-
+        try_existing = pm.checkBoxGrp(
+            self.try_existing_first_cb, query=True, value1=True)
 
         attribute = pm.textFieldGrp(
             self.varying_attrib_wg, query=True, text=True)
@@ -314,7 +309,7 @@ class ValidateTab(gui.FormLayout):
             frame = pm.intFieldGrp(int_field, q=True, value1=True)
             node = pm.intFieldGrp(int_field, q=True, label=True)
             do_retry = pm.checkBox(toggle, q=True, value=True)
- 
+
             if frame not in result:
                 result[frame] = []
 
@@ -339,7 +334,7 @@ class ValidateTab(gui.FormLayout):
 
     def do_retries(self):
         # start_frame = pm.currentTime(query=True)
-  
+
         packs = self.fetch_packs()
         # print packs
 
@@ -363,10 +358,9 @@ class ValidateTab(gui.FormLayout):
             if not res["solved"]:
                 failed = True
                 print "Pack number: {} UNSOLVED".format(res["frame"])
-            else: # solved 
+            else:  # solved
                 if res["attempts"] == -1:
                     some_empty = True
-
 
         if not failed:
             if some_empty:
@@ -389,15 +383,12 @@ class ValidateTab(gui.FormLayout):
 
     def activate_pack(self, pack, everything=False):
         for entry in pack:
-            if everything==True or  entry["do_retry"]:
+            if everything == True or entry["do_retry"]:
                 entry["plug"].node().attr("active").set(True)
 
     def deactivate_pack(self, pack):
         for entry in pack:
             entry["plug"].node().attr("active").set(False)
-
-
-
 
     def do_retries_for_pack(self, pack):
         """"""
@@ -420,7 +411,6 @@ class ValidateTab(gui.FormLayout):
             pm.displayWarning(ex.message)
             result["solved"] = True
             return result
-
 
         with uutl.minimize_robodk():
             count = len(pack[0]["values"])
@@ -454,7 +444,6 @@ class ValidateTab(gui.FormLayout):
 
         return result
 
-
   # def validate_path(self, program):
     #     RL = Robolink()
     #     update_result = program.Update(COLLISION_OFF)
@@ -487,7 +476,6 @@ class ValidateTab(gui.FormLayout):
 #             for k in metadata:
 #                 text += "%s : %s\n" % (k, metadata[k])
 #         return text
-
 
     # def old_do_retries(self):
     #     """Repetitively retry with different values until success."""

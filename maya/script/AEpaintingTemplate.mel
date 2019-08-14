@@ -19,6 +19,11 @@ source "AEpaintingStrokes";
 	editorTemplate -addControl "approachDistance";
 	editorTemplate -endLayout;
 
+	editorTemplate -cl 0 -beginLayout "Parent Id Behaviour";
+	editorTemplate -addControl "reassignParentId";
+	editorTemplate -endLayout;
+
+
 	editorTemplate -cl 0 -beginLayout "Display Attributes";
 	editorTemplate -addControl "pointSize"; 
 	editorTemplate -addControl "lineLength";

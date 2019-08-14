@@ -2,7 +2,6 @@
 #ifndef _paintingNODE_H
 #define _paintingNODE_H
 
-
 #include <maya/MPxLocatorNode.h>
 #include <maya/MFloatArray.h>
 #include <maya/MVector.h>
@@ -23,7 +22,6 @@
 #include "paint.h"
 #include "stroke.h"
 
-
 class painting : public MPxLocatorNode
 {
 public:
@@ -41,20 +39,25 @@ public:
 
   virtual MBoundingBox boundingBox() const;
 
-  virtual void draw(  M3dView &view,
-                      const MDagPath &path,
-                      M3dView::DisplayStyle style,
-                      M3dView:: DisplayStatus status  );
+  virtual void draw(M3dView &view,
+                    const MDagPath &path,
+                    M3dView::DisplayStyle style,
+                    M3dView::DisplayStatus status);
 
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
-
-  static  MTypeId   id;
-  static  MString   drawDbClassification;
-  static  MString   drawRegistrantId;
+  static MTypeId id;
+  static MString drawDbClassification;
+  static MString drawRegistrantId;
 
   // enum Spac { kParametric, kArcLen };
-  enum TargetDisplay {kTargetsNone, kTargetsPoint, kTargetsLine, kTargetsMatrix };
+  enum TargetDisplay
+  {
+    kTargetsNone,
+    kTargetsPoint,
+    kTargetsLine,
+    kTargetsMatrix
+  };
 
   // enum StrokeSortFilterKey {
   //   kId,
@@ -70,52 +73,46 @@ public:
   //   kCustomPaintId
   // };
 
-
   // enum StrokeSortDirection { kSortAscending,  kSortDescending};
 
   static MObject aInMatrix;
 
 private:
-
   MStatus collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes);
 
   MStatus addStrokes(MDataBlock &data, paintingGeom *pGeom);
 
-  void setWireDrawColor(M3dView &view,  M3dView::DisplayStatus status);
+  void setWireDrawColor(M3dView &view, M3dView::DisplayStatus status);
 
   void drawWireframeTargets(const paintingGeom &geom, M3dView &view,
-                            const MDagPath &path, M3dView::DisplayStatus status );
+                            const MDagPath &path, M3dView::DisplayStatus status);
 
-  void drawWireframeBorders( const paintingGeom &geom, M3dView &view,
-                             const MDagPath &path, M3dView::DisplayStatus status );
+  void drawWireframeBorders(const paintingGeom &geom, M3dView &view,
+                            const MDagPath &path, M3dView::DisplayStatus status);
 
   void drawWireframe(const paintingGeom &geom, M3dView &view, const MDagPath &path,
-                     M3dView::DisplayStatus status ) ;
+                     M3dView::DisplayStatus status);
 
   void drawWireframeArrows(
-    const paintingGeom &geom, M3dView &view,
-    const MDagPath &path,
-    M3dView:: DisplayStatus status );
+      const paintingGeom &geom, M3dView &view,
+      const MDagPath &path,
+      M3dView::DisplayStatus status);
 
   void drawWireframeClusterPath(
-    const paintingGeom &geom, M3dView &view,
-    const MDagPath &path, M3dView::DisplayStatus status );
+      const paintingGeom &geom, M3dView &view,
+      const MDagPath &path, M3dView::DisplayStatus status);
 
-
-
-
-
-  void  drawWireframePivots(
-    const paintingGeom &geom, M3dView &view,
-    const MDagPath &path,
-    M3dView:: DisplayStatus status );
+  void drawWireframePivots(
+      const paintingGeom &geom, M3dView &view,
+      const MDagPath &path,
+      M3dView::DisplayStatus status);
 
   void drawIds(const paintingGeom &geom, M3dView &view,
                const MDagPath &path,
-               M3dView:: DisplayStatus status );
+               M3dView::DisplayStatus status);
 
   void drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
-                  M3dView::DisplayStatus status ) ;
+                  M3dView::DisplayStatus status);
 
   static MObject aStrokes;
 
@@ -127,111 +124,74 @@ private:
   static MObject aRotateOrder;
   static MObject aOutputUnit;
 
-
-
   static MObject aPlaneMatrix;
   static MObject aDisplacementMesh; // cm
 
-
-  static MObject aLinearSpeed; // cm/sec
-  static MObject aAngularSpeed; // per sec
-  static MObject aApproximationDistance; // cm
+  static MObject aLinearSpeed;             // cm/sec
+  static MObject aAngularSpeed;            // per sec
+  static MObject aApproximationDistance;   // cm
   static MObject aMaxPointToPointDistance; // cm
 
+  static MObject aBrushes;
 
-  static MObject  aBrushes;
-
-  static MObject  aPaintColorR;
-  static MObject  aPaintColorG;
-  static MObject  aPaintColorB;
-  static MObject  aPaintColor;
-  static MObject  aPaintOpacity;
-  static MObject  aPaintTravel;
-  static MObject  aPaintCustomId;
-  static MObject  aPaints;
-
-
+  static MObject aPaintColorR;
+  static MObject aPaintColorG;
+  static MObject aPaintColorB;
+  static MObject aPaintColor;
+  static MObject aPaintOpacity;
+  static MObject aPaintTravel;
+  static MObject aPaintCustomId;
+  static MObject aPaints;
 
   paintingData *m_pd;
 
   // Public because it's needed by PaintingtDrawOverride
 public:
+  static MObject aReassignParentId;
+  static MObject aPointSize;
+  static MObject aLineLength;
+  static MObject aLineThickness;
+  static MObject aDisplayTargets;
 
+  static MObject aDisplayClusterPath;
+  static MObject aDisplayPivots;
 
-  static MObject  aPointSize;
-  static MObject  aLineLength;
-  static MObject  aLineThickness;
-  static MObject  aDisplayTargets;
+  static MObject aDisplayIds;
+  static MObject aDisplayParentIds;
+  static MObject aDisplayLayerIds;
+  static MObject aDisplayBrushIds;
+  static MObject aDisplayPaintIds;
+  static MObject aDisplayRepeatIds;
 
-  static MObject  aDisplayClusterPath;
-  static MObject  aDisplayPivots;
+  static MObject aIdDisplayOffset;
+  static MObject aDisplayContactWidth;
 
-  static MObject  aDisplayIds;
-  static MObject  aDisplayParentIds;
-  static MObject  aDisplayLayerIds;
-  static MObject  aDisplayBrushIds;
-  static MObject  aDisplayPaintIds;
-  static MObject  aDisplayRepeatIds;
+  static MObject aArrowheadSize;
 
-  static MObject  aIdDisplayOffset;
-  static MObject  aDisplayContactWidth;
-
-  static MObject  aArrowheadSize;
-
-  static MObject  aStackGap;
+  static MObject aStackGap;
 
   static MObject aOutput;
-
-
-
-
 };
-
 
 namespace paintingCallback
 {
-static  MCallbackId id;
+static MCallbackId id;
 
-static void makeDefaultConnections(  MObject &node, void *clientData )
+static void makeDefaultConnections(MObject &node, void *clientData)
 {
 
-  MPlug wmPlugmulti( node, painting::worldMatrix );
-  MPlug wm( wmPlugmulti.elementByLogicalIndex( 0 ) );
-  MPlug mt( node, painting::aInMatrix );
+  MPlug wmPlugmulti(node, painting::worldMatrix);
+  MPlug wm(wmPlugmulti.elementByLogicalIndex(0));
+  MPlug mt(node, painting::aInMatrix);
 
   MDGModifier mod;
-  mod.connect( wm, mt );
+  mod.connect(wm, mt);
   MStatus stat = mod.doIt();
   if (stat != MS::kSuccess)
   {
     stat.perror("painting ERROR :: callback unable to make matrix connections");
   }
-
-
-
-
 }
-}
-
+} // namespace paintingCallback
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

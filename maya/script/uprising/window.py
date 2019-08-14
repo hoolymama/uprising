@@ -8,8 +8,8 @@ from uprising import (
     publish_tab,
     brush_assign_tab,
     brush_test_tab,
-    
-    
+
+
     # rings_design_tab,
     # rings_setup_tab,
     # proposal_tab,
@@ -19,7 +19,7 @@ from uprising import (
     images_menu,
     palette_menu,
     info_menu,
-    
+
     tool_type_menu,
     calibration_menu
 )
@@ -55,7 +55,7 @@ import brush_utils
 # import board_utils
 
 # import props
-# import images
+import images
 
 # reload(program)
 # reload(studio)
@@ -96,10 +96,15 @@ reload(brush_test_tab)
 reload(info_menu)
 
 reload(curves_menu)
-# reload(images_menu)
-# reload(export_menu)
+
+reload(images_menu)
+
+reload(images)
+
+# reload(export_menu)s
 # reload(palette_menu)
 reload(calibration_menu)
+
 
 # reload(tool_type_menu)
 
@@ -120,7 +125,6 @@ class RobotWindow(gui.Window):
         self.setIconName('Robot Tools')
         self.setWidthHeight([500, 500])
 
-
         self.menuBarLayout = pm.menuBarLayout()
 
         self.tabs = pm.tabLayout(
@@ -131,21 +135,13 @@ class RobotWindow(gui.Window):
         self.setup_tab = setup_tab.SetupTab()
         self.tabs.setTabLabel((self.setup_tab, "Setup"))
 
-
-
         pm.setParent(self.tabs)
         self.brush_test_tab = brush_test_tab.BrushTestTab()
         self.tabs.setTabLabel((self.brush_test_tab, "Brush test"))
 
-
-
-
         pm.setParent(self.tabs)
         self.brush_assign_tab = brush_assign_tab.BrushAssignTab()
         self.tabs.setTabLabel((self.brush_assign_tab, "Assign brushes"))
-
-
-
 
         pm.setParent(self.tabs)
         self.painting_tab = painting_tab.PaintingTab()
@@ -181,7 +177,6 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.info_menu = info_menu.create()
-
 
         pm.setParent(self.menuBarLayout)
         self.calibration_menu = calibration_menu.create()
