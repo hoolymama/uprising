@@ -25,7 +25,7 @@ def send_object(node, parent):
     """
     RL = Robolink()
     robot = RL.Item('', ITEM_TYPE_ROBOT)
-    robot.setParam("PostProcessor", "KUKA KRC4")
+    robot.setParam("PostProcessor", "KUKA KRC4_RN")
     name = node.name()
 
     if isinstance(node, pm.nodetypes.Transform):

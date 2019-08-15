@@ -316,14 +316,14 @@ def save_prog():
     ddir = "/Users/julian/projects/robot/export/"
     prog_filename = "PX_%s" % timestamp
 
-    RL.ProgramStart(prog_filename, ddir, "KUKA_KRC4_RN", robot)
+    RL.ProgramStart(prog_filename, ddir, "KUKA_KRC4_RN_RN", robot)
     # RL.RunProgram('px', True)
     robot.RunInstruction("px", INSTRUCTION_CALL_PROGRAM)
     # RL.RunMessage("tgt")
     RL.Finish()
 
 
-# RL.ProgramStart("px_file", folder, "KUKA_KRC4_RN", robot)
+# RL.ProgramStart("px_file", folder, "KUKA_KRC4_RN_RN", robot)
 # robot.RunInstruction('AutoProgram', INSTRUCTION_CALL_PROGRAM)
 # RL.Render(True)
 # RL.Finish()
@@ -332,7 +332,7 @@ def save_prog():
 # station = os.path.join(ts_dir, "%s.rdk" % timestamp)
 # RL.Save(station)
 
-# RL.ProgramStart(prog_filename, ts_dir, "KUKA_KRC4_RN", robot)
+# RL.ProgramStart(prog_filename, ts_dir, "KUKA_KRC4_RN_RN", robot)
 # print "ProgramStart %s" % ts_dir
 # RL.Render(False)
 # print "Render False - now run"
@@ -456,7 +456,7 @@ def save_prog():
 # folder = "/Users/julian/projects/robot/export"
 # # program = RL.Item("px")
 # # print program.Valid()
-# RL.ProgramStart("px_file", folder, "KUKA_KRC4_RN", robot)
+# RL.ProgramStart("px_file", folder, "KUKA_KRC4_RN_RN", robot)
 # robot.RunInstruction('AutoProgram', INSTRUCTION_CALL_PROGRAM)
 # RL.Render(True)
 # RL.Finish()
@@ -465,7 +465,7 @@ def save_prog():
 # station = os.path.join(ts_dir, "%s.rdk" % timestamp)
 # RL.Save(station)
 
-# RL.ProgramStart(prog_filename, ts_dir, "KUKA_KRC4_RN", robot)
+# RL.ProgramStart(prog_filename, ts_dir, "KUKA_KRC4_RN_RN", robot)
 # print "ProgramStart %s" % ts_dir
 # RL.Render(False)
 # print "Render False - now run"

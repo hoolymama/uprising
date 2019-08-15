@@ -286,7 +286,7 @@ def config_000_poses(pose):
     configs = {}
     result = []
     robot = RL.Item('', ITEM_TYPE_ROBOT)
-    robot.setParam("PostProcessor", "KUKA KRC4")
+    robot.setParam("PostProcessor", "KUKA KRC4_RN")
     ik = robot.SolveIK_All(pose)
     siz = ik.size()
     if not (ik and siz[0] and siz[1] and (len(ik.list()) > 5)):

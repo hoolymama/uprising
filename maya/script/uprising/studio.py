@@ -59,7 +59,7 @@ class Studio(object):
         uutl.clean_rdk()
         self.RL = Robolink()
         self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
-        self.robot.setParam("PostProcessor", "KUKA KRC4")
+        self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
         self.approaches_frame = None
         self.dip_approach = None
         self.tool_approach = None
@@ -104,6 +104,10 @@ class Studio(object):
         # Must explicitly ask for pick and place to be generated, even
         # if gripper on. Otherwise we can't do partials, like validation.
         do_pick_and_place = kw.get("do_pick_and_place") and use_gripper
+        print "kw.get(do_pick_and_place)", kw.get("do_pick_and_place")
+        print "use_gripper", use_gripper
+
+        print "do_pick_and_place", do_pick_and_place
 
         if do_painting:
             logger.debug("Studio: main_painting")
@@ -190,6 +194,10 @@ class Studio(object):
         return result
 
     def _build_pick_place_programs(self, brush_ids):
+        print("_build_pick_place_programs")
+        print("brush_ids")
+        print(brush_ids)
+
         gripper_geo = butl.setup_gripper_from_sheet()
         gripper = Brush.brush_at_plug(
             0, gripper_geo.attr("outPaintBrush"))
@@ -202,6 +210,9 @@ class Studio(object):
         result = []
         for p in packs:
             pack = packs[p]
+            print "Pack"
+            print pack
+
             pick_prg = PickProgram(gripper, pack)
             place_prg = PlaceProgram(gripper, pack)
             result += [pick_prg, place_prg]

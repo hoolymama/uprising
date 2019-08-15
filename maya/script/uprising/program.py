@@ -247,7 +247,7 @@ class CalibrationProgram(Program):
         self.use_gripper = use_gripper
         self.RL = Robolink()
         self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
-        self.robot.setParam("PostProcessor", "KUKA KRC4")
+        self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
         self.brush = self._get_probe_brush()
         if not self.brush:
             raise ProgramError(
