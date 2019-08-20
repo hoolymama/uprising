@@ -81,9 +81,6 @@ def create():
 
 
 def generate_pick_place_exercise():
-    if not pm.optionVar.get("upov_tool_type") == "gripper":
-        pm.error(
-            "Can't generate pick and place without gripper. Set it in robot tools menu.")
 
     timestamp = write.get_timestamp()
     ppdir = os.path.join(
@@ -93,10 +90,11 @@ def generate_pick_place_exercise():
         k.PAP_EXERCISE_PROGRAM_NAME,
         timestamp)
     uutl.mkdir_p(ppdir)
-    studio = Studio(do_pap_exercise=True)
+    studio = Studio(do_pap_exercise=True, pick_and_place_slots="all")
     studio.write()
 
-    write.write_program(Robolink(), ppdir, k.PAP_EXERCISE_PROGRAM_NAME, timestamp)
+    write.write_program(Robolink(), ppdir,
+                        k.PAP_EXERCISE_PROGRAM_NAME, timestamp)
 
 
 def _read_triangulation(sheet_range):
@@ -122,19 +120,15 @@ def _read_triangulation(sheet_range):
 
 def _generate_calibration(which, *reference_geo):
 
-    # Even if use_gripper is ON here, it may be off in the spreadsheet,
-    # and then the Studio will error out. This gripper/bayonete choice
-    # logic really needs a cleanup.
-    use_gripper = pm.optionVar.get("upov_tool_type") == "gripper"
     kw = {
-        "do_manual_triangulation": which == k.TRI_CALIBRATION_PROGRAM_NAME,
+        "do_perspex_triangulation": which == k.TRI_CALIBRATION_PROGRAM_NAME,
         "do_pot_calibration": which == k.POT_CALIBRATION_PROGRAM_NAME,
         "do_holder_calibration": which == k.HOLDER_CALIBRATION_PROGRAM_NAME,
         "do_board_calibration": which == k.BOARD_CALIBRATION_PROGRAM_NAME,
         "do_perspex_calibration": which == k.PERSPEX_CALIBRATION_PROGRAM_NAME,
-        "do_pick_and_place": use_gripper
+        "pick_and_place_slots": [0],  # all, used, specific ids
+        "pause": -1
     }
- 
 
     timestamp = write.get_timestamp()
     calib_dir = os.path.join(

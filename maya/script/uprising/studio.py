@@ -20,6 +20,7 @@ from robolink import (
 from program import (
     MainProgram,
     DipProgram,
+    SlopProgram,
     PotCalibration,
     HolderCalibration,
     BoardCalibration,
@@ -34,12 +35,6 @@ import brush_utils as butl
 from brush import Brush
 import logging
 logger = logging.getLogger('uprising')
-
-
-# from painting import Calibration
-
-# from contextlib import contextmanager
-# import stroke_factory_utils as sfu
 
 
 DIP_TARGET = "dipTarget"
@@ -73,109 +68,77 @@ class Studio(object):
         self.manual_tri_program = None
 
         self.dip_programs = []
+        self.slop_programs = []
         self.pick_place_programs = []
         self.exercise_program = None
 
-        self.pause = kw.get("pause", 200)
-        self.wait = kw.get("wait", True)
+        self.pause = kw.get("pause", -1)
 
         self.do_rack_and_holder_geo = kw.get("do_rack_and_holder_geo")
-        # "use_gripper": pm.optionVar.get("upov_tool_type") == "gripper"
-        use_gripper = pm.optionVar.get("upov_tool_type") == "gripper"
-
-        sheet_use_gripper = sheets.get_flange_mode() == "GRIPPER"
-
-        print "sheet_use_gripper", sheet_use_gripper
-        print "use_gripper", use_gripper
-
-        err_msg = "Make sure Robot tools Gripper mode is set to the same as in the Brushes Spreadsheet"
-        if (int(use_gripper) + int(sheet_use_gripper)) == 1:
-            pm.error(err_msg)
-            return
 
         do_painting = kw.get("do_painting")
         do_dips = kw.get("do_dips")
+        do_slop = kw.get("do_slop")
         do_pap_exercise = kw.get("do_pap_exercise")
         do_board_calibration = kw.get("do_board_calibration")
         do_pot_calibration = kw.get("do_pot_calibration")
         do_holder_calibration = kw.get("do_holder_calibration")
         do_perspex_calibration = kw.get("do_perspex_calibration")
-        do_manual_triangulation = kw.get("do_manual_triangulation")
+        do_perspex_triangulation = kw.get("do_perspex_triangulation")
+
         # Must explicitly ask for pick and place to be generated, even
         # if gripper on. Otherwise we can't do partials, like validation.
-        do_pick_and_place = kw.get("do_pick_and_place") and use_gripper
-        print "kw.get(do_pick_and_place)", kw.get("do_pick_and_place")
-        print "use_gripper", use_gripper
 
-        print "do_pick_and_place", do_pick_and_place
+        pick_and_place_slots = kw.get("pick_and_place_slots")
 
         if do_painting:
             logger.debug("Studio: main_painting")
             with uutl.final_position(pm.PyNode("mainPaintingShape")):
-                self.painting_program = MainProgram("px", use_gripper)
+                self.painting_program = MainProgram("px")
 
         if do_dips:
             logger.debug("Studio: dips")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.dip_programs = self._build_dip_programs()
 
-        if do_pick_and_place:
+        if pick_and_place_slots:
             logger.debug("Studio: pick_place_programs")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.pick_place_programs = self._build_pick_place_programs(
-                    "used")
+                    pick_and_place_slots)
+        if do_slop:
+            logger.debug("Studio: do_slop")
+            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+                self.slop_programs = self._build_slop_programs()
 
         if do_pot_calibration:
             logger.debug("Studio:  pot_calibration")
             self.pot_cal_program = PotCalibration(
-                k.POT_CALIBRATION_PROGRAM_NAME,  use_gripper)
-            if use_gripper:
-                with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                    self.pick_place_programs = self._build_pick_place_programs([
-                                                                               0])
+                k.POT_CALIBRATION_PROGRAM_NAME)
 
         if do_holder_calibration:
             logger.debug("Studio:  holder_calibration")
             self.holder_cal_program = HolderCalibration(
-                k.HOLDER_CALIBRATION_PROGRAM_NAME, use_gripper)
-            if use_gripper:
-                with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                    self.pick_place_programs = self._build_pick_place_programs([
-                                                                               0])
+                k.HOLDER_CALIBRATION_PROGRAM_NAME)
 
         if do_perspex_calibration:
             logger.debug("Studio:  perspex_calibration")
             self.perspex_cal_program = PerspexCalibration(
-                k.PERSPEX_CALIBRATION_PROGRAM_NAME, use_gripper)
-            if use_gripper:
-                with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                    self.pick_place_programs = self._build_pick_place_programs([
-                                                                               0])
+                k.PERSPEX_CALIBRATION_PROGRAM_NAME)
 
-        if do_manual_triangulation:
+        if do_perspex_triangulation:
             logger.debug("Studio:  manual_triangulation")
             self.manual_tri_program = ManualTriangulation(
-                k.TRI_CALIBRATION_PROGRAM_NAME, use_gripper)
-            if use_gripper:
-                with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                    self.pick_place_programs = self._build_pick_place_programs([
-                                                                               0])
+                k.TRI_CALIBRATION_PROGRAM_NAME)
 
         if do_board_calibration:
             logger.debug("Studio: board_calibration")
             self.board_cal_program = BoardCalibration(
-                k.BOARD_CALIBRATION_PROGRAM_NAME, use_gripper)
-            if use_gripper:
-                with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                    self.pick_place_programs = self._build_pick_place_programs([
-                                                                               0])
+                k.BOARD_CALIBRATION_PROGRAM_NAME)
 
         if do_pap_exercise:
             self.exercise_program = PapExerciseProgram(
                 k.PAP_EXERCISE_PROGRAM_NAME)
-            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                self.pick_place_programs = self._build_pick_place_programs(
-                    "all")
 
     def _build_dip_programs(self):
         packs = putl.get_dip_wipe_packs()
@@ -190,6 +153,19 @@ class Studio(object):
                             pack["name"],
                             pack["dip"],
                             pack["wipe"]))
+        print packs
+        return result
+
+    def _build_slop_programs(self):
+        packs = putl.get_slop_packs()
+        result = []
+        if packs:
+            for bid in packs:
+                pack = packs[bid]
+                result.append(
+                    SlopProgram(
+                        pack["name"],
+                        pack["painting"]))
         print packs
         return result
 
@@ -247,8 +223,14 @@ class Studio(object):
             self.dips_frame = uutl.create_frame("dips_frame")
             for dip in self.dip_programs:
                 dip.write(self)
-            with uutl.final_position(rack_context):
-                Paint.write_geos()
+            if self.do_rack_and_holder_geo:
+                with uutl.final_position(rack_context):
+                    Paint.write_geos()
+
+        if self.slop_programs:
+            self.dips_frame = uutl.create_frame("dips_frame")
+            for slop in self.slop_programs:
+                slop.write(self)
 
         if self.exercise_program:
             self.exercise_program.write(self)

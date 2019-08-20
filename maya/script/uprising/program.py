@@ -51,36 +51,29 @@ class Program(object):
 
 
 class MainProgram(Program):
-    def __init__(self, name, use_gripper=False):
+    def __init__(self, name):
         super(MainProgram, self).__init__(name)
         self.painting = ptg.Painting(pm.PyNode("mainPaintingShape"))
-        self.use_gripper = use_gripper
 
     def _change_tool(self, last_brush_id, cluster, studio):
-        if self.use_gripper:
-            if last_brush_id is not None:
+        if last_brush_id is not None:
 
-                # Slightly Hacky.
-                # If using the gripper, but not actually changing the brush,
-                # then don't bother placing and repicking.
-                if last_brush_id == cluster.brush.id:
-                    return
+            # Slightly Hacky.
+            # If using the gripper, but not actually changing the brush,
+            # then don't bother placing and repicking.
+            if last_brush_id == cluster.brush.id:
+                return
 
-                # put the last brush back
-                place_program_name = PlaceProgram.generate_program_name(
-                    last_brush_id)
-                self.program.RunInstruction(
-                    place_program_name, INSTRUCTION_CALL_PROGRAM)
-
-            pick_program_name = PickProgram.generate_program_name(
-                cluster.brush.id)
+            # put the last brush back
+            place_program_name = PlaceProgram.generate_program_name(
+                last_brush_id)
             self.program.RunInstruction(
-                pick_program_name, INSTRUCTION_CALL_PROGRAM)
-        else:
-            self.program.addMoveJ(studio.tool_approach)
-            self.program.RunInstruction(cluster.change_tool_message(),
-                                        INSTRUCTION_SHOW_MESSAGE)
-            self.program.Pause()
+                place_program_name, INSTRUCTION_CALL_PROGRAM)
+
+        pick_program_name = PickProgram.generate_program_name(
+            cluster.brush.id)
+        self.program.RunInstruction(
+            pick_program_name, INSTRUCTION_CALL_PROGRAM)
 
     def write(self, studio):
         # RL = Robolink()
@@ -130,11 +123,10 @@ class MainProgram(Program):
                     studio.robot)
                 self.program.addMoveJ(studio.dip_approach)
 
-            if self.use_gripper:
-                place_program_name = PlaceProgram.generate_program_name(
-                    last_brush_id)
-                self.program.RunInstruction(
-                    place_program_name, INSTRUCTION_CALL_PROGRAM)
+            place_program_name = PlaceProgram.generate_program_name(
+                last_brush_id)
+            self.program.RunInstruction(
+                place_program_name, INSTRUCTION_CALL_PROGRAM)
 
             self.program.addMoveJ(studio.home_approach)
 
@@ -237,14 +229,42 @@ class DipProgram(Program):
                     self.frame,
                     self.wipe_painting.motion, studio.RL, studio.robot)
 
-            # self.program.addMoveJ(studio.dip_approach)
+
+class SlopProgram(Program):
+
+    @staticmethod
+    def generate_program_name(brush_id):
+        return "slop_b{:02d}".format(brush_id)
+
+    def __init__(self, name, painting_node):
+        super(SlopProgram, self).__init__(name)
+        self.painting = ptg.Painting(painting_node)
+
+    def write(self, studio):
+        # RL = Robolink()
+        # robot = RL.Item('', ITEM_TYPE_ROBOT)
+
+        super(SlopProgram, self).write()
+        self.frame = studio.dips_frame
+        self.painting.write_brushes()
+
+        with uutl.minimize_robodk():
+            self.program.RunInstruction(
+                "Slop with tool {}".format(
+                    self.painting.clusters[0].brush.node_name),
+                INSTRUCTION_COMMENT)
+
+            for cluster in self.painting.clusters:
+                cluster.write(
+                    self.program,
+                    self.frame,
+                    self.painting.motion, studio.RL, studio.robot)
 
 
 class CalibrationProgram(Program):
 
-    def __init__(self, name, use_gripper):
+    def __init__(self, name):
         super(CalibrationProgram, self).__init__(name)
-        self.use_gripper = use_gripper
         self.RL = Robolink()
         self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
         self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
@@ -283,10 +303,7 @@ class CalibrationProgram(Program):
             raise ProgramError(
                 "No Probe Brush. Risk of damage. Can't continue.")
 
-        if self.use_gripper:
-            self.write_probe_attach_gripper()
-        else:
-            self.write_probe_attach_bayonet(tool_approach)
+        self.write_probe_attach_gripper()
 
         self.program.setSpeed(k.CAL_LINEAR_SPEED, k.CAL_ANGULAR_SPEED)
         self.program.setRounding(k.CAL_ROUNDING_DISTANCE)
@@ -297,8 +314,7 @@ class CalibrationProgram(Program):
 
         self.write_locator_packs()
 
-        if self.use_gripper:
-            self.write_probe_detach_gripper()
+        self.write_probe_detach_gripper()
 
         self.program.addMoveJ(home_approach)
 
@@ -363,11 +379,8 @@ class CalibrationProgram(Program):
 
 class PotCalibration(CalibrationProgram):
 
-    def __init__(self, name, use_gripper):
-        super(PotCalibration, self).__init__(name, use_gripper)
-        # self.pot_handle_pairs = putl.get_pot_handle_pairs()
-        # self.locators = self._setup_locators()
-
+    def __init__(self, name):
+        super(PotCalibration, self).__init__(name)
         self.locators = putl.get_pot_handle_packs()
 
     def write_locator_packs(self):
@@ -434,39 +447,11 @@ class PotCalibration(CalibrationProgram):
             INSTRUCTION_SHOW_MESSAGE)
         self.program.addMoveL(approach_target)
 
-    # def _setup_locators(self):
-    #     locators = []
-    #     i = 0
-    #     rot = pm.dt.Vector(0, 180, 0)
-    #     for pot, handle in self.pot_handle_pairs:
-
-    #         parent = pot.getParent().getParent()
-
-    #         handle_x_offset = handle.getParent().attr("tx").get()
-    #         pack = {"id": i}
-    #         pack["name"] = "{}_{:02}".format(pot.split("|")[-1], i)
-
-    #         pack["pot_base_loc"] = CalibrationProgram._make_locator(
-    #             parent, "pot_base_loc", pm.dt.Vector(
-    #                 0, 0, -k.RACK_POT_DEPTH), relative=True, rotation=rot)
-    #         pack["pot_approach_loc"] = CalibrationProgram._make_locator(
-    #             parent, "pot_approach_loc", pm.dt.Vector(
-    #                 0, 0, k.CAL_APPROACH_HEIGHT), relative=True, rotation=rot)
-    #         pack["handle_base_loc"] = CalibrationProgram._make_locator(
-    #             parent, "handle_base_loc", pm.dt.Vector(
-    #                 handle_x_offset, 0, k.RACK_HANDLE_HEIGHT), relative=True, rotation=rot)
-    #         pack["handle_approach_loc"] = CalibrationProgram._make_locator(
-    #             parent, "handle_approach_loc", pm.dt.Vector(
-    #                 handle_x_offset, 0, k.CAL_APPROACH_HEIGHT), relative=True, rotation=rot)
-    #         locators.append(pack)
-    #         i += 1
-    #     return locators
-
 
 class HolderCalibration(CalibrationProgram):
 
-    def __init__(self, name, use_gripper):
-        super(HolderCalibration, self).__init__(name, use_gripper)
+    def __init__(self, name):
+        super(HolderCalibration, self).__init__(name)
         self.locators = putl.get_pick_place_packs("all")
 
     def write_locator_packs(self):
@@ -511,8 +496,8 @@ class HolderCalibration(CalibrationProgram):
 
 class PerspexCalibration(CalibrationProgram):
 
-    def __init__(self, name, use_gripper):
-        super(PerspexCalibration, self).__init__(name, use_gripper)
+    def __init__(self, name):
+        super(PerspexCalibration, self).__init__(name)
         self.locators = putl.get_perspex_packs()
 
     def write_locator_packs(self):
@@ -554,8 +539,8 @@ class PerspexCalibration(CalibrationProgram):
 
 class ManualTriangulation(CalibrationProgram):
 
-    def __init__(self, name, use_gripper):
-        super(ManualTriangulation, self).__init__(name, use_gripper)
+    def __init__(self, name):
+        super(ManualTriangulation, self).__init__(name)
 
     def _get_probe_brush(self):
         geo = butl.setup_probe_from_sheet()
@@ -575,8 +560,8 @@ class ManualTriangulation(CalibrationProgram):
 ################# CALIBRATION #################
 class BoardCalibration(CalibrationProgram):
 
-    def __init__(self, name, use_gripper):
-        super(BoardCalibration, self).__init__(name, use_gripper)
+    def __init__(self, name):
+        super(BoardCalibration, self).__init__(name)
         top_node = pm.PyNode("mainPaintingGroup")
         top_node.attr("zeroPosition").set(1)
         self.locators = self._setup_locators()
@@ -731,11 +716,8 @@ class PickProgram(PickPlaceProgram):
         super(PickProgram, self).__init__(brush, pack, name)
 
     def write(self, studio):
-        # logger.debug("PickProgram WRITE")
-        # self.program = uutl.create_program(self.program_name)
-        # self.program.ShowInstructions(False)
-        pause_ms = -1 if studio.wait else studio.pause
-        pause_ms = int(pause_ms)
+
+        pause_ms = int(studio.pause)
         with uutl.minimize_robodk():
             super(PickProgram, self).write(studio)
 
@@ -756,6 +738,8 @@ class PickProgram(PickPlaceProgram):
                 '$OUT[2]=TRUE', INSTRUCTION_INSERT_CODE)
             self.program.RunInstruction(
                 'WAIT FOR ($IN[1])', INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction(
+                "Gripper open. Make sure it dropped the tool properly.", INSTRUCTION_SHOW_MESSAGE)
             self.program.Pause(pause_ms)
             self.program.addMoveL(self.clear_target)
             self.program.setSpeed(
@@ -776,7 +760,7 @@ class PlaceProgram(PickPlaceProgram):
 
     def write(self, studio):
 
-        pause_ms = -1 if studio.wait else studio.pause
+        pause_ms = int(studio.pause)
         pause_ms = int(pause_ms)
         with uutl.minimize_robodk():
             super(PlaceProgram, self).write(studio)

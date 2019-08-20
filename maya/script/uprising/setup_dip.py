@@ -9,7 +9,7 @@ import palette_utils as putl
 import logging
 logger = logging.getLogger('uprising')
 
- 
+
 def dip_combinations():
 
     painting_node = pm.PyNode("mainPaintingShape")
@@ -82,9 +82,11 @@ def _create_painting_node(which, brush, paint, strokes_node, src_painting):
 
     brush_node = pm.PyNode(brush.node_name)
     att = "out%sBrush" % which.capitalize()
+    if which == "slop":
+        att = "outWipeBrush"
     brush_node.attr(att) >> ptg_node.attr("brushes[0]")
 
-    pot_node = pm.PyNode(paint.name)
+    pot_node = pm.PyNode(paint.name if paint else "slop_loc|pot")
     putl.connect_paint_to_node(pot_node, ptg_node, 0)
 
     loc_name = "%s_loc" % which
@@ -121,7 +123,6 @@ def _create_painting_node(which, brush, paint, strokes_node, src_painting):
     ]
     for att in atts:
         src_painting.attr(att) >> ptg_node.attr(att)
-     
 
     return ptg_node
 
@@ -133,9 +134,11 @@ def doit():
 
     dip_stroke_node = pm.PyNode("collectStrokesDip")
     wipe_stroke_node = pm.PyNode("collectStrokesWipe")
+    # slop_stroke_node = pm.PyNode("collectStrokesSlop")
 
     dip_ctrl_painting = pm.PyNode("BRUSHES|curves|dip|dipPaintingControl")
     wipe_ctrl_painting = pm.PyNode("BRUSHES|curves|wipe|wipePaintingControl")
+    # slop_ctrl_painting = pm.PyNode("BRUSHES|curves|slop|slopPaintingControl")
 
     _delete_paintings_under("RACK1_CONTEXT|j1|rack")
 
@@ -154,3 +157,10 @@ def doit():
                 wipe_stroke_node,
                 wipe_ctrl_painting)
 
+    # for bkey in brushes:
+    #     _create_painting_node(
+    #         "slop",
+    #         brushes[bkey],
+    #         None,
+    #         slop_stroke_node,
+    #         slop_ctrl_painting)

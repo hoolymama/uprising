@@ -4,7 +4,8 @@ import pymel.core.uitypes as gui
 from uprising import (
     painting_tab,
     setup_tab,
-    validate_tab,
+    export_tab,
+    retries_tab,
     publish_tab,
     brush_assign_tab,
     brush_test_tab,
@@ -28,7 +29,7 @@ from uprising import (
 # import uprising.logger_setup
 
 
-# import setup_dip
+import setup_dip
 # # from setup_dip import setup_dip_factory
 
 # import stroke_factory_utils
@@ -51,7 +52,7 @@ import write
 # import sheets
 import curve_utils
 import brush_utils
-# import palette_utils
+import palette_utils
 # import board_utils
 
 # import props
@@ -67,14 +68,14 @@ import images
 # reload(stroke)
 reload(cluster)
 reload(write)
-# reload(setup_dip)
+reload(setup_dip)
 # reload(const)
 # reload(images)
 
 
 reload(curve_utils)
 reload(brush_utils)
-# reload(palette_utils)
+reload(palette_utils)
 # reload(board_utils)
 # reload(painting)
 
@@ -87,7 +88,9 @@ reload(brush_utils)
 # reload(setup_tab)
 
 # reload(props)
-reload(validate_tab)
+reload(export_tab)
+reload(retries_tab)
+
 reload(publish_tab)
 reload(brush_assign_tab)
 reload(brush_test_tab)
@@ -156,8 +159,12 @@ class RobotWindow(gui.Window):
         # self.tabs.setTabLabel((self.rings_setup_tab, "Ring setup"))
 
         pm.setParent(self.tabs)
-        self.validate_tab = validate_tab.ValidateTab()
-        self.tabs.setTabLabel((self.validate_tab, "Validate"))
+        self.export_tab = export_tab.exportTab()
+        self.tabs.setTabLabel((self.export_tab, "Export"))
+
+        pm.setParent(self.tabs)
+        self.retries_tab = retries_tab.retriesTab()
+        self.tabs.setTabLabel((self.retries_tab, "Retries"))
 
         pm.setParent(self.tabs)
         self.publish_tab = publish_tab.PublishTab()
@@ -184,8 +191,8 @@ class RobotWindow(gui.Window):
         pm.setParent(self.menuBarLayout)
         self.export_menu = export_menu.create()
 
-        pm.setParent(self.menuBarLayout)
-        self.tool_type_menu = tool_type_menu.create()
+        # pm.setParent(self.menuBarLayout)
+        # self.tool_type_menu = tool_type_menu.create()
 
         self.show()
         self.setResizeToFitChildren()

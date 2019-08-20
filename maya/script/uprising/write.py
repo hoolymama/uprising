@@ -57,28 +57,27 @@ def publish_proposal(
         clean_top)
 
 
-def run_hook(code):
-    if not code:
-        return
-    kw = {
-        "frame": pm.currentTime(q=True),
-        "painting_node": pm.PyNode("mainPaintingShape"),
-        "dip_node": pm.PyNode("dipPaintingShape")
-    }
+# def run_hook(code):
+#     if not code:
+#         return
+#     kw = {
+#         "frame": pm.currentTime(q=True),
+#         "painting_node": pm.PyNode("mainPaintingShape"),
+#         "dip_node": pm.PyNode("dipPaintingShape")
+#     }
 
-    args = code.split(",")
-    cmd = args[0]
-    args = [uutl.numeric(a.strip()) for a in args[1:]]
-    method = getattr(callbacks, cmd)
-    res = method(*args, **kw)
-    print res
+#     args = code.split(",")
+#     cmd = args[0]
+#     args = [uutl.numeric(a.strip()) for a in args[1:]]
+#     method = getattr(callbacks, cmd)
+#     res = method(*args, **kw)
+#     print res
 
 
 def publish_sequence(
     export_dir,
     frame_range,
     pause,
-    wait,
     save_unfiltered_snapshot,
     write_geo
 ):
@@ -123,26 +122,18 @@ def publish_sequence(
 
         write_ref_image(ts_dir, timestamp)
 
-        use_gripper = pm.optionVar.get("upov_tool_type") == "gripper"
         RL = Robolink()
-        # clean_rdk()
+
         studio = Studio(
             do_painting=True,
             do_dips=True,
-            do_pick_and_place=use_gripper,
+            pick_and_place_slots="used",
+            # do_slop=True,
             do_rack_and_holder_geo=write_geo,
-            pause=pause,
-            wait=wait)
+            pause=pause)
 
         studio.write()
         write_program(RL, ts_dir, "px", timestamp)
-
-        # write_log(
-        #     ts_dir,
-        #     timestamp,
-        #     frame)
-
-        # publish_robodk_painting( ts_dir, timestamp, auto)
 
 
 def choose_publish_dir():

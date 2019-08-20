@@ -208,8 +208,10 @@ class PublishTab(gui.FormLayout):
         if not export_dir:
             return
 
-        pause = pm.intFieldGrp(self.gripper_pause_if, query=True, value1=True)
         wait = pm.checkBox(self.gripper_wait_cb, query=True, value=True)
+        pause = -1 if wait else pm.intFieldGrp(
+            self.gripper_pause_if, query=True, value1=True)
+
         frames = self._setup_chunks()
 
         save_unfiltered_snapshot = pm.checkBoxGrp(
@@ -219,7 +221,6 @@ class PublishTab(gui.FormLayout):
             export_dir,
             frames,
             pause,
-            wait,
             save_unfiltered_snapshot,
             write_geo
         )

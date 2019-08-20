@@ -3,7 +3,7 @@ import stroke_factory_utils as sfu
 import uprising.uprising_util as uutl
 import sheets
 
- 
+
 def get_pot_handle_pairs():
     return zip(
         pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*"),
@@ -176,12 +176,12 @@ def dip_combination_ids():
     return result
 
 
-
 def get_pot_handle_packs():
     result = []
     for i, p in enumerate(pm.ls("RACK1_CONTEXT|j1|rack|holes|holeRot*|holeTrans")):
-        _1,_2, pot_base, pot_ap, handle_base, handle_ap  = [x for x in p.getChildren(type='transform')]
-        name =   "ph_{:02d}".format(i)
+        _1, _2, pot_base, pot_ap, handle_base, handle_ap = [
+            x for x in p.getChildren(type='transform')]
+        name = "ph_{:02d}".format(i)
         result.append({
             "pot_base": pot_base,
             "pot_approach": pot_ap,
@@ -191,7 +191,6 @@ def get_pot_handle_packs():
             "index": i
         })
     return result
- 
 
 
 def get_pick_place_packs(brush_ids="used"):
@@ -232,7 +231,7 @@ def get_pick_place_packs(brush_ids="used"):
 def get_perspex_packs():
     result = []
 
-    for i, p in enumerate(pm.ls("RACK1_CONTEXT|j1|rack|probes|rackCalRot*|rackCalLocal" , v=True)):
+    for i, p in enumerate(pm.ls("RACK1_CONTEXT|j1|rack|probes|rackCalRot*|rackCalLocal", v=True)):
         approach, base = [x for x in p.getChildren(type='transform')]
         name = base.split("|")[0]
         result.append({
@@ -247,7 +246,6 @@ def get_perspex_packs():
 def get_dip_wipe_packs():
 
     result = {}
- 
 
     dip_combinations = dip_combination_ids()
 
@@ -276,6 +274,31 @@ def get_dip_wipe_packs():
             "dip": dip_ptg,
             "wipe": wipe_ptg,
             "name": "{}_{}".format(paint_key, brush_key)
+        }
+
+    return result
+
+
+def get_slop_packs():
+
+    result = {}
+    painting_node = pm.PyNode("mainPaintingShape")
+    bids = pm.paintingQuery(painting_node, dc=True)[0::2]
+
+    for bid in sorted(set(bids)):
+        brush_key = "b{:02d}".format(bid)
+        ptg_path = "rack|slop|holeRot|holeTrans|slop_loc|{}|*".format(
+            brush_key)
+
+        try:
+            ptg = pm.ls(ptg_path, type="painting")[0]
+        except IndexError:
+            raise IndexError(
+                "Slop painting node is missing: for {}".format(brush_key))
+
+        result[brush_key] = {
+            "painting": ptg,
+            "name": brush_key
         }
 
     return result
