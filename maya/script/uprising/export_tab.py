@@ -206,15 +206,12 @@ class exportTab(gui.FormLayout):
         }
 
         if studio_kwargs.get("do_painting"):
-            validation_info = studio.painting_program.validate_path()
-
             result["painting"] = studio.painting_program.validate_path()
 
         if studio_kwargs.get("do_dips"):
             result["dips"] = []
             for dip_program in studio.dip_programs:
                 stats = dip_program.validate_path()
-                stats["name"] = dip_program.program_name
                 result["dips"].append(stats)
 
         uutl.show_in_window(result, title="Test export results")
