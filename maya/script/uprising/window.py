@@ -20,8 +20,6 @@ from uprising import (
     images_menu,
     palette_menu,
     info_menu,
-
-    tool_type_menu,
     calibration_menu
 )
 

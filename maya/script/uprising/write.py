@@ -134,6 +134,7 @@ def publish_sequence(
 
         studio.write()
         write_program(RL, ts_dir, "px", timestamp)
+        write_station(RL, ts_dir, timestamp)
 
 
 def choose_publish_dir():

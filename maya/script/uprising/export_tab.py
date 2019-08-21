@@ -10,7 +10,11 @@ import write
 import props
 import uprising_util as uutl
 import curve_utils as cutl
+import props
+
 from studio import Studio
+from brush import Brush
+from paint import Paint
 
 import pymel.core.uitypes as gui
 
