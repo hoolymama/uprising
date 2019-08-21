@@ -201,6 +201,23 @@ class exportTab(gui.FormLayout):
         if pm.checkBoxGrp(self.pots_geo_wg, query=True, v1=True):
             Paint.write_geos()
 
+        result = {
+            "stats":  write.painting_stats(pm.PyNode("mainPaintingShape"))
+        }
+
+        if studio_kwargs.get("do_painting"):
+            validation_info = studio.painting_program.validate_path()
+
+            result["painting"] = studio.painting_program.validate_path()
+
+        if studio_kwargs.get("do_dips"):
+            result["dips"] = []
+            for dip_program in studio.dip_programs:
+                stats = dip_program.validate_path()
+                stats["name"] = dip_program.program_name
+                result["dips"].append(stats)
+
+        uutl.show_in_window(result, title="Test export results")
         # result = []
         # if not any(send):
         #     return

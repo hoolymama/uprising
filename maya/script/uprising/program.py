@@ -41,6 +41,7 @@ class Program(object):
             RL = Robolink()
             update_result = self.program.Update(COLLISION_OFF)
             return {
+                "name": self.program_name,
                 "instructions": update_result[0],
                 "time": update_result[1],
                 "distance": update_result[2],
