@@ -212,6 +212,9 @@ class PublishTab(gui.FormLayout):
         pause = -1 if wait else pm.intFieldGrp(
             self.gripper_pause_if, query=True, value1=True)
 
+        pm.cutKey("collectStrokesMain", at=(
+            "startFrom", "endAt"), option="keys")
+
         frames = self._setup_chunks()
 
         save_unfiltered_snapshot = pm.checkBoxGrp(
@@ -224,3 +227,5 @@ class PublishTab(gui.FormLayout):
             save_unfiltered_snapshot,
             write_geo
         )
+        pm.cutKey("collectStrokesMain", at=(
+            "startFrom", "endAt"), option="keys")
