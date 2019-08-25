@@ -18,6 +18,7 @@ global proc AEbrushPaintOverrideInclude ( string $nodeName, int $withSingleId )
 	editorTemplate -addControl "paintIdTexture";
 	AEaddRampControl("paintIdRemapRamp");		
 	editorTemplate -addControl "paintIdRemapRange" ;
+	editorTemplate -addControl	"paintIdRemapIndices";
 	editorTemplate -endLayout;
 
 }

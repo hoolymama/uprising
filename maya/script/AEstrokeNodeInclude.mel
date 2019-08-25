@@ -59,14 +59,22 @@ global proc AEstrokeNodeInclude ( string $nodeName )
 	editorTemplate -endLayout;
 	editorTemplate -endLayout;
 
-	editorTemplate -cl 0  -beginLayout "Pivots";		
+	editorTemplate -cl 0  -beginLayout "Transform";	
+ 
 	editorTemplate -addControl "pivotFraction" ;
+	editorTemplate -addControl "transformPivot" ;
+
 	editorTemplate -endLayout;
+
+
+
 
 	editorTemplate -cl 0  -beginLayout "Translation";		
 	editorTemplate -addControl "translationTexture";
 	editorTemplate -addControl "translationSampleDistance";
 	editorTemplate -addControl "translationScale";
+	editorTemplate -addControl "translationDirection";
+	
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0  -beginLayout "Rotation";		

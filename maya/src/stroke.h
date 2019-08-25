@@ -21,15 +21,33 @@
 #include "paint.h"
 #include "target.h"
 
-
-class Stroke {
+class Stroke
+{
 public:
+	enum TransitionBlendMethod
+	{
+		kTransitionMin,
+		kTransitionMax,
+		kTransitionBlend
+	};
 
-	enum TransitionBlendMethod { kTransitionMin, kTransitionMax, kTransitionBlend };
+	enum TranslationDirection
+	{
+		kConstant,
+		kAlternateRepeat,
+		kAlternateAll
+	};
 
-	enum DirectionMethod { kForwards, kBackwards, kStartUppermost, kEndUppermost  };
+	enum DirectionMethod
+	{
+		kForwards,
+		kBackwards,
+		kStartUppermost,
+		kEndUppermost
+	};
 
-	enum FilterOperator {
+	enum FilterOperator
+	{
 		kGreaterThan,
 		kLessThan,
 		kEqualTo,
@@ -37,7 +55,8 @@ public:
 		kNoOp
 	};
 
-	enum SortFilterKey {
+	enum SortFilterKey
+	{
 		kStrokeId,
 		kBrushId,
 		kPaintId,
@@ -51,78 +70,73 @@ public:
 		kMapBlue,
 	};
 
-
-	enum SortDirection { kSortAscending,  kSortDescending};
-
-
+	enum SortDirection
+	{
+		kSortAscending,
+		kSortDescending
+	};
 
 	static double interpContact(const MDoubleArray &contacts, const double &uniformParam);
 
-
 	/* factory */
 	static unsigned create(
-	  const MObject &thisObj,
-	  const MObject &dCurve,
-	  const MDoubleArray &contacts,
-	  bool localContact,
-	  double curveLength,
-	  double startDist,
-	  double endDist,
-	  double entryLength,
-	  double exitLength,
-	  TransitionBlendMethod transBlendMethod,
-	  double pointDensity,
-	  int minimumPoints,
-	  const StrokeRotationSpec &rotSpec,
-	  const StrokeRepeatSpec &repeatSpec,
-	  DirectionMethod strokeDirection,
-	  double pivotParam,
-	  double paintFlow,
-	  int strokeId,
-	  int brushId,
-	  int paintId,
-	  int layerId,
-	  int customBrushId,
-	  std::vector<Stroke> *strokes
-	) ;
-
+		const MObject &thisObj,
+		const MObject &dCurve,
+		const MDoubleArray &contacts,
+		bool localContact,
+		double curveLength,
+		double startDist,
+		double endDist,
+		double entryLength,
+		double exitLength,
+		TransitionBlendMethod transBlendMethod,
+		double pointDensity,
+		int minimumPoints,
+		const StrokeRotationSpec &rotSpec,
+		const StrokeRepeatSpec &repeatSpec,
+		DirectionMethod strokeDirection,
+		double pivotParam,
+		double paintFlow,
+		int strokeId,
+		int brushId,
+		int paintId,
+		int layerId,
+		int customBrushId,
+		std::vector<Stroke> *strokes);
 
 	Stroke();
 
-
 	Stroke(
-	  const MObject &curveObject ,
-	  const MDoubleArray &contacts,
-	  bool localContact,
-	  double curveLength,
-	  double startDist,
-	  double endDist,
-	  double entryLength,
-	  double exitLength,
-	  TransitionBlendMethod transBlendMethod,
-	  double density,
-	  int minimumPoints,
-	  double pivotParam,
-	  double paintFlow,
-	  int strokeId,
-	  int brushId,
-	  int paintId,
-	  int layerId,
-	  int customBrushId,
-	  int repeatId,
-	  bool backstroke);
+		const MObject &curveObject,
+		const MDoubleArray &contacts,
+		bool localContact,
+		double curveLength,
+		double startDist,
+		double endDist,
+		double entryLength,
+		double exitLength,
+		TransitionBlendMethod transBlendMethod,
+		double density,
+		int minimumPoints,
+		double pivotParam,
+		double paintFlow,
+		int strokeId,
+		int brushId,
+		int paintId,
+		int layerId,
+		int customBrushId,
+		int repeatId,
+		bool backstroke);
 
 	void offset(
-	  double offset,
-	  bool reverse,
-	  int repeatId);
+		double offset,
+		bool reverse,
+		int repeatId);
 
 	~Stroke();
 
-	void setRotations(   const MObject &thisObj,
-	                     const StrokeRotationSpec &rotSpec);
-
-
+	void setRotations(const MObject &thisObj,
+					  const StrokeRotationSpec &rotSpec);
 
 	// void setPivot(
 	//   const MObject &curveObject,
@@ -136,9 +150,9 @@ public:
 
 	void appendTangents(MVectorArray &result) const;
 
-	void getParams(MDoubleArray &result) const ;
+	void getParams(MDoubleArray &result) const;
 
-	void getCurveParams(MDoubleArray &result) const ;
+	void getCurveParams(MDoubleArray &result) const;
 
 	const std::vector<Target> &targets() const;
 
@@ -150,14 +164,13 @@ public:
 
 	const double &paintFlow() const;
 
-	const Target &pivot() const ;
+	const Target &pivot() const;
 
 	bool backstroke() const;
 
 	int strokeId() const;
 	int parentId() const;
-	int repeatId() const ;
-
+	int repeatId() const;
 
 	void setParentId(int parentId);
 
@@ -165,19 +178,16 @@ public:
 
 	void clearSortStack();
 
-
-
-
 	int layerId() const;
 	int customBrushId() const;
 
-	int brushId() const ;
-	int paintId() const ;
+	int brushId() const;
+	int paintId() const;
 
-	void setBrushId(int val) ;
-	void setCustomBrushId(int val) ;
+	void setBrushId(int val);
+	void setCustomBrushId(int val);
 
-	void setPaintId(int val) ;
+	void setPaintId(int val);
 	void setSortColor(const MFloatVector &color);
 	void setFilterColor(const MFloatVector &color);
 
@@ -201,7 +211,7 @@ public:
 	void appendMapGreenIdToSortStack(bool ascending);
 	void appendMapBlueIdToSortStack(bool ascending);
 
-	bool testAgainstValue(int lhs, FilterOperator op, int rhs ) const;
+	bool testAgainstValue(int lhs, FilterOperator op, int rhs) const;
 
 	bool testStrokeId(FilterOperator op, int value) const;
 	bool testParentId(FilterOperator op, int value) const;
@@ -217,19 +227,18 @@ public:
 	bool testMapGreenId(FilterOperator op, int value) const;
 	bool testMapBlueId(FilterOperator op, int value) const;
 
-
 	void getDirectionMatrices(MMatrixArray &result, double stackHeight) const;
 
 	void getPoints(MFloatPointArray &result, double stackHeight,
-	               bool withTraversal = false) const ;
+				   bool withTraversal = false) const;
 
 	void getPoints(MPointArray &result, double stackHeight,
-	               bool withTraversal = false) const ;
+				   bool withTraversal = false) const;
 
 	void transform(const MVector &vec, MFloatVectorArray &result,
-	               bool withTraversal = false) const ;
+				   bool withTraversal = false) const;
 	void transform(const MVector &vec, MVectorArray &result,
-	               bool withTraversal = false) const ;
+				   bool withTraversal = false) const;
 
 	void getXAxes(MFloatVectorArray &result, bool withTraversal = false) const;
 	void getYAxes(MFloatVectorArray &result, bool withTraversal = false) const;
@@ -239,46 +248,41 @@ public:
 	void getYAxes(MVectorArray &result, bool withTraversal = false) const;
 	void getZAxes(MVectorArray &result, bool withTraversal = false) const;
 
-
 	void getBorders(
-	  MPointArray &lefts,
-	  MPointArray &rights,
-	  const Brush &brush,
-	  double stackHeight,
-	  bool displayContactWidth) const;
+		MPointArray &lefts,
+		MPointArray &rights,
+		const Brush &brush,
+		double stackHeight,
+		bool displayContactWidth) const;
 
 	void getBorderLoop(
-	  const Brush &brush,
-	  double stackHeight,
-	  MPointArray &result,
-	  bool displayContactWidth) const;
+		const Brush &brush,
+		double stackHeight,
+		MPointArray &result,
+		bool displayContactWidth) const;
 
 	void getTriangleStrip(
-	  const Brush &brush,
-	  double stackHeight,
-	  MPointArray &result,
-	  bool displayContactWidth) const;
-
-
+		const Brush &brush,
+		double stackHeight,
+		MPointArray &result,
+		bool displayContactWidth) const;
 
 	void positions(const MMatrix &space, MPointArray &result) const;
 	void rotations(
-	  const MMatrix &space,
-	  MTransformationMatrix::RotationOrder order,
-	  MAngle::Unit unit,
-	  MVectorArray &result ) const;
-
+		const MMatrix &space,
+		MTransformationMatrix::RotationOrder order,
+		MAngle::Unit unit,
+		MVectorArray &result) const;
 
 	void tangents(const MMatrix &space, MVectorArray &result) const;
 
-	MPoint getHead(  double stackHeight) const ;
-
+	MPoint getHead(double stackHeight) const;
 
 	// void setCustomSortData(const Brush &brush,  const Paint &paint);
 
 	void setUV(const MMatrix &inversePlaneMatrix);
-	void getUV( float &u, float &v);
-	void displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap);
+	void getUV(float &u, float &v);
+	void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
 	void offsetBrushContact(const Brush &brush);
 
@@ -290,42 +294,35 @@ public:
 
 	void arrivalPositions(const MMatrix &space, MPointArray &result) const;
 	void arrivalRotations(
-	  const MMatrix &space,
-	  MTransformationMatrix::RotationOrder order,
-	  MAngle::Unit unit,
-	  MVectorArray &result ) const;
+		const MMatrix &space,
+		MTransformationMatrix::RotationOrder order,
+		MAngle::Unit unit,
+		MVectorArray &result) const;
 
 	void departurePosition(const MMatrix &space, MPoint &result) const;
 	void departureRotation(
-	  const MMatrix &space,
-	  MTransformationMatrix::RotationOrder order,
-	  MAngle::Unit unit,
-	  MVector &result ) const;
+		const MMatrix &space,
+		MTransformationMatrix::RotationOrder order,
+		MAngle::Unit unit,
+		MVector &result) const;
 
 	void rotate(double rotation);
-	void translate(const MVector &translation);
+	void translate(const MVector &translation, bool transformPivot = false);
 
-
-
-	friend bool operator< (const Stroke &a, const Stroke &b);
-
-
-
+	friend bool operator<(const Stroke &a, const Stroke &b);
 
 private:
-
-	static void reverseArray(MDoubleArray &arr)  ;
-	static void reverseArray(const MDoubleArray &arr,  MDoubleArray &result);
+	static void reverseArray(MDoubleArray &arr);
+	static void reverseArray(const MDoubleArray &arr, MDoubleArray &result);
 
 	static bool shouldMakeBackstroke(MObject dCurve, double startDist, double endDist,
-	                                 Stroke::DirectionMethod strokeDirection) ;
+									 Stroke::DirectionMethod strokeDirection);
 
 	void setArcLength();
 
+	void setTransitionContact();
 
-	void setTransitionContact( );
-
-	std::vector<Target> m_targets;  // flat targets with 3d rotations
+	std::vector<Target> m_targets; // flat targets with 3d rotations
 
 	bool m_localContact;
 	double m_arcLength;
@@ -359,12 +356,10 @@ private:
 	Target m_departure;
 
 	Target m_pivot;
-
 };
 
-
 inline double Stroke::interpContact(const MDoubleArray &contacts,
-                                    const double &uniformParam)
+									const double &uniformParam)
 {
 	int len = contacts.length();
 	int last = (len - 1);
@@ -381,9 +376,6 @@ inline double Stroke::interpContact(const MDoubleArray &contacts,
 	float r = t - floor(t);
 	int lindex = int(t);
 	return (contacts[lindex] * (1 - r)) + (contacts[(lindex + 1)] * (r));
-
 }
 
-
 #endif
-

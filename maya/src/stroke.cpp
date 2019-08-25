@@ -1263,7 +1263,7 @@ void Stroke::rotate(double rotation)
 	}
 }
 
-void Stroke::translate(const MVector &translation)
+void Stroke::translate(const MVector &translation, bool transformPivot)
 {
 
 	std::vector<Target>::iterator iter;
@@ -1279,5 +1279,9 @@ void Stroke::translate(const MVector &translation)
 			iter->offsetBy(translation);
 		}
 		m_departure.offsetBy(translation);
+	}
+	if (transformPivot)
+	{
+		m_pivot.offsetBy(translation);
 	}
 }
