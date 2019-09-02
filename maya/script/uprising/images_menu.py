@@ -23,29 +23,6 @@ def create():
 
     return menu
 
-
-# def detect_face():
-#     nodes = pm.ls(selection=True, type="cImgFile")
-#     if len(nodes):
-#         fn = pm.PyNode("cImgFile1").attr("imageFilename").get()
-#     else:
-#         images_dir = os.path.join(pm.workspace.getPath(), 'sourceimages')
-#         entries = pm.fileDialog2(
-#             caption="Choose Image file",
-#             okCaption="Open",
-#             fileFilter="*.*",
-#             dialogStyle=2,
-#             fileMode=1,
-#             dir=images_dir)
-#         if not entries:
-#             pm.displayWarning('Nothing Selected')
-#             return
-#         else:
-#             fn = entries[0]
-#     print fn
-#     images.detect_face(fn)
-
-
 def make_snapshot():
     res = 1024
     export_dir = os.path.join(pm.workspace.getPath(), 'export')
@@ -104,36 +81,41 @@ def show_image_in_monitor():
     objects = pm.ls(sl=True)
     swatches = []
     for o in objects:
-        atts = [o.attr(att) for att in pm.listAttr(o, r=True)
-                if o.attr(att).type() == "cImgData"]
-        for att in atts:
-            pack = {
-                "attr": att,
-                "shader": None
-            }
-            shaders = pm.listConnections(
-                att, d=True, s=False, type="cImgShader")
-            if shaders:
-                pack["shader"] = shaders[0]
-            else:
-                pack["shader"] = _make_and_connect_shader(att)
-            swatches.append(pack)
 
-    try:
-        attr = o.attr("outColor")
-        swatches.append({
-            "attr": attr,
-            "shader": o
-        })
-    except:
+        attNames = pm.listAttr(o, r=True)
+        for attName in attNames:
+            try:
+                att = o.attr(attName)
+                if att.type() == "cImgData":
+                    pack = {
+                        "attr": att,
+                        "shader": None
+                    }
+                    shaders = pm.listConnections(
+                        att, d=True, s=False, type="cImgShader")
+                    if shaders:
+                        pack["shader"] = shaders[0]
+                    else:
+                        pack["shader"] = _make_and_connect_shader(att)
+                    swatches.append(pack)
+            except:
+                pass
+
         try:
-            attr = o.attr("output")
+            attr = o.attr("outColor")
             swatches.append({
                 "attr": attr,
                 "shader": o
             })
         except:
+            try:
+                attr = o.attr("output")
+                swatches.append({
+                    "attr": attr,
+                    "shader": o
+                })
+            except:
+                pass
             pass
-        pass
 
     _make_swatch_ui(swatches)
