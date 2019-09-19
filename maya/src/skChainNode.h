@@ -27,37 +27,31 @@ public:
 
   static void *creator();
   static MStatus initialize();
-  virtual void    postConstructor();
+  virtual void postConstructor();
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
-  static  MTypeId id;
+  static MTypeId id;
 
 private:
-
-
-  MStatus  generate(MDataBlock &data, std::vector<skChain> *geom);
+  MStatus generate(MDataBlock &data, std::vector<skChain> *geom);
 
   static MObject aImage;
   static MObject aMaxIterations;
 
-
   static MObject aRadiusMult;
   static MObject aRadiusOffset;
+  static MObject aMaxWidthPixels;
   static MObject aMaxStampWidthPixels;
 
-
-
+  static MObject aSmallestMaxWidthPixels;
   static MObject aMinBranchTwigLength;
   static MObject aMinLooseTwigLength;
 
   static MObject aSpanPixels;
-  static MObject aMaxWidthPixels;
 
   static MObject aProjectionMatrix;
 
-  static MObject  aOutput;
+  static MObject aOutput;
 };
-
-
 
 #endif

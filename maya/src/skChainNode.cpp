@@ -15,43 +15,38 @@
 #include "skGraph/skGraph.h"
 #include "skChainNode.h"
 
-
 MObject skChainNode::aImage;
-
 
 MObject skChainNode::aMaxIterations;
 MObject skChainNode::aMinBranchTwigLength;
 MObject skChainNode::aMinLooseTwigLength;
+MObject skChainNode::aSmallestMaxWidthPixels;
+
 MObject skChainNode::aSpanPixels;
 MObject skChainNode::aMaxWidthPixels;
-MObject skChainNode::aProjectionMatrix;
-
-MObject skChainNode::aRadiusMult;
-MObject skChainNode::aRadiusOffset;
-
 MObject skChainNode::aMaxStampWidthPixels;
+MObject skChainNode::aProjectionMatrix;
+// MObject skChainNode::aRadiusMult;
+// MObject skChainNode::aRadiusOffset;
 
 MObject skChainNode::aOutput;
 
-
-
-MTypeId skChainNode::id( k_skChainNode );
+MTypeId skChainNode::id(k_skChainNode);
 
 skChainNode::skChainNode() {}
 
 skChainNode::~skChainNode() {}
 
-void *skChainNode::creator() {
+void *skChainNode::creator()
+{
   return new skChainNode();
 }
 
-void
-skChainNode::postConstructor()
+void skChainNode::postConstructor()
 {
   MPxNode::postConstructor();
   setExistWithoutOutConnections(true);
 }
-
 
 MStatus skChainNode::initialize()
 {
@@ -62,82 +57,99 @@ MStatus skChainNode::initialize()
   MFnTypedAttribute tAttr;
   MFnMatrixAttribute mAttr;
 
-  aImage = tAttr.create("image", "img", cImgData::id ) ;
+  aImage = tAttr.create("image", "img", cImgData::id);
   tAttr.setStorable(false);
   tAttr.setKeyable(false);
 
   tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-  st = addAttribute( aImage ); mser;
+  st = addAttribute(aImage);
+  mser;
 
-  aMaxIterations = nAttr.create( "maxIterations", "mxi", MFnNumericData::kInt);
+  aMaxIterations = nAttr.create("maxIterations", "mxi", MFnNumericData::kInt);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(5);
   st = addAttribute(aMaxIterations);
+  mser;
 
   aMinBranchTwigLength = nAttr.create("minBranchTwigLength", "mbtl", MFnNumericData::kInt);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  nAttr.setDefault( 1 );
-  st = addAttribute( aMinBranchTwigLength ); mser
+  nAttr.setDefault(1);
+  st = addAttribute(aMinBranchTwigLength);
+  mser;
 
-  aMinLooseTwigLength = nAttr.create( "minLooseTwigLength", "mltl", MFnNumericData::kInt);
+  aMinLooseTwigLength = nAttr.create("minLooseTwigLength", "mltl", MFnNumericData::kInt);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setMin(1);
   nAttr.setDefault(1);
-  st = addAttribute(aMinLooseTwigLength); mser;
+  st = addAttribute(aMinLooseTwigLength);
+  mser;
 
-  aSpanPixels = nAttr.create( "spanPixels", "spx", MFnNumericData::kInt);
+  aSpanPixels = nAttr.create("spanPixels", "spx", MFnNumericData::kInt);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setMin(1);
   nAttr.setDefault(10);
-  st = addAttribute(aSpanPixels); mser;
+  st = addAttribute(aSpanPixels);
+  mser;
 
-  aMaxWidthPixels = nAttr.create( "maxWidthPixels", "mwpx", MFnNumericData::kInt);
+  aMaxWidthPixels = nAttr.create("maxWidthPixels", "mwpx", MFnNumericData::kInt);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setMin(1);
   nAttr.setDefault(10);
-  st = addAttribute(aMaxWidthPixels); mser;
+  st = addAttribute(aMaxWidthPixels);
+  mser;
 
-  aRadiusMult = nAttr.create( "radiusMult", "rml", MFnNumericData::kFloat);
+  aMaxStampWidthPixels = nAttr.create("maxStampWidthPixels", "mswpx",
+                                      MFnNumericData::kInt);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setMin(1);
+  nAttr.setDefault(10);
+  st = addAttribute(aMaxStampWidthPixels);
+  mser;
+
+  aSmallestMaxWidthPixels = nAttr.create("smallestMaxWidthPixels", "smwp",
+                                         MFnNumericData::kInt);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setMin(1);
+  nAttr.setDefault(10);
+  st = addAttribute(aSmallestMaxWidthPixels);
+  mser;
+
+  aRadiusMult = nAttr.create("radiusMult", "rml", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(1.0f);
-  st = addAttribute(aRadiusMult); mser;
+  st = addAttribute(aRadiusMult);
+  mser;
 
-  aRadiusOffset = nAttr.create( "radiusOffset", "rof", MFnNumericData::kFloat);
+  aRadiusOffset = nAttr.create("radiusOffset", "rof", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(0.0f);
-  st = addAttribute(aRadiusOffset); mser;
-
-  aMaxStampWidthPixels = nAttr.create( "maxStampWidthPixels", "mswpx",
-                                       MFnNumericData::kInt);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setKeyable(true);
-  nAttr.setMin(1);
-  nAttr.setDefault(10);
-  st = addAttribute(aMaxStampWidthPixels); mser;
-
-
+  st = addAttribute(aRadiusOffset);
+  mser;
 
   MFloatMatrix identity;
   identity.setToIdentity();
-  aProjectionMatrix = mAttr.create( "projectionMatrix", "pmat",
-                                    MFnMatrixAttribute::kFloat );
-  mAttr.setStorable( false );
-  mAttr.setHidden( false );
+  aProjectionMatrix = mAttr.create("projectionMatrix", "pmat",
+                                   MFnMatrixAttribute::kFloat);
+  mAttr.setStorable(false);
+  mAttr.setHidden(false);
   mAttr.setKeyable(true);
   mAttr.setDefault(identity);
   addAttribute(aProjectionMatrix);
@@ -147,77 +159,78 @@ MStatus skChainNode::initialize()
   tAttr.setStorable(false);
   addAttribute(aOutput);
 
+  attributeAffects(aImage, aOutput);
 
-  attributeAffects( aImage, aOutput);
+  attributeAffects(aMaxIterations, aOutput);
+  attributeAffects(aMinBranchTwigLength, aOutput);
+  attributeAffects(aMinLooseTwigLength, aOutput);
+  attributeAffects(aSpanPixels, aOutput);
+  attributeAffects(aMaxWidthPixels, aOutput);
+  attributeAffects(aProjectionMatrix, aOutput);
 
-  attributeAffects( aMaxIterations, aOutput);
-  attributeAffects( aMinBranchTwigLength, aOutput);
-  attributeAffects( aMinLooseTwigLength, aOutput);
-  attributeAffects( aSpanPixels, aOutput);
-  attributeAffects( aMaxWidthPixels, aOutput);
-  attributeAffects( aProjectionMatrix, aOutput);
+  attributeAffects(aSmallestMaxWidthPixels, aOutput);
 
-  attributeAffects( aRadiusMult, aOutput);
-  attributeAffects( aRadiusOffset, aOutput);
-  attributeAffects( aMaxStampWidthPixels, aOutput);
+  // attributeAffects(aRadiusMult, aOutput);
+  // attributeAffects(aRadiusOffset, aOutput);
+  attributeAffects(aMaxStampWidthPixels, aOutput);
 
-
-  return ( MS::kSuccess );
-
+  return (MS::kSuccess);
 }
 
-
-MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data )
+MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
 {
   MStatus st;
-  if (plug != aOutput) {
-    return (MS::kUnknownParameter );
+  if (plug != aOutput)
+  {
+    return (MS::kUnknownParameter);
   }
 
   MDataHandle hOutput = data.outputValue(aOutput);
   MFnPluginData fnOut;
   MTypeId kdid(skChainData::id);
-  MObject dOut = fnOut.create(kdid, & st);
-  skChainData *newData = (skChainData * )fnOut.data(&st); mser;
-  std::vector < skChain > *geom = newData->fGeometry;
+  MObject dOut = fnOut.create(kdid, &st);
+  skChainData *newData = (skChainData *)fnOut.data(&st);
+  mser;
+  std::vector<skChain> *geom = newData->fGeometry;
   geom->clear();
 
   st = generate(data, geom);
-  if (st.error()) {
-    return (MS::kUnknownParameter );
+  if (st.error())
+  {
+    return (MS::kUnknownParameter);
   }
 
   hOutput.set(newData);
   data.setClean(plug);
 
-  return MS:: kSuccess;
+  return MS::kSuccess;
 }
-
 
 MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
 {
   MStatus st;
 
-  CImg<unsigned char>  *pImage = cImgUtils::getImage(data, aImage );
-  if (! pImage)
+  CImg<unsigned char> *pImage = cImgUtils::getImage(data, aImage);
+  if (!pImage)
   {
     return MS::kUnknownParameter;
   }
   int w = pImage->width();
   int h = pImage->height();
-  if (! (w && h)) {
+  if (!(w && h))
+  {
     return MS::kUnknownParameter;
   }
   int maxIterations = data.inputValue(aMaxIterations).asInt();
   MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
-  int minBranchLength =  data.inputValue(aMinBranchTwigLength).asInt();
-  int minLooseTwigLength =  data.inputValue(aMinLooseTwigLength).asInt();
-  int step =  data.inputValue(aSpanPixels).asInt();
-  int maxWidthPixels =  data.inputValue(aMaxWidthPixels).asInt();
+  int minBranchLength = data.inputValue(aMinBranchTwigLength).asInt();
+  int minLooseTwigLength = data.inputValue(aMinLooseTwigLength).asInt();
+  int step = data.inputValue(aSpanPixels).asInt();
+  int maxWidthPixels = data.inputValue(aMaxWidthPixels).asInt();
 
-  float radiusMult = data.inputValue(aRadiusMult).asFloat();
-  float radiusOffset = data.inputValue(aRadiusOffset).asFloat();
-  int maxStampWidthPixels =  data.inputValue(aMaxStampWidthPixels).asInt();
+  // float radiusMult = data.inputValue(aRadiusMult).asFloat();
+  // float radiusOffset = data.inputValue(aRadiusOffset).asFloat();
+  int maxStampWidthPixels = data.inputValue(aMaxStampWidthPixels).asInt();
 
   if (maxWidthPixels < 1)
   {
@@ -225,8 +238,6 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
   }
 
   CImg<unsigned char> image = pImage->get_norm().normalize(0, 1);
-
-
 
   // if (median) { image.blur_median(median); }
 
@@ -241,7 +252,8 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
     {
       for (int x = 0; x < w; ++x)
       {
-        if (! skel(x, y)) {
+        if (!skel(x, y))
+        {
           mat(x, y) = 0.0;
         }
       }
@@ -251,7 +263,8 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
 
     g.prune(minBranchLength);
     g.removeLooseTwigs(minLooseTwigLength);
-    if (! g.numNodes())
+
+    if (!g.numNodes())
     {
       break;
     }
@@ -260,8 +273,7 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
 
     g.draw(image, maxStampWidthPixels);
 
-    g.adjustRadius(radiusMult , radiusOffset);
-
+    // g.adjustRadius(radiusMult, radiusOffset);
 
     g.detachBranches();
     g.getChains(projection, *geom, step);
@@ -275,5 +287,3 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
 
   return MS::kSuccess;
 }
-
-

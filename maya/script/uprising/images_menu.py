@@ -16,11 +16,7 @@ def create():
     pm.menuItem(
         label="Publish snapshot",
         command=pm.Callback(make_snapshot))
-
-    # pm.menuItem(
-    #     label="Prepare face detection",
-    #     command=pm.Callback(detect_face))
-
+ 
     return menu
 
 def make_snapshot():

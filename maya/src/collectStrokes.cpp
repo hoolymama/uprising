@@ -304,7 +304,7 @@ MStatus collectStrokes::initialize()
   st = attributeAffects(aApplyFilters, aOutput);
   st = attributeAffects(aApplySort, aOutput);
 
-  st = attributeAffects(aStrokeFilterTexture, aOutput);
+  // st = attributeAffects(aStrokeFilterTexture, aOutput);
 
   st = attributeAffects(aStartFrom, aOutput);
   st = attributeAffects(aEndAt, aOutput);
