@@ -16,7 +16,7 @@ def create():
     pm.menuItem(
         label="Publish snapshot",
         command=pm.Callback(make_snapshot))
- 
+
     return menu
 
 def make_snapshot():

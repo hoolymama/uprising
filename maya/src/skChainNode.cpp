@@ -26,8 +26,8 @@ MObject skChainNode::aSpanPixels;
 MObject skChainNode::aMaxWidthPixels;
 MObject skChainNode::aMaxStampWidthPixels;
 MObject skChainNode::aProjectionMatrix;
-// MObject skChainNode::aRadiusMult;
-// MObject skChainNode::aRadiusOffset;
+MObject skChainNode::aRadiusMult;
+MObject skChainNode::aRadiusOffset;
 
 MObject skChainNode::aOutput;
 
@@ -170,8 +170,8 @@ MStatus skChainNode::initialize()
 
   attributeAffects(aSmallestMaxWidthPixels, aOutput);
 
-  // attributeAffects(aRadiusMult, aOutput);
-  // attributeAffects(aRadiusOffset, aOutput);
+  attributeAffects(aRadiusMult, aOutput);
+  attributeAffects(aRadiusOffset, aOutput);
   attributeAffects(aMaxStampWidthPixels, aOutput);
 
   return (MS::kSuccess);
@@ -228,8 +228,8 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
   int step = data.inputValue(aSpanPixels).asInt();
   int maxWidthPixels = data.inputValue(aMaxWidthPixels).asInt();
 
-  // float radiusMult = data.inputValue(aRadiusMult).asFloat();
-  // float radiusOffset = data.inputValue(aRadiusOffset).asFloat();
+  float radiusMult = data.inputValue(aRadiusMult).asFloat();
+  float radiusOffset = data.inputValue(aRadiusOffset).asFloat();
   int maxStampWidthPixels = data.inputValue(aMaxStampWidthPixels).asInt();
 
   if (maxWidthPixels < 1)
@@ -273,7 +273,7 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
 
     g.draw(image, maxStampWidthPixels);
 
-    // g.adjustRadius(radiusMult, radiusOffset);
+    g.adjustRadius(radiusMult, radiusOffset);
 
     g.detachBranches();
     g.getChains(projection, *geom, step);
@@ -284,6 +284,8 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
       break;
     }
   }
+
+
 
   return MS::kSuccess;
 }
