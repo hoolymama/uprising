@@ -252,17 +252,21 @@ def read_perspex_calibration():
     packs = putl.get_perspex_packs()
     pack_len = len(packs)
     data = result.get('values', [])
-    for row in data:
-        i = int(uutl.numeric(row[0]))
-        if i < pack_len:
-            pack = packs[i]
-            print "ROW:", row
-            if row[6]:
-                dup = pm.duplicate(pack["base"])
-                dup = dup[0]
-                _set_precise(dup, uutl.numeric(row[6]), 0)
-                dup.rename("Calib_{}".format(pack["name"]))
-                pm.parent(dup, world=True)
+
+    for pack in packs:
+        index = pack["index"]
+    # for row in data:
+        # i = int(uutl.numeric(row[0]))
+        # if i < pack_len:
+        # pack = packs[i]
+        row = data[index]
+        print "ROW:", row
+        if len(row) > 6 and row[6]:
+            dup = pm.duplicate(pack["base"])
+            dup = dup[0]
+            _set_precise(dup, uutl.numeric(row[6]), 0)
+            dup.rename("Calib_{}".format(pack["name"]))
+            pm.parent(dup, world=True)
 
 
 def read_board_calibration():

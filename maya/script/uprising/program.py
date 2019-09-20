@@ -507,7 +507,7 @@ class PerspexCalibration(CalibrationProgram):
         self.program.addMoveJ(approach_target)
         self.program.addMoveL(base_target)
         self.program.RunInstruction(
-            "{} {} in cell {}E".format(k.CAL_PAUSE_MESSAGE, pack["name"], row),
+            "{} {} in cell G{}".format(k.CAL_PAUSE_MESSAGE, pack["name"], row),
             INSTRUCTION_SHOW_MESSAGE,
         )
         self.program.Pause()
