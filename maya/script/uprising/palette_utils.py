@@ -7,13 +7,14 @@ import sheets
 def get_pot_handle_pairs():
     return zip(
         pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*"),
-        pm.ls("rack|holes|holeRot*|holeTrans|wipe_loc|handle")
+        pm.ls("rack|holes|holeRot*|holeTrans|wipe_loc|handle"),
     )
 
 
 def get_used_pot_handle_pairs():
-    return [pair for pair in get_pot_handle_pairs(
-    ) if not pair[0].split("|")[-1] == "pot"]
+    return [
+        pair for pair in get_pot_handle_pairs() if not pair[0].split("|")[-1] == "pot"
+    ]
 
 
 def get_used_pots():
@@ -52,10 +53,8 @@ def clean_palette():
     painting_node = pm.PyNode("mainPaintingShape")
     delete_paints(painting_node)
     for painting in pm.ls(
-        "rack|holes|holeRot*|holeTrans",
-        dag=True,
-        leaf=True,
-            type="painting"):
+        "rack|holes|holeRot*|holeTrans", dag=True, leaf=True, type="painting"
+    ):
         pm.delete(painting.getParent())
     for pot in pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*"):
         pot.rename("pot")
@@ -92,20 +91,16 @@ def set_pot_colors(pots, colors):
     delete_shaders()
     for geo, color in pot_cols:
         # geo.rename("pot_%s_%s" % (color["index"], color["name"]))
-        ss = pm.shadingNode(
-            'lambert',
-            asShader=True,
-            name=(
-                "sx_%s" %
-                color["name"]))
+        ss = pm.shadingNode("lambert", asShader=True, name=("sx_%s" % color["name"]))
         sg = pm.sets(
             renderable=True,
             noSurfaceShader=True,
             empty=True,
-            name=("sx_%s_SG" % color["name"]))
-        ss.attr('outColor') >> sg.attr('surfaceShader')
+            name=("sx_%s_SG" % color["name"]),
+        )
+        ss.attr("outColor") >> sg.attr("surfaceShader")
         pm.sets(sg, edit=True, forceElement=geo)
-        geo.attr("sfPaintColor") >> ss.attr('color')
+        geo.attr("sfPaintColor") >> ss.attr("color")
         try:
             geo.attr("sfPaintColor").set([color["r"], color["g"], color["b"]])
         except RuntimeError:
@@ -128,14 +123,7 @@ def connect_pots(pots):
 
 def connect_paint_to_node(pot, node, connect_to="next_available"):
     index = sfu.get_index(node, "paints.paintTravel", connect_to)
-    whitelist = [
-        "double",
-        "float",
-        "short",
-        "bool",
-        "string",
-        "float3",
-        "double3"]
+    whitelist = ["double", "float", "short", "bool", "string", "float3", "double3"]
     atts = node.attr("paints[%d]" % index).getChildren()
     for att in atts:
         att_type = att.type()
@@ -156,7 +144,7 @@ def setup_paints_from_sheet(palette_name):
             "g": uutl.numeric(row[1]) / 255.0,
             "b": uutl.numeric(row[2]) / 255.0,
             "name": row[3],
-            "code": row[4]
+            "code": row[4],
         }
         colors.append(color)
     set_up_rack(colors)
@@ -167,12 +155,7 @@ def dip_combination_ids():
     result = []
     combos = pm.paintingQuery(painting_node, dc=True)
     for i in range(0, len(combos), 2):
-        result.append(
-            {
-                "brush": int(combos[i]),
-                "paint": int(combos[i + 1])
-            }
-        )
+        result.append({"brush": int(combos[i]), "paint": int(combos[i + 1])})
     return result
 
 
@@ -180,16 +163,19 @@ def get_pot_handle_packs():
     result = []
     for i, p in enumerate(pm.ls("RACK1_CONTEXT|j1|rack|holes|holeRot*|holeTrans")):
         _1, _2, pot_base, pot_ap, handle_base, handle_ap = [
-            x for x in p.getChildren(type='transform')]
+            x for x in p.getChildren(type="transform")
+        ]
         name = "ph_{:02d}".format(i)
-        result.append({
-            "pot_base": pot_base,
-            "pot_approach": pot_ap,
-            "handle_base": handle_base,
-            "handle_approach": handle_ap,
-            "name": name,
-            "index": i
-        })
+        result.append(
+            {
+                "pot_base": pot_base,
+                "pot_approach": pot_ap,
+                "handle_base": handle_base,
+                "handle_approach": handle_ap,
+                "name": name,
+                "index": i,
+            }
+        )
     return result
 
 
@@ -197,11 +183,12 @@ def get_pick_place_packs(brush_ids="used"):
     result = {}
     painting = pm.PyNode("mainPaintingShape")
     if brush_ids == "all":
-        bids = [int(n[-2:])
-                for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
+        bids = [int(n[-2:]) for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
     elif brush_ids == "used":
         dc = pm.paintingQuery(painting, dc=True)
         bids = set(dc[::2])
+    elif brush_ids == "calibration":
+        bids = [0]
     else:
         bids = brush_ids
 
@@ -222,7 +209,7 @@ def get_pick_place_packs(brush_ids="used"):
             "pin": pm.PyNode("{}|pin_loc".format(trans)),
             "pin_ap": pm.PyNode("{}|pin_approach_loc".format(trans)),
             "clear": pm.PyNode("{}|clear_loc".format(trans)),
-            "clear_ap": pm.PyNode("{}|clear_approach_loc".format(trans))
+            "clear_ap": pm.PyNode("{}|clear_approach_loc".format(trans)),
         }
         result[key].update(path_attributes)
     return result
@@ -231,15 +218,15 @@ def get_pick_place_packs(brush_ids="used"):
 def get_perspex_packs():
     result = []
 
-    for i, p in enumerate(pm.ls("RACK1_CONTEXT|j1|rack|probes|rackCalRot*|rackCalLocal", v=True)):
-        approach, base = [x for x in p.getChildren(type='transform')]
-        name = base.split("|")[0]
-        result.append({
-            "base": base,
-            "approach": approach,
-            "name": name,
-            "index": i
-        })
+    for i, p in enumerate(
+        pm.ls("RACK1_CONTEXT|j1|rack|probes|rackCalRot*|rackCalLocal")
+    ):
+        if p.attr("v").get() and p.getParent().attr("v").get():
+            approach, base = [x for x in p.getChildren(type="transform")]
+            name = base.split("|")[0]
+            result.append(
+                {"base": base, "approach": approach, "name": name, "index": i}
+            )
     return result
 
 
@@ -252,9 +239,11 @@ def get_dip_wipe_packs():
     for combo in dip_combinations:
 
         dip_ptg_path = "rack|holes|holeRot_{:02d}|holeTrans|dip_loc|b{:02d}|*".format(
-            combo["paint"], combo["brush"])
+            combo["paint"], combo["brush"]
+        )
         wipe_ptg_path = "rack|holes|holeRot_{:02d}|holeTrans|wipe_loc|b{:02d}|*".format(
-            combo["paint"], combo["brush"])
+            combo["paint"], combo["brush"]
+        )
 
         paint_key = "p{:02d}".format(combo["paint"])
         brush_key = "b{:02d}".format(combo["brush"])
@@ -266,14 +255,16 @@ def get_dip_wipe_packs():
         except IndexError:
             raise IndexError(
                 "Either dip or wipe node is missing: for {} {}".format(
-                    paint_key, brush_key))
+                    paint_key, brush_key
+                )
+            )
 
         if paint_key not in result:
             result[paint_key] = {}
         result[paint_key][brush_key] = {
             "dip": dip_ptg,
             "wipe": wipe_ptg,
-            "name": "{}_{}".format(paint_key, brush_key)
+            "name": "{}_{}".format(paint_key, brush_key),
         }
 
     return result
@@ -287,18 +278,14 @@ def get_slop_packs():
 
     for bid in sorted(set(bids)):
         brush_key = "b{:02d}".format(bid)
-        ptg_path = "rack|slop|holeRot|holeTrans|slop_loc|{}|*".format(
-            brush_key)
+        ptg_path = "rack|slop|holeRot|holeTrans|slop_loc|{}|*".format(brush_key)
 
         try:
             ptg = pm.ls(ptg_path, type="painting")[0]
         except IndexError:
-            raise IndexError(
-                "Slop painting node is missing: for {}".format(brush_key))
+            raise IndexError("Slop painting node is missing: for {}".format(brush_key))
 
-        result[brush_key] = {
-            "painting": ptg,
-            "name": brush_key
-        }
+        result[brush_key] = {"painting": ptg, "name": brush_key}
 
     return result
+

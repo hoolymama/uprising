@@ -27,6 +27,8 @@ from program import (
     PerspexCalibration,
     PickProgram,
     PlaceProgram,
+    PickAtHomeProgram,
+    PlaceAtHomeProgram,
     PapExerciseProgram,
     ManualTriangulation)
 
@@ -170,9 +172,9 @@ class Studio(object):
         return result
 
     def _build_pick_place_programs(self, brush_ids):
-        print("_build_pick_place_programs")
-        print("brush_ids")
-        print(brush_ids)
+        # print("_build_pick_place_programs")
+        # print("brush_ids")
+        # print(brush_ids)
 
         gripper_geo = butl.setup_gripper_from_sheet()
         gripper = Brush.brush_at_plug(
@@ -186,11 +188,14 @@ class Studio(object):
         result = []
         for p in packs:
             pack = packs[p]
-            print "Pack"
-            print pack
-
-            pick_prg = PickProgram(gripper, pack)
-            place_prg = PlaceProgram(gripper, pack)
+            # print "Pack"
+            # print pack
+            if brush_ids == "calibration":
+                pick_prg = PickAtHomeProgram(gripper, pack)
+                place_prg = PlaceAtHomeProgram(gripper, pack)
+            else:
+                pick_prg = PickProgram(gripper, pack)
+                place_prg = PlaceProgram(gripper, pack)
             result += [pick_prg, place_prg]
         return result
 
@@ -205,9 +210,11 @@ class Studio(object):
 
     def _write_rack_and_holder_geo(self):
         if self.do_rack_and_holder_geo:
-            ref_geo = [pm.PyNode("rackTop")]
-            ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
-            props.send(ref_geo)
+            rack_context = pm.PyNode("RACK1_CONTEXT")
+            with uutl.final_position(rack_context):
+                ref_geo = [pm.PyNode("rackTop")]
+                ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
+                props.send(ref_geo)
 
     def write(self):
 

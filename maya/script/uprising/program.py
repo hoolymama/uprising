@@ -15,12 +15,13 @@ from robolink import (
     INSTRUCTION_SHOW_MESSAGE,
     INSTRUCTION_CALL_PROGRAM,
     INSTRUCTION_INSERT_CODE,
-    COLLISION_OFF
+    COLLISION_OFF,
 )
 
 import const as k
 import logging
-logger = logging.getLogger('uprising')
+
+logger = logging.getLogger("uprising")
 
 
 class ProgramError(Exception):
@@ -47,7 +48,7 @@ class Program(object):
                 "distance": update_result[2],
                 "completion": update_result[3],
                 "problems": update_result[4],
-                "status": "SUCCESS" if (update_result[3] == 1.0) else "FAILURE"
+                "status": "SUCCESS" if (update_result[3] == 1.0) else "FAILURE",
             }
 
 
@@ -66,15 +67,11 @@ class MainProgram(Program):
                 return
 
             # put the last brush back
-            place_program_name = PlaceProgram.generate_program_name(
-                last_brush_id)
-            self.program.RunInstruction(
-                place_program_name, INSTRUCTION_CALL_PROGRAM)
+            place_program_name = PlaceProgram.generate_program_name(last_brush_id)
+            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
 
-        pick_program_name = PickProgram.generate_program_name(
-            cluster.brush.id)
-        self.program.RunInstruction(
-            pick_program_name, INSTRUCTION_CALL_PROGRAM)
+        pick_program_name = PickProgram.generate_program_name(cluster.brush.id)
+        self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
 
     def write(self, studio):
         # RL = Robolink()
@@ -87,14 +84,10 @@ class MainProgram(Program):
             motion = self.painting.motion
 
             # Make sure gripper is open to begin with.
-            self.program.RunInstruction(
-                "Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
-            self.program.RunInstruction(
-                '$OUT[2]=FALSE', INSTRUCTION_INSERT_CODE)
-            self.program.RunInstruction(
-                '$OUT[1]=TRUE', INSTRUCTION_INSERT_CODE)
-            self.program.RunInstruction(
-                'WAIT FOR ($IN[2])', INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
+            self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
 
             last_brush_id = None
             last_paint_id = None
@@ -106,9 +99,9 @@ class MainProgram(Program):
                     last_brush_id = cluster.brush.id
 
                 dip_program_name = DipProgram.generate_program_name(
-                    cluster.paint.id, cluster.brush.id)
-                self.program.RunInstruction(
-                    dip_program_name, INSTRUCTION_CALL_PROGRAM)
+                    cluster.paint.id, cluster.brush.id
+                )
+                self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
 
                 # go to the approach at the center of the painting
                 # Why? On a big painting, the lower corners could be
@@ -116,18 +109,11 @@ class MainProgram(Program):
                 # of the rack could cause the wrist to collide with the
                 # rack.
                 self.program.addMoveJ(studio.dip_approach)
-                cluster.write(
-                    self.program,
-                    self.frame,
-                    motion,
-                    studio.RL,
-                    studio.robot)
+                cluster.write(self.program, self.frame, motion, studio.RL, studio.robot)
                 self.program.addMoveJ(studio.dip_approach)
 
-            place_program_name = PlaceProgram.generate_program_name(
-                last_brush_id)
-            self.program.RunInstruction(
-                place_program_name, INSTRUCTION_CALL_PROGRAM)
+            place_program_name = PlaceProgram.generate_program_name(last_brush_id)
+            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
 
             self.program.addMoveJ(studio.home_approach)
 
@@ -152,39 +138,40 @@ class PapExerciseProgram(Program):
                     self.program.Pause()
                     self.program.RunInstruction(
                         "About to swap brush {:02d} for {:02d}".format(
-                            last_brush_id, brush_id), INSTRUCTION_SHOW_MESSAGE)
+                            last_brush_id, brush_id
+                        ),
+                        INSTRUCTION_SHOW_MESSAGE,
+                    )
 
                     # put the last brush back
                     place_program_name = PlaceProgram.generate_program_name(
-                        last_brush_id)
+                        last_brush_id
+                    )
                     self.program.RunInstruction(
-                        place_program_name, INSTRUCTION_CALL_PROGRAM)
+                        place_program_name, INSTRUCTION_CALL_PROGRAM
+                    )
                     ########################
 
                 pick_program_name = PickProgram.generate_program_name(brush_id)
-                self.program.RunInstruction(
-                    pick_program_name, INSTRUCTION_CALL_PROGRAM)
+                self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
 
                 last_brush_id = brush_id
 
             ###########################
             self.program.Pause()
             self.program.RunInstruction(
-                "About to replace brush {:02d} and go home.".format(
-                    last_brush_id),
-                INSTRUCTION_SHOW_MESSAGE)
+                "About to replace brush {:02d} and go home.".format(last_brush_id),
+                INSTRUCTION_SHOW_MESSAGE,
+            )
 
-            place_program_name = PlaceProgram.generate_program_name(
-                last_brush_id)
-            self.program.RunInstruction(
-                place_program_name, INSTRUCTION_CALL_PROGRAM)
+            place_program_name = PlaceProgram.generate_program_name(last_brush_id)
+            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
             ###########################
 
             self.program.addMoveJ(studio.home_approach)
 
 
 class DipProgram(Program):
-
     @staticmethod
     def generate_program_name(paint_id, brush_id):
         return "p{:02d}_b{:02d}".format(paint_id, brush_id)
@@ -210,29 +197,32 @@ class DipProgram(Program):
 
         with uutl.minimize_robodk():
             self.program.RunInstruction(
-                "Dip with tool %s" %
-                self.dip_painting.clusters[0].brush.node_name,
-                INSTRUCTION_COMMENT)
+                "Dip with tool %s" % self.dip_painting.clusters[0].brush.node_name,
+                INSTRUCTION_COMMENT,
+            )
 
             # self.program.addMoveJ(studio.dip_approach)
 
             for cluster in self.dip_painting.clusters:
                 cluster.write(
-
                     self.program,
                     self.frame,
-                    self.dip_painting.motion, studio.RL, studio.robot)
+                    self.dip_painting.motion,
+                    studio.RL,
+                    studio.robot,
+                )
 
             for cluster in self.wipe_painting.clusters:
                 cluster.write(
-
                     self.program,
                     self.frame,
-                    self.wipe_painting.motion, studio.RL, studio.robot)
+                    self.wipe_painting.motion,
+                    studio.RL,
+                    studio.robot,
+                )
 
 
 class SlopProgram(Program):
-
     @staticmethod
     def generate_program_name(brush_id):
         return "slop_b{:02d}".format(brush_id)
@@ -251,28 +241,29 @@ class SlopProgram(Program):
 
         with uutl.minimize_robodk():
             self.program.RunInstruction(
-                "Slop with tool {}".format(
-                    self.painting.clusters[0].brush.node_name),
-                INSTRUCTION_COMMENT)
+                "Slop with tool {}".format(self.painting.clusters[0].brush.node_name),
+                INSTRUCTION_COMMENT,
+            )
 
             for cluster in self.painting.clusters:
                 cluster.write(
                     self.program,
                     self.frame,
-                    self.painting.motion, studio.RL, studio.robot)
+                    self.painting.motion,
+                    studio.RL,
+                    studio.robot,
+                )
 
 
 class CalibrationProgram(Program):
-
     def __init__(self, name):
         super(CalibrationProgram, self).__init__(name)
         self.RL = Robolink()
-        self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
+        self.robot = self.RL.Item("", ITEM_TYPE_ROBOT)
         self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
         self.brush = self._get_probe_brush()
         if not self.brush:
-            raise ProgramError(
-                "No Probe Brush. Risk of damage. Can't continue.")
+            raise ProgramError("No Probe Brush. Risk of damage. Can't continue.")
 
     @staticmethod
     def _make_locator(parent, name, pos, **kw):
@@ -301,17 +292,14 @@ class CalibrationProgram(Program):
         self.brush.write(self.RL, self.robot)
         self.tool = self.RL.Item(self.brush.name)
         if not self.tool.Valid():
-            raise ProgramError(
-                "No Probe Brush. Risk of damage. Can't continue.")
+            raise ProgramError("No Probe Brush. Risk of damage. Can't continue.")
 
         self.write_probe_attach_gripper()
 
         self.program.setSpeed(k.CAL_LINEAR_SPEED, k.CAL_ANGULAR_SPEED)
         self.program.setRounding(k.CAL_ROUNDING_DISTANCE)
         self.program.setPoseTool(self.tool)
-        self.program.RunInstruction(
-            "Starting calibration",
-            INSTRUCTION_COMMENT)
+        self.program.RunInstruction("Starting calibration", INSTRUCTION_COMMENT)
 
         self.write_locator_packs()
 
@@ -319,23 +307,25 @@ class CalibrationProgram(Program):
 
         self.program.addMoveJ(home_approach)
 
+
     def write_probe_attach_gripper(self):
-        pick_program_name = PickProgram.generate_program_name(0)
-        self.program.RunInstruction(
-            pick_program_name, INSTRUCTION_CALL_PROGRAM)
+        print "write_probe_attach_gripper PickAtHomeProgram"
+        pick_program_name = PickAtHomeProgram.generate_program_name(0)
+        self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
 
     def write_probe_detach_gripper(self):
-        place_program_name = PlaceProgram.generate_program_name(0)
-        self.program.RunInstruction(
-            place_program_name, INSTRUCTION_CALL_PROGRAM)
+        print "write_probe_detach_gripper PlaceAtHomeProgram"
+        place_program_name = PlaceAtHomeProgram.generate_program_name(0)
+        self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
 
-    def write_probe_attach_bayonet(self, tool_approach):
+    # def write_probe_attach_bayonet(self, tool_approach):
 
-        self.program.addMoveJ(tool_approach)
-        self.program.Pause()
-        self.program.RunInstruction(
-            "Attach calibration Tool: {}".format(
-                self.brush.name), INSTRUCTION_SHOW_MESSAGE)
+    #     self.program.addMoveJ(tool_approach)
+    #     self.program.Pause()
+    #     self.program.RunInstruction(
+    #         "Attach calibration Tool: {}".format(self.brush.name),
+    #         INSTRUCTION_SHOW_MESSAGE,
+    #     )
 
     def write_locator_packs(self):
         raise NotImplementedError
@@ -349,8 +339,7 @@ class CalibrationProgram(Program):
             approach_a = pm.PyNode(loc_a)
             approach_b = pm.PyNode(loc_b)
 
-            tmat = pm.dt.TransformationMatrix(
-                approach_a.attr("worldMatrix[0]").get())
+            tmat = pm.dt.TransformationMatrix(approach_a.attr("worldMatrix[0]").get())
             tx_a = approach_a.attr("worldMatrix[0]").get().translate
             tx_b = approach_b.attr("worldMatrix[0]").get().translate
 
@@ -364,8 +353,7 @@ class CalibrationProgram(Program):
                     tx_a += vec
                     tmat.setTranslation(tx_a, "world")
                     name = "%s_stop_%d" % (loc_b, i)
-                    target = self._create_a_target(
-                        tmat.asMatrix(), name, facing_joints)
+                    target = self._create_a_target(tmat.asMatrix(), name, facing_joints)
                     self.program.addMoveJ(target)
 
     def _create_a_target(self, mat, name, facing_joints):
@@ -379,7 +367,6 @@ class CalibrationProgram(Program):
 
 
 class PotCalibration(CalibrationProgram):
-
     def __init__(self, name):
         super(PotCalibration, self).__init__(name)
         self.locators = putl.get_pot_handle_packs()
@@ -388,22 +375,18 @@ class PotCalibration(CalibrationProgram):
         last = None
 
         # RACK_POT_DEPTH = 3.7 # 3.5 next time
-# RACK_HANDLE_HEIGHT = 3.8 #4.5 next time
+        # RACK_HANDLE_HEIGHT = 3.8 #4.5 next time
 
         # pot_depth = pm.PyNode("rack|holes").attr("calibrationPotDepth").get()
         # handle_height = pm.PyNode("rack|holes").attr(
         #     "calibrationHandleHeight").get()
 
         for pack in self.locators:
-            self._write_stops(
-                last,
-                pack["pot_approach"],
-                k.FACING_RACK_JOINTS)
+            self._write_stops(last, pack["pot_approach"], k.FACING_RACK_JOINTS)
 
             self.program.RunInstruction(
-                ("Moving to %s" %
-                 pack["name"]),
-                INSTRUCTION_COMMENT)
+                ("Moving to %s" % pack["name"]), INSTRUCTION_COMMENT
+            )
 
             # with uutl.at_height(pack["pot_base"], pot_depth):
             self._write_one_probe(pack, "pot")
@@ -414,10 +397,7 @@ class PotCalibration(CalibrationProgram):
 
     def _write_one_probe(self, pack, which):
 
-        column = {
-            "pot": "B",
-            "handle": "C"
-        }
+        column = {"pot": "B", "handle": "C"}
 
         row = k.CAL_SHEET_FIRST_ROW + pack["index"]
 
@@ -427,13 +407,13 @@ class PotCalibration(CalibrationProgram):
         base_target = self._create_a_target(
             pack[base_key].attr("worldMatrix[0]").get(),
             "{}_{}_base".format(pack["name"], which),
-            k.FACING_RACK_JOINTS
+            k.FACING_RACK_JOINTS,
         )
 
         approach_target = self._create_a_target(
             pack[approach_key].attr("worldMatrix[0]").get(),
             "{}_{}_approach".format(pack["name"], which),
-            k.FACING_RACK_JOINTS
+            k.FACING_RACK_JOINTS,
         )
 
         self.program.addMoveJ(approach_target)
@@ -441,16 +421,14 @@ class PotCalibration(CalibrationProgram):
         self.program.Pause()
         self.program.RunInstruction(
             "{} {} in cell {}{}".format(
-                k.CAL_PAUSE_MESSAGE,
-                pack["name"],
-                row,
-                column[which]),
-            INSTRUCTION_SHOW_MESSAGE)
+                k.CAL_PAUSE_MESSAGE, pack["name"], row, column[which]
+            ),
+            INSTRUCTION_SHOW_MESSAGE,
+        )
         self.program.addMoveL(approach_target)
 
 
 class HolderCalibration(CalibrationProgram):
-
     def __init__(self, name):
         super(HolderCalibration, self).__init__(name)
         self.locators = putl.get_pick_place_packs("all")
@@ -459,44 +437,44 @@ class HolderCalibration(CalibrationProgram):
         bids = sorted(self.locators.keys())
         for bid in bids:
             pack = self.locators[bid]
-            with uutl.at_position(pack["trans_node"], k.RACK_HOLDER_DISTANCE, 0, k.RACK_HOLDER_HEIGHT):
+            with uutl.at_position(
+                pack["trans_node"], k.RACK_HOLDER_DISTANCE, 0, k.RACK_HOLDER_HEIGHT
+            ):
                 self._write_one_probe(self.locators[bid])
 
     def _write_one_probe(self, pack):
 
         self.program.RunInstruction(
-            "Moving to holder {}".format(
-                pack["brush_id"]),
-            INSTRUCTION_COMMENT)
+            "Moving to holder {}".format(pack["brush_id"]), INSTRUCTION_COMMENT
+        )
 
         row = k.CAL_SHEET_FIRST_ROW + int(pack["brush_id"])
 
         base_target = self._create_a_target(
             pack["probe"].attr("worldMatrix[0]").get(),
             "base_{:02d}".format(pack["brush_id"]),
-            k.FACING_RACK_JOINTS
+            k.FACING_RACK_JOINTS,
         )
 
         approach_target = self._create_a_target(
             pack["pin_ap"].attr("worldMatrix[0]").get(),
             "approach_{:02d}".format(pack["brush_id"]),
-            k.FACING_RACK_JOINTS
+            k.FACING_RACK_JOINTS,
         )
 
         self.program.addMoveJ(approach_target)
         self.program.addMoveL(base_target)
         self.program.RunInstruction(
             "{} {} in cell {}D +EF by eye".format(
-                k.CAL_PAUSE_MESSAGE,
-                pack["brush_id"],
-                row),
-            INSTRUCTION_SHOW_MESSAGE)
+                k.CAL_PAUSE_MESSAGE, pack["brush_id"], row
+            ),
+            INSTRUCTION_SHOW_MESSAGE,
+        )
         self.program.Pause()
         self.program.addMoveL(approach_target)
 
 
 class PerspexCalibration(CalibrationProgram):
-
     def __init__(self, name):
         super(PerspexCalibration, self).__init__(name)
         self.locators = putl.get_perspex_packs()
@@ -508,38 +486,35 @@ class PerspexCalibration(CalibrationProgram):
     def _write_one_probe(self, pack):
 
         self.program.RunInstruction(
-            "Moving to probe {} {}".format(
-                pack["name"], pack["index"]),
-            INSTRUCTION_COMMENT)
+            "Moving to probe {} {}".format(pack["name"], pack["index"]),
+            INSTRUCTION_COMMENT,
+        )
 
         row = k.PERSPEX_CAL_SHEET_FIRST_ROW + int(pack["index"])
 
         base_target = self._create_a_target(
             pack["base"].attr("worldMatrix[0]").get(),
             "base_{}".format(pack["name"]),
-            k.FACING_RACK_JOINTS
+            k.FACING_RACK_JOINTS,
         )
 
         approach_target = self._create_a_target(
             pack["approach"].attr("worldMatrix[0]").get(),
             "approach_{}".format(pack["name"]),
-            k.FACING_RACK_JOINTS
+            k.FACING_RACK_JOINTS,
         )
 
         self.program.addMoveJ(approach_target)
         self.program.addMoveL(base_target)
         self.program.RunInstruction(
-            "{} {} in cell {}E".format(
-                k.CAL_PAUSE_MESSAGE,
-                pack["name"],
-                row),
-            INSTRUCTION_SHOW_MESSAGE)
+            "{} {} in cell {}E".format(k.CAL_PAUSE_MESSAGE, pack["name"], row),
+            INSTRUCTION_SHOW_MESSAGE,
+        )
         self.program.Pause()
         self.program.addMoveL(approach_target)
 
 
 class ManualTriangulation(CalibrationProgram):
-
     def __init__(self, name):
         super(ManualTriangulation, self).__init__(name)
 
@@ -554,13 +529,12 @@ class ManualTriangulation(CalibrationProgram):
 
         self.program.Pause()
         self.program.RunInstruction(
-            "Manually record the 3 leg centers with the brush tip",
-            INSTRUCTION_COMMENT)
+            "Manually record the 3 leg centers with the brush tip", INSTRUCTION_COMMENT
+        )
 
 
 ################# CALIBRATION #################
 class BoardCalibration(CalibrationProgram):
-
     def __init__(self, name):
         super(BoardCalibration, self).__init__(name)
         top_node = pm.PyNode("mainPaintingGroup")
@@ -571,14 +545,10 @@ class BoardCalibration(CalibrationProgram):
 
         last = None
         for locator_pack in self.locators:
-            self._write_stops(
-                last,
-                locator_pack["approach_loc"],
-                k.FACING_BOARD_JOINTS)
+            self._write_stops(last, locator_pack["approach_loc"], k.FACING_BOARD_JOINTS)
             self.program.RunInstruction(
-                ("Moving to %s" %
-                 locator_pack["name"]),
-                INSTRUCTION_COMMENT)
+                ("Moving to %s" % locator_pack["name"]), INSTRUCTION_COMMENT
+            )
             self._write_one_probe(locator_pack)
             last = locator_pack["approach_loc"]
 
@@ -589,32 +559,29 @@ class BoardCalibration(CalibrationProgram):
         base_target = self._create_a_target(
             pack["base_loc"].attr("worldMatrix[0]").get(),
             "{}_base".format(pack["name"]),
-            k.FACING_BOARD_JOINTS
+            k.FACING_BOARD_JOINTS,
         )
 
         approach_target = self._create_a_target(
             pack["approach_loc"].attr("worldMatrix[0]").get(),
             "{}_approach".format(pack["name"]),
-            k.FACING_BOARD_JOINTS
+            k.FACING_BOARD_JOINTS,
         )
 
         self.program.addMoveJ(approach_target)
         self.program.addMoveL(base_target)
         self.program.Pause()
         self.program.RunInstruction(
-            "{} {} in cell {}B".format(
-                k.CAL_PAUSE_MESSAGE,
-                pack["name"],
-                row),
-            INSTRUCTION_SHOW_MESSAGE)
+            "{} {} in cell {}B".format(k.CAL_PAUSE_MESSAGE, pack["name"], row),
+            INSTRUCTION_SHOW_MESSAGE,
+        )
         self.program.addMoveL(approach_target)
 
     def _setup_locators(self):
         locators = []
         verts = [
-            item for sublist in pm.sets(
-                "probePointsSet",
-                q=True) for item in sublist]
+            item for sublist in pm.sets("probePointsSet", q=True) for item in sublist
+        ]
         parent = pm.PyNode("|mainPaintingGroup|jpos|probes")
         rot = pm.dt.Vector(180, 0, -90)
         for i, v in enumerate(verts):
@@ -623,19 +590,27 @@ class BoardCalibration(CalibrationProgram):
             name = "board_cal_{:02}".format(index)
             pack = {"name": name, "id": i}
             pack["base_loc"] = CalibrationProgram._make_locator(
-                parent, "base_{}".format(name), pm.dt.Vector(
-                    px, py, 0.0), relative=False, rotation=rot)
+                parent,
+                "base_{}".format(name),
+                pm.dt.Vector(px, py, 0.0),
+                relative=False,
+                rotation=rot,
+            )
             pack["approach_loc"] = CalibrationProgram._make_locator(
-                parent, "approach_{}".format(name), pm.dt.Vector(
-                    px, py, k.CAL_APPROACH_HEIGHT), relative=False, rotation=rot)
+                parent,
+                "approach_{}".format(name),
+                pm.dt.Vector(px, py, k.CAL_APPROACH_HEIGHT),
+                relative=False,
+                rotation=rot,
+            )
             locators.append(pack)
         return locators
+
 
 ################# PICK PLACE #################
 
 
 class PickPlaceProgram(Program):
-
     @staticmethod
     def generate_program_name(brush_id):
         raise NotImplementedError
@@ -672,26 +647,30 @@ class PickPlaceProgram(Program):
 
         self.tool = studio.RL.Item(self.brush.name)
         if not self.tool.Valid():
-            raise ProgramError(
-                "No Gripper Brush. Risk of damage. Can't continue.")
+            raise ProgramError("No Gripper Brush. Risk of damage. Can't continue.")
 
         self.program.setRounding(self.pack["rounding"])
         self.program.setPoseTool(self.tool)
 
-        self.pin_target = self._create_target_from_pack(
-            "pin", studio.RL, studio.robot)
+        self.pin_target = self._create_target_from_pack("pin", studio.RL, studio.robot)
         self.pin_ap_target = self._create_target_from_pack(
-            "pin_ap", studio.RL, studio.robot)
+            "pin_ap", studio.RL, studio.robot
+        )
         self.clear_target = self._create_target_from_pack(
-            "clear", studio.RL, studio.robot)
+            "clear", studio.RL, studio.robot
+        )
         self.clear_ap_target = self._create_target_from_pack(
-            "clear_ap", studio.RL, studio.robot)
+            "clear_ap", studio.RL, studio.robot
+        )
 
     def _create_target_from_pack(self, key, RL, robot):
         return self._create_a_target(
             self.pack[key].attr("worldMatrix[0]").get(),
             "pick_place_{}_{:02d}".format(key, self.pack["brush_id"]),
-            k.FACING_RACK_JOINTS, RL, robot)
+            k.FACING_RACK_JOINTS,
+            RL,
+            robot,
+        )
 
     def _create_a_target(self, mat, name, facing_joints, RL, robot):
         target = RL.Item(name)
@@ -707,7 +686,6 @@ class PickPlaceProgram(Program):
 
 
 class PickProgram(PickPlaceProgram):
-
     @staticmethod
     def generate_program_name(brush_id):
         return "pick_{:02d}".format(brush_id)
@@ -726,31 +704,26 @@ class PickProgram(PickPlaceProgram):
             self.program.addMoveJ(self.pin_ap_target)
 
             self.program.setSpeed(
-                self.pack["precision_lin_speed"],
-                self.pack["ang_speed"])
+                self.pack["precision_lin_speed"], self.pack["ang_speed"]
+            )
             self.program.addMoveL(self.pin_target)
 
-            self.program.RunInstruction(
-                "Gripper closes here", INSTRUCTION_SHOW_MESSAGE)
+            self.program.RunInstruction("Gripper closes here", INSTRUCTION_SHOW_MESSAGE)
             self.program.Pause(pause_ms)
+            self.program.RunInstruction("$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("$OUT[2]=TRUE", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("WAIT FOR ($IN[1])", INSTRUCTION_INSERT_CODE)
             self.program.RunInstruction(
-                '$OUT[1]=FALSE', INSTRUCTION_INSERT_CODE)
-            self.program.RunInstruction(
-                '$OUT[2]=TRUE', INSTRUCTION_INSERT_CODE)
-            self.program.RunInstruction(
-                'WAIT FOR ($IN[1])', INSTRUCTION_INSERT_CODE)
-            self.program.RunInstruction(
-                "Gripper open. Make sure it dropped the tool properly.", INSTRUCTION_SHOW_MESSAGE)
+                "Gripper open. Make sure it dropped the tool properly.",
+                INSTRUCTION_SHOW_MESSAGE,
+            )
             self.program.Pause(pause_ms)
             self.program.addMoveL(self.clear_target)
-            self.program.setSpeed(
-                self.pack["lin_speed"],
-                self.pack["ang_speed"])
+            self.program.setSpeed(self.pack["lin_speed"], self.pack["ang_speed"])
             self.program.addMoveL(self.clear_ap_target)
 
 
 class PlaceProgram(PickPlaceProgram):
-
     @staticmethod
     def generate_program_name(brush_id):
         return "place_{:02d}".format(brush_id)
@@ -768,23 +741,81 @@ class PlaceProgram(PickPlaceProgram):
 
             self.program.RunInstruction("Starting place", INSTRUCTION_COMMENT)
             self.program.addMoveJ(self.clear_ap_target)
-            self.program.setSpeed(
-                self.pack["lin_speed"],
-                self.pack["ang_speed"])
+            self.program.setSpeed(self.pack["lin_speed"], self.pack["ang_speed"])
             self.program.addMoveL(self.clear_target)
             self.program.setSpeed(
-                self.pack["precision_lin_speed"],
-                self.pack["ang_speed"])
+                self.pack["precision_lin_speed"], self.pack["ang_speed"]
+            )
             self.program.addMoveL(self.pin_target)
 
-            self.program.RunInstruction(
-                "Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
+            self.program.RunInstruction("Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
             self.program.Pause(pause_ms)
-            self.program.RunInstruction(
-                '$OUT[2]=FALSE', INSTRUCTION_INSERT_CODE)
-            self.program.RunInstruction(
-                '$OUT[1]=TRUE', INSTRUCTION_INSERT_CODE)
-            self.program.RunInstruction(
-                'WAIT FOR ($IN[2])', INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
             self.program.Pause(pause_ms)
             self.program.addMoveL(self.pin_ap_target)
+
+
+class PickAtHomeProgram(PickPlaceProgram):
+    @staticmethod
+    def generate_program_name(brush_id):
+        return "pick_{:02d}".format(brush_id)
+
+    def __init__(self, brush, pack):
+        name = PickAtHomeProgram.generate_program_name(pack["brush_id"])
+        super(PickAtHomeProgram, self).__init__(brush, pack, name)
+
+    def write(self, studio):
+
+        with uutl.minimize_robodk():
+            super(PickAtHomeProgram, self).write(studio)
+
+            self.program.RunInstruction("Starting pick", INSTRUCTION_COMMENT)
+
+            self.program.addMoveJ(studio.home_approach)
+            self.program.RunInstruction(
+                "Continue when you are ready for the robot to grip the probe.",
+                INSTRUCTION_SHOW_MESSAGE,
+            )
+            self.program.Pause(-1)
+            self.program.RunInstruction("$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("$OUT[2]=TRUE", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("WAIT FOR ($IN[1])", INSTRUCTION_INSERT_CODE)
+
+            self.program.RunInstruction(
+                "Did it grip properly? If so hit continue.", INSTRUCTION_SHOW_MESSAGE
+            )
+            self.program.Pause(-1)
+
+
+class PlaceAtHomeProgram(PickPlaceProgram):
+    @staticmethod
+    def generate_program_name(brush_id):
+        return "place_{:02d}".format(brush_id)
+
+    def __init__(self, brush, pack):
+        name = PlaceAtHomeProgram.generate_program_name(pack["brush_id"])
+        super(PlaceAtHomeProgram, self).__init__(brush, pack, name)
+
+    def write(self, studio):
+
+        with uutl.minimize_robodk():
+            super(PlaceAtHomeProgram, self).write(studio)
+
+            self.program.RunInstruction("Starting place", INSTRUCTION_COMMENT)
+            self.program.addMoveJ(studio.home_approach)
+
+            self.program.RunInstruction(
+                "Continue when you are ready for the robot to release the probe.",
+                INSTRUCTION_SHOW_MESSAGE,
+            )
+            self.program.Pause(-1)
+            self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
+            self.program.RunInstruction(
+                "Did you catch it? Hit continue to end the program.",
+                INSTRUCTION_SHOW_MESSAGE,
+            )
+

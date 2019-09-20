@@ -126,7 +126,7 @@ def _generate_calibration(which, *reference_geo):
         "do_holder_calibration": which == k.HOLDER_CALIBRATION_PROGRAM_NAME,
         "do_board_calibration": which == k.BOARD_CALIBRATION_PROGRAM_NAME,
         "do_perspex_calibration": which == k.PERSPEX_CALIBRATION_PROGRAM_NAME,
-        "pick_and_place_slots": [0],  # all, used, specific ids
+        "pick_and_place_slots": "calibration",  # all, used, specific ids
         "pause": -1
     }
 
