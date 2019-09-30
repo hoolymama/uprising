@@ -11,7 +11,8 @@ import csv
 from brush import Brush
 import palette_utils as putl
 import board_utils as bdutl
-
+from random import seed
+from random import random
 
 def create():
     menu = pm.menu(label="Tools", tearOff=True)
@@ -22,13 +23,19 @@ def create():
         label="Make dip combinations",
         command=pm.Callback(
             setup_dip.doit))
+
+    pm.menuItem(
+        label="Randomize dips",
+        command=pm.Callback(
+            randomize_dips))
+
     pm.menuItem(
         label="Zero displacement mesh",
         command=pm.Callback(zero_disp_mesh))
 
     pm.menuItem(label="Print stats", command=pm.Callback(on_print_stats))
-    pm.menuItem(label="Print stats range",
-                command=pm.Callback(on_print_stats_range))
+    # pm.menuItem(label="Print stats range",
+    #             command=pm.Callback(on_print_stats_range))
 
     pm.menuItem(
         label="Print paint and brush json",
@@ -150,31 +157,32 @@ def on_connect_texture(attribute):
 
 def on_print_stats():
     painting_node = pm.PyNode("mainPaintingShape")
-    print "-" * 50
+    
+    result = {}
 
     # dip_node = pm.PyNode("dipPaintingShape")
     brush_paint_pairs = write.used_paints_and_brushes(painting_node)
-    print "Brush / Paint pairs:"
+    # print "Brush / Paint pairs:"
+    result["brush_paint_pairs"] = []
     for brush, paint in brush_paint_pairs:
-        print "{}({:02d}) + {}({:02d})".format(brush.node_name, brush.id, paint.name, paint.id)
- 
-    print "Brushes in use:"
+        result["brush_paint_pairs"].append(
+            {
+                "brush": {"name": brush.node_name,"id":brush.id},
+                "paint": {"name": paint.name,"id": paint.id},
+            }
+        ) 
+
+    result["brushes_in_use"] = [] 
     for brush in write.used_brushes(painting_node):
-        print "%s\t:%s" % (brush.id, brush.node_name)
-    print "\n"
+       result["brushes_in_use"].append({"name": brush.node_name,"id":brush.id})  
 
-
-    print "Paints in use:"
+    result["paints_in_use"] = []
     for paint in write.used_paints(painting_node):
-        print "%s\t:%s" % (paint.id, paint.name)
-    print "\n"
+        result["paints_in_use"].append({"name": paint.name,"id":paint.id})  
+ 
+    result["painting_node"] = write.painting_stats(painting_node)
+    uutl.show_in_window(result, title="Painting stats")
 
-
-    print "Painting node stats:"
-    p_stats = write.painting_stats(painting_node)
-    for k in p_stats:
-        print "%s: %s" % (k, p_stats[k])
-    print "\n"
 
 
 def on_print_stats_range():
@@ -224,6 +232,17 @@ def on_print_paint_and_brush_stats(fmt="json"):
             output.writerow(data[0].keys())
             for row in data:
                 output.writerow(row.values())
+
+
+def randomize_dips():
+    paintings = pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|*", dag=True, leaf=True, type="painting"),
+    paintings = pm.listRelatives(paintings, parent=True)
+    for p in paintings:
+        ty = random()+0.5
+        rz=(random()*60)-30
+        p.attr("ty").set(ty)
+        p.attr("rz").set(rz)
+        
 
 
 # def _deactivate_all_nodes(nodes):

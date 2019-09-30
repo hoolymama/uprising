@@ -94,7 +94,7 @@ reload(publish_tab)
 reload(brush_assign_tab)
 reload(brush_test_tab)
 
-# reload(tools_menu)
+reload(tools_menu)
 reload(info_menu)
 
 reload(curves_menu)

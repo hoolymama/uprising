@@ -21,6 +21,7 @@ from program import (
     MainProgram,
     DipProgram,
     SlopProgram,
+    PotHolderCalibration,
     PotCalibration,
     HolderCalibration,
     BoardCalibration,
@@ -63,8 +64,11 @@ class Studio(object):
         self.home_approach = None
         self.painting_program = None
         self.rack_cal_program = None
+
+        self.pot_holder_cal_program = None
         self.pot_cal_program = None
         self.holder_cal_program = None
+        
         self.board_cal_program = None
         self.perspex_cal_program = None
         self.manual_tri_program = None
@@ -83,8 +87,11 @@ class Studio(object):
         do_slop = kw.get("do_slop")
         do_pap_exercise = kw.get("do_pap_exercise")
         do_board_calibration = kw.get("do_board_calibration")
-        do_pot_calibration = kw.get("do_pot_calibration")
-        do_holder_calibration = kw.get("do_holder_calibration")
+
+        do_pot_holder_calibration = kw.get("do_pot_holder_calibration")
+        do_pot_calibration = kw.get("do_pot_holder_calibration")  || kw.get("do_pot_holder_calibration")
+        do_holder_calibration = kw.get("do_holder_calibration") || kw.get("do_pot_holder_calibration")
+
         do_perspex_calibration = kw.get("do_perspex_calibration")
         do_perspex_triangulation = kw.get("do_perspex_triangulation")
 
@@ -113,8 +120,9 @@ class Studio(object):
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.slop_programs = self._build_slop_programs()
 
+
         if do_pot_calibration:
-            logger.debug("Studio:  pot_calibration")
+            logger.debug("Studio:  pot_holder_calibration")
             self.pot_cal_program = PotCalibration(
                 k.POT_CALIBRATION_PROGRAM_NAME)
 
@@ -122,6 +130,12 @@ class Studio(object):
             logger.debug("Studio:  holder_calibration")
             self.holder_cal_program = HolderCalibration(
                 k.HOLDER_CALIBRATION_PROGRAM_NAME)
+
+        if do_pot_holder_calibration:
+            logger.debug("Studio:  pot_holder_calibration")
+            self.pot_holder_cal_program = PotHolderCalibration(
+                k.POT_HOLDER_CALIBRATION_PROGRAM_NAME)
+
 
         if do_perspex_calibration:
             logger.debug("Studio:  perspex_calibration")
@@ -249,7 +263,9 @@ class Studio(object):
             with uutl.final_position(rack_context):
                 for prog in self.pick_place_programs:
                     prog.write(self)
-                self._write_rack_and_holder_geo()
+                # self._write_rack_and_holder_geo()
+
+
 
         if self.pot_cal_program:
             with uutl.final_position(rack_context):
@@ -262,14 +278,16 @@ class Studio(object):
                 self.holder_cal_program.write(
                     self.tool_approach,
                     self.home_approach)
-                self._write_rack_and_holder_geo()
+
+        if self.pot_holder_cal_program:
+            self.pot_holder_cal_program.write()
 
         if self.perspex_cal_program:
             with uutl.final_position(rack_context):
                 self.perspex_cal_program.write(
                     self.tool_approach,
                     self.home_approach)
-                self._write_rack_and_holder_geo()
+                # self._write_rack_and_holder_geo()
 
         if self.manual_tri_program:
             self.manual_tri_program.write(

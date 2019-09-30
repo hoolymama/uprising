@@ -22,9 +22,9 @@ class BrushTestTab(gui.FormLayout):
 
         pm.scrollField(
             wordWrap=True,
-            text="""Pick some brushes and a curve.
+            text="""Pick some brushes and a curve and a collectStrokes node.
 
-A clone of the curve will be generated for each brush and will be connected up to the collectStrokesMain node.
+A clone of the curve will be generated for each brush and will be connected up to the collectStrokes node.
 
 Gap is the offset from one curve to the next. If you want to line strokes up next to each other, turn on Use Widths. It adds in the brush widths so that the gap is the gap between the extent of brush borders.
 
@@ -45,7 +45,7 @@ Gap is the offset from one curve to the next. If you want to line strokes up nex
         self.brush_width_mult_ff = pm.floatFieldGrp(
             height=30,
             label='Brush width mult',
-            numberOfFields=1, value1=1.0, pre=3, extraLabel='cm')
+            numberOfFields=1, value1=1.0, pre=3)
 
 
         # self.collector_nf = pm.textFieldButtonGrp(label="Collector", editable=False, buttonLabel="select")
@@ -114,7 +114,10 @@ Gap is the offset from one curve to the next. If you want to line strokes up nex
             pm.error("No brushNodes selected")
 
  
-        collector = pm.PyNode("collectStrokesMain")  
+        collector = pm.ls( selection=True,type="collectStrokes")
+        if not collector:
+            pm.error("No collectStrokes selected")
+        collector = collector[0]
  
         # half - and / 10 because cm to mm
         width_mult = brush_width_mult * 0.05

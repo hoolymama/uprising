@@ -318,15 +318,6 @@ class CalibrationProgram(Program):
         place_program_name = PlaceAtHomeProgram.generate_program_name(0)
         self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
 
-    # def write_probe_attach_bayonet(self, tool_approach):
-
-    #     self.program.addMoveJ(tool_approach)
-    #     self.program.Pause()
-    #     self.program.RunInstruction(
-    #         "Attach calibration Tool: {}".format(self.brush.name),
-    #         INSTRUCTION_SHOW_MESSAGE,
-    #     )
-
     def write_locator_packs(self):
         raise NotImplementedError
 
@@ -366,66 +357,18 @@ class CalibrationProgram(Program):
         return target
 
 
-class PotCalibration(CalibrationProgram):
+
+class PotHolderCalibration(Program):
     def __init__(self, name):
-        super(PotCalibration, self).__init__(name)
-        self.locators = putl.get_pot_handle_packs()
+        super(PotHolderCalibration, self).__init__(name)
 
-    def write_locator_packs(self):
-        last = None
+  def write(self, tool_approach, home_approach):
+        super(PotHolderCalibration, self).write()
+        self.program.RunInstruction(k.POT_CALIBRATION_PROGRAM_NAME, INSTRUCTION_CALL_PROGRAM)
+        self.program.RunInstruction(k.HOLDER_CALIBRATION_PROGRAM_NAME, INSTRUCTION_CALL_PROGRAM)
 
-        # RACK_POT_DEPTH = 3.7 # 3.5 next time
-        # RACK_HANDLE_HEIGHT = 3.8 #4.5 next time
 
-        # pot_depth = pm.PyNode("rack|holes").attr("calibrationPotDepth").get()
-        # handle_height = pm.PyNode("rack|holes").attr(
-        #     "calibrationHandleHeight").get()
 
-        for pack in self.locators:
-            self._write_stops(last, pack["pot_approach"], k.FACING_RACK_JOINTS)
-
-            self.program.RunInstruction(
-                ("Moving to %s" % pack["name"]), INSTRUCTION_COMMENT
-            )
-
-            # with uutl.at_height(pack["pot_base"], pot_depth):
-            self._write_one_probe(pack, "pot")
-            # with uutl.at_height(pack["handle_base"], handle_height):
-            self._write_one_probe(pack, "handle")
-
-            last = pack["handle_approach"]
-
-    def _write_one_probe(self, pack, which):
-
-        column = {"pot": "B", "handle": "C"}
-
-        row = k.CAL_SHEET_FIRST_ROW + pack["index"]
-
-        base_key = "{}_base".format(which)
-        approach_key = "{}_approach".format(which)
-
-        base_target = self._create_a_target(
-            pack[base_key].attr("worldMatrix[0]").get(),
-            "{}_{}_base".format(pack["name"], which),
-            k.FACING_RACK_JOINTS,
-        )
-
-        approach_target = self._create_a_target(
-            pack[approach_key].attr("worldMatrix[0]").get(),
-            "{}_{}_approach".format(pack["name"], which),
-            k.FACING_RACK_JOINTS,
-        )
-
-        self.program.addMoveJ(approach_target)
-        self.program.addMoveL(base_target)
-        self.program.Pause()
-        self.program.RunInstruction(
-            "{} {} in cell {}{}".format(
-                k.CAL_PAUSE_MESSAGE, pack["name"], row, column[which]
-            ),
-            INSTRUCTION_SHOW_MESSAGE,
-        )
-        self.program.addMoveL(approach_target)
 
 
 class HolderCalibration(CalibrationProgram):
@@ -471,6 +414,60 @@ class HolderCalibration(CalibrationProgram):
             INSTRUCTION_SHOW_MESSAGE,
         )
         self.program.Pause()
+        self.program.addMoveL(approach_target)
+
+
+class PotCalibration(CalibrationProgram):
+    def __init__(self, name):
+        super(PotCalibration, self).__init__(name)
+        self.locators = putl.get_pot_handle_packs()
+
+    def write_locator_packs(self):
+        last = None
+
+        for pack in self.locators:
+            self._write_stops(last, pack["pot_approach"], k.FACING_RACK_JOINTS)
+
+            self.program.RunInstruction(
+                ("Moving to %s" % pack["name"]), INSTRUCTION_COMMENT
+            )
+
+            self._write_one_probe(pack, "pot")
+
+            self._write_one_probe(pack, "handle")
+
+            last = pack["handle_approach"]
+
+    def _write_one_probe(self, pack, which):
+
+        column = {"pot": "B", "handle": "C"}
+
+        row = k.CAL_SHEET_FIRST_ROW + pack["index"]
+
+        base_key = "{}_base".format(which)
+        approach_key = "{}_approach".format(which)
+
+        base_target = self._create_a_target(
+            pack[base_key].attr("worldMatrix[0]").get(),
+            "{}_{}_base".format(pack["name"], which),
+            k.FACING_RACK_JOINTS,
+        )
+
+        approach_target = self._create_a_target(
+            pack[approach_key].attr("worldMatrix[0]").get(),
+            "{}_{}_approach".format(pack["name"], which),
+            k.FACING_RACK_JOINTS,
+        )
+
+        self.program.addMoveJ(approach_target)
+        self.program.addMoveL(base_target)
+        self.program.Pause()
+        self.program.RunInstruction(
+            "{} {} in cell {}{}".format(
+                k.CAL_PAUSE_MESSAGE, pack["name"], row, column[which]
+            ),
+            INSTRUCTION_SHOW_MESSAGE,
+        )
         self.program.addMoveL(approach_target)
 
 

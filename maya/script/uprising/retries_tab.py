@@ -49,11 +49,12 @@ class retriesTab(gui.FormLayout):
         self.varying_step_type_wg = pm.radioButtonGrp(
             label='Step Type',
             sl=1,
-            labelArray2=[
+            labelArray3=[
                 'Linear',
+                "Binary",
                 'Random'
             ],
-            numberOfRadioButtons=2
+            numberOfRadioButtons=3
         )
         pm.setParent("..")
 
@@ -171,7 +172,7 @@ class retriesTab(gui.FormLayout):
         count = pm.intFieldGrp(self.num_retries_wg, query=True, value1=True)
         step_type_idx = pm.radioButtonGrp(
             self.varying_step_type_wg, query=True, sl=True)
-        step_type = ["dummy", "linear", "random"][step_type_idx]
+        step_type = ["dummy", "linear", "binary", "random"][step_type_idx]
         low, high = pm.floatFieldGrp(
             self.varying_range_wg, query=True, value=True)
         vals = []
