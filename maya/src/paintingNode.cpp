@@ -232,10 +232,10 @@ MStatus painting::initialize()
   nAttr.setDefault(false);
   addAttribute(aApplyBiases);
 
-  aBiasMult = nAttr.create("brushBiasMult", "bbml", MFnNumericData::kDouble);
+  aBiasMult = nAttr.create("brushBiasMult", "bbml", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  nAttr.setDefault(1.0);
+  nAttr.setDefault(1.0f);
   addAttribute(aBiasMult);
 
   aStrokes = tAttr.create("strokes", "stks", strokeData::id);
