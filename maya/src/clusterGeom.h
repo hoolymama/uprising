@@ -1,7 +1,6 @@
 #ifndef _clusterGeom
 #define _clusterGeom
 
-
 #include <vector>
 #include <maya/MVectorArray.h>
 #include <maya/MMatrixArray.h>
@@ -13,14 +12,19 @@
 class clusterGeom
 {
 public:
-
-	enum Reason {kNone, kTool, kDip, kTcp };
+	enum Reason
+	{
+		kNone,
+		kTool,
+		kDip,
+		kTcp
+	};
 
 	clusterGeom(
-	  short brushId,
-	  short paintId,
-	  double travelCutoff,
-	  clusterGeom::Reason reason);
+		short brushId,
+		short paintId,
+		double travelCutoff,
+		clusterGeom::Reason reason);
 
 	~clusterGeom();
 
@@ -30,35 +34,30 @@ public:
 
 	bool ranOutOfPaint() const;
 
-
-	double travelCutoff() const ;
+	double travelCutoff() const;
 
 	clusterGeom::Reason reason() const;
 
+	double travel() const;
 
-	double travel() const ;
+	const std::vector<Stroke> &strokes() const;
 
-	const std::vector<Stroke> &strokes() const ;
+	void pushStroke(const Stroke &s, int parentIndex);
 
-	void pushStroke(const Stroke &s, int parentIndex) ;
-
-
-	void  setApproaches(double approachStart, double approachMid,
-	                    double approachEnd, double ptpThresh);
-
+	void setApproaches(double approachStart, double approachMid,
+					   double approachEnd, double ptpThresh);
 
 	// void setPreStops(double threshold);
 	// clusterGeom &operator=( const clusterGeom &other );
 
-	void displace( MFnMesh &meshFn, MMeshIsectAccelParams &ap);
+	void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
 	void offsetBrushContact(const Brush &brush);
+	void applyBiases(const Brush &brush, float mult);
 
 	// friend ostream &operator<<(ostream &os, const clusterGeom &geom);
 
 private:
-
-
 	void setDeparture(double approachMid, double approachEnd);
 	void setArrival(double approachStart, double approachMid, double ptpThresh);
 
@@ -69,8 +68,6 @@ private:
 	short m_brushId;
 	double m_travelCutoff;
 	double m_travel;
-
 };
-
 
 #endif

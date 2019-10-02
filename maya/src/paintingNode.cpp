@@ -1,5 +1,5 @@
-
 #include <maya/MIOStream.h>
+
 #include <math.h>
 #include <algorithm>
 #include <map>
@@ -96,6 +96,9 @@ MObject painting::aApproachDistanceStart;
 MObject painting::aApproachDistanceMid;
 MObject painting::aApproachDistanceEnd;
 MObject painting::aApproachDistance;
+
+MObject painting::aApplyBiases;
+MObject painting::aBiasMult;
 
 MObject painting::aBrushes;
 
@@ -220,6 +223,20 @@ MStatus painting::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   addAttribute(aApproachDistance);
+
+  aApplyBiases = nAttr.create("applyBrushBiases", "abbs",
+                              MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(false);
+  addAttribute(aApplyBiases);
+
+  aBiasMult = nAttr.create("brushBiasMult", "bbml", MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(1.0);
+  addAttribute(aBiasMult);
 
   aStrokes = tAttr.create("strokes", "stks", strokeData::id);
   tAttr.setReadable(false);
@@ -429,6 +446,8 @@ MStatus painting::initialize()
   st = attributeAffects(aDisplacementMesh, aOutput);
   st = attributeAffects(aMaxPointToPointDistance, aOutput);
   st = attributeAffects(aApproachDistance, aOutput);
+  st = attributeAffects(aApplyBiases, aOutput);
+  st = attributeAffects(aBiasMult, aOutput);
 
   st = attributeAffects(aReassignParentId, aOutput);
 
@@ -511,7 +530,6 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
   pGeom->setPaints(paints);
 
   std::vector<Stroke> strokes;
-  // collectStrokes(data,  strokes);
 
   addStrokes(data, pGeom);
 
@@ -525,6 +543,16 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
 
     pGeom->setApproaches(approachStart, approachMid, approachEnd, ptpThresh);
 
+    bool applyBiases = data.inputValue(aApplyBiases).asBool();
+    float biasMult = data.inputValue(aBiasMult).asFloat();
+
+    if (applyBiases)
+    {
+      // Important that this goes BEFORE offsetBrushContact().
+      pGeom->applyBiases(biasMult);
+    }
+    pGeom->offsetBrushContact();
+
     MObject dMesh = data.inputValue(aDisplacementMesh).asMeshTransformed();
     MFnMesh meshFn(dMesh, &st);
     if (!st.error())
@@ -535,7 +563,6 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
 
     // lift up the start and end of each stroke according to
     // brush tip
-    pGeom->offsetBrushContact();
   }
 
   MFnPluginData fnOut;

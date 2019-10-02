@@ -1,5 +1,7 @@
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MTransformationMatrix.h>
+#include <maya/MFnNurbsCurveData.h>
+
 #include <maya/MQuaternion.h>
 #include <algorithm>
 #include <vector>
@@ -140,7 +142,8 @@ Stroke::Stroke() : m_targets(),
 				   m_repeatId(),
 				   m_parentId(-1),
 				   m_arrivals(),
-				   m_departure()
+				   m_departure(),
+				   m_follow(true)
 {
 }
 
@@ -181,7 +184,8 @@ Stroke::Stroke(
 					   m_repeatId(repeatId),
 					   m_backstroke(backstroke),
 					   m_arrivals(),
-					   m_departure()
+					   m_departure(),
+					   m_follow(true)
 
 {
 
@@ -269,7 +273,7 @@ void Stroke::setRotations(
 	const MObject &thisObj,
 	const StrokeRotationSpec &rotSpec)
 {
-	bool follow = rotSpec.followStroke;
+	m_follow = rotSpec.followStroke;
 
 	MDoubleArray sampleVals;
 	if (rotSpec.rampScope == StrokeRotationSpec::kCurve)
@@ -308,7 +312,7 @@ void Stroke::setRotations(
 	unsigned i = 0;
 	for (; iter != m_targets.end(); iter++, i++)
 	{
-		iter->setRotation(outTilt[i], outBank[i], outTwist[i], follow, m_backstroke);
+		iter->setRotation(outTilt[i], outBank[i], outTwist[i], m_follow, m_backstroke);
 	}
 }
 
@@ -1042,10 +1046,12 @@ void Stroke::setTransitionContact()
 	}
 }
 
+//
 void Stroke::offsetBrushContact(const Brush &brush)
 {
 	float height = brush.transHeight();
 	float power = brush.contactPower();
+
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
 	{
@@ -1062,56 +1068,108 @@ void Stroke::offsetBrushContact(const Brush &brush)
 	}
 }
 
-// void Stroke::offsetBrushContact(const Brush &brush)
-// {
-// 	const double &height = brush.transHeight;
-// 	const double &power = brush.transPower;
-// 	double tip = brush.tip;
+void Stroke::applyBiases(const Brush &brush, float mult)
+{
+	applyForwardBias(brush, mult);
+	applyGravityBias(brush, mult);
+}
 
-// 	if (tip < 0.00001) {
-// 		tip = 0.00001;
-// 	}
+void Stroke::applyForwardBias(const Brush &brush, float mult)
+{
+	MStatus st;
+	float forwardBias0 = brush.forwardBias0() * mult;
+	float forwardBias1 = brush.forwardBias1() * mult;
+	if ((fabs(forwardBias0) < epsilon) && (fabs(forwardBias1) < epsilon))
+	{
+		return;
+	}
+	MPointArray editPoints;
+	this->getPoints(editPoints, 0.0);
 
-// 	double m_entry_param = m_entryLength / m_arcLength;
-// 	double m_exit_param = (m_exitLength / m_arcLength);
+	int count = editPoints.length();
+	double maxParam = count - 1;
+	MFnNurbsCurve curveFn;
+	MFnNurbsCurveData dataCreator;
+	MObject curveData = dataCreator.create(&st);
+	mser;
+	MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, &st);
 
-// 	double total_param = m_entry_param + m_exit_param;
+	MDoubleArray knotVals;
+	st = curveFn.getKnots(knotVals);
+	int numKnots = knotVals.length();
+	double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
+	for (int i = 0; i < numKnots; ++i)
+	{
+		knotVals[i] = knotVals[i] * maxValRecip;
+	}
+	curveFn.setKnots(knotVals, 0, (numKnots - 1));
+	// Now the knots are normalized.
 
-// 	if (total_param > 1.0)
-// 	{
-// 		m_entry_param = m_entry_param / total_param;
-// 		m_exit_param = m_exit_param / total_param;
-// 	}
-// 	m_exit_param = 1.0 - m_exit_param;
+	////////
+	double curveLength = curveFn.length(epsilon);
+	MVector tangent0 = curveFn.tangent(0.0).normal();
+	MVector tangent1 = curveFn.tangent(1.0).normal();
+	std::vector<Target>::iterator iter;
+	int i = 0;
+	for (iter = m_targets.begin(); iter != m_targets.end(); iter++, i++)
+	{
+		// get the dist at param.
+		double param = double(i) / maxParam;
+		double distOnCurve = curveFn.findLengthFromParam(param, &st);
+		mser;
+		// get the contact and interpolate to get the forward amount
+		float c = iter->contact();
+		float forwardBias = (forwardBias1 * c) + (forwardBias0 * (1.0f - c));
+		distOnCurve += forwardBias;
+		MPoint newPoint;
+		MVector newTangent;
+		if (distOnCurve < 0.0)
+		{
+			// handle:  before start
+			newPoint = editPoints[0] + (tangent0 * distOnCurve);
+			newTangent = tangent0;
+		}
+		else if (distOnCurve > curveLength)
+		{
+			newPoint = editPoints[(count - 1)] + (tangent1 * (distOnCurve - curveLength));
+			newTangent = tangent1;
+			// handle : after end
+		}
+		else
+		{
+			double newParam = curveFn.findParamFromLength(distOnCurve, &st);
+			mser;
 
-// 	// now have entry and exit params for the transitions
-// 	std::vector<Target>::iterator iter;
-// 	for (iter = m_targets.begin() ; iter != m_targets.end(); iter++) {
-// 		const double &param = iter->param();
-// 		if (param > m_entry_param ) {
-// 			break;
-// 		}
-// 		float dist = pow((1.0 - (param / m_entry_param)) , power) * height;
-// 		iter->offsetBy(MVector(0.0, 0.0, dist));
+			st = curveFn.getPointAtParam(newParam, newPoint, MSpace::kObject);
+			newTangent = curveFn.tangent(newParam).normal();
+		}
+		// bundle these three together.
+		iter->setPosition(newPoint);
+		iter->setTangent(newTangent);
+		iter->setRotation(m_follow, m_backstroke);
+	}
+}
 
-// 		double contact = (1.0 - (dist / tip));
-// 		iter->setContact(contact);
-// 	}
+void Stroke::applyGravityBias(const Brush &brush, float mult)
+{
+	MStatus st;
 
-// 	std::vector<Target>::reverse_iterator riter;
+	float gravityBias0 = brush.gravityBias0() * mult;
+	float gravityBias1 = brush.gravityBias1() * mult;
+	if ((fabs(gravityBias0) < epsilon) && (fabs(gravityBias1) < epsilon))
+	{
+		return;
+	}
 
-// 	for (riter = m_targets.rbegin() ; riter != m_targets.rend(); riter++) {
-// 		const double &param = riter->param();
-// 		if (param <= m_exit_param ) {
-// 			break;
-// 		}
-// 		float dist = pow (((param - m_exit_param) / (1.0 - m_exit_param)), power) * height;
-// 		riter->offsetBy(MVector(0.0, 0.0, dist));
-
-// 		double contact = (1.0 - (dist / tip));
-// 		riter->setContact(contact);
-// 	}
-// }
+	std::vector<Target>::iterator iter;
+	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+	{
+		float c = iter->contact();
+		float gravityBias = (gravityBias1 * c) + (gravityBias0 * (1.0f - c));
+		MVector offset = MVector::yAxis * gravityBias;
+		iter->offsetBy(offset);
+	}
+}
 
 const Target &Stroke::departure() const
 {

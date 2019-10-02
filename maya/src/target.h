@@ -7,61 +7,53 @@
 #include <maya/MMatrix.h>
 #include <maya/MFnNurbsCurve.h>
 
-
 #include <maya/MPoint.h>
-
 
 #include <maya/MObject.h>
 #include <mayaMath.h>
 
-class Target {
+class Target
+{
 public:
-
-
 	Target();
 
 	Target(
-	  const MMatrix &mat,
-	  const MVector &tangent,
-	  double strokeParam,
-	  double curveParam);
-
-
-	Target(
-	  const MFnNurbsCurve &curveFn,
-	  double dist,
-	  double startDist,
-	  double strokeRange,
-	  double curveLength);
+		const MMatrix &mat,
+		const MVector &tangent,
+		double strokeParam,
+		double curveParam);
 
 	Target(
-	  const MPoint &pt,
-	  const MVector &tangent,
-	  double strokeParam,
-	  double curveParam,
-	  double contact
-	);
+		const MFnNurbsCurve &curveFn,
+		double dist,
+		double startDist,
+		double strokeRange,
+		double curveLength);
 
+	Target(const MPoint &pt, const MVector &tangent, double strokeParam, double curveParam, double contact);
 
 	~Target();
 
 	void setRotation(double tilt, double bank, double twist, bool follow,
-	                 bool backstroke);
+					 bool backstroke);
+
+	void setRotation(bool follow, bool backstroke);
+
+	void setTangent(const MVector &tangent);
 
 	const MMatrix &matrix() const;
 
-	const MVector &tangent() const ;
+	const MVector &tangent() const;
 
-	const double &param() const ;
+	const double &param() const;
 
 	void reverseParam();
 
-	const double &curveParam() const ;
+	const double &curveParam() const;
 
-	void offsetBy(const MVector &offset) ;
+	void offsetBy(const MVector &offset);
 
 	void offsetLocalZ(double dist);
-
 
 	double distanceTo(const Target &other) const;
 
@@ -76,22 +68,22 @@ public:
 	void rotate(const MPoint &pivot, const MMatrix &rotation);
 
 	MVector rotation(
-	  MTransformationMatrix::RotationOrder order,
-	  MAngle::Unit unit,
-	  const MMatrix &space = MMatrix::identity) const;
+		MTransformationMatrix::RotationOrder order,
+		MAngle::Unit unit,
+		const MMatrix &space = MMatrix::identity) const;
 
-	MVector  transform(const MVector &rhs) const;
+	MVector transform(const MVector &rhs) const;
 
 	void getBorderPoints(
-	  MPoint &left,
-	  MPoint &right,
-	  double width,
-	  bool flat = false,
-	  bool displayContactWidth = true) const;
+		MPoint &left,
+		MPoint &right,
+		double width,
+		bool flat = false,
+		bool displayContactWidth = true) const;
 
 	void setContact(double contact);
 
-	const double &contact() const ;
+	const double &contact() const;
 
 	// static double Target::interpContact(const MDoubleArray &contacts,
 	//                                     const double &uniformParam)
@@ -99,13 +91,12 @@ public:
 private:
 	MVector m_tangent; // tangent on the curve
 	MMatrix m_matrix;
-	double m_param; // normalised length in stroke
+	double m_param;		 // normalised length in stroke
 	double m_curveParam; //normalised length in original curve
-	double m_contact; // fraction of brush tip
-
-
+	double m_contact;	// fraction of brush tip
+	double m_tilt;		 // store these when setting rotation, just in case we have to recalc
+	double m_bank;		 // store these when setting rotation, just in case we have to recalc
+	double m_twist;		 // store these when setting rotation, just in case we have to recalc
 };
 
-
 #endif
-

@@ -362,13 +362,10 @@ class PotHolderCalibration(Program):
     def __init__(self, name):
         super(PotHolderCalibration, self).__init__(name)
 
-  def write(self, tool_approach, home_approach):
+    def write(self, tool_approach, home_approach):
         super(PotHolderCalibration, self).write()
         self.program.RunInstruction(k.POT_CALIBRATION_PROGRAM_NAME, INSTRUCTION_CALL_PROGRAM)
         self.program.RunInstruction(k.HOLDER_CALIBRATION_PROGRAM_NAME, INSTRUCTION_CALL_PROGRAM)
-
-
-
 
 
 class HolderCalibration(CalibrationProgram):

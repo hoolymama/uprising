@@ -286,6 +286,10 @@ public:
 
 	void offsetBrushContact(const Brush &brush);
 
+	void applyBiases(const Brush &brush, float mult);
+	void applyForwardBias(const Brush &brush, float mult);
+	void applyGravityBias(const Brush &brush, float mult);
+
 	const Target &departure() const;
 
 	void setDeparture(double offset);
@@ -339,6 +343,7 @@ private:
 	int m_brushId;
 	int m_paintId;
 	int m_layerId;
+	bool m_follow;
 	// int m_customPaintId;
 	int m_customBrushId;
 

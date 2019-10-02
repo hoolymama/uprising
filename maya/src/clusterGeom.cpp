@@ -117,3 +117,11 @@ void clusterGeom::offsetBrushContact(const Brush &brush)
 		iter->offsetBrushContact(brush);
 	}
 }
+void clusterGeom::applyBiases(const Brush &brush, float mult)
+{
+	std::vector<Stroke>::iterator iter;
+	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
+	{
+		iter->applyBiases(brush, mult);
+	}
+}

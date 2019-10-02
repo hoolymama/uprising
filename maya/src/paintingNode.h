@@ -132,6 +132,9 @@ private:
   static MObject aApproximationDistance;   // cm
   static MObject aMaxPointToPointDistance; // cm
 
+  static MObject aApplyBiases;
+  static MObject aBiasMult;
+
   static MObject aBrushes;
 
   static MObject aPaintColorR;

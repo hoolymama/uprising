@@ -2,7 +2,6 @@
 #ifndef _brushNODE_H
 #define _brushNODE_H
 
-
 #include <maya/MPxLocatorNode.h>
 // #include <maya/MFloatArray.h>
 // #include <maya/MVector.h>
@@ -41,24 +40,19 @@ public:
 
   virtual MBoundingBox boundingBox() const;
 
-  virtual void draw(  M3dView &view,
-                      const MDagPath &path,
-                      M3dView::DisplayStyle style,
-                      M3dView:: DisplayStatus status  );
+  virtual void draw(M3dView &view,
+                    const MDagPath &path,
+                    M3dView::DisplayStyle style,
+                    M3dView::DisplayStatus status);
 
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
-
-  static  MTypeId   id;
+  static MTypeId id;
 
 private:
-
-
-
-
   MStatus getBrush(MObject &attribute, Brush &brush);
 
-  MStatus outputData(MDataBlock &data, MObject &attribute, const Brush &brush );
+  MStatus outputData(MDataBlock &data, MObject &attribute, const Brush &brush);
 
   // static MObject aId;
   static MObject aPhysicalId;
@@ -72,39 +66,17 @@ private:
   static MObject aShape;
   static MObject aTransHeightParam;
   static MObject aContactPower;
-
+  static MObject aForwardBias;
+  static MObject aGravityBias;
 
   static MObject aLineLength;
   static MObject aLineThickness;
-
 
   static MObject aOutPaintBrush;
   static MObject aOutDipBrush;
   static MObject aOutWipeBrush;
 
   static MObject aCustomId;
-
 };
 
-
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -23,6 +23,12 @@ source "AEpaintingStrokes";
 	editorTemplate -addControl "reassignParentId";
 	editorTemplate -endLayout;
 
+	editorTemplate -cl 0 -beginLayout "Brush Biases";
+	editorTemplate -addControl "applyBrushBiases";
+	editorTemplate -addControl "brushBiasMult";
+	
+	editorTemplate -endLayout;
+
 
 	editorTemplate -cl 0 -beginLayout "Display Attributes";
 	editorTemplate -addControl "pointSize"; 

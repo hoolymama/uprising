@@ -89,8 +89,8 @@ class Studio(object):
         do_board_calibration = kw.get("do_board_calibration")
 
         do_pot_holder_calibration = kw.get("do_pot_holder_calibration")
-        do_pot_calibration = kw.get("do_pot_holder_calibration")  || kw.get("do_pot_holder_calibration")
-        do_holder_calibration = kw.get("do_holder_calibration") || kw.get("do_pot_holder_calibration")
+        do_pot_calibration = kw.get("do_pot_calibration")  or kw.get("do_pot_holder_calibration")
+        do_holder_calibration = kw.get("do_holder_calibration") or kw.get("do_pot_holder_calibration")
 
         do_perspex_calibration = kw.get("do_perspex_calibration")
         do_perspex_triangulation = kw.get("do_perspex_triangulation")
@@ -103,7 +103,9 @@ class Studio(object):
         if do_painting:
             logger.debug("Studio: main_painting")
             with uutl.final_position(pm.PyNode("mainPaintingShape")):
+                pm.PyNode("mainPaintingShape").attr("applyBrushBiases").set(True)
                 self.painting_program = MainProgram("px")
+                pm.PyNode("mainPaintingShape").attr("applyBrushBiases").set(False)
 
         if do_dips:
             logger.debug("Studio: dips")
