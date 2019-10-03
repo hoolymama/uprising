@@ -1092,6 +1092,8 @@ void Stroke::applyForwardBias(const Brush &brush, float mult)
 	MFnNurbsCurveData dataCreator;
 	MObject curveData = dataCreator.create(&st);
 	mser;
+	// MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, &st);
+
 	MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, &st);
 
 	MDoubleArray knotVals;
@@ -1143,6 +1145,11 @@ void Stroke::applyForwardBias(const Brush &brush, float mult)
 			st = curveFn.getPointAtParam(newParam, newPoint, MSpace::kObject);
 			newTangent = curveFn.tangent(newParam).normal();
 		}
+		if (m_backstroke)
+		{
+			newTangent = -newTangent;
+		}
+
 		// bundle these three together.
 		iter->setPosition(newPoint);
 		iter->setTangent(newTangent);
