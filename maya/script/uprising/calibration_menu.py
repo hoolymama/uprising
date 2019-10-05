@@ -193,7 +193,7 @@ def generate_perspex_calibration():
 
 def generate_board_calibration():
     ref_geo = pm.PyNode("canvas")
-    _generate_calibration(k.BOARD_CALIBRATION_PROGRAM_NAME)
+    _generate_calibration(k.BOARD_CALIBRATION_PROGRAM_NAME, ref_geo)
 
 
 def _set_precise(xf, gauge_reading, probe_height):

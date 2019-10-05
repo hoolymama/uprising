@@ -397,30 +397,6 @@ const std::pair<int, Brush> skeletonStrokeNode::selectBrush(
     return result;
 }
 
-// void skeletonStrokeNode::getContacts(
-//     const skChain &chain,
-//     const std::pair<int, Brush> &indexedBrush,
-//     MDoubleArray &contacts) const
-// {
-//     // MFloatArray radii;
-//     // chain.appendRadiiTo(radii);
-
-//     contacts.clear();
-//     if ( indexedBrush.second.isFlat())
-//     {
-//         contacts = MDoubleArray( chain.size(), 1.0);
-//     }
-//     else {
-//         float brushRadius = indexedBrush.second.width() * 0.5;
-//         for (int i = 0; i < chain.size(); ++i)
-//         {
-//             contacts.append(
-//                 fmin( (chain[i].radius / brushRadius) , 1.0)
-//             );
-//         }
-//     }
-// }
-
 void skeletonStrokeNode::getPointsAndContacts(
     const skChain &chain,
     const std::pair<int, Brush> &indexedBrush,

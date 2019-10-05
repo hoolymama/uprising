@@ -118,7 +118,7 @@ MObject painting::aLineLength;
 MObject painting::aLineThickness;
 
 MObject painting::aDisplayTargets;
-
+MObject painting::aDisplayApproachTargets;
 MObject painting::aDisplayClusterPath;
 
 MObject painting::aDisplayPivots;
@@ -350,6 +350,14 @@ MStatus painting::initialize()
   eAttr.setDefault(painting::kTargetsNone);
   addAttribute(aDisplayTargets);
 
+  aDisplayApproachTargets = nAttr.create("displayApproachTargets", "dapt",
+                                         MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayApproachTargets);
+
   aDisplayContactWidth = nAttr.create("displayContactWidth", "dcwd",
                                       MFnNumericData::kBoolean);
   nAttr.setHidden(false);
@@ -536,13 +544,6 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
   if (pGeom->clusters().size())
   {
 
-    MDataHandle hApproachDistance = data.inputValue(aApproachDistance);
-    double approachStart = hApproachDistance.child(aApproachDistanceStart).asDouble();
-    double approachMid = hApproachDistance.child(aApproachDistanceMid).asDouble();
-    double approachEnd = hApproachDistance.child(aApproachDistanceEnd).asDouble();
-
-    pGeom->setApproaches(approachStart, approachMid, approachEnd, ptpThresh);
-
     bool applyBiases = data.inputValue(aApplyBiases).asBool();
     float biasMult = data.inputValue(aBiasMult).asFloat();
 
@@ -551,7 +552,15 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
       // Important that this goes BEFORE offsetBrushContact().
       pGeom->applyBiases(biasMult);
     }
+
     pGeom->offsetBrushContact();
+
+    MDataHandle hApproachDistance = data.inputValue(aApproachDistance);
+    double approachStart = hApproachDistance.child(aApproachDistanceStart).asDouble();
+    double approachMid = hApproachDistance.child(aApproachDistanceMid).asDouble();
+    double approachEnd = hApproachDistance.child(aApproachDistanceEnd).asDouble();
+
+    pGeom->setApproaches(approachStart, approachMid, approachEnd, ptpThresh);
 
     MObject dMesh = data.inputValue(aDisplacementMesh).asMeshTransformed();
     MFnMesh meshFn(dMesh, &st);
@@ -680,6 +689,9 @@ void painting::drawWireframeTargets(
     return;
   }
 
+  bool withTraversal;
+  MPlug(thisObj, aDisplayApproachTargets).getValue(withTraversal);
+
   if (targetDisplayStyle == painting::kTargetsPoint)
   {
     double stackHeight = 0.0;
@@ -694,7 +706,7 @@ void painting::drawWireframeTargets(
       {
         stackHeight += stackGap;
         MFloatPointArray points;
-        stroke.getPoints(points, stackHeight);
+        stroke.getPoints(points, stackHeight, withTraversal);
         unsigned len = points.length();
         for (int i = 0; i < len; ++i)
         {
@@ -719,9 +731,9 @@ void painting::drawWireframeTargets(
       {
         stackHeight += stackGap;
         MFloatPointArray starts;
-        stroke.getPoints(starts, stackHeight);
+        stroke.getPoints(starts, stackHeight, withTraversal);
         MFloatVectorArray ends;
-        stroke.getZAxes(ends);
+        stroke.getZAxes(ends, withTraversal);
 
         unsigned len = starts.length();
         for (int i = 0; i < len; ++i)
@@ -753,16 +765,16 @@ void painting::drawWireframeTargets(
       {
         stackHeight += stackGap;
         MFloatPointArray starts;
-        stroke.getPoints(starts, stackHeight);
+        stroke.getPoints(starts, stackHeight, withTraversal);
 
         MFloatVectorArray xAxes;
-        stroke.getXAxes(xAxes);
+        stroke.getXAxes(xAxes, withTraversal);
 
         MFloatVectorArray yAxes;
-        stroke.getYAxes(yAxes);
+        stroke.getYAxes(yAxes, withTraversal);
 
         MFloatVectorArray zAxes;
-        stroke.getZAxes(zAxes);
+        stroke.getZAxes(zAxes, withTraversal);
 
         unsigned len = starts.length();
         for (int i = 0; i < len; ++i)

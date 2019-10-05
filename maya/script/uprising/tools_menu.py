@@ -87,7 +87,7 @@ def create():
             "translationTexture"))
 
     pm.setParent("..", menu=True)
- 
+
     return menu
 
 
@@ -157,7 +157,7 @@ def on_connect_texture(attribute):
 
 def on_print_stats():
     painting_node = pm.PyNode("mainPaintingShape")
-    
+
     result = {}
 
     # dip_node = pm.PyNode("dipPaintingShape")
@@ -166,20 +166,21 @@ def on_print_stats():
     result["brush_paint_pairs"] = []
     for brush, paint in brush_paint_pairs:
         result["brush_paint_pairs"].append(
-            {
-                "brush": {"name": brush.node_name,"id":brush.id},
-                "paint": {"name": paint.name,"id": paint.id},
-            }
-        ) 
+            "brush:{}({:02d})-P({}) & paint:{}({:02d})".format(brush.node_name,brush.id,brush.physical_id,paint.name, paint.id)
+        )
 
-    result["brushes_in_use"] = [] 
+    result["brushes_in_use"] = []
     for brush in write.used_brushes(painting_node):
-       result["brushes_in_use"].append({"name": brush.node_name,"id":brush.id})  
+       result["brushes_in_use"].append(
+           "brush:{}({:02d})-P({})".format(brush.node_name,brush.id,brush.physical_id)
+           )
 
     result["paints_in_use"] = []
     for paint in write.used_paints(painting_node):
-        result["paints_in_use"].append({"name": paint.name,"id":paint.id})  
- 
+        result["paints_in_use"].append(
+            "paint:{}({:02d})".format(paint.name,paint.id)
+         )
+
     result["painting_node"] = write.painting_stats(painting_node)
     uutl.show_in_window(result, title="Painting stats")
 
@@ -242,7 +243,7 @@ def randomize_dips():
         rz=(random()*60)-30
         p.attr("ty").set(ty)
         p.attr("rz").set(rz)
-        
+
 
 
 # def _deactivate_all_nodes(nodes):

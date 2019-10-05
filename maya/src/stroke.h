@@ -278,6 +278,8 @@ public:
 
 	MPoint getHead(double stackHeight) const;
 
+	MObject generateNurbsCurve(const MPointArray &points, MStatus *st = 0) const;
+
 	// void setCustomSortData(const Brush &brush,  const Paint &paint);
 
 	void setUV(const MMatrix &inversePlaneMatrix);

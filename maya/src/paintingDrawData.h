@@ -3,8 +3,6 @@
 #ifndef PaintingDrawData_H
 #define PaintingDrawData_H
 
-
-
 #include <maya/MPxDrawOverride.h>
 #include <maya/MUserData.h>
 #include <maya/MDrawRegistry.h>
@@ -14,9 +12,9 @@
 #include <maya/MStringArray.h>
 #include "paintingGeom.h"
 
-class PaintingDrawData : public MUserData {
+class PaintingDrawData : public MUserData
+{
 public:
-
 	PaintingDrawData();
 	virtual ~PaintingDrawData();
 
@@ -29,9 +27,9 @@ public:
 	bool displayBrushIds;
 	bool displayPaintIds;
 	bool displayRepeatIds;
+	bool displayApproachTargets;
 
 	bool displayContactWidth;
-
 
 	float pointSize;
 	float lineLength;
@@ -45,7 +43,5 @@ public:
 
 	paintingGeom *geom;
 };
-
-
 
 #endif

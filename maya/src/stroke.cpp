@@ -1071,7 +1071,33 @@ void Stroke::offsetBrushContact(const Brush &brush)
 void Stroke::applyBiases(const Brush &brush, float mult)
 {
 	applyForwardBias(brush, mult);
-	applyGravityBias(brush, mult);
+	// applyGravityBias(brush, mult);
+}
+
+MObject Stroke::generateNurbsCurve(const MPointArray &points, MStatus *st) const
+{
+
+	int count = points.length();
+	double maxParam = count - 1;
+	MFnNurbsCurve curveFn;
+	MFnNurbsCurveData dataCreator;
+	MObject curveData = dataCreator.create(st);
+
+	MObject dCurve = curveFn.createWithEditPoints(points, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, st);
+	if (st->error())
+	{
+		return dCurve;
+	}
+	MDoubleArray knotVals;
+	curveFn.getKnots(knotVals);
+	int numKnots = knotVals.length();
+	double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
+	for (int i = 0; i < numKnots; ++i)
+	{
+		knotVals[i] = knotVals[i] * maxValRecip;
+	}
+	curveFn.setKnots(knotVals, 0, (numKnots - 1));
+	return dCurve;
 }
 
 void Stroke::applyForwardBias(const Brush &brush, float mult)
@@ -1083,21 +1109,30 @@ void Stroke::applyForwardBias(const Brush &brush, float mult)
 	{
 		return;
 	}
+
 	MPointArray editPoints;
 	this->getPoints(editPoints, 0.0);
-
 	int count = editPoints.length();
 	double maxParam = count - 1;
+
+	// MObject dCurve = this->generateNurbsCurve(editPoints, &st);
+	// if (st.error())
+	// {
+	// 	return;
+	// }
+	// MFnNurbsCurve curveFn(dCurve);
+
 	MFnNurbsCurve curveFn;
 	MFnNurbsCurveData dataCreator;
 	MObject curveData = dataCreator.create(&st);
-	mser;
-	// MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, &st);
 
 	MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, &st);
-
+	if (st.error())
+	{
+		return;
+	}
 	MDoubleArray knotVals;
-	st = curveFn.getKnots(knotVals);
+	curveFn.getKnots(knotVals);
 	int numKnots = knotVals.length();
 	double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
 	for (int i = 0; i < numKnots; ++i)
@@ -1105,7 +1140,6 @@ void Stroke::applyForwardBias(const Brush &brush, float mult)
 		knotVals[i] = knotVals[i] * maxValRecip;
 	}
 	curveFn.setKnots(knotVals, 0, (numKnots - 1));
-	// Now the knots are normalized.
 
 	////////
 	double curveLength = curveFn.length(epsilon);
@@ -1151,10 +1185,25 @@ void Stroke::applyForwardBias(const Brush &brush, float mult)
 		}
 
 		// bundle these three together.
-		iter->setPosition(newPoint);
+		MVector offset = newPoint - editPoints[i];
+		iter->offsetBy(offset);
 		iter->setTangent(newTangent);
 		iter->setRotation(m_follow, m_backstroke);
+
+		// if (i == 0)
+		// {
+		// 	m_arrivals.back().offsetBy(offset);
+		// 	m_arrivals.back().setTangent(newTangent);
+		// 	m_arrivals.back().setRotation(m_follow, m_backstroke);
+		// }
+		// else if (i == maxParam)
+		// {
+		// 	m_departure.offsetBy(offset);
+		// 	m_departure.setTangent(newTangent);
+		// 	m_departure.setRotation(m_follow, m_backstroke);
+		// }
 	}
+	// offset arrival and departure
 }
 
 void Stroke::applyGravityBias(const Brush &brush, float mult)
@@ -1185,28 +1234,42 @@ const Target &Stroke::departure() const
 
 void Stroke::setDeparture(double offset)
 {
-	MVector offsetVector(0.0, 0.0, offset);
 	m_departure = Target(m_targets.back());
-	m_departure.offsetBy(offsetVector);
+	MPoint p = m_departure.position();
+	p.z = offset;
+	m_departure.setPosition(p);
 }
+
+/*
+
+
+MPoint Target::position(const MMatrix &space) const
+{
+	return MPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]) * space;
+}
+
+void Target::setPosition(const MPoint &rhs)
+*/
 
 void Stroke::setArrival(double offset)
 {
-	MVector offsetVector(0.0, 0.0, offset);
 	Target arrival(m_targets.front());
-	arrival.offsetBy(offsetVector);
+	MPoint p = arrival.position();
+	p.z = offset;
+	arrival.setPosition(p);
 	m_arrivals.push_back(arrival);
 }
 
 void Stroke::setArrival(double offset, double threshold, const Stroke &prev)
 {
 	const Target &departure = prev.departure();
-	MVector offsetVector(0.0, 0.0, offset);
+	// MVector offsetVector(0.0, 0.0, offset);
 	Target arrival(m_targets.front());
-	arrival.offsetBy(offsetVector);
+	MPoint p = arrival.position();
+	p.z = offset;
+	arrival.setPosition(p);
 
 	double dist = departure.distanceTo(arrival);
-
 	MPoint departurePos = departure.position();
 	MPoint arrivalPos = arrival.position();
 

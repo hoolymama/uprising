@@ -155,6 +155,7 @@ public:
   static MObject aLineLength;
   static MObject aLineThickness;
   static MObject aDisplayTargets;
+  static MObject aDisplayApproachTargets;
 
   static MObject aDisplayClusterPath;
   static MObject aDisplayPivots;
