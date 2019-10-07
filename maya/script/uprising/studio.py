@@ -242,8 +242,8 @@ class Studio(object):
 
         if self.painting_program:
             self.painting_program.write(self)
-            with final_position(pm.PyNode("canvas")):
-                props.send([pm.PyNode("canvas")])
+            # with final_position(pm.PyNode("canvas")):
+            #     props.send([pm.PyNode("canvas")])
 
         if self.dip_programs:
             self.dips_frame = uutl.create_frame("dips_frame")
