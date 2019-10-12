@@ -236,20 +236,25 @@ def on_print_paint_and_brush_stats(fmt="json"):
 
 
 def randomize_dips():
-    paintings = pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|*", dag=True, leaf=True, type="painting"),
-    paintings = pm.listRelatives(paintings, parent=True)
-    for p in paintings:
+    dip_paintings = pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|*", dag=True, leaf=True, type="painting"),
+    dip_paintings = pm.listRelatives(dip_paintings, parent=True)
+    for p in dip_paintings:
         ty = random()+0.5
         rz=(random()*60)-30
         p.attr("ty").set(ty)
         p.attr("rz").set(rz)
 
+    wipe_paintings = pm.ls("rack|holes|holeRot*|holeTrans|wipe_loc|*", dag=True, leaf=True, type="painting"),
+    wipe_paintings = pm.listRelatives(wipe_paintings, parent=True)
+
+    main_painting_node = pm.PyNode("mainPaintingShape")
+
+    for p in wipe_paintings:
+        brush_id = int(p.split("|")[-1][1:])
+ 
+        brush = Brush.brush_at_index(main_painting_node, brush_id)
+        x_pos =brush.wipe_bar_position
+        p.attr("tx").set(x_pos)
 
 
-# def _deactivate_all_nodes(nodes):
-#     for node in nodes:
-#         node.attr("active").set(0)
 
-# def _activate_all_nodes(nodes):
-#     for node in nodes:
-#         node.attr("active").set(1)

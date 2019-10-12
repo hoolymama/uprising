@@ -91,6 +91,7 @@ MObject brushNode::aContactPower;
 
 MObject brushNode::aForwardBias;
 MObject brushNode::aGravityBias;
+MObject brushNode::aWipeBarPosition;
 
 MObject brushNode::aLineLength;
 MObject brushNode::aLineThickness;
@@ -256,6 +257,13 @@ MStatus brushNode::initialize()
   nAttr.setKeyable(true);
   addAttribute(aGravityBias);
 
+  aWipeBarPosition = nAttr.create("wipeBarPosition", "wbp", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aWipeBarPosition);
+
+  // attributeAffects(aWipeBarPosition, aOutPaintBrush);
   attributeAffects(aPhysicalId, aOutPaintBrush);
   attributeAffects(aWidth, aOutPaintBrush);
   attributeAffects(aTip, aOutPaintBrush);
@@ -271,6 +279,7 @@ MStatus brushNode::initialize()
   attributeAffects(aForwardBias, aOutPaintBrush);
   attributeAffects(aGravityBias, aOutPaintBrush);
 
+  // attributeAffects(aWipeBarPosition, aOutDipBrush);
   attributeAffects(aPhysicalId, aOutDipBrush);
   attributeAffects(aWidth, aOutDipBrush);
   attributeAffects(aTip, aOutDipBrush);
@@ -284,6 +293,7 @@ MStatus brushNode::initialize()
   attributeAffects(aContactPower, aOutDipBrush);
   attributeAffects(aCustomId, aOutDipBrush);
 
+  // attributeAffects(aWipeBarPosition, aOutWipeBrush);
   attributeAffects(aPhysicalId, aOutWipeBrush);
   attributeAffects(aWidth, aOutWipeBrush);
   attributeAffects(aTip, aOutWipeBrush);

@@ -69,6 +69,8 @@ private:
   static MObject aForwardBias;
   static MObject aGravityBias;
 
+  static MObject aWipeBarPosition;
+
   static MObject aLineLength;
   static MObject aLineThickness;
 

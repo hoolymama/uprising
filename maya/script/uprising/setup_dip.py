@@ -141,23 +141,11 @@ def doit():
             dip_xf = _create_painting_node(
                 "dip", brushes[bkey], paints[pkey], dip_stroke_node, dip_ctrl_painting
             )
-            _create_painting_node(
+
+            wipe_xf = _create_painting_node(
                 "wipe",
                 brushes[bkey],
                 paints[pkey],
                 wipe_stroke_node,
                 wipe_ctrl_painting,
             )
-
-            # # apply some randomness to the dip
-            # ty = 0.5 + random()
-            # r
-            # dip_xf.attr("ty").set
-
-    # for bkey in brushes:
-    #     _create_painting_node(
-    #         "slop",
-    #         brushes[bkey],
-    #         None,
-    #         slop_stroke_node,
-    #         slop_ctrl_painting)
