@@ -8,7 +8,7 @@
 #include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnEnumAttribute.h>
-
+#include <maya/MArrayDataHandle.h>
 #include <maya/MFnMatrixAttribute.h>
 
 #include <maya/MFnUnitAttribute.h>
@@ -70,8 +70,8 @@ MStatus skeletonStrokeNode::initialize()
     aChains = tAttr.create("chains", "chn", skChainData::id);
     tAttr.setStorable(false);
     tAttr.setKeyable(true);
-
-    tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+    tAttr.setArray(true);
+    tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
     st = addAttribute(aChains);
     mser;
 
@@ -534,18 +534,18 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     int layerId = data.inputValue(aLayerId).asInt();
     //////////////////////////////////////////////////////////////
 
-    MDataHandle hChains = data.inputValue(aChains, &st);
-    msert;
-    MObject dChains = hChains.data();
-    MFnPluginData fnChains(dChains, &st);
-    msert;
-    skChainData *scData = (skChainData *)fnChains.data(&st);
-    msert;
-    const std::vector<skChain> *geom = scData->fGeometry;
-    if ((!geom) || geom->size() == 0)
-    {
-        return MS::kUnknownParameter;
-    }
+    // MDataHandle hChains = data.inputValue(aChains, &st);
+    // msert;
+    // MObject dChains = hChains.data();
+    // MFnPluginData fnChains(dChains, &st);
+    // msert;
+    // skChainData *scData = (skChainData *)fnChains.data(&st);
+    // msert;
+    // const std::vector<skChain> *geom = scData->fGeometry;
+    // if ((!geom) || geom->size() == 0)
+    // {
+    //     return MS::kUnknownParameter;
+    // }
 
     double splitAngle = data.inputValue(aSplitAngle).asAngle().asRadians();
     double splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
@@ -562,77 +562,174 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
         return MS::kUnknownParameter;
     }
 
-    std::vector<skChain>::const_iterator citer;
-    for (citer = geom->begin(); citer != geom->end(); citer++)
+    MArrayDataHandle hChains = data.inputValue(aChains, &st);
+    msert;
+    unsigned nInputs = hChains.elementCount();
+
+    for (unsigned i = 0; i < nInputs; i++, hChains.next())
     {
-        MPointArray editPoints;
-        MDoubleArray contacts;
-
-        const std::pair<int, Brush> selectedBrush = selectBrush(*citer, brushes);
-
-        getPointsAndContacts(*citer, selectedBrush, entryLength, exitLength, contacts,
-                             editPoints);
-        int selectedBrushId = selectedBrush.first;
-        int customBrushId = selectedBrush.second.customId();
-
-        MFnNurbsCurve curveFn;
-        MFnNurbsCurveData dataCreator;
-        MObject curveData = dataCreator.create(&st);
-        mser;
-        // cerr << "editPoints" << editPoints << endl;
-        MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen,
-                                                      true, false, false, curveData, &st);
-
-        MDoubleArray knotVals;
-        st = curveFn.getKnots(knotVals);
-        int numKnots = knotVals.length();
-        // cerr << "numKnots:" <<  numKnots << " --- " << knotVals[(numKnots - 1)] << endl;
-        double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
-
-        for (int i = 0; i < numKnots; ++i)
-        {
-            knotVals[i] = knotVals[i] * maxValRecip;
-        }
-
-        curveFn.setKnots(knotVals, 0, (numKnots - 1));
-        double curveLength = curveFn.length(epsilon);
-        MVectorArray boundaries;
-        if (!getStrokeBoundaries(dCurve, strokeLength, overlap, splitAngle, splitTestInterval,
-                                 boundaries))
+        int index = hChains.elementIndex(&st);
+        MDataHandle hChainsInput = hChains.inputValue(&st);
+        if (st.error())
         {
             continue;
         }
-        for (int strokeId = 0; strokeId < boundaries.length(); ++strokeId)
+        MObject dChainsInput = hChainsInput.data();
+        MFnPluginData fnChains(dChainsInput, &st);
+        if (st.error())
         {
-            const double &startDist = boundaries[strokeId].x;
-            const double &endDist = boundaries[strokeId].y;
+            continue;
+        }
+        skChainData *scData = (skChainData *)fnChains.data(&st);
+        if (st.error())
+        {
+            continue;
+        }
+        const std::vector<skChain> *geom = scData->fGeometry;
+        std::vector<skChain>::const_iterator citer;
+        for (citer = geom->begin(); citer != geom->end(); citer++)
+        {
+            MPointArray editPoints;
+            MDoubleArray contacts;
 
-            unsigned strokeGroupSize = Stroke::create(
-                thisObj,
-                dCurve,
-                contacts,
-                localContact,
-                curveLength,
-                startDist,
-                endDist,
-                entryLength,
-                exitLength,
-                transitionBlendMethod,
-                pointDensity,
-                minimumPoints,
-                rotSpec,
-                repeatSpec,
-                strokeDirection,
-                pivotParam,
-                paintFlow,
-                strokeId,
-                selectedBrushId,
-                paintId,
-                layerId,
-                customBrushId,
-                pStrokes);
+            const std::pair<int, Brush> selectedBrush = selectBrush(*citer, brushes);
+
+            getPointsAndContacts(*citer, selectedBrush, entryLength, exitLength, contacts,
+                                 editPoints);
+            int selectedBrushId = selectedBrush.first;
+            int customBrushId = selectedBrush.second.customId();
+
+            MFnNurbsCurve curveFn;
+            MFnNurbsCurveData dataCreator;
+            MObject curveData = dataCreator.create(&st);
+            mser;
+
+            MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen,
+                                                          true, false, false, curveData, &st);
+
+            MDoubleArray knotVals;
+            st = curveFn.getKnots(knotVals);
+            int numKnots = knotVals.length();
+
+            double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
+
+            for (int i = 0; i < numKnots; ++i)
+            {
+                knotVals[i] = knotVals[i] * maxValRecip;
+            }
+
+            curveFn.setKnots(knotVals, 0, (numKnots - 1));
+            double curveLength = curveFn.length(epsilon);
+            MVectorArray boundaries;
+            if (!getStrokeBoundaries(dCurve, strokeLength, overlap, splitAngle, splitTestInterval,
+                                     boundaries))
+            {
+                continue;
+            }
+            for (int strokeId = 0; strokeId < boundaries.length(); ++strokeId)
+            {
+                const double &startDist = boundaries[strokeId].x;
+                const double &endDist = boundaries[strokeId].y;
+
+                unsigned strokeGroupSize = Stroke::create(
+                    thisObj,
+                    dCurve,
+                    contacts,
+                    localContact,
+                    curveLength,
+                    startDist,
+                    endDist,
+                    entryLength,
+                    exitLength,
+                    transitionBlendMethod,
+                    pointDensity,
+                    minimumPoints,
+                    rotSpec,
+                    repeatSpec,
+                    strokeDirection,
+                    pivotParam,
+                    paintFlow,
+                    strokeId,
+                    selectedBrushId,
+                    paintId,
+                    layerId,
+                    customBrushId,
+                    pStrokes);
+            }
         }
     }
+
+    // std::vector<skChain>::const_iterator citer;
+    // for (citer = geom->begin(); citer != geom->end(); citer++)
+    // {
+    //     MPointArray editPoints;
+    //     MDoubleArray contacts;
+
+    //     const std::pair<int, Brush> selectedBrush = selectBrush(*citer, brushes);
+
+    //     getPointsAndContacts(*citer, selectedBrush, entryLength, exitLength, contacts,
+    //                          editPoints);
+    //     int selectedBrushId = selectedBrush.first;
+    //     int customBrushId = selectedBrush.second.customId();
+
+    //     MFnNurbsCurve curveFn;
+    //     MFnNurbsCurveData dataCreator;
+    //     MObject curveData = dataCreator.create(&st);
+    //     mser;
+    //     // cerr << "editPoints" << editPoints << endl;
+    //     MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen,
+    //                                                   true, false, false, curveData, &st);
+
+    //     MDoubleArray knotVals;
+    //     st = curveFn.getKnots(knotVals);
+    //     int numKnots = knotVals.length();
+    //     // cerr << "numKnots:" <<  numKnots << " --- " << knotVals[(numKnots - 1)] << endl;
+    //     double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
+
+    //     for (int i = 0; i < numKnots; ++i)
+    //     {
+    //         knotVals[i] = knotVals[i] * maxValRecip;
+    //     }
+
+    //     curveFn.setKnots(knotVals, 0, (numKnots - 1));
+    //     double curveLength = curveFn.length(epsilon);
+    //     MVectorArray boundaries;
+    //     if (!getStrokeBoundaries(dCurve, strokeLength, overlap, splitAngle, splitTestInterval,
+    //                              boundaries))
+    //     {
+    //         continue;
+    //     }
+    //     for (int strokeId = 0; strokeId < boundaries.length(); ++strokeId)
+    //     {
+    //         const double &startDist = boundaries[strokeId].x;
+    //         const double &endDist = boundaries[strokeId].y;
+
+    //         unsigned strokeGroupSize = Stroke::create(
+    //             thisObj,
+    //             dCurve,
+    //             contacts,
+    //             localContact,
+    //             curveLength,
+    //             startDist,
+    //             endDist,
+    //             entryLength,
+    //             exitLength,
+    //             transitionBlendMethod,
+    //             pointDensity,
+    //             minimumPoints,
+    //             rotSpec,
+    //             repeatSpec,
+    //             strokeDirection,
+    //             pivotParam,
+    //             paintFlow,
+    //             strokeId,
+    //             selectedBrushId,
+    //             paintId,
+    //             layerId,
+    //             customBrushId,
+    //             pStrokes);
+    //     }
+    // }
 
     return MS::kSuccess;
 }

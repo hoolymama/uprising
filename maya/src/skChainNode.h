@@ -40,14 +40,13 @@ private:
 
   static MObject aRadiusMult;
   static MObject aRadiusOffset;
-  static MObject aMaxWidthPixels;
-  static MObject aMaxStampWidthPixels;
+  static MObject aMaxWidth;
+  static MObject aMaxStampWidth;
 
-  static MObject aSmallestMaxWidthPixels;
   static MObject aMinBranchTwigLength;
   static MObject aMinLooseTwigLength;
 
-  static MObject aSpanPixels;
+  static MObject aSpan;
 
   static MObject aProjectionMatrix;
 

@@ -20,11 +20,10 @@ MObject skChainNode::aImage;
 MObject skChainNode::aMaxIterations;
 MObject skChainNode::aMinBranchTwigLength;
 MObject skChainNode::aMinLooseTwigLength;
-MObject skChainNode::aSmallestMaxWidthPixels;
 
-MObject skChainNode::aSpanPixels;
-MObject skChainNode::aMaxWidthPixels;
-MObject skChainNode::aMaxStampWidthPixels;
+MObject skChainNode::aSpan;
+MObject skChainNode::aMaxWidth;
+MObject skChainNode::aMaxStampWidth;
 MObject skChainNode::aProjectionMatrix;
 MObject skChainNode::aRadiusMult;
 MObject skChainNode::aRadiusOffset;
@@ -73,59 +72,40 @@ MStatus skChainNode::initialize()
   st = addAttribute(aMaxIterations);
   mser;
 
-  aMinBranchTwigLength = nAttr.create("minBranchTwigLength", "mbtl", MFnNumericData::kInt);
+  aMinBranchTwigLength = nAttr.create("minBranchTwigLength", "mbtl", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  nAttr.setDefault(1);
   st = addAttribute(aMinBranchTwigLength);
   mser;
 
-  aMinLooseTwigLength = nAttr.create("minLooseTwigLength", "mltl", MFnNumericData::kInt);
+  aMinLooseTwigLength = nAttr.create("minLooseTwigLength", "mltl", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  nAttr.setMin(1);
-  nAttr.setDefault(1);
   st = addAttribute(aMinLooseTwigLength);
   mser;
 
-  aSpanPixels = nAttr.create("spanPixels", "spx", MFnNumericData::kInt);
+  aSpan = nAttr.create("span", "spn", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  nAttr.setMin(1);
-  nAttr.setDefault(10);
-  st = addAttribute(aSpanPixels);
+  st = addAttribute(aSpan);
   mser;
 
-  aMaxWidthPixels = nAttr.create("maxWidthPixels", "mwpx", MFnNumericData::kInt);
+  aMaxWidth = nAttr.create("maxWidth", "mwd", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  nAttr.setMin(1);
-  nAttr.setDefault(10);
-  st = addAttribute(aMaxWidthPixels);
+  st = addAttribute(aMaxWidth);
   mser;
 
-  aMaxStampWidthPixels = nAttr.create("maxStampWidthPixels", "mswpx",
-                                      MFnNumericData::kInt);
+  aMaxStampWidth = nAttr.create("maxStampWidth", "msw",
+                                MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  nAttr.setMin(1);
-  nAttr.setDefault(10);
-  st = addAttribute(aMaxStampWidthPixels);
-  mser;
-
-  aSmallestMaxWidthPixels = nAttr.create("smallestMaxWidthPixels", "smwp",
-                                         MFnNumericData::kInt);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setKeyable(true);
-  nAttr.setMin(1);
-  nAttr.setDefault(10);
-  st = addAttribute(aSmallestMaxWidthPixels);
+  st = addAttribute(aMaxStampWidth);
   mser;
 
   aRadiusMult = nAttr.create("radiusMult", "rml", MFnNumericData::kFloat);
@@ -164,15 +144,13 @@ MStatus skChainNode::initialize()
   attributeAffects(aMaxIterations, aOutput);
   attributeAffects(aMinBranchTwigLength, aOutput);
   attributeAffects(aMinLooseTwigLength, aOutput);
-  attributeAffects(aSpanPixels, aOutput);
-  attributeAffects(aMaxWidthPixels, aOutput);
+  attributeAffects(aSpan, aOutput);
+  attributeAffects(aMaxWidth, aOutput);
   attributeAffects(aProjectionMatrix, aOutput);
-
-  attributeAffects(aSmallestMaxWidthPixels, aOutput);
 
   attributeAffects(aRadiusMult, aOutput);
   attributeAffects(aRadiusOffset, aOutput);
-  attributeAffects(aMaxStampWidthPixels, aOutput);
+  attributeAffects(aMaxStampWidth, aOutput);
 
   return (MS::kSuccess);
 }
@@ -221,16 +199,42 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
   {
     return MS::kUnknownParameter;
   }
-  int maxIterations = data.inputValue(aMaxIterations).asInt();
-  MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
-  int minBranchLength = data.inputValue(aMinBranchTwigLength).asInt();
-  int minLooseTwigLength = data.inputValue(aMinLooseTwigLength).asInt();
-  int step = data.inputValue(aSpanPixels).asInt();
-  int maxWidthPixels = data.inputValue(aMaxWidthPixels).asInt();
 
+  MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
+  float scale = projection[0][0] * 2.0f; // just use the width.
+
+  float cmToPixels = float(w) / scale;
+
+  int minBranchLengthPixels = int(data.inputValue(aMinBranchTwigLength).asFloat() * cmToPixels);
+  if (minBranchLengthPixels < 1)
+  {
+    minBranchLengthPixels = 1;
+  }
+  int minLooseTwigLengthPixels = int(data.inputValue(aMinLooseTwigLength).asFloat() * cmToPixels);
+  if (minLooseTwigLengthPixels < 1)
+  {
+    minLooseTwigLengthPixels = 1;
+  }
+  int stepPixels = int(data.inputValue(aSpan).asFloat() * cmToPixels);
+  if (stepPixels < 1)
+  {
+    stepPixels = 1;
+  }
+  int maxWidthPixels = int(data.inputValue(aMaxWidth).asFloat() * cmToPixels);
+  if (maxWidthPixels < 1)
+  {
+    maxWidthPixels = 1;
+  }
+
+  int maxStampWidthPixels = int(data.inputValue(aMaxStampWidth).asFloat() * cmToPixels);
+  if (maxStampWidthPixels < 1)
+  {
+    maxStampWidthPixels = 1;
+  }
+
+  float radiusOffsetPixels = int(data.inputValue(aRadiusOffset).asFloat() * cmToPixels);
   float radiusMult = data.inputValue(aRadiusMult).asFloat();
-  float radiusOffset = data.inputValue(aRadiusOffset).asFloat();
-  int maxStampWidthPixels = data.inputValue(aMaxStampWidthPixels).asInt();
+  int maxIterations = data.inputValue(aMaxIterations).asInt();
 
   if (maxWidthPixels < 1)
   {
@@ -261,8 +265,8 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
     skGraph g(mat); // build
     // now we have the Medial Axis Transform (mat) and (image)
 
-    g.prune(minBranchLength);
-    g.removeLooseTwigs(minLooseTwigLength);
+    g.prune(minBranchLengthPixels);
+    g.removeLooseTwigs(minLooseTwigLengthPixels);
 
     if (!g.numNodes())
     {
@@ -273,19 +277,17 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
 
     g.draw(image, maxStampWidthPixels);
 
-    g.adjustRadius(radiusMult, radiusOffset);
+    g.adjustRadius(radiusMult, radiusOffsetPixels);
 
     g.detachBranches();
-    g.getChains(projection, *geom, step);
+    g.getChains(projection, *geom, stepPixels);
 
     // then paint black over the image
-    if (image.sum() < minLooseTwigLength)
+    if (image.sum() < minLooseTwigLengthPixels)
     {
       break;
     }
   }
-
-
 
   return MS::kSuccess;
 }
