@@ -14,6 +14,7 @@ from uprising import (
     tools_menu,
     export_menu,
     curves_menu,
+    select_menu,
     images_menu,
     palette_menu,
     info_menu,
@@ -100,6 +101,7 @@ reload(info_menu)
 reload(curves_menu)
 
 reload(images_menu)
+reload(select_menu)
 
 reload(images)
 
@@ -168,6 +170,9 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.tools_menu = tools_menu.create()
+
+        pm.setParent(self.menuBarLayout)
+        self.select_menu = select_menu.create()
 
         pm.setParent(self.menuBarLayout)
         self.curves_menu = curves_menu.create()

@@ -1140,11 +1140,10 @@ void Stroke::applyForwardBias(const Brush &brush, float mult)
 		knotVals[i] = knotVals[i] * maxValRecip;
 	}
 	curveFn.setKnots(knotVals, 0, (numKnots - 1));
-
 	////////
 	double curveLength = curveFn.length(epsilon);
-	MVector tangent0 = curveFn.tangent(0.0).normal();
-	MVector tangent1 = curveFn.tangent(1.0).normal();
+	MVector tangent0 = curveFn.tangent(0.000001).normal();
+	MVector tangent1 = curveFn.tangent(.999999).normal();
 	std::vector<Target>::iterator iter;
 	int i = 0;
 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++, i++)
@@ -1183,27 +1182,14 @@ void Stroke::applyForwardBias(const Brush &brush, float mult)
 		{
 			newTangent = -newTangent;
 		}
+		// cerr << i << " param: " << param << " newPoint: " << newPoint << " newTangent: " << newTangent << endl;
 
 		// bundle these three together.
 		MVector offset = newPoint - editPoints[i];
 		iter->offsetBy(offset);
 		iter->setTangent(newTangent);
 		iter->setRotation(m_follow, m_backstroke);
-
-		// if (i == 0)
-		// {
-		// 	m_arrivals.back().offsetBy(offset);
-		// 	m_arrivals.back().setTangent(newTangent);
-		// 	m_arrivals.back().setRotation(m_follow, m_backstroke);
-		// }
-		// else if (i == maxParam)
-		// {
-		// 	m_departure.offsetBy(offset);
-		// 	m_departure.setTangent(newTangent);
-		// 	m_departure.setRotation(m_follow, m_backstroke);
-		// }
 	}
-	// offset arrival and departure
 }
 
 void Stroke::applyGravityBias(const Brush &brush, float mult)
