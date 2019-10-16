@@ -46,7 +46,8 @@ import cluster
 # import target
 import write
 
-# import uprising_util
+import uprising_util
+
 # import const
 # import sheets
 import curve_utils
@@ -61,7 +62,7 @@ import images
 # reload(program)
 # reload(studio)
 
-# reload(uprising_util)
+reload(uprising_util)
 # reload(paint)
 # reload(brush)
 # reload(target)
@@ -167,6 +168,8 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.publish_tab = publish_tab.PublishTab()
         self.tabs.setTabLabel((self.publish_tab, "Publish"))
+
+        self.retries_tab.set_publish_tab(self.publish_tab)
 
         pm.setParent(self.menuBarLayout)
         self.tools_menu = tools_menu.create()

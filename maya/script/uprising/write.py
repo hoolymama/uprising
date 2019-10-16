@@ -77,9 +77,7 @@ def publish_proposal(
 def publish_sequence(
     export_dir,
     frame_range,
-    pause,
-    save_unfiltered_snapshot,
-    write_geo
+    pause 
 ):
 
     # print dip_wipe_packs
@@ -88,15 +86,7 @@ def publish_sequence(
     uutl.mkdir_p(recordings_dir)
     design_dir = os.path.join(export_dir, "design")
     uutl.mkdir_p(design_dir)
-
-    if save_unfiltered_snapshot:
-
-        filterable_nodes = pm.ls(type=["strokeNode", "collectStrokes"])
-
-        with uutl.filters_off(*filterable_nodes):
-            ts = get_timestamp()
-            write_ref_image(design_dir, ts)
-
+    first_timestamp = None
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
 
@@ -104,11 +94,8 @@ def publish_sequence(
         ts_dir = get_ts_dir(export_dir, timestamp)
         uutl.mkdir_p(ts_dir)
 
-        # Only write maya scene on first frame because
-        # otherwise student version prompts for user input
-        # each time.
         if frame == frame_range[0]:
-            write_maya_scene(ts_dir, timestamp)
+            first_timestamp = timestamp
 
         # There can be an error if the painting contains no strokes.
         # In that case, we just want to skip the frame.
@@ -118,9 +105,9 @@ def publish_sequence(
             pm.displayWarning(ex.message)
             continue
 
-        write_csv(export_dir, timestamp)
+        # write_csv(export_dir, timestamp)
 
-        write_ref_image(ts_dir, timestamp)
+        # write_ref_image(ts_dir, timestamp)
 
         RL = Robolink()
 
@@ -129,12 +116,16 @@ def publish_sequence(
             do_dips=True,
             pick_and_place_slots="used",
             # do_slop=True,
-            do_rack_and_holder_geo=write_geo,
+            do_rack_and_holder_geo=False,
             pause=pause)
 
         studio.write()
         write_program(RL, ts_dir, "px", timestamp)
         write_station(RL, ts_dir, timestamp)
+
+
+    if first_timestamp:
+        write_maya_scene(export_dir, first_timestamp)
 
 
 def choose_publish_dir():

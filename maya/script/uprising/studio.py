@@ -53,6 +53,7 @@ class Studio(object):
     """Glue together the entire studio."""
 
     def __init__(self, **kw):
+        
 
         uutl.clean_rdk()
         self.RL = Robolink()

@@ -61,12 +61,7 @@ class PublishTab(gui.FormLayout):
             annotation='Make the gripper pause before and after gripping or releasing',)
 
         pm.setParent('..')
-
-        self.write_geo_cb = pm.checkBox(
-            label='Write rack and holder geo (slow)',
-            value=0,
-            annotation='Write out the geo to Robodk. It adds extra time so best to only do it when testing a single chunk')
-
+ 
         self.anim_row = pm.rowLayout(height=30,
                                      numberOfColumns=2,
                                      columnWidth2=(
@@ -81,25 +76,13 @@ class PublishTab(gui.FormLayout):
             value1=600)
 
         self.current_frame_cb = pm.checkBox(
-            label='Current',
+            label='Current frame',
             value=0,
             annotation='Use current frame only',
             changeCommand=pm.Callback(self.on_current_frame_cb_change)
         )
 
         pm.setParent('..')
-
-        self.save_unfiltered_snapshot = pm.checkBoxGrp(
-            height=30,
-            label='Save unfiltered snapshot',
-            ann="This will switch off filtering temporarily",
-            value1=False)
-
-        self.snap_size_if = pm.intFieldGrp(
-            height=30,
-            label='Snapshot size',
-            value1=1024
-        )
 
     def on_current_frame_cb_change(self):
         state = pm.checkBox(self.current_frame_cb, query=True, value=True)
@@ -115,7 +98,7 @@ class PublishTab(gui.FormLayout):
         animate_but = pm.button(
             label='Make chunks only',
             command=pm.Callback(
-                self._setup_chunks))
+                self.setup_chunks))
 
         go_but = pm.button(
             label='Publish', command=pm.Callback(
@@ -142,7 +125,7 @@ class PublishTab(gui.FormLayout):
     def save(self):
         pass
 
-    def _setup_chunks(self):
+    def setup_chunks(self):
         current_only = pm.checkBox(
             self.current_frame_cb, query=True, value=True)
 
@@ -199,15 +182,8 @@ class PublishTab(gui.FormLayout):
 
         return (0, len(ranges)-1)
 
-    def on_go(self):
 
-        write_geo = pm.checkBox(
-            self.write_geo_cb, query=True, value=True)
-
-        export_dir = write.choose_publish_dir()
-        if not export_dir:
-            return
-
+    def publish_to_directory(self, export_dir):
         wait = pm.checkBox(self.gripper_wait_cb, query=True, value=True)
         pause = -1 if wait else pm.intFieldGrp(
             self.gripper_pause_if, query=True, value1=True)
@@ -215,17 +191,22 @@ class PublishTab(gui.FormLayout):
         pm.cutKey("collectStrokesMain", at=(
             "startFrom", "endAt"), option="keys")
 
-        frames = self._setup_chunks()
-
-        save_unfiltered_snapshot = pm.checkBoxGrp(
-            self.save_unfiltered_snapshot, query=True, value1=True)
+        frames = self.setup_chunks()
 
         write.publish_sequence(
             export_dir,
             frames,
-            pause,
-            save_unfiltered_snapshot,
-            write_geo
+            pause
         )
         pm.cutKey("collectStrokesMain", at=(
             "startFrom", "endAt"), option="keys")
+        pm.PyNode("collectStrokesMain").attr("startFrom").set(0)
+        pm.PyNode("collectStrokesMain").attr("endAt").set(-1)
+
+    def on_go(self):
+
+        export_dir = write.choose_publish_dir()
+        if not export_dir:
+            return
+        self.publish_to_directory(export_dir)
+       

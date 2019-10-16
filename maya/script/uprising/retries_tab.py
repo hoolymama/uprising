@@ -27,6 +27,12 @@ class retriesTab(gui.FormLayout):
 
         pm.setParent(self)
         # self.initialize_ui()
+        self.publish_tab = None
+
+
+    def set_publish_tab(self, publish_tab):
+        self.publish_tab = publish_tab
+
 
     def create_retries_ui(self):
 
@@ -35,8 +41,6 @@ class retriesTab(gui.FormLayout):
             collapse=False,
             labelVisible=True,
             label="Retries"
-            # ,ec=pm.Callback(self.on_collapse_change)
-            # ,cc=pm.Callback(self.on_collapse_change)
         )
 
         pm.columnLayout(adj=True)
@@ -63,14 +67,31 @@ class retriesTab(gui.FormLayout):
             numberOfFields=1,
             value1=12)
 
-        self.try_existing_first_cb = pm.checkBoxGrp(
-            label='Try current first',
-            value1=0,
-            annotation='Before trying the set range of values, try the existing value')
+        self.publish_cb = pm.checkBoxGrp(
+            label='Publish',
+            value1=1,
+            annotation='Also publish if all retries succeed')
+
+
+
+        self.add_objs_row = pm.rowLayout( 
+                                        numberOfColumns=2,
+                                        columnWidth2=(200, 200),
+                                        adjustableColumn=1,
+                                        columnAlign=(1, 'right'),
+                                        columnAttach=[(1, 'both', 2), (2, 'both', 2)])
+
 
         self.retries_add_objs_btn = pm.button(
             label='Load selected',
             command=pm.Callback(self.on_load_selected))
+
+        self.retries_add_all_objs_btn = pm.button(
+            label='Load all skeleton strokes',
+            command=pm.Callback(self.on_load_all_skel))
+
+        pm.setParent("..")
+
 
         pm.scrollLayout(bv=True)
         self.objects_column = pm.columnLayout(adj=True)
@@ -79,13 +100,18 @@ class retriesTab(gui.FormLayout):
 
     def on_load_selected(self):
         nodes = pm.ls(selection=True)
-        if not nodes:
-            pm.error("Nothing selected")
+        self._load_retries_nodes(nodes)
 
+    def on_load_all_skel(self):
+        self._load_retries_nodes(pm.ls(type="skeletonStroke"))
+
+    def _load_retries_nodes(self, nodes):
+        self._clear_entries()
+        if not nodes:
+            return
         typ = type(nodes[0])
         if any(not isinstance(o, typ) for o in nodes[1:]):
             pm.error("Objects must all be the same type")
-        self._clear_entries()
 
         frame = 0
         for node in nodes:
@@ -102,14 +128,7 @@ class retriesTab(gui.FormLayout):
         with uutl.activatable(state=True):
             intf = pm.intFieldGrp(numberOfFields=1, label=node, value1=frame)
         return intf
-
-    # def on_current_frame_cb_change(self):
-    #     state = pm.checkBox(self.current_frame_cb, query=True, value=True)
-    #     pm.intFieldGrp(self.frame_if, edit=True, enable=(not state))
-
-    # def initialize_ui(self):
-    #     self.on_current_frame_cb_change()
-
+ 
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
@@ -117,11 +136,7 @@ class retriesTab(gui.FormLayout):
             label='Preview', command=pm.Callback(
                 self.on_preview))
         go_but = pm.button(label='Go', command=pm.Callback(self.on_go))
-
-        # self.attachForm(self.simple_ui, 'left', 2)
-        # self.attachForm(self.simple_ui, 'right', 2)
-        # self.attachForm(self.simple_ui, 'top', 2)
-        # self.attachNone(self.simple_ui, 'bottom')
+ 
 
         self.attachForm(self.retries_ui, 'left', 2)
         self.attachForm(self.retries_ui, 'right', 2)
@@ -138,9 +153,6 @@ class retriesTab(gui.FormLayout):
         self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, 'bottom', 2)
 
-    def on_go(self):
-
-        self.do_retries()
 
     def on_preview(self):
         packs = self.fetch_packs()
@@ -149,24 +161,6 @@ class retriesTab(gui.FormLayout):
                 item["plug"] = str(item["plug"])
 
         print json.dumps(packs, indent=2)
-
-    # def _get_frames(self):
-    #     current_only = pm.checkBox(
-    #         self.current_frame_cb, query=True, value=True)
-    #     if current_only:
-    #         frame = int(pm.currentTime(query=True))
-    #         frames = (frame, frame)
-    #     else:
-    #         frames = (
-    #             pm.intFieldGrp(
-    #                 self.frame_if,
-    #                 query=True,
-    #                 value1=True),
-    #             pm.intFieldGrp(
-    #                 self.frame_if,
-    #                 query=True,
-    #                 value2=True))
-    #     return frames
 
     def get_step_values(self):
         count = pm.intFieldGrp(self.num_retries_wg, query=True, value1=True)
@@ -185,9 +179,6 @@ class retriesTab(gui.FormLayout):
         return vals
 
     def fetch_packs(self):
-
-        try_existing = pm.checkBoxGrp(
-            self.try_existing_first_cb, query=True, value1=True)
 
         attribute = pm.textFieldGrp(
             self.varying_attrib_wg, query=True, text=True)
@@ -212,20 +203,32 @@ class retriesTab(gui.FormLayout):
             if plug.inputs():
                 pm.error("{} has input connections. Can't adjust.")
 
-            initial_values = [plug.get()] if try_existing else []
-
             result[frame].append({
                 "plug": plug,
-                "values": initial_values + vals,
+                "values": vals,
                 "frame": frame,
                 "do_retry": do_retry
             })
         return result
 
+    def on_go(self):
+        uutl.checkRobolink()
+
+        do_publish = pm.checkBoxGrp(self.publish_cb, query=True, value1=True)
+        if do_publish:
+            export_dir = write.choose_publish_dir()
+            if not export_dir:
+                return
+
+        success = self.do_retries()
+
+        if success and do_publish:
+            self.publish_tab.publish_to_directory(export_dir)
+
+
     def do_retries(self):
 
         packs = self.fetch_packs()
-
         frames = sorted(packs.keys())
 
         results = []
@@ -249,15 +252,22 @@ class retriesTab(gui.FormLayout):
                 if res["attempts"] == -1:
                     some_empty = True
 
-        if not failed:
+
+
+
+        self.activate_all(packs)
+        uutl.show_in_window(results, title="Retries results")
+
+        if failed:
+            print "Some frames could not be resolved"
+        else:
             if some_empty:
                 print "All frames succeeded, some were empty"
             else:
                 print "All frames succeeded"
 
-        self.activate_all(packs)
+        return not failed
 
-        uutl.show_in_window(results, title="Retries results")
 
     def activate_all(self, packs):
         for k in packs:

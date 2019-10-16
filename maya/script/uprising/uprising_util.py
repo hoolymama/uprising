@@ -224,19 +224,7 @@ def maya_to_robodk_mat(rhs):
     mat[2][3] = mat[2][3] * 10.0
     return rdk.Mat(mat)
 
-
-# def mat_from_connected(attribute, space):
-#     conns = attribute.connections(
-#         source=True, destination=False)
-#     if not conns:
-#         return None
-#     mat = None
-#     if space == "world":
-#         mat = pm.PyNode(conns[0]).attr("worldMatrix[0]").get()
-#     else:
-#         mat = pm.PyNode(conns[0]).attr("matrix").get()
-#     return maya_to_robodk_mat(mat)
-
+ 
 
 def create_program(name):
     RL = Robolink()
@@ -322,6 +310,10 @@ def _create_joint_target(obj, name, frame):
     target.setJoints(joints)
     return target
 
+
+def checkRobolink():
+    RL = Robolink()
+    RL.Connect()
 
 def clean_rdk():
     RL = Robolink()
