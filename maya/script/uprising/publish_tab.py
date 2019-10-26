@@ -73,7 +73,7 @@ class PublishTab(gui.FormLayout):
         self.chunk_if = pm.intFieldGrp(
             label="Max chunk size",
             numberOfFields=1,
-            value1=600)
+            value1=1200)
 
         self.current_frame_cb = pm.checkBox(
             label='Current frame',
