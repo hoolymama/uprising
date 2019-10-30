@@ -35,3 +35,12 @@ BOARD_CALIBRATION_PROGRAM_NAME = "board"
 PERSPEX_CALIBRATION_PROGRAM_NAME = "perspex"
 PAP_EXERCISE_PROGRAM_NAME = "pap"
 
+
+BRUSH_RANKS = [
+    {"name": "bk_0", "ids": [0, 6, 12]},
+    {"name": "bk_1", "ids": [1, 7, 13]},
+    {"name": "bk_2", "ids": [2, 8, 14]},
+    {"name": "bk_3", "ids": [3, 9, 15]},
+    {"name": "bk_4", "ids": [4, 10, 16]},
+    {"name": "bk_5", "ids": [5, 11, 17]},
+]

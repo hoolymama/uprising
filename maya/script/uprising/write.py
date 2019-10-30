@@ -11,10 +11,9 @@ from studio import Studio
 from paint import Paint
 from brush import Brush
 
-import setup_dip
-import callbacks
-
-
+# import setup_dip
+import palette_utils as putl
+ 
 def split_desc(desc):
     result = [None, None]
     lines = desc.splitlines()
@@ -56,23 +55,7 @@ def publish_proposal(
         frame_range,
         clean_top)
 
-
-# def run_hook(code):
-#     if not code:
-#         return
-#     kw = {
-#         "frame": pm.currentTime(q=True),
-#         "painting_node": pm.PyNode("mainPaintingShape"),
-#         "dip_node": pm.PyNode("dipPaintingShape")
-#     }
-
-#     args = code.split(",")
-#     cmd = args[0]
-#     args = [uutl.numeric(a.strip()) for a in args[1:]]
-#     method = getattr(callbacks, cmd)
-#     res = method(*args, **kw)
-#     print res
-
+ 
 
 def publish_sequence(
     export_dir,
@@ -331,7 +314,7 @@ def used_paints(painting_node):
 def write_log(ts_dir, timestamp, frame):
 
     painting_node = pm.PyNode("mainPaintingShape")
-    dip_combos = setup_dip.dip_combinations()
+    dip_combos = putl.dip_combinations()
 
     pnt_stats = painting_stats(painting_node)
     # dip_stats = painting_stats(dip_node)

@@ -48,7 +48,8 @@ import write
 
 import uprising_util
 
-# import const
+import const
+
 # import sheets
 import curve_utils
 import brush_utils
@@ -70,7 +71,7 @@ reload(uprising_util)
 reload(cluster)
 reload(write)
 reload(setup_dip)
-# reload(const)
+reload(const)
 # reload(images)
 
 
@@ -86,7 +87,7 @@ reload(palette_utils)
 # reload(sheets)
 
 # reload(painting_tab)
-# reload(setup_tab)
+reload(setup_tab)
 
 # reload(props)
 reload(export_tab)

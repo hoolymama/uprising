@@ -16,15 +16,31 @@ class SetupTab(gui.FormLayout):
         self.column.adjustableColumn(True)
         self.create_buttons()
         self.create_action_buttons_and_layout()
-        self.populate()
+        # self.populate()
 
     def create_buttons(self):
         pm.setParent(self.column)
 
-        with uutl.activatable(state=False):
-            self.setup_brushes_tf = pm.textFieldGrp(
-                label="Setup brushes", text="pouch_name"
+        with uutl.activatable(state=True):
+
+            self.setup_brushes_row = pm.rowLayout(
+                adjustableColumn=2,
+                numberOfColumns=2,
+                columnWidth2=(350, 150),
+                columnAlign=(1, "right"),
+                columnAttach=[(1, "both", 2), (2, "both", 2)],
             )
+
+            self.setup_brushes_tf = pm.textFieldGrp(
+                label="Setup brushes", text="current_pouch"
+            )
+
+            self.use_existing_brushes_cb = pm.checkBox(
+                label="Use existing",
+                value=1,
+                annotation="Read values from sheet, but use existing brushes",
+            )
+            pm.setParent("..")
 
         with uutl.activatable(state=False):
 
@@ -68,7 +84,7 @@ class SetupTab(gui.FormLayout):
     def create_action_buttons_and_layout(self):
         pm.setParent(self)  # form
 
-        save_but = pm.button(label="Save", command=pm.Callback(self.save))
+        save_but = pm.button(label="---")
         go_but = pm.button(label="Go", command=pm.Callback(self.on_go))
 
         self.attachForm(self.column, "left", 2)
@@ -87,13 +103,21 @@ class SetupTab(gui.FormLayout):
         self.attachForm(go_but, "bottom", 2)
 
     def on_go(self):
-        self.save()
+        # self.save()
 
         do_brushes = pm.textFieldGrp(self.setup_brushes_tf, q=True, en=True)
+        use_existing_brushes = pm.checkBox(
+            self.use_existing_brushes_cb, q=True, value=True
+        )
+
         do_paints = pm.textFieldGrp(self.setup_paints_tf, q=True, en=True)
 
         if do_brushes:
             name = pm.textFieldGrp(self.setup_brushes_tf, q=True, text=True)
+            if use_existing_brushes:
+                butl.apply_brush_values_from_sheet(name)
+                return
+
             butl.setup_brushes_from_sheet(name)
 
         if do_paints:
@@ -103,85 +127,85 @@ class SetupTab(gui.FormLayout):
         if do_brushes or do_paints:
             setup_dip.doit()
 
-    def populate(self):
+    # def populate(self):
 
-        # brushes
-        var = ("upov_setup_brushes_tf_en", True)
-        pm.textFieldGrp(
-            self.setup_brushes_tf, e=True, en=pm.optionVar.get(var[0], var[1])
-        )
-        uutl.conform_activatable_checkbox(self.setup_brushes_tf)
+    #     # brushes
+    #     var = ("upov_setup_brushes_tf_en", True)
+    #     pm.textFieldGrp(
+    #         self.setup_brushes_tf, e=True, en=pm.optionVar.get(var[0], var[1])
+    #     )
+    #     uutl.conform_activatable_checkbox(self.setup_brushes_row)
 
-        var = ("upov_setup_brushes_tf", "default")
-        pm.textFieldGrp(
-            self.setup_brushes_tf, e=True, text=pm.optionVar.get(var[0], var[1])
-        )
+    #     var = ("upov_setup_brushes_tf", "default")
+    #     pm.textFieldGrp(
+    #         self.setup_brushes_tf, e=True, text=pm.optionVar.get(var[0], var[1])
+    #     )
 
-        # paints
-        var = ("upov_setup_paints_tf_en", True)
-        pm.textFieldGrp(
-            self.setup_paints_tf, e=True, en=pm.optionVar.get(var[0], var[1])
-        )
-        uutl.conform_activatable_checkbox(self.setup_paints_tf)
+    #     # paints
+    #     var = ("upov_setup_paints_tf_en", True)
+    #     pm.textFieldGrp(
+    #         self.setup_paints_tf, e=True, en=pm.optionVar.get(var[0], var[1])
+    #     )
+    #     uutl.conform_activatable_checkbox(self.setup_paints_tf)
 
-        var = ("upov_setup_paints_tf", "default")
-        pm.textFieldGrp(
-            self.setup_paints_tf, e=True, text=pm.optionVar.get(var[0], var[1])
-        )
+    # var = ("upov_setup_paints_tf", "default")
+    # pm.textFieldGrp(
+    #     self.setup_paints_tf, e=True, text=pm.optionVar.get(var[0], var[1])
+    # )
 
-        # # probes
-        # var = ("upov_probes_ctl_en", True)
-        # pm.floatFieldGrp(self.probes_ctl, e=True, en=pm.optionVar.get(var[0],var[1]))
-        # uutl.conform_activatable_checkbox(self.probes_ctl)
+    # # probes
+    # var = ("upov_probes_ctl_en", True)
+    # pm.floatFieldGrp(self.probes_ctl, e=True, en=pm.optionVar.get(var[0],var[1]))
+    # uutl.conform_activatable_checkbox(self.probes_ctl)
 
-        # var = ("upov_probes_ctl", 1, 10)
-        # vals = pm.optionVar.get(var[0], var[1:])
-        # pm.floatFieldGrp(self.probes_ctl, e=True, v1=vals[0], v2=vals[1])
+    # var = ("upov_probes_ctl", 1, 10)
+    # vals = pm.optionVar.get(var[0], var[1:])
+    # pm.floatFieldGrp(self.probes_ctl, e=True, v1=vals[0], v2=vals[1])
 
-        # # calibration
-        # var = ("upov_read_calibration_tf_en", True)
-        # pm.textFieldGrp(self.read_calibration_tf, e=True, en=pm.optionVar.get(var[0],var[1]))
-        # uutl.conform_activatable_checkbox(self.read_calibration_tf)
+    # # calibration
+    # var = ("upov_read_calibration_tf_en", True)
+    # pm.textFieldGrp(self.read_calibration_tf, e=True, en=pm.optionVar.get(var[0],var[1]))
+    # uutl.conform_activatable_checkbox(self.read_calibration_tf)
 
-        # var = ("upov_read_calibration_tf", "default")
-        # pm.textFieldGrp(self.read_calibration_tf, e=True, text=pm.optionVar.get(var[0],var[1]))
+    # var = ("upov_read_calibration_tf", "default")
+    # pm.textFieldGrp(self.read_calibration_tf, e=True, text=pm.optionVar.get(var[0],var[1]))
 
-    def save(self):
-        # board
-        # var = "upov_setup_board_row_en"
-        # pm.optionVar[var] = pm.rowLayout(self.setup_board_row, q=True, en=True)
+    # def save(self):
+    #     # board
+    #     # var = "upov_setup_board_row_en"
+    #     # pm.optionVar[var] = pm.rowLayout(self.setup_board_row, q=True, en=True)
 
-        # var ="upov_setup_board_tf"
-        # pm.optionVar[var] = pm.textFieldGrp(self.setup_board_tf, q=True, text=True)
+    #     # var ="upov_setup_board_tf"
+    #     # pm.optionVar[var] = pm.textFieldGrp(self.setup_board_tf, q=True, text=True)
 
-        # var = "upov_depth_only_cb"
-        # pm.optionVar[var] = pm.checkBox(self.depth_only_cb, q=True, value=True)
+    #     # var = "upov_depth_only_cb"
+    #     # pm.optionVar[var] = pm.checkBox(self.depth_only_cb, q=True, value=True)
 
-        # brushes
-        var = "upov_setup_brushes_tf_en"
-        pm.optionVar[var] = pm.textFieldGrp(self.setup_brushes_tf, q=True, en=True)
+    #     # brushes
+    #     var = "upov_setup_brushes_tf_en"
+    #     pm.optionVar[var] = pm.textFieldGrp(self.setup_brushes_tf, q=True, en=True)
 
-        var = "upov_setup_brushes_tf"
-        pm.optionVar[var] = pm.textFieldGrp(self.setup_brushes_tf, q=True, text=True)
+    #     var = "upov_setup_brushes_tf"
+    #     pm.optionVar[var] = pm.textFieldGrp(self.setup_brushes_tf, q=True, text=True)
 
-        # paints
-        var = "upov_setup_paints_tf_en"
-        pm.optionVar[var] = pm.textFieldGrp(self.setup_paints_tf, q=True, en=True)
+    #     # paints
+    #     var = "upov_setup_paints_tf_en"
+    #     pm.optionVar[var] = pm.textFieldGrp(self.setup_paints_tf, q=True, en=True)
 
-        var = "upov_setup_paints_tf"
-        pm.optionVar[var] = pm.textFieldGrp(self.setup_paints_tf, q=True, text=True)
+    #     var = "upov_setup_paints_tf"
+    #     pm.optionVar[var] = pm.textFieldGrp(self.setup_paints_tf, q=True, text=True)
 
-        # # probes
-        # var = "upov_probes_ctl_en"
-        # pm.optionVar[var] = pm.floatFieldGrp(self.probes_ctl, q=True, en=True)
+    # # probes
+    # var = "upov_probes_ctl_en"
+    # pm.optionVar[var] = pm.floatFieldGrp(self.probes_ctl, q=True, en=True)
 
-        # var = "upov_probes_ctl"
-        # pm.optionVar[var] =  pm.floatFieldGrp(self.probes_ctl, q=True, v=True)
+    # var = "upov_probes_ctl"
+    # pm.optionVar[var] =  pm.floatFieldGrp(self.probes_ctl, q=True, v=True)
 
-        #  # calibration
-        # var = "upov_read_calibration_tf_en"
-        # pm.optionVar[var] = pm.textFieldGrp(self.read_calibration_tf, q=True, en=True)
+    #  # calibration
+    # var = "upov_read_calibration_tf_en"
+    # pm.optionVar[var] = pm.textFieldGrp(self.read_calibration_tf, q=True, en=True)
 
-        # var ="upov_read_calibration_tf"
-        # pm.optionVar[var] = pm.textFieldGrp(self.read_calibration_tf, q=True, text=True)
+    # var ="upov_read_calibration_tf"
+    # pm.optionVar[var] = pm.textFieldGrp(self.read_calibration_tf, q=True, text=True)
 

@@ -9,7 +9,7 @@ import stroke_factory_utils as sfu
 
 import pymel.core.uitypes as gui
 
-import callbacks
+ 
 import json
 from itertools import groupby
 from operator import itemgetter
@@ -66,14 +66,13 @@ class PublishTab(gui.FormLayout):
                                      numberOfColumns=2,
                                      columnWidth2=(
                                          (390), 100),
-                                     # adjustableColumn=1,
                                      columnAlign=(1, 'right'),
                                      columnAttach=[(1, 'both', 2), (2, 'both', 2)])
 
         self.chunk_if = pm.intFieldGrp(
             label="Max chunk size",
             numberOfFields=1,
-            value1=1200)
+            value1=1800)
 
         self.current_frame_cb = pm.checkBox(
             label='Current frame',

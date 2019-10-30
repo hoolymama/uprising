@@ -20,7 +20,7 @@ def create():
     pm.menuItem(label="Bake mapped paintIds",
                 command=pm.Callback(on_bake_paint_ids))
     pm.menuItem(
-        label="Make dip combinations",
+        label="Make dips and wipes",
         command=pm.Callback(
             setup_dip.doit))
 

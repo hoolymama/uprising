@@ -2,6 +2,42 @@ import pymel.core as pm
 import stroke_factory_utils as sfu
 import uprising.uprising_util as uutl
 import sheets
+from paint import Paint
+from brush import Brush
+
+
+def dip_combinations():
+
+    painting_node = pm.PyNode("mainPaintingShape")
+    result = {}
+
+    brushes = Brush.brushes(painting_node)
+    paints = Paint.paints(painting_node)
+
+    combos = pm.paintingQuery(painting_node, dc=True)
+
+    for i in range(0, len(combos), 2):
+        brush_id = int(combos[i])
+        paint_id = int(combos[i + 1])
+        key = "p%02d_b%02d" % (paint_id, brush_id)
+
+        try:
+            b = brushes[brush_id]
+            p = paints[paint_id]
+        except KeyError:
+            raise KeyError("Bad Brush or Paint ID")
+
+        result[key] = {"brush": b, "paint": p}
+    return result
+
+
+def dip_combination_ids():
+    painting_node = pm.PyNode("mainPaintingShape")
+    result = []
+    combos = pm.paintingQuery(painting_node, dc=True)
+    for i in range(0, len(combos), 2):
+        result.append({"brush": int(combos[i]), "paint": int(combos[i + 1])})
+    return result
 
 
 def get_pot_handle_pairs():
@@ -148,15 +184,6 @@ def setup_paints_from_sheet(palette_name):
         }
         colors.append(color)
     set_up_rack(colors)
-
-
-def dip_combination_ids():
-    painting_node = pm.PyNode("mainPaintingShape")
-    result = []
-    combos = pm.paintingQuery(painting_node, dc=True)
-    for i in range(0, len(combos), 2):
-        result.append({"brush": int(combos[i]), "paint": int(combos[i + 1])})
-    return result
 
 
 def get_pot_handle_packs():

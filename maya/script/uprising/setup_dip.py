@@ -4,37 +4,38 @@ from paint import Paint
 from brush import Brush
 import palette_utils as putl
 
-# from random import seed
-# from random import random
+import const as k
 
 import logging
 
 logger = logging.getLogger("uprising")
 
 
-def dip_combinations():
+def doit(**kw):
 
-    painting_node = pm.PyNode("mainPaintingShape")
-    result = {}
+    node = pm.PyNode("mainPaintingShape")
+    brushes = Brush.brushes(node)
+    paints = Paint.paints(node)
 
-    brushes = Brush.brushes(painting_node)
-    paints = Paint.paints(painting_node)
+    _delete_setup_nodes("RACK1_CONTEXT|j1|rack")
 
-    combos = pm.paintingQuery(painting_node, dc=True)
+    for brush_rank in k.BRUSH_RANKS:
+        brush_rank["brushes"] = []
+        for _id in brush_rank["ids"]:
+            brush_rank["brushes"].append(brushes[_id])
+        create_paintings(brush_rank, paints)
 
-    for i in range(0, len(combos), 2):
-        brush_id = int(combos[i])
-        paint_id = int(combos[i + 1])
-        key = "p%02d_b%02d" % (paint_id, brush_id)
 
-        try:
-            b = brushes[brush_id]
-            p = paints[paint_id]
-        except KeyError:
-            raise KeyError("Bad Brush or Paint ID")
+def _delete_setup_nodes(parent):
+    paintings = pm.ls(parent, dag=True, leaf=True, type="painting")
 
-        result[key] = {"brush": b, "paint": p}
-    return result
+    paintings = pm.listRelatives(paintings, parent=True)
+    if paintings:
+        pm.delete(paintings)
+
+    pm.delete(pm.ls("collectStrokesDW_*"))
+    pm.delete(pm.ls("curveStrokesDW_*"))
+    pm.delete(pm.ls("grpDW_*"))
 
 
 def delete_if_exist(name):
@@ -53,42 +54,92 @@ def _get_curve_strokes(parent):
         )
 
 
-def _delete_paintings_under(parent):
-    paintings = pm.ls(parent, dag=True, leaf=True, type="painting")
-
-    paintings = pm.listRelatives(paintings, parent=True)
-    if paintings:
-        pm.delete(paintings)
-
-
 def _find_nodes_by_short_name(nodes, name):
     return [n for n in nodes if n.split("|")[-1] == name]
 
 
-def _create_painting_node(which, brush, paint, strokes_node, src_painting):
+def create_paintings(brush_rank, paints):
 
-    ptg_xf = pm.duplicate(src_painting)[0]
-    ptg_node = ptg_xf.getShapes()[0]
+    dip_grp = _create_paintings(
+        "dip",
+        brush_rank,
+        paints,
+        pm.PyNode("collectStrokesDip"),
+        pm.PyNode("BRUSHES|curves|dip|dipPaintingControl"),
+    )
+
+    wipe_grp = _create_paintings(
+        "wipe",
+        brush_rank,
+        paints,
+        pm.PyNode("collectStrokesWipe"),
+        pm.PyNode("BRUSHES|curves|wipe|wipePaintingControl"),
+    )
+
+    grp = pm.group(dip_grp, wipe_grp)
+    grp.rename("grpDW_{}".format(brush_rank["name"]))
+
+
+def _create_paintings(which, brush_rank, paints, collector_template, painting_template):
+    identifier = "{}_{}".format(which, brush_rank["name"])
+    grp, collector = create_painting_group(identifier, collector_template)
+
+    for p in paints:
+        for brush in brush_rank["brushes"]:
+            painting_xf = create_painting_node(
+                which, brush, paints[p], collector, painting_template
+            )
+            painting_xf.attr("ty").set(0.600)
+
+    return grp
+
+
+def create_painting_group(identifier, collector_node):
+
+    nodes = pm.duplicate(collector_node, rr=True, un=True)
+
+    collector = nodes[0]
+    collector.rename("collectStrokesDW_{}".format(identifier))
+
+    curve_strokes = [n for n in nodes if n.type() == "curveStroke"]
+    transforms = [n for n in nodes if n.type() == "transform"]
+
+    for i, node in enumerate(curve_strokes):
+        node.rename("curveStrokesDW_{}_{}".format(identifier, i))
+
+    for i, node in enumerate(transforms):
+        node.rename("curveDW_{}_{}".format(identifier, i))
+
+    grp = pm.group(transforms)
+    grp.rename("grpDW_{}".format(identifier))
+    return (grp, collector)
+
+
+def create_painting_node(which, brush, paint, collector, template):
+
+    ptg_xf = pm.duplicate(template)[0]
+    ptg_node = ptg_xf.getShape()
     ptg_xf.rename("b{:02d}".format(brush.id))
 
-    strokes_node.attr("output") >> ptg_node.attr("strokes[0]")
+    collector.attr("output") >> ptg_node.attr("strokes[0]")
 
     brush_node = pm.PyNode(brush.node_name)
-    att = "out%sBrush" % which.capitalize()
-    if which == "slop":
-        att = "outWipeBrush"
+    att = "out{}Brush".format(which.capitalize())
+
     brush_node.attr(att) >> ptg_node.attr("brushes[0]")
 
-    pot_node = pm.PyNode(paint.name if paint else "slop_loc|pot")
+    pot_node = pm.PyNode(paint.name)
     putl.connect_paint_to_node(pot_node, ptg_node, 0)
 
-    loc_name = "%s_loc" % which
+    loc_name = "{}_loc".format(which)
     locator = _find_nodes_by_short_name(
         pot_node.getParent().getParent().getChildren(), loc_name
     )[0]
 
     pm.parent(ptg_xf, locator, relative=True)
+    ptg_xf.rename("b{:02d}".format(brush.id))
 
+    template_shape = template.getShape()
     # connect everything up
     atts = [
         "linearSpeed",
@@ -116,36 +167,7 @@ def _create_painting_node(which, brush, paint, strokes_node, src_painting):
         "idDisplayOffset",
     ]
     for att in atts:
-        src_painting.attr(att) >> ptg_node.attr(att)
+        template_shape.attr(att) >> ptg_node.attr(att)
 
     return ptg_xf
 
-
-def doit():
-    node = pm.PyNode("mainPaintingShape")
-    brushes = Brush.brushes(node)
-    paints = Paint.paints(node)
-
-    dip_stroke_node = pm.PyNode("collectStrokesDip")
-    wipe_stroke_node = pm.PyNode("collectStrokesWipe")
-    # slop_stroke_node = pm.PyNode("collectStrokesSlop")
-
-    dip_ctrl_painting = pm.PyNode("BRUSHES|curves|dip|dipPaintingControl")
-    wipe_ctrl_painting = pm.PyNode("BRUSHES|curves|wipe|wipePaintingControl")
-    # slop_ctrl_painting = pm.PyNode("BRUSHES|curves|slop|slopPaintingControl")
-
-    _delete_paintings_under("RACK1_CONTEXT|j1|rack")
-
-    for pkey in paints:
-        for bkey in brushes:
-            dip_xf = _create_painting_node(
-                "dip", brushes[bkey], paints[pkey], dip_stroke_node, dip_ctrl_painting
-            )
-
-            wipe_xf = _create_painting_node(
-                "wipe",
-                brushes[bkey],
-                paints[pkey],
-                wipe_stroke_node,
-                wipe_ctrl_painting,
-            )

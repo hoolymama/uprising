@@ -1,11 +1,8 @@
-
 import sys
 import json
 import pymel.core as pm
 import random
-from robolink import (
-    Robolink,
-    COLLISION_OFF)
+from robolink import Robolink, COLLISION_OFF
 import write
 import props
 import uprising_util as uutl
@@ -20,7 +17,6 @@ import pymel.core.uitypes as gui
 
 
 class exportTab(gui.FormLayout):
-
     def __init__(self):
         self.setNumberOfDivisions(100)
         pm.setParent(self)
@@ -40,7 +36,7 @@ class exportTab(gui.FormLayout):
             collapse=False,
             en=True,
             labelVisible=False,
-            label="Simple validation"
+            label="Simple validation",
         )
         # pm.scrollLayout(childResizable=True)
         pm.columnLayout(adj=True)
@@ -51,12 +47,12 @@ class exportTab(gui.FormLayout):
             en=True,
             lv=True,
             bv=True,
-            label="Painting programs"
+            label="Painting programs",
         )
         pm.columnLayout(adj=True)
-        self.painting_wg = pm.checkBoxGrp(h=30, l='Painting', v1=0)
-        self.dips_wg = pm.checkBoxGrp(h=30, l='Dips', v1=0)
-        self.slop_wg = pm.checkBoxGrp(h=30, l='Slop', v1=0)
+        self.painting_wg = pm.checkBoxGrp(h=30, l="Painting", v1=0)
+        self.dips_wg = pm.checkBoxGrp(h=30, l="Dips", v1=0)
+        self.slop_wg = pm.checkBoxGrp(h=30, l="Slop", v1=0)
 
         pm.setParent("..")
         pm.setParent("..")
@@ -67,12 +63,13 @@ class exportTab(gui.FormLayout):
             en=True,
             lv=True,
             bv=True,
-            label="Pick & place programs"
+            label="Pick & place programs",
         )
         pm.columnLayout(adj=True)
-        self.pp_wg = pm.radioButtonGrp(l='Pick & place', sl=1, nrb=4,
-                                       la4=['None', 'First', 'Used', 'All'])
-        self.ppx_wg = pm.checkBoxGrp(h=30, l='Pick & place exercise', v1=0)
+        self.pp_wg = pm.radioButtonGrp(
+            l="Pick & place", sl=1, nrb=4, la4=["None", "First", "Used", "All"]
+        )
+        self.ppx_wg = pm.checkBoxGrp(h=30, l="Pick & place exercise", v1=0)
         pm.setParent("..")
         pm.setParent("..")
 
@@ -82,13 +79,11 @@ class exportTab(gui.FormLayout):
             en=True,
             lv=True,
             bv=True,
-            label="Pick & place programs"
+            label="Perspex programs",
         )
         pm.columnLayout(adj=True)
-        self.perspex_tri_wg = pm.checkBoxGrp(
-            h=30, l='Perspex triangulation', v1=0)
-        self.perspex_cal_wg = pm.checkBoxGrp(
-            h=30, l='Perspex calibration', v1=0)
+        self.perspex_tri_wg = pm.checkBoxGrp(h=30, l="Perspex triangulation", v1=0)
+        self.perspex_cal_wg = pm.checkBoxGrp(h=30, l="Perspex calibration", v1=0)
         pm.setParent("..")
         pm.setParent("..")
 
@@ -98,11 +93,11 @@ class exportTab(gui.FormLayout):
             en=True,
             lv=True,
             bv=True,
-            label="Pot & holder calibration programs"
+            label="Pot & holder calibration programs",
         )
         pm.columnLayout(adj=True)
-        self.pot_cal_wg = pm.checkBoxGrp(h=30, l='Paintpot calibration', v1=0)
-        self.holder_cal_wg = pm.checkBoxGrp(h=30, l='Holder calibration', v1=0)
+        self.pot_cal_wg = pm.checkBoxGrp(h=30, l="Paintpot calibration", v1=0)
+        self.holder_cal_wg = pm.checkBoxGrp(h=30, l="Holder calibration", v1=0)
         pm.setParent("..")
         pm.setParent("..")
 
@@ -112,10 +107,10 @@ class exportTab(gui.FormLayout):
             en=True,
             lv=True,
             bv=True,
-            label="Board calibration programs"
+            label="Board calibration programs",
         )
         pm.columnLayout(adj=True)
-        self.board_cal_wg = pm.checkBoxGrp(h=30, l='Board calibration', v1=0)
+        self.board_cal_wg = pm.checkBoxGrp(h=30, l="Board calibration", v1=0)
         pm.setParent("..")
         pm.setParent("..")
 
@@ -125,17 +120,22 @@ class exportTab(gui.FormLayout):
             en=True,
             lv=True,
             bv=True,
-            label="Export geometry"
+            label="Export geometry",
         )
         pm.columnLayout(adj=True)
-        self.brush_tools_wg = pm.radioButtonGrp(h=30, l='Brushes', sl=1, nrb=4,
-                                                la4=['None',  'Used', 'Connected', 'Selected'])
+        self.brush_tools_wg = pm.radioButtonGrp(
+            h=30,
+            l="Brushes",
+            sl=1,
+            nrb=4,
+            la4=["None", "Used", "Connected", "Selected"],
+        )
 
-        self.pots_geo_wg = pm.checkBoxGrp(h=30, l='Used paint pots', v1=0)
+        self.pots_geo_wg = pm.checkBoxGrp(h=30, l="Used paint pots", v1=0)
 
-        self.sel_geo_wg = pm.checkBoxGrp(h=30, l='Selected geometry', v1=0)
+        self.sel_geo_wg = pm.checkBoxGrp(h=30, l="Selected geometry", v1=0)
 
-        self.approaches_wg = pm.checkBoxGrp(h=30, l='Global approaches', v1=0)
+        self.approaches_wg = pm.checkBoxGrp(h=30, l="Global approaches", v1=0)
         pm.setParent("..")
         pm.setParent("..")
         # pm.setParent("..")
@@ -145,18 +145,17 @@ class exportTab(gui.FormLayout):
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        go_but = pm.button(label='Send to RoboDK',
-                           command=pm.Callback(self.on_go))
+        go_but = pm.button(label="Send to RoboDK", command=pm.Callback(self.on_go))
 
-        self.attachForm(self.simple_ui, 'left', 2)
-        self.attachForm(self.simple_ui, 'right', 2)
-        self.attachForm(self.simple_ui, 'top', 2)
-        self.attachControl(self.simple_ui, 'bottom', 2, go_but)
+        self.attachForm(self.simple_ui, "left", 2)
+        self.attachForm(self.simple_ui, "right", 2)
+        self.attachForm(self.simple_ui, "top", 2)
+        self.attachControl(self.simple_ui, "bottom", 2, go_but)
 
-        self.attachNone(go_but, 'top')
-        self.attachForm(go_but, 'right', 2)
-        self.attachForm(go_but, 'left', 2)
-        self.attachForm(go_but, 'bottom', 2)
+        self.attachNone(go_but, "top")
+        self.attachForm(go_but, "right", 2)
+        self.attachForm(go_but, "left", 2)
+        self.attachForm(go_but, "bottom", 2)
 
     def on_go(self):
 
@@ -167,27 +166,29 @@ class exportTab(gui.FormLayout):
             "do_painting": pm.checkBoxGrp(self.painting_wg, query=True, v1=True),
             "do_dips": pm.checkBoxGrp(self.dips_wg, query=True, v1=True),
             "do_slop": pm.checkBoxGrp(self.slop_wg, query=True, v1=True),
-
             "do_pap_exercise": pm.checkBoxGrp(self.ppx_wg, query=True, v1=True),
-
-            "do_perspex_triangulation": pm.checkBoxGrp(self.perspex_tri_wg, query=True, v1=True),
-            "do_perspex_calibration": pm.checkBoxGrp(self.perspex_cal_wg, query=True, v1=True),
-
+            "do_perspex_triangulation": pm.checkBoxGrp(
+                self.perspex_tri_wg, query=True, v1=True
+            ),
+            "do_perspex_calibration": pm.checkBoxGrp(
+                self.perspex_cal_wg, query=True, v1=True
+            ),
             "do_pot_calibration": pm.checkBoxGrp(self.pot_cal_wg, query=True, v1=True),
-            "do_holder_calibration": pm.checkBoxGrp(self.holder_cal_wg, query=True, v1=True),
-
-            "do_board_calibration": pm.checkBoxGrp(self.board_cal_wg, query=True, v1=True),
-
+            "do_holder_calibration": pm.checkBoxGrp(
+                self.holder_cal_wg, query=True, v1=True
+            ),
+            "do_board_calibration": pm.checkBoxGrp(
+                self.board_cal_wg, query=True, v1=True
+            ),
             "do_pots_geo": pm.checkBoxGrp(self.pots_geo_wg, query=True, v1=True),
             "do_approaches": pm.checkBoxGrp(self.approaches_wg, query=True, v1=True),
-            "pick_and_place_slots": pp_value
+            "pick_and_place_slots": pp_value,
         }
 
         studio = Studio(**studio_kwargs)
         studio.write()
 
-        brush_tools = pm.radioButtonGrp(
-            self.brush_tools_wg, query=True, sl=True)
+        brush_tools = pm.radioButtonGrp(self.brush_tools_wg, query=True, sl=True)
         if brush_tools == 2:
             Brush.write_used_brush_sets()
         elif brush_tools == 3:
@@ -201,9 +202,7 @@ class exportTab(gui.FormLayout):
         if pm.checkBoxGrp(self.pots_geo_wg, query=True, v1=True):
             Paint.write_geos()
 
-        result = {
-            "stats":  write.painting_stats(pm.PyNode("mainPaintingShape"))
-        }
+        result = {"stats": write.painting_stats(pm.PyNode("mainPaintingShape"))}
 
         if studio_kwargs.get("do_painting"):
             result["painting"] = studio.painting_program.validate_path()
@@ -420,17 +419,18 @@ class exportTab(gui.FormLayout):
 
     #     return result
 
-  # def validate_path(self, program):
-    #     RL = Robolink()
-    #     update_result = program.Update(COLLISION_OFF)
-    #     return {
-    #         "instructions": update_result[0],
-    #         "time": update_result[1],
-    #         "distance": update_result[2],
-    #         "completion": update_result[3],
-    #         "problems": update_result[4],
-    #         "status": "SUCCESS" if (update_result[3] == 1.0) else "FAILURE"
-    #     }
+
+# def validate_path(self, program):
+#     RL = Robolink()
+#     update_result = program.Update(COLLISION_OFF)
+#     return {
+#         "instructions": update_result[0],
+#         "time": update_result[1],
+#         "distance": update_result[2],
+#         "completion": update_result[3],
+#         "problems": update_result[4],
+#         "status": "SUCCESS" if (update_result[3] == 1.0) else "FAILURE"
+#     }
 
 #     def format_path_result(self, path_info, **metadata):
 #         text = """
@@ -453,112 +453,113 @@ class exportTab(gui.FormLayout):
 #                 text += "%s : %s\n" % (k, metadata[k])
 #         return text
 
-    # def old_do_retries(self):
-    #     """Repetitively retry with different values until success."""
+# def old_do_retries(self):
+#     """Repetitively retry with different values until success."""
 
-    #     # if not self.check_retries_ui_valid():
-    #     #     return
+#     # if not self.check_retries_ui_valid():
+#     #     return
 
-    #     count = pm.intFieldGrp(self.num_retries_wg, query=True, value=True)
-    #     node_type_idx = pm.radioButtonGrp(
-    #         self.varying_node_wg, query=True, sl=True)
-    #     node_type = [
-    #         "dummy",
-    #         "selected",
-    #         "shape",
-    #         "stroke_curve"][node_type_idx]
-    #     attribute = pm.textFieldGrp(
-    #         self.varying_attrib_wg, query=True, text=True)
-    #     low = pm.floatFieldGrp(
-    #         self.varying_range_wg,
-    #         query=True,
-    #         value1=True)
-    #     high = pm.floatFieldGrp(
-    #         self.varying_range_wg,
-    #         query=True,
-    #         value2=True)
-    #     step_type_idx = pm.radioButtonGrp(
-    #         self.varying_step_type_wg, query=True, sl=True)
-    #     step_type = ["dummy", "random", "linear"][step_type_idx]
+#     count = pm.intFieldGrp(self.num_retries_wg, query=True, value=True)
+#     node_type_idx = pm.radioButtonGrp(
+#         self.varying_node_wg, query=True, sl=True)
+#     node_type = [
+#         "dummy",
+#         "selected",
+#         "shape",
+#         "stroke_curve"][node_type_idx]
+#     attribute = pm.textFieldGrp(
+#         self.varying_attrib_wg, query=True, text=True)
+#     low = pm.floatFieldGrp(
+#         self.varying_range_wg,
+#         query=True,
+#         value1=True)
+#     high = pm.floatFieldGrp(
+#         self.varying_range_wg,
+#         query=True,
+#         value2=True)
+#     step_type_idx = pm.radioButtonGrp(
+#         self.varying_step_type_wg, query=True, sl=True)
+#     step_type = ["dummy", "random", "linear"][step_type_idx]
 
-    #     if node_type is "selected":
-    #         obs = pm.ls(selection=True)
-    #     elif node_type is "shape":
-    #         obs = pm.ls(selection=True, dag=True, ni=True, shapes=True)
-    #     else:  # stroke_curve
-    #         obs = pm.ls(selection=True, type="curveStroke")
+#     if node_type is "selected":
+#         obs = pm.ls(selection=True)
+#     elif node_type is "shape":
+#         obs = pm.ls(selection=True, dag=True, ni=True, shapes=True)
+#     else:  # stroke_curve
+#         obs = pm.ls(selection=True, type="curveStroke")
 
-    #         curves = pm.ls(
-    #             selection=True, dag=True,
-    #             ni=True,
-    #             shapes=True,
-    #             type="nurbsCurve")
-    #         conns = pm.listConnections(
-    #             curves,
-    #             d=True,
-    #             s=False,
-    #             type="curveStroke")
-    #         obs += conns
+#         curves = pm.ls(
+#             selection=True, dag=True,
+#             ni=True,
+#             shapes=True,
+#             type="nurbsCurve")
+#         conns = pm.listConnections(
+#             curves,
+#             d=True,
+#             s=False,
+#             type="curveStroke")
+#         obs += conns
 
-    #     cutl.hide_objects(obs)
+#     cutl.hide_objects(obs)
 
-    #     results = []
-    #     for o in obs:
-    #         cutl.show_objects([o])
-    #         attempts = self.do_retries_for_object(
-    #             o, attribute, step_type, low, high, count)
-    #         status = "SUCCESS" if (attempts > -1) else "FAILURE"
-    #         results.append({"node": o, "status": status, "attempts": attempts})
-    #         cutl.hide_objects([o])
-    #     print results
-    #     print "-" * 30
-    #     for res in results:
-    #         if res["status"] == "FAILURE":
-    #             print res
+#     results = []
+#     for o in obs:
+#         cutl.show_objects([o])
+#         attempts = self.do_retries_for_object(
+#             o, attribute, step_type, low, high, count)
+#         status = "SUCCESS" if (attempts > -1) else "FAILURE"
+#         results.append({"node": o, "status": status, "attempts": attempts})
+#         cutl.hide_objects([o])
+#     print results
+#     print "-" * 30
+#     for res in results:
+#         if res["status"] == "FAILURE":
+#             print res
 
-    #     cutl.show_objects(obs)
+#     cutl.show_objects(obs)
 
-    # def do_retries_for_object(self, o, attribute, step_type, low, high, count):
-    #     result = -1
+# def do_retries_for_object(self, o, attribute, step_type, low, high, count):
+#     result = -1
 
-    #     curr = o.attr(attribute).get()
+#     curr = o.attr(attribute).get()
 
-    #     if step_type is "random":
-    #         vals = [curr] + [random.uniform(low, high) for x in range(count)]
-    #     else:
-    #         valrange = high - low
-    #         gap = valrange / (count - 1)
-    #         vals = [curr] + [low + (gap * x) for x in range(count)]
+#     if step_type is "random":
+#         vals = [curr] + [random.uniform(low, high) for x in range(count)]
+#     else:
+#         valrange = high - low
+#         gap = valrange / (count - 1)
+#         vals = [curr] + [low + (gap * x) for x in range(count)]
 
-    #     # prepend the current val, because if it works then nothing needs to
-    #     # change.
+#     # prepend the current val, because if it works then nothing needs to
+#     # change.
 
-    #     painting_node = pm.PyNode("mainPaintingShape")
-    #     msg = ""
+#     painting_node = pm.PyNode("mainPaintingShape")
+#     msg = ""
 
-    #     with uutl.minimize_robodk():
-    #         for i, val in enumerate(vals):
-    #             self.setParam(o, attribute, val)
-    #             pm.refresh()
+#     with uutl.minimize_robodk():
+#         for i, val in enumerate(vals):
+#             self.setParam(o, attribute, val)
+#             pm.refresh()
 
-    #             studio = Studio(painting_node=painting_node)
-    #             studio.write()
-    #             path_result = self.validate_path(studio.painting_program)
+#             studio = Studio(painting_node=painting_node)
+#             studio.write()
+#             path_result = self.validate_path(studio.painting_program)
 
-    #             metadata = {
-    #                 "iteration": i,
-    #                 "attribute": attribute,
-    #                 "value": val
-    #             }
-    #             msg += self.format_path_result(path_result, **metadata)
-    #             if path_result["completion"] == 1.0:
-    #                 result = i + 1
-    #                 break
-    #         print msg
-    #         return result
+#             metadata = {
+#                 "iteration": i,
+#                 "attribute": attribute,
+#                 "value": val
+#             }
+#             msg += self.format_path_result(path_result, **metadata)
+#             if path_result["completion"] == 1.0:
+#                 result = i + 1
+#                 break
+#         print msg
+#         return result
 
-    # def setParam(self, ob, attribute, val):
-    #     try:
-    #         att = ob.attr(attribute).set(val)
-    #     except (pm.MayaAttributeError, RuntimeError) as e:
-    #         pm.warning("Error with : %s.%s - Skipping" % (ob, attribute))
+# def setParam(self, ob, attribute, val):
+#     try:
+#         att = ob.attr(attribute).set(val)
+#     except (pm.MayaAttributeError, RuntimeError) as e:
+#         pm.warning("Error with : %s.%s - Skipping" % (ob, attribute))
+
