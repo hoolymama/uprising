@@ -216,6 +216,8 @@ def setup_brushes_from_sheet(pouch_name):
 
 
 def apply_brush_values_from_sheet(pouch_name):
+
+    print "apply_brush_values_from_sheet"
     painting_node = pm.PyNode("mainPaintingShape")
     pouch = sheets.get_resource_by_name(pouch_name, "Brushes")
     data = validate_brush_data(pouch["data"])

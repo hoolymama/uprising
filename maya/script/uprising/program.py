@@ -57,11 +57,19 @@ class MainProgram(Program):
         super(MainProgram, self).__init__(name)
         self.painting = ptg.Painting(pm.PyNode("mainPaintingShape"))
 
-    def _change_tool(self, last_brush_id, cluster):
-        # put the last brush back
-        place_program_name = PlaceProgram.generate_program_name(last_brush_id)
-        self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
-        # pick up the next brush
+    def _change_tool(self, last_brush_id, cluster, studio):
+        if last_brush_id is not None:
+
+            # Slightly Hacky.
+            # If using the gripper, but not actually changing the brush,
+            # then don't bother placing and repicking.
+            if last_brush_id == cluster.brush.id:
+                return
+
+            # put the last brush back
+            place_program_name = PlaceProgram.generate_program_name(last_brush_id)
+            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
+
         pick_program_name = PickProgram.generate_program_name(cluster.brush.id)
         self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
 
@@ -93,22 +101,21 @@ class MainProgram(Program):
 
             for cluster in self.painting.clusters:
 
-                dip_program_name = DipProgram.generate_program_name(
-                    cluster.paint.id, cluster.brush.id
-                )
+            
                 dip_repeats = 1
                 if cluster.reason == "tool":
                     # If changing paint but not actually changing the brush,
                     # then don't bother placing and repicking.
-                    if self._should_change_tool(last_brush_id , cluster.brush.id):
-                        self._change_tool(last_brush_id, cluster)
-                    
+                    self._change_tool(last_brush_id, cluster, studio)
+
                     if self._first_dip(last_brush_id , cluster.brush.id):
                         dip_repeats = studio.first_dip_repeats
 
                     last_brush_id = cluster.brush.id
-
-                
+                   
+                dip_program_name = DipProgram.generate_program_name(
+                    cluster.paint.id, cluster.brush.id
+                )
                 for repeat in range(dip_repeats):
                     self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
 
