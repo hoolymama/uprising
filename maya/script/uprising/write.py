@@ -60,7 +60,8 @@ def publish_proposal(
 def publish_sequence(
     export_dir,
     frame_range,
-    pause 
+    pause ,
+    first_dip_repeats
 ):
 
     # print dip_wipe_packs
@@ -98,7 +99,7 @@ def publish_sequence(
             do_painting=True,
             do_dips=True,
             pick_and_place_slots="used",
-            # do_slop=True,
+            first_dip_repeats=first_dip_repeats,
             do_rack_and_holder_geo=False,
             pause=pause)
 

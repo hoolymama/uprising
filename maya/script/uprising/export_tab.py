@@ -52,7 +52,19 @@ class exportTab(gui.FormLayout):
         pm.columnLayout(adj=True)
         self.painting_wg = pm.checkBoxGrp(h=30, l="Painting", v1=0)
         self.dips_wg = pm.checkBoxGrp(h=30, l="Dips", v1=0)
-        self.slop_wg = pm.checkBoxGrp(h=30, l="Slop", v1=0)
+
+        self.first_dip_repeats_isg = pm.intSliderGrp(
+            label="First dip repeats",
+            field=True,
+            minValue=1,
+            maxValue=5,
+            fieldMinValue=1,
+            fieldMaxValue=5,
+            value=3,
+            annotation="How many times to dip on the first dip after brush change",
+        )
+
+        # self.slop_wg = pm.checkBoxGrp(h=30, l="Slop", v1=0)
 
         pm.setParent("..")
         pm.setParent("..")
@@ -165,7 +177,10 @@ class exportTab(gui.FormLayout):
         studio_kwargs = {
             "do_painting": pm.checkBoxGrp(self.painting_wg, query=True, v1=True),
             "do_dips": pm.checkBoxGrp(self.dips_wg, query=True, v1=True),
-            "do_slop": pm.checkBoxGrp(self.slop_wg, query=True, v1=True),
+            "first_dip_repeats": pm.intSliderGrp(
+                self.first_dip_repeats_isg, query=True, value=True
+            ),
+            # "do_slop": pm.checkBoxGrp(self.slop_wg, query=True, v1=True),
             "do_pap_exercise": pm.checkBoxGrp(self.ppx_wg, query=True, v1=True),
             "do_perspex_triangulation": pm.checkBoxGrp(
                 self.perspex_tri_wg, query=True, v1=True

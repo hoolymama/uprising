@@ -62,6 +62,19 @@ class PublishTab(gui.FormLayout):
 
         pm.setParent('..')
  
+
+        self.first_dip_repeats_isg = pm.intSliderGrp(
+            label="First dip repeats",
+            field=True,
+            minValue=1,
+            maxValue=5,
+            fieldMinValue=1,
+            fieldMaxValue=5,
+            value=3,
+            annotation="How many times to dip on the first dip after brush change",
+        )
+
+
         self.anim_row = pm.rowLayout(height=30,
                                      numberOfColumns=2,
                                      columnWidth2=(
@@ -187,6 +200,11 @@ class PublishTab(gui.FormLayout):
         pause = -1 if wait else pm.intFieldGrp(
             self.gripper_pause_if, query=True, value1=True)
 
+        first_dip_repeats= pm.intSliderGrp(
+                self.first_dip_repeats_isg, query=True, value=True
+            )
+
+
         pm.cutKey("collectStrokesMain", at=(
             "startFrom", "endAt"), option="keys")
 
@@ -195,7 +213,9 @@ class PublishTab(gui.FormLayout):
         write.publish_sequence(
             export_dir,
             frames,
-            pause
+            pause,
+            first_dip_repeats 
+
         )
         pm.cutKey("collectStrokesMain", at=(
             "startFrom", "endAt"), option="keys")

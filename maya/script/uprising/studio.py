@@ -83,6 +83,8 @@ class Studio(object):
 
         self.do_rack_and_holder_geo = kw.get("do_rack_and_holder_geo")
 
+        self.first_dip_repeats = kw.get("first_dip_repeats", 1)
+
         do_painting = kw.get("do_painting")
         do_dips = kw.get("do_dips")
         do_slop = kw.get("do_slop")
@@ -96,6 +98,7 @@ class Studio(object):
         do_perspex_calibration = kw.get("do_perspex_calibration")
         do_perspex_triangulation = kw.get("do_perspex_triangulation")
 
+        first_dip_repeats = kw.get("first_dip_repeats", 1)
         # Must explicitly ask for pick and place to be generated, even
         # if gripper on. Otherwise we can't do partials, like validation.
 

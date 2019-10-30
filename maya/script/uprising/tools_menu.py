@@ -255,6 +255,7 @@ def randomize_dips():
         brush = Brush.brush_at_index(main_painting_node, brush_id)
         x_pos =brush.wipe_bar_position
         p.attr("tx").set(x_pos)
+        p.attr("ty").set(0.6)
 
 
 
