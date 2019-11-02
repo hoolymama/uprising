@@ -110,6 +110,8 @@ class SetupTab(gui.FormLayout):
             self.use_existing_brushes_cb, q=True, value=True
         )
 
+        print "do_brushes ", do_brushes, " use_existing_brushes ", use_existing_brushes
+
         do_paints = pm.textFieldGrp(self.setup_paints_tf, q=True, en=True)
 
         if do_brushes:

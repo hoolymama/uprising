@@ -60,26 +60,30 @@ def _make_and_connect_shader(attr):
     attr >> shader.attr("input")
     return shader
 
+def select_cimg_node(attr):
+    pm.select(pm.PyNode(attr).node())
+
 
 def _make_swatch_ui(swatches):
-    win = pm.window(title="cImg Monitor")
-    tabs = pm.tabLayout()
+    win = pm.window(title="cImg Monitor", widthHeight=(1536, 800))
+    frame = pm.frameLayout(lv=False)
+    scroll = pm.scrollLayout() 
+    pm.rowColumnLayout(numberOfColumns=3, columnWidth=[(1, 512),(2 ,512),(3, 512)])
+
     for swatch in swatches:
-        tab = pm.frameLayout(label=swatch["attr"])
-        pm.tabLayout(tabs, e=True, tabLabel=(tab, swatch["attr"]))
+        # frame = pm.frameLayout(lv=False, bv=True)
+        pm.columnLayout(adj=True)
+        pm.button(label="Select {}".format(swatch["attr"]),  command=pm.Callback(select_cimg_node, swatch["attr"])  )
         pm.swatchDisplayPort(w=512, h=512, renderSize=512, sn=swatch["shader"])
         pm.setParent("..")
     win.show()
-    win.setResizeToFitChildren()
 
 
 def show_image_in_monitor():
     objects = pm.ls(sl=True)
     swatches = []
     for o in objects:
-
-        attNames = pm.listAttr(o, r=True)
-        for attName in attNames:
+        for attName in  pm.listAttr(o, r=True):
             try:
                 att = o.attr(attName)
                 if att.type() == "cImgData":
@@ -96,22 +100,5 @@ def show_image_in_monitor():
                     swatches.append(pack)
             except:
                 pass
-
-        try:
-            attr = o.attr("outColor")
-            swatches.append({
-                "attr": attr,
-                "shader": o
-            })
-        except:
-            try:
-                attr = o.attr("output")
-                swatches.append({
-                    "attr": attr,
-                    "shader": o
-                })
-            except:
-                pass
-            pass
 
     _make_swatch_ui(swatches)

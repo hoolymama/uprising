@@ -83,6 +83,8 @@ class MainProgram(Program):
     def write(self, studio):
         # RL = Robolink()
         # robot = RL.Item('', ITEM_TYPE_ROBOT)
+        if not self.painting.clusters:
+            return
         super(MainProgram, self).write()
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
 
@@ -204,6 +206,8 @@ class DipProgram(Program):
     def write(self, studio):
         # RL = Robolink()
         # robot = RL.Item('', ITEM_TYPE_ROBOT)
+        if not (self.dip_painting.clusters and self.wipe_painting.clusters):
+            return
 
         super(DipProgram, self).write()
         self.frame = studio.dips_frame

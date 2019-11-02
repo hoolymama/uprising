@@ -1,11 +1,8 @@
 import pymel.core as pm
-from robolink import (
-    Robolink,
-    ITEM_TYPE_ROBOT
-)
+from robolink import Robolink, ITEM_TYPE_ROBOT
 from paint import Paint
 from brush import Brush
-from cluster import (Cluster)
+from cluster import Cluster
 
 
 def paint_and_brush_name(paint, brush):
@@ -13,10 +10,9 @@ def paint_and_brush_name(paint, brush):
 
 
 class Painting(object):
-
     def __init__(self, node):
         self.RL = Robolink()
-        self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
+        self.robot = self.RL.Item("", ITEM_TYPE_ROBOT)
         self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
         self.node = node
         self.brushes = Brush.used_brushes(node)
@@ -25,19 +21,19 @@ class Painting(object):
         self.motion = {
             "linear_speed": self.node.attr("linearSpeed").get() * 10,
             "angular_speed": self.node.attr("angularSpeed").get(),
-            "rounding": self.node.attr("approximationDistance").get() * 10
+            "rounding": self.node.attr("approximationDistance").get() * 10,
         }
         self._create_clusters()
 
     def _create_clusters(self):
 
-        num_clusters = pm.paintingQuery(self.node, clusterCount=True)
-
+        try:
+            num_clusters = pm.paintingQuery(self.node, clusterCount=True)
+        except RuntimeError:
+            num_clusters = 0
         for i in range(num_clusters):
-            brush_id = pm.paintingQuery(
-                self.node, clusterIndex=i, clusterBrushId=True)
-            paint_id = pm.paintingQuery(
-                self.node, clusterIndex=i, clusterPaintId=True)
+            brush_id = pm.paintingQuery(self.node, clusterIndex=i, clusterBrushId=True)
+            paint_id = pm.paintingQuery(self.node, clusterIndex=i, clusterPaintId=True)
 
             brush = self.brushes.get(brush_id)
             paint = self.paints.get(paint_id)

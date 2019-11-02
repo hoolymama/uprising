@@ -161,10 +161,13 @@ class Brush(object):
 
     @classmethod
     def used_brushes(cls, node):
-        dc = pm.paintingQuery(node, dc=True)
-        bids = sorted(set(dc[::2]))
         result = {}
-        for brush_id in bids:
-            result[brush_id] = Brush.brush_at_index(node, brush_id)
+        try:
+            dc = pm.paintingQuery(node, dc=True)
+            bids = sorted(set(dc[::2]))
+            for brush_id in bids:
+                result[brush_id] = Brush.brush_at_index(node, brush_id)
+        except RuntimeError:
+            pass
         return result
 

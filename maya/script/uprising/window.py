@@ -39,7 +39,8 @@ import setup_dip
 # # import pick_place_program
 
 # import paint
-# import brush
+import brush
+
 # import stroke
 import cluster
 
@@ -65,7 +66,7 @@ import images
 
 reload(uprising_util)
 # reload(paint)
-# reload(brush)
+reload(brush)
 # reload(target)
 # reload(stroke)
 reload(cluster)
