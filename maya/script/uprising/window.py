@@ -8,6 +8,7 @@ from uprising import (
     publish_tab,
     brush_assign_tab,
     brush_test_tab,
+    probes_tab,
     # rings_design_tab,
     # rings_setup_tab,
     # proposal_tab,
@@ -98,6 +99,7 @@ reload(publish_tab)
 reload(brush_assign_tab)
 reload(brush_test_tab)
 
+reload(probes_tab)
 reload(tools_menu)
 reload(info_menu)
 
@@ -170,8 +172,12 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.publish_tab = publish_tab.PublishTab()
         self.tabs.setTabLabel((self.publish_tab, "Publish"))
-
+        # retries tab needs to know about publish tab
         self.retries_tab.set_publish_tab(self.publish_tab)
+
+        pm.setParent(self.tabs)
+        self.probes_tab = probes_tab.probesTab()
+        self.tabs.setTabLabel((self.probes_tab, "Probes"))
 
         pm.setParent(self.menuBarLayout)
         self.tools_menu = tools_menu.create()
