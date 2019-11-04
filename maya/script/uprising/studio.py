@@ -15,12 +15,11 @@ from robolink import (
     ITEM_TYPE_ROBOT
 )
 
-# import program as prg
 
 from program import (
     MainProgram,
     DipProgram,
-    SlopProgram,
+    WaterProgram,
     PotHolderCalibration,
     PotCalibration,
     HolderCalibration,
@@ -75,7 +74,7 @@ class Studio(object):
         self.manual_tri_program = None
 
         self.dip_programs = []
-        self.slop_programs = []
+        self.water_programs = []
         self.pick_place_programs = []
         self.exercise_program = None
 
@@ -85,9 +84,16 @@ class Studio(object):
 
         self.first_dip_repeats = kw.get("first_dip_repeats", 1)
 
+        self.dips_frame = None
+        self.water_frame = None
+
+        do_water_dips=kw.get("do_water_dip"),
+        water_dip_pause=kw.get("water_dip_pause"),
+        water_wipe_repeats=kw.get("water_wipe_repeats"),
+
         do_painting = kw.get("do_painting")
         do_dips = kw.get("do_dips")
-        do_slop = kw.get("do_slop")
+        # do_slop = kw.get("do_slop")
         do_pap_exercise = kw.get("do_pap_exercise")
         do_board_calibration = kw.get("do_board_calibration")
 
@@ -116,16 +122,17 @@ class Studio(object):
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.dip_programs = self._build_dip_programs()
 
+        if do_water_dips:
+            logger.debug("Studio: water dips")
+            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+                self.water_programs = self._build_water_programs(water_dip_pause, water_wipe_repeats)
+
         if pick_and_place_slots:
             logger.debug("Studio: pick_place_programs")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.pick_place_programs = self._build_pick_place_programs(
                     pick_and_place_slots)
-        if do_slop:
-            logger.debug("Studio: do_slop")
-            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                self.slop_programs = self._build_slop_programs()
-
+ 
 
         if do_pot_calibration:
             logger.debug("Studio:  pot_holder_calibration")
@@ -178,23 +185,30 @@ class Studio(object):
         print packs
         return result
 
-    def _build_slop_programs(self):
-        packs = putl.get_slop_packs()
+ 
+    def _build_water_programs(self, pause, repeats):
+        packs = putl.get_dip_wipe_packs(paint_id=k.WATER_POT_ID)
         result = []
         if packs:
-            for bid in packs:
-                pack = packs[bid]
-                result.append(
-                    SlopProgram(
-                        pack["name"],
-                        pack["painting"]))
+            for pid in packs:
+                paint_pack = packs[pid]
+                for bid in paint_pack:
+                    pack = paint_pack[bid]
+                    result.append(
+                        WaterProgram(
+                            pack["name"],
+                            pack["dip"],
+                            pack["wipe"], 
+                            pause, 
+                            repeats))
+        print "Water"                 
         print packs
         return result
 
+ 
+
     def _build_pick_place_programs(self, brush_ids):
-        # print("_build_pick_place_programs")
-        # print("brush_ids")
-        # print(brush_ids)
+
 
         gripper_geo = butl.setup_gripper_from_sheet()
         gripper = Brush.brush_at_plug(
@@ -208,8 +222,7 @@ class Studio(object):
         result = []
         for p in packs:
             pack = packs[p]
-            # print "Pack"
-            # print pack
+
             if brush_ids == "calibration":
                 pick_prg = PickAtHomeProgram(gripper, pack)
                 place_prg = PlaceAtHomeProgram(gripper, pack)
@@ -246,8 +259,6 @@ class Studio(object):
 
         if self.painting_program:
             self.painting_program.write(self)
-            # with final_position(pm.PyNode("canvas")):
-            #     props.send([pm.PyNode("canvas")])
 
         if self.dip_programs:
             self.dips_frame = uutl.create_frame("dips_frame")
@@ -257,10 +268,10 @@ class Studio(object):
                 with uutl.final_position(rack_context):
                     Paint.write_geos()
 
-        if self.slop_programs:
-            self.dips_frame = uutl.create_frame("dips_frame")
-            for slop in self.slop_programs:
-                slop.write(self)
+        if self.water_programs:
+            self.water_frame = uutl.create_frame("water_frame")
+            for water in self.water_programs:
+                water.write(self)
 
         if self.exercise_program:
             self.exercise_program.write(self)
@@ -272,8 +283,7 @@ class Studio(object):
             with uutl.final_position(rack_context):
                 for prog in self.pick_place_programs:
                     prog.write(self)
-                # self._write_rack_and_holder_geo()
-
+      
 
 
         if self.pot_cal_program:
@@ -296,8 +306,7 @@ class Studio(object):
                 self.perspex_cal_program.write(
                     self.tool_approach,
                     self.home_approach)
-                # self._write_rack_and_holder_geo()
-
+           
         if self.manual_tri_program:
             self.manual_tri_program.write(
                 self.tool_approach,

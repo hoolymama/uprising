@@ -126,7 +126,6 @@ def set_pot_colors(pots, colors):
     pot_cols = zip(pots, colors)
     delete_shaders()
     for geo, color in pot_cols:
-        # geo.rename("pot_%s_%s" % (color["index"], color["name"]))
         ss = pm.shadingNode("lambert", asShader=True, name=("sx_%s" % color["name"]))
         sg = pm.sets(
             renderable=True,
@@ -257,11 +256,18 @@ def get_perspex_packs():
     return result
 
 
-def get_dip_wipe_packs():
+def get_dip_wipe_packs(**kw):
 
     result = {}
-
-    dip_combinations = dip_combination_ids()
+    paint_id = kw.get("paint_id")
+    if paint_id != None:
+        dip_combinations = []
+        dc = pm.paintingQuery(node, dc=True)
+        bids = sorted(set(dc[::2]))
+        for brush_id in bids:
+            dip_combinations.append({"brush": int(brush_id), "paint": 9})
+    else:
+        dip_combinations = dip_combination_ids()
 
     for combo in dip_combinations:
 
@@ -275,7 +281,6 @@ def get_dip_wipe_packs():
         paint_key = "p{:02d}".format(combo["paint"])
         brush_key = "b{:02d}".format(combo["brush"])
 
-        # print "{} -- {}".format(dip_ptg_path, wipe_ptg_path)
         try:
             dip_ptg = pm.ls(dip_ptg_path, type="painting")[0]
             wipe_ptg = pm.ls(wipe_ptg_path, type="painting")[0]
@@ -293,26 +298,6 @@ def get_dip_wipe_packs():
             "wipe": wipe_ptg,
             "name": "{}_{}".format(paint_key, brush_key),
         }
-
-    return result
-
-
-def get_slop_packs():
-
-    result = {}
-    painting_node = pm.PyNode("mainPaintingShape")
-    bids = pm.paintingQuery(painting_node, dc=True)[0::2]
-
-    for bid in sorted(set(bids)):
-        brush_key = "b{:02d}".format(bid)
-        ptg_path = "rack|slop|holeRot|holeTrans|slop_loc|{}|*".format(brush_key)
-
-        try:
-            ptg = pm.ls(ptg_path, type="painting")[0]
-        except IndexError:
-            raise IndexError("Slop painting node is missing: for {}".format(brush_key))
-
-        result[brush_key] = {"painting": ptg, "name": brush_key}
 
     return result
 

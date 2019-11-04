@@ -197,15 +197,11 @@ class DipProgram(Program):
     def __init__(self, name, dip_node, wipe_node):
         super(DipProgram, self).__init__(name)
 
-        # print "DIP {}".format(dip_node)
-        # print "WIP {}".format(wipe_node)
-
         self.dip_painting = ptg.Painting(dip_node)
         self.wipe_painting = ptg.Painting(wipe_node)
 
     def write(self, studio):
-        # RL = Robolink()
-        # robot = RL.Item('', ITEM_TYPE_ROBOT)
+
         if not (self.dip_painting.clusters and self.wipe_painting.clusters):
             return
 
@@ -221,7 +217,6 @@ class DipProgram(Program):
                 INSTRUCTION_COMMENT,
             )
 
-            # self.program.addMoveJ(studio.dip_approach)
 
             for cluster in self.dip_painting.clusters:
                 cluster.write(
@@ -242,37 +237,51 @@ class DipProgram(Program):
                 )
 
 
-class SlopProgram(Program):
+class WaterProgram(Program):
     @staticmethod
-    def generate_program_name(brush_id):
-        return "slop_b{:02d}".format(brush_id)
+    def generate_program_name(paint_id, brush_id):
+        return "water{:02d}_b{:02d}".format(paint_id, brush_id)
 
-    def __init__(self, name, painting_node):
-        super(SlopProgram, self).__init__(name)
-        self.painting = ptg.Painting(painting_node)
+    def __init__(self, name, dip_node, wipe_node):
+        super(WaterProgram, self).__init__(name)
+
+        self.dip_painting = ptg.Painting(dip_node)
+        self.wipe_painting = ptg.Painting(wipe_node)
 
     def write(self, studio):
-        # RL = Robolink()
-        # robot = RL.Item('', ITEM_TYPE_ROBOT)
+        if not (self.dip_painting.clusters and self.wipe_painting.clusters):
+            return
 
-        super(SlopProgram, self).write()
-        self.frame = studio.dips_frame
-        self.painting.write_brushes()
+        super(WaterProgram, self).write()
+        self.frame = studio.water_frame
+
+        self.dip_painting.write_brushes()
+        self.wipe_painting.write_brushes()
 
         with uutl.minimize_robodk():
             self.program.RunInstruction(
-                "Slop with tool {}".format(self.painting.clusters[0].brush.node_name),
+                "Water Dip with tool %s" % self.dip_painting.clusters[0].brush.node_name,
                 INSTRUCTION_COMMENT,
             )
 
-            for cluster in self.painting.clusters:
+            for cluster in self.dip_painting.clusters:
                 cluster.write(
                     self.program,
                     self.frame,
-                    self.painting.motion,
+                    self.dip_painting.motion,
                     studio.RL,
                     studio.robot,
                 )
+
+            for cluster in self.wipe_painting.clusters:
+                cluster.write(
+                    self.program,
+                    self.frame,
+                    self.wipe_painting.motion,
+                    studio.RL,
+                    studio.robot,
+                )
+
 
 
 class CalibrationProgram(Program):
@@ -657,8 +666,7 @@ class PickPlaceProgram(Program):
         super(PickPlaceProgram, self).write()
 
         self.write_brush(studio)
-        # self.brush.write(studio.RL, studio.robot)
-
+  
         self.tool = studio.RL.Item(self.brush.name)
         if not self.tool.Valid():
             raise ProgramError("No Gripper Brush. Risk of damage. Can't continue.")

@@ -44,3 +44,5 @@ BRUSH_RANKS = [
     {"name": "bk_4", "ids": [4, 10, 16]},
     {"name": "bk_5", "ids": [5, 11, 17]},
 ]
+
+WATER_POT_ID = 9

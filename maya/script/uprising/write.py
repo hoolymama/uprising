@@ -39,7 +39,6 @@ def publish_proposal(
 
     media_dir = os.path.join(proposals_dir, "media", timestamp)
     uutl.mkdir_p(media_dir)
-    # title, body = split_desc(description)
 
     write_info(
         painting_node,
@@ -61,7 +60,9 @@ def publish_sequence(
     export_dir,
     frame_range,
     pause ,
-    first_dip_repeats
+    first_dip_repeats,
+    do_water_dip,
+    **kw
 ):
 
     # print dip_wipe_packs
@@ -89,15 +90,14 @@ def publish_sequence(
             pm.displayWarning(ex.message)
             continue
 
-        # write_csv(export_dir, timestamp)
-
-        # write_ref_image(ts_dir, timestamp)
-
         RL = Robolink()
 
         studio = Studio(
             do_painting=True,
             do_dips=True,
+            do_water_dip=do_water_dip,
+            water_dip_pause=kw.get("water_dip_pause"),
+            water_wipe_repeats=kw.get("water_wipe_repeats"),
             pick_and_place_slots="used",
             first_dip_repeats=first_dip_repeats,
             do_rack_and_holder_geo=False,
@@ -201,8 +201,7 @@ def write_image_sequence(
         frame_range,
         clean_top,
         **kw):
-    # f = pm.currentTime(q=True)
-    # frame_range = kw.get("frame_range",  (f,f))
+
     resolution = kw.get("resolution", 1024)
     resolutionX = kw.get("resolutionX", resolution)
     resolutionY = kw.get("resolutionY", resolution)
@@ -240,10 +239,6 @@ def write_program(RL, ts_dir, progname, timestamp):
 
     if program.Valid():
         print "VALID"
-        #
-        # program.setName(prog_filename)
-        # program.MakeProgram(ts_dir)
-        # program.setName(progname)
     else:
         print "INVALID"
 
@@ -318,9 +313,6 @@ def write_log(ts_dir, timestamp, frame):
     dip_combos = putl.dip_combinations()
 
     pnt_stats = painting_stats(painting_node)
-    # dip_stats = painting_stats(dip_node)
-
-    # paints_in_use = used_paints(painting_node)
     brush_paint_pairs = used_paints_and_brushes(painting_node)
 
     log_file = os.path.join(ts_dir, "log.txt")
@@ -369,27 +361,3 @@ def write_info(
         the_file.write("%s\n\n" % body)
         the_file.write("Timestamp: %s\n\n" % timestamp)
         the_file.write("Frame range: %d to %d\n\n" % (start, end))
-
-
-# def publish_package():
-#     export_dir = os.path.join(pm.workspace.getPath(), 'export')
-#     entries = pm.fileDialog2(caption="Choose package", okCaption="Publish",
-#                              dialogStyle=2, fileMode=3, dir=export_dir)
-#     if not entries:
-#         pm.displayWarning('Nothing Selected')
-#         return
-
-#     export_dir = entries[0]
-
-#     # timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-#     # ts_dir = os.path.join(export_dir, timestamp)
-
-#     # simulation = os.path.join(ts_dir, "%s.html" % timestamp)
-#     recordings_dir = os.path.join(ts_dir, "sessions")
-#     mkdir_p(recordings_dir)
-
-#     write_maya_scene(ts_dir, timestamp)
-#     write_ref_image(ts_dir, timestamp)
-#     write_log(ts_dir, timestamp, description)
-#     write_station(RL, ts_dir, timestamp)
-#     write_program(RL, ts_dir, timestamp)
