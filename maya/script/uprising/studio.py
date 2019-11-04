@@ -52,7 +52,7 @@ class Studio(object):
     """Glue together the entire studio."""
 
     def __init__(self, **kw):
-        
+
 
         uutl.clean_rdk()
         self.RL = Robolink()
@@ -68,7 +68,7 @@ class Studio(object):
         self.pot_holder_cal_program = None
         self.pot_cal_program = None
         self.holder_cal_program = None
-        
+
         self.board_cal_program = None
         self.perspex_cal_program = None
         self.manual_tri_program = None
@@ -87,13 +87,14 @@ class Studio(object):
         self.dips_frame = None
         self.water_frame = None
 
-        do_water_dips=kw.get("do_water_dip"),
+        do_water_dips=kw.get("do_water_dip")
+
+
         water_dip_pause=kw.get("water_dip_pause"),
         water_wipe_repeats=kw.get("water_wipe_repeats"),
 
         do_painting = kw.get("do_painting")
         do_dips = kw.get("do_dips")
-        # do_slop = kw.get("do_slop")
         do_pap_exercise = kw.get("do_pap_exercise")
         do_board_calibration = kw.get("do_board_calibration")
 
@@ -122,6 +123,7 @@ class Studio(object):
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.dip_programs = self._build_dip_programs()
 
+
         if do_water_dips:
             logger.debug("Studio: water dips")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
@@ -132,7 +134,7 @@ class Studio(object):
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.pick_place_programs = self._build_pick_place_programs(
                     pick_and_place_slots)
- 
+
 
         if do_pot_calibration:
             logger.debug("Studio:  pot_holder_calibration")
@@ -177,15 +179,11 @@ class Studio(object):
                 paint_pack = packs[pid]
                 for bid in paint_pack:
                     pack = paint_pack[bid]
-                    result.append(
-                        DipProgram(
-                            pack["name"],
-                            pack["dip"],
-                            pack["wipe"]))
+                    result.append(DipProgram(pack))
         print packs
         return result
 
- 
+
     def _build_water_programs(self, pause, repeats):
         packs = putl.get_dip_wipe_packs(paint_id=k.WATER_POT_ID)
         result = []
@@ -196,16 +194,14 @@ class Studio(object):
                     pack = paint_pack[bid]
                     result.append(
                         WaterProgram(
-                            pack["name"],
-                            pack["dip"],
-                            pack["wipe"], 
-                            pause, 
+                            pack,
+                            pause,
                             repeats))
-        print "Water"                 
+        print "Water"
         print packs
         return result
 
- 
+
 
     def _build_pick_place_programs(self, brush_ids):
 
@@ -249,7 +245,7 @@ class Studio(object):
                 ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
                 props.send(ref_geo)
 
- 
+
     def write(self):
 
         self._write_approaches()
@@ -283,7 +279,7 @@ class Studio(object):
             with uutl.final_position(rack_context):
                 for prog in self.pick_place_programs:
                     prog.write(self)
-      
+
 
 
         if self.pot_cal_program:
@@ -306,7 +302,7 @@ class Studio(object):
                 self.perspex_cal_program.write(
                     self.tool_approach,
                     self.home_approach)
-           
+
         if self.manual_tri_program:
             self.manual_tri_program.write(
                 self.tool_approach,

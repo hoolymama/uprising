@@ -262,7 +262,7 @@ def get_dip_wipe_packs(**kw):
     paint_id = kw.get("paint_id")
     if paint_id != None:
         dip_combinations = []
-        dc = pm.paintingQuery(node, dc=True)
+        dc = pm.paintingQuery("mainPaintingShape", dc=True)
         bids = sorted(set(dc[::2]))
         for brush_id in bids:
             dip_combinations.append({"brush": int(brush_id), "paint": 9})
@@ -296,6 +296,8 @@ def get_dip_wipe_packs(**kw):
         result[paint_key][brush_key] = {
             "dip": dip_ptg,
             "wipe": wipe_ptg,
+            "paint_id": combo["paint"],
+            "brush_id": combo["brush"],
             "name": "{}_{}".format(paint_key, brush_key),
         }
 

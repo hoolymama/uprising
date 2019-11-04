@@ -59,7 +59,7 @@ class PublishTab(gui.FormLayout):
         self.do_water_dip_cb = pm.checkBoxGrp(
             label='Dip in water',
             height=30,
-            value1=1,
+            value1=0,
             annotation='Saturate each brush in water before before painting',
             changeCommand=pm.Callback(self.on_dip_water_cb_change))
 
@@ -217,9 +217,9 @@ class PublishTab(gui.FormLayout):
                 self.first_dip_repeats_isg, query=True, value=True
             )
 
-        do_water_dip = pm.checkBoxGrp(self.water_dip_pause_if, query=True, value1=True)
+        do_water_dip = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True)
         water_dip_pause =   pm.intFieldGrp(self.water_dip_pause_if, query=True, value1=True)
-        water_wipe_repeats =  pm.intSliderGrp(self.water_wipe_repeats_isg, query=True, value1=True)
+        water_wipe_repeats =  pm.intSliderGrp(self.water_wipe_repeats_isg, query=True, value=True)
 
         pm.cutKey("collectStrokesMain", at=(
             "startFrom", "endAt"), option="keys")

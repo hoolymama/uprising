@@ -194,11 +194,12 @@ class DipProgram(Program):
     def generate_program_name(paint_id, brush_id):
         return "p{:02d}_b{:02d}".format(paint_id, brush_id)
 
-    def __init__(self, name, dip_node, wipe_node):
-        super(DipProgram, self).__init__(name)
+    def __init__(self, pack):
+        name = DipProgram.generate_program_name(pack["paint_id"], pack["brush_id"])
 
-        self.dip_painting = ptg.Painting(dip_node)
-        self.wipe_painting = ptg.Painting(wipe_node)
+        super(DipProgram, self).__init__(name)
+        self.dip_painting = ptg.Painting(pack["dip"])
+        self.wipe_painting = ptg.Painting(pack["wipe"])
 
     def write(self, studio):
 
@@ -239,14 +240,15 @@ class DipProgram(Program):
 
 class WaterProgram(Program):
     @staticmethod
-    def generate_program_name(paint_id, brush_id):
-        return "water{:02d}_b{:02d}".format(paint_id, brush_id)
+    def generate_program_name(brush_id):
+        return "water_b{:02d}".format( brush_id)
 
-    def __init__(self, name, dip_node, wipe_node):
+    def __init__(self, pack, pause, repeats):
+        name = WaterProgram.generate_program_name(pack["brush_id"])
         super(WaterProgram, self).__init__(name)
 
-        self.dip_painting = ptg.Painting(dip_node)
-        self.wipe_painting = ptg.Painting(wipe_node)
+        self.dip_painting = ptg.Painting(pack["dip"])
+        self.wipe_painting = ptg.Painting(pack["wipe"])
 
     def write(self, studio):
         if not (self.dip_painting.clusters and self.wipe_painting.clusters):
@@ -260,7 +262,7 @@ class WaterProgram(Program):
 
         with uutl.minimize_robodk():
             self.program.RunInstruction(
-                "Water Dip with tool %s" % self.dip_painting.clusters[0].brush.node_name,
+                "Water dip with tool %s" % self.dip_painting.clusters[0].brush.node_name,
                 INSTRUCTION_COMMENT,
             )
 
@@ -642,8 +644,6 @@ class PickPlaceProgram(Program):
 
         super(PickPlaceProgram, self).__init__(name)
 
-        # self.RL = Robolink()
-        # self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
         self.brush = brush
         self.pack = pack
         self.targets = {}
