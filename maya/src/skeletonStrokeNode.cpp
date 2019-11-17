@@ -40,6 +40,8 @@ MObject skeletonStrokeNode::aOverlap;
 MObject skeletonStrokeNode::aBrushRampScope;
 MObject skeletonStrokeNode::aSplitAngle;
 MObject skeletonStrokeNode::aSplitTestInterval;
+MObject skeletonStrokeNode::aExtendEntry;
+MObject skeletonStrokeNode::aExtendExit;
 
 MTypeId skeletonStrokeNode::id(k_skeletonStrokeNode);
 
@@ -132,6 +134,20 @@ MStatus skeletonStrokeNode::initialize()
     st = addAttribute(aSplitTestInterval);
     mser;
 
+    aExtendEntry = nAttr.create("extendEntry", "een", MFnNumericData::kFloat);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setDefault(0.0f);
+    st = addAttribute(aExtendEntry);
+    mser;
+
+    aExtendExit = nAttr.create("extendExit", "eex", MFnNumericData::kFloat);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setDefault(0.0f);
+    st = addAttribute(aExtendExit);
+    mser;
+
     attributeAffects(aChains, aOutput);
     attributeAffects(aBrushFilter, aOutput);
     attributeAffects(aBrushes, aOutput);
@@ -140,6 +156,8 @@ MStatus skeletonStrokeNode::initialize()
     attributeAffects(aBrushRampScope, aOutput);
     attributeAffects(aSplitAngle, aOutput);
     attributeAffects(aSplitTestInterval, aOutput);
+    attributeAffects(aExtendEntry, aOutput);
+    attributeAffects(aExtendExit, aOutput);
 
     return (MS::kSuccess);
 }
@@ -402,6 +420,8 @@ void skeletonStrokeNode::getPointsAndContacts(
     const std::pair<int, Brush> &indexedBrush,
     float entryLength,
     float exitLength,
+    float extendEntry,
+    float extendExit,
     MDoubleArray &contacts,
     MPointArray &points) const
 {
@@ -409,33 +429,33 @@ void skeletonStrokeNode::getPointsAndContacts(
 
     contacts.clear();
     points.clear();
+    const int hasExtendedEntry = (extendEntry > epsilon) ? 1 : 0;
 
-    const int hasEntry = (entryLength > epsilon) ? 1 : 0;
-    const int hasExit = (exitLength > epsilon) ? 1 : 0;
+    const int hasExtendedExit = (extendExit > epsilon) ? 1 : 0;
 
     std::vector<skPoint>::const_iterator p0, p1;
-    skPoint entryPoint, exitPoint;
-    if (hasEntry)
+    skPoint extendedEntryPoint, extendedExitPoint;
+    if (hasExtendedEntry)
     {
         p1 = chain.points().begin(); // 0
         p0 = std::next(p1);          // 1
-        entryPoint = skPoint::extrapolate(*p0, *p1, entryLength);
-        points.append(entryPoint.x, entryPoint.y, 0.0);
+        extendedEntryPoint = skPoint::extrapolate(*p0, *p1, extendEntry);
+        points.append(extendedEntryPoint.x, extendedEntryPoint.y, 0.0);
     }
 
     chain.appendPointsTo(points);
 
-    if (hasExit)
+    if (hasExtendedExit)
     {
         p1 = std::prev(chain.points().end()); // -1
         p0 = std::prev(p1);                   // -2
-        exitPoint = skPoint::extrapolate(*p0, *p1, exitLength);
-        points.append(exitPoint.x, exitPoint.y, 0.0);
+        extendedExitPoint = skPoint::extrapolate(*p0, *p1, extendExit);
+        points.append(extendedExitPoint.x, extendedExitPoint.y, 0.0);
     }
 
     if (indexedBrush.second.isFlat())
     {
-        contacts = MDoubleArray((chain.size() + hasEntry + hasExit), 1.0);
+        contacts = MDoubleArray((chain.size() + hasExtendedEntry + hasExtendedExit), 1.0);
         return;
     }
 
@@ -446,9 +466,9 @@ void skeletonStrokeNode::getPointsAndContacts(
     }
     float brushRadiusRecip = 2.0 / brushWidth;
 
-    if (hasEntry)
+    if (hasExtendedEntry)
     {
-        contacts.append(fmin((entryPoint.radius * brushRadiusRecip), 1.0));
+        contacts.append(fmin((extendedEntryPoint.radius * brushRadiusRecip), 1.0));
     }
 
     for (int i = 0; i < chain.size(); ++i)
@@ -457,9 +477,9 @@ void skeletonStrokeNode::getPointsAndContacts(
             fmin((chain[i].radius * brushRadiusRecip), 1.0));
     }
 
-    if (hasExit)
+    if (hasExtendedExit)
     {
-        contacts.append(fmin((exitPoint.radius * brushRadiusRecip), 1.0));
+        contacts.append(fmin((extendedExitPoint.radius * brushRadiusRecip), 1.0));
     }
 }
 
@@ -534,21 +554,11 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     int layerId = data.inputValue(aLayerId).asInt();
     //////////////////////////////////////////////////////////////
 
-    // MDataHandle hChains = data.inputValue(aChains, &st);
-    // msert;
-    // MObject dChains = hChains.data();
-    // MFnPluginData fnChains(dChains, &st);
-    // msert;
-    // skChainData *scData = (skChainData *)fnChains.data(&st);
-    // msert;
-    // const std::vector<skChain> *geom = scData->fGeometry;
-    // if ((!geom) || geom->size() == 0)
-    // {
-    //     return MS::kUnknownParameter;
-    // }
-
     double splitAngle = data.inputValue(aSplitAngle).asAngle().asRadians();
     double splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
+
+    float extendEntry = data.inputValue(aExtendEntry).asFloat();
+    float extendExit = data.inputValue(aExtendExit).asFloat();
 
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
@@ -594,7 +604,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
 
             const std::pair<int, Brush> selectedBrush = selectBrush(*citer, brushes);
 
-            getPointsAndContacts(*citer, selectedBrush, entryLength, exitLength, contacts,
+            getPointsAndContacts(*citer, selectedBrush, entryLength, exitLength, extendEntry, extendExit, contacts,
                                  editPoints);
             int selectedBrushId = selectedBrush.first;
             int customBrushId = selectedBrush.second.customId();
@@ -658,79 +668,6 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
             }
         }
     }
-
-    // std::vector<skChain>::const_iterator citer;
-    // for (citer = geom->begin(); citer != geom->end(); citer++)
-    // {
-    //     MPointArray editPoints;
-    //     MDoubleArray contacts;
-
-    //     const std::pair<int, Brush> selectedBrush = selectBrush(*citer, brushes);
-
-    //     getPointsAndContacts(*citer, selectedBrush, entryLength, exitLength, contacts,
-    //                          editPoints);
-    //     int selectedBrushId = selectedBrush.first;
-    //     int customBrushId = selectedBrush.second.customId();
-
-    //     MFnNurbsCurve curveFn;
-    //     MFnNurbsCurveData dataCreator;
-    //     MObject curveData = dataCreator.create(&st);
-    //     mser;
-    //     // cerr << "editPoints" << editPoints << endl;
-    //     MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen,
-    //                                                   true, false, false, curveData, &st);
-
-    //     MDoubleArray knotVals;
-    //     st = curveFn.getKnots(knotVals);
-    //     int numKnots = knotVals.length();
-    //     // cerr << "numKnots:" <<  numKnots << " --- " << knotVals[(numKnots - 1)] << endl;
-    //     double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
-
-    //     for (int i = 0; i < numKnots; ++i)
-    //     {
-    //         knotVals[i] = knotVals[i] * maxValRecip;
-    //     }
-
-    //     curveFn.setKnots(knotVals, 0, (numKnots - 1));
-    //     double curveLength = curveFn.length(epsilon);
-    //     MVectorArray boundaries;
-    //     if (!getStrokeBoundaries(dCurve, strokeLength, overlap, splitAngle, splitTestInterval,
-    //                              boundaries))
-    //     {
-    //         continue;
-    //     }
-    //     for (int strokeId = 0; strokeId < boundaries.length(); ++strokeId)
-    //     {
-    //         const double &startDist = boundaries[strokeId].x;
-    //         const double &endDist = boundaries[strokeId].y;
-
-    //         unsigned strokeGroupSize = Stroke::create(
-    //             thisObj,
-    //             dCurve,
-    //             contacts,
-    //             localContact,
-    //             curveLength,
-    //             startDist,
-    //             endDist,
-    //             entryLength,
-    //             exitLength,
-    //             transitionBlendMethod,
-    //             pointDensity,
-    //             minimumPoints,
-    //             rotSpec,
-    //             repeatSpec,
-    //             strokeDirection,
-    //             pivotParam,
-    //             paintFlow,
-    //             strokeId,
-    //             selectedBrushId,
-    //             paintId,
-    //             layerId,
-    //             customBrushId,
-    //             pStrokes);
-    //     }
-    // }
-
     return MS::kSuccess;
 }
 
