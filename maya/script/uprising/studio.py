@@ -65,7 +65,7 @@ class Studio(object):
         self.painting_program = None
         self.rack_cal_program = None
 
-        self.pot_holder_cal_program = None
+        # self.pot_holder_cal_program = None
         self.pot_cal_program = None
         self.holder_cal_program = None
 
@@ -98,9 +98,9 @@ class Studio(object):
         do_pap_exercise = kw.get("do_pap_exercise")
         do_board_calibration = kw.get("do_board_calibration")
 
-        do_pot_holder_calibration = kw.get("do_pot_holder_calibration")
-        do_pot_calibration = kw.get("do_pot_calibration")  or kw.get("do_pot_holder_calibration")
-        do_holder_calibration = kw.get("do_holder_calibration") or kw.get("do_pot_holder_calibration")
+        # do_pot_holder_calibration = kw.get("do_pot_holder_calibration")
+        do_pot_calibration = kw.get("do_pot_calibration")  
+        do_holder_calibration = kw.get("do_holder_calibration") 
 
         do_perspex_calibration = kw.get("do_perspex_calibration")
         do_perspex_triangulation = kw.get("do_perspex_triangulation")
@@ -146,10 +146,10 @@ class Studio(object):
             self.holder_cal_program = HolderCalibration(
                 k.HOLDER_CALIBRATION_PROGRAM_NAME)
 
-        if do_pot_holder_calibration:
-            logger.debug("Studio:  pot_holder_calibration")
-            self.pot_holder_cal_program = PotHolderCalibration(
-                k.POT_HOLDER_CALIBRATION_PROGRAM_NAME)
+        # if do_pot_holder_calibration:
+        #     logger.debug("Studio:  pot_holder_calibration")
+        #     self.pot_holder_cal_program = PotHolderCalibration(
+        #         k.POT_HOLDER_CALIBRATION_PROGRAM_NAME)
 
 
         if do_perspex_calibration:
@@ -280,8 +280,6 @@ class Studio(object):
                 for prog in self.pick_place_programs:
                     prog.write(self)
 
-
-
         if self.pot_cal_program:
             with uutl.final_position(rack_context):
                 self.pot_cal_program.write(
@@ -294,14 +292,14 @@ class Studio(object):
                     self.tool_approach,
                     self.home_approach)
 
-        if self.pot_holder_cal_program:
-            self.pot_holder_cal_program.write()
+        # if self.pot_holder_cal_program:
+        #     self.pot_holder_cal_program.write(
+        #             self.tool_approach,
+        #             self.home_approach)
 
         if self.perspex_cal_program:
             with uutl.final_position(rack_context):
-                self.perspex_cal_program.write(
-                    self.tool_approach,
-                    self.home_approach)
+                self.perspex_cal_program.write()
 
         if self.manual_tri_program:
             self.manual_tri_program.write(

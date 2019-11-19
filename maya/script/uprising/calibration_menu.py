@@ -25,16 +25,23 @@ def create():
 
     pm.menuItem(divider=True)
 
-
-
+    pm.menuItem(
+        label="Generate pot calibration",
+        command=pm.Callback(generate_pot_calibration))
 
     pm.menuItem(
-        label="Generate pot & holder calibration",
-        command=pm.Callback(generate_pot_holder_calibration))
+        label="Read pot calibration",
+        command=pm.Callback(read_pot_calibration))
+
+    pm.menuItem(divider=True)
 
     pm.menuItem(
-        label="Read pot & holder calibration",
-        command=pm.Callback(read_pot_holder_calibration))
+        label="Generate holder calibration",
+        command=pm.Callback(generate_holder_calibration))
+
+    pm.menuItem(
+        label="Read holder calibration",
+        command=pm.Callback(read_holder_calibration))
 
     pm.menuItem(divider=True)
 
@@ -128,8 +135,9 @@ def _generate_calibration(which, *reference_geo):
 
     kw = {
         "do_perspex_triangulation": which == k.TRI_CALIBRATION_PROGRAM_NAME,
-        "do_pot_holder_calibration": which == k.POT_HOLDER_CALIBRATION_PROGRAM_NAME,
-        # "do_holder_calibration": which == k.HOLDER_CALIBRATION_PROGRAM_NAME,
+        # "do_pot_holder_calibration": which == k.POT_HOLDER_CALIBRATION_PROGRAM_NAME,
+        "do_pot_calibration": which == k.POT_CALIBRATION_PROGRAM_NAME,
+        "do_holder_calibration": which == k.HOLDER_CALIBRATION_PROGRAM_NAME,
         "do_board_calibration": which == k.BOARD_CALIBRATION_PROGRAM_NAME,
         "do_perspex_calibration": which == k.PERSPEX_CALIBRATION_PROGRAM_NAME,
         "pick_and_place_slots": "calibration",  # all, used, specific ids
@@ -180,10 +188,12 @@ def generate_pot_holder_calibration():
     _generate_calibration(k.POT_HOLDER_CALIBRATION_PROGRAM_NAME, *ref_geo)
 
 
-# def generate_holder_calibration():
-#     ref_geo = [pm.PyNode("rackTop")]
-#     ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
-#     _generate_calibration(k.HOLDER_CALIBRATION_PROGRAM_NAME, *ref_geo)
+def generate_holder_calibration():
+    _generate_calibration(k.HOLDER_CALIBRATION_PROGRAM_NAME)
+
+def generate_pot_calibration():
+    _generate_calibration(k.POT_CALIBRATION_PROGRAM_NAME)
+
 
 
 def generate_perspex_calibration():
@@ -201,7 +211,8 @@ def _set_precise(xf, gauge_reading, probe_height):
     xf.attr("tz").set(new_pos)
 
 
-def read_pot_holder_calibration():
+
+def read_pot_calibration():
     service = sheets._get_service()
     result = service.spreadsheets().values().get(
         spreadsheetId=sheets.SHEETS["Measurements"],
@@ -227,27 +238,53 @@ def read_pot_holder_calibration():
                 row[2]),
             handle_height)
 
-
-# def read_holder_calibration():
+# def read_pot_holder_calibration():
 #     service = sheets._get_service()
 #     result = service.spreadsheets().values().get(
 #         spreadsheetId=sheets.SHEETS["Measurements"],
-#         range='Rack!A6:G25').execute()
+#         range='Rack!A6:C25').execute()
 
 #     data = result.get('values', [])
 
-#     holders = pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*|holderTrans")
-#     if not len(data) == len(holders):
-#         raise IndexError("Sheet data and number of holders are different")
+#     pots = putl.get_pots()
+#     handles = putl.get_handles()
+#     if not (len(data) == len(pots) and len(data) == len(handles)):
+#         raise IndexError("Sheet data and number of pots are different lengths")
+
+#     pot_depth = pm.PyNode("rack|holes").attr("calibrationPotDepth").get()
+#     handle_height = pm.PyNode("rack|holes").attr(
+#         "calibrationHandleHeight").get()
 
 #     for row in data:
 #         i = int(uutl.numeric(row[0]))
-#         # Setting Z (height)
-#         _set_precise(holders[i], uutl.numeric(row[3]), k.RACK_HOLDER_HEIGHT)
+#         _set_precise(pots[i].getParent(), uutl.numeric(row[1]), pot_depth)
+#         _set_precise(
+#             handles[i].getParent(),
+#             uutl.numeric(
+#                 row[2]),
+#             handle_height)
 
-#         holders[i].attr("ty").set(uutl.numeric(row[4]) * 0.1)
-#         holders[i].attr("tx").set(
-#             (uutl.numeric(row[5]) * 0.1) + k.RACK_HOLDER_DISTANCE)
+
+def read_holder_calibration():
+    service = sheets._get_service()
+    result = service.spreadsheets().values().get(
+        spreadsheetId=sheets.SHEETS["Measurements"],
+        range='Rack!A6:F25').execute()
+
+    data = result.get('values', [])
+
+    holders = pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*|holderTrans")
+    if not len(data) == len(holders):
+        raise IndexError("Sheet data and number of holders are different")
+
+    for row in data:
+        i = int(uutl.numeric(row[0]))
+        # Setting Z (height)
+        _set_precise(holders[i], uutl.numeric(row[3]), k.RACK_HOLDER_HEIGHT)
+
+        holders[i].attr("ty").set(uutl.numeric(row[4]) * 0.1)
+        holders[i].attr("tx").set(
+            (uutl.numeric(row[5]) * 0.1) + k.RACK_HOLDER_DISTANCE)
 
 
 def read_perspex_calibration():
