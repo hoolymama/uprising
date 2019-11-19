@@ -299,7 +299,9 @@ class Studio(object):
 
         if self.perspex_cal_program:
             with uutl.final_position(rack_context):
-                self.perspex_cal_program.write()
+                self.perspex_cal_program.write(
+                self.tool_approach,
+                self.home_approach)
 
         if self.manual_tri_program:
             self.manual_tri_program.write(
