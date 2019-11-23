@@ -30,7 +30,6 @@ def brush_name(**kw):
             str(int(kw["id"])),
             kw["pouch"],
             "B%d" % int(kw["physical_id"]),
-            "%dmm" % int(kw["width"] * 10),
             kw["name"].lower(),
             kw["shape"].lower(),
         ]
@@ -71,29 +70,18 @@ def create_brush_geo(**kw):
 
 def reset_brush(brush_xf, **kw):
     name = brush_name(**kw)
-    brush_xf.rename(name)
     geo = brush_xf.getShape()
+
+    brush_xf.rename(name)
 
     shape_strings = pm.attributeQuery("shape", n=geo, le=True)[0].split(":")
     shape_index = shape_strings.index(kw["shape"].lower())
 
     geo.attr("physicalId").set(kw["physical_id"])
     geo.attr("tip").set(kw["x"], kw["y"], kw["z"])
-
     geo.attr("bristleHeight").set(kw["bristle_height"])
 
-    geo.attr("paintingParam").set(kw["painting_param"])
-    geo.attr("dipParam").set(kw["dip_param"])
-    geo.attr("wipeParam").set(kw["wipe_param"])
-
-    geo.attr("width").set(kw["width"])
     geo.attr("shape").set(shape_index)
-
-    # geo.attr("retention").set(kw["retention"])
-    # geo.attr("transHeightParam").set(kw["trans_param"])
-    # geo.attr("contactPower").set(kw["contact_power"])
-    # geo.attr("customId").set(kw["physical_id"])
-
 
 def remove_brush_multi_atts(*nodes):
     for node in nodes:
@@ -222,13 +210,12 @@ def apply_brush_values_from_sheet(pouch_name):
     pouch = sheets.get_resource_by_name(pouch_name, "Brushes")
     data = validate_brush_data(pouch["data"])
 
-    brush_nodes_grp = pm.PyNode("BRUSHES|brushNodes")
+    data_length = len(data)
 
-    num_brushes_in_sheet = len(data)
-    brushes_in_scene = brush_nodes_grp.getChildren()
+    brushes = painting_node.attr("brushes").connections(s=True)
 
-    num_brushes_in_scene = len(brushes_in_scene)
-    if num_brushes_in_scene != num_brushes_in_sheet:
+    num_brushes = len(brushes)
+    if num_brushes != data_length:
         raise ValueError("Different number of brushes in sheet to scene")
 
     for i, row in enumerate(data):
@@ -241,25 +228,19 @@ def apply_brush_values_from_sheet(pouch_name):
             "y": row[2],
             "z": row[13],
             "bristle_height": row[4],
-            "width": row[5],
             "name": row[6],
             "shape": row[7],
-            "painting_param": row[8],
-            "dip_param": row[9],
-            "wipe_param": row[10],
-            "retention": row[11],
-            "trans_param": row[12],
-            "contact_power": row[14],
+            # "painting_param": row[8],
+            # "dip_param": row[9],
+            # "wipe_param": row[10],
             "pouch": pouch["name"],
             "prefix": "bpx",
         }
 
-        geo = reset_brush(brushes_in_scene[i], **kw)
-        # pm.parent(geo.getParent(), brush_nodes_grp)
-        # geo.attr("outPaintBrush") >> painting_node.attr("brushes[%d]" % i)
+        geo = reset_brush(brushes[i], **kw)
 
-    # connect_skels(painting_node, pm.ls(type="skeletonStroke"))
-
+    for b in brushes:
+        pm.reorder(b, back=True)
 
 def set_stroke_curve_att_from_brush_tip(attribute, mult=1, offset=0):
     sc = attribute.node()
