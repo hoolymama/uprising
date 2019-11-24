@@ -50,6 +50,11 @@ class Program(object):
                 "problems": update_result[4],
                 "status": "SUCCESS" if (update_result[3] == 1.0) else "FAILURE",
             }
+    def ensure_gripper_open(self):
+        self.program.RunInstruction("Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
+        self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
 
 
 class MainProgram(Program):
@@ -89,10 +94,7 @@ class MainProgram(Program):
             motion = self.painting.motion
 
             # Make sure gripper is open to begin with.
-            self.program.RunInstruction("Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
-            self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
-            self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
-            self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
+            self.ensure_gripper_open()
 
             last_brush_id = None
             last_paint_id = None
@@ -144,8 +146,7 @@ class PapExerciseProgram(Program):
         super(PapExerciseProgram, self).__init__(name)
 
     def write(self, studio):
-        # RL = Robolink()
-        # robot = RL.Item('', ITEM_TYPE_ROBOT)
+ 
         super(PapExerciseProgram, self).write()
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
 
@@ -190,6 +191,55 @@ class PapExerciseProgram(Program):
             ###########################
 
             self.program.addMoveJ(studio.home_approach)
+
+
+
+class PotHandleExerciseProgram(Program):
+    def __init__(self, name, data):
+        super(PotHandleExerciseProgram, self).__init__(name)
+        self.data=data
+
+    def write(self, studio):
+
+        super(PotHandleExerciseProgram, self).write()
+        self.frame = uutl.create_frame("{}_frame".format(self.program_name))
+
+        with uutl.minimize_robodk():
+
+            last_brush_id = None
+
+            brush_ids = list(set([b["brush"] for b in self.data]))
+
+            for brush_id in brush_ids:
+                if last_brush_id is not None:
+
+                    # put the last brush back
+                    place_program_name = PlaceProgram.generate_program_name(
+                        last_brush_id
+                    )
+                    self.program.RunInstruction(
+                        place_program_name, INSTRUCTION_CALL_PROGRAM
+                    )
+
+                pick_program_name = PickProgram.generate_program_name(brush_id)
+                self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
+
+                last_brush_id = brush_id
+
+            ###########################        
+                for paint_id in  [p["paint"] for p in  self.data if p["brush"] == brush_id]:
+                    dip_program_name = DipProgram.generate_program_name(
+                        paint_id,brush_id
+                    )
+                    self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
+
+            place_program_name = PlaceProgram.generate_program_name(last_brush_id)
+            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
+            ###########################
+
+            self.program.addMoveJ(studio.home_approach)
+
+
 
 
 class DipProgram(Program):
@@ -763,7 +813,6 @@ class PlaceProgram(PickPlaceProgram):
     def write(self, studio):
 
         pause_ms = int(studio.pause)
-        pause_ms = int(pause_ms)
         with uutl.minimize_robodk():
             super(PlaceProgram, self).write(studio)
 

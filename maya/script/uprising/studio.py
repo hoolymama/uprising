@@ -30,6 +30,7 @@ from program import (
     PickAtHomeProgram,
     PlaceAtHomeProgram,
     PapExerciseProgram,
+    PotHandleExerciseProgram,
     ManualTriangulation)
 
 
@@ -77,6 +78,7 @@ class Studio(object):
         self.water_programs = []
         self.pick_place_programs = []
         self.exercise_program = None
+        self.pot_handle_exercise_program = None
 
         self.pause = kw.get("pause", -1)
         self.pause_brushes = kw.get("pause_brushes", [])
@@ -87,9 +89,11 @@ class Studio(object):
         self.dips_frame = None
         self.water_frame = None
 
+        
+
         do_water_dips=kw.get("do_water_dip")
 
-
+ 
         # water_dip_pause=kw.get("water_dip_pause"),
         water_wipe_repeats=kw.get("water_wipe_repeats")
 
@@ -107,11 +111,13 @@ class Studio(object):
 
         first_dip_repeats = kw.get("first_dip_repeats", 1)
 
-        
         # Must explicitly ask for pick and place to be generated, even
         # if gripper on. Otherwise we can't do partials, like validation.
 
         pick_and_place_slots = kw.get("pick_and_place_slots")
+        pot_handle_exercise_data = kw.get("pot_handle_exercise_data", [])
+    
+ 
 
         if do_painting:
             logger.debug("Studio: main_painting")
@@ -148,11 +154,6 @@ class Studio(object):
             self.holder_cal_program = HolderCalibration(
                 k.HOLDER_CALIBRATION_PROGRAM_NAME)
 
-        # if do_pot_holder_calibration:
-        #     logger.debug("Studio:  pot_holder_calibration")
-        #     self.pot_holder_cal_program = PotHolderCalibration(
-        #         k.POT_HOLDER_CALIBRATION_PROGRAM_NAME)
-
 
         if do_perspex_calibration:
             logger.debug("Studio:  perspex_calibration")
@@ -173,8 +174,23 @@ class Studio(object):
             self.exercise_program = PapExerciseProgram(
                 k.PAP_EXERCISE_PROGRAM_NAME)
 
-    def _build_dip_programs(self):
-        packs = putl.get_dip_wipe_packs()
+        if pot_handle_exercise_data:
+            logger.debug("Studio:  pot_handle_exercise")
+            brush_ids = list(set([b["brush"] for b in pot_handle_exercise_data]))
+            self.pick_place_programs = self._build_pick_place_programs(brush_ids)
+
+            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+                self.dip_programs = self._build_dip_programs(dip_combinations=pot_handle_exercise_data)
+
+            self.pot_handle_exercise_program = PotHandleExerciseProgram(
+                k.POT_HANDLE_EXERCISE_PROGRAM_NAME,
+                pot_handle_exercise_data)
+
+
+
+
+    def _build_dip_programs(self, **kw):
+        packs = putl.get_dip_wipe_packs(**kw)
         result = []
         if packs:
             for pid in packs:
@@ -274,6 +290,14 @@ class Studio(object):
             self.exercise_program.write(self)
             with uutl.final_position(rack_context):
                 self._write_rack_and_holder_geo()
+
+        if self.pot_handle_exercise_program:
+            self.pot_handle_exercise_program.write(self)
+            with uutl.final_position(rack_context):
+                self._write_rack_and_holder_geo()
+
+
+        
 
         if self.pick_place_programs:
             self.pick_place_frame = uutl.create_frame("pick_place_frame")

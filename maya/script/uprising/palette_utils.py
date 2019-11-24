@@ -261,15 +261,17 @@ def get_dip_wipe_packs(**kw):
     result = {}
     paint_id = kw.get("paint_id")
     if paint_id != None:
-        dip_combinations = []
+        combos = []
         dc = pm.paintingQuery("mainPaintingShape", dc=True)
         bids = sorted(set(dc[::2]))
         for brush_id in bids:
-            dip_combinations.append({"brush": int(brush_id), "paint": 9})
+            combos.append({"brush": int(brush_id), "paint": paint_id})
+    elif kw.get("dip_combinations"):
+        combos = kw.get("dip_combinations")
     else:
-        dip_combinations = dip_combination_ids()
+        combos = dip_combination_ids()
 
-    for combo in dip_combinations:
+    for combo in combos:
 
         dip_ptg_path = "rack|holes|holeRot_{:02d}|holeTrans|dip_loc|b{:02d}|*".format(
             combo["paint"], combo["brush"]

@@ -6,6 +6,7 @@ from uprising import (
     export_tab,
     retries_tab,
     publish_tab,
+    phex_tab,
     brush_assign_tab,
     brush_test_tab,
     probes_tab,
@@ -91,6 +92,8 @@ reload(palette_utils)
 # reload(painting_tab)
 reload(setup_tab)
 
+reload(phex_tab)
+
 # reload(props)
 reload(export_tab)
 reload(retries_tab)
@@ -164,6 +167,10 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.export_tab = export_tab.exportTab()
         self.tabs.setTabLabel((self.export_tab, "Export"))
+
+        pm.setParent(self.tabs)
+        self.phex_tab = phex_tab.phexTab()
+        self.tabs.setTabLabel((self.phex_tab, "PHEX"))
 
         pm.setParent(self.tabs)
         self.retries_tab = retries_tab.retriesTab()
