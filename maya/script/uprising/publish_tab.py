@@ -54,21 +54,17 @@ class PublishTab(gui.FormLayout):
         
         pm.setParent('..')
 
-        pm.frameLayout(label="Water dip behaviour", bv=True)
+        pm.frameLayout(label="Dip/wipe behaviour", bv=True)
         
+        self.brush_pause_tfg = pm.textFieldGrp(
+            label='Pause before brush IDs', text='0,1,2,3,4,5')
+
         self.do_water_dip_cb = pm.checkBoxGrp(
             label='Dip in water',
             height=30,
-            value1=0,
+            value1=1,
             annotation='Saturate each brush in water before before painting',
             changeCommand=pm.Callback(self.on_dip_water_cb_change))
-
-        self.water_dip_pause_if = pm.intFieldGrp(
-            height=30,
-            label="Pause (sec)",
-            numberOfFields=1,
-            value1=10,
-            annotation='Make the gripper pause before and after gripping or releasing',)
 
         self.water_wipe_repeats_isg = pm.intSliderGrp(
             label="Water wipe repeats",
@@ -82,13 +78,8 @@ class PublishTab(gui.FormLayout):
             annotation="How many times to repeat the whole wipe pattern after a water dip.",
         )
 
-        pm.setParent('..')
-
-
-        pm.frameLayout(label="First paint dip behaviour", bv=True)
-        
         self.first_dip_repeats_isg = pm.intSliderGrp(
-            label="First dip repeats",
+            label="First paint dip repeats",
              height=30,
             field=True,
             minValue=1,
@@ -101,7 +92,7 @@ class PublishTab(gui.FormLayout):
  
         pm.setParent('..')
 
-        pm.frameLayout(label="FProgram chunking", bv=True)
+        pm.frameLayout(label="Program chunking", bv=True)
         
         self.chunk_if = pm.intFieldGrp(
              height=30,
@@ -117,7 +108,7 @@ class PublishTab(gui.FormLayout):
 
     def on_dip_water_cb_change(self):
         state = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True)
-        pm.intFieldGrp(self.water_dip_pause_if, edit=True, enable=( state))
+        # pm.intFieldGrp(self.water_dip_pause_if, edit=True, enable=( state))
         pm.intSliderGrp(self.water_wipe_repeats_isg, edit=True, enable=( state))
  
 
@@ -217,8 +208,9 @@ class PublishTab(gui.FormLayout):
                 self.first_dip_repeats_isg, query=True, value=True
             )
 
-        do_water_dip = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True)
-        water_dip_pause =   pm.intFieldGrp(self.water_dip_pause_if, query=True, value1=True)
+        pause_brushes = [int(n) for n in pm.textFieldGrp(self.brush_pause_tfg , q=True, text=True).split(",") if n]
+        # print "pause_brushes: ", ",".join([str(p) for p in pause_brushes])
+        do_water_dip = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True) 
         water_wipe_repeats =  pm.intSliderGrp(self.water_wipe_repeats_isg, query=True, value=True)
 
         pm.cutKey("collectStrokesMain", at=(
@@ -232,8 +224,8 @@ class PublishTab(gui.FormLayout):
             pause,
             first_dip_repeats ,
             do_water_dip,
-            water_dip_pause=water_dip_pause,
-            water_wipe_repeats=water_wipe_repeats
+            water_wipe_repeats=water_wipe_repeats,
+            pause_brushes=pause_brushes
         )
 
         pm.cutKey("collectStrokesMain", at=(

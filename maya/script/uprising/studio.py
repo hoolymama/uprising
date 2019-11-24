@@ -79,7 +79,7 @@ class Studio(object):
         self.exercise_program = None
 
         self.pause = kw.get("pause", -1)
-
+        self.pause_brushes = kw.get("pause_brushes", [])
         self.do_rack_and_holder_geo = kw.get("do_rack_and_holder_geo")
 
         self.first_dip_repeats = kw.get("first_dip_repeats", 1)
@@ -90,8 +90,8 @@ class Studio(object):
         do_water_dips=kw.get("do_water_dip")
 
 
-        water_dip_pause=kw.get("water_dip_pause"),
-        water_wipe_repeats=kw.get("water_wipe_repeats"),
+        # water_dip_pause=kw.get("water_dip_pause"),
+        water_wipe_repeats=kw.get("water_wipe_repeats")
 
         do_painting = kw.get("do_painting")
         do_dips = kw.get("do_dips")
@@ -106,6 +106,8 @@ class Studio(object):
         do_perspex_triangulation = kw.get("do_perspex_triangulation")
 
         first_dip_repeats = kw.get("first_dip_repeats", 1)
+
+        
         # Must explicitly ask for pick and place to be generated, even
         # if gripper on. Otherwise we can't do partials, like validation.
 
@@ -127,7 +129,7 @@ class Studio(object):
         if do_water_dips:
             logger.debug("Studio: water dips")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                self.water_programs = self._build_water_programs(water_dip_pause, water_wipe_repeats)
+                self.water_programs = self._build_water_programs(water_wipe_repeats)
 
         if pick_and_place_slots:
             logger.debug("Studio: pick_place_programs")
@@ -184,7 +186,7 @@ class Studio(object):
         return result
 
 
-    def _build_water_programs(self, pause, repeats):
+    def _build_water_programs(self,repeats):
         packs = putl.get_dip_wipe_packs(paint_id=k.WATER_POT_ID)
         result = []
         if packs:
@@ -195,7 +197,6 @@ class Studio(object):
                     result.append(
                         WaterProgram(
                             pack,
-                            pause,
                             repeats))
         print "Water"
         print packs

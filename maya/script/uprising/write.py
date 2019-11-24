@@ -96,12 +96,14 @@ def publish_sequence(
             do_painting=True,
             do_dips=True,
             do_water_dip=do_water_dip,
-            water_dip_pause=kw.get("water_dip_pause"),
             water_wipe_repeats=kw.get("water_wipe_repeats"),
             pick_and_place_slots="used",
             first_dip_repeats=first_dip_repeats,
             do_rack_and_holder_geo=False,
-            pause=pause)
+            pause=pause,
+            pause_brushes=kw.get("pause_brushes") 
+            
+            )
 
         studio.write()
         write_program(RL, ts_dir, "px", timestamp)

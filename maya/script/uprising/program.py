@@ -57,15 +57,13 @@ class MainProgram(Program):
         super(MainProgram, self).__init__(name)
         self.painting = ptg.Painting(pm.PyNode("mainPaintingShape"))
 
-    def _change_tool(self, last_brush_id, cluster, studio):
+    def _change_tool(self, last_brush_id, cluster):
+        # If not actually changing the brush,
+        # then don't bother placing and repicking.
+        if last_brush_id == cluster.brush.id:
+            return
+
         if last_brush_id is not None:
-
-            # Slightly Hacky.
-            # If using the gripper, but not actually changing the brush,
-            # then don't bother placing and repicking.
-            if last_brush_id == cluster.brush.id:
-                return
-
             # put the last brush back
             place_program_name = PlaceProgram.generate_program_name(last_brush_id)
             self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
@@ -73,21 +71,19 @@ class MainProgram(Program):
         pick_program_name = PickProgram.generate_program_name(cluster.brush.id)
         self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
 
-    def _should_change_tool(self, last_brush_id,  next_brush_id):
-        return (last_brush_id is not None) and (last_brush_id != next_brush_id)
-
-    def _first_dip(self, last_brush_id,  next_brush_id):
+    def _is_new_brush(self, last_brush_id,  next_brush_id):
         return (last_brush_id is  None) or (last_brush_id != next_brush_id)
 
 
     def write(self, studio):
-        # RL = Robolink()
-        # robot = RL.Item('', ITEM_TYPE_ROBOT)
         if not self.painting.clusters:
             return
         super(MainProgram, self).write()
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
 
+        pause_brush_list = studio.pause_brushes
+        print "IN PROGRAM pause_brush_list"
+        print pause_brush_list
         with uutl.minimize_robodk():
             self.painting.write_brushes()
             motion = self.painting.motion
@@ -103,14 +99,21 @@ class MainProgram(Program):
 
             for cluster in self.painting.clusters:
 
-            
                 dip_repeats = 1
                 if cluster.reason == "tool":
                     # If changing paint but not actually changing the brush,
                     # then don't bother placing and repicking.
-                    self._change_tool(last_brush_id, cluster, studio)
+                    self._change_tool(last_brush_id, cluster)
 
-                    if self._first_dip(last_brush_id , cluster.brush.id):
+                    if self._is_new_brush(last_brush_id , cluster.brush.id):
+                        if cluster.brush.id in pause_brush_list:
+                            self.program.Pause()
+                            self.program.RunInstruction(
+                                "New bush size, press continue when ready. ID: {:02d}".format(cluster.brush.id),
+                                INSTRUCTION_SHOW_MESSAGE
+                            )
+                        water_program_name = WaterProgram.generate_program_name(cluster.brush.id)
+                        self.program.RunInstruction(water_program_name, INSTRUCTION_CALL_PROGRAM)
                         dip_repeats = studio.first_dip_repeats
 
                     last_brush_id = cluster.brush.id
@@ -243,12 +246,14 @@ class WaterProgram(Program):
     def generate_program_name(brush_id):
         return "water_b{:02d}".format( brush_id)
 
-    def __init__(self, pack, pause, repeats):
+    def __init__(self, pack, repeats):
         name = WaterProgram.generate_program_name(pack["brush_id"])
         super(WaterProgram, self).__init__(name)
 
         self.dip_painting = ptg.Painting(pack["dip"])
         self.wipe_painting = ptg.Painting(pack["wipe"])
+        self.repeats = repeats
+
 
     def write(self, studio):
         if not (self.dip_painting.clusters and self.wipe_painting.clusters):
@@ -272,17 +277,18 @@ class WaterProgram(Program):
                     self.frame,
                     self.dip_painting.motion,
                     studio.RL,
-                    studio.robot,
-                )
-
-            for cluster in self.wipe_painting.clusters:
-                cluster.write(
-                    self.program,
-                    self.frame,
-                    self.wipe_painting.motion,
-                    studio.RL,
-                    studio.robot,
-                )
+                    studio.robot              
+                    )
+            
+            for repeat in range(self.repeats):
+                for cluster in self.wipe_painting.clusters:
+                    cluster.write(
+                        self.program,
+                        self.frame,
+                        self.wipe_painting.motion,
+                        studio.RL,
+                        studio.robot,
+                    )
 
 
 
