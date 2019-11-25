@@ -57,7 +57,7 @@ class PublishTab(gui.FormLayout):
         pm.frameLayout(label="Dip/wipe behaviour", bv=True)
         
         self.brush_pause_tfg = pm.textFieldGrp(
-            label='Pause before brush IDs', text='0,1,2,3,4,5')
+            label='Pause before brush IDs', text='17,16,15,14,13,12')
 
         self.do_water_dip_cb = pm.checkBoxGrp(
             label='Dip in water',
