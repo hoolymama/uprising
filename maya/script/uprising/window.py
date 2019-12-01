@@ -7,12 +7,10 @@ from uprising import (
     retries_tab,
     publish_tab,
     phex_tab,
+    brush_hang_tab,
     brush_assign_tab,
     brush_test_tab,
     probes_tab,
-    # rings_design_tab,
-    # rings_setup_tab,
-    # proposal_tab,
     tools_menu,
     export_menu,
     curves_menu,
@@ -24,77 +22,45 @@ from uprising import (
 )
 
 
-# import uprising.logger_setup
-
-
 import setup_dip
 
-# # from setup_dip import setup_dip_factory
-
-# import stroke_factory_utils
-
-# import studio
-
-# import painting
-# import program
-# # import calibration_program
-# # import pick_place_program
-
-# import paint
 import brush
 
-# import stroke
+
 import cluster
 
-# import target
+
 import write
 
 import uprising_util
 
 import const
 
-# import sheets
 import curve_utils
 import brush_utils
 import palette_utils
 
-# import board_utils
-
-# import props
 import images
 
-# reload(program)
-# reload(studio)
-
 reload(uprising_util)
-# reload(paint)
+
 reload(brush)
-# reload(target)
-# reload(stroke)
+
 reload(cluster)
 reload(write)
 reload(setup_dip)
 reload(const)
-# reload(images)
 
 
 reload(curve_utils)
 reload(brush_utils)
 reload(palette_utils)
-# reload(board_utils)
-# reload(painting)
 
-# reload(program)
-
-# reload(stroke_factory_utils)
-# reload(sheets)
-
-# reload(painting_tab)
 reload(setup_tab)
 
 reload(phex_tab)
+reload(brush_hang_tab)
 
-# reload(props)
 reload(export_tab)
 reload(retries_tab)
 
@@ -113,12 +79,7 @@ reload(select_menu)
 
 reload(images)
 
-# reload(export_menu)s
-# reload(palette_menu)
 reload(calibration_menu)
-
-
-# reload(tool_type_menu)
 
 
 class RobotWindow(gui.Window):
@@ -156,14 +117,6 @@ class RobotWindow(gui.Window):
         self.painting_tab = painting_tab.PaintingTab()
         self.tabs.setTabLabel((self.painting_tab, "Painting"))
 
-        # pm.setParent(self.tabs)
-        # self.rings_design_tab = rings_design_tab.RingsDesignTab()
-        # self.tabs.setTabLabel((self.rings_design_tab, "Ring design"))
-
-        # pm.setParent(self.tabs)
-        # self.rings_setup_tab = rings_setup_tab.RingsSetupTab()
-        # self.tabs.setTabLabel((self.rings_setup_tab, "Ring setup"))
-
         pm.setParent(self.tabs)
         self.export_tab = export_tab.exportTab()
         self.tabs.setTabLabel((self.export_tab, "Export"))
@@ -171,6 +124,10 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.phex_tab = phex_tab.phexTab()
         self.tabs.setTabLabel((self.phex_tab, "PHEX"))
+
+        pm.setParent(self.tabs)
+        self.brush_hang_tab = brush_hang_tab.brushHangTab()
+        self.tabs.setTabLabel((self.brush_hang_tab, "Brush Hang"))
 
         pm.setParent(self.tabs)
         self.retries_tab = retries_tab.retriesTab()
@@ -209,9 +166,6 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.export_menu = export_menu.create()
-
-        # pm.setParent(self.menuBarLayout)
-        # self.tool_type_menu = tool_type_menu.create()
 
         self.show()
         self.setResizeToFitChildren()

@@ -24,6 +24,14 @@ CLEAN_FILE = os.path.join(
 
 # RL = Robolink()
 
+@contextmanager
+def at_value(attr, value):
+    old = attr.get()
+    attr.set(value)
+    yield
+    attr.set(old)
+
+
 
 def conform_activatable_checkbox(ctl):
     val = ctl.getEnable()
@@ -52,20 +60,6 @@ def minimize_robodk():
         raise t, v, tb
     finally:
         RL.ShowRoboDK()
-
-
-# @contextmanager
-# def minimize_robodk():
-#     RL = Robolink()
-#     # RL.HideRoboDK()
-#     try:
-#         yield
-#     except Exception:
-#         t, v, tb = sys.exc_info()
-#         # RL.ShowRoboDK()
-#         raise t, v, tb
-#     # RL.ShowRoboDK()
-
 
  
 

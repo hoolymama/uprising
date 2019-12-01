@@ -104,7 +104,7 @@ class phexTab(gui.FormLayout):
                 'export',
                 'calibrations',
                 k.POT_HANDLE_EXERCISE_PROGRAM_NAME,
-                write.get_timestamp())
+                timestamp)
             uutl.mkdir_p(exercise_dir)
 
             studio = Studio(pot_handle_exercise_data=data["combinations"])

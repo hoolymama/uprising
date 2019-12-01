@@ -56,7 +56,6 @@ class Program(object):
         self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
         self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
 
-
 class MainProgram(Program):
     def __init__(self, name):
         super(MainProgram, self).__init__(name)
@@ -119,7 +118,7 @@ class MainProgram(Program):
                         dip_repeats = studio.first_dip_repeats
 
                     last_brush_id = cluster.brush.id
-                   
+
                 dip_program_name = DipProgram.generate_program_name(
                     cluster.paint.id, cluster.brush.id
                 )
@@ -146,7 +145,7 @@ class PapExerciseProgram(Program):
         super(PapExerciseProgram, self).__init__(name)
 
     def write(self, studio):
- 
+
         super(PapExerciseProgram, self).write()
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
 
@@ -226,7 +225,7 @@ class PotHandleExerciseProgram(Program):
 
                 last_brush_id = brush_id
 
-            ###########################        
+            ###########################
                 for paint_id in  [p["paint"] for p in  self.data if p["brush"] == brush_id]:
                     dip_program_name = DipProgram.generate_program_name(
                         paint_id,brush_id
@@ -238,6 +237,134 @@ class PotHandleExerciseProgram(Program):
             ###########################
 
             self.program.addMoveJ(studio.home_approach)
+
+class BrushHangProgram(Program):
+    def __init__(self, name, data):
+        super(BrushHangProgram, self).__init__(name)
+        self.RL = Robolink()
+        self.robot = self.RL.Item("", ITEM_TYPE_ROBOT)
+        self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
+        self.brush_data = self._get_zero_tip_brushes(data)
+
+    def _get_zero_tip_brushes(self, data):
+        result = []
+        for b in data:
+            node = pm.PyNode(b["brush"])
+            with uutl.at_value(node.attr("dipParam") , 0.0):
+                result.append({
+                    "brush": Brush.brush_set_at_index(b["id"])["outDipBrush"],
+                    "twist": b["twist"],
+                    "id": b["id"]
+                    }
+                    )
+
+        return result
+
+
+    def write(self, studio):
+
+        super(BrushHangProgram, self).write()
+        self.frame = uutl.create_frame("{}_frame".format(self.program_name))
+
+        mats = {
+            "A": pm.PyNode("hangLocal|approach_loc").attr("worldMatrix[0]").get(),
+            "N": pm.PyNode("hangLocal|loc_N").attr("worldMatrix[0]").get(),
+            "E": pm.PyNode("hangLocal|loc_E").attr("worldMatrix[0]").get(),
+            "W": pm.PyNode("hangLocal|loc_W").attr("worldMatrix[0]").get(),
+            "S": pm.PyNode("hangLocal|loc_S").attr("worldMatrix[0]").get()
+        }
+        
+        with uutl.minimize_robodk():
+
+            last_brush_id = None
+
+            for brush_pack in self.brush_data :
+                brush_id = brush_pack["id"]
+                if last_brush_id is not None:
+
+                    # put the last brush back
+                    place_program_name = PlaceProgram.generate_program_name(
+                        last_brush_id
+                    )
+                    self.program.RunInstruction(
+                        place_program_name, INSTRUCTION_CALL_PROGRAM
+                    )
+
+                pick_program_name = PickProgram.generate_program_name(brush_id)
+                self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
+
+                last_brush_id = brush_id
+
+                # brush (is a PyNode), id, twist (bool)
+                ###########################
+                self._write_one_hang(brush_pack, mats)
+                ###########################
+
+
+            place_program_name = PlaceProgram.generate_program_name(last_brush_id)
+            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
+            ###########################
+
+            self.program.addMoveJ(studio.home_approach)
+
+    def _write_one_hang(self, pack, mats):
+ 
+        targets = {}
+        for key in mats:
+            targets[key] =  self._create_target_for_brush(
+            pack["brush"],
+            mats[key],
+            "hang_{}_{:02d}".format(key, pack["id"])
+        )
+
+        #write the brush
+        pack["brush"].write(self.RL, self.robot)
+        tool = self.RL.Item(pack["brush"].name)
+        if not tool.Valid():
+            raise ProgramError("Brush is not valid. Risk of damage. Can't continue.")
+
+        self.program.setSpeed(k.CAL_LINEAR_SPEED, k.CAL_ANGULAR_SPEED)
+        self.program.setRounding(k.CAL_ROUNDING_DISTANCE)
+        self.program.setPoseTool(tool)
+
+        # row = k.CAL_SHEET_FIRST_ROW + int(pack["brush_id"])
+        msg = "Record BACK(X) and RIGHT(Y) offsets for {}".format(pack["id"])
+        if pack["twist"]:
+            msg = "Watch closely for ARC center (using brush{})".format(pack["id"])
+
+        self.program.addMoveJ(targets["A"])
+        self.program.addMoveL(targets["N"])
+        self.program.RunInstruction(msg, INSTRUCTION_SHOW_MESSAGE,)
+        self.program.Pause()
+
+        if pack["twist"]:
+            self.program.addMoveL(targets["E"])
+            self.program.addMoveL(targets["S"])
+            self.program.addMoveL(targets["E"])
+            self.program.addMoveL(targets["N"])
+            self.program.addMoveL(targets["W"])
+            self.program.addMoveL(targets["S"])
+            self.program.addMoveL(targets["W"])
+            self.program.addMoveL(targets["N"])
+                              
+            self.program.RunInstruction(
+                "Mark the ARK center point".format(pack["id"]),
+                INSTRUCTION_SHOW_MESSAGE,
+            )
+            self.program.Pause()
+
+        self.program.addMoveL(targets["A"])
+
+
+    def _create_target_for_brush(self, brush, mat, name):
+        tool_pose = uutl.maya_to_robodk_mat(mat)
+        flange_pose = tool_pose * brush.matrix.invH()
+        target = self.RL.AddTarget(name, self.frame, self.robot)
+        joints = self.robot.SolveIK(flange_pose, k.FACING_RACK_JOINTS)
+        target.setPose(tool_pose)
+        target.setJoints(joints)
+        return target
+
 
 
 
@@ -327,9 +454,9 @@ class WaterProgram(Program):
                     self.frame,
                     self.dip_painting.motion,
                     studio.RL,
-                    studio.robot              
+                    studio.robot
                     )
-            
+
             for repeat in range(self.repeats):
                 for cluster in self.wipe_painting.clusters:
                     cluster.write(
@@ -706,8 +833,8 @@ class PickPlaceProgram(Program):
 
     def write_brush(self, studio):
 
-        old_brush = studio.RL.Item(self.brush.name)
-        if old_brush.Valid():
+        existing_brush = studio.RL.Item(self.brush.name)
+        if existing_brush.Valid():
             return
 
         tool_item = studio.robot.AddTool(self.brush.matrix, self.brush.name)
@@ -722,7 +849,7 @@ class PickPlaceProgram(Program):
         super(PickPlaceProgram, self).write()
 
         self.write_brush(studio)
-  
+
         self.tool = studio.RL.Item(self.brush.name)
         if not self.tool.Valid():
             raise ProgramError("No Gripper Brush. Risk of damage. Can't continue.")

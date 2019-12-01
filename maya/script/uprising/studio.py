@@ -31,6 +31,7 @@ from program import (
     PlaceAtHomeProgram,
     PapExerciseProgram,
     PotHandleExerciseProgram,
+    BrushHangProgram,
     ManualTriangulation)
 
 
@@ -79,6 +80,7 @@ class Studio(object):
         self.pick_place_programs = []
         self.exercise_program = None
         self.pot_handle_exercise_program = None
+        self.brush_hang_program = None
 
         self.pause = kw.get("pause", -1)
         self.pause_brushes = kw.get("pause_brushes", [])
@@ -116,7 +118,7 @@ class Studio(object):
 
         pick_and_place_slots = kw.get("pick_and_place_slots")
         pot_handle_exercise_data = kw.get("pot_handle_exercise_data", [])
-    
+        brush_hang_data= kw.get("brush_hang_data", [])
  
 
         if do_painting:
@@ -186,8 +188,16 @@ class Studio(object):
                 k.POT_HANDLE_EXERCISE_PROGRAM_NAME,
                 pot_handle_exercise_data)
 
+        if brush_hang_data:
+            logger.debug("Studio:  brush_hang_data")
+            brush_ids = [b["id"] for b in brush_hang_data]
+            self.pick_place_programs = self._build_pick_place_programs(brush_ids)
 
+            self.brush_hang_program = BrushHangProgram(
+                k.BRUSH_HANG_PROGRAM_NAME,
+                brush_hang_data)
 
+ 
 
     def _build_dip_programs(self, **kw):
         packs = putl.get_dip_wipe_packs(**kw)
@@ -296,8 +306,12 @@ class Studio(object):
             with uutl.final_position(rack_context):
                 self._write_rack_and_holder_geo()
 
+        if self.brush_hang_program:
+            self.hang_frame = uutl.create_frame("hang_frame")
+            with uutl.final_position(rack_context):
+                self.brush_hang_program.write(self)
+                props.send([pm.PyNode("rackTop")])
 
-        
 
         if self.pick_place_programs:
             self.pick_place_frame = uutl.create_frame("pick_place_frame")

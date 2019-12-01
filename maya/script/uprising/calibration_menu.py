@@ -42,18 +42,7 @@ def create():
     pm.menuItem(
         label="Read holder calibration",
         command=pm.Callback(read_holder_calibration))
-
-    pm.menuItem(divider=True)
-
-    # pm.menuItem(
-    #     label="Generate holder calibration",
-    #     command=pm.Callback(generate_holder_calibration))
-
-    # pm.menuItem(
-    #     label="Read holder calibration",
-    #     command=pm.Callback(read_holder_calibration))
-
-
+ 
 
 
     pm.menuItem(divider=True)
