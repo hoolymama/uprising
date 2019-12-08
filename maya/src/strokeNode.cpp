@@ -225,6 +225,8 @@ MStatus strokeNode::initialize()
   eAttr.addField("backwards", Stroke::kBackwards);
   eAttr.addField("startUppermost", Stroke::kStartUppermost);
   eAttr.addField("endUppermost", Stroke::kEndUppermost);
+  eAttr.addField("radialIn", Stroke::kRadialIn);
+  eAttr.addField("radialOut", Stroke::kRadialOut);
 
   eAttr.setKeyable(true);
   eAttr.setHidden(false);
@@ -932,7 +934,8 @@ bool strokeNode::translateStrokes(
       scale,
       uVals,
       vVals,
-      result);
+      result,
+      sampleDist);
   if (st.error())
   {
     return false;

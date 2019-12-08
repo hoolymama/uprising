@@ -8,57 +8,54 @@
 #include <maya/MIntArray.h>
 #include <maya/MStatus.h>
 
-
-class TexUtils {
+class TexUtils
+{
 
 public:
+	static bool hasTexture(const MObject &node, const MObject &attribute);
 
-	static  bool hasTexture(const MObject &node, const MObject &attribute);
+	static MStatus getTextureName(const MObject &node, const MObject &attribute,
+								  MString &name);
 
-	static  MStatus getTextureName(const MObject &node, const MObject &attribute,
-	                               MString &name) ;
-
-	static  MStatus sampleUVTexture(const MObject &node, const MObject &attribute,
-	                                MFloatArray &uVals,
-	                                MFloatArray &vVals, MFloatVectorArray &result) ;
-
+	static MStatus sampleUVTexture(const MObject &node, const MObject &attribute,
+								   MFloatArray &uVals,
+								   MFloatArray &vVals, MFloatVectorArray &result);
 
 	static MStatus sampleUVTexture(
-	  const MObject &node,
-	  const MObject &textureAttribute,
-	  MFloatArray &uVals,
-	  MFloatArray &vVals,
-	  int range,
-	  MIntArray &result);
+		const MObject &node,
+		const MObject &textureAttribute,
+		MFloatArray &uVals,
+		MFloatArray &vVals,
+		int range,
+		MIntArray &result);
 
 	static MStatus sampleUVTexture(
-	  const MObject &node,
-	  const MObject &textureAttribute,
-	  MFloatArray &uVals,
-	  MFloatArray &vVals,
-	  const MObject &rampAttribute,
-	  int low, int high,
-	  MIntArray &result);
-
+		const MObject &node,
+		const MObject &textureAttribute,
+		MFloatArray &uVals,
+		MFloatArray &vVals,
+		const MObject &rampAttribute,
+		int low, int high,
+		MIntArray &result);
 
 	static MStatus sampleUVTexture(
-	  const MObject &node,
-	  const MObject &textureAttribute,
-	  MFloatArray &uVals,
-	  MFloatArray &vVals,
-	  float low,
-	  float high,
-	  MFloatArray &result);
+		const MObject &node,
+		const MObject &textureAttribute,
+		MFloatArray &uVals,
+		MFloatArray &vVals,
+		float low,
+		float high,
+		MFloatArray &result);
 
-	static MStatus  sampleUVGradient(
-	  const MObject &node,
-	  const MObject &textureAttribute,
-	  float sampleDistance,
-	  float scale,
-	  MFloatArray &uVals,
-	  MFloatArray &vVals,
-	  MFloatVectorArray &result) ;
+	static MStatus sampleUVGradient(
+		const MObject &node,
+		const MObject &textureAttribute,
+		float sampleDistance,
+		float scale,
+		MFloatArray &uVals,
+		MFloatArray &vVals,
+		MFloatVectorArray &result,
+		float boundaryWidth = 0.0f);
 };
-
 
 #endif

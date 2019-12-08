@@ -444,8 +444,12 @@ const double &Stroke::paintFlow() const
 	return m_paintFlow;
 }
 
-unsigned Stroke::size() const
+unsigned Stroke::size(bool withTraversal) const
 {
+	if (withTraversal)
+	{
+		return m_targets.size() + m_arrivals.size() + 1;
+	}
 	return m_targets.size();
 }
 
@@ -939,12 +943,6 @@ void Stroke::tangents(const MMatrix &space, MVectorArray &result) const
 	}
 }
 
-// void Stroke::setCustomSortData(const Brush &brush,  const Paint &paint)
-// {
-// 	m_customBrushId = brush.customId;
-// 	m_customPaintId =	paint.customId;
-// }
-
 void Stroke::setUV(
 	const MMatrix &inversePlaneMatrix)
 {
@@ -952,10 +950,54 @@ void Stroke::setUV(
 	m_u = p.x;
 	m_v = p.y;
 }
-void Stroke::getUV(float &u, float &v)
+void Stroke::getUV(float &u, float &v) const
 {
 	u = m_u;
 	v = m_v;
+}
+void Stroke::assignTargetUVs(const MMatrix &inversePlaneMatrix)
+{
+	std::vector<Target>::iterator iter;
+	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+	{
+		iter->setUV(inversePlaneMatrix);
+	}
+
+	for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++)
+	{
+		iter->setUV(inversePlaneMatrix);
+	}
+	m_departure.setUV(inversePlaneMatrix);
+}
+void Stroke::appendTargetUVsTo(MFloatArray &uVals, MFloatArray &vVals) const
+{
+	std::vector<Target>::const_iterator citer;
+	for (citer = m_arrivals.begin(); citer != m_arrivals.end(); citer++)
+	{
+		citer->appendUVsTo(uVals, vVals);
+	}
+	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
+	{
+		citer->appendUVsTo(uVals, vVals);
+	}
+	m_departure.appendUVsTo(uVals, vVals);
+}
+
+int Stroke::applyGlobalTilt(const MFloatVectorArray &gradients, int index)
+{
+
+	std::vector<Target>::iterator iter;
+	for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++, index++)
+	{
+		iter->applyGlobalTilt(gradients[index]);
+	}
+	for (iter = m_targets.begin(); iter != m_targets.end(); iter++, index++)
+	{
+		iter->applyGlobalTilt(gradients[index]);
+	}
+	m_departure.applyGlobalTilt(gradients[index]);
+	index++;
+	return index;
 }
 
 void Stroke::displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap)
@@ -1320,30 +1362,64 @@ bool Stroke::shouldMakeBackstroke(MObject dCurve, double startDist, double endDi
 	}
 
 	MFnNurbsCurve curveFn(dCurve);
-
-	MVector comparison(MVector::yAxis);
-
 	double startParam = curveFn.findParamFromLength(startDist);
 	double endParam = curveFn.findParamFromLength(endDist);
-	MVector startTangent = curveFn.tangent(startParam).normal();
-	MVector endTangent = curveFn.tangent(endParam).normal();
 
-	double startUpFacing = startTangent * MVector::yAxis;
-	double endUpFacing = endTangent * MVector::yAxis;
-
-	if (startUpFacing > endUpFacing && strokeDirection == Stroke::kEndUppermost)
+	if (strokeDirection == Stroke::kStartUppermost || strokeDirection == Stroke::kEndUppermost)
 	{
-		/* its a backstroke */
-		return true;
+
+		MVector comparison(MVector::yAxis);
+
+		MVector startTangent = curveFn.tangent(startParam).normal();
+		MVector endTangent = curveFn.tangent(endParam).normal();
+
+		double startUpFacing = startTangent * MVector::yAxis;
+		double endUpFacing = endTangent * MVector::yAxis;
+
+		if (startUpFacing > endUpFacing && strokeDirection == Stroke::kEndUppermost)
+		{
+			/* its a backstroke */
+			return true;
+		}
+
+		if (startUpFacing <= endUpFacing && strokeDirection == Stroke::kStartUppermost)
+		{
+			/* its a backstroke */
+			return true;
+		}
+		/* its a forwardstroke */
+		return false;
 	}
 
-	if (startUpFacing <= endUpFacing && strokeDirection == Stroke::kStartUppermost)
+	// We must be doing radial for sure
+
+	MPoint startPoint, endPoint;
+	curveFn.getPointAtParam(startParam, startPoint, MSpace::kObject);
+	curveFn.getPointAtParam(endParam, endPoint, MSpace::kObject);
+	// cerr << "start dist " << MVector(startPoint.x, startPoint.y, 0.0).length() << "end dist " << MVector(endPoint.x, endPoint.y, 0.0).length() << endl;
+	if (MVector(startPoint.x, startPoint.y, 0.0).length() < MVector(endPoint.x, endPoint.y, 0.0).length())
 	{
-		/* its a backstroke */
+		// cerr << "stroke is moving outwards" << endl;
+		// stroke is moving outwards
+		if (strokeDirection == Stroke::kRadialIn)
+		{
+			// cerr << "dir is Stroke::kRadialIn - need to reverse" << endl;
+			// need to reverse
+			return true;
+		}
+		// cerr << "dir is Stroke::kRadialOut - DONT reverse" << endl;
+		return false;
+	}
+	// cerr << "stroke must be moving inwards" << endl;
+	// stroke must be moving inwards
+	if (strokeDirection == Stroke::kRadialOut)
+	{
+		// cerr << "dir is Stroke::kRadialOut - need to reverse" << endl;
+		// need to reverse
 		return true;
 	}
+	// cerr << "dir is Stroke::kRadialIn - DONT reverse" << endl;
 
-	/* its a forwardstroke */
 	return false;
 }
 

@@ -11,7 +11,9 @@ Target::Target() : m_matrix(),
 				   m_contact(1.0),
 				   m_tilt(0.0),
 				   m_bank(0.0),
-				   m_twist(0.0)
+				   m_twist(0.0),
+				   m_u(0.0f),
+				   m_v(0.0f)
 {
 }
 
@@ -26,7 +28,9 @@ Target::Target(
 						 m_contact(1.0),
 						 m_tilt(0.0),
 						 m_bank(0.0),
-						 m_twist(0.0)
+						 m_twist(0.0),
+						 m_u(0.0f),
+						 m_v(0.0f)
 
 {
 }
@@ -44,7 +48,9 @@ Target::Target(
 	  m_matrix(),
 	  m_tilt(0.0),
 	  m_bank(0.0),
-	  m_twist(0.0)
+	  m_twist(0.0),
+	  m_u(0.0f),
+	  m_v(0.0f)
 {
 	m_matrix[3][0] = pt.x;
 	m_matrix[3][1] = pt.y;
@@ -56,7 +62,9 @@ Target::Target(
 	double dist,
 	double startDist,
 	double strokeRange,
-	double curveLength) : m_contact(1.0)
+	double curveLength) : m_contact(1.0),
+						  m_u(0.0f),
+						  m_v(0.0f)
 {
 	m_param = (dist - startDist) / strokeRange;
 	m_curveParam = dist / curveLength;
@@ -289,29 +297,6 @@ const double &Target::contact() const
 	return m_contact;
 }
 
-// void Target::getBorderPoints(
-//   MFloatPoint &left,
-//   MFloatPoint &right,
-//   double width,
-//   bool flat) const
-// {
-
-// 	double contact = m_contact;
-// 	MPoint p = position() ;
-// 	MVector xOffset;
-// 	if (flat) {
-// 		xOffset = (((MVector::xAxis * m_matrix) ^ MVector::zAxis)^
-// 		           MVector::zAxis).normal();
-// 		contact = 1.0;
-// 	}
-// 	else {
-// 		xOffset = (m_tangent ^ MVector::zAxis).normal();
-// 	}
-// 	xOffset *= (width * contact);
-// 	left = MFloatPoint(p + xOffset);
-// 	right = MFloatPoint(p - xOffset);
-// }
-
 void Target::getBorderPoints(
 	MPoint &left,
 	MPoint &right,
@@ -342,15 +327,35 @@ void Target::getBorderPoints(
 	right = p - xOffset;
 }
 
-// MVector Target::xAxis() const
-// {
-// 	return MVector::xAxis * m_matrix;
-// }
-// MVector Target::yAxis() const
-// {
-// 	return MVector::yAxis * m_matrix;
-// }
-// MVector Target::zAxis() const
-// {
-// 	return MVector::zAxis * m_matrix;
-// }
+void Target::setUV(const MMatrix &inversePlaneMatrix)
+{
+
+	MPoint p = ((this->position() * inversePlaneMatrix) * 0.5) + MVector(0.5, 0.5, 0.0);
+
+	m_u = fmax(fmin(p.x, 1.0f), 0.0f);
+	m_v = fmax(fmin(p.y, 1.0f), 0.0f);
+}
+
+void Target::appendUVsTo(MFloatArray &uVals, MFloatArray &vVals) const
+{
+	uVals.append(m_u);
+	vVals.append(m_v);
+}
+
+void Target::applyGlobalTilt(const MFloatVector &gradient)
+{
+	float mag = gradient.length();
+	if (mag < 0.000001)
+	{
+		return;
+	}
+	MFloatVector axis = (gradient ^ MFloatVector::zAxis).normal();
+
+	MMatrix rotMat = MQuaternion(mag, axis).asMatrix();
+
+	MMatrix centerMat = MMatrix::identity;
+	centerMat[3][0] = -m_matrix[3][0];
+	centerMat[3][1] = -m_matrix[3][1];
+
+	m_matrix = m_matrix * centerMat * rotMat * centerMat.inverse();
+}

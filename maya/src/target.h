@@ -85,8 +85,11 @@ public:
 
 	const double &contact() const;
 
-	// static double Target::interpContact(const MDoubleArray &contacts,
-	//                                     const double &uniformParam)
+	void setUV(const MMatrix &inversePlaneMatrix);
+
+	void appendUVsTo(MFloatArray &uVals, MFloatArray &vVals) const;
+
+	void applyGlobalTilt(const MFloatVector &gradient);
 
 private:
 	MVector m_tangent; // tangent on the curve
@@ -97,6 +100,8 @@ private:
 	double m_tilt;		 // store these when setting rotation, just in case we have to recalc
 	double m_bank;		 // store these when setting rotation, just in case we have to recalc
 	double m_twist;		 // store these when setting rotation, just in case we have to recalc
+	float m_u;
+	float m_v;
 };
 
 #endif

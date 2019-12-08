@@ -43,7 +43,9 @@ public:
 		kForwards,
 		kBackwards,
 		kStartUppermost,
-		kEndUppermost
+		kEndUppermost,
+		kRadialIn,
+		kRadialOut
 	};
 
 	enum FilterOperator
@@ -144,7 +146,7 @@ public:
 	//   double startDist,
 	//   double endDist) ;
 
-	unsigned size() const;
+	unsigned size(bool withTraversal = false) const;
 
 	void appendTargets(MMatrixArray &result) const;
 
@@ -283,7 +285,13 @@ public:
 	// void setCustomSortData(const Brush &brush,  const Paint &paint);
 
 	void setUV(const MMatrix &inversePlaneMatrix);
-	void getUV(float &u, float &v);
+	void getUV(float &u, float &v) const;
+
+	void assignTargetUVs(const MMatrix &inversePlaneMatrix);
+	void appendTargetUVsTo(MFloatArray &uVals, MFloatArray &vVals) const;
+
+	int applyGlobalTilt(const MFloatVectorArray &gradients, int index);
+
 	void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
 	void offsetBrushContact(const Brush &brush);
