@@ -72,10 +72,10 @@ class retriesTab(gui.FormLayout):
             value1=1,
             annotation='Also publish if all retries succeed')
 
-        self.publish_after_pass = pm.checkBoxGrp(
-            label='Publish after pass',
-            value1=1,
-            annotation='Publish as each pass becomes ready')
+        # self.publish_after_pass = pm.checkBoxGrp(
+        #     label='Publish after pass',
+        #     value1=1,
+        #     annotation='Publish as each pass becomes ready')
 
 
 

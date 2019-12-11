@@ -28,21 +28,9 @@ def doit(**kw):
 
 def _delete_setup_nodes(parent):
     paintings = pm.ls(parent, dag=True, leaf=True, type="painting")
-
     paintings = pm.listRelatives(paintings, parent=True)
     if paintings:
         pm.delete(paintings)
-
-    pm.delete(pm.ls("collectStrokesDW_*"))
-    pm.delete(pm.ls("curveStrokesDW_*"))
-    pm.delete(pm.ls("grpDW_*"))
-
-
-def delete_if_exist(name):
-    try:
-        pm.delete(name)
-    except BaseException:
-        pass
 
 
 def _get_curve_strokes(parent):
@@ -60,66 +48,31 @@ def _find_nodes_by_short_name(nodes, name):
 
 def create_paintings(brush_rank, paints):
 
-    dip_grp = _create_paintings(
-        "dip",
-        brush_rank,
-        paints,
-        pm.PyNode("collectStrokesDip"),
-        pm.PyNode("BRUSHES|curves|dip|dipPaintingControl"),
+    collector = pm.PyNode("collectStrokesDW_dip_{}".format(brush_rank["name"]))
+    dip_grp = _create_paintings("dip", brush_rank, paints)
+
+    collector = pm.PyNode("collectStrokesDW_wipe_{}".format(brush_rank["name"]))
+    wipe_grp = _create_paintings("wipe", brush_rank, paints)
+
+
+def _create_paintings(which, brush_rank, paints):
+    painting_template = (
+        pm.PyNode("BRUSHES|curves|{}|{}PaintingControl".format(which, which)),
     )
-
-    wipe_grp = _create_paintings(
-        "wipe",
-        brush_rank,
-        paints,
-        pm.PyNode("collectStrokesWipe"),
-        pm.PyNode("BRUSHES|curves|wipe|wipePaintingControl"),
-    )
-
-    grp = pm.group(dip_grp, wipe_grp)
-    grp.rename("grpDW_{}".format(brush_rank["name"]))
-
-
-def _create_paintings(which, brush_rank, paints, collector_template, painting_template):
-    identifier = "{}_{}".format(which, brush_rank["name"])
-    grp, collector = create_painting_group(identifier, collector_template)
+    collector = pm.PyNode("collectStrokesDW_{}_{}".format(which, brush_rank["name"]))
 
     for p in paints:
         for brush in brush_rank["brushes"]:
             painting_xf = create_painting_node(
                 which, brush, paints[p], collector, painting_template
             )
-            painting_xf.attr("ty").set(0.600)
-
-    return grp
-
-
-def create_painting_group(identifier, collector_node):
-
-    nodes = pm.duplicate(collector_node, rr=True, un=True)
-
-    collector = nodes[0]
-    collector.rename("collectStrokesDW_{}".format(identifier))
-
-    curve_strokes = [n for n in nodes if n.type() == "curveStroke"]
-    transforms = [n for n in nodes if n.type() == "transform"]
-
-    for i, node in enumerate(curve_strokes):
-        node.rename("curveStrokesDW_{}_{}".format(identifier, i))
-
-    for i, node in enumerate(transforms):
-        node.rename("curveDW_{}_{}".format(identifier, i))
-
-    grp = pm.group(transforms)
-    grp.rename("grpDW_{}".format(identifier))
-    return (grp, collector)
 
 
 def create_painting_node(which, brush, paint, collector, template):
 
     ptg_xf = pm.duplicate(template)[0]
     ptg_node = ptg_xf.getShape()
-    ptg_xf.rename("b{:02d}".format(brush.id))
+    ptg_xf.rename("b{}".format(brush.id))
 
     collector.attr("output") >> ptg_node.attr("strokes[0]")
 
@@ -139,35 +92,35 @@ def create_painting_node(which, brush, paint, collector, template):
     pm.parent(ptg_xf, locator, relative=True)
     ptg_xf.rename("b{:02d}".format(brush.id))
 
-    template_shape = template.getShape()
+    # template_shape = template.getShape()
     # connect everything up
-    atts = [
-        "linearSpeed",
-        "angularSpeed",
-        "approximationDistance",
-        "maxPointToPointDistance",
-        "approachDistanceStart",
-        "approachDistanceMid",
-        "approachDistanceEnd",
-        "pointSize",
-        "lineLength",
-        "lineThickness",
-        "displayPivots",
-        "displayClusterPath",
-        "displayIds",
-        "displayParentIds",
-        "displayLayerIds",
-        "displayBrushIds",
-        "displayPaintIds",
-        "displayRepeatIds",
-        "arrowheadSize",
-        "displayTargets",
-        "displayContactWidth",
-        "stackGap",
-        "idDisplayOffset",
-    ]
-    for att in atts:
-        template_shape.attr(att) >> ptg_node.attr(att)
+    # atts = [
+    #     "linearSpeed",
+    #     "angularSpeed",
+    #     "approximationDistance",
+    #     "maxPointToPointDistance",
+    #     "approachDistanceStart",
+    #     "approachDistanceMid",
+    #     "approachDistanceEnd",
+    #     "pointSize",
+    #     "lineLength",
+    #     "lineThickness",
+    #     "displayPivots",
+    #     "displayClusterPath",
+    #     "displayIds",
+    #     "displayParentIds",
+    #     "displayLayerIds",
+    #     "displayBrushIds",
+    #     "displayPaintIds",
+    #     "displayRepeatIds",
+    #     "arrowheadSize",
+    #     "displayTargets",
+    #     "displayContactWidth",
+    #     "stackGap",
+    #     "idDisplayOffset",
+    # ]
+    # for att in atts:
+    #     template_shape.attr(att) >> ptg_node.attr(att)
 
     return ptg_xf
 

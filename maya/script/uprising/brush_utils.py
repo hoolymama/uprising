@@ -78,7 +78,10 @@ def reset_brush(brush_xf, **kw):
     shape_index = shape_strings.index(kw["shape"].lower())
 
     geo.attr("physicalId").set(kw["physical_id"])
-    geo.attr("tip").set(kw["x"], kw["y"], kw["z"])
+
+    if geo.attr("tip2").get() < 0.0001:
+        geo.attr("tip2").set(kw["z"])
+        
     geo.attr("bristleHeight").set(kw["bristle_height"])
 
     geo.attr("shape").set(shape_index)
@@ -224,15 +227,12 @@ def apply_brush_values_from_sheet(pouch_name):
         kw = {
             "id": i,
             "physical_id": row[0],
-            "x": row[1],
-            "y": row[2],
+            # "x": row[1],
+            # "y": row[2],
             "z": row[13],
             "bristle_height": row[4],
             "name": row[6],
             "shape": row[7],
-            # "painting_param": row[8],
-            # "dip_param": row[9],
-            # "wipe_param": row[10],
             "pouch": pouch["name"],
             "prefix": "bpx",
         }

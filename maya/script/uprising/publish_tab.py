@@ -63,7 +63,7 @@ class PublishTab(gui.FormLayout):
         self.do_water_dip_cb = pm.checkBoxGrp(
             label='Dip in water',
             height=30,
-            value1=1,
+            value1=0,
             annotation='Saturate each brush in water before before painting',
             changeCommand=pm.Callback(self.on_dip_water_cb_change))
 

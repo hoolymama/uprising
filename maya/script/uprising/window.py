@@ -98,7 +98,7 @@ class RobotWindow(gui.Window):
 
         self.setTitle("Robot Tools")
         self.setIconName("Robot Tools")
-        self.setWidthHeight([500, 500])
+        self.setWidthHeight([700, 600])
 
         self.menuBarLayout = pm.menuBarLayout()
 
