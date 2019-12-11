@@ -72,6 +72,13 @@ class retriesTab(gui.FormLayout):
             value1=1,
             annotation='Also publish if all retries succeed')
 
+        self.publish_after_pass = pm.checkBoxGrp(
+            label='Publish after pass',
+            value1=1,
+            annotation='Publish as each pass becomes ready')
+
+
+
 
 
         self.add_objs_row = pm.rowLayout( 
@@ -220,9 +227,15 @@ class retriesTab(gui.FormLayout):
             if not export_dir:
                 return
 
+        pm.cutKey("collectStrokesMain", at=(
+            "startFrom", "endAt"), option="keys")
+        pm.PyNode("collectStrokesMain").attr("startFrom").set(0)
+        pm.PyNode("collectStrokesMain").attr("endAt").set(-1)
+        
         success = self.do_retries()
 
         if success and do_publish:
+            pm.checkBoxGrp(self.publish_tab.current_cb, edit=True, value1=0)
             self.publish_tab.publish_to_directory(export_dir)
 
 

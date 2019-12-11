@@ -26,14 +26,15 @@ class PublishTab(gui.FormLayout):
         except BaseException:
             pass
 
-  
+
         self.on_wait_cb_change()
         self.on_dip_water_cb_change()
+        self.on_current_frame_change()
 
     def create_ui(self):
 
         pm.setParent(self.column)
-      
+
 
         pm.frameLayout(label="Gripper behaviour", bv=True)
 
@@ -51,11 +52,11 @@ class PublishTab(gui.FormLayout):
             value1=200,
             annotation='Make the gripper pause before and after gripping or releasing',)
 
-        
+
         pm.setParent('..')
 
         pm.frameLayout(label="Dip/wipe behaviour", bv=True)
-        
+
         self.brush_pause_tfg = pm.textFieldGrp(
             label='Pause before brush IDs', text='17,16,15,14,13,12')
 
@@ -89,11 +90,20 @@ class PublishTab(gui.FormLayout):
             value=3,
             annotation="How many times to dip on the first dip after brush change",
         )
- 
+
         pm.setParent('..')
 
         pm.frameLayout(label="Program chunking", bv=True)
-        
+
+
+        self.current_cb = pm.checkBoxGrp(
+            label='Current frame',
+            height=30,
+            value1=0,
+            annotation='Export current frame only',
+            changeCommand=pm.Callback(self.on_current_frame_change))
+
+
         self.chunk_if = pm.intFieldGrp(
              height=30,
             label="Max chunk size",
@@ -101,7 +111,12 @@ class PublishTab(gui.FormLayout):
             value1=1800)
 
         pm.setParent('..')
- 
+
+    
+    def on_current_frame_change(self):
+        state = pm.checkBoxGrp(self.current_cb, query=True, value1=True)
+        pm.intFieldGrp(self.chunk_if, edit=True, enable=(not state))
+
     def on_wait_cb_change(self):
         state = pm.checkBoxGrp(self.gripper_wait_cb, query=True, value1=True)
         pm.intFieldGrp(self.gripper_pause_if, edit=True, enable=(not state))
@@ -110,7 +125,7 @@ class PublishTab(gui.FormLayout):
         state = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True)
         # pm.intFieldGrp(self.water_dip_pause_if, edit=True, enable=( state))
         pm.intSliderGrp(self.water_wipe_repeats_isg, edit=True, enable=( state))
- 
+
 
 
 
@@ -209,14 +224,18 @@ class PublishTab(gui.FormLayout):
             )
 
         pause_brushes = [int(n) for n in pm.textFieldGrp(self.brush_pause_tfg , q=True, text=True).split(",") if n]
-        # print "pause_brushes: ", ",".join([str(p) for p in pause_brushes])
-        do_water_dip = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True) 
+        do_water_dip = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True)
         water_wipe_repeats =  pm.intSliderGrp(self.water_wipe_repeats_isg, query=True, value=True)
 
-        pm.cutKey("collectStrokesMain", at=(
-            "startFrom", "endAt"), option="keys")
+        current_only = pm.checkBoxGrp(self.current_cb, query=True, value1=True)
 
-        frames = self.setup_chunks()
+        if current_only:
+            c = pm.currentTime(q=True)
+            frames = (int(c),int(c))
+        else:
+            pm.cutKey("collectStrokesMain", at=(
+                "startFrom", "endAt"), option="keys")
+            frames = self.setup_chunks()
 
         write.publish_sequence(
             export_dir,
@@ -227,11 +246,11 @@ class PublishTab(gui.FormLayout):
             water_wipe_repeats=water_wipe_repeats,
             pause_brushes=pause_brushes
         )
-
-        pm.cutKey("collectStrokesMain", at=(
-            "startFrom", "endAt"), option="keys")
-        pm.PyNode("collectStrokesMain").attr("startFrom").set(0)
-        pm.PyNode("collectStrokesMain").attr("endAt").set(-1)
+        if current_only:
+            pm.cutKey("collectStrokesMain", at=(
+                "startFrom", "endAt"), option="keys")
+            pm.PyNode("collectStrokesMain").attr("startFrom").set(0)
+            pm.PyNode("collectStrokesMain").attr("endAt").set(-1)
 
     def on_go(self):
 

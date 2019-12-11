@@ -21,6 +21,7 @@ from uprising import (
     calibration_menu,
 )
 
+import studio
 
 import setup_dip
 
@@ -41,6 +42,7 @@ import brush_utils
 import palette_utils
 
 import images
+
 
 reload(uprising_util)
 
@@ -80,6 +82,7 @@ reload(select_menu)
 reload(images)
 
 reload(calibration_menu)
+reload(studio)
 
 
 class RobotWindow(gui.Window):
