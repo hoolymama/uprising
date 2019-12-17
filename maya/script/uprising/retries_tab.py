@@ -67,6 +67,13 @@ class retriesTab(gui.FormLayout):
             numberOfFields=1,
             value1=12)
 
+         self.try_existing_first_cb = pm.checkBoxGrp(
+            label='Try current first',
+            value1=0,
+            annotation='Before trying the set range of values, try the existing value')
+
+
+
         self.publish_cb = pm.checkBoxGrp(
             label='Publish',
             value1=1,
@@ -187,6 +194,9 @@ class retriesTab(gui.FormLayout):
 
     def fetch_packs(self):
 
+        try_existing = pm.checkBoxGrp(
+            self.try_existing_first_cb, query=True, value1=True)
+
         attribute = pm.textFieldGrp(
             self.varying_attrib_wg, query=True, text=True)
 
@@ -210,9 +220,11 @@ class retriesTab(gui.FormLayout):
             if plug.inputs():
                 pm.error("{} has input connections. Can't adjust.")
 
+            initial_values = [plug.get()] if try_existing else []
+
             result[frame].append({
                 "plug": plug,
-                "values": vals,
+                "values": initial_values + vals,
                 "frame": frame,
                 "do_retry": do_retry
             })
