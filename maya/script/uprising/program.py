@@ -86,8 +86,6 @@ class MainProgram(Program):
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
 
         pause_brush_list = studio.pause_brushes
-        print "IN PROGRAM pause_brush_list"
-        print pause_brush_list
         with uutl.minimize_robodk():
             self.painting.write_brushes()
             motion = self.painting.motion

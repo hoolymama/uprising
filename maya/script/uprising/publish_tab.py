@@ -214,7 +214,7 @@ class PublishTab(gui.FormLayout):
 
         return (0, len(ranges)-1)
 
-    def publish_to_directory(self, export_dir):
+    def publish_to_directory(self, export_dir, **kw):
         wait = pm.checkBoxGrp(self.gripper_wait_cb, query=True, value1=True)
         pause = -1 if wait else pm.intFieldGrp(
             self.gripper_pause_if, query=True, value1=True)
@@ -237,14 +237,15 @@ class PublishTab(gui.FormLayout):
                 "startFrom", "endAt"), option="keys")
             frames = self.setup_chunks()
 
-        write.publish_sequence(
+        write.publish_sequence( 
             export_dir,
             frames,
             pause,
             first_dip_repeats ,
             do_water_dip,
             water_wipe_repeats=water_wipe_repeats,
-            pause_brushes=pause_brushes
+            pause_brushes=pause_brushes ,
+            prefix = kw.get("prefix", None)
         )
         if current_only:
             pm.cutKey("collectStrokesMain", at=(

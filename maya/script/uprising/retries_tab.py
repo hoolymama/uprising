@@ -1,5 +1,5 @@
 
-import sys
+import sys, os
 import json
 import pymel.core as pm
 import random
@@ -11,7 +11,7 @@ import props
 import uprising_util as uutl
 import curve_utils as cutl
 from studio import Studio
-
+import datetime
 import pymel.core.uitypes as gui
 
 
@@ -28,7 +28,8 @@ class retriesTab(gui.FormLayout):
         pm.setParent(self)
         # self.initialize_ui()
         self.publish_tab = None
-
+        
+        self.on_publish_rb_change()
 
     def set_publish_tab(self, publish_tab):
         self.publish_tab = publish_tab
@@ -67,23 +68,21 @@ class retriesTab(gui.FormLayout):
             numberOfFields=1,
             value1=12)
 
-         self.try_existing_first_cb = pm.checkBoxGrp(
+        self.try_existing_first_cb = pm.checkBoxGrp(
             label='Try current first',
-            value1=0,
+            value1=1,
             annotation='Before trying the set range of values, try the existing value')
 
 
 
-        self.publish_cb = pm.checkBoxGrp(
-            label='Publish',
-            value1=1,
-            annotation='Also publish if all retries succeed')
-
-        # self.publish_after_pass = pm.checkBoxGrp(
-        #     label='Publish after pass',
-        #     value1=1,
-        #     annotation='Publish as each pass becomes ready')
-
+        self.publish_rb = pm.radioButtonGrp(
+            l="Publish", sl=3, nrb=3, la3=["Off", "After all",  "After each pass"],
+              annotation='Also publish if retries succeed',
+              changeCommand=pm.Callback(self.on_publish_rb_change)
+        )
+ 
+        self.passes_wg = pm.textFieldGrp(
+            label='Pass IDs', text='0,1,2,3,4')
 
 
 
@@ -95,7 +94,6 @@ class retriesTab(gui.FormLayout):
                                         columnAlign=(1, 'right'),
                                         columnAttach=[(1, 'both', 2), (2, 'both', 2)])
 
-
         self.retries_add_objs_btn = pm.button(
             label='Load selected',
             command=pm.Callback(self.on_load_selected))
@@ -103,14 +101,16 @@ class retriesTab(gui.FormLayout):
         self.retries_add_all_objs_btn = pm.button(
             label='Load all skeleton strokes',
             command=pm.Callback(self.on_load_all_skel))
-
         pm.setParent("..")
-
 
         pm.scrollLayout(bv=True)
         self.objects_column = pm.columnLayout(adj=True)
-
         return frame
+
+    def on_publish_rb_change(self):
+        state = pm.radioButtonGrp(self.publish_rb, query=True, sl=True)
+        pm.rowLayout(self.add_objs_row, edit=True, enable=(state!=3)) 
+        pm.textFieldGrp(self.passes_wg, edit=True, enable=(state==3)) 
 
     def on_load_selected(self):
         nodes = pm.ls(selection=True)
@@ -233,22 +233,63 @@ class retriesTab(gui.FormLayout):
     def on_go(self):
         uutl.checkRobolink()
 
-        do_publish = pm.checkBoxGrp(self.publish_cb, query=True, value1=True)
-        if do_publish:
+
+        
+        publish_type = pm.radioButtonGrp(self.publish_rb, query=True, sl=True)
+        print "publish_type", publish_type
+        # return
+        if publish_type > 1: #
             export_dir = write.choose_publish_dir()
             if not export_dir:
                 return
+            pm.checkBoxGrp(self.publish_tab.current_cb, edit=True, value1=0)
 
-        pm.cutKey("collectStrokesMain", at=(
-            "startFrom", "endAt"), option="keys")
+        self.clear_collect_main_keys()
+        
+
+        if publish_type  == 3: 
+            self.do_publish_passes(export_dir)
+
+        if publish_type  == 2: 
+            success = self.do_retries()
+            self.publish_tab.publish_to_directory(export_dir)
+            timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
+            write.write_maya_scene(export_dir, timestamp )
+            self.clear_collect_main_keys()
+
+        if publish_type  == 1: 
+            success = self.do_retries()
+
+        
+
+        
+    def clear_collect_main_keys(self):
+        pm.cutKey("collectStrokesMain", at=("startFrom", "endAt"), option="keys")
         pm.PyNode("collectStrokesMain").attr("startFrom").set(0)
         pm.PyNode("collectStrokesMain").attr("endAt").set(-1)
         
-        success = self.do_retries()
+        # if success and do_publish:
+        #     self.publish_tab.publish_to_directory(export_dir)
 
-        if success and do_publish:
-            pm.checkBoxGrp(self.publish_tab.current_cb, edit=True, value1=0)
-            self.publish_tab.publish_to_directory(export_dir)
+
+
+    def do_publish_passes(self, export_dir):
+        pass_ids = [int(i) for i in pm.textFieldGrp(self.passes_wg, query=True, text=True).split(",") if i is not None and i.isdigit()]
+        main_collector = pm.PyNode("collectStrokesMain")
+        timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
+        for pass_id in pass_ids:
+
+            self.clear_collect_main_keys()
+            collector =main_collector.attr("strokes[{}]".format(pass_id)).connections(s=True, d=False)[0]
+            ts_export_dir = os.path.join(export_dir,timestamp)
+            main_collector.attr("strokeFilterList[0].strokeFilterOperand").set(pass_id)
+            main_collector.attr("strokeFilterList[0].strokeFilterOperator").set(2)
+            skels = collector.history(type="skeletonStroke")
+            self._load_retries_nodes(skels)
+            success = self.do_retries()
+            self.publish_tab.publish_to_directory(ts_export_dir, prefix=str(collector))
+            self.clear_collect_main_keys()
+        write.write_maya_scene(ts_export_dir, str(collector))
 
 
     def do_retries(self):

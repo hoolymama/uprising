@@ -72,15 +72,16 @@ def publish_sequence(
     design_dir = os.path.join(export_dir, "design")
     uutl.mkdir_p(design_dir)
     first_timestamp = None
+    prefix = kw.get("prefix", get_timestamp())
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
 
-        timestamp = get_timestamp(frame)
+        timestamp =  "{}_{:02d}".format(prefix, frame)
         ts_dir = get_ts_dir(export_dir, timestamp)
         uutl.mkdir_p(ts_dir)
 
-        if frame == frame_range[0]:
-            first_timestamp = timestamp
+        # if frame == frame_range[0]:
+        #     first_timestamp = timestamp
 
         # There can be an error if the painting contains no strokes.
         # In that case, we just want to skip the frame.
@@ -110,8 +111,8 @@ def publish_sequence(
         write_station(RL, ts_dir, timestamp)
 
 
-    if first_timestamp:
-        write_maya_scene(export_dir, first_timestamp)
+    # if first_timestamp:
+    #     write_maya_scene(export_dir, first_timestamp)
 
 
 def choose_publish_dir():
