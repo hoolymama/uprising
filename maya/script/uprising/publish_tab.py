@@ -108,7 +108,7 @@ class PublishTab(gui.FormLayout):
              height=30,
             label="Max chunk size",
             numberOfFields=1,
-            value1=1800)
+            value1=1500)
 
         pm.setParent('..')
 
