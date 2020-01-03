@@ -264,6 +264,7 @@ class retriesTab(gui.FormLayout):
 
         
     def clear_collect_main_keys(self):
+        print "CLEAR_COLLECT_MAIN_KEYS"
         pm.cutKey("collectStrokesMain", at=("startFrom", "endAt"), option="keys")
         pm.PyNode("collectStrokesMain").attr("startFrom").set(0)
         pm.PyNode("collectStrokesMain").attr("endAt").set(-1)
@@ -278,7 +279,7 @@ class retriesTab(gui.FormLayout):
         main_collector = pm.PyNode("collectStrokesMain")
         timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
         for pass_id in pass_ids:
-
+            print "PASS_ID: ",pass_id
             self.clear_collect_main_keys()
             collector =main_collector.attr("strokes[{}]".format(pass_id)).connections(s=True, d=False)[0]
             ts_export_dir = os.path.join(export_dir,timestamp)
@@ -287,9 +288,11 @@ class retriesTab(gui.FormLayout):
             skels = collector.history(type="skeletonStroke")
             self._load_retries_nodes(skels)
             success = self.do_retries()
-            self.publish_tab.publish_to_directory(ts_export_dir, prefix=str(collector))
+            print "COLLECTOR", collector[14:]
+            prefix = str(collector)[14:]
+            self.publish_tab.publish_to_directory(ts_export_dir, prefix=prefix)
             self.clear_collect_main_keys()
-        write.write_maya_scene(ts_export_dir, str(collector))
+        write.write_maya_scene(ts_export_dir, str(main_collector))
 
 
     def do_retries(self):

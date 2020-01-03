@@ -91,6 +91,12 @@ class PublishTab(gui.FormLayout):
             annotation="How many times to dip on the first dip after brush change",
         )
 
+        self.do_retardant_dip_cb = pm.checkBoxGrp(
+            label='Dip in retardant',
+            height=30,
+            value1=1,
+            annotation='Saturate each brush in retardant after painting')
+
         pm.setParent('..')
 
         pm.frameLayout(label="Program chunking", bv=True)
@@ -125,7 +131,6 @@ class PublishTab(gui.FormLayout):
         state = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True)
         # pm.intFieldGrp(self.water_dip_pause_if, edit=True, enable=( state))
         pm.intSliderGrp(self.water_wipe_repeats_isg, edit=True, enable=( state))
-
 
 
 
@@ -225,6 +230,8 @@ class PublishTab(gui.FormLayout):
 
         pause_brushes = [int(n) for n in pm.textFieldGrp(self.brush_pause_tfg , q=True, text=True).split(",") if n]
         do_water_dip = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True)
+        do_retardant_dip = pm.checkBoxGrp(self.do_retardant_dip_cb, query=True, value1=True)
+
         water_wipe_repeats =  pm.intSliderGrp(self.water_wipe_repeats_isg, query=True, value=True)
 
         current_only = pm.checkBoxGrp(self.current_cb, query=True, value1=True)
@@ -243,6 +250,7 @@ class PublishTab(gui.FormLayout):
             pause,
             first_dip_repeats ,
             do_water_dip,
+            do_retardant_dip,
             water_wipe_repeats=water_wipe_repeats,
             pause_brushes=pause_brushes ,
             prefix = kw.get("prefix", None)

@@ -62,6 +62,7 @@ def publish_sequence(
     pause ,
     first_dip_repeats,
     do_water_dip,
+    do_retardant_dip,
     **kw
 ):
 
@@ -97,6 +98,7 @@ def publish_sequence(
             do_painting=True,
             do_dips=True,
             do_water_dip=do_water_dip,
+            do_retardant_dip=do_retardant_dip,
             water_wipe_repeats=kw.get("water_wipe_repeats"),
             pick_and_place_slots="used",
             first_dip_repeats=first_dip_repeats,

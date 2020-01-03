@@ -10,8 +10,7 @@ import json
 import robodk as rdk
 import pymel.core as pm
 from contextlib import contextmanager
-# from paint import Paint
-# from brush import Brush
+ 
 
 PI = 3.14159265359
 
@@ -20,9 +19,6 @@ CLEAN_FILE = os.path.join(
     os.environ["UPRISING_PROJECT_PATH"],
     "robodk",
     "clean.rdk")
-
-
-# RL = Robolink()
 
 @contextmanager
 def at_value(attr, value):

@@ -57,27 +57,12 @@ class Program(object):
         self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
 
 class MainProgram(Program):
-    def __init__(self, name):
+    def __init__(self, name, **kw):
         super(MainProgram, self).__init__(name)
         self.painting = ptg.Painting(pm.PyNode("mainPaintingShape"))
-
-    def _change_tool(self, last_brush_id, cluster):
-        # If not actually changing the brush,
-        # then don't bother placing and repicking.
-        if last_brush_id == cluster.brush.id:
-            return
-
-        if last_brush_id is not None:
-            # put the last brush back
-            place_program_name = PlaceProgram.generate_program_name(last_brush_id)
-            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
-
-        pick_program_name = PickProgram.generate_program_name(cluster.brush.id)
-        self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
-
-    def _is_new_brush(self, last_brush_id,  next_brush_id):
-        return (last_brush_id is  None) or (last_brush_id != next_brush_id)
-
+        self.do_water_dip = kw.get("do_water_dip")
+        self.do_retardant_dip = kw.get("do_retardant_dip")
+        self.pause_brush_list = kw.get("pause_brushes", [])
 
     def write(self, studio):
         if not self.painting.clusters:
@@ -85,57 +70,69 @@ class MainProgram(Program):
         super(MainProgram, self).write()
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
 
-        pause_brush_list = studio.pause_brushes
         with uutl.minimize_robodk():
             self.painting.write_brushes()
-            motion = self.painting.motion
-
-            # Make sure gripper is open to begin with.
             self.ensure_gripper_open()
-
             last_brush_id = None
             last_paint_id = None
 
             for cluster in self.painting.clusters:
-
                 dip_repeats = 1
                 if cluster.reason == "tool":
-                    # If changing paint but not actually changing the brush,
-                    # then don't bother placing and repicking.
-                    self._change_tool(last_brush_id, cluster)
-
-                    if self._is_new_brush(last_brush_id , cluster.brush.id):
-                        if cluster.brush.id in pause_brush_list:
-                            self.program.Pause()
-                            self.program.RunInstruction(
-                                "New bush size, press continue when ready. ID: {:02d}".format(cluster.brush.id),
-                                INSTRUCTION_SHOW_MESSAGE
-                            )
-                        water_program_name = WaterProgram.generate_program_name(cluster.brush.id)
-                        self.program.RunInstruction(water_program_name, INSTRUCTION_CALL_PROGRAM)
+                    did_change_brush = self._change_tool(last_brush_id, cluster)
+                    if did_change_brush:
                         dip_repeats = studio.first_dip_repeats
-
                     last_brush_id = cluster.brush.id
+                self._write_dip_and_cluster(cluster, dip_repeats, studio)
 
-                dip_program_name = DipProgram.generate_program_name(
-                    cluster.paint.id, cluster.brush.id
-                )
-                for repeat in range(dip_repeats):
-                    self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
-
-                # go to the approach at the center of the painting
-                # Why? On a big painting, the lower corners could be
-                # lower than the rack and a joint move from the far end
-                # of the rack could cause the wrist to collide with the
-                # rack.
-                self.program.addMoveJ(studio.dip_approach)
-                cluster.write(self.program, self.frame, motion, studio.RL, studio.robot)
-                self.program.addMoveJ(studio.dip_approach)
-
-            place_program_name = PlaceProgram.generate_program_name(last_brush_id)
-            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
-
+            self._on_end_tool(last_brush_id)
             self.program.addMoveJ(studio.home_approach)
+
+    def _change_tool(self, last_brush_id, cluster):
+        if last_brush_id == cluster.brush.id:
+            return False
+
+        if last_brush_id is not None:
+            self._on_end_tool(last_brush_id)
+
+        self._on_start_tool(cluster.brush.id)
+
+        return True
+
+    def _on_start_tool(self, brush_id):
+        pick_program_name = PickProgram.generate_program_name(brush_id)
+        self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
+
+        if brush_id in self.pause_brush_list:
+            self.program.Pause()
+            self.program.RunInstruction(
+                "New bush, press continue when ready. ID: {:02d}".format(brush_id),
+                INSTRUCTION_SHOW_MESSAGE
+            )
+        if self.do_water_dip:
+            self.program.RunInstruction(
+                WaterProgram.generate_program_name(cluster.brush.id),
+                INSTRUCTION_CALL_PROGRAM)
+
+    def _on_end_tool(self, brush_id):
+        if self.do_retardant_dip:
+            retardant_program_name = RetardantProgram.generate_program_name(brush_id)
+            self.program.RunInstruction(retardant_program_name, INSTRUCTION_CALL_PROGRAM)
+
+        place_program_name = PlaceProgram.generate_program_name(brush_id)
+        self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
+
+
+    def _write_dip_and_cluster(self, cluster, dip_repeats, studio):
+        dip_program_name = DipProgram.generate_program_name(
+            cluster.paint.id, cluster.brush.id
+        )
+        for repeat in range(dip_repeats):
+            self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
+
+        self.program.addMoveJ(studio.dip_approach)
+        cluster.write(self.program, self.frame, self.painting.motion, studio.RL, studio.robot)
+        self.program.addMoveJ(studio.dip_approach)
 
 
 class PapExerciseProgram(Program):
@@ -271,7 +268,7 @@ class BrushHangProgram(Program):
             "W": pm.PyNode("hangLocal|loc_W").attr("worldMatrix[0]").get(),
             "S": pm.PyNode("hangLocal|loc_S").attr("worldMatrix[0]").get()
         }
-        
+
         with uutl.minimize_robodk():
 
             last_brush_id = None
@@ -306,7 +303,7 @@ class BrushHangProgram(Program):
             self.program.addMoveJ(studio.home_approach)
 
     def _write_one_hang(self, pack, mats):
- 
+
         targets = {}
         for key in mats:
             targets[key] =  self._create_target_for_brush(
@@ -344,7 +341,7 @@ class BrushHangProgram(Program):
             self.program.addMoveL(targets["S"])
             self.program.addMoveL(targets["W"])
             self.program.addMoveL(targets["N"])
-                              
+
             self.program.RunInstruction(
                 "Mark the ARK center point".format(pack["id"]),
                 INSTRUCTION_SHOW_MESSAGE,
@@ -416,33 +413,36 @@ class DipProgram(Program):
                 )
 
 
-class WaterProgram(Program):
+
+
+
+
+class WashProgram(Program):
+
     @staticmethod
     def generate_program_name(brush_id):
-        return "water_b{:02d}".format( brush_id)
+        pass
 
-    def __init__(self, pack, repeats):
-        name = WaterProgram.generate_program_name(pack["brush_id"])
-        super(WaterProgram, self).__init__(name)
-
+    def __init__(self, pack):
+        name = self.generate_program_name(pack["brush_id"])
+        super(WashProgram, self).__init__(name)
         self.dip_painting = ptg.Painting(pack["dip"])
         self.wipe_painting = ptg.Painting(pack["wipe"])
-        self.repeats = repeats
 
+
+    def _valid(self):
+        return (self.dip_painting.clusters and self.wipe_painting.clusters)
 
     def write(self, studio):
-        if not (self.dip_painting.clusters and self.wipe_painting.clusters):
-            return
 
-        super(WaterProgram, self).write()
-        self.frame = studio.water_frame
+        super(WashProgram, self).write()
 
         self.dip_painting.write_brushes()
         self.wipe_painting.write_brushes()
 
         with uutl.minimize_robodk():
             self.program.RunInstruction(
-                "Water dip with tool %s" % self.dip_painting.clusters[0].brush.node_name,
+                "{} dip with tool {}".format(self.__class__.__name__[:-7], self.dip_painting.clusters[0].brush.node_name) ,
                 INSTRUCTION_COMMENT,
             )
 
@@ -464,6 +464,39 @@ class WaterProgram(Program):
                         studio.RL,
                         studio.robot,
                     )
+
+
+class WaterProgram(WashProgram):
+    @staticmethod
+    def generate_program_name(brush_id):
+        return "water_b{:02d}".format( brush_id)
+
+    def __init__(self, pack, repeats):
+        super(WaterProgram, self).__init__(pack)
+        self.repeats = repeats
+
+    def write(self, studio):
+        if not self._valid:
+            return
+        self.frame = studio.water_frame
+
+        super(WaterProgram, self).write(studio)
+
+class RetardantProgram(WashProgram):
+
+    @staticmethod
+    def generate_program_name(brush_id):
+        return "retardant_b{:02d}".format( brush_id)
+
+    def __init__(self, pack):
+        super(RetardantProgram, self).__init__(pack)
+        self.repeats = 0
+
+    def write(self, studio):
+        if not self._valid:
+            return
+        self.frame = studio.water_frame
+        super(RetardantProgram, self).write(studio)
 
 
 

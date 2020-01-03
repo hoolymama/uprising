@@ -1,44 +1,39 @@
+import logging
 
+from robolink import ITEM_TYPE_ROBOT, Robolink
 
-import pymel.core as pm
-import uprising_util as uutl
-import palette_utils as putl
-import sheets
-
-from paint import Paint
-import props
+import brush_utils as butl
 import const as k
-
-
-from robolink import (
-    Robolink,
-    ITEM_TYPE_ROBOT
-)
+import palette_utils as putl
+import props
+import pymel.core as pm
+import sheets
+import uprising_util as uutl
+from brush import Brush
+from paint import Paint
 
 
 from program import (
-    MainProgram,
-    DipProgram,
-    WaterProgram,
-    PotHolderCalibration,
-    PotCalibration,
-    HolderCalibration,
     BoardCalibration,
-    PerspexCalibration,
-    PickProgram,
-    PlaceProgram,
-    PickAtHomeProgram,
-    PlaceAtHomeProgram,
-    PapExerciseProgram,
-    PotHandleExerciseProgram,
     BrushHangProgram,
-    ManualTriangulation)
+    DipProgram,
+    HolderCalibration,
+    MainProgram,
+    ManualTriangulation,
+    PapExerciseProgram,
+    PerspexCalibration,
+    PickAtHomeProgram,
+    PickProgram,
+    PlaceAtHomeProgram,
+    PlaceProgram,
+    PotCalibration,
+    PotHandleExerciseProgram,
+    PotHolderCalibration,
+    RetardantProgram,
+    WaterProgram,
+)
 
-
-import brush_utils as butl
-from brush import Brush
-import logging
-logger = logging.getLogger('uprising')
+logger = logging.getLogger("uprising")
 
 
 DIP_TARGET = "dipTarget"
@@ -55,10 +50,9 @@ class Studio(object):
 
     def __init__(self, **kw):
 
-
         uutl.clean_rdk()
         self.RL = Robolink()
-        self.robot = self.RL.Item('', ITEM_TYPE_ROBOT)
+        self.robot = self.RL.Item("", ITEM_TYPE_ROBOT)
         self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
         self.approaches_frame = None
         self.dip_approach = None
@@ -77,13 +71,15 @@ class Studio(object):
 
         self.dip_programs = []
         self.water_programs = []
+        self.retardant_programs = []
+
         self.pick_place_programs = []
         self.exercise_program = None
         self.pot_handle_exercise_program = None
         self.brush_hang_program = None
 
         self.pause = kw.get("pause", -1)
-        self.pause_brushes = kw.get("pause_brushes", [])
+        # self.pause_brushes = kw.get("pause_brushes", [])
         self.do_rack_and_holder_geo = kw.get("do_rack_and_holder_geo")
 
         self.first_dip_repeats = kw.get("first_dip_repeats", 1)
@@ -91,90 +87,90 @@ class Studio(object):
         self.dips_frame = None
         self.water_frame = None
 
-        
+        # do_water_dip = kw.get("do_water_dip")
+        # do_retardant_dip = kw.get("do_retardant_dip")
 
-        do_water_dips=kw.get("do_water_dip")
-
- 
         # water_dip_pause=kw.get("water_dip_pause"),
-        water_wipe_repeats=kw.get("water_wipe_repeats")
+        water_wipe_repeats = kw.get("water_wipe_repeats")
 
-        do_painting = kw.get("do_painting")
-        do_dips = kw.get("do_dips")
-        do_pap_exercise = kw.get("do_pap_exercise")
-        do_board_calibration = kw.get("do_board_calibration")
+        # do_painting = kw.get("do_painting")
+        # do_dips = kw.get("do_dips")
+        # do_pap_exercise = kw.get("do_pap_exercise")
+        # do_board_calibration = kw.get("do_board_calibration")
 
         # do_pot_holder_calibration = kw.get("do_pot_holder_calibration")
-        do_pot_calibration = kw.get("do_pot_calibration")  
-        do_holder_calibration = kw.get("do_holder_calibration") 
+        # do_pot_calibration = kw.get("do_pot_calibration")
+        # do_holder_calibration = kw.get("do_holder_calibration")
 
-        do_perspex_calibration = kw.get("do_perspex_calibration")
-        do_perspex_triangulation = kw.get("do_perspex_triangulation")
+        # do_perspex_calibration = kw.get("do_perspex_calibration")
+        # do_perspex_triangulation = kw.get("do_perspex_triangulation")
 
-        first_dip_repeats = kw.get("first_dip_repeats", 1)
+        # first_dip_repeats = kw.get("first_dip_repeats", 1)
 
         # Must explicitly ask for pick and place to be generated, even
         # if gripper on. Otherwise we can't do partials, like validation.
 
         pick_and_place_slots = kw.get("pick_and_place_slots")
         pot_handle_exercise_data = kw.get("pot_handle_exercise_data", [])
-        brush_hang_data= kw.get("brush_hang_data", [])
- 
+        brush_hang_data = kw.get("brush_hang_data", [])
 
-        if do_painting:
+        if kw.get("do_painting"):
             logger.debug("Studio: main_painting")
             with uutl.final_position(pm.PyNode("mainPaintingShape")):
                 pm.PyNode("mainPaintingShape").attr("applyBrushBiases").set(True)
-                self.painting_program = MainProgram("px")
+                self.painting_program = MainProgram("px", **kw)
                 pm.PyNode("mainPaintingShape").attr("applyBrushBiases").set(False)
 
-        if do_dips:
+        if kw.get("do_dips"):
             logger.debug("Studio: dips")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.dip_programs = self._build_dip_programs()
 
-
-        if do_water_dips:
+        if kw.get("do_water_dip"):
             logger.debug("Studio: water dips")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.water_programs = self._build_water_programs(water_wipe_repeats)
+
+        if kw.get("do_retardant_dip"):
+            logger.debug("Studio: retardant dips")
+            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+                self.retardant_programs = self._build_retardant_programs()
 
         if pick_and_place_slots:
             logger.debug("Studio: pick_place_programs")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.pick_place_programs = self._build_pick_place_programs(
-                    pick_and_place_slots)
+                    pick_and_place_slots
+                )
 
-
-        if do_pot_calibration:
+        if kw.get("do_pot_calibration"):
             logger.debug("Studio:  pot_holder_calibration")
-            self.pot_cal_program = PotCalibration(
-                k.POT_CALIBRATION_PROGRAM_NAME)
+            self.pot_cal_program = PotCalibration(k.POT_CALIBRATION_PROGRAM_NAME)
 
-        if do_holder_calibration:
+        if kw.get("do_holder_calibration"):
             logger.debug("Studio:  holder_calibration")
             self.holder_cal_program = HolderCalibration(
-                k.HOLDER_CALIBRATION_PROGRAM_NAME)
+                k.HOLDER_CALIBRATION_PROGRAM_NAME
+            )
 
-
-        if do_perspex_calibration:
+        if kw.get("do_perspex_calibration"):
             logger.debug("Studio:  perspex_calibration")
             self.perspex_cal_program = PerspexCalibration(
-                k.PERSPEX_CALIBRATION_PROGRAM_NAME)
+                k.PERSPEX_CALIBRATION_PROGRAM_NAME
+            )
 
-        if do_perspex_triangulation:
+        if kw.get("do_perspex_triangulation"):
             logger.debug("Studio:  manual_triangulation")
             self.manual_tri_program = ManualTriangulation(
-                k.TRI_CALIBRATION_PROGRAM_NAME)
+                k.TRI_CALIBRATION_PROGRAM_NAME
+            )
 
-        if do_board_calibration:
+        if kw.get("do_board_calibration"):
             logger.debug("Studio: board_calibration")
-            self.board_cal_program = BoardCalibration(
-                k.BOARD_CALIBRATION_PROGRAM_NAME)
+            self.board_cal_program = BoardCalibration(k.BOARD_CALIBRATION_PROGRAM_NAME)
 
-        if do_pap_exercise:
-            self.exercise_program = PapExerciseProgram(
-                k.PAP_EXERCISE_PROGRAM_NAME)
+        if kw.get("do_pap_exercise"):
+            self.exercise_program = PapExerciseProgram(k.PAP_EXERCISE_PROGRAM_NAME)
 
         if pot_handle_exercise_data:
             logger.debug("Studio:  pot_handle_exercise")
@@ -182,11 +178,13 @@ class Studio(object):
             self.pick_place_programs = self._build_pick_place_programs(brush_ids)
 
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                self.dip_programs = self._build_dip_programs(dip_combinations=pot_handle_exercise_data)
+                self.dip_programs = self._build_dip_programs(
+                    dip_combinations=pot_handle_exercise_data
+                )
 
             self.pot_handle_exercise_program = PotHandleExerciseProgram(
-                k.POT_HANDLE_EXERCISE_PROGRAM_NAME,
-                pot_handle_exercise_data)
+                k.POT_HANDLE_EXERCISE_PROGRAM_NAME, pot_handle_exercise_data
+            )
 
         if brush_hang_data:
             logger.debug("Studio:  brush_hang_data")
@@ -194,10 +192,8 @@ class Studio(object):
             self.pick_place_programs = self._build_pick_place_programs(brush_ids)
 
             self.brush_hang_program = BrushHangProgram(
-                k.BRUSH_HANG_PROGRAM_NAME,
-                brush_hang_data)
-
- 
+                k.BRUSH_HANG_PROGRAM_NAME, brush_hang_data
+            )
 
     def _build_dip_programs(self, **kw):
         packs = putl.get_dip_wipe_packs(**kw)
@@ -208,11 +204,9 @@ class Studio(object):
                 for bid in paint_pack:
                     pack = paint_pack[bid]
                     result.append(DipProgram(pack))
-        print packs
         return result
 
-
-    def _build_water_programs(self,repeats):
+    def _build_water_programs(self, repeats):
         packs = putl.get_dip_wipe_packs(paint_id=k.WATER_POT_ID)
         result = []
         if packs:
@@ -220,25 +214,26 @@ class Studio(object):
                 paint_pack = packs[pid]
                 for bid in paint_pack:
                     pack = paint_pack[bid]
-                    result.append(
-                        WaterProgram(
-                            pack,
-                            repeats))
-        print "Water"
-        print packs
+                    result.append(WaterProgram(pack, repeats))
         return result
 
-
+    def _build_retardant_programs(self):
+        packs = putl.get_dip_wipe_packs(paint_id=k.RETARDANT_POT_ID)
+        result = []
+        if packs:
+            for pid in packs:
+                paint_pack = packs[pid]
+                for bid in paint_pack:
+                    pack = paint_pack[bid]
+                    result.append(RetardantProgram(pack))
+        return result
 
     def _build_pick_place_programs(self, brush_ids):
 
-
         gripper_geo = butl.setup_gripper_from_sheet()
-        gripper = Brush.brush_at_plug(
-            0, gripper_geo.attr("outPaintBrush"))
+        gripper = Brush.brush_at_plug(0, gripper_geo.attr("outPaintBrush"))
         if not gripper:
-            raise StudioError(
-                "No Gripper. Risk of damage. Can't continue.")
+            raise StudioError("No Gripper. Risk of damage. Can't continue.")
 
         packs = putl.get_pick_place_packs(brush_ids)
 
@@ -258,11 +253,14 @@ class Studio(object):
     def _write_approaches(self):
         self.approaches_frame = uutl.create_frame("ax_frame")
         self.tool_approach = uutl._create_joint_target(
-            pm.PyNode(TOOL_TARGET), "tool_approach", self.approaches_frame)
+            pm.PyNode(TOOL_TARGET), "tool_approach", self.approaches_frame
+        )
         self.home_approach = uutl._create_joint_target(
-            pm.PyNode(HOME_TARGET), "home_approach", self.approaches_frame)
+            pm.PyNode(HOME_TARGET), "home_approach", self.approaches_frame
+        )
         self.dip_approach = uutl._create_joint_target(
-            pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame)
+            pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame
+        )
 
     def _write_rack_and_holder_geo(self):
         if self.do_rack_and_holder_geo:
@@ -271,7 +269,6 @@ class Studio(object):
                 ref_geo = [pm.PyNode("rackTop")]
                 ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
                 props.send(ref_geo)
-
 
     def write(self):
 
@@ -296,6 +293,11 @@ class Studio(object):
             for water in self.water_programs:
                 water.write(self)
 
+        if self.retardant_programs:
+            self.retardant_frame = uutl.create_frame("retardant_frame")
+            for retardant in self.retardant_programs:
+                retardant.write(self)
+
         if self.exercise_program:
             self.exercise_program.write(self)
             with uutl.final_position(rack_context):
@@ -312,7 +314,6 @@ class Studio(object):
                 self.brush_hang_program.write(self)
                 props.send([pm.PyNode("rackTop")])
 
-
         if self.pick_place_programs:
             self.pick_place_frame = uutl.create_frame("pick_place_frame")
             with uutl.final_position(rack_context):
@@ -321,15 +322,11 @@ class Studio(object):
 
         if self.pot_cal_program:
             with uutl.final_position(rack_context):
-                self.pot_cal_program.write(
-                    self.tool_approach,
-                    self.home_approach)
+                self.pot_cal_program.write(self.tool_approach, self.home_approach)
 
         if self.holder_cal_program:
             with uutl.final_position(rack_context):
-                self.holder_cal_program.write(
-                    self.tool_approach,
-                    self.home_approach)
+                self.holder_cal_program.write(self.tool_approach, self.home_approach)
 
         # if self.pot_holder_cal_program:
         #     self.pot_holder_cal_program.write(
@@ -338,17 +335,11 @@ class Studio(object):
 
         if self.perspex_cal_program:
             with uutl.final_position(rack_context):
-                self.perspex_cal_program.write(
-                self.tool_approach,
-                self.home_approach)
+                self.perspex_cal_program.write(self.tool_approach, self.home_approach)
 
         if self.manual_tri_program:
-            self.manual_tri_program.write(
-                self.tool_approach,
-                self.home_approach)
+            self.manual_tri_program.write(self.tool_approach, self.home_approach)
 
         if self.board_cal_program:
             with uutl.final_position(painting_context):
-                self.board_cal_program.write(
-                    self.tool_approach,
-                    self.home_approach)
+                self.board_cal_program.write(self.tool_approach, self.home_approach)
