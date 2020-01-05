@@ -48,11 +48,11 @@ def _find_nodes_by_short_name(nodes, name):
 
 def create_paintings(brush_rank, paints):
 
-    collector = pm.PyNode("collectStrokesDW_dip_{}".format(brush_rank["name"]))
-    dip_grp = _create_paintings("dip", brush_rank, paints)
+    pm.PyNode("collectStrokesDW_dip_{}".format(brush_rank["name"]))
+    _create_paintings("dip", brush_rank, paints)
 
-    collector = pm.PyNode("collectStrokesDW_wipe_{}".format(brush_rank["name"]))
-    wipe_grp = _create_paintings("wipe", brush_rank, paints)
+    pm.PyNode("collectStrokesDW_wipe_{}".format(brush_rank["name"]))
+    _create_paintings("wipe", brush_rank, paints)
 
 
 def _create_paintings(which, brush_rank, paints):
@@ -63,9 +63,7 @@ def _create_paintings(which, brush_rank, paints):
 
     for p in paints:
         for brush in brush_rank["brushes"]:
-            painting_xf = create_painting_node(
-                which, brush, paints[p], collector, painting_template
-            )
+            create_painting_node(which, brush, paints[p], collector, painting_template)
 
 
 def create_painting_node(which, brush, paint, collector, template):
@@ -91,36 +89,6 @@ def create_painting_node(which, brush, paint, collector, template):
 
     pm.parent(ptg_xf, locator, relative=True)
     ptg_xf.rename("b{:02d}".format(brush.id))
-
-    # template_shape = template.getShape()
-    # connect everything up
-    # atts = [
-    #     "linearSpeed",
-    #     "angularSpeed",
-    #     "approximationDistance",
-    #     "maxPointToPointDistance",
-    #     "approachDistanceStart",
-    #     "approachDistanceMid",
-    #     "approachDistanceEnd",
-    #     "pointSize",
-    #     "lineLength",
-    #     "lineThickness",
-    #     "displayPivots",
-    #     "displayClusterPath",
-    #     "displayIds",
-    #     "displayParentIds",
-    #     "displayLayerIds",
-    #     "displayBrushIds",
-    #     "displayPaintIds",
-    #     "displayRepeatIds",
-    #     "arrowheadSize",
-    #     "displayTargets",
-    #     "displayContactWidth",
-    #     "stackGap",
-    #     "idDisplayOffset",
-    # ]
-    # for att in atts:
-    #     template_shape.attr(att) >> ptg_node.attr(att)
 
     return ptg_xf
 
