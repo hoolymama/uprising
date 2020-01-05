@@ -79,33 +79,14 @@ class Studio(object):
         self.brush_hang_program = None
 
         self.pause = kw.get("pause", -1)
-        # self.pause_brushes = kw.get("pause_brushes", [])
         self.do_rack_and_holder_geo = kw.get("do_rack_and_holder_geo")
 
         self.first_dip_repeats = kw.get("first_dip_repeats", 1)
 
         self.dips_frame = None
-        self.water_frame = None
+        self.wash_frame = None
 
-        # do_water_dip = kw.get("do_water_dip")
-        # do_retardant_dip = kw.get("do_retardant_dip")
-
-        # water_dip_pause=kw.get("water_dip_pause"),
         water_wipe_repeats = kw.get("water_wipe_repeats")
-
-        # do_painting = kw.get("do_painting")
-        # do_dips = kw.get("do_dips")
-        # do_pap_exercise = kw.get("do_pap_exercise")
-        # do_board_calibration = kw.get("do_board_calibration")
-
-        # do_pot_holder_calibration = kw.get("do_pot_holder_calibration")
-        # do_pot_calibration = kw.get("do_pot_calibration")
-        # do_holder_calibration = kw.get("do_holder_calibration")
-
-        # do_perspex_calibration = kw.get("do_perspex_calibration")
-        # do_perspex_triangulation = kw.get("do_perspex_triangulation")
-
-        # first_dip_repeats = kw.get("first_dip_repeats", 1)
 
         # Must explicitly ask for pick and place to be generated, even
         # if gripper on. Otherwise we can't do partials, like validation.
@@ -289,12 +270,12 @@ class Studio(object):
                     Paint.write_geos()
 
         if self.water_programs:
-            self.water_frame = uutl.create_frame("water_frame")
+            self.wash_frame = uutl.create_frame("wash_frame")
             for water in self.water_programs:
                 water.write(self)
 
         if self.retardant_programs:
-            self.retardant_frame = uutl.create_frame("retardant_frame")
+            self.wash_frame = uutl.create_frame("wash_frame")
             for retardant in self.retardant_programs:
                 retardant.write(self)
 

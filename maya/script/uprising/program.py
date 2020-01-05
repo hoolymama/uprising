@@ -322,7 +322,6 @@ class BrushHangProgram(Program):
         self.program.setRounding(k.CAL_ROUNDING_DISTANCE)
         self.program.setPoseTool(tool)
 
-        # row = k.CAL_SHEET_FIRST_ROW + int(pack["brush_id"])
         msg = "Record BACK(X) and RIGHT(Y) offsets for {}".format(pack["id"])
         if pack["twist"]:
             msg = "Watch closely for ARC center (using brush{})".format(pack["id"])
@@ -421,7 +420,7 @@ class WashProgram(Program):
 
     @staticmethod
     def generate_program_name(brush_id):
-        pass
+        raise NotImplementedError
 
     def __init__(self, pack):
         name = self.generate_program_name(pack["brush_id"])
@@ -478,7 +477,7 @@ class WaterProgram(WashProgram):
     def write(self, studio):
         if not self._valid:
             return
-        self.frame = studio.water_frame
+        self.frame = studio.wash_frame
 
         super(WaterProgram, self).write(studio)
 
@@ -495,7 +494,7 @@ class RetardantProgram(WashProgram):
     def write(self, studio):
         if not self._valid:
             return
-        self.frame = studio.water_frame
+        self.frame = studio.wash_frame
         super(RetardantProgram, self).write(studio)
 
 
