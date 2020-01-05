@@ -223,7 +223,7 @@ class retriesTab(gui.FormLayout):
                     if not dry:
                         retries_result = do_retries_for_plug(frame, plug, step_values, try_existing )
                     else:
-                        retries_result  = {"plugs": [], "attempts": -1, "path_results": [], "solved": False, "frame":frame}
+                        retries_result  = {"plug": str(plug), "attempts": -1, "path_results": [], "solved": False, "frame":frame}
                 results.append(retries_result)
             success = report_results(results)
 
@@ -236,12 +236,18 @@ class retriesTab(gui.FormLayout):
                         print "publish_tab.publish_to_directory {} {}".format(export_dir, ps["prefix"])
                         print show_nodes
 
-            reset_collect_main_keys()
-            all_results.append({
+            result_data = {
                 "prefix":ps["prefix"],
                 "results":results,
                 "success":success
-            })
+            }
+
+            write_report(export_dir,ps["prefix"], result_data )
+
+            reset_collect_main_keys()
+            all_results.append(result_data)
+
+
 
         return all_results
 
@@ -334,7 +340,11 @@ def report_results(results):
     return not failed
 
 
-
+def write_report(export_dir ,prefix, data ):
+    uutl.mkdir_p(export_dir)
+    json_file = os.path.join(export_dir, "{}.json".format(prefix))
+    with open(json_file, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
 
 
 # @contextmanager

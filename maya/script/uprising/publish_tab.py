@@ -129,11 +129,7 @@ class PublishTab(gui.FormLayout):
 
     def on_dip_water_cb_change(self):
         state = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True)
-        # pm.intFieldGrp(self.water_dip_pause_if, edit=True, enable=( state))
         pm.intSliderGrp(self.water_wipe_repeats_isg, edit=True, enable=( state))
-
-
-
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
