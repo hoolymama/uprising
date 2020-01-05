@@ -163,7 +163,12 @@ class retriesTab(gui.FormLayout):
         all_results = self.do_retries(pack, export_dir, dry=dry)
 
         uutl.show_in_window(all_results, title="Retries results")
-
+        
+        all_skels = pm.ls(type="skeletonStroke")
+        if export_dir:
+            for s in all_skels:
+                s.attr("active").set(True)
+            write.write_maya_scene(export_dir, "scene" )
 
 
 
