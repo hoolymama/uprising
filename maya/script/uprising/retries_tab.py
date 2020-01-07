@@ -45,6 +45,8 @@ class retriesTab(gui.FormLayout):
 
         self.on_publish_rb_change()
 
+        self.dry = False
+
     def set_publish_tab( self, publish_tab):
         self.publish_tab = publish_tab
 
@@ -137,14 +139,15 @@ class retriesTab(gui.FormLayout):
 
 
     def on_preview(self):
+        self.dry = True
         uutl.checkRobolink()
         pack = self.get_pack()
         for ps in pack["passes"]:
             ps["plugs"]=[str(plug) for plug in ps["plugs"]]
         print json.dumps(pack, indent=2)
-        self.on_go(dry=True)
+        self.on_go()
 
-    def on_go(self, dry=False):
+    def on_go(self ):
         uutl.checkRobolink()
         pack = self.get_pack()
         publish_mode = pm.radioButtonGrp(self.publish_rb, query=True, sl=True)
@@ -160,7 +163,7 @@ class retriesTab(gui.FormLayout):
 
             pm.checkBoxGrp(self.publish_tab.current_cb, edit=True, value1=0)
 
-        all_results = self.do_retries(pack, export_dir, dry=dry)
+        all_results = self.do_retries(pack, export_dir)
 
         uutl.show_in_window(all_results, title="Retries results")
         
@@ -181,12 +184,13 @@ class retriesTab(gui.FormLayout):
             passes = pm.textFieldGrp(self.passes_wg, query=True, text=True)
             pass_ids = [int(i) for i in passes.split(",") if i is not None and i.isdigit()]
             for pass_id in pass_ids:
-                collector =main_collector.attr("strokes[{}]".format(pass_id)).connections(s=True, d=False)[0]
+                collector = main_collector.attr("strokes[{}]".format(pass_id)).connections(s=True, d=False)[0]
+                drying_time = collector.attr("dryingTime").get()
                 prefix = str(collector).replace("collectStrokes", "")
 
                 nodes = collector.history(type="skeletonStroke", levels=1)
                 plugs = fetch_plugs(result["attribute"], nodes)
-                result["passes"].append({"prefix": prefix, "plugs": plugs, "pass_id": pass_id })
+                result["passes"].append({"prefix": prefix, "plugs": plugs, "pass_id": pass_id, "drying_time":drying_time })
         else:
             prefix = str(main_collector).replace("collectStrokes", "")
             nodes = pm.ls(sl=True, dag=True, leaf=True, type="skeletonStroke")
@@ -213,19 +217,20 @@ class retriesTab(gui.FormLayout):
 
 
 
-    def do_retries(self, pack, export_dir , dry=False):
+    def do_retries(self, pack, export_dir  ):
         all_skels = pm.ls(type="skeletonStroke")
         all_results = []
         step_values = pack["step_values"]
         try_existing = pack["try_existing"]
-        for ps in pack["passes"]:
+        all_program_files = []
+        for pas in pack["passes"]:
             reset_collect_main_keys()
-            plugs = ps["plugs"]
+            plugs = pas["plugs"]
             results = []
             for frame, plug in enumerate(plugs):
                 node = plug.node()
                 with isolate_nodes([node], all_skels):
-                    if not dry:
+                    if not self.dry:
                         retries_result = do_retries_for_plug(frame, plug, step_values, try_existing )
                     else:
                         retries_result  = {"plug": str(plug), "attempts": -1, "path_results": [], "solved": False, "frame":frame}
@@ -233,30 +238,63 @@ class retriesTab(gui.FormLayout):
             success = report_results(results)
 
             if export_dir:
-                show_nodes = [p.node() for p in ps["plugs"]]
-                with isolate_nodes(show_nodes, all_skels):
-                    if not dry:
-                        self.publish_tab.publish_to_directory(export_dir, prefix=ps["prefix"])
-                    else:
-                        print "publish_tab.publish_to_directory {} {}".format(export_dir, ps["prefix"])
-                        print show_nodes
-
+                program_files = self.publish_pass(export_dir, pas)
+                # all_program_files += program_files
             result_data = {
-                "prefix":ps["prefix"],
+                "prefix":pas["prefix"],
+                "drying_time":pas["drying_time"],
                 "results":results,
-                "success":success
+                "success":success,
+                "program_files": program_files
             }
 
-            write_report(export_dir,ps["prefix"], result_data )
+            write_json_report(export_dir,pas["prefix"], result_data )
 
             reset_collect_main_keys()
             all_results.append(result_data)
 
-
-
+        self.write_orchestrator_program(export_dir, all_results)
         return all_results
 
 
+    def publish_pass(self, export_dir, pas):
+        program_files = []
+        all_skels = pm.ls(type="skeletonStroke")
+        show_nodes = [p.node() for p in pas["plugs"]]
+        with isolate_nodes(show_nodes, all_skels):
+            if not self.dry:
+                program_files =  self.publish_tab.publish_to_directory(export_dir, prefix=pas["prefix"])
+            else:
+                print "publish_tab.publish_to_directory {} {}".format(export_dir, pas["prefix"])
+                print show_nodes
+        return program_files
+
+    def write_orchestrator_program(self, export_dir, result_data ):
+        print "Write_orchestrator_program:--"
+        if self.dry:
+            print "Skipping because Dry Run"
+        elif not export_dir:
+            print "Skipping because No export directory specified."
+        else:
+            orchestrator_file = os.path.join(export_dir, "main.src")
+            with open(orchestrator_file, 'w') as ofile:
+                ofile.write("&ACCESS RVP\n")
+                ofile.write("&REL 1\n")
+                ofile.write("&COMMENT Generated Uprising Robot Tools\n")
+                ofile.write("&PARAM TEMPLATE = C:\\KRC\Roboter\\Template\\vorgabe\n")
+                ofile.write("&PARAM EDITMASK = *\n")
+                ofile.write("DEF pxMain ( )\n")
+ 
+                for data in result_data:
+                    for filename, valid in  data["program_files"]:
+                        if valid:
+                            ofile.write("{}( )\n".format(filename))
+                        else:
+                            ofile.write("&COMMENT {} is INVALID\n".format(filename))
+                    if data["drying_time"] > 0:
+                        ofile.write("WAIT SEC {0:.2f}\n".format(data["drying_time"]))
+                ofile.write("END\n")
+            print "Wrote orchestrator file: {}".format(orchestrator_file)
 
 def do_retries_for_plug(frame, plug, step_values, try_existing ):
     result = {"plug": str(plug), "attempts": -1, "path_results": [], "solved": False, "frame":frame}
@@ -283,7 +321,7 @@ def do_retries_for_plug(frame, plug, step_values, try_existing ):
             studio = Studio(do_painting=True)
             studio.write()
 
-            path_result = studio.painting_program.validate_path()
+            path_result = studio.painting_program.validate_path() or {"status": "SUCCESS"}
             metadata = {"iteration": i,  "value": value}
             path_result.update(metadata)
             result["path_results"].append(path_result)
@@ -345,7 +383,7 @@ def report_results(results):
     return not failed
 
 
-def write_report(export_dir ,prefix, data ):
+def write_json_report(export_dir ,prefix, data ):
     uutl.mkdir_p(export_dir)
     json_file = os.path.join(export_dir, "{}.json".format(prefix))
     with open(json_file, 'w') as outfile:

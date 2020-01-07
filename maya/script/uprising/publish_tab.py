@@ -240,7 +240,7 @@ class PublishTab(gui.FormLayout):
                 "startFrom", "endAt"), option="keys")
             frames = self.setup_chunks()
 
-        write.publish_sequence( 
+        program_files = write.publish_sequence( 
             export_dir,
             frames,
             pause,
@@ -257,9 +257,14 @@ class PublishTab(gui.FormLayout):
             pm.PyNode("collectStrokesMain").attr("startFrom").set(0)
             pm.PyNode("collectStrokesMain").attr("endAt").set(-1)
 
+
+        return program_files
+
+
+
     def on_go(self):
 
         export_dir = write.choose_publish_dir()
         if not export_dir:
             return
-        self.publish_to_directory(export_dir)
+        self.publish_to_directory(export_dir, prefix="prg")

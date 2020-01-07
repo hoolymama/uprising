@@ -65,25 +65,18 @@ def publish_sequence(
     do_retardant_dip,
     **kw
 ):
-
-    # print dip_wipe_packs
+    results = []
     painting_node = pm.PyNode("mainPaintingShape")
     recordings_dir = os.path.join(export_dir, "recordings")
     uutl.mkdir_p(recordings_dir)
     design_dir = os.path.join(export_dir, "design")
     uutl.mkdir_p(design_dir)
-    first_timestamp = None
-    prefix = kw.get("prefix", get_timestamp())
+    prefix = kw.get("prefix", "prg")
+ 
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
 
-        timestamp =  "{}_{:02d}".format(prefix, frame)
-        ts_dir = get_ts_dir(export_dir, timestamp)
-        uutl.mkdir_p(ts_dir)
-
-        # if frame == frame_range[0]:
-        #     first_timestamp = timestamp
-
+        name =  "{}_{:02d}".format(prefix, frame)
         # There can be an error if the painting contains no strokes.
         # In that case, we just want to skip the frame.
         try:
@@ -109,9 +102,12 @@ def publish_sequence(
             )
 
         studio.write()
-        write_program(RL, ts_dir, "px", timestamp)
-        write_station(RL, ts_dir, timestamp)
+        program_file = write_program(RL, export_dir, "px", name)
+        results.append(program_file)
 
+        write_station(RL, export_dir, name)
+
+    return results
 
     # if first_timestamp:
     #     write_maya_scene(export_dir, first_timestamp)
@@ -231,21 +227,19 @@ def write_program(RL, ts_dir, progname, timestamp):
     for item in sel:
         print "Item:", item.Name()
 
-    # print "WRITING"
+
     prog_filename = "%s_%s" % (progname.upper(), timestamp)
-    print "prog_filename", prog_filename
+    # print "prog_filename", prog_filename
     program = RL.Item(progname, ITEM_TYPE_PROGRAM)
-    print "program", program
-    print "program.Name()", program.Name()
+    # print "program", program
+    # print "program.Name()", program.Name()
     program.setName(prog_filename)
     program.MakeProgram(ts_dir)
     program.setName(progname)
     print "ts_dir", ts_dir
 
-    if program.Valid():
-        print "VALID"
-    else:
-        print "INVALID"
+    return (prog_filename,program.Valid())
+   
 
 
 def write_station(RL, ts_dir, timestamp):
@@ -253,13 +247,11 @@ def write_station(RL, ts_dir, timestamp):
     station.setName(timestamp)
     RL.Save(os.path.join(ts_dir, "%s.rdk" % timestamp))
 
-
 def write_maya_scene(ts_dir, timestamp):
     new_name = os.path.join(ts_dir, "%s.ma" % timestamp)
     orig_sn = pm.sceneName()
     pm.saveAs(new_name)
     pm.renameFile(orig_sn)
-
 
 def used_paints_and_brushes(painting_node):
     dc = pm.paintingQuery(painting_node, dc=True)
@@ -270,7 +262,6 @@ def used_paints_and_brushes(painting_node):
     used_paints = [paints[_id] for _id in pids]
     used_brushes = [brushes[_id] for _id in bids]
     return zip(used_brushes, used_paints)
-
 
 def painting_stats(node):
     cluster_count = pm.paintingQuery(node, cc=True)
@@ -296,7 +287,6 @@ def painting_stats(node):
         "avg_stroke_travel_per_cluster": avg_travel_per_cluster
     }
     return result
-
 
 def used_brushes(painting_node):
     ids = pm.paintingQuery(painting_node, dc=True)[0::2]
