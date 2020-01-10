@@ -1,8 +1,4 @@
-from robolink import (
-    Robolink,
-    ITEM_TYPE_ROBOT,
-    ITEM_TYPE_TOOL,
-    ITEM_TYPE_PROGRAM)
+from robolink import Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TOOL, ITEM_TYPE_PROGRAM
 import sys
 import os
 import errno
@@ -10,15 +6,13 @@ import json
 import robodk as rdk
 import pymel.core as pm
 from contextlib import contextmanager
- 
+
 
 PI = 3.14159265359
 
 
-CLEAN_FILE = os.path.join(
-    os.environ["UPRISING_PROJECT_PATH"],
-    "robodk",
-    "clean.rdk")
+CLEAN_FILE = os.path.join(os.environ["UPRISING_PROJECT_PATH"], "robodk", "clean.rdk")
+
 
 @contextmanager
 def at_value(attr, value):
@@ -26,7 +20,6 @@ def at_value(attr, value):
     attr.set(value)
     yield
     attr.set(old)
-
 
 
 def conform_activatable_checkbox(ctl):
@@ -45,19 +38,23 @@ def assembly(node):
     return top
 
 
+# @contextmanager
+# def minimize_robodk():
+#     RL = Robolink()
+#     RL.HideRoboDK()
+#     try:
+#         yield
+#     except Exception:
+#         t, v, tb = sys.exc_info()
+#         raise t, v, tb
+#     finally:
+#         RL.ShowRoboDK()
+
+
 @contextmanager
 def minimize_robodk():
-    RL = Robolink()
-    RL.HideRoboDK()
-    try:
-        yield
-    except Exception:
-        t, v, tb = sys.exc_info()
-        raise t, v, tb
-    finally:
-        RL.ShowRoboDK()
+    yield
 
- 
 
 @contextmanager
 def at_height(node, h):
@@ -123,26 +120,22 @@ def activatable(**kw):
 
     ctrl = children[0]
     pm.checkBox(
-        cb,
-        edit=True,
-        changeCommand=pm.Callback(
-            _on_active_cb_change,
-            ctrl,
-            cb))
+        cb, edit=True, changeCommand=pm.Callback(_on_active_cb_change, ctrl, cb)
+    )
 
-    form.attachForm(cb, 'top', 2)
-    form.attachForm(cb, 'bottom', 2)
-    form.attachForm(cb, 'right', 2)
-    form.attachNone(cb, 'left')
+    form.attachForm(cb, "top", 2)
+    form.attachForm(cb, "bottom", 2)
+    form.attachForm(cb, "right", 2)
+    form.attachNone(cb, "left")
 
-    form.attachForm(ctrl, 'left', 2)
-    form.attachForm(ctrl, 'top', 2)
-    form.attachForm(ctrl, 'bottom', 2)
-    form.attachControl(ctrl, 'right', 2, cb)
+    form.attachForm(ctrl, "left", 2)
+    form.attachForm(ctrl, "top", 2)
+    form.attachForm(ctrl, "bottom", 2)
+    form.attachControl(ctrl, "right", 2, cb)
 
     _on_active_cb_change(ctrl, cb)
 
-    pm.setParent('..')
+    pm.setParent("..")
 
 
 def mkdir_p(path):
@@ -214,7 +207,6 @@ def maya_to_robodk_mat(rhs):
     mat[2][3] = mat[2][3] * 10.0
     return rdk.Mat(mat)
 
- 
 
 def create_program(name):
     RL = Robolink()
@@ -265,7 +257,7 @@ def config_000_poses(pose):
     RL = Robolink()
     configs = {}
     result = []
-    robot = RL.Item('', ITEM_TYPE_ROBOT)
+    robot = RL.Item("", ITEM_TYPE_ROBOT)
     robot.setParam("PostProcessor", "KUKA KRC4_RN")
     ik = robot.SolveIK_All(pose)
     siz = ik.size()
@@ -281,15 +273,14 @@ def config_000_poses(pose):
 
 def _create_joint_target(obj, name, frame):
     RL = Robolink()
-    robot = RL.Item('', ITEM_TYPE_ROBOT)
+    robot = RL.Item("", ITEM_TYPE_ROBOT)
     mat = obj.attr("worldMatrix[0]").get()
 
     mat = maya_to_robodk_mat(mat)
 
     joint_poses = config_000_poses(mat)
     if not joint_poses:
-        raise Exception(
-            "No configs for approach mat. Try repositioning.")
+        raise Exception("No configs for approach mat. Try repositioning.")
     joints = joint_poses[0]
 
     old_approach = RL.Item(name)
@@ -305,6 +296,7 @@ def checkRobolink():
     RL = Robolink()
     RL.Connect()
 
+
 def clean_rdk():
     RL = Robolink()
     for station in RL.getOpenStations():
@@ -315,7 +307,7 @@ def clean_rdk():
 def show_in_window(data, **kw):
     title = kw.get("title", "Window")
     result_json = json.dumps(data, indent=2)
-    pm.window(width=600,  height=800, title=title)
+    pm.window(width=600, height=800, title=title)
     pm.frameLayout(cll=False, lv=False)
     pm.scrollField(text=result_json, editable=False, wordWrap=False)
     pm.showWindow()

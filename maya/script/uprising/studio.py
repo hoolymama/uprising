@@ -86,6 +86,9 @@ class Studio(object):
         self.dips_frame = None
         self.wash_frame = None
 
+        self.do_subprograms = kw.get("do_subprograms")
+        self.partial_size = kw.get("partial_size", 0)
+
         water_wipe_repeats = kw.get("water_wipe_repeats")
 
         # Must explicitly ask for pick and place to be generated, even
@@ -231,7 +234,9 @@ class Studio(object):
             result += [pick_prg, place_prg]
         return result
 
-    def _write_approaches(self):
+    ####################################
+
+    def write_approaches(self):
         self.approaches_frame = uutl.create_frame("ax_frame")
         self.tool_approach = uutl._create_joint_target(
             pm.PyNode(TOOL_TARGET), "tool_approach", self.approaches_frame
@@ -251,15 +256,58 @@ class Studio(object):
                 ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
                 props.send(ref_geo)
 
+    def write_painting_program(self, chunk_id, chunk_length):
+        prg = self.painting_program
+        if not prg:
+            return
+        prg.write(self, chunk_id=chunk_id, chunk_length=chunk_length)
+        return prg.program_name
+
+    def write_pick_place_program(self, index):
+        rack_context = pm.PyNode("RACK1_CONTEXT")
+        if self.pick_place_programs and index < len(self.pick_place_programs):
+            self.pick_place_frame = uutl.create_frame("pick_place_frame")
+            with uutl.final_position(rack_context):
+                prg = self.pick_place_programs[index]
+                prg.write(self)
+            return prg.program_name
+
+    def write_dip_program(self, index):
+        if self.dip_programs and index < len(self.dip_programs):
+            self.dips_frame = uutl.create_frame("dips_frame")
+            prg = self.dip_programs[index]
+            prg.write(self)
+            return prg.program_name
+
+    def write_water_program(self, index):
+        if self.water_programs and index < len(self.water_programs):
+            self.wash_frame = uutl.create_frame("wash_frame")
+            prg = self.water_programs[index]
+            prg.write(self)
+            return prg.program_name
+
+    def write_retardant_program(self, index):
+        if self.retardant_programs and index < len(self.retardant_programs):
+            self.wash_frame = uutl.create_frame("wash_frame")
+            prg = self.retardant_programs[index]
+            prg.write(self)
+            return prg.program_name
+
     def write(self):
 
-        self._write_approaches()
+        self.write_approaches()
 
         rack_context = pm.PyNode("RACK1_CONTEXT")
         painting_context = pm.PyNode("mainPaintingGroup")
 
         if self.painting_program:
             self.painting_program.write(self)
+
+        if self.pick_place_programs:
+            self.pick_place_frame = uutl.create_frame("pick_place_frame")
+            with uutl.final_position(rack_context):
+                for prog in self.pick_place_programs:
+                    prog.write(self)
 
         if self.dip_programs:
             self.dips_frame = uutl.create_frame("dips_frame")
@@ -295,12 +343,6 @@ class Studio(object):
                 self.brush_hang_program.write(self)
                 props.send([pm.PyNode("rackTop")])
 
-        if self.pick_place_programs:
-            self.pick_place_frame = uutl.create_frame("pick_place_frame")
-            with uutl.final_position(rack_context):
-                for prog in self.pick_place_programs:
-                    prog.write(self)
-
         if self.pot_cal_program:
             with uutl.final_position(rack_context):
                 self.pot_cal_program.write(self.tool_approach, self.home_approach)
@@ -308,11 +350,6 @@ class Studio(object):
         if self.holder_cal_program:
             with uutl.final_position(rack_context):
                 self.holder_cal_program.write(self.tool_approach, self.home_approach)
-
-        # if self.pot_holder_cal_program:
-        #     self.pot_holder_cal_program.write(
-        #             self.tool_approach,
-        #             self.home_approach)
 
         if self.perspex_cal_program:
             with uutl.final_position(rack_context):

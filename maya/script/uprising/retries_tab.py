@@ -192,10 +192,10 @@ class retriesTab(gui.FormLayout):
                 plugs = fetch_plugs(result["attribute"], nodes)
                 result["passes"].append({"prefix": prefix, "plugs": plugs, "pass_id": pass_id, "drying_time":drying_time })
         else:
-            prefix = str(main_collector).replace("collectStrokes", "")
+            prefix = "all"
             nodes = pm.ls(sl=True, dag=True, leaf=True, type="skeletonStroke")
             plugs = fetch_plugs(result["attribute"], nodes)
-            result["passes"]= [{"prefix": prefix, "plugs": plugs, "pass_id": -1  }]
+            result["passes"]= [{"prefix": prefix, "plugs": plugs, "pass_id": -1, "drying_time":0  }]
         return result
 
     def get_retries_parameters(self):
@@ -222,7 +222,7 @@ class retriesTab(gui.FormLayout):
         all_results = []
         step_values = pack["step_values"]
         try_existing = pack["try_existing"]
-        all_program_files = []
+   
         for pas in pack["passes"]:
             reset_collect_main_keys()
             plugs = pas["plugs"]
@@ -241,7 +241,7 @@ class retriesTab(gui.FormLayout):
                 program_files = self.publish_pass(export_dir, pas)
                 # all_program_files += program_files
             result_data = {
-                "prefix":pas["prefix"],
+                "prefix": pas["prefix"],
                 "drying_time":pas["drying_time"],
                 "results":results,
                 "success":success,
@@ -253,7 +253,7 @@ class retriesTab(gui.FormLayout):
             reset_collect_main_keys()
             all_results.append(result_data)
 
-        self.write_orchestrator_program(export_dir, all_results)
+        # self.write_orchestrator_program(export_dir, all_results)
         return all_results
 
 
@@ -262,39 +262,14 @@ class retriesTab(gui.FormLayout):
         all_skels = pm.ls(type="skeletonStroke")
         show_nodes = [p.node() for p in pas["plugs"]]
         with isolate_nodes(show_nodes, all_skels):
+            directory = os.path.join(export_dir, pas["prefix"])
             if not self.dry:
-                program_files =  self.publish_tab.publish_to_directory(export_dir, prefix=pas["prefix"])
+                program_files =  self.publish_tab.publish_to_directory(directory)
             else:
-                print "publish_tab.publish_to_directory {} {}".format(export_dir, pas["prefix"])
+                print "publish_tab.publish_to_directory {}".format(directory)
                 print show_nodes
         return program_files
 
-    def write_orchestrator_program(self, export_dir, result_data ):
-        print "Write_orchestrator_program:--"
-        if self.dry:
-            print "Skipping because Dry Run"
-        elif not export_dir:
-            print "Skipping because No export directory specified."
-        else:
-            orchestrator_file = os.path.join(export_dir, "main.src")
-            with open(orchestrator_file, 'w') as ofile:
-                ofile.write("&ACCESS RVP\n")
-                ofile.write("&REL 1\n")
-                ofile.write("&COMMENT Generated Uprising Robot Tools\n")
-                ofile.write("&PARAM TEMPLATE = C:\\KRC\Roboter\\Template\\vorgabe\n")
-                ofile.write("&PARAM EDITMASK = *\n")
-                ofile.write("DEF pxMain ( )\n")
- 
-                for data in result_data:
-                    for filename, valid in  data["program_files"]:
-                        if valid:
-                            ofile.write("{}( )\n".format(filename))
-                        else:
-                            ofile.write("&COMMENT {} is INVALID\n".format(filename))
-                    if data["drying_time"] > 0:
-                        ofile.write("WAIT SEC {0:.2f}\n".format(data["drying_time"]))
-                ofile.write("END\n")
-            print "Wrote orchestrator file: {}".format(orchestrator_file)
 
 def do_retries_for_plug(frame, plug, step_values, try_existing ):
     result = {"plug": str(plug), "attempts": -1, "path_results": [], "solved": False, "frame":frame}
@@ -389,405 +364,3 @@ def write_json_report(export_dir ,prefix, data ):
     with open(json_file, 'w') as outfile:
         json.dump(data, outfile, indent=4)
 
-
-# @contextmanager
-# def isolate_node(node, nodes):
-#     vals = [n.attr("active").get() for n in nodes]
-#     for n in nodes:
-#         n.attr("active").set(False)
-#     node.attr("active").set(True)
-#     yield
-#     node.attr("active").set(False)
-#     for i, n in enumerate(nodes):
-#         n.attr("active").set(vals[i])
-
-# @contextmanager
-# def pass_filter(pass_id):
-#     main_collector = pm.PyNode("collectStrokesMain")
-#     curr_id = main_collector.attr("strokeFilterList[0].strokeFilterOperand").get()
-#     curr_operator = main_collector.attr("strokeFilterList[0].strokeFilterOperator").get()
-
-#     main_collector.attr("strokeFilterList[0].strokeFilterOperand").set(pass_id)
-#     main_collector.attr("strokeFilterList[0].strokeFilterOperator").set(2)
-#     yield
-#     main_collector.attr("strokeFilterList[0].strokeFilterOperand").set(curr_id)
-#     main_collector.attr("strokeFilterList[0].strokeFilterOperator").set(curr_operator)
-
-
-
-                # main_collector.attr("strokeFilterList[0].strokeFilterOperand").set(pass_id)
-                # main_collector.attr("strokeFilterList[0].strokeFilterOperator").set(2)
-
-
-
-        # reset_collect_main_keys()
-
-        # if publish_mode  == 3:
-        #     self.do_publish_passes(export_dir)
-
-        # if publish_mode  == 2:
-        #     success = self.do_retries()
-        #     self.publish_tab.publish_to_directory(export_dir)
-        #     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-        #     write.write_maya_scene(export_dir, timestamp )
-        #     reset_collect_main_keys()
-
-        # if publish_mode  == 1:
-        #     success = self.do_retries()
-
-        # self.do_retries()
-
-
-
-    # def do_publish_passes(self, export_dir):
-    #     pass_ids = [int(i) for i in pm.textFieldGrp(self.passes_wg, query=True, text=True).split(",") if i is not None and i.isdigit()]
-    #     print "-" * 30
-    #     print pass_ids
-    #     main_collector = pm.PyNode("collectStrokesMain")
-    #     print main_collector
-    #     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-    #     print timestamp
-
-    #     attribute, try_existing, step_values = self.get_retries_parameters()
-
-    #     nodes = self.get_pack()
-
-
-    #     for pass_id in pass_ids:
-
-    #         print "PASS_ID: ",pass_id
-
-    #         reset_collect_main_keys()
-
-    #         collector =main_collector.attr("strokes[{}]".format(pass_id)).connections(s=True, d=False)[0]
-    #         ts_export_dir = os.path.join(export_dir,timestamp)
-    #         print "ts_export_dir",ts_export_dir
-    #         main_collector.attr("strokeFilterList[0].strokeFilterOperand").set(pass_id)
-    #         main_collector.attr("strokeFilterList[0].strokeFilterOperator").set(2)
-    #         skels = collector.history(type="skeletonStroke", levels=1)
-    #         for s in skels:
-    #             print s
-    #         plugs = fetch_plugs(attribute, skels)
-    #         # packs = fetch_packs_no_ui(self, try_existing, attribute, step_values, skels)
-
-    #         # self._clear_entries()
-    #         # self._load_retries_nodes(skels)
-
-    #         success = self.do_retries(plugs, step_values, try_existing)
-
-    #         print "COLLECTOR NAME", collector[14:]
-    #         prefix = str(collector)[14:]
-    #         # self.publish_tab.publish_to_directory(ts_export_dir, prefix=prefix)
-    #         reset_collect_main_keys()
-    #     #write.write_maya_scene(ts_export_dir, str(main_collector))
-
-
-
-        # self.varying_step_type_wg = pm.radioButtonGrp(
-        #     label='Step Type',
-        #     sl=1,
-        #     labelArray3=[
-        #         'Linear',
-        #         "Binary",
-        #         'Random'
-        #     ],
-        #     numberOfRadioButtons=3
-        # )
-
-
-        # self.add_objs_row = pm.rowLayout(
-        #                                 numberOfColumns=2,
-        #                                 columnWidth2=(200, 200),
-        #                                 adjustableColumn=1,
-        #                                 columnAlign=(1, 'right'),
-        #                                 columnAttach=[(1, 'both', 2), (2, 'both', 2)])
-
-        # self.retries_add_objs_btn = pm.button(
-        #     label='Load selected',
-        #     command=pm.Callback(self.on_load_selected))
-
-        # self.retries_add_all_objs_btn = pm.button(
-        #     label='Load all skeleton strokes',
-        #     command=pm.Callback(self.on_load_all_skel))
-        # pm.setParent("..")
-
-        # pm.scrollLayout(bv=True)
-        # self.objects_column = pm.columnLayout(adj=True)
-
-
-    # def on_load_selected(self):
-    #     nodes = pm.ls(selection=True)
-    #     self._load_retries_nodes(nodes)
-
-    # def on_load_all_skel(self):
-    #     self._load_retries_nodes(pm.ls(type="skeletonStroke"))
-
-    # def _load_retries_nodes(self, nodes):
-    #     self._clear_entries()
-    #     if not nodes:
-    #         return
-    #     typ = type(nodes[0])
-    #     if any(not isinstance(o, typ) for o in nodes[1:]):
-    #         pm.error("Objects must all be the same type")
-
-    #     frame = 0
-    #     for node in nodes:
-    #         pm.setParent(self.objects_column)
-    #         # pm.evalDeferred("self._create_entry(node, frame)")
-    #         self._create_entry(node, frame)
-    #         frame += 1
-
-    # def _clear_entries(self):
-    #     children = pm.columnLayout(self.objects_column, q=True, ca=True)
-    #     if children:
-    #         pm.deleteUI(children)
-
-    # def _create_entry(self, node, frame):
-    #     with uutl.activatable(state=True):
-    #         intf = pm.intFieldGrp(numberOfFields=1, label=node, value1=frame)
-    #     return intf
-
-    # def fetch_packs_no_ui(self, try_existing, attribute, step_values, nodes):
-
-    #     # try_existing = pm.checkBoxGrp(
-    #     #     self.try_existing_first_cb, query=True, value1=True)
-
-    #     # attribute = pm.textFieldGrp(
-    #     #     self.varying_attrib_wg, query=True, text=True)
-
-    #     result = {}
-    #     # forms = pm.columnLayout(self.objects_column, q=True, ca=True)
-
-    #     for node in nodes:
-    #         # vals = self.get_step_values()
-    #         # int_field, toggle = pm.formLayout(form, q=True, ca=True)
-    #         # frame = pm.intFieldGrp(int_field, q=True, value1=True)
-    #         # node = pm.intFieldGrp(int_field, q=True, label=True)
-    #         # do_retry = pm.checkBox(toggle, q=True, value=True)
-
-
-    #         # if frame not in result:
-    #         #     result[frame] = []
-
-    #         plug = pm.PyNode(node).attr(attribute)
-
-    #         if plug.get(lock=True):
-    #             pm.error("{} is locked. Can't adjust.")
-    #         if plug.inputs():
-    #             pm.error("{} has input connections. Can't adjust.")
-
-    #         initial_values = [plug.get()] if try_existing else []
-
-    #         result.append({
-    #             "plug": plug,
-    #             "values": initial_values + step_values
-    #         })
-    #     return result
-
-
-    # def fetch_packs(self):
-
-    #     try_existing = pm.checkBoxGrp(
-    #         self.try_existing_first_cb, query=True, value1=True)
-
-    #     attribute = pm.textFieldGrp(
-    #         self.varying_attrib_wg, query=True, text=True)
-
-    #     count = pm.intFieldGrp(self.num_retries_wg, query=True, value1=True)
-
-    #     low, high = pm.floatFieldGrp(
-    #         self.varying_range_wg, query=True, value=True)
-
-
-
-    #     result = {}
-    #     forms = pm.columnLayout(self.objects_column, q=True, ca=True)
-
-    #     for form in forms:
-    #         vals = self.get_step_values(low, high, count)
-    #         int_field, toggle = pm.formLayout(form, q=True, ca=True)
-    #         frame = pm.intFieldGrp(int_field, q=True, value1=True)
-    #         node = pm.intFieldGrp(int_field, q=True, label=True)
-    #         do_retry = pm.checkBox(toggle, q=True, value=True)
-
-    #         if frame not in result:
-    #             result[frame] = []
-
-    #         plug = pm.PyNode(node).attr(attribute)
-
-    #         if plug.get(lock=True):
-    #             pm.error("{} is locked. Can't adjust.")
-    #         if plug.inputs():
-    #             pm.error("{} has input connections. Can't adjust.")
-
-    #         initial_values = [plug.get()] if try_existing else []
-
-    #         result[frame].append({
-    #             "plug": plug,
-    #             "values": initial_values + vals,
-    #             "frame": frame,
-    #             "do_retry": do_retry
-    #         })
-    #     return result
-# def do_retries_for_pack(  pack):
-#     """"""
-#     result = {
-#         "plugs": [],
-#         "attempts": -1,
-#         "path_results": [],
-#         "solved": False,
-#         "frame": pack[0]["frame"]
-#     }
-
-#     print "{0} RUNNING RETRIES FRAME: {1} {0}".format(
-#         "*" * 20, result["frame"])
-
-#     painting_node = pm.PyNode("mainPaintingShape")
-#     try:
-#         num_clusters = pm.paintingQuery(painting_node, cc=True)
-#     except RuntimeError as ex:
-#         pm.displayWarning(ex.message)
-#         result["solved"] = True
-#         return result
-
-#     with uutl.minimize_robodk():
-#         count = len(pack[0]["values"])
-#         for i in range(count):
-#             for item in pack:
-#                 try:
-#                     item["plug"].set(item["values"][i])
-#                 except (pm.MayaAttributeError, RuntimeError) as e:
-#                     pm.warning(
-#                         "Problem with : {} - Skipping".format(item["plug"]))
-#             pm.refresh()
-
-#             studio = Studio(do_painting=True)
-#             studio.write()
-
-#             path_result = studio.painting_program.validate_path()
-#             metadata = {"iteration": i, "plug_values": [
-#                 {"plug": str(item["plug"]), "value": item["values"][i]} for item in pack]}
-#             path_result.update(metadata)
-#             result["path_results"].append(path_result)
-
-#             print "{0} frame: {1} {3}/{4} {2} {0}".format(
-#                 "- " * 10, result["frame"], path_result["status"], (i + 1), count)
-
-#             if path_result["status"] == "SUCCESS":
-#                 result["attempts"] = i + 1
-#                 result["solved"] = True
-#                 break
-
-#     return result
-
-
-
-
-
-        # self.activate_all(packs)
-        # uutl.show_in_window(results, title="Retries results")
-
-
-
-    # def do_retries_no_ui(self, packs):
-    #     # packs = self.fetch_packs()
-    #     # frames = sorted(packs.keys())
-
-    #     results = []
-    #     self.deactivate_all(packs)
-    #     for frame, pack in enumerate(packs):
-
-    #         retries_result = self.do_retries_for_pack(frame, pack)
-
-    #         # pack = packs[frame]
-    #         # self.activate_pack(pack)
-
-    #         if any(entry["do_retry"] for entry in pack):
-
-    #         retries_result = self.do_retries_for_pack(pack)
-    #             results.append(retries_result)
-    #         self.deactivate_pack(pack)
-
-    #     failed = False
-    #     some_empty = False
-    #     for res in results:
-    #         if not res["solved"]:
-    #             failed = True
-    #             print "Pack number: {} UNSOLVED".format(res["frame"])
-    #         else:  # solved
-    #             if res["attempts"] == -1:
-    #                 some_empty = True
-
-    #     self.activate_all(packs)
-    #     uutl.show_in_window(results, title="Retries results")
-
-    #     if failed:
-    #         print "Some frames could not be resolved"
-    #     else:
-    #         if some_empty:
-    #             print "All frames succeeded, some were empty"
-    #         else:
-    #             print "All frames succeeded"
-
-    #     return not failed
-
-
-
-
-
-    # def do_retries(self):
-
-    #     packs = self.fetch_packs()
-    #     frames = sorted(packs.keys())
-
-    #     results = []
-    #     self.deactivate_all(packs)
-    #     for frame in frames:
-    #         pack = packs[frame]
-    #         self.activate_pack(pack)
-
-    #         if any(entry["do_retry"] for entry in pack):
-    #             retries_result = self.do_retries_for_pack(pack)
-    #             results.append(retries_result)
-    #         self.deactivate_pack(pack)
-
-    #     failed = False
-    #     some_empty = False
-    #     for res in results:
-    #         if not res["solved"]:
-    #             failed = True
-    #             print "Pack number: {} UNSOLVED".format(res["frame"])
-    #         else:  # solved
-    #             if res["attempts"] == -1:
-    #                 some_empty = True
-
-    #     self.activate_all(packs)
-    #     uutl.show_in_window(results, title="Retries results")
-
-    #     if failed:
-    #         print "Some frames could not be resolved"
-    #     else:
-    #         if some_empty:
-    #             print "All frames succeeded, some were empty"
-    #         else:
-    #             print "All frames succeeded"
-
-    #     return not failed
-
-
-    # def activate_all(self, packs):
-    #     for k in packs:
-    #         self.activate_pack(packs[k], True)
-
-    # def deactivate(self, *plugs):
-    #     for p in plugs:
-    #         p.node().attr("active").set(False)
-
-    # def activate_pack(self, pack, everything=False):
-    #     for entry in pack:
-    #         if everything == True or entry["do_retry"]:
-    #             entry["plug"].node().attr("active").set(True)
-
-    # def deactivate_pack(self, pack):
-    #     for entry in pack:
-    #         entry["plug"].node().attr("active").set(False)

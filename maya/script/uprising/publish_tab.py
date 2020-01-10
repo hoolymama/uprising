@@ -30,7 +30,7 @@ class PublishTab(gui.FormLayout):
         self.on_wait_cb_change()
         self.on_dip_water_cb_change()
         self.on_current_frame_change()
-
+        self.on_separate_files_cb_change()
     def create_ui(self):
 
         pm.setParent(self.column)
@@ -57,13 +57,15 @@ class PublishTab(gui.FormLayout):
 
         pm.frameLayout(label="Dip/wipe behaviour", bv=True)
 
-        self.brush_pause_tfg = pm.textFieldGrp(
-            label='Pause before brush IDs', text='17,16,15,14,13,12')
+
+        with uutl.activatable(state=False):
+            self.brush_pause_tfg = pm.textFieldGrp(
+                label='Pause before brush IDs', text='17,16,15,14,13,12')
 
         self.do_water_dip_cb = pm.checkBoxGrp(
             label='Dip in water',
             height=30,
-            value1=0,
+            value1=1,
             annotation='Saturate each brush in water before before painting',
             changeCommand=pm.Callback(self.on_dip_water_cb_change))
 
@@ -102,6 +104,20 @@ class PublishTab(gui.FormLayout):
         pm.frameLayout(label="Program chunking", bv=True)
 
 
+        self.separate_files_cb = pm.checkBoxGrp(
+            label='Separate files',
+            height=30,
+            value1=1,
+            annotation='Separate each subprogram and split the main program',
+            changeCommand=pm.Callback(self.on_separate_files_cb_change))
+
+        self.cluster_chunk_if = pm.intFieldGrp(
+            height=30,
+            label="Max clusters",
+            annotation='Max number of clusters per painting program partial',
+            numberOfFields=1,
+            value1=200)
+
         self.current_cb = pm.checkBoxGrp(
             label='Current frame',
             height=30,
@@ -118,7 +134,12 @@ class PublishTab(gui.FormLayout):
 
         pm.setParent('..')
 
-    
+    def on_separate_files_cb_change(self):
+        state = pm.checkBoxGrp(self.separate_files_cb, query=True, value1=True)
+        pm.intFieldGrp(self.cluster_chunk_if, edit=True, enable=(state))
+        pm.checkBoxGrp(self.current_cb, edit=True,  enable=(not state))
+        pm.intFieldGrp(self.chunk_if, edit=True, enable=(not state))
+
     def on_current_frame_change(self):
         state = pm.checkBoxGrp(self.current_cb, query=True, value1=True)
         pm.intFieldGrp(self.chunk_if, edit=True, enable=(not state))
@@ -224,13 +245,28 @@ class PublishTab(gui.FormLayout):
                 self.first_dip_repeats_isg, query=True, value=True
             )
 
-        pause_brushes = [int(n) for n in pm.textFieldGrp(self.brush_pause_tfg , q=True, text=True).split(",") if n]
+        do_pause_brushes = pm.textFieldGrp(self.brush_pause_tfg, q=True, en=True)
+        pause_brushes = [int(n) for n in pm.textFieldGrp(self.brush_pause_tfg , q=True, text=True).split(",") if n] if do_pause_brushes else []
         do_water_dip = pm.checkBoxGrp(self.do_water_dip_cb, query=True, value1=True)
         do_retardant_dip = pm.checkBoxGrp(self.do_retardant_dip_cb, query=True, value1=True)
-
         water_wipe_repeats =  pm.intSliderGrp(self.water_wipe_repeats_isg, query=True, value=True)
-
         current_only = pm.checkBoxGrp(self.current_cb, query=True, value1=True)
+        do_separate_files  = pm.checkBoxGrp( self.separate_files_cb, query=True, value1=True)
+        cluster_chunk_size  = pm.intFieldGrp(self.cluster_chunk_if, query=True ,  value1=True)
+
+        if do_separate_files:
+            program_files = write.publish_separate_files( 
+                export_dir, 
+                pause_gripper_ms=pause,
+                first_dip_repeats=first_dip_repeats ,
+                do_water_dip=do_water_dip,
+                do_retardant_dip=do_retardant_dip,
+                water_wipe_repeats=water_wipe_repeats,
+                pause_brushes=pause_brushes ,
+                cluster_chunk_size=cluster_chunk_size
+            )
+
+            return program_files
 
         if current_only:
             c = pm.currentTime(q=True)
@@ -259,8 +295,6 @@ class PublishTab(gui.FormLayout):
 
 
         return program_files
-
-
 
     def on_go(self):
 

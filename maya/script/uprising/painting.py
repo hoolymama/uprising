@@ -31,7 +31,9 @@ class Painting(object):
         except RuntimeError:
             num_clusters = 0
         print "Creating {} clusters for {}".format(num_clusters, self.node)
-         for i in range(num_clusters):
+        for i in range(num_clusters):
+            if i % 10 == 0:
+                print "Cluster {}/{}".format(i, num_clusters)
             brush_id = pm.paintingQuery(self.node, clusterIndex=i, clusterBrushId=True)
             paint_id = pm.paintingQuery(self.node, clusterIndex=i, clusterPaintId=True)
 
@@ -40,7 +42,7 @@ class Painting(object):
 
             cluster = Cluster(i, self.node, self.robot, brush, paint)
             self.clusters.append(cluster)
-        print "Created clusters for {} -------".format(self.node)
+ 
         
     def write_brushes(self):
         for brush in self.brushes:

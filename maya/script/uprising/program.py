@@ -29,8 +29,9 @@ class ProgramError(Exception):
 
 
 class Program(object):
-    def __init__(self, name, **kw):
+    def __init__(self, name):
         self.program_name = name
+        self.program_name_prefix = name
         self.program = None
 
     def write(self):
@@ -39,7 +40,6 @@ class Program(object):
 
     def validate_path(self):
         if self.program:
-            RL = Robolink()
             update_result = self.program.Update(COLLISION_OFF)
             return {
                 "name": self.program_name,
@@ -59,48 +59,73 @@ class Program(object):
 class MainProgram(Program):
     def __init__(self, name, **kw):
         super(MainProgram, self).__init__(name)
+        
         self.painting = ptg.Painting(pm.PyNode("mainPaintingShape"))
         self.do_water_dip = kw.get("do_water_dip")
         self.do_retardant_dip = kw.get("do_retardant_dip")
         self.pause_brush_list = kw.get("pause_brushes", [])
 
-    def write(self, studio):
+    def bump_program_name(self, suffix):
+        self.program_name = "{}_{:02d}".format(self.program_name_prefix, suffix)
+
+    def write(self, studio, **kw):
         if not self.painting.clusters:
             return
+        num_clusters = len(self.painting.clusters) 
+        chunk_id = kw.get("chunk_id", 0)
+        chunk_length = kw.get("chunk_length", num_clusters )
+        start = chunk_id*chunk_length
+        end = (chunk_id+1)*chunk_length
+        last_chunk = (end > num_clusters)
+        self.bump_program_name(chunk_id)
+
         super(MainProgram, self).write()
+
+        
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
 
         with uutl.minimize_robodk():
             self.painting.write_brushes()
-            self.ensure_gripper_open()
             last_brush_id = None
-            last_paint_id = None
 
-            for cluster in self.painting.clusters:
+            for i, cluster in enumerate(self.painting.clusters):
+
+                do_write = start <= i < end
+
+                if i == 0 and do_write:
+                    self.ensure_gripper_open()
+
+
                 dip_repeats = 1
                 if cluster.reason == "tool":
-                    did_change_brush = self._change_tool(last_brush_id, cluster)
+                    did_change_brush = self._change_tool(last_brush_id, cluster, do_write)
                     if did_change_brush:
                         dip_repeats = studio.first_dip_repeats
                     last_brush_id = cluster.brush.id
-                self._write_dip_and_cluster(cluster, dip_repeats, studio)
 
-            self._on_end_tool(last_brush_id)
-            self.program.addMoveJ(studio.home_approach)
+                if do_write:
+                    self._write_dip_and_cluster(cluster, dip_repeats, studio)
 
-    def _change_tool(self, last_brush_id, cluster):
+            if last_chunk:
+                self._on_end_tool(last_brush_id)
+                self.program.addMoveJ(studio.home_approach)
+
+
+
+    def _change_tool(self, last_brush_id, cluster, do_write):
         if last_brush_id == cluster.brush.id:
             return False
+        if do_write:
+            if last_brush_id is not None:
+                self._on_end_tool(last_brush_id)
 
-        if last_brush_id is not None:
-            self._on_end_tool(last_brush_id)
-
-        self._on_start_tool(cluster.brush.id)
+            self._on_start_tool(cluster.brush.id)
 
         return True
 
     def _on_start_tool(self, brush_id):
         pick_program_name = PickProgram.generate_program_name(brush_id)
+
         self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
 
         if brush_id in self.pause_brush_list:
@@ -111,7 +136,7 @@ class MainProgram(Program):
             )
         if self.do_water_dip:
             self.program.RunInstruction(
-                WaterProgram.generate_program_name(cluster.brush.id),
+                WaterProgram.generate_program_name(brush_id),
                 INSTRUCTION_CALL_PROGRAM)
 
     def _on_end_tool(self, brush_id):
@@ -342,7 +367,7 @@ class BrushHangProgram(Program):
             self.program.addMoveL(targets["N"])
 
             self.program.RunInstruction(
-                "Mark the ARK center point".format(pack["id"]),
+                "Mark the ARC center point {}".format(pack["id"]),
                 INSTRUCTION_SHOW_MESSAGE,
             )
             self.program.Pause()
@@ -427,7 +452,8 @@ class WashProgram(Program):
         super(WashProgram, self).__init__(name)
         self.dip_painting = ptg.Painting(pack["dip"])
         self.wipe_painting = ptg.Painting(pack["wipe"])
-
+        self.frame = None
+        self.repeats = 0
 
     def _valid(self):
         return (self.dip_painting.clusters and self.wipe_painting.clusters)
@@ -606,7 +632,7 @@ class PotHolderCalibration(Program):
     def __init__(self, name):
         super(PotHolderCalibration, self).__init__(name)
 
-    def write(self, tool_approach, home_approach):
+    def write(self):
         super(PotHolderCalibration, self).write()
         self.program.RunInstruction(k.POT_CALIBRATION_PROGRAM_NAME, INSTRUCTION_CALL_PROGRAM)
         self.program.RunInstruction(k.HOLDER_CALIBRATION_PROGRAM_NAME, INSTRUCTION_CALL_PROGRAM)
@@ -753,8 +779,8 @@ class PerspexCalibration(CalibrationProgram):
 
 
 class ManualTriangulation(CalibrationProgram):
-    def __init__(self, name):
-        super(ManualTriangulation, self).__init__(name)
+    # def __init__(self, name):
+    #     super(ManualTriangulation, self).__init__(name)
 
     def _get_probe_brush(self):
         geo = butl.setup_probe_from_sheet()
