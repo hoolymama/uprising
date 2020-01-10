@@ -100,11 +100,11 @@ class MainProgram(Program):
         this_brush_id = None
         for cluster in self.painting.clusters[start:end]:
 
-            last_brush_id, this_brush_id,  did_change_tool,  did_change_brush,  did_end_last_tool = cluster.get_flow_info(last_cluster)
+            last_brush_id, this_brush_id,  did_change_tool,  did_change_brush,  did_end_last_brush = cluster.get_flow_info(last_cluster)
 
             dip_repeats = 1
 
-            if did_end_last_tool:
+            if did_end_last_brush:
                 self._on_end_tool(last_brush_id)
 
             if did_change_brush:
@@ -125,9 +125,9 @@ class MainProgram(Program):
         this_brush_id = None
         for cluster in self.painting.clusters[start:end]:
 
-            last_brush_id, this_brush_id,  did_change_tool,  did_change_brush,  did_end_last_tool = cluster.get_flow_info(last_cluster)
+            last_brush_id, this_brush_id,  did_change_tool,  did_change_brush,  did_end_last_brush = cluster.get_flow_info(last_cluster)
 
-            if did_end_last_tool:
+            if did_end_last_brush:
                 subprograms |= self._on_end_tool(last_brush_id, False)
 
             if did_change_brush:

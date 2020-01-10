@@ -61,13 +61,13 @@ class Cluster(object):
         last_brush_id = last_cluster.brush.id if last_cluster else None
         this_brush_id = self.brush.id
         did_change_tool = self.reason == "tool"
-        did_change_brush = (did_change_tool and (last_brush_id != this_brush_id),)
-        did_end_last_tool = did_change_brush and (last_brush_id != None)
+        did_change_brush = did_change_tool and (last_brush_id != this_brush_id)
+        did_end_last_brush = did_change_brush and (last_brush_id != None)
         return (
             last_brush_id,
             this_brush_id,
             did_change_tool,
             did_change_brush,
-            did_end_last_tool,
+            did_end_last_brush,
         )
 
