@@ -75,53 +75,45 @@ class MainProgram(Program):
         chunk_id = kw.get("chunk_id", 0)
         chunk_length = kw.get("chunk_length", num_clusters )
         start = chunk_id*chunk_length
-        end = (chunk_id+1)*chunk_length
-        last_chunk = (end > num_clusters)
+        end = start+chunk_length
+        end = min(end, num_clusters)
+        last_chunk = (end >= num_clusters)
+        first_chunk = start == 0
+        
         self.bump_program_name(chunk_id)
 
         super(MainProgram, self).write()
 
-        
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
 
-        with uutl.minimize_robodk():
-            self.painting.write_brushes()
-            last_brush_id = None
+        # with uutl.minimize_robodk():
+        self.painting.write_brushes()
+   
+        last_brush_id = None if start == 0 else  self.painting.clusters[(start-1)].brush.id
+        if first_chunk:
+            self.ensure_gripper_open()
 
-            for i, cluster in enumerate(self.painting.clusters):
+        
+        for cluster in self.painting.clusters[start:end]:
+            this_brush_id = cluster.brush.id
+            dip_repeats = 1
+            if cluster.reason == "tool":
+                did_change_brush = last_brush_id != this_brush_id
 
-                do_write = start <= i < end
+                if did_change_brush:
+                    if last_brush_id is not None:
+                        self._on_end_tool(last_brush_id)
+                    self._on_start_tool(this_brush_id)
+                    dip_repeats = studio.first_dip_repeats
+                last_brush_id = this_brush_id
+            self._write_dip_and_cluster(cluster, dip_repeats, studio)
 
-                if i == 0 and do_write:
-                    self.ensure_gripper_open()
-
-
-                dip_repeats = 1
-                if cluster.reason == "tool":
-                    did_change_brush = self._change_tool(last_brush_id, cluster, do_write)
-                    if did_change_brush:
-                        dip_repeats = studio.first_dip_repeats
-                    last_brush_id = cluster.brush.id
-
-                if do_write:
-                    self._write_dip_and_cluster(cluster, dip_repeats, studio)
-
-            if last_chunk:
-                self._on_end_tool(last_brush_id)
-                self.program.addMoveJ(studio.home_approach)
+        if last_chunk:
+            self._on_end_tool(last_brush_id)
+            self.program.addMoveJ(studio.home_approach)
 
 
-
-    def _change_tool(self, last_brush_id, cluster, do_write):
-        if last_brush_id == cluster.brush.id:
-            return False
-        if do_write:
-            if last_brush_id is not None:
-                self._on_end_tool(last_brush_id)
-
-            self._on_start_tool(cluster.brush.id)
-
-        return True
+        # return True
 
     def _on_start_tool(self, brush_id):
         pick_program_name = PickProgram.generate_program_name(brush_id)
