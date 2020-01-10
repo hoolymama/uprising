@@ -185,17 +185,17 @@ class retriesTab(gui.FormLayout):
             pass_ids = [int(i) for i in passes.split(",") if i is not None and i.isdigit()]
             for pass_id in pass_ids:
                 collector = main_collector.attr("strokes[{}]".format(pass_id)).connections(s=True, d=False)[0]
-                drying_time = collector.attr("dryingTime").get()
+
                 prefix = str(collector).replace("collectStrokes", "")
 
                 nodes = collector.history(type="skeletonStroke", levels=1)
                 plugs = fetch_plugs(result["attribute"], nodes)
-                result["passes"].append({"prefix": prefix, "plugs": plugs, "pass_id": pass_id, "drying_time":drying_time })
+                result["passes"].append({"prefix": prefix, "plugs": plugs, "pass_id": pass_id  })
         else:
             prefix = "all"
             nodes = pm.ls(sl=True, dag=True, leaf=True, type="skeletonStroke")
             plugs = fetch_plugs(result["attribute"], nodes)
-            result["passes"]= [{"prefix": prefix, "plugs": plugs, "pass_id": -1, "drying_time":0  }]
+            result["passes"]= [{"prefix": prefix, "plugs": plugs, "pass_id": -1   }]
         return result
 
     def get_retries_parameters(self):
@@ -239,10 +239,9 @@ class retriesTab(gui.FormLayout):
 
             if export_dir:
                 program_files = self.publish_pass(export_dir, pas)
-                # all_program_files += program_files
+ 
             result_data = {
                 "prefix": pas["prefix"],
-                "drying_time":pas["drying_time"],
                 "results":results,
                 "success":success,
                 "program_files": program_files
@@ -252,8 +251,7 @@ class retriesTab(gui.FormLayout):
 
             reset_collect_main_keys()
             all_results.append(result_data)
-
-        # self.write_orchestrator_program(export_dir, all_results)
+ 
         return all_results
 
 
