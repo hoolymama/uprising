@@ -89,6 +89,8 @@ MObject brushNode::aShape;
 MObject brushNode::aTransHeightParam;
 MObject brushNode::aContactPower;
 
+MObject brushNode::aInitialWait;
+
 MObject brushNode::aForwardBias;
 MObject brushNode::aGravityBias;
 MObject brushNode::aWipeBarPosition;
@@ -135,54 +137,42 @@ MStatus brushNode::initialize()
   aBristleHeight = nAttr.create("bristleHeight", "bht", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  // nAttr.setMin(0.00f);
-  // nAttr.setSoftMax(20f);
-  // nAttr.setDefault(2.0f);
+
   nAttr.setKeyable(true);
   addAttribute(aBristleHeight);
 
   aPaintingParam = nAttr.create("paintingParam", "ppm", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  // nAttr.setMin(0.00f);
-  // nAttr.setSoftMax(20f);
-  // nAttr.setDefault(2.0f);
+
   nAttr.setKeyable(true);
   addAttribute(aPaintingParam);
 
   aDipParam = nAttr.create("dipParam", "dpm", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  // nAttr.setMin(0.00f);
-  // nAttr.setSoftMax(20f);
-  // nAttr.setDefault(2.0f);
+
   nAttr.setKeyable(true);
   addAttribute(aDipParam);
 
   aWipeParam = nAttr.create("wipeParam", "wpm", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setSoftMax(20);
-  // nAttr.setDefault(2.0);
+
   nAttr.setKeyable(true);
   addAttribute(aWipeParam);
 
   aWidth = nAttr.create("width", "wid", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setSoftMax(20);
-  // nAttr.setDefault(2.0);
+
   nAttr.setKeyable(true);
   addAttribute(aWidth);
 
   aRetention = nAttr.create("retention", "ret", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setSoftMax(100.0);
-  // nAttr.setDefault(20.0);
+
   nAttr.setKeyable(true);
   addAttribute(aRetention);
 
@@ -208,20 +198,22 @@ MStatus brushNode::initialize()
   nAttr.setKeyable(true);
   addAttribute(aContactPower);
 
+  aInitialWait = nAttr.create("initialWait", "inw", MFnNumericData::kInt);
+  nAttr.setMin(-1);
+  nAttr.setDefault(0);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aInitialWait);
+
   aLineLength = nAttr.create("lineLength", "lln", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  // nAttr.setMin(0.00f);
-  // nAttr.setSoftMax(20.0f);
-  // nAttr.setDefault(1.0f);
   addAttribute(aLineLength);
 
   aLineThickness = nAttr.create("lineThickness", "ltk", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  // nAttr.setMin(0.00f);
-  // nAttr.setSoftMax(20.0f);
-  // nAttr.setDefault(5.0f);
   addAttribute(aLineThickness);
 
   aOutPaintBrush = tAttr.create("outPaintBrush", "opb", brushData::id);
