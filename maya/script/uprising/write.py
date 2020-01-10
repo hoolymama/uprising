@@ -1,4 +1,6 @@
 import errno
+import tarfile
+
 import os
 import sys
 import re
@@ -70,6 +72,11 @@ def publish_separate_files( directory, **kw):
     water_wipe_repeats = kw.get("water_wipe_repeats")
     pause_brushes = kw.get("pause_brushes")
    
+    src = os.path.join(directory, "src")
+    rdk = os.path.join(directory, "rdk")
+    uutl.mkdir_p(src)
+    uutl.mkdir_p(rdk)
+ 
     studio = Studio(
                 do_painting=True,
                 do_dips=True,
@@ -92,14 +99,14 @@ def publish_separate_files( directory, **kw):
     for i in range(num_main_painting_chunks):
         prep_clean(studio)
         program_name = studio.write_painting_program(i, cluster_chunk_size)
-        save_prog_and_station(RL, directory, program_name)
+        save_prog_and_station(RL, src, rdk, program_name)
         result["painting"].append(program_name)
 
     count = len(studio.pick_place_programs)
     for i in range(count):
         prep_clean(studio)
         program_name = studio.write_pick_place_program(i)
-        save_prog_and_station(RL, directory, program_name)
+        save_prog_and_station(RL, src, rdk, program_name)
         result["others"].append(program_name)
         print "Pick-Place {}/{}".format(i, count)
 
@@ -107,7 +114,7 @@ def publish_separate_files( directory, **kw):
     for i in range(count):
         prep_clean(studio)
         program_name = studio.write_dip_program(i)
-        save_prog_and_station(RL, directory, program_name)
+        save_prog_and_station(RL, src, rdk, program_name)
         result["others"].append(program_name)
         print "Dips {}/{}".format(i, count)
 
@@ -115,7 +122,7 @@ def publish_separate_files( directory, **kw):
     for i in range(count):
         prep_clean(studio)
         program_name = studio.write_water_program(i)
-        save_prog_and_station(RL, directory, program_name)
+        save_prog_and_station(RL, src, rdk, program_name)
         result["others"].append(program_name)
         print "Water {}/{}".format(i, count)
 
@@ -123,11 +130,15 @@ def publish_separate_files( directory, **kw):
     for i in range(count):
         prep_clean(studio)
         program_name = studio.write_retardant_program(i)
-        save_prog_and_station(RL, directory, program_name)
+        save_prog_and_station(RL, src, rdk, program_name)
         result["others"].append(program_name)
         print "Retardant {}/{}".format(i, count)
     
-    write_orchestrator(directory, result["painting"])
+    write_orchestrator(src, result["painting"])
+
+    with tarfile.open("{}.tar.gz".format(src), "w:gz") as tar:
+        tar.add(src, arcname=os.path.sep)
+
 
     return result
 
@@ -152,11 +163,10 @@ def prep_clean(studio):
     studio.write_approaches()
 
 
-def save_prog_and_station(RL, directory, program_name ):
-    uutl.mkdir_p(directory)
-    write_program(RL, directory, program_name)
-    write_station(RL, directory, program_name)
-    print "Wrote {}".format(program_name)
+def save_prog_and_station(RL, src, rdk, program_name ):
+    write_program(RL, src, program_name)
+    write_station(RL, rdk, program_name)
+    print "Wrote src and rdk: {}".format(program_name)
 
 
 

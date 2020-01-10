@@ -9,6 +9,7 @@ import pymel.core.uitypes as gui
 import uprising_util as uutl
 import write
 from studio import Studio
+from robolink import Robolink
 
 
 @contextmanager
@@ -149,6 +150,8 @@ class retriesTab(gui.FormLayout):
 
     def on_go(self ):
         uutl.checkRobolink()
+        RL = Robolink()
+        RL.HideRoboDK()
         pack = self.get_pack()
         publish_mode = pm.radioButtonGrp(self.publish_rb, query=True, sl=True)
 
@@ -173,7 +176,7 @@ class retriesTab(gui.FormLayout):
                 s.attr("active").set(True)
             write.write_maya_scene(export_dir, "scene" )
 
-
+        RL.ShowRoboDK()
 
     def get_pack(self):
         publish_mode = pm.radioButtonGrp(self.publish_rb, query=True, sl=True)

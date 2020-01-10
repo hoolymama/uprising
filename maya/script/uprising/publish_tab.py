@@ -10,6 +10,8 @@ import pymel.core.uitypes as gui
 import json
 from itertools import groupby
 from operator import itemgetter
+from robolink import Robolink
+
 
 class PublishTab(gui.FormLayout):
 
@@ -255,8 +257,10 @@ class PublishTab(gui.FormLayout):
         cluster_chunk_size  = pm.intFieldGrp(self.cluster_chunk_if, query=True ,  value1=True)
 
         if do_separate_files:
+            timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
+            directory = os.path.join(export_dir,timestamp)
             program_files = write.publish_separate_files( 
-                export_dir, 
+                directory, 
                 pause_gripper_ms=pause,
                 first_dip_repeats=first_dip_repeats ,
                 do_water_dip=do_water_dip,
@@ -267,6 +271,10 @@ class PublishTab(gui.FormLayout):
             )
 
             return program_files
+
+
+
+
 
         if current_only:
             c = pm.currentTime(q=True)
@@ -285,7 +293,7 @@ class PublishTab(gui.FormLayout):
             do_retardant_dip,
             water_wipe_repeats=water_wipe_repeats,
             pause_brushes=pause_brushes ,
-            prefix = kw.get("prefix", None)
+            prefix =  "prg"
         )
         if current_only:
             pm.cutKey("collectStrokesMain", at=(
@@ -297,8 +305,11 @@ class PublishTab(gui.FormLayout):
         return program_files
 
     def on_go(self):
-
+        uutl.checkRobolink()
+        RL = Robolink()
+        RL.HideRoboDK()
         export_dir = write.choose_publish_dir()
         if not export_dir:
             return
-        self.publish_to_directory(export_dir, prefix="prg")
+        self.publish_to_directory(export_dir)
+        RL.ShowRoboDK()

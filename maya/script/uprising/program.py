@@ -59,7 +59,8 @@ class Program(object):
 class MainProgram(Program):
     def __init__(self, name, **kw):
         super(MainProgram, self).__init__(name)
-        
+
+        self._subprograms = None
         self.painting = ptg.Painting(pm.PyNode("mainPaintingShape"))
         self.do_water_dip = kw.get("do_water_dip")
         self.do_retardant_dip = kw.get("do_retardant_dip")
@@ -71,85 +72,133 @@ class MainProgram(Program):
     def write(self, studio, **kw):
         if not self.painting.clusters:
             return
-        num_clusters = len(self.painting.clusters) 
+        num_clusters = len(self.painting.clusters)
         chunk_id = kw.get("chunk_id", 0)
         chunk_length = kw.get("chunk_length", num_clusters )
         start = chunk_id*chunk_length
         end = start+chunk_length
         end = min(end, num_clusters)
-        last_chunk = (end >= num_clusters)
-        first_chunk = start == 0
-        
+        is_last_chunk = (end >= num_clusters)
+        is_first_chunk = start == 0
+
         self.bump_program_name(chunk_id)
 
         super(MainProgram, self).write()
 
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
 
-        # with uutl.minimize_robodk():
         self.painting.write_brushes()
-   
-        last_brush_id = None if start == 0 else  self.painting.clusters[(start-1)].brush.id
-        if first_chunk:
+
+
+        last_cluster = None if start == 0 else  self.painting.clusters[(start-1)]
+
+        self._write_external_declarations(start, end, last_cluster, is_last_chunk)
+
+        if is_first_chunk:
             self.ensure_gripper_open()
 
-        
+        this_brush_id = None
         for cluster in self.painting.clusters[start:end]:
-            this_brush_id = cluster.brush.id
-            dip_repeats = 1
-            if cluster.reason == "tool":
-                did_change_brush = last_brush_id != this_brush_id
 
-                if did_change_brush:
-                    if last_brush_id is not None:
-                        self._on_end_tool(last_brush_id)
-                    self._on_start_tool(this_brush_id)
-                    dip_repeats = studio.first_dip_repeats
-                last_brush_id = this_brush_id
+            last_brush_id, this_brush_id,  did_change_tool,  did_change_brush,  did_end_last_tool = cluster.get_flow_info(last_cluster)
+
+            dip_repeats = 1
+
+            if did_end_last_tool:
+                self._on_end_tool(last_brush_id)
+
+            if did_change_brush:
+                self._on_start_tool(this_brush_id)
+                dip_repeats = studio.first_dip_repeats
+
             self._write_dip_and_cluster(cluster, dip_repeats, studio)
 
-        if last_chunk:
-            self._on_end_tool(last_brush_id)
+            if did_change_tool:
+                last_cluster = cluster
+
+        if is_last_chunk and cluster:
+            self._on_end_tool(this_brush_id)
             self.program.addMoveJ(studio.home_approach)
+
+    def _write_external_declarations(self,  start, end, last_cluster, is_last_chunk):
+        subprograms = set()
+        this_brush_id = None
+        for cluster in self.painting.clusters[start:end]:
+
+            last_brush_id, this_brush_id,  did_change_tool,  did_change_brush,  did_end_last_tool = cluster.get_flow_info(last_cluster)
+
+            if did_end_last_tool:
+                subprograms |= self._on_end_tool(last_brush_id, False)
+
+            if did_change_brush:
+                subprograms |= self._on_start_tool(this_brush_id, False)
+
+            subprograms |= self._write_dip_and_cluster(cluster, 1, None, False)
+
+            if did_change_tool:
+                last_brush_id = this_brush_id
+
+        if is_last_chunk and cluster:
+            subprograms |= self._on_end_tool(this_brush_id, False)
+
+        for sub in sorted(list(subprograms)):
+           self.program.RunInstruction("EXT {}( )".format(sub), INSTRUCTION_INSERT_CODE)
+
 
 
         # return True
 
-    def _on_start_tool(self, brush_id):
+    def _on_start_tool(self, brush_id, call_program=True):
+        result = set()
         pick_program_name = PickProgram.generate_program_name(brush_id)
+        if call_program:
+            self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
+        result.add(pick_program_name)
 
-        self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
-
-        if brush_id in self.pause_brush_list:
-            self.program.Pause()
-            self.program.RunInstruction(
-                "New bush, press continue when ready. ID: {:02d}".format(brush_id),
-                INSTRUCTION_SHOW_MESSAGE
-            )
         if self.do_water_dip:
-            self.program.RunInstruction(
-                WaterProgram.generate_program_name(brush_id),
-                INSTRUCTION_CALL_PROGRAM)
+            water_program_name = WaterProgram.generate_program_name(brush_id)
+            if call_program:
+                self.program.RunInstruction(water_program_name,
+                    INSTRUCTION_CALL_PROGRAM)
+            result.add(water_program_name)
+        return result
 
-    def _on_end_tool(self, brush_id):
+    def _on_end_tool(self, brush_id, call_program=True):
+        result = set()
         if self.do_retardant_dip:
             retardant_program_name = RetardantProgram.generate_program_name(brush_id)
-            self.program.RunInstruction(retardant_program_name, INSTRUCTION_CALL_PROGRAM)
+            if call_program:
+                self.program.RunInstruction(retardant_program_name, INSTRUCTION_CALL_PROGRAM)
+            result.add(retardant_program_name)
 
         place_program_name = PlaceProgram.generate_program_name(brush_id)
-        self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
+        if call_program:
+            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
+        result.add(place_program_name)
+        return result
 
 
-    def _write_dip_and_cluster(self, cluster, dip_repeats, studio):
+    def _write_dip_and_cluster(self, cluster, dip_repeats, studio, call_program=True):
+        result = set()
         dip_program_name = DipProgram.generate_program_name(
             cluster.paint.id, cluster.brush.id
         )
-        for repeat in range(dip_repeats):
-            self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
+        if call_program:
+            for repeat in range(dip_repeats):
+                self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
+        result.add(dip_program_name)
 
-        self.program.addMoveJ(studio.dip_approach)
-        cluster.write(self.program, self.frame, self.painting.motion, studio.RL, studio.robot)
-        self.program.addMoveJ(studio.dip_approach)
+        if call_program:
+            self.program.addMoveJ(studio.dip_approach)
+            cluster.write(self.program, self.frame, self.painting.motion, studio.RL, studio.robot)
+            self.program.addMoveJ(studio.dip_approach)
+        return result
+
+
+
+
+
+
 
 
 class PapExerciseProgram(Program):
