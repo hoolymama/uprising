@@ -371,6 +371,9 @@ private:
 	Target m_departure;
 
 	Target m_pivot;
+
+	float m_linearSpeed;
+	float m_angularSpeed;
 };
 
 inline double Stroke::interpContact(const MDoubleArray &contacts,

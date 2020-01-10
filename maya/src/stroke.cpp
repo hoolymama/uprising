@@ -12,29 +12,6 @@
 #include <stroke.h>
 
 const double epsilon = 0.0001;
-// const double pi = 3.1415926535;
-// const double rad_to_deg = (180.0 / pi);
-// const double tau = 2.0 * pi;
-// const double half_pi = 0.5 * pi;
-
-// double Stroke::interpContact(const MDoubleArray &contacts, double uniformParam)
-// {
-// 	int len = contacts.length();
-// 	int rindex = ceil(uniformParam);
-// 	if ( len < (rindex + 1))
-// 	{
-// 		return 1.0;
-// 	}
-// 	int lindex = floor(uniformParam);
-
-// 	double result = contacts[lindex];
-// 	if (lindex != rindex)
-// 	{
-// 		double w = double(rindex) - uniformParam;
-// 		result = contacts[lindex] * w + contacts[rindex] * (1.0 - w);
-// 	}
-// 	return result;
-// }
 
 unsigned Stroke::create(
 	const MObject &thisObj,
@@ -143,7 +120,9 @@ Stroke::Stroke() : m_targets(),
 				   m_parentId(-1),
 				   m_arrivals(),
 				   m_departure(),
-				   m_follow(true)
+				   m_follow(true),
+				   m_linearSpeed(1.0),
+				   m_angularSpeed(1.0)
 {
 }
 
@@ -185,7 +164,9 @@ Stroke::Stroke(
 					   m_backstroke(backstroke),
 					   m_arrivals(),
 					   m_departure(),
-					   m_follow(true)
+					   m_follow(true),
+					   m_linearSpeed(1.0),
+					   m_angularSpeed(1.0)
 
 {
 
