@@ -1,8 +1,6 @@
 import pymel.core as pm
-import stroke_factory_utils as sfu
-import curve_utils as cutl
 from brush import Brush
-import uprising.uprising_util as uutl
+import uprising_util as uutl
 import sheets
 import copy
 
@@ -237,7 +235,7 @@ def apply_brush_values_from_sheet(pouch_name):
             "prefix": "bpx",
         }
 
-        geo = reset_brush(brushes[i], **kw)
+        reset_brush(brushes[i], **kw)
 
     for b in brushes:
         pm.reorder(b, back=True)
