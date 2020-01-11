@@ -94,7 +94,7 @@ class retriesTab(gui.FormLayout):
         )
         pm.columnLayout(adj=True)
         self.publish_rb = pm.radioButtonGrp(
-            l="Publish", sl=3, nrb=3, la3=["Off", "After all",  "After each pass"],
+            l="Publish", sl=2, nrb=3, la3=["Off", "After all",  "After each pass"],
                 annotation='Also publish if retries succeed',
                 height=30,
                 changeCommand=pm.Callback(self.on_publish_rb_change)
@@ -163,9 +163,7 @@ class retriesTab(gui.FormLayout):
                 return
             timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
             export_dir = os.path.join(export_dir,timestamp)
-
-            pm.checkBoxGrp(self.publish_tab.current_cb, edit=True, value1=0)
-
+ 
         all_results = self.do_retries(pack, export_dir)
 
         uutl.show_in_window(all_results, title="Retries results")
@@ -250,7 +248,7 @@ class retriesTab(gui.FormLayout):
                 "program_files": program_files
             }
 
-            write_json_report(export_dir,pas["prefix"], result_data )
+            write.json_report(export_dir,pas["prefix"], result_data )
 
             reset_collect_main_keys()
             all_results.append(result_data)
@@ -359,9 +357,9 @@ def report_results(results):
     return not failed
 
 
-def write_json_report(export_dir ,prefix, data ):
-    uutl.mkdir_p(export_dir)
-    json_file = os.path.join(export_dir, "{}.json".format(prefix))
-    with open(json_file, 'w') as outfile:
-        json.dump(data, outfile, indent=4)
+# def write_json_report(export_dir ,prefix, data ):
+#     uutl.mkdir_p(export_dir)
+#     json_file = os.path.join(export_dir, "{}.json".format(prefix))
+#     with open(json_file, 'w') as outfile:
+#         json.dump(data, outfile, indent=4)
 

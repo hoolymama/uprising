@@ -34,7 +34,10 @@ def dip_combinations():
 def dip_combination_ids():
     painting_node = pm.PyNode("mainPaintingShape")
     result = []
-    combos = pm.paintingQuery(painting_node, dc=True)
+    try:
+        combos = pm.paintingQuery(painting_node, dc=True)
+    except:
+        pass
     for i in range(0, len(combos), 2):
         result.append({"brush": int(combos[i]), "paint": int(combos[i + 1])})
     return result

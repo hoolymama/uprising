@@ -87,7 +87,7 @@ class PublishTab(gui.FormLayout):
             label="Max clusters",
             annotation='Max number of clusters per painting program partial',
             numberOfFields=1,
-            value1=200)
+            value1=100)
 
         self.chunk_if = pm.intFieldGrp(
              height=30,
@@ -193,6 +193,14 @@ class PublishTab(gui.FormLayout):
         return (0, len(ranges)-1)
 
     def publish_to_directory(self, export_dir, **kw):
+
+
+        try:
+            pm.paintingQuery("mainPaintingShape", cc=True)
+        except:
+            pm.warning("Something not right!! Do you have any thing selected?")
+            return
+            
         wait = pm.checkBoxGrp(self.gripper_wait_cb, query=True, value1=True)
         pause = -1 if wait else pm.intFieldGrp(
             self.gripper_pause_if, query=True, value1=True)
@@ -200,10 +208,11 @@ class PublishTab(gui.FormLayout):
         water_wipe_repeats =  pm.intSliderGrp(self.water_wipe_repeats_isg, query=True, value=True)
         do_separate_files  = pm.checkBoxGrp( self.separate_files_cb, query=True, value1=True)
         cluster_chunk_size  = pm.intFieldGrp(self.cluster_chunk_if, query=True ,  value1=True)
+        timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
         directory = os.path.join(export_dir,timestamp)
 
         if do_separate_files:
-            timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
+
             program_files = write.publish_separate_files( 
                 directory, 
                 pause_gripper_ms=pause,

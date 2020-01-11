@@ -3,17 +3,15 @@ import pymel.core as pm
 import const as k
 
 import uprising_util as uutl
-import uprising.maya_util as mut
 import robodk as rdk
 from robolink import Robolink, ITEM_TYPE_ROBOT
 
 
 class Brush(object):
-    
-    def __init__( index, plug):
+    def __init__(self, index, plug):
         self.id = index
         self.plug = plug
-        self.node =  plug.node()
+        self.node = plug.node()
         self.node_name = self.node.name()
         self.name = str(plug).replace(".", "_")
 
@@ -21,11 +19,11 @@ class Brush(object):
             pm.dt.Matrix(pm.brushQuery(plug, tcp=True))
         )
         self.physical_id = self.node.attr("physicalId").get()
-        self.width = = self.node.attr("width").get() * 10
-        self.shape = self.node.attr("shape").get() 
-        self.retention = self.node.attr("retention").get() 
-        self.tip = self.node.attr("tip").get() 
-        self.wipe_bar_position =self.node.attr("wipeBarPosition").get()
+        self.width = self.node.attr("width").get() * 10
+        self.shape = self.node.attr("shape").get()
+        self.retention = self.node.attr("retention").get()
+        self.tip = self.node.attr("tip").get()
+        self.wipe_bar_position = self.node.attr("wipeBarPosition").get()
 
         self.initial_wait = self.node.attr("initialWait").get()
         self.initial_water = self.node.attr("initialWater").get()
@@ -52,8 +50,6 @@ class Brush(object):
         old_brush = RL.Item(self.name)
         if old_brush.Valid():
             return
-
-        # print "WRITE BRUSH", self.name
         triangles = uutl.to_vector_array(pm.brushQuery(self.plug, tri=True))
         triangles = [[t.x * 10, t.y * 10, t.z * 10] for t in triangles]
 

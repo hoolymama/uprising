@@ -1,9 +1,9 @@
-import errno
+ 
 import tarfile
 
 import os
-import sys
-import re
+ 
+import json
 import datetime
 import pymel.core as pm
 import uprising_util as uutl
@@ -30,38 +30,7 @@ def split_desc(desc):
         result[1] = "\n".join(lines[1:])
     return result
 
-
-def publish_proposal(
-        proposals_dir,
-        painting_node,
-        description,
-        frame_range,
-        clean_top):
-    maya_scenes_dir = os.path.join(proposals_dir, "maya", "scenes")
-    uutl.mkdir_p(maya_scenes_dir)
-    timestamp = get_timestamp()
-
-    write_maya_scene(maya_scenes_dir, timestamp)
-
-    media_dir = os.path.join(proposals_dir, "media", timestamp)
-    uutl.mkdir_p(media_dir)
-
-    write_info(
-        painting_node,
-        proposals_dir,
-        timestamp,
-        frame_range,
-        description)
-
-    write_image_sequence(
-        painting_node,
-        media_dir,
-        timestamp,
-        frame_range,
-        clean_top)
-
  
-
 def publish_separate_files( directory, **kw):
     RL = Robolink()
 
@@ -128,9 +97,10 @@ def publish_separate_files( directory, **kw):
     
     write_orchestrator(src, result["painting"])
 
+    json_report(directory ,  "stats", painting_stats(pm.PyNode("mainPaintingShape")) )
+    
     with tarfile.open("{}.tar.gz".format(src), "w:gz") as tar:
         tar.add(src, arcname=os.path.sep)
-
 
     return result
 
@@ -176,7 +146,7 @@ def publish_sequence(
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
 
-        name =  "{}_{:02d}".format("prg", frame)
+        program_name =  "{}_{:02d}".format("prg", frame)
         # There can be an error if the painting contains no strokes.
         # In that case, we just want to skip the frame.
         try:
@@ -211,17 +181,6 @@ def get_calibration_dir():
     uutl.mkdir_p(result)
     return result
 
-
-def choose_proposal_dir():
-    export_dir = os.path.join(pm.workspace.getPath(), 'proposals')
-    entries = pm.fileDialog2(caption="Choose directory", okCaption="Save",
-                             dialogStyle=2, fileMode=3, dir=export_dir)
-    if not entries:
-        pm.displayWarning('Nothing Selected')
-        return
-    return entries[0]
-
-
 def get_timestamp(suffix=None):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
 
@@ -229,10 +188,7 @@ def get_timestamp(suffix=None):
         timestamp = "%s_%s" % (timestamp, suffix)
     return timestamp
 
-
-def get_ts_dir(containing_dir, timestamp):
-    return os.path.join(containing_dir, timestamp)
-
+ 
 
 def write_csv(export_dir, timestamp):
 
@@ -325,9 +281,9 @@ def used_paints_and_brushes(painting_node):
     pids = dc[1::2]
     paints = Paint.paints(painting_node)
     brushes = Brush.brushes(painting_node)
-    used_paints = [paints[_id] for _id in pids]
-    used_brushes = [brushes[_id] for _id in bids]
-    return zip(used_brushes, used_paints)
+    _used_paints = [paints[_id] for _id in pids]
+    _used_brushes = [brushes[_id] for _id in bids]
+    return zip(_used_brushes, _used_paints)
 
 def painting_stats(node):
     cluster_count = pm.paintingQuery(node, cc=True)
@@ -360,7 +316,6 @@ def used_brushes(painting_node):
     brushes = Brush.brushes(painting_node)
     return [brushes[_id] for _id in ids]
 
-
 def used_paints(painting_node):
     ids = pm.paintingQuery(painting_node, dc=True)[1::2]
     ids = sorted(set(ids))
@@ -368,57 +323,10 @@ def used_paints(painting_node):
     return [paints[_id] for _id in ids]
 
 
-def write_log(ts_dir, timestamp, frame):
-
-    painting_node = pm.PyNode("mainPaintingShape")
-    dip_combos = putl.dip_combinations()
-
-    pnt_stats = painting_stats(painting_node)
-    brush_paint_pairs = used_paints_and_brushes(painting_node)
-
-    log_file = os.path.join(ts_dir, "log.txt")
-    with open(log_file, 'w') as the_file:
-
-        the_file.write("Timestamp: %s\n\n" % timestamp)
-
-        the_file.write("Frame number: %s\n\n" % frame)
-
-        the_file.write("Painting node stats:\n")
-        for k in pnt_stats:
-            the_file.write("%s: %s\n" % (k, pnt_stats[k]))
-        the_file.write("\n")
-
-        the_file.write("\n")
-        the_file.write("Brush + aint pairs:\n")
-        for brush, paint in brush_paint_pairs:
-            the_file.write(
-                "{}({:02d}) + {}({:02d})".format(brush.node_name, brush.id, paint.name, paint.id))
-        the_file.write("\n")
-
-        the_file.write("\n")
-        the_file.write("Used brushes:\n")
-        for brush in used_brushes(painting_node):
-            the_file.write("{}({:02d})".format(brush.node_name, brush.id))
-
-        the_file.write("\n")
-        the_file.write("Used paints:\n")
-        for paint in used_paints(painting_node):
-            the_file.write("{}({:02d})".format(paint.name, paint.id))
+def json_report(directory ,name, data ):
+    uutl.mkdir_p(directory)
+    json_file = os.path.join(directory, "{}.json".format(name))
+    with open(json_file, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
 
 
-def write_info(
-        painting_node,
-        proposals_dir,
-        timestamp,
-        frame_range,
-        description):
-    info_file = os.path.join(proposals_dir, ("%s.txt" % timestamp))
-    title, body = split_desc(description)
-
-    start, end = frame_range
-
-    with open(info_file, 'w') as the_file:
-        the_file.write("%s\n\n" % title)
-        the_file.write("%s\n\n" % body)
-        the_file.write("Timestamp: %s\n\n" % timestamp)
-        the_file.write("Frame range: %d to %d\n\n" % (start, end))
