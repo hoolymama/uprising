@@ -19,9 +19,9 @@ class Painting(object):
         self.paints = Paint.paints(node)
         self.clusters = []
         self.motion = {
-            "linear_speed": self.node.attr("linearSpeed").get() * 10,
-            "angular_speed": self.node.attr("angularSpeed").get(),
-            "rounding": self.node.attr("approximationDistance").get() * 10,
+            "linear_speed": node.attr("linearSpeed").get() * 10,
+            "angular_speed": node.attr("angularSpeed").get(),
+            "rounding": node.attr("approximationDistance").get() * 10,
         }
         self._create_clusters()
 
@@ -42,8 +42,8 @@ class Painting(object):
 
             cluster = Cluster(i, self.node, self.robot, brush, paint)
             self.clusters.append(cluster)
- 
-        
+
+
     def write_brushes(self):
         for brush in self.brushes:
             self.brushes[brush].write(self.RL, self.robot)

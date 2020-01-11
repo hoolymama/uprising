@@ -51,6 +51,12 @@
 #define kStrokeRotationsFlag "-sr"
 #define kStrokeRotationsFlagL "-strokeRotations"
 
+#define kStrokeSpeedLinearFlag "-ssl"
+#define kStrokeSpeedLinearFlagL "-strokeSpeedLinear"
+
+#define kStrokeSpeedAngularFlag "-ssa"
+#define kStrokeSpeedAngularFlagL "-strokeSpeedAngular"
+
 #define kStrokeArrivalPositionsFlag "sap"
 #define kStrokeArrivalPositionsFlagL "strokeArrivalPositions"
 
@@ -122,6 +128,10 @@ private:
 	MStatus handleClusterTravelCutoffFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleClusterTravelFlag(const paintingGeom &geom, MArgDatabase &argData);
+
+	MStatus handleStrokeSpeedLinearFlag(const paintingGeom &geom, MArgDatabase &argData);
+
+	MStatus handleStrokeSpeedAngularFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleStrokePositionsFlag(const paintingGeom &geom, MArgDatabase &argData,
 									  const MMatrix &worldMatrix);

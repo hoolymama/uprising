@@ -320,6 +320,12 @@ public:
 		MAngle::Unit unit,
 		MVector &result) const;
 
+	void setLinearSpeed(float val);
+	void setAngularSpeed(float val);
+
+	float linearSpeed() const;
+	float angularSpeed() const;
+
 	void rotate(double rotation);
 	void translate(const MVector &translation, bool transformPivot = false);
 

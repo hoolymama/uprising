@@ -53,6 +53,10 @@ MSyntax paintingCmd::newSyntax()
 
 	syn.addFlag(kRotateUnitFlag, kRotateUnitFlagL, MSyntax::kString);
 
+	syn.addFlag(kStrokeSpeedLinearFlag, kStrokeSpeedLinearFlagL);
+
+	syn.addFlag(kStrokeSpeedAngularFlag, kStrokeSpeedAngularFlagL);
+
 	syn.addFlag(kStrokePositionsFlag, kStrokePositionsFlagL);
 
 	syn.addFlag(kStrokeRotationsFlag, kStrokeRotationsFlagL);
@@ -164,6 +168,16 @@ MStatus paintingCmd::doIt(const MArgList &args)
 	if (argData.isFlagSet(kClusterTravelFlag))
 	{
 		return handleClusterTravelFlag(*pGeom, argData);
+	}
+
+	if (argData.isFlagSet(kStrokeSpeedLinearFlag))
+	{
+		return handleStrokeSpeedLinearFlag(*pGeom, argData);
+	}
+
+	if (argData.isFlagSet(kStrokeSpeedAngularFlag))
+	{
+		return handleStrokeSpeedAngularFlag(*pGeom, argData);
 	}
 
 	if (argData.isFlagSet(kStrokePositionsFlag))
@@ -485,6 +499,34 @@ MStatus paintingCmd::handleClusterTravelFlag(const paintingGeom &geom,
 	return MS::kSuccess;
 }
 ///////////////////////
+
+MStatus paintingCmd::handleStrokeSpeedLinearFlag(const paintingGeom &geom,
+												 MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(geom, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	setResult(geom.clusters()[clusterId].strokes()[strokeId].linearSpeed());
+	return MS::kSuccess;
+}
+
+MStatus paintingCmd::handleStrokeSpeedAngularFlag(const paintingGeom &geom,
+												  MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(geom, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	setResult(geom.clusters()[clusterId].strokes()[strokeId].angularSpeed());
+	return MS::kSuccess;
+}
 
 MStatus paintingCmd::handleStrokePositionsFlag(const paintingGeom &geom,
 											   MArgDatabase &argData, const MMatrix &worldMatrix)

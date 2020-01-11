@@ -62,8 +62,6 @@ class MainProgram(Program):
 
         self._subprograms = None
         self.painting = ptg.Painting(pm.PyNode("mainPaintingShape"))
-        self.do_water_dip = kw.get("do_water_dip")
-        self.do_retardant_dip = kw.get("do_retardant_dip")
         self.pause_brush_list = kw.get("pause_brushes", [])
 
     def bump_program_name(self, suffix):
@@ -89,102 +87,119 @@ class MainProgram(Program):
 
         self.painting.write_brushes()
 
-
         last_cluster = None if start == 0 else  self.painting.clusters[(start-1)]
 
-        self._write_external_declarations(start, end, last_cluster, is_last_chunk)
+        self._write_external_declarations(studio, start, end, last_cluster, is_last_chunk)
 
         if is_first_chunk:
             self.ensure_gripper_open()
 
-        this_brush_id = None
+        self._write_program_body(studio, start, end, last_cluster, is_last_chunk)
+
+    def _write_external_declarations(self, studio,  start, end, last_cluster, is_last_chunk):
+        subprograms = set()
+        cluster = None
         for cluster in self.painting.clusters[start:end]:
 
-            last_brush_id, this_brush_id,  did_change_tool,  did_change_brush,  did_end_last_brush = cluster.get_flow_info(last_cluster)
-
-            dip_repeats = 1
+            did_change_tool,  did_change_brush,  did_end_last_brush = cluster.get_flow_info(last_cluster)
 
             if did_end_last_brush:
-                self._on_end_tool(last_brush_id)
+                subprograms |= self._on_end_tool(last_cluster, False)
 
             if did_change_brush:
-                self._on_start_tool(this_brush_id)
-                dip_repeats = studio.first_dip_repeats
+                subprograms |= self._on_start_tool(cluster, False)
 
-            self._write_dip_and_cluster(cluster, dip_repeats, studio)
+            subprograms |= self._write_dip_and_cluster(cluster, 1, studio, False)
 
             if did_change_tool:
                 last_cluster = cluster
 
         if is_last_chunk and cluster:
-            self._on_end_tool(this_brush_id)
-            self.program.addMoveJ(studio.home_approach)
-
-    def _write_external_declarations(self,  start, end, last_cluster, is_last_chunk):
-        subprograms = set()
-        this_brush_id = None
-        for cluster in self.painting.clusters[start:end]:
-
-            last_brush_id, this_brush_id,  did_change_tool,  did_change_brush,  did_end_last_brush = cluster.get_flow_info(last_cluster)
-
-            if did_end_last_brush:
-                subprograms |= self._on_end_tool(last_brush_id, False)
-
-            if did_change_brush:
-                subprograms |= self._on_start_tool(this_brush_id, False)
-
-            subprograms |= self._write_dip_and_cluster(cluster, 1, None, False)
-
-            if did_change_tool:
-                last_brush_id = this_brush_id
-
-        if is_last_chunk and cluster:
-            subprograms |= self._on_end_tool(this_brush_id, False)
+            subprograms |= self._on_end_tool(cluster, False)
 
         for sub in sorted(list(subprograms)):
            self.program.RunInstruction("EXT {}( )".format(sub), INSTRUCTION_INSERT_CODE)
 
 
+    def _write_program_body(self, studio, start, end, last_cluster, is_last_chunk):
+        cluster = None
+        for cluster in self.painting.clusters[start:end]:
 
-        # return True
+            did_change_tool,  did_change_brush,  did_end_last_brush = cluster.get_flow_info(last_cluster)
 
-    def _on_start_tool(self, brush_id, call_program=True):
+            num_dips = 1
+
+            if did_end_last_brush:
+                self._on_end_tool(last_cluster)
+
+            if did_change_brush:
+                self._on_start_tool(cluster)
+                num_dips = max(cluster.brush.initial_dips, 1)
+
+            self._write_dip_and_cluster(cluster, num_dips, studio)
+
+            if did_change_tool:
+                last_cluster = cluster
+
+        if is_last_chunk and cluster:
+            self._on_end_tool(cluster)
+            self.program.addMoveJ(studio.home_approach)
+
+
+    def _on_start_tool(self, cluster, call_program=True):
         result = set()
-        pick_program_name = PickProgram.generate_program_name(brush_id)
+        brush = cluster.brush
+        bid = brush.id
+
         if call_program:
+            wait = brush.initial_wait
+            if wait > 0:
+                self.program.RunInstruction("WAIT SEC {:d}".format(wait), INSTRUCTION_INSERT_CODE)
+            elif wait == -1:
+                self.program.RunInstruction(
+                    "Program halted for {}".format(brush.node_name),
+                    INSTRUCTION_COMMENT,
+                )
+                self.program.RunInstruction("HALT {:d}".format(wait), INSTRUCTION_INSERT_CODE)
+
+        pick_program_name = PickProgram.generate_program_name(bid)
+        if call_program: 
             self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
         result.add(pick_program_name)
+        ### Initial Wait
 
-        if self.do_water_dip:
-            water_program_name = WaterProgram.generate_program_name(brush_id)
+        ### Initial Water
+        if brush.initial_water:
+            water_program_name = WaterProgram.generate_program_name(bid)
             if call_program:
                 self.program.RunInstruction(water_program_name,
                     INSTRUCTION_CALL_PROGRAM)
             result.add(water_program_name)
         return result
 
-    def _on_end_tool(self, brush_id, call_program=True):
+    def _on_end_tool(self, cluster, call_program=True):
         result = set()
-        if self.do_retardant_dip:
-            retardant_program_name = RetardantProgram.generate_program_name(brush_id)
+        bid = cluster.brush.id
+        if cluster.brush.retardant:
+            retardant_program_name = RetardantProgram.generate_program_name(bid)
             if call_program:
                 self.program.RunInstruction(retardant_program_name, INSTRUCTION_CALL_PROGRAM)
             result.add(retardant_program_name)
 
-        place_program_name = PlaceProgram.generate_program_name(brush_id)
+        place_program_name = PlaceProgram.generate_program_name(bid)
         if call_program:
             self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
         result.add(place_program_name)
         return result
 
 
-    def _write_dip_and_cluster(self, cluster, dip_repeats, studio, call_program=True):
+    def _write_dip_and_cluster(self, cluster, num_dips, studio, call_program=True):
         result = set()
         dip_program_name = DipProgram.generate_program_name(
             cluster.paint.id, cluster.brush.id
         )
         if call_program:
-            for repeat in range(dip_repeats):
+            for repeat in range(num_dips):
                 self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
         result.add(dip_program_name)
 
@@ -634,7 +649,7 @@ class CalibrationProgram(Program):
 
     def _get_probe_brush(self):
         geo = butl.setup_probe_from_sheet()
-        return Brush.brush_at_plug(0, geo.attr("outPaintBrush"))
+        return Brush(0, geo.attr("outPaintBrush"))
 
     def _write_stops(self, loc_a, loc_b, facing_joints):
         if loc_a and loc_b:
@@ -828,7 +843,7 @@ class ManualTriangulation(CalibrationProgram):
         geo.attr("paintingParam").set(0)
         geo.attr("dipParam").set(0)
         geo.attr("wipeParam").set(0)
-        return Brush.brush_at_plug(0, geo.attr("outPaintBrush"))
+        return Brush(0, geo.attr("outPaintBrush"))
 
     def write_locator_packs(self):
 

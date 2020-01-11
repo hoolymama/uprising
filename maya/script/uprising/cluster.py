@@ -7,29 +7,20 @@ from stroke import Stroke
 import pymel.core as pm
 
 
-import logging
-
-logger = logging.getLogger("uprising")
-
-
 class Cluster(object):
     def __init__(self, _id, node, robot, brush, paint):
         self.id = _id
         self.brush = brush
         self.paint = paint
-        self.node = node
-        self.travel = pm.paintingQuery(self.node, clusterIndex=_id, clusterTravel=True)
-        self.robot = robot
-        self.reason = pm.paintingQuery(self.node, clusterIndex=_id, clusterReason=True)
-        self.build_strokes()
+        self.travel = pm.paintingQuery(node, clusterIndex=_id, clusterTravel=True)
+        self.reason = pm.paintingQuery(node, clusterIndex=_id, clusterReason=True)
+        self.build_strokes(node, robot)
 
-    def build_strokes(self):
+    def build_strokes(self, node, robot):
         self.strokes = []
-        num_strokes = pm.paintingQuery(
-            self.node, clusterIndex=self.id, strokeCount=True
-        )
+        num_strokes = pm.paintingQuery(node, clusterIndex=self.id, strokeCount=True)
         for i in range(num_strokes):
-            stroke = Stroke(self.id, i, self.node, self.robot, self.brush)
+            stroke = Stroke(self.id, i, self.brush, node, robot)
             self.strokes.append(stroke)
 
     def change_tool_message(self):
@@ -50,12 +41,10 @@ class Cluster(object):
         cluster_name = self.name(program)
 
         program.RunInstruction("Cluster %s" % cluster_name, INSTRUCTION_COMMENT)
-
-        program.setSpeed(motion["linear_speed"], motion["angular_speed"])
         program.setRounding(motion["rounding"])
 
-        for i, stroke in enumerate(self.strokes):
-            stroke.write(cluster_name, program, frame, RL, robot)
+        for stroke in self.strokes:
+            stroke.write(cluster_name, program, frame, motion, RL, robot)
 
     def get_flow_info(self, last_cluster):
         last_brush_id = last_cluster.brush.id if last_cluster else None
@@ -63,11 +52,5 @@ class Cluster(object):
         did_change_tool = self.reason == "tool"
         did_change_brush = did_change_tool and (last_brush_id != this_brush_id)
         did_end_last_brush = did_change_brush and (last_brush_id != None)
-        return (
-            last_brush_id,
-            this_brush_id,
-            did_change_tool,
-            did_change_brush,
-            did_end_last_brush,
-        )
+        return (did_change_tool, did_change_brush, did_end_last_brush)
 

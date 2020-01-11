@@ -67,9 +67,6 @@ MObject tiltStrokes::aGlobalTiltTexture;
 MObject tiltStrokes::aGlobalTiltSampleDistance;
 MObject tiltStrokes::aGlobalTiltAmount;
 
-MObject tiltStrokes::aLinearSpeedTexture;
-MObject tiltStrokes::aAngularSpeedTexture;
-
 MObject tiltStrokes::aOutput;
 
 MTypeId tiltStrokes::id(k_tiltStrokes);
@@ -142,18 +139,6 @@ MStatus tiltStrokes::initialize()
   nAttr.setDefault(1.0);
   addAttribute(aGlobalTiltAmount);
 
-  aLinearSpeedTexture = nAttr.createColor("linearSpeedTexture", "lst");
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setKeyable(true);
-  addAttribute(aLinearSpeedTexture);
-
-  aAngularSpeedTexture = nAttr.createColor("angularSpeedTexture", "ast");
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setKeyable(true);
-  addAttribute(aAngularSpeedTexture);
-
   aOutput = tAttr.create("output", "out", strokeData::id);
   tAttr.setReadable(true);
   tAttr.setStorable(false);
@@ -164,9 +149,6 @@ MStatus tiltStrokes::initialize()
   st = attributeAffects(aGlobalTiltTexture, aOutput);
   st = attributeAffects(aGlobalTiltSampleDistance, aOutput);
   st = attributeAffects(aGlobalTiltAmount, aOutput);
-
-  st = attributeAffects(aLinearSpeedTexture, aOutput);
-  st = attributeAffects(aAngularSpeedTexture, aOutput);
 
   return (MS::kSuccess);
 }
@@ -204,7 +186,6 @@ MStatus tiltStrokes::compute(const MPlug &plug, MDataBlock &data)
   // cerr << "target count/uvCount " << count << " / " << uVals.length() << endl;
 
   tilt(uVals, vVals, data, geom);
-  speedMap(uVals, vVals, data, geom);
 
   hOutput.set(newData);
   data.setClean(plug);
@@ -315,64 +296,4 @@ bool tiltStrokes::tilt(
     index = iter->applyGlobalTilt(gradients, index);
   }
   return true;
-}
-
-bool tiltStrokes::speedMap(
-    MFloatArray &uVals,
-    MFloatArray &vVals,
-    MDataBlock &data,
-    std::vector<Stroke> *geom) const
-{
-
-  MStatus st;
-  MObject thisObj = thisMObject();
-  bool result = false;
-  if (TexUtils::hasTexture(thisObj, tiltStrokes::aLinearSpeedTexture))
-  {
-    MFloatArray linVals;
-
-    st = TexUtils::sampleUVTexture(
-        thisObj,
-        tiltStrokes::aLinearSpeedTexture,
-        uVals,
-        vVals, 0.0f, 1.0f,
-        linVals);
-    if (!st.error())
-    {
-
-      std::vector<Stroke>::iterator iter = geom->begin();
-      int index = 0;
-      for (unsigned i = 0; iter != geom->end(); iter++)
-      {
-        //  iter->setLinearSpeed(linVals);
-      }
-      result = true;
-    }
-  }
-
-  if (TexUtils::hasTexture(thisObj, tiltStrokes::aAngularSpeedTexture))
-  {
-
-    MFloatArray angVals;
-
-    st = TexUtils::sampleUVTexture(
-        thisObj,
-        tiltStrokes::aLinearSpeedTexture,
-        uVals,
-        vVals, 0.0f, 1.0f,
-        angVals);
-    if (!st.error())
-    {
-
-      std::vector<Stroke>::iterator iter = geom->begin();
-      int index = 0;
-      for (unsigned i = 0; iter != geom->end(); iter++)
-      {
-        //  iter->setAngularSpeed(angVals);
-      }
-      result = true;
-    }
-  }
-
-  return result;
 }

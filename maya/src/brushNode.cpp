@@ -90,6 +90,10 @@ MObject brushNode::aTransHeightParam;
 MObject brushNode::aContactPower;
 
 MObject brushNode::aInitialWait;
+MObject brushNode::aInitialWater;
+
+MObject brushNode::aInitialDips;
+MObject brushNode::aRetardant;
 
 MObject brushNode::aForwardBias;
 MObject brushNode::aGravityBias;
@@ -198,13 +202,35 @@ MStatus brushNode::initialize()
   nAttr.setKeyable(true);
   addAttribute(aContactPower);
 
-  aInitialWait = nAttr.create("initialWait", "inw", MFnNumericData::kInt);
+  aInitialWait = nAttr.create("initialWait", "inwi", MFnNumericData::kInt);
   nAttr.setMin(-1);
   nAttr.setDefault(0);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   addAttribute(aInitialWait);
+
+  aInitialWater = nAttr.create("initialWater", "inwa", MFnNumericData::kBoolean);
+  nAttr.setDefault(true);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aInitialWater);
+
+  aInitialDips = nAttr.create("initialDips", "indp", MFnNumericData::kInt);
+  nAttr.setMin(-1);
+  nAttr.setDefault(0);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aInitialDips);
+
+  aRetardant = nAttr.create("retardant", "rtd", MFnNumericData::kBoolean);
+  nAttr.setDefault(true);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aRetardant);
 
   aLineLength = nAttr.create("lineLength", "lln", MFnNumericData::kFloat);
   nAttr.setStorable(true);

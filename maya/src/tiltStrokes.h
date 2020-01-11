@@ -45,12 +45,6 @@ private:
       MDataBlock &data,
       std::vector<Stroke> *geom) const;
 
-  bool speedMap(
-      MFloatArray &uVals,
-      MFloatArray &vVals,
-      MDataBlock &data,
-      std::vector<Stroke> *geom) const;
-
   int countTargets(const std::vector<Stroke> *geom) const;
 
   static MObject aStrokes;
@@ -59,9 +53,6 @@ private:
   static MObject aGlobalTiltTexture;
   static MObject aGlobalTiltSampleDistance;
   static MObject aGlobalTiltAmount;
-
-  static MObject aLinearSpeedTexture;
-  static MObject aAngularSpeedTexture;
 
   static MObject aOutput;
 };

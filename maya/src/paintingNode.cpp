@@ -516,10 +516,6 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
     ptpThresh = 3.0;
   }
 
-  // MArrayDataHandle hBrushes = data.inputArrayValue(aBrushes, &st ); msert;
-
-  // void Brush::factory(MArrayDataHandle & ha, std::map<int, Brush>)
-
   std::map<int, Brush> brushes;
   collectBrushes(data, brushes);
 

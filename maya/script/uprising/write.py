@@ -66,11 +66,7 @@ def publish_separate_files( directory, **kw):
     RL = Robolink()
 
     pause_gripper_ms = kw.get("pause_gripper_ms")
-    first_dip_repeats = kw.get("first_dip_repeats")
-    do_water_dip = kw.get("do_water_dip")
-    do_retardant_dip = kw.get("do_retardant_dip")
     water_wipe_repeats = kw.get("water_wipe_repeats")
-    pause_brushes = kw.get("pause_brushes")
    
     src = os.path.join(directory, "src")
     rdk = os.path.join(directory, "rdk")
@@ -80,13 +76,9 @@ def publish_separate_files( directory, **kw):
     studio = Studio(
                 do_painting=True,
                 do_dips=True,
-                do_water_dip=do_water_dip,
-                do_retardant_dip=do_retardant_dip,
                 water_wipe_repeats=water_wipe_repeats,
                 pick_and_place_slots="used",
-                first_dip_repeats=first_dip_repeats,
-                pause=pause_gripper_ms,
-                pause_brushes=pause_brushes
+                pause=pause_gripper_ms
                 )
     
     result = {"painting": [], "others": []}
@@ -171,26 +163,20 @@ def save_prog_and_station(RL, src, rdk, program_name ):
 
 
 def publish_sequence(
-    export_dir,
+    directory,
     frame_range,
     pause ,
-    first_dip_repeats,
-    do_water_dip,
-    do_retardant_dip,
-    **kw
+    water_wipe_repeats
 ):
     results = []
     painting_node = pm.PyNode("mainPaintingShape")
-    recordings_dir = os.path.join(export_dir, "recordings")
-    uutl.mkdir_p(recordings_dir)
-    design_dir = os.path.join(export_dir, "design")
-    uutl.mkdir_p(design_dir)
-    prefix = kw.get("prefix", "prg")
- 
+    RL = Robolink()
+    src = os.path.join(directory, "src")
+    rdk = os.path.join(directory, "rdk")
     for frame in range(frame_range[0], frame_range[1] + 1):
         pm.currentTime(frame)
 
-        name =  "{}_{:02d}".format(prefix, frame)
+        name =  "{}_{:02d}".format("prg", frame)
         # There can be an error if the painting contains no strokes.
         # In that case, we just want to skip the frame.
         try:
@@ -198,34 +184,17 @@ def publish_sequence(
         except RuntimeError as ex:
             pm.displayWarning(ex.message)
             continue
-
-        RL = Robolink()
-
         studio = Studio(
             do_painting=True,
             do_dips=True,
-            do_water_dip=do_water_dip,
-            do_retardant_dip=do_retardant_dip,
-            water_wipe_repeats=kw.get("water_wipe_repeats"),
+            water_wipe_repeats=water_wipe_repeats,
             pick_and_place_slots="used",
-            first_dip_repeats=first_dip_repeats,
-            do_rack_and_holder_geo=False,
-            pause=pause,
-            pause_brushes=kw.get("pause_brushes") 
-            
+            pause=pause
             )
-
         studio.write()
-        program_file = write_program(RL, export_dir, "px", name)
-        results.append(program_file)
-
-        write_station(RL, export_dir, name)
-
+        save_prog_and_station(RL, src, rdk, program_name)
+        results.append(program_name)
     return results
-
-    # if first_timestamp:
-    #     write_maya_scene(export_dir, first_timestamp)
-
 
 def choose_publish_dir():
     export_dir = os.path.join(pm.workspace.getPath(), 'export')
@@ -331,7 +300,6 @@ def write_image_sequence(
 
 def setup_clean_top(painting_node):
     pass
-
 
 def write_program(RL, directory, progname):
     RL = Robolink()

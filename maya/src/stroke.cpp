@@ -1236,6 +1236,25 @@ void Stroke::applyGravityBias(const Brush &brush, float mult)
 	}
 }
 
+void Stroke::setLinearSpeed(float val)
+{
+	m_linearSpeed = val;
+}
+void Stroke::setAngularSpeed(float val)
+{
+	m_angularSpeed = val;
+}
+
+float Stroke::linearSpeed() const
+{
+	return m_linearSpeed;
+}
+
+float Stroke::angularSpeed() const
+{
+	return m_angularSpeed;
+}
+
 const Target &Stroke::departure() const
 {
 	return m_departure;

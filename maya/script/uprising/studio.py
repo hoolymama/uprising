@@ -61,7 +61,6 @@ class Studio(object):
         self.painting_program = None
         self.rack_cal_program = None
 
-        # self.pot_holder_cal_program = None
         self.pot_cal_program = None
         self.holder_cal_program = None
 
@@ -80,8 +79,6 @@ class Studio(object):
 
         self.pause = kw.get("pause", -1)
         self.do_rack_and_holder_geo = kw.get("do_rack_and_holder_geo")
-
-        self.first_dip_repeats = kw.get("first_dip_repeats", 1)
 
         self.dips_frame = None
         self.wash_frame = None
@@ -110,12 +107,10 @@ class Studio(object):
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.dip_programs = self._build_dip_programs()
 
-        if kw.get("do_water_dip"):
             logger.debug("Studio: water dips")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.water_programs = self._build_water_programs(water_wipe_repeats)
 
-        if kw.get("do_retardant_dip"):
             logger.debug("Studio: retardant dips")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.retardant_programs = self._build_retardant_programs()
@@ -215,7 +210,7 @@ class Studio(object):
     def _build_pick_place_programs(self, brush_ids):
 
         gripper_geo = butl.setup_gripper_from_sheet()
-        gripper = Brush.brush_at_plug(0, gripper_geo.attr("outPaintBrush"))
+        gripper = Brush(0, gripper_geo.attr("outPaintBrush"))
         if not gripper:
             raise StudioError("No Gripper. Risk of damage. Can't continue.")
 

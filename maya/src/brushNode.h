@@ -70,6 +70,9 @@ private:
   static MObject aGravityBias;
 
   static MObject aInitialWait;
+  static MObject aInitialWater;
+  static MObject aInitialDips;
+  static MObject aRetardant;
 
   static MObject aWipeBarPosition;
 

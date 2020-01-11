@@ -15,6 +15,8 @@
 #include "brushNode.h"
 #include "collectStrokes.h"
 #include "tiltStrokes.h"
+#include "mapStrokes.h"
+
 #include "paintingCmd.h"
 #include "brushCmd.h"
 
@@ -106,6 +108,10 @@ MStatus initializePlugin(MObject obj)
 							 tiltStrokes::initialize);
 	msert;
 
+	st = plugin.registerNode("mapStrokes", mapStrokes::id, mapStrokes::creator,
+							 mapStrokes::initialize);
+	msert;
+
 	st = plugin.registerNode("gateRamp", gateRamp::id, gateRamp::creator,
 							 gateRamp::initialize);
 	msert;
@@ -137,7 +143,13 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(gateRamp::id);
 	mser;
 
+	st = plugin.deregisterNode(mapStrokes::id);
+	mser;
+
 	st = plugin.deregisterNode(tiltStrokes::id);
+
+	st = plugin.deregisterNode(mapStrokes::id);
+
 	mser;
 
 	st = plugin.deregisterNode(collectStrokes::id);
