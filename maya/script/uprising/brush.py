@@ -9,29 +9,28 @@ from robolink import Robolink, ITEM_TYPE_ROBOT
 
 
 class Brush(object):
-    def __init__(
-        self,
-        the_id,
-        plug,
-        matrix,
-        width,
-        retention,
-        tip,
-        physical_id,
-        shape,
-        wipe_bar_position,
-    ):
-        self.id = the_id
-        self.physical_id = physical_id
-        self.matrix = uutl.maya_to_robodk_mat(matrix)
-        self.width = width * 10
-        self.shape = shape
-        self.retention = retention
-        self.tip = tip
+    
+    def __init__( index, plug):
+        self.id = index
         self.plug = plug
-        self.node_name, self.attr_name = plug.split(".")
+        self.node =  plug.node()
+        self.node_name = self.node.name()
         self.name = str(plug).replace(".", "_")
-        self.wipe_bar_position = wipe_bar_position
+
+        self.matrix = uutl.maya_to_robodk_mat(
+            pm.dt.Matrix(pm.brushQuery(plug, tcp=True))
+        )
+        self.physical_id = self.node.attr("physicalId").get()
+        self.width = = self.node.attr("width").get() * 10
+        self.shape = self.node.attr("shape").get() 
+        self.retention = self.node.attr("retention").get() 
+        self.tip = self.node.attr("tip").get() 
+        self.wipe_bar_position =self.node.attr("wipeBarPosition").get()
+
+        self.initial_wait = self.node.attr("initialWait").get()
+        self.initial_water = self.node.attr("initialWater").get()
+        self.initial_dips = self.node.attr("initialDips").get()
+        self.retardant = self.node.attr("retardant").get()
 
     def __str__(self):
         # Override to print a readable string
@@ -95,7 +94,7 @@ class Brush(object):
         for brush_node in brushNodes:
             for brush_att in brush_atts:
                 plug = brush_node.attr(brush_att)
-                Brush.brush_at_plug(0, plug).write(RL, robot)
+                Brush(0, plug).write(RL, robot)
 
     @classmethod
     def brush_at_index(cls, node, index):
@@ -104,7 +103,7 @@ class Brush(object):
             source=True, destination=False, plugs=True
         )[0]
 
-        return Brush.brush_at_plug(index, plug)
+        return Brush(index, plug)
 
     @classmethod
     def brush_set_at_index(cls, index):
@@ -122,24 +121,8 @@ class Brush(object):
         brush_atts = ["outPaintBrush", "outDipBrush", "outWipeBrush"]
         for brush_att in brush_atts:
             plug = brush_node.attr(brush_att)
-            result[brush_att] = Brush.brush_at_plug(index, plug)
+            result[brush_att] = Brush(index, plug)
         return result
-
-    @classmethod
-    def brush_at_plug(cls, index, plug):
-        vals = [index, str(plug)]
-        matrix = pm.dt.Matrix(pm.brushQuery(plug, tcp=True))
-        vals.append(matrix)
-        for att in [
-            "width",
-            "retention",
-            "tip",
-            "physicalId",
-            "shape",
-            "wipeBarPosition",
-        ]:
-            vals.append(plug.node().attr(att).get())
-        return Brush(*vals)
 
     @classmethod
     def find_by_regex(cls, node, regex_string):
