@@ -108,6 +108,8 @@ MObject brushNode::aOutWipeBrush;
 
 MObject brushNode::aCustomId;
 
+MObject brushNode::aModel;
+
 MStatus brushNode::initialize()
 {
   MStatus st;
@@ -280,6 +282,13 @@ MStatus brushNode::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   addAttribute(aWipeBarPosition);
+
+  aModel = tAttr.create("model", "mdl", MFnData::kString);
+  tAttr.setStorable(true);
+  tAttr.setKeyable(true);
+  addAttribute(aModel);
+
+  ////////////
 
   // attributeAffects(aWipeBarPosition, aOutPaintBrush);
   attributeAffects(aPhysicalId, aOutPaintBrush);

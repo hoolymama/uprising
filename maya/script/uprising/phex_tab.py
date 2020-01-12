@@ -99,17 +99,17 @@ class phexTab(gui.FormLayout):
        
         timestamp =  write.get_timestamp()
         if data["combinations"]:
-            exercise_dir = os.path.join(
+            directory = os.path.join(
                 pm.workspace.getPath(),
                 'export',
                 'calibrations',
                 k.POT_HANDLE_EXERCISE_PROGRAM_NAME,
                 timestamp)
-            uutl.mkdir_p(exercise_dir)
+            uutl.mkdir_p(directory)
 
             studio = Studio(pot_handle_exercise_data=data["combinations"])
             studio.write()
-            write.write_program(Robolink(), exercise_dir, k.POT_HANDLE_EXERCISE_PROGRAM_NAME, timestamp)
+            write.write_program(Robolink(), directory, k.POT_HANDLE_EXERCISE_PROGRAM_NAME)
         uutl.show_in_window(data, title="Pot/holder  exercise stats")
 
 

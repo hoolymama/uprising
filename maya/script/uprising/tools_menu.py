@@ -34,8 +34,6 @@ def create():
         command=pm.Callback(zero_disp_mesh))
 
     pm.menuItem(label="Print stats", command=pm.Callback(on_print_stats))
-    # pm.menuItem(label="Print stats range",
-    #             command=pm.Callback(on_print_stats_range))
 
     pm.menuItem(
         label="Print paint and brush json",
@@ -47,12 +45,6 @@ def create():
         command=pm.Callback(
             on_print_paint_and_brush_stats,
             "csv"))
-
-    # pm.menuItem(label="Connect brushIds to skeletons",
-    #             command=pm.Callback(on_connect_brushids_to_skeleton))
-
-    # pm.menuItem(label="Send brushes from selected paintings",
-    #             command=pm.Callback(on_send_brushes))
 
     pm.menuItem(label="Connect texture", subMenu=True)
     pm.menuItem(
@@ -156,33 +148,7 @@ def on_connect_texture(attribute):
 
 
 def on_print_stats():
-    painting_node = pm.PyNode("mainPaintingShape")
-
-    result = {}
-
-    # dip_node = pm.PyNode("dipPaintingShape")
-    brush_paint_pairs = write.used_paints_and_brushes(painting_node)
-    # print "Brush / Paint pairs:"
-    result["brush_paint_pairs"] = []
-    for brush, paint in brush_paint_pairs:
-        result["brush_paint_pairs"].append(
-            "brush:{}({:02d})-P({}) & paint:{}({:02d})".format(brush.node_name,brush.id,brush.physical_id,paint.name, paint.id)
-        )
-
-    result["brushes_in_use"] = []
-    for brush in write.used_brushes(painting_node):
-       result["brushes_in_use"].append(
-           "brush:{}({:02d})-P({})".format(brush.node_name,brush.id,brush.physical_id)
-           )
-
-    result["paints_in_use"] = []
-    for paint in write.used_paints(painting_node):
-        result["paints_in_use"].append(
-            "paint:{}({:02d})".format(paint.name,paint.id)
-         )
-
-    result["painting_node"] = write.painting_stats(painting_node)
-    uutl.show_in_window(result, title="Painting stats")
+    uutl.show_in_window(write.stats(), title="Painting stats")
 
 
 

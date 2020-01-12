@@ -104,20 +104,19 @@ class brushHangTab(gui.FormLayout):
         data = self.get_brush_twist_data()
         timestamp = write.get_timestamp()
         if data:
-            out_dir = os.path.join(
+            directory = os.path.join(
                 pm.workspace.getPath(),
                 "export",
                 "calibrations",
                 k.BRUSH_HANG_PROGRAM_NAME,
                 timestamp,
             )
-            uutl.mkdir_p(out_dir)
+            uutl.mkdir_p(directory)
 
-            studio = Studio(brush_hang_data=data)
+            studio = Studio(brush_hang_data=data, pause=300)
             studio.write()
-            write.write_program(
-                Robolink(), out_dir, k.BRUSH_HANG_PROGRAM_NAME, timestamp
-            )
+            write.write_program(Robolink(), directory, k.BRUSH_HANG_PROGRAM_NAME)
+
         uutl.show_in_window(
             [
                 {"brush": str(b["brush"]), "id": b["id"], "twist": b["twist"]}

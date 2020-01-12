@@ -84,6 +84,8 @@ private:
   static MObject aOutWipeBrush;
 
   static MObject aCustomId;
+
+  static MObject aModel;
 };
 
 #endif

@@ -97,12 +97,41 @@ def publish_separate_files( directory, **kw):
     
     write_orchestrator(src, result["painting"])
 
-    json_report(directory ,  "stats", painting_stats(pm.PyNode("mainPaintingShape")) )
+    json_report(directory ,  "stats", stats()) 
     
     with tarfile.open("{}.tar.gz".format(src), "w:gz") as tar:
         tar.add(src, arcname=os.path.sep)
 
     return result
+
+def stats():
+    result = {}
+
+    painting_node = pm.PyNode("mainPaintingShape") 
+    brush_paint_pairs =  used_paints_and_brushes(painting_node)
+    # print "Brush / Paint pairs:"
+    result["brush_paint_pairs"] = []
+    for brush, paint in brush_paint_pairs:
+        result["brush_paint_pairs"].append(
+            "brush:{}({:02d})-P({}) & paint:{}({:02d})".format(brush.node_name,brush.id,brush.physical_id,paint.name, paint.id)
+        )
+
+    result["brushes_in_use"] = []
+    for brush in used_brushes(painting_node):
+       result["brushes_in_use"].append(
+           "brush:{}({:02d})-P({})".format(brush.node_name,brush.id,brush.physical_id)
+           )
+
+    result["paints_in_use"] = []
+    for paint in used_paints(painting_node):
+        result["paints_in_use"].append(
+            "paint:{}({:02d})".format(paint.name,paint.id)
+         )
+
+    result["painting_node"] = painting_stats(painting_node)
+    # uutl.show_in_window(result, title="Painting stats")
+    return result
+
 
 def write_orchestrator(directory, programs):
     uutl.mkdir_p(directory)

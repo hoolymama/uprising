@@ -84,13 +84,13 @@ class PublishTab(gui.FormLayout):
 
         self.cluster_chunk_if = pm.intFieldGrp(
             height=30,
-            label="Max clusters",
+            label="Max clusters/file",
             annotation='Max number of clusters per painting program partial',
             numberOfFields=1,
             value1=100)
 
         self.chunk_if = pm.intFieldGrp(
-             height=30,
+            height=30,
             label="Max chunk size",
             numberOfFields=1,
             value1=1500)
@@ -101,7 +101,6 @@ class PublishTab(gui.FormLayout):
         state = pm.checkBoxGrp(self.separate_files_cb, query=True, value1=True)
         pm.intFieldGrp(self.cluster_chunk_if, edit=True, enable=(state))
         pm.intFieldGrp(self.chunk_if, edit=True, enable=(not state))
-
 
     def on_wait_cb_change(self):
         state = pm.checkBoxGrp(self.gripper_wait_cb, query=True, value1=True)
@@ -192,7 +191,7 @@ class PublishTab(gui.FormLayout):
 
         return (0, len(ranges)-1)
 
-    def publish_to_directory(self, export_dir, **kw):
+    def publish_to_directory(self, directory, **kw):
 
 
         try:
@@ -208,9 +207,7 @@ class PublishTab(gui.FormLayout):
         water_wipe_repeats =  pm.intSliderGrp(self.water_wipe_repeats_isg, query=True, value=True)
         do_separate_files  = pm.checkBoxGrp( self.separate_files_cb, query=True, value1=True)
         cluster_chunk_size  = pm.intFieldGrp(self.cluster_chunk_if, query=True ,  value1=True)
-        timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-        directory = os.path.join(export_dir,timestamp)
-
+ 
         if do_separate_files:
 
             program_files = write.publish_separate_files( 
@@ -238,8 +235,11 @@ class PublishTab(gui.FormLayout):
         uutl.checkRobolink()
         RL = Robolink()
         RL.HideRoboDK()
-        export_dir = write.choose_publish_dir()
-        if not export_dir:
+        directory = write.choose_publish_dir()
+        if not directory:
             return
-        self.publish_to_directory(export_dir)
+
+        timestamp = write.get_timestamp()
+        directory = os.path.join(directory,timestamp)
+        self.publish_to_directory(directory)
         RL.ShowRoboDK()

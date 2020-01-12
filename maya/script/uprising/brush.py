@@ -29,6 +29,7 @@ class Brush(object):
         self.initial_water = self.node.attr("initialWater").get()
         self.initial_dips = self.node.attr("initialDips").get()
         self.retardant = self.node.attr("retardant").get()
+        self.model = self.node.attr("model").get()
 
     def __str__(self):
         # Override to print a readable string

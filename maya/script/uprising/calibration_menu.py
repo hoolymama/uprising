@@ -78,25 +78,20 @@ def create():
         command=pm.Callback(generate_pick_place_exercise))
     return menu
 
-########################################
-########################################
-
-
 def generate_pick_place_exercise():
 
     timestamp = write.get_timestamp()
-    ppdir = os.path.join(
+    directory = os.path.join(
         pm.workspace.getPath(),
         'export',
         'calibrations',
         k.PAP_EXERCISE_PROGRAM_NAME,
         timestamp)
-    uutl.mkdir_p(ppdir)
+    uutl.mkdir_p(directory)
     studio = Studio(do_pap_exercise=True, pick_and_place_slots="all")
     studio.write()
 
-    write.write_program(Robolink(), ppdir,
-                        k.PAP_EXERCISE_PROGRAM_NAME, timestamp)
+    write.write_program(Robolink(), directory, k.PAP_EXERCISE_PROGRAM_NAME)
 
 
 def _read_triangulation(sheet_range):
@@ -124,7 +119,6 @@ def _generate_calibration(which, *reference_geo):
 
     kw = {
         "do_perspex_triangulation": which == k.TRI_CALIBRATION_PROGRAM_NAME,
-        # "do_pot_holder_calibration": which == k.POT_HOLDER_CALIBRATION_PROGRAM_NAME,
         "do_pot_calibration": which == k.POT_CALIBRATION_PROGRAM_NAME,
         "do_holder_calibration": which == k.HOLDER_CALIBRATION_PROGRAM_NAME,
         "do_board_calibration": which == k.BOARD_CALIBRATION_PROGRAM_NAME,
@@ -134,17 +128,17 @@ def _generate_calibration(which, *reference_geo):
     }
 
     timestamp = write.get_timestamp()
-    calib_dir = os.path.join(
+    directory = os.path.join(
         pm.workspace.getPath(),
         'export',
         'calibrations',
         which,
         timestamp)
-    uutl.mkdir_p(calib_dir)
+    uutl.mkdir_p(directory)
     studio = Studio(**kw)
     studio.write()
 
-    write.write_program(Robolink(), calib_dir, which, timestamp)
+    write.write_program(Robolink(), directory, which)
     props.send(reference_geo)
 
 
@@ -227,33 +221,6 @@ def read_pot_calibration():
                 row[2]),
             handle_height)
 
-# def read_pot_holder_calibration():
-#     service = sheets._get_service()
-#     result = service.spreadsheets().values().get(
-#         spreadsheetId=sheets.SHEETS["Measurements"],
-#         range='Rack!A6:C25').execute()
-
-#     data = result.get('values', [])
-
-#     pots = putl.get_pots()
-#     handles = putl.get_handles()
-#     if not (len(data) == len(pots) and len(data) == len(handles)):
-#         raise IndexError("Sheet data and number of pots are different lengths")
-
-#     pot_depth = pm.PyNode("rack|holes").attr("calibrationPotDepth").get()
-#     handle_height = pm.PyNode("rack|holes").attr(
-#         "calibrationHandleHeight").get()
-
-#     for row in data:
-#         i = int(uutl.numeric(row[0]))
-#         _set_precise(pots[i].getParent(), uutl.numeric(row[1]), pot_depth)
-#         _set_precise(
-#             handles[i].getParent(),
-#             uutl.numeric(
-#                 row[2]),
-#             handle_height)
-
-
 def read_holder_calibration():
     service = sheets._get_service()
     result = service.spreadsheets().values().get(
@@ -288,10 +255,6 @@ def read_perspex_calibration():
 
     for pack in packs:
         index = pack["index"]
-    # for row in data:
-        # i = int(uutl.numeric(row[0]))
-        # if i < pack_len:
-        # pack = packs[i]
         row = data[index]
         print "ROW:", row
         if len(row) > 6 and row[6]:
@@ -317,7 +280,6 @@ def read_board_calibration():
         raise IndexError(
             "Sheet data and number of verts are different lengths")
 
-    # with uutl.zero_position(pm.PyNode("mainPaintingGroup")):
     for val, vtx in zip(zip(*data)[1], verts):
         pos = vtx.getPosition(space="world")
         pos.z = (uutl.numeric(val) * 0.1) - 1.0

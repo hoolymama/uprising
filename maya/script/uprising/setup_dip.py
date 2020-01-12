@@ -11,19 +11,28 @@ import logging
 logger = logging.getLogger("uprising")
 
 
+def get_brush_ranks():
+    node = pm.PyNode("mainPaintingShape")
+    ranks = {}
+    for brush_id in node.attr("brushes").getArrayIndices():
+        brush = Brush.brush_at_index(node, brush_id)
+        m = brush.model
+        if not m in ranks:
+            ranks[m] = []
+        ranks[m].append(brush)
+    return ranks
+
+
 def doit(**kw):
 
     node = pm.PyNode("mainPaintingShape")
-    brushes = Brush.brushes(node)
     paints = Paint.paints(node)
 
     _delete_setup_nodes("RACK1_CONTEXT|j1|rack")
 
-    for brush_rank in k.BRUSH_RANKS:
-        brush_rank["brushes"] = []
-        for _id in brush_rank["ids"]:
-            brush_rank["brushes"].append(brushes[_id])
-        create_paintings(brush_rank, paints)
+    ranks = get_brush_ranks()
+    for rank in ranks:
+        create_paintings(rank, ranks[rank], paints)
 
 
 def _delete_setup_nodes(parent):
@@ -46,23 +55,23 @@ def _find_nodes_by_short_name(nodes, name):
     return [n for n in nodes if n.split("|")[-1] == name]
 
 
-def create_paintings(brush_rank, paints):
+def create_paintings(model, brushes, paints):
 
-    pm.PyNode("collectStrokesDW_dip_{}".format(brush_rank["name"]))
-    _create_paintings("dip", brush_rank, paints)
+    # pm.PyNode("collectStrokesDW_dip_bk_{}".format(model)
+    _create_paintings("dip", model, brushes, paints)
 
-    pm.PyNode("collectStrokesDW_wipe_{}".format(brush_rank["name"]))
-    _create_paintings("wipe", brush_rank, paints)
+    # pm.PyNode("collectStrokesDW_wipe_{}".format(brush_rank["name"]))
+    _create_paintings("wipe", model, brushes, paints)
 
 
-def _create_paintings(which, brush_rank, paints):
+def _create_paintings(which, model, brushes, paints):
     painting_template = (
         pm.PyNode("BRUSHES|curves|{}|{}PaintingControl".format(which, which)),
     )
-    collector = pm.PyNode("collectStrokesDW_{}_{}".format(which, brush_rank["name"]))
+    collector = pm.PyNode("collectStrokesDW_{}_bk_{}".format(which, model))
 
     for p in paints:
-        for brush in brush_rank["brushes"]:
+        for brush in brushes:
             create_painting_node(which, brush, paints[p], collector, painting_template)
 
 

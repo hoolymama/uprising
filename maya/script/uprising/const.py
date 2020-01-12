@@ -37,15 +37,6 @@ PAP_EXERCISE_PROGRAM_NAME = "pap"
 POT_HANDLE_EXERCISE_PROGRAM_NAME = "phex"
 BRUSH_HANG_PROGRAM_NAME = "hang"
 
-BRUSH_RANKS = [
-    {"name": "bk_davinci2", "ids": [0, 6, 12]},
-    {"name": "bk_davinci4", "ids": [1, 7, 13]},
-    {"name": "bk_davinci10", "ids": [2, 8, 14]},
-    {"name": "bk_davinci22", "ids": [3, 9, 15]},
-    {"name": "bk_davinci30", "ids": [4, 10, 16]},
-    {"name": "bk_flat100", "ids": [5, 11, 17]},
-    {"name": "bk_flat150", "ids": [18, 19]},
-]
 
 WATER_POT_ID = 9
 RETARDANT_POT_ID = 19

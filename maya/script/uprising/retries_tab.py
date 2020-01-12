@@ -1,5 +1,5 @@
 
-import datetime
+ 
 import json
 import os
 from contextlib import contextmanager
@@ -44,8 +44,6 @@ class retriesTab(gui.FormLayout):
         pm.setParent(self)
         self.publish_tab = None
 
-        self.on_publish_rb_change()
-
         self.dry = False
 
     def set_publish_tab( self, publish_tab):
@@ -54,9 +52,7 @@ class retriesTab(gui.FormLayout):
 
     def create_retries_ui(self):
 
-
         col = pm.columnLayout(adj=True)
-
 
         pm.frameLayout(
             bv=True,
@@ -84,36 +80,38 @@ class retriesTab(gui.FormLayout):
             value1=0,
             annotation='Before trying the set range of values, try the existing value',
             height=30)
+
+        self.publish_cb = pm.checkBoxGrp(
+            label='Publish',
+            value1=1,
+            annotation='Also publish if retries succeed',
+            height=30)
+
         pm.setParent("..")
+ 
 
         pm.frameLayout(
             bv=True,
             collapse=False,
             labelVisible=True,
-            label="Publish settings"
+            label="Retries settings"
         )
+ 
         pm.columnLayout(adj=True)
-        self.publish_rb = pm.radioButtonGrp(
-            l="Publish", sl=2, nrb=3, la3=["Off", "After all",  "After each pass"],
-                annotation='Also publish if retries succeed',
-                height=30,
-                changeCommand=pm.Callback(self.on_publish_rb_change)
-        )
+        self.progress_info_field = pm.scrollField(
+            height=70,
+            wordWrap=True,
+            text="Retries progress info", editable=False)
 
-        self.passes_wg = pm.textFieldGrp(
-            label='Pass IDs', text='0,1,2,3,4',
-            height=30)
+        self.progressControl = pm.progressBar()
 
+
+        pm.setParent("..") # col
         pm.setParent("..")
 
         pm.setParent("..")
         return col
-
-    def on_publish_rb_change(self):
-        state = pm.radioButtonGrp(self.publish_rb, query=True, sl=True)
-        # pm.rowLayout(self.add_objs_row, edit=True, enable=(state!=3))
-        pm.textFieldGrp(self.passes_wg, edit=True, enable=(state==3))
-
+ 
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
@@ -143,8 +141,8 @@ class retriesTab(gui.FormLayout):
         self.dry = True
         uutl.checkRobolink()
         pack = self.get_pack()
-        for ps in pack["passes"]:
-            ps["plugs"]=[str(plug) for plug in ps["plugs"]]
+        # for ps in pack["passes"]:
+        pack["plugs"]=[str(plug) for plug in pack["plugs"]]
         print json.dumps(pack, indent=2)
         self.on_go()
 
@@ -153,52 +151,54 @@ class retriesTab(gui.FormLayout):
         RL = Robolink()
         RL.HideRoboDK()
         pack = self.get_pack()
-        publish_mode = pm.radioButtonGrp(self.publish_rb, query=True, sl=True)
 
-        export_dir=None
+        if len(pack["plugs"]) == 0:
+            pm.warning("No plugs!")
 
-        if publish_mode > 1: #
-            export_dir = write.choose_publish_dir()
-            if not export_dir:
+
+        publish_mode = pm.checkBoxGrp(self.publish_cb, query=True, value1=True)
+
+        directory=None
+
+        if publish_mode: #
+            directory = write.choose_publish_dir()
+            if not directory:
                 return
-            timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-            export_dir = os.path.join(export_dir,timestamp)
- 
-        all_results = self.do_retries(pack, export_dir)
-
-        uutl.show_in_window(all_results, title="Retries results")
+            timestamp = write.get_timestamp()
+            directory = os.path.join(directory,timestamp)
         
-        all_skels = pm.ls(type="skeletonStroke")
-        if export_dir:
-            for s in all_skels:
-                s.attr("active").set(True)
-            write.write_maya_scene(export_dir, "scene" )
+        results = self.do_retries(pack)
+
+        if directory:
+            self.publish_tab.publish_to_directory(directory)
+     
+            write.json_report(directory,"retries", results )
+            write.write_maya_scene(directory, "scene" )
+        
+        uutl.show_in_window(results, title="Retries results")
+  
 
         RL.ShowRoboDK()
 
+ 
+
     def get_pack(self):
-        publish_mode = pm.radioButtonGrp(self.publish_rb, query=True, sl=True)
-        main_collector = pm.PyNode("collectStrokesMain")
+ 
         result = self.get_retries_parameters()
-        result["passes"] = []
-        if publish_mode  == 3:
-            passes = pm.textFieldGrp(self.passes_wg, query=True, text=True)
-            pass_ids = [int(i) for i in passes.split(",") if i is not None and i.isdigit()]
-            for pass_id in pass_ids:
-                collector = main_collector.attr("strokes[{}]".format(pass_id)).connections(s=True, d=False)[0]
+        result["plugs"] = []
+ 
+        nodes = pm.ls(sl=True, dag=True, leaf=True, type="skeletonStroke")
+        if  len(nodes) == 0:
+            pm.warning("No nodes selected. Aborting!")
+            return result
 
-                prefix = str(collector).replace("collectStrokes", "")
-
-                nodes = collector.history(type="skeletonStroke", levels=1)
-                plugs = fetch_plugs(result["attribute"], nodes)
-                result["passes"].append({"prefix": prefix, "plugs": plugs, "pass_id": pass_id  })
-        else:
-            prefix = "all"
-            nodes = pm.ls(sl=True, dag=True, leaf=True, type="skeletonStroke")
-            plugs = fetch_plugs(result["attribute"], nodes)
-            result["passes"]= [{"prefix": prefix, "plugs": plugs, "pass_id": -1   }]
+        if any([n.type() != "skeletonStroke" for n in nodes]):
+            confirm = pm.confirmDialog( title='Confirm', message='Some selected nodes are not skeletonStrokes. Continue? ', button=['Yes','No'], defaultButton='Yes', cancelButton='No', dismissString='No' )
+            if confirm == "No":
+                return result
+        result["plugs"] = fetch_plugs(result["attribute"], nodes)
         return result
-
+ 
     def get_retries_parameters(self):
         try_existing = pm.checkBoxGrp(
             self.try_existing_first_cb, query=True, value1=True)
@@ -218,97 +218,93 @@ class retriesTab(gui.FormLayout):
 
 
 
-    def do_retries(self, pack, export_dir  ):
+    def do_retries(self, pack ):
         all_skels = pm.ls(type="skeletonStroke")
-        all_results = []
+        # all_results = []
         step_values = pack["step_values"]
         try_existing = pack["try_existing"]
-   
-        for pas in pack["passes"]:
-            reset_collect_main_keys()
-            plugs = pas["plugs"]
-            results = []
-            for frame, plug in enumerate(plugs):
-                node = plug.node()
-                with isolate_nodes([node], all_skels):
-                    if not self.dry:
-                        retries_result = do_retries_for_plug(frame, plug, step_values, try_existing )
-                    else:
-                        retries_result  = {"plug": str(plug), "attempts": -1, "path_results": [], "solved": False, "frame":frame}
-                results.append(retries_result)
-            success = report_results(results)
+        reset_collect_main_keys()
+        plugs = pack["plugs"]
+        results = []
+        num_plugs = len(plugs)
 
-            if export_dir:
-                program_files = self.publish_pass(export_dir, pas)
+
+        pm.progressBar(self.progressControl, edit=True,  maxValue=num_plugs, isInterruptable=True)
+        
+        pm.scrollField(  self.progress_info_field, edit=True, text="Retrying plug {:d} of {:d}".format(0, num_plugs) )
+
  
-            result_data = {
-                "prefix": pas["prefix"],
-                "results":results,
-                "success":success,
-                "program_files": program_files
-            }
+        for plug_index, plug in enumerate(plugs):
+            node = plug.node()
+            with isolate_nodes([node], all_skels):
+                if not self.dry:
+                    retries_result = self.do_retries_for_plug(plug_index,num_plugs, plug, step_values, try_existing )
+                else:
+                    retries_result  = {"plug": str(plug), "attempts": -1, "path_results": [], "solved": False, "frame":plug_index}
+            results.append(retries_result)
 
-            write.json_report(export_dir,pas["prefix"], result_data )
-
-            reset_collect_main_keys()
-            all_results.append(result_data)
- 
-        return all_results
+            # pm.progressWindow( edit=True, progress=(plug_index+1))
 
 
-    def publish_pass(self, export_dir, pas):
-        program_files = []
-        all_skels = pm.ls(type="skeletonStroke")
-        show_nodes = [p.node() for p in pas["plugs"]]
-        with isolate_nodes(show_nodes, all_skels):
-            directory = os.path.join(export_dir, pas["prefix"])
-            if not self.dry:
-                program_files =  self.publish_tab.publish_to_directory(directory)
-            else:
-                print "publish_tab.publish_to_directory {}".format(directory)
-                print show_nodes
-        return program_files
+        pm.progressBar(self.progressControl, edit=True,  progress=0)
+        
+        result_data = {
+            "results":results,
+            "success":all([res["solved"] for res in results])
+        }
+
+        reset_collect_main_keys()
+
+        return result_data
 
 
-def do_retries_for_plug(frame, plug, step_values, try_existing ):
-    result = {"plug": str(plug), "attempts": -1, "path_results": [], "solved": False, "frame":frame}
 
-    print "RUNNING RETRIES: {} {}".format( plug,  "*" * 20 )
-    painting_node = pm.PyNode("mainPaintingShape")
-    try:
-        pm.paintingQuery(painting_node, cc=True)
-    except RuntimeError as ex:
-        pm.displayWarning(ex.message)
-        result["solved"] = True
+
+
+
+    def do_retries_for_plug(self, plug_index,num_plugs, plug, step_values, try_existing ):
+        result = {"plug": str(plug), "attempts": -1, "path_results": [], "solved": False, "frame":plug_index}
+
+        print "RUNNING RETRIES: {} {}".format( plug,  "*" * 20 )
+        painting_node = pm.PyNode("mainPaintingShape")
+        try:
+            pm.paintingQuery(painting_node, cc=True)
+        except RuntimeError as ex:
+            pm.displayWarning(ex.message)
+            result["solved"] = True
+            return result
+
+
+        values = ([plug.get()] if try_existing else []) + step_values
+        with uutl.minimize_robodk():
+            count = len(values)
+            for i, value in enumerate(values):
+                
+                plug.set(value)
+                pm.refresh()
+                studio = Studio(do_painting=True)
+                studio.write()
+
+                path_result = studio.painting_program.validate_path() or {"status": "SUCCESS"}
+                metadata = {"iteration": i,  "value": value}
+                path_result.update(metadata)
+                result["path_results"].append(path_result)
+
+                attempt_number = i + 1
+                print "{0} frame: {1} {3}/{4} {2} {0}".format(
+                    "- " * 10, plug_index, path_result["status"], attempt_number, count)
+    
+                pm.progressBar(self.progressControl, edit=True,  progress=(plug_index+1))
+                msg = "Tried plug {:d} of {:d}\nAttempt {:d}/{:d} {}({}) result: {}".format((plug_index+1), num_plugs, attempt_number, count, plug, value, path_result["status"])
+
+                pm.scrollField(  self.progress_info_field, edit=True, text=msg )
+
+                if path_result["status"] == "SUCCESS":
+                    result["attempts"] = i + 1
+                    result["solved"] = True
+                    break
+
         return result
-
-
-    values = ([plug.get()] if try_existing else []) + step_values
-    with uutl.minimize_robodk():
-        count = len(values)
-        for i, value in enumerate(values):
-
-            plug.set(value)
-
-            pm.refresh()
-
-            studio = Studio(do_painting=True)
-            studio.write()
-
-            path_result = studio.painting_program.validate_path() or {"status": "SUCCESS"}
-            metadata = {"iteration": i,  "value": value}
-            path_result.update(metadata)
-            result["path_results"].append(path_result)
-
-            print "{0} frame: {1} {3}/{4} {2} {0}".format(
-                "- " * 10, frame, path_result["status"], (i + 1), count)
-
-            if path_result["status"] == "SUCCESS":
-                result["attempts"] = i + 1
-                result["solved"] = True
-                break
-
-    return result
 
 def reset_collect_main_keys():
     print "CLEAR_COLLECT_MAIN_KEYS"
@@ -336,6 +332,8 @@ def fetch_plugs(attribute, nodes):
         result.append(plug)
     return result
 
+
+ 
 def report_results(results):
     failed = False
     some_empty = False
@@ -355,11 +353,4 @@ def report_results(results):
             print "All frames succeeded"
 
     return not failed
-
-
-# def write_json_report(export_dir ,prefix, data ):
-#     uutl.mkdir_p(export_dir)
-#     json_file = os.path.join(export_dir, "{}.json".format(prefix))
-#     with open(json_file, 'w') as outfile:
-#         json.dump(data, outfile, indent=4)
 
