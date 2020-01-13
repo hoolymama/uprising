@@ -234,13 +234,13 @@ class Studio(object):
     def write_approaches(self):
         self.approaches_frame = uutl.create_frame("ax_frame")
         self.tool_approach = uutl._create_joint_target(
-            pm.PyNode(TOOL_TARGET), "tool_approach", self.approaches_frame
+            pm.PyNode(TOOL_TARGET), "tool_approach", self.approaches_frame, self.robot
         )
         self.home_approach = uutl._create_joint_target(
-            pm.PyNode(HOME_TARGET), "home_approach", self.approaches_frame
+            pm.PyNode(HOME_TARGET), "home_approach", self.approaches_frame, self.robot
         )
         self.dip_approach = uutl._create_joint_target(
-            pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame
+            pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame, self.robot
         )
 
     def _write_rack_and_holder_geo(self):

@@ -2,28 +2,50 @@
 # import random
 # import math
 
-from robolink import *
+from robolink import Robolink
+import cProfile, pstats, StringIO
 
+pr = cProfile.Profile()
+pr.enable()
+
+RL = Robolink()
+list_items = RL.ItemList() 
+for item in list_items:
+    print item.Name()
+
+pr.disable()
+
+s = StringIO.StringIO()
+sortby = 'cumulative'
+ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+ps.print_stats()
+print s.getvalue()
 
 # import os
 # import pymel.core as pm
 
 # import uprising.uprising_util as uutl
 
-from robolink import Robolink
-import sheets
+ # turn off auto rendering (faster)
+# RL.Render(False)
+
+# # Automatically delete previously generated items (Auto tag)
+# list_items = RL.ItemList()  # list all names
+# print list_items
+# for item in list_items:
+#     if item.Name().startswith('Auto'):
 
 
-def  get_flange_mode():
-    service = sheets._get_service()
-    result = service.spreadsheets().values().get(
-        spreadsheetId=sheets.SHEETS["Measurements"],
-        range='Brushes!A2:A2').execute()
+# def  get_flange_mode():
+#     service = sheets._get_service()
+#     result = service.spreadsheets().values().get(
+#         spreadsheetId=sheets.SHEETS["Measurements"],
+#         range='Brushes!A2:A2').execute()
 
-    print    result['values'][0][0]
+#     print    result['values'][0][0]
     
 
-get_flange_mode()
+# get_flange_mode()
 
     # data = result.get('values', [])
 
@@ -207,47 +229,47 @@ get_flange_mode()
 # print msg_str
 
 
-def get_measurements_values(cell_range, service, dimension="ROWS"):
-    result = service.spreadsheets().values().get(
-        spreadsheetId=sheets.SHEETS["Measurements"],
-        range=cell_range, majorDimension=dimension).execute()
-    return result.get('values', [])
+# def get_measurements_values(cell_range, service, dimension="ROWS"):
+#     result = service.spreadsheets().values().get(
+#         spreadsheetId=sheets.SHEETS["Measurements"],
+#         range=cell_range, majorDimension=dimension).execute()
+#     return result.get('values', [])
 
 
-def get_palette_header(search_str, service):
-    batch_size = 100
-    batches = 10
-    total_rows = batch_size * batches
-    for r, x in [("Paints!A%d:A%d" % (x + 1, x + batch_size), x)
-                 for x in xrange(0, total_rows, batch_size)]:
-        values = get_measurements_values(r, service, "COLUMNS")
-        if values:
-            for i, v in enumerate(values[0]):
-                if v == search_str:
-                    row = (x + i + 1)
-                    cell_range = "Paints!A%d:B%d" % (row, row)
-                    header_values = get_measurements_values(
-                        cell_range, service)[0]
-                    header_values.append(row)
-                    return tuple(header_values)
+# def get_palette_header(search_str, service):
+#     batch_size = 100
+#     batches = 10
+#     total_rows = batch_size * batches
+#     for r, x in [("Paints!A%d:A%d" % (x + 1, x + batch_size), x)
+#                  for x in xrange(0, total_rows, batch_size)]:
+#         values = get_measurements_values(r, service, "COLUMNS")
+#         if values:
+#             for i, v in enumerate(values[0]):
+#                 if v == search_str:
+#                     row = (x + i + 1)
+#                     cell_range = "Paints!A%d:B%d" % (row, row)
+#                     header_values = get_measurements_values(
+#                         cell_range, service)[0]
+#                     header_values.append(row)
+#                     return tuple(header_values)
 
 
-def get_palette_by_name(name):
-    service = sheets._get_service()
-    # name, medium, row = get_palette_header(name, service)
-    header = get_palette_header(name, service)
-    if header:
-        name, medium, row = header
-        cell_range = "Paints!A%d:E%d" % (row + 1, row + 64)
-        palette = get_measurements_values(cell_range, service)
-        new_palette = []
-        for entry in palette:
-            if len(entry) == 0:
-                break
-            new_palette.append(entry)
+# def get_palette_by_name(name):
+#     service = sheets._get_service()
+#     # name, medium, row = get_palette_header(name, service)
+#     header = get_palette_header(name, service)
+#     if header:
+#         name, medium, row = header
+#         cell_range = "Paints!A%d:E%d" % (row + 1, row + 64)
+#         palette = get_measurements_values(cell_range, service)
+#         new_palette = []
+#         for entry in palette:
+#             if len(entry) == 0:
+#                 break
+#             new_palette.append(entry)
 
-        # new_palette = [entry for entry in palette if len(entry) >= 5]
-        return tuple([name, medium, new_palette])
+#         # new_palette = [entry for entry in palette if len(entry) >= 5]
+#         return tuple([name, medium, new_palette])
 
 
 # print get_palette_by_name("ben_test28palette")
@@ -289,38 +311,38 @@ def get_palette_by_name(name):
 # toolbar and without the menu
 
 
-def draw_seg(verts, color, name):
-    # print "color %s %s %s" % color
-    # print "name %s" % name
-    RL = Robolink()
-    triangles = [
-        list(verts[0]), list(verts[1]), list(verts[2]),
-        list(verts[1]), list(verts[3]), list(verts[2])
-    ]
-    geo = RL.Item(name)
-    if not geo.Valid():
-        geo = RL.AddShape(triangles)
-        geo.setName(name)
-        # geo.setColor(list(color))
-    else:
-        shape = RL.AddShape(triangles)
-        geo.AddGeometry(shape, rdk.eye())
-        shape.Delete()
-    geo.setColor(list(color))
+# def draw_seg(verts, color, name):
+#     # print "color %s %s %s" % color
+#     # print "name %s" % name
+#     RL = Robolink()
+#     triangles = [
+#         list(verts[0]), list(verts[1]), list(verts[2]),
+#         list(verts[1]), list(verts[3]), list(verts[2])
+#     ]
+#     geo = RL.Item(name)
+#     if not geo.Valid():
+#         geo = RL.AddShape(triangles)
+#         geo.setName(name)
+#         # geo.setColor(list(color))
+#     else:
+#         shape = RL.AddShape(triangles)
+#         geo.AddGeometry(shape, rdk.eye())
+#         shape.Delete()
+#     geo.setColor(list(color))
 
 
-def save_prog():
-    robot = RL.Item('', ITEM_TYPE_ROBOT)
-    RL.setRunMode(RUNMODE_MAKE_ROBOTPROG)
-    timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-    ddir = "/Users/julian/projects/robot/export/"
-    prog_filename = "PX_%s" % timestamp
+# def save_prog():
+#     robot = RL.Item('', ITEM_TYPE_ROBOT)
+#     RL.setRunMode(RUNMODE_MAKE_ROBOTPROG)
+#     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
+#     ddir = "/Users/julian/projects/robot/export/"
+#     prog_filename = "PX_%s" % timestamp
 
-    RL.ProgramStart(prog_filename, ddir, "KUKA_KRC4_RN_RN", robot)
-    # RL.RunProgram('px', True)
-    robot.RunInstruction("px", INSTRUCTION_CALL_PROGRAM)
-    # RL.RunMessage("tgt")
-    RL.Finish()
+#     RL.ProgramStart(prog_filename, ddir, "KUKA_KRC4_RN_RN", robot)
+#     # RL.RunProgram('px', True)
+#     robot.RunInstruction("px", INSTRUCTION_CALL_PROGRAM)
+#     # RL.RunMessage("tgt")
+#     RL.Finish()
 
 
 # RL.ProgramStart("px_file", folder, "KUKA_KRC4_RN_RN", robot)

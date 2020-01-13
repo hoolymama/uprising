@@ -253,11 +253,11 @@ def config_key(config):
         return "%d%d%d" % tuple(config.list2()[0][0:3])
 
 
-def config_000_poses(pose):
-    RL = Robolink()
-    configs = {}
+def config_000_poses(pose, robot):
+    # RL = Robolink()
+    # configs = {}
     result = []
-    robot = RL.Item("", ITEM_TYPE_ROBOT)
+    # robot = RL.Item("", ITEM_TYPE_ROBOT)
     robot.setParam("PostProcessor", "KUKA KRC4_RN")
     ik = robot.SolveIK_All(pose)
     siz = ik.size()
@@ -271,14 +271,14 @@ def config_000_poses(pose):
     return result
 
 
-def _create_joint_target(obj, name, frame):
+def _create_joint_target(obj, name, frame, robot):
     RL = Robolink()
-    robot = RL.Item("", ITEM_TYPE_ROBOT)
+
     mat = obj.attr("worldMatrix[0]").get()
 
     mat = maya_to_robodk_mat(mat)
 
-    joint_poses = config_000_poses(mat)
+    joint_poses = config_000_poses(mat, robot)
     if not joint_poses:
         raise Exception("No configs for approach mat. Try repositioning.")
     joints = joint_poses[0]

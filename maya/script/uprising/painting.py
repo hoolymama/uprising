@@ -3,7 +3,7 @@ from robolink import Robolink, ITEM_TYPE_ROBOT
 from paint import Paint
 from brush import Brush
 from cluster import Cluster
-
+import time
 
 def paint_and_brush_name(paint, brush):
     return "%s_%d_%s_%d" % (paint.name, paint.id, brush.name, brush.id)
@@ -32,8 +32,8 @@ class Painting(object):
             num_clusters = 0
         print "Creating {} clusters for {}".format(num_clusters, self.node)
         for i in range(num_clusters):
-            if i % 10 == 0:
-                print "Cluster {}/{}".format(i, num_clusters)
+            if (i % 10 == 0) or (i == num_clusters-1):
+                print "Cluster {}/{}".format(i+1, num_clusters)
             brush_id = pm.paintingQuery(self.node, clusterIndex=i, clusterBrushId=True)
             paint_id = pm.paintingQuery(self.node, clusterIndex=i, clusterPaintId=True)
 

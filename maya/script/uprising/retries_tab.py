@@ -2,14 +2,16 @@
  
 import json
 import os
+import time
 from contextlib import contextmanager
+
+from robolink import Robolink
 
 import pymel.core as pm
 import pymel.core.uitypes as gui
 import uprising_util as uutl
 import write
 from studio import Studio
-from robolink import Robolink
 
 
 @contextmanager
@@ -86,6 +88,19 @@ class retriesTab(gui.FormLayout):
             value1=1,
             annotation='Also publish if retries succeed',
             height=30)
+        pm.setParent("..")
+ 
+        pm.frameLayout(
+            bv=True,
+            collapse=False,
+            labelVisible=True,
+            label="Developer"
+        )
+        self.robolink_render = pm.checkBoxGrp(
+            label='Robolink Render',
+            value1=0,
+            annotation='Render on off for profiling purposes',
+            height=30)
 
         pm.setParent("..")
  
@@ -149,7 +164,16 @@ class retriesTab(gui.FormLayout):
     def on_go(self ):
         uutl.checkRobolink()
         RL = Robolink()
-        RL.HideRoboDK()
+        if pm.checkBoxGrp(self.robolink_render, query=True, value1=True):
+            RL.Render(True)
+            RL.ShowRoboDK()
+        else:
+            RL.Render(False)
+            RL.HideRoboDK()
+
+
+        timer_start = time.time()
+
         pack = self.get_pack()
 
         if len(pack["plugs"]) == 0:
@@ -167,17 +191,26 @@ class retriesTab(gui.FormLayout):
             timestamp = write.get_timestamp()
             directory = os.path.join(directory,timestamp)
         
-        results = self.do_retries(pack)
+        results_data = self.do_retries(pack)
 
         if directory:
             self.publish_tab.publish_to_directory(directory)
      
-            write.json_report(directory,"retries", results )
+            write.json_report(directory,"retries", results_data )
             write.write_maya_scene(directory, "scene" )
         
-        uutl.show_in_window(results, title="Retries results")
-  
 
+
+
+        timer_end = time.time()
+        results_data["timer"] = timer_end-timer_start
+
+        uutl.show_in_window(results_data, title="Retries results")
+
+        print_timer_results(results_data)
+
+
+        RL.Render(True)
         RL.ShowRoboDK()
 
  
@@ -188,6 +221,7 @@ class retriesTab(gui.FormLayout):
         result["plugs"] = []
  
         nodes = pm.ls(sl=True, dag=True, leaf=True, type="skeletonStroke")
+
         if  len(nodes) == 0:
             pm.warning("No nodes selected. Aborting!")
             return result
@@ -227,7 +261,8 @@ class retriesTab(gui.FormLayout):
         plugs = pack["plugs"]
         results = []
         num_plugs = len(plugs)
-
+        if not num_plugs:
+            pm.error("No Plugs")
 
         pm.progressBar(self.progressControl, edit=True,  maxValue=num_plugs, isInterruptable=True)
         
@@ -263,8 +298,9 @@ class retriesTab(gui.FormLayout):
 
 
     def do_retries_for_plug(self, plug_index,num_plugs, plug, step_values, try_existing ):
-        result = {"plug": str(plug), "attempts": -1, "path_results": [], "solved": False, "frame":plug_index}
+        result = {"plug": str(plug), "attempts": -1, "path_results": [], "solved": False, "frame":plug_index, "timer":0}
 
+        plug_start = time.time()
         print "RUNNING RETRIES: {} {}".format( plug,  "*" * 20 )
         painting_node = pm.PyNode("mainPaintingShape")
         try:
@@ -276,35 +312,78 @@ class retriesTab(gui.FormLayout):
 
 
         values = ([plug.get()] if try_existing else []) + step_values
-        with uutl.minimize_robodk():
-            count = len(values)
-            for i, value in enumerate(values):
-                
-                plug.set(value)
-                pm.refresh()
-                studio = Studio(do_painting=True)
-                studio.write()
+        # with uutl.minimize_robodk():
+        count = len(values)
+        for i, value in enumerate(values):
+            plug.set(value)
+            pm.refresh()
+            
+            iter_start = time.time()
+            studio = Studio(do_painting=True)
+            before_write = time.time()
+            studio.write()
+            before_validate = time.time()
+            path_result = studio.painting_program.validate_path() or {"status": "SUCCESS"}
+            iter_end = time.time()
 
-                path_result = studio.painting_program.validate_path() or {"status": "SUCCESS"}
-                metadata = {"iteration": i,  "value": value}
-                path_result.update(metadata)
-                result["path_results"].append(path_result)
 
-                attempt_number = i + 1
-                print "{0} frame: {1} {3}/{4} {2} {0}".format(
-                    "- " * 10, plug_index, path_result["status"], attempt_number, count)
-    
-                pm.progressBar(self.progressControl, edit=True,  progress=(plug_index+1))
-                msg = "Tried plug {:d} of {:d}\nAttempt {:d}/{:d} {}({}) result: {}".format((plug_index+1), num_plugs, attempt_number, count, plug, value, path_result["status"])
+            metadata = {"iteration": i,  "value": value, "timer": {
+                "create": before_write-iter_start,
+                "write": before_validate-before_write,
+                "validate": iter_end-before_validate,
+                "total": iter_end-iter_start
+                }
+                }
+            path_result.update(metadata)
+            result["path_results"].append(path_result)
 
-                pm.scrollField(  self.progress_info_field, edit=True, text=msg )
+            attempt_number = i + 1
+            print "{0} frame: {1} {3}/{4} {2} {0}".format(
+                "- " * 10, plug_index, path_result["status"], attempt_number, count)
 
-                if path_result["status"] == "SUCCESS":
-                    result["attempts"] = i + 1
-                    result["solved"] = True
-                    break
 
+            pm.progressBar(self.progressControl, edit=True,  progress=(plug_index+1))
+            msg = "Tried plug {:d} of {:d}\nAttempt {:d}/{:d} {}({}) result: {}".format((plug_index+1), num_plugs, attempt_number, count, plug, value, path_result["status"])
+
+            pm.scrollField(  self.progress_info_field, edit=True, text=msg )
+
+            if path_result["status"] == "SUCCESS":
+                result["attempts"] = i + 1
+                result["solved"] = True
+                break
+        plug_end = time.time()
+        result["timer"] = plug_end-plug_start
         return result
+
+
+
+
+def print_timer_results(result_data):
+    print "Total time: {}".format(result_data["timer"]) 
+
+    creating = 0
+    writing = 0
+    validating = 0
+    for entry in result_data["results"]:
+        print "{:02d}\t{}".format(entry["frame"],entry["timer"])
+        for it in entry["path_results"]:
+            print "{:02d}\t\t{}".format(it["iteration"], it["timer"]["total"])
+            creating += it["timer"]["create"]
+            writing += it["timer"]["write"]
+            validating += it["timer"]["validate"]
+            
+            print  "CR\t\t{}".format(it["timer"]["create"])
+            print  "WR\t\t{}".format(it["timer"]["write"])
+            print  "VL\t\t{}".format(it["timer"]["validate"])
+    
+    print "Total creating {}".format(creating)
+    print "Total writing {}".format(writing)
+    print "Total validating {}".format(validating)
+    
+
+
+
+
 
 def reset_collect_main_keys():
     print "CLEAR_COLLECT_MAIN_KEYS"
@@ -315,6 +394,8 @@ def reset_collect_main_keys():
 
 
 def get_step_values(low, high, count):
+    if count < 2:
+        return [high]
     vals = []
     valrange = high - low
     gap = valrange / (count - 1)
@@ -353,4 +434,3 @@ def report_results(results):
             print "All frames succeeded"
 
     return not failed
-
