@@ -52,7 +52,7 @@ print s.getvalue()
     # for row in data:
     #     loc_name = row[0]
     #     try:
-    #         node = pm.PyNode(loc_name)
+    #         node = pm.PyNode(loc_name)``
     #     except pm.MayaNodeError:
     #         node = pm.spaceLocator()
     #         node.rename(loc_name)

@@ -19,6 +19,7 @@ from uprising import (
     palette_menu,
     info_menu,
     calibration_menu,
+    robo,
 )
 
 import studio
@@ -45,7 +46,7 @@ import images
 
 
 reload(uprising_util)
-
+reload(robo)
 reload(brush)
 
 reload(cluster)
