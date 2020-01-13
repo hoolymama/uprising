@@ -12,11 +12,11 @@ def config_key(config):
 
 
 class Stroke(object):
-    def __init__(self, cluster_id, _id, brush, node, robot):
+    def __init__(self, cluster_id, _id, brush, node):
         self.cluster_id = cluster_id
         self.id = _id
         self.node = node
-        self.robot = robot
+
         self.brush = brush
         # self.last_valid_joints = last_valid_joints
 
@@ -104,7 +104,7 @@ class Stroke(object):
             raise StrokeError("Length mismatch: positions, rotations, tangents")
 
         for i, (p, r, t) in enumerate(zip(positions, rotations, tangents)):
-            tg = Target(i, (p * 10), r, t, self.robot, self.brush)
+            tg = Target(i, (p * 10), r, t, self.brush)
             self.targets.append(tg)
 
     def build_arrivals(self):
@@ -136,7 +136,7 @@ class Stroke(object):
             raise StrokeError("Arrivals length mismatch: positions, rotations")
 
         for i, (p, r) in enumerate(zip(positions, rotations)):
-            tg = ArrivalTarget(i, (p * 10), r, None, self.robot, self.brush)
+            tg = ArrivalTarget(i, (p * 10), r, None, self.brush)
             self.arrivals.append(tg)
 
     def build_departure(self):
@@ -161,26 +161,24 @@ class Stroke(object):
             )
         )[0]
 
-        self.departure = DepartureTarget(
-            0, (position * 10), rotation, None, self.robot, self.brush
-        )
+        self.departure = DepartureTarget(0, (position * 10), rotation, None, self.brush)
 
     def name(self, prefix):
         return "%s_p%d_s%d" % (prefix, self.parent_id, self.id)
 
-    def write(self, prefix, program, frame, motion, RL, robot):
+    def write(self, prefix, program, frame, motion):
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
         lin = motion["linear_speed"] * self.linear_speed
         ang = motion["angular_speed"] * self.angular_speed
         program.setSpeed(lin, ang)
         for t in self.arrivals:
-            t.write(stroke_name, program, frame, RL, robot)
+            t.write(stroke_name, program, frame)
 
         for t in self.targets:
-            t.write(stroke_name, program, frame, RL, robot)
+            t.write(stroke_name, program, frame)
 
-        self.departure.write(stroke_name, program, frame, RL, robot)
+        self.departure.write(stroke_name, program, frame)
 
     def configure(self):
 

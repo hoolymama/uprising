@@ -2,7 +2,7 @@
 import tarfile
 
 import os
- 
+import time
 import json
 import datetime
 import pymel.core as pm
@@ -14,6 +14,7 @@ from paint import Paint
 from brush import Brush
 import math
 
+from robo import Robo
 
 
 
@@ -30,10 +31,20 @@ def split_desc(desc):
         result[1] = "\n".join(lines[1:])
     return result
 
- 
-def publish_separate_files( directory, **kw):
-    RL = Robolink()
+def init_robodk(**kw):
+    mode = kw.get("mode", "hidden")
+    if not kw.get("newinst", True):
+        rodk = Robo(mode=mode)
+        rodk.clean()
+    else:
+        rodk = Robo(mode=mode , force=True)
+    time.sleep(1)
 
+
+def publish_separate_files( directory, **kw):
+    # rodk = Robo()
+    # rlink = rodk.link
+ 
     pause_gripper_ms = kw.get("pause_gripper_ms")
     water_wipe_repeats = kw.get("water_wipe_repeats")
    
@@ -41,7 +52,9 @@ def publish_separate_files( directory, **kw):
     rdk = os.path.join(directory, "rdk")
     uutl.mkdir_p(src)
     uutl.mkdir_p(rdk)
- 
+    
+    init_robodk(**kw)
+
     studio = Studio(
                 do_painting=True,
                 do_dips=True,
@@ -55,43 +68,48 @@ def publish_separate_files( directory, **kw):
     cluster_count = len(studio.painting_program.painting.clusters)
     cluster_chunk_size=kw.get("cluster_chunk_size", cluster_count)
     num_main_painting_chunks = int(math.ceil( cluster_count / float(cluster_chunk_size)))
-    
 
     for i in range(num_main_painting_chunks):
-        prep_clean(studio)
+        init_robodk(newinst=False)
+        studio.write_approaches()
         program_name = studio.write_painting_program(i, cluster_chunk_size)
-        save_prog_and_station(RL, src, rdk, program_name)
+        save_prog_and_station(src, rdk, program_name)
         result["painting"].append(program_name)
 
     count = len(studio.pick_place_programs)
     for i in range(count):
-        prep_clean(studio)
+        init_robodk(newinst=False)
+        studio.write_approaches()
+        studio.write_approaches()
         program_name = studio.write_pick_place_program(i)
-        save_prog_and_station(RL, src, rdk, program_name)
+        save_prog_and_station(src, rdk, program_name)
         result["others"].append(program_name)
         print "Pick-Place {}/{}".format(i, count)
 
     count = len(studio.dip_programs)
     for i in range(count):
-        prep_clean(studio)
+        init_robodk(newinst=False)
+        studio.write_approaches()
         program_name = studio.write_dip_program(i)
-        save_prog_and_station(RL, src, rdk, program_name)
+        save_prog_and_station(src, rdk, program_name)
         result["others"].append(program_name)
         print "Dips {}/{}".format(i, count)
 
     count = len(studio.water_programs)
     for i in range(count):
-        prep_clean(studio)
+        init_robodk(newinst=False)
+        studio.write_approaches()
         program_name = studio.write_water_program(i)
-        save_prog_and_station(RL, src, rdk, program_name)
+        save_prog_and_station(src, rdk, program_name)
         result["others"].append(program_name)
         print "Water {}/{}".format(i, count)
 
     count = len(studio.retardant_programs)
     for i in range(count):
-        prep_clean(studio)
+        init_robodk(newinst=False)
+        studio.write_approaches()
         program_name = studio.write_retardant_program(i)
-        save_prog_and_station(RL, src, rdk, program_name)
+        save_prog_and_station(src, rdk, program_name)
         result["others"].append(program_name)
         print "Retardant {}/{}".format(i, count)
     
@@ -109,7 +127,6 @@ def stats():
 
     painting_node = pm.PyNode("mainPaintingShape") 
     brush_paint_pairs =  used_paints_and_brushes(painting_node)
-    # print "Brush / Paint pairs:"
     result["brush_paint_pairs"] = []
     for brush, paint in brush_paint_pairs:
         result["brush_paint_pairs"].append(
@@ -129,7 +146,6 @@ def stats():
          )
 
     result["painting_node"] = painting_stats(painting_node)
-    # uutl.show_in_window(result, title="Painting stats")
     return result
 
 
@@ -149,14 +165,14 @@ def write_orchestrator(directory, programs):
     print "Wrote orchestrator file: {}".format(orchestrator_file)
 
 
-def prep_clean(studio):
-    uutl.clean_rdk()
-    studio.write_approaches()
+# def prep_clean(studio):
+#     uutl.clean_rdk()
+#     studio.write_approaches()
 
 
-def save_prog_and_station(RL, src, rdk, program_name ):
-    write_program(RL, src, program_name)
-    write_station(RL, rdk, program_name)
+def save_prog_and_station(src, rdk, program_name ):
+    write_program(src, program_name)
+    write_station(rdk, program_name)
     print "Wrote src and rdk: {}".format(program_name)
 
 
@@ -286,17 +302,20 @@ def write_image_sequence(
 def setup_clean_top(painting_node):
     pass
 
-def write_program(RL, directory, progname):
-    RL = Robolink()
-    program = RL.Item(progname, ITEM_TYPE_PROGRAM)
+def write_program(  directory, progname):
+    rodk = Robo()
+    rlink = rodk.link
+    program = rlink.Item(progname, ITEM_TYPE_PROGRAM)
     program.MakeProgram(directory)
     return (progname,program.Valid())
 
 
-def write_station(RL, directory, name):
-    station = RL.Item("", ITEM_TYPE_STATION)
+def write_station(  directory, name):
+    rodk = Robo()
+    rlink = rodk.link
+    station = rlink.Item("", ITEM_TYPE_STATION)
     station.setName(name)
-    RL.Save(os.path.join(directory, "{}.rdk".format(name)))
+    rlink.Save(os.path.join(directory, "{}.rdk".format(name)))
 
 def write_maya_scene(ts_dir, name):
     new_name = os.path.join(ts_dir, "{}.ma".format(name) )

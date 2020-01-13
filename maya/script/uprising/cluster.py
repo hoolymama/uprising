@@ -5,22 +5,23 @@ from uprising_util import ClusterError
 from stroke import Stroke
 
 import pymel.core as pm
+from robo import Robo
 
 
 class Cluster(object):
-    def __init__(self, _id, node, robot, brush, paint):
+    def __init__(self, _id, node, brush, paint):
         self.id = _id
         self.brush = brush
         self.paint = paint
         self.travel = pm.paintingQuery(node, clusterIndex=_id, clusterTravel=True)
         self.reason = pm.paintingQuery(node, clusterIndex=_id, clusterReason=True)
-        self.build_strokes(node, robot)
+        self.build_strokes(node)
 
-    def build_strokes(self, node, robot):
+    def build_strokes(self, node):
         self.strokes = []
         num_strokes = pm.paintingQuery(node, clusterIndex=self.id, strokeCount=True)
         for i in range(num_strokes):
-            stroke = Stroke(self.id, i, self.brush, node, robot)
+            stroke = Stroke(self.id, i, self.brush, node)
             self.strokes.append(stroke)
 
     def change_tool_message(self):
@@ -31,8 +32,11 @@ class Cluster(object):
     def name(self, program):
         return "{}_c{}".format(program.Name(), self.id)
 
-    def write(self, program, frame, motion, RL, robot):
-        tool = RL.Item(self.brush.name)
+    def write(self, program, frame, motion):
+        rodk = Robo()
+        rlink = rodk.link
+
+        tool = rlink.Item(self.brush.name)
         if not tool.Valid():
             raise ClusterError("SERIOUS RISK OF DAMAGE! Can't find valid tool!")
 
@@ -44,7 +48,7 @@ class Cluster(object):
         program.setRounding(motion["rounding"])
 
         for stroke in self.strokes:
-            stroke.write(cluster_name, program, frame, motion, RL, robot)
+            stroke.write(cluster_name, program, frame, motion)
 
     def get_flow_info(self, last_cluster):
         last_brush_id = last_cluster.brush.id if last_cluster else None

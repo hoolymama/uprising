@@ -5,6 +5,7 @@ import const as k
 import uprising_util as uutl
 import robodk as rdk
 from robolink import Robolink, ITEM_TYPE_ROBOT
+from robo import Robo
 
 
 class Brush(object):
@@ -46,52 +47,48 @@ class Brush(object):
     def is_flat(self):
         return self.shape == 0
 
-    def write(self, RL, robot):
+    def write(self):
+        rodk = Robo()
+        robot = rodk.robot
+        rlink = rodk.link
 
-        old_brush = RL.Item(self.name)
+        old_brush = rlink.Item(self.name)
         if old_brush.Valid():
             return
         triangles = uutl.to_vector_array(pm.brushQuery(self.plug, tri=True))
         triangles = [[t.x * 10, t.y * 10, t.z * 10] for t in triangles]
 
         tool_item = robot.AddTool(self.matrix, self.name)
-        shape = RL.AddShape(triangles)
+        shape = rlink.AddShape(triangles)
         tool_item.AddGeometry(shape, rdk.eye())
         robot.setPoseTool(tool_item)
         shape.Delete()
 
     @classmethod
     def write_used_brush_sets(cls):
-        RL = Robolink()
-        robot = RL.Item("", ITEM_TYPE_ROBOT)
-
         painting = pm.PyNode("mainPaintingShape")
         dc = pm.paintingQuery(painting, dc=True)
         bids = sorted(set(dc[::2]))
         for bid in bids:
             brush_set = Brush.brush_set_at_index(bid)
             for key in brush_set:
-                brush_set[key].write(RL, robot)
+                brush_set[key].write()
 
     @classmethod
     def write_connected_brushes(cls):
-        RL = Robolink()
-        robot = RL.Item("", ITEM_TYPE_ROBOT)
         painting = pm.PyNode("mainPaintingShape")
         brushes = Brush.brushes(painting)
         for brush in brushes:
-            brushes[brush].write(RL, robot)
+            brushes[brush].write()
 
     @classmethod
     def write_selected_brushes(cls):
-        RL = Robolink()
-        robot = RL.Item("", ITEM_TYPE_ROBOT)
         brushNodes = pm.ls(selection=True, dag=True, leaf=True, type="brushNode")
         brush_atts = ["outPaintBrush", "outDipBrush", "outWipeBrush"]
         for brush_node in brushNodes:
             for brush_att in brush_atts:
                 plug = brush_node.attr(brush_att)
-                Brush(0, plug).write(RL, robot)
+                Brush(0, plug).write()
 
     @classmethod
     def brush_at_index(cls, node, index):

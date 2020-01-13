@@ -6,7 +6,7 @@ import json
 import robodk as rdk
 import pymel.core as pm
 from contextlib import contextmanager
-
+from robo import Robo
 
 PI = 3.14159265359
 
@@ -36,19 +36,6 @@ def assembly(node):
         top = p
         p = p.getParent()
     return top
-
-
-# @contextmanager
-# def minimize_robodk():
-#     RL = Robolink()
-#     RL.HideRoboDK()
-#     try:
-#         yield
-#     except Exception:
-#         t, v, tb = sys.exc_info()
-#         raise t, v, tb
-#     finally:
-#         RL.ShowRoboDK()
 
 
 @contextmanager
@@ -209,35 +196,39 @@ def maya_to_robodk_mat(rhs):
 
 
 def create_program(name):
-    RL = Robolink()
-    program = RL.Item(name)
+    rodk = Robo()
+    rlink = rodk.link
+    program = rlink.Item(name)
     if program.Valid():
         program.Delete()
-    return RL.AddProgram(name)
+    return rlink.AddProgram(name)
 
 
 def create_frame(name, force=True):
-    RL = Robolink()
-    frame = RL.Item(name)
+    rodk = Robo()
+    rlink = rodk.link
+    frame = rlink.Item(name)
     if frame.Valid():
         if force:
             frame.Delete()
         else:
             return frame
-    frame = RL.AddFrame(name)
+    frame = rlink.AddFrame(name)
     frame.setPose(rdk.eye())
     return frame
 
 
 def delete_tools():
-    RL = Robolink()
-    for t in RL.ItemList(filter=ITEM_TYPE_TOOL):
+    rodk = Robo()
+    rlink = rodk.link
+    for t in rlink.ItemList(filter=ITEM_TYPE_TOOL):
         t.Delete()
 
 
 def delete_programs():
-    RL = Robolink()
-    for t in RL.ItemList(filter=ITEM_TYPE_PROGRAM):
+    rodk = Robo()
+    rlink = rodk.link
+    for t in rlink.ItemList(filter=ITEM_TYPE_PROGRAM):
         t.Delete()
 
 
@@ -253,12 +244,11 @@ def config_key(config):
         return "%d%d%d" % tuple(config.list2()[0][0:3])
 
 
-def config_000_poses(pose, robot):
-    # RL = Robolink()
-    # configs = {}
+def config_000_poses(pose):
+    rodk = Robo()
+    # rlink = rodk.link
+    robot = rodk.robot
     result = []
-    # robot = RL.Item("", ITEM_TYPE_ROBOT)
-    robot.setParam("PostProcessor", "KUKA KRC4_RN")
     ik = robot.SolveIK_All(pose)
     siz = ik.size()
     if not (ik and siz[0] and siz[1] and (len(ik.list()) > 5)):
@@ -271,37 +261,27 @@ def config_000_poses(pose, robot):
     return result
 
 
-def _create_joint_target(obj, name, frame, robot):
-    RL = Robolink()
+def _create_joint_target(obj, name, frame):
+    rodk = Robo()
+    robot = rodk.robot
+    rlink = rodk.link
 
     mat = obj.attr("worldMatrix[0]").get()
 
     mat = maya_to_robodk_mat(mat)
 
-    joint_poses = config_000_poses(mat, robot)
+    joint_poses = config_000_poses(mat)
     if not joint_poses:
         raise Exception("No configs for approach mat. Try repositioning.")
     joints = joint_poses[0]
 
-    old_approach = RL.Item(name)
+    old_approach = rlink.Item(name)
     if old_approach.Valid():
         old_approach.Delete()
-    target = RL.AddTarget(name, frame, robot)
+    target = rlink.AddTarget(name, frame, robot)
     target.setAsJointTarget()
     target.setJoints(joints)
     return target
-
-
-def checkRobolink():
-    RL = Robolink()
-    RL.Connect()
-
-
-def clean_rdk():
-    RL = Robolink()
-    for station in RL.getOpenStations():
-        station.Delete()
-    RL.AddFile(CLEAN_FILE)
 
 
 def show_in_window(data, **kw):
@@ -311,20 +291,3 @@ def show_in_window(data, **kw):
     pm.frameLayout(cll=False, lv=False)
     pm.scrollField(text=result_json, editable=False, wordWrap=False)
     pm.showWindow()
-
-
-# def config_first_pose(pose):
-#     RL = Robolink()
-#     configs = {}
-#     result = []
-#     robot = RL.Item('', ITEM_TYPE_ROBOT)
-#     ik = robot.SolveIK_All(pose)
-#     siz = ik.size()
-#     if not (ik and  siz[0] and  siz[1] and (len(ik.list()) > 5)):
-#         return result
-#     joint_poses = [el[0:6] for el in ik.list2()]
-#     for joint_pose in joint_poses:
-#         key = config_key(robot.JointsConfig(joint_pose))
-#         if key == "000":
-#             result.append(joint_pose)
-#     return result

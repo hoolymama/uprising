@@ -232,9 +232,7 @@ class PublishTab(gui.FormLayout):
         return program_files
 
     def on_go(self):
-        uutl.checkRobolink()
-        RL = Robolink()
-        RL.HideRoboDK()
+        # r = Robo(force=True, mode="hidden")
         directory = write.choose_publish_dir()
         if not directory:
             return
@@ -242,4 +240,5 @@ class PublishTab(gui.FormLayout):
         timestamp = write.get_timestamp()
         directory = os.path.join(directory,timestamp)
         self.publish_to_directory(directory)
-        RL.ShowRoboDK()
+        # r.close()
+ 

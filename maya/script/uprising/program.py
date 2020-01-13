@@ -7,9 +7,10 @@ from brush import Brush
 import pymel.core as pm
 import props
 import robodk as rdk
+from robo import Robo
 
 from robolink import (
-    Robolink,
+    # Robolink,
     ITEM_TYPE_ROBOT,
     INSTRUCTION_COMMENT,
     INSTRUCTION_SHOW_MESSAGE,
@@ -205,7 +206,7 @@ class MainProgram(Program):
 
         if call_program:
             self.program.addMoveJ(studio.dip_approach)
-            cluster.write(self.program, self.frame, self.painting.motion, studio.RL, studio.robot)
+            cluster.write(self.program, self.frame, self.painting.motion)
             self.program.addMoveJ(studio.dip_approach)
         return result
 
@@ -317,9 +318,6 @@ class PotHandleExerciseProgram(Program):
 class BrushHangProgram(Program):
     def __init__(self, name, data):
         super(BrushHangProgram, self).__init__(name)
-        self.RL = Robolink()
-        self.robot = self.RL.Item("", ITEM_TYPE_ROBOT)
-        self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
         self.brush_data = self._get_zero_tip_brushes(data)
 
     def _get_zero_tip_brushes(self, data):
@@ -350,40 +348,42 @@ class BrushHangProgram(Program):
             "S": pm.PyNode("hangLocal|loc_S").attr("worldMatrix[0]").get()
         }
 
-        with uutl.minimize_robodk():
+        # with uutl.minimize_robodk():
 
-            last_brush_id = None
+        last_brush_id = None
 
-            for brush_pack in self.brush_data :
-                brush_id = brush_pack["id"]
-                if last_brush_id is not None:
+        for brush_pack in self.brush_data :
+            brush_id = brush_pack["id"]
+            if last_brush_id is not None:
 
-                    # put the last brush back
-                    place_program_name = PlaceProgram.generate_program_name(
-                        last_brush_id
-                    )
-                    self.program.RunInstruction(
-                        place_program_name, INSTRUCTION_CALL_PROGRAM
-                    )
+                # put the last brush back
+                place_program_name = PlaceProgram.generate_program_name(
+                    last_brush_id
+                )
+                self.program.RunInstruction(
+                    place_program_name, INSTRUCTION_CALL_PROGRAM
+                )
 
-                pick_program_name = PickProgram.generate_program_name(brush_id)
-                self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
+            pick_program_name = PickProgram.generate_program_name(brush_id)
+            self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
 
-                last_brush_id = brush_id
+            last_brush_id = brush_id
 
-                # brush (is a PyNode), id, twist (bool)
-                ###########################
-                self._write_one_hang(brush_pack, mats)
-                ###########################
-
-
-            place_program_name = PlaceProgram.generate_program_name(last_brush_id)
-            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
+            # brush (is a PyNode), id, twist (bool)
+            ###########################
+            self._write_one_hang(brush_pack, mats)
             ###########################
 
-            self.program.addMoveJ(studio.home_approach)
+
+        place_program_name = PlaceProgram.generate_program_name(last_brush_id)
+        self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
+        ###########################
+
+        self.program.addMoveJ(studio.home_approach)
 
     def _write_one_hang(self, pack, mats):
+        rodk = Robo()
+        rlink = rodk.link
 
         targets = {}
         for key in mats:
@@ -394,8 +394,8 @@ class BrushHangProgram(Program):
         )
 
         #write the brush
-        pack["brush"].write(self.RL, self.robot)
-        tool = self.RL.Item(pack["brush"].name)
+        pack["brush"].write()
+        tool = rlink.Item(pack["brush"].name)
         if not tool.Valid():
             raise ProgramError("Brush is not valid. Risk of damage. Can't continue.")
 
@@ -432,10 +432,14 @@ class BrushHangProgram(Program):
 
 
     def _create_target_for_brush(self, brush, mat, name):
+        rodk = Robo()
+        robot = rodk.robot
+        rlink = rodk.link
+
         tool_pose = uutl.maya_to_robodk_mat(mat)
         flange_pose = tool_pose * brush.matrix.invH()
-        target = self.RL.AddTarget(name, self.frame, self.robot)
-        joints = self.robot.SolveIK(flange_pose, k.FACING_RACK_JOINTS)
+        target = rlink.AddTarget(name, self.frame, robot)
+        joints =  robot.SolveIK(flange_pose, k.FACING_RACK_JOINTS)
         target.setPose(tool_pose)
         target.setJoints(joints)
         return target
@@ -478,18 +482,14 @@ class DipProgram(Program):
                 cluster.write(
                     self.program,
                     self.frame,
-                    self.dip_painting.motion,
-                    studio.RL,
-                    studio.robot,
+                    self.dip_painting.motion
                 )
 
             for cluster in self.wipe_painting.clusters:
                 cluster.write(
                     self.program,
                     self.frame,
-                    self.wipe_painting.motion,
-                    studio.RL,
-                    studio.robot,
+                    self.wipe_painting.motion
                 )
 
 
@@ -531,9 +531,7 @@ class WashProgram(Program):
                 cluster.write(
                     self.program,
                     self.frame,
-                    self.dip_painting.motion,
-                    studio.RL,
-                    studio.robot
+                    self.dip_painting.motion
                     )
 
             for repeat in range(self.repeats):
@@ -541,9 +539,7 @@ class WashProgram(Program):
                     cluster.write(
                         self.program,
                         self.frame,
-                        self.wipe_painting.motion,
-                        studio.RL,
-                        studio.robot,
+                        self.wipe_painting.motion
                     )
 
 
@@ -584,9 +580,6 @@ class RetardantProgram(WashProgram):
 class CalibrationProgram(Program):
     def __init__(self, name):
         super(CalibrationProgram, self).__init__(name)
-        self.RL = Robolink()
-        self.robot = self.RL.Item("", ITEM_TYPE_ROBOT)
-        self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
         self.brush = self._get_probe_brush()
         if not self.brush:
             raise ProgramError("No Probe Brush. Risk of damage. Can't continue.")
@@ -612,11 +605,13 @@ class CalibrationProgram(Program):
         raise NotImplementedError
 
     def write(self, tool_approach, home_approach):
+        rodk = Robo()
+        rlink = rodk.link
         super(CalibrationProgram, self).write()
         self.frame = uutl.create_frame("{}_frame".format(self.program_name))
 
-        self.brush.write(self.RL, self.robot)
-        self.tool = self.RL.Item(self.brush.name)
+        self.brush.write()
+        self.tool = rlink.Item(self.brush.name)
         if not self.tool.Valid():
             raise ProgramError("No Probe Brush. Risk of damage. Can't continue.")
 
@@ -674,10 +669,13 @@ class CalibrationProgram(Program):
                     self.program.addMoveJ(target)
 
     def _create_a_target(self, mat, name, facing_joints):
+        rodk = Robo()
+        robot = rodk.robot
+        rlink = rodk.link
         tool_pose = uutl.maya_to_robodk_mat(mat)
         flange_pose = tool_pose * self.brush.matrix.invH()
-        target = self.RL.AddTarget(name, self.frame, self.robot)
-        joints = self.robot.SolveIK(flange_pose, facing_joints)
+        target = rlink.AddTarget(name, self.frame, robot)
+        joints = robot.SolveIK(flange_pose, facing_joints)
         target.setPose(tool_pose)
         target.setJoints(joints)
         return target
@@ -943,59 +941,61 @@ class PickPlaceProgram(Program):
         self.pack = pack
         self.targets = {}
 
-    def write_brush(self, studio):
-
-        existing_brush = studio.RL.Item(self.brush.name)
+    def write_brush(self):
+        rodk = Robo()
+        robot = rodk.robot
+        rlink = rodk.link
+        existing_brush = rlink.Item(self.brush.name)
         if existing_brush.Valid():
             return
 
-        tool_item = studio.robot.AddTool(self.brush.matrix, self.brush.name)
+        tool_item = robot.AddTool(self.brush.matrix, self.brush.name)
         triangles = props.mesh_triangles(pm.PyNode("GRIPPER"))
-        shape = studio.RL.AddShape(triangles)
+        shape = rlink.AddShape(triangles)
         tool_item.AddGeometry(shape, rdk.eye())
-        studio.robot.setPoseTool(tool_item)
+        robot.setPoseTool(tool_item)
         shape.Delete()
 
     def write(self, studio):
+        rodk = Robo()
+        robot = rodk.robot
+        rlink = rodk.link
+
         self.frame = studio.pick_place_frame
         super(PickPlaceProgram, self).write()
 
-        self.write_brush(studio)
+        self.write_brush()
 
-        self.tool = studio.RL.Item(self.brush.name)
+        self.tool = rlink.Item(self.brush.name)
         if not self.tool.Valid():
             raise ProgramError("No Gripper Brush. Risk of damage. Can't continue.")
 
         self.program.setRounding(self.pack["rounding"])
         self.program.setPoseTool(self.tool)
 
-        self.pin_target = self._create_target_from_pack("pin", studio.RL, studio.robot)
-        self.pin_ap_target = self._create_target_from_pack(
-            "pin_ap", studio.RL, studio.robot
-        )
-        self.clear_target = self._create_target_from_pack(
-            "clear", studio.RL, studio.robot
-        )
-        self.clear_ap_target = self._create_target_from_pack(
-            "clear_ap", studio.RL, studio.robot
-        )
+        self.pin_target = self._create_target_from_pack("pin")
+        self.pin_ap_target = self._create_target_from_pack("pin_ap")
+        self.clear_target = self._create_target_from_pack("clear")
+        self.clear_ap_target = self._create_target_from_pack("clear_ap")
 
-    def _create_target_from_pack(self, key, RL, robot):
+    def _create_target_from_pack(self, key):
+
         return self._create_a_target(
             self.pack[key].attr("worldMatrix[0]").get(),
             "pick_place_{}_{:02d}".format(key, self.pack["brush_id"]),
-            k.FACING_RACK_JOINTS,
-            RL,
-            robot,
+            k.FACING_RACK_JOINTS
         )
 
-    def _create_a_target(self, mat, name, facing_joints, RL, robot):
-        target = RL.Item(name)
+    def _create_a_target(self, mat, name, facing_joints):
+        rodk = Robo()
+        robot = rodk.robot
+        rlink = rodk.link
+        target = rlink.Item(name)
         if target.Valid():
             return target
         tool_pose = uutl.maya_to_robodk_mat(mat)
         flange_pose = tool_pose * self.brush.matrix.invH()
-        target = RL.AddTarget(name, self.frame, robot)
+        target = rlink.AddTarget(name, self.frame, robot)
         joints = robot.SolveIK(flange_pose, facing_joints)
         target.setPose(tool_pose)
         target.setJoints(joints)

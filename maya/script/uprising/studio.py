@@ -50,10 +50,6 @@ class Studio(object):
 
     def __init__(self, **kw):
 
-        uutl.clean_rdk()
-        self.RL = Robolink()
-        self.robot = self.RL.Item("", ITEM_TYPE_ROBOT)
-        self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
         self.approaches_frame = None
         self.dip_approach = None
         self.tool_approach = None
@@ -234,13 +230,13 @@ class Studio(object):
     def write_approaches(self):
         self.approaches_frame = uutl.create_frame("ax_frame")
         self.tool_approach = uutl._create_joint_target(
-            pm.PyNode(TOOL_TARGET), "tool_approach", self.approaches_frame, self.robot
+            pm.PyNode(TOOL_TARGET), "tool_approach", self.approaches_frame
         )
         self.home_approach = uutl._create_joint_target(
-            pm.PyNode(HOME_TARGET), "home_approach", self.approaches_frame, self.robot
+            pm.PyNode(HOME_TARGET), "home_approach", self.approaches_frame
         )
         self.dip_approach = uutl._create_joint_target(
-            pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame, self.robot
+            pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame
         )
 
     def _write_rack_and_holder_geo(self):

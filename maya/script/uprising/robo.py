@@ -18,6 +18,7 @@ def create_link(**kw):
     result = Robolink(args=startup_args, robodk_path=path)
 
     print "Created Robo link"
+    print result
     return result
 
 
@@ -29,6 +30,15 @@ class Robo:
     def clear(cls):
         cls.instance = None
 
+# INIT 
+# ROBO IS NONE
+# instance WAS NOT NONE - DOINT NOTHING
+# instance is now <uprising.robo.__Robo instance at 0x15ac33ab8>
+# LINK AND ROBOT:
+# <robolink.Robolink instance at 0x15ac33b00>
+# RoboDK item (4562391056) of type 2
+# <robolink.Robolink instance at 0x15ac33b00>
+
 
     class __Robo:
         def __init__(self, **kw):
@@ -39,7 +49,6 @@ class Robo:
             self._link.AddFile(CLEAN_FILE)
             self._robot = self._link.Item("", ITEM_TYPE_ROBOT)
             self._robot.setParam("PostProcessor", "KUKA KRC4_RN")
-
             print "Got link and robot"
             print "Loaded Clean scene and set PostProcessor to KUKA KRC4_RN"
     
@@ -49,41 +58,59 @@ class Robo:
         """
         if kw.get("force"):
             self.close()
-
+        # print "INIT "
         if not Robo.instance:
+            # print "instance IS NONE - INSTANTIATING"
             Robo.instance = Robo.__Robo(**kw)
+        # else:
+        #     print "instance WAS NOT NONE - DOINT NOTHING"
+        # print "instance is now", Robo.instance
+        # print "LINK AND ROBOT:"
+        # print Robo.instance._link
+        # print Robo.instance._robot
+        
+            
 
     @property
     def link(self):
-        return self.instance and self.instance._link
+        return Robo.instance and Robo.instance._link
 
     @property
     def robot(self):
-        return self.instance._robot
+        if Robo.instance  and Robo.instance._link:
+            return Robo.instance._robot
 
 
     def close(self):
-        if self.instance and self.instance._link:
+        if Robo.instance and Robo.instance._link:
             try:
-                for station in self.link.getOpenStations():
+                for station in Robo.instance._link.getOpenStations():
                     station.Delete()
-                self.link.CloseRoboDK()
+                Robo.instance._link.CloseRoboDK()
             except:
                 print "RoboDK not open"
         Robo.clear()
 
     def show(self):
-        self.link.ShowRoboDK()
+        if Robo.instance and Robo.instance._link:
+             Robo.instance._link.ShowRoboDK()
 
     def hide(self):
-        self.link.HideRoboDK()
+        if Robo.instance and Robo.instance._link:
+            Robo.instance._link.HideRoboDK()
     
     def clean(self):
-        for station in self.link.getOpenStations():
-            station.Delete()
-        self.link.AddFile(CLEAN_FILE)
+        if Robo.instance and Robo.instance._link:
+            for station in Robo.instance._link.getOpenStations():
+                print "Deleting existing station"
+                station.Delete()
+        Robo.instance._link.AddFile(CLEAN_FILE)
+        print "Added clean file: {}".format(CLEAN_FILE)
 
     def __str__(self):
-        return  repr(self.instance)
+        return  repr(Robo.instance)
 
 
+# rodk = Robo()
+# robot = rodk.robot
+# rlink = rodk.link

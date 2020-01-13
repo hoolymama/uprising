@@ -1,9 +1,8 @@
 import pymel.core as pm
-from robolink import Robolink, ITEM_TYPE_ROBOT
 from paint import Paint
 from brush import Brush
 from cluster import Cluster
-import time
+
 
 def paint_and_brush_name(paint, brush):
     return "%s_%d_%s_%d" % (paint.name, paint.id, brush.name, brush.id)
@@ -11,9 +10,6 @@ def paint_and_brush_name(paint, brush):
 
 class Painting(object):
     def __init__(self, node):
-        self.RL = Robolink()
-        self.robot = self.RL.Item("", ITEM_TYPE_ROBOT)
-        self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
         self.node = node
         self.brushes = Brush.used_brushes(node)
         self.paints = Paint.paints(node)
@@ -40,10 +36,10 @@ class Painting(object):
             brush = self.brushes.get(brush_id)
             paint = self.paints.get(paint_id)
 
-            cluster = Cluster(i, self.node, self.robot, brush, paint)
+            cluster = Cluster(i, self.node, brush, paint)
             self.clusters.append(cluster)
 
 
     def write_brushes(self):
         for brush in self.brushes:
-            self.brushes[brush].write(self.RL, self.robot)
+            self.brushes[brush].write()

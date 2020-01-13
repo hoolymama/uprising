@@ -1,5 +1,5 @@
 
- 
+
 import json
 import os
 import time
@@ -12,7 +12,7 @@ import pymel.core.uitypes as gui
 import uprising_util as uutl
 import write
 from studio import Studio
-
+from robo import Robo
 
 @contextmanager
 def isolate_nodes(show_nodes, all_nodes):
@@ -89,21 +89,26 @@ class retriesTab(gui.FormLayout):
             annotation='Also publish if retries succeed',
             height=30)
         pm.setParent("..")
- 
+
         pm.frameLayout(
             bv=True,
             collapse=False,
             labelVisible=True,
             label="Developer"
         )
-        self.robolink_render = pm.checkBoxGrp(
-            label='Robolink Render',
+        self.robolink_render_cb = pm.checkBoxGrp(
+            label='Robolink Visible',
             value1=0,
-            annotation='Render on off for profiling purposes',
+            annotation='Display on off for profiling purposes',
+            height=30)
+
+        self.robolink_rnewinst_cb = pm.checkBoxGrp(
+            label='New instance per retry',
+            value1=0,
             height=30)
 
         pm.setParent("..")
- 
+
 
         pm.frameLayout(
             bv=True,
@@ -111,7 +116,7 @@ class retriesTab(gui.FormLayout):
             labelVisible=True,
             label="Retries settings"
         )
- 
+
         pm.columnLayout(adj=True)
         self.progress_info_field = pm.scrollField(
             height=70,
@@ -126,7 +131,7 @@ class retriesTab(gui.FormLayout):
 
         pm.setParent("..")
         return col
- 
+
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
@@ -154,22 +159,17 @@ class retriesTab(gui.FormLayout):
 
     def on_preview(self):
         self.dry = True
-        uutl.checkRobolink()
+        # uutl.checkRobolink()
         pack = self.get_pack()
         # for ps in pack["passes"]:
         pack["plugs"]=[str(plug) for plug in pack["plugs"]]
         print json.dumps(pack, indent=2)
         self.on_go()
 
-    def on_go(self ):
-        uutl.checkRobolink()
-        RL = Robolink()
-        if pm.checkBoxGrp(self.robolink_render, query=True, value1=True):
-            RL.Render(True)
-            RL.ShowRoboDK()
-        else:
-            RL.Render(False)
-            RL.HideRoboDK()
+    def on_go(self):
+
+        self.mode = "show" if  pm.checkBoxGrp(self.robolink_render_cb, query=True, value1=True) else "hidden"
+        self.newinst =  pm.checkBoxGrp(self.robolink_rnewinst_cb, query=True, value1=True)
 
 
         timer_start = time.time()
@@ -190,17 +190,13 @@ class retriesTab(gui.FormLayout):
                 return
             timestamp = write.get_timestamp()
             directory = os.path.join(directory,timestamp)
-        
+
         results_data = self.do_retries(pack)
 
         if directory:
             self.publish_tab.publish_to_directory(directory)
-     
             write.json_report(directory,"retries", results_data )
             write.write_maya_scene(directory, "scene" )
-        
-
-
 
         timer_end = time.time()
         results_data["timer"] = timer_end-timer_start
@@ -210,16 +206,11 @@ class retriesTab(gui.FormLayout):
         print_timer_results(results_data)
 
 
-        RL.Render(True)
-        RL.ShowRoboDK()
-
- 
-
     def get_pack(self):
- 
+
         result = self.get_retries_parameters()
         result["plugs"] = []
- 
+
         nodes = pm.ls(sl=True, dag=True, leaf=True, type="skeletonStroke")
 
         if  len(nodes) == 0:
@@ -232,7 +223,7 @@ class retriesTab(gui.FormLayout):
                 return result
         result["plugs"] = fetch_plugs(result["attribute"], nodes)
         return result
- 
+
     def get_retries_parameters(self):
         try_existing = pm.checkBoxGrp(
             self.try_existing_first_cb, query=True, value1=True)
@@ -253,6 +244,10 @@ class retriesTab(gui.FormLayout):
 
 
     def do_retries(self, pack ):
+
+
+
+
         all_skels = pm.ls(type="skeletonStroke")
         # all_results = []
         step_values = pack["step_values"]
@@ -265,10 +260,10 @@ class retriesTab(gui.FormLayout):
             pm.error("No Plugs")
 
         pm.progressBar(self.progressControl, edit=True,  maxValue=num_plugs, isInterruptable=True)
-        
+
         pm.scrollField(  self.progress_info_field, edit=True, text="Retrying plug {:d} of {:d}".format(0, num_plugs) )
 
- 
+
         for plug_index, plug in enumerate(plugs):
             node = plug.node()
             with isolate_nodes([node], all_skels):
@@ -282,7 +277,7 @@ class retriesTab(gui.FormLayout):
 
 
         pm.progressBar(self.progressControl, edit=True,  progress=0)
-        
+
         result_data = {
             "results":results,
             "success":all([res["solved"] for res in results])
@@ -317,8 +312,19 @@ class retriesTab(gui.FormLayout):
         for i, value in enumerate(values):
             plug.set(value)
             pm.refresh()
-            
+
             iter_start = time.time()
+            
+            if not self.newinst:
+                rodk = Robo(mode=self.mode)
+                rodk.clean()
+            else:
+                rodk = Robo(mode=self.mode, force=True)
+            time.sleep(1)
+            # items = rodk.link.ItemList()
+            # for item in items:
+            #     print item.Name()
+
             studio = Studio(do_painting=True)
             before_write = time.time()
             studio.write()
@@ -359,7 +365,7 @@ class retriesTab(gui.FormLayout):
 
 
 def print_timer_results(result_data):
-    print "Total time: {}".format(result_data["timer"]) 
+    print "Total time: {}".format(result_data["timer"])
 
     creating = 0
     writing = 0
@@ -371,15 +377,15 @@ def print_timer_results(result_data):
             creating += it["timer"]["create"]
             writing += it["timer"]["write"]
             validating += it["timer"]["validate"]
-            
-            print  "CR\t\t{}".format(it["timer"]["create"])
-            print  "WR\t\t{}".format(it["timer"]["write"])
-            print  "VL\t\t{}".format(it["timer"]["validate"])
-    
+
+            print  "CR\t\t\t{}".format(it["timer"]["create"])
+            print  "WR\t\t\t{}".format(it["timer"]["write"])
+            print  "VL\t\t\t{}".format(it["timer"]["validate"])
+
     print "Total creating {}".format(creating)
     print "Total writing {}".format(writing)
     print "Total validating {}".format(validating)
-    
+
 
 
 
@@ -414,7 +420,7 @@ def fetch_plugs(attribute, nodes):
     return result
 
 
- 
+
 def report_results(results):
     failed = False
     some_empty = False
