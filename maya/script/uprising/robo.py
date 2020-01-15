@@ -86,6 +86,7 @@ class Robo:
             try:
                 for station in Robo.instance._link.getOpenStations():
                     station.Delete()
+                Robo.instance._link.Disconnect()
                 Robo.instance._link.CloseRoboDK()
             except:
                 print "RoboDK not open"

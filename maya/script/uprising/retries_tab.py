@@ -230,9 +230,9 @@ class retriesTab(gui.FormLayout):
         attribute = pm.textFieldGrp(
             self.varying_attrib_wg, query=True, text=True)
         count = pm.intFieldGrp(self.num_retries_wg, query=True, value1=True)
-        low, high = pm.floatFieldGrp(
+        first, last = pm.floatFieldGrp(
             self.varying_range_wg, query=True, value=True)
-        step_values = get_step_values(low, high, count)
+        step_values = get_step_values(first, last, count)
 
         return {
             "attribute": attribute,
@@ -305,8 +305,15 @@ class retriesTab(gui.FormLayout):
             result["solved"] = True
             return result
 
+        if try_existing:
+            existing = plug.get()
+            values = [existing] + [v for v in step_values if v < existing]
+        else:
+            values = step_values
 
-        values = ([plug.get()] if try_existing else []) + step_values
+
+        print "TRY CURRENT FIRST:", try_existing
+        print values
         # with uutl.minimize_robodk():
         count = len(values)
         for i, value in enumerate(values):
