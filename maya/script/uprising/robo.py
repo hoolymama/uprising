@@ -70,8 +70,8 @@ def clean():
 
 
 
-# sys.path.append(os.path.abspath("/Users/julian/tools/darwin64/uprising/2019.dev.999/maya/scripts/uprising"))
-# import robo
+sys.path.append(os.path.abspath("/Users/julian/tools/darwin64/uprising/2019.dev.999/maya/scripts/uprising"))
+import robo
 
 # class Singleton:
 #     """
