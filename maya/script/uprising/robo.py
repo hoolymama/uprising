@@ -45,31 +45,41 @@ class Singleton:
         return isinstance(inst, self._decorated)
 
 
-# @Singleton
+@Singleton
 class Robo:
     def __init__(self, **kw):
         print 'Robo created'
         self.link = None
         self.robot = None
 
-        self.fresh(**kw)
+        self._fresh(**kw)
 
-    def fresh(self, **kw):
+
+    def fresh(self):
+        self._fresh(mode=self.mode, debug=self.debug)
+
+    def _fresh(self, **kw):
 
         self.close()
         # time.sleep(1)
 
         startup_args = []
-        if kw.get("mode", "show") == "hidden":
+        self.mode = kw.get("mode", "show")
+        self.debug=kw.get("debug")
+
+        if self.mode == "hidden":
             startup_args = ["-HIDDEN", "-NOSPLASH", "-NOSHOW"]
+        elif self.mode == "api":
+            startup_args = ["-NEWINSTANCE", "-NOUI", "-EXIT_LAST_COM"]
         if kw.get("debug"):
             startup_args.append("-DEBUG")
 
-        print "startup_args", startup_args
+        # print "startup_args", startup_args
         self.link = Robolink(args=startup_args, robodk_path=ROBODK_PATH)
         self.link.AddFile(CLEAN_FILE)
         self.robot = self.link.Item("", ITEM_TYPE_ROBOT)
         self.robot.setParam("PostProcessor", "KUKA KRC4_RN")
+ 
 
     def empty(self):
         try:
@@ -82,8 +92,9 @@ class Robo:
     def close(self):
         self.empty()
         try:
+            
             self.link.Disconnect()
-            self.link.CloseRoboDK()
+            # self.link.CloseRoboDK()
         except BaseException:
             print "Already closed"
         self.link = None
@@ -108,3 +119,16 @@ class Robo:
 # rlink = rodk.link
 
 
+# r=Robo(mode="api")
+
+# r = Robo(mode="api")
+# for i in range(10):
+#     print r.robot
+#     r.fresh()
+# r.close()
+
+# r = Robo(mode="api")
+# for i in range(10):
+#     print r.robot
+#     r.fresh(mode="api")
+# r.close()
