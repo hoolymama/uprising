@@ -1,32 +1,43 @@
+import sys
+import os
 
+# sys.path.append(os.path.abspath("/Users/julian/dev/w/uprising/maya/script/uprising"))
+
+
+#
+#
+#
+#
+#
 # import random
 # import math
 
-from robolink import Robolink
-import cProfile, pstats, StringIO
+# from robolink import Robolink
+# import cProfile, pstats, StringIO
 
-pr = cProfile.Profile()
-pr.enable()
+# pr = cProfile.Profile()
+# pr.enable()
 
-RL = Robolink()
-list_items = RL.ItemList() 
-for item in list_items:
-    print item.Name()
+# RL = Robolink()
+# list_items = RL.ItemList()
+# for item in list_items:
+#     print item.Name()
 
-pr.disable()
+# pr.disable()
 
-s = StringIO.StringIO()
-sortby = 'cumulative'
-ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-ps.print_stats()
-print s.getvalue()
+# s = StringIO.StringIO()
+# sortby = 'cumulative'
+# ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+# ps.print_stats()
+# print s.getvalue()
+
 
 # import os
 # import pymel.core as pm
 
 # import uprising.uprising_util as uutl
 
- # turn off auto rendering (faster)
+# turn off auto rendering (faster)
 # RL.Render(False)
 
 # # Automatically delete previously generated items (Auto tag)
@@ -43,24 +54,22 @@ print s.getvalue()
 #         range='Brushes!A2:A2').execute()
 
 #     print    result['values'][0][0]
-    
+
 
 # get_flange_mode()
 
-    # data = result.get('values', [])
+# data = result.get('values', [])
 
-    # for row in data:
-    #     loc_name = row[0]
-    #     try:
-    #         node = pm.PyNode(loc_name)``
-    #     except pm.MayaNodeError:
-    #         node = pm.spaceLocator()
-    #         node.rename(loc_name)
+# for row in data:
+#     loc_name = row[0]
+#     try:
+#         node = pm.PyNode(loc_name)``
+#     except pm.MayaNodeError:
+#         node = pm.spaceLocator()
+#         node.rename(loc_name)
 
-    #     vals = [uutl.numeric(x) * 0.1 for x in row[1:4]]
-    #     node.attr("translate").set(*vals)
-
-
+#     vals = [uutl.numeric(x) * 0.1 for x in row[1:4]]
+#     node.attr("translate").set(*vals)
 
 
 # arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -84,7 +93,7 @@ print s.getvalue()
 #     weight = math.ceil(param) - param if not leftid == rightid else 1
 #     print("frac:%s\t\tparam:%s\t\tL:%s R:%s\t\tweight:%s" %
 #           (fraction, param, leftid, rightid, weight))
-    # print("L:%s R:%s" % (leftid, rightid))
+# print("L:%s R:%s" % (leftid, rightid))
 
 # RL = Robolink()
 
@@ -92,7 +101,7 @@ print s.getvalue()
 # Change the default timeout here, in seconds:
 # RL.TIMEOUT = 120 # in seconds
 # RL.COM.settimeout(RL.TIMEOUT)
- 
+
 # frame =  RL.Item('frm')
 # frame = RL.AddFrame('frm')
 
@@ -365,7 +374,7 @@ print s.getvalue()
 # print "DONE"
 # RL.Finish()
 
-    # shape.Delete()
+# shape.Delete()
 # robot = RL.Item('', ITEM_TYPE_ROBOT)
 
 
