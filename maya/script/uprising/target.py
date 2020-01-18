@@ -2,7 +2,7 @@ import robodk as rdk
 
 import uprising_util as uutl
 from uprising_util import StrokeError
-from robo import Robo
+import robo
 
 CONFIG_MASK = "000"
 
@@ -29,11 +29,10 @@ class Target(object):
         return "%s_t%d" % (prefix, self.id)
 
     def write(self, prefix, program, frame):
-        rodk = Robo()
-        rlink = rodk.link
-        robot = rodk.robot
+        link = robo.link()
+        robot = robo.robot()
         target_name = self.name(prefix)
-        rdk_target = rlink.AddTarget(target_name, frame, robot)
+        rdk_target = link.AddTarget(target_name, frame, robot)
         rdk_target.setPose(self.tool_pose)
         rdk_target.setJoints(self.joint_pose)
         if self.linear:

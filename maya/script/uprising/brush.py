@@ -1,11 +1,8 @@
-import re
 import pymel.core as pm
-import const as k
 
 import uprising_util as uutl
 import robodk as rdk
-from robolink import Robolink, ITEM_TYPE_ROBOT
-from robo import Robo
+import robo
 
 
 class Brush(object):
@@ -16,7 +13,7 @@ class Brush(object):
         self.node_name = self.node.name()
         self.name = str(plug).replace(".", "_")
 
-        self.matrix = uutl.maya_to_robodk_mat(
+        self.matrix = robo.maya_to_robodk_mat(
             pm.dt.Matrix(pm.brushQuery(plug, tcp=True))
         )
         self.physical_id = self.node.attr("physicalId").get()
@@ -47,22 +44,21 @@ class Brush(object):
     def is_flat(self):
         return self.shape == 0
 
-    def write(self):
-        rodk = Robo()
-        robot = rodk.robot
-        rlink = rodk.link
+    def write(self, with_geo=False):
+        link = robo.link()
+        robot = robo.robot()
 
-        old_brush = rlink.Item(self.name)
+        old_brush = link.Item(self.name)
         if old_brush.Valid():
             return
-        triangles = uutl.to_vector_array(pm.brushQuery(self.plug, tri=True))
-        triangles = [[t.x * 10, t.y * 10, t.z * 10] for t in triangles]
-
         tool_item = robot.AddTool(self.matrix, self.name)
-        shape = rlink.AddShape(triangles)
-        tool_item.AddGeometry(shape, rdk.eye())
+        if with_geo:
+            triangles = uutl.to_vector_array(pm.brushQuery(self.plug, tri=True))
+            triangles = [[t.x * 10, t.y * 10, t.z * 10] for t in triangles]
+            shape = link.AddShape(triangles)
+            tool_item.AddGeometry(shape, rdk.eye())
+            shape.Delete()
         robot.setPoseTool(tool_item)
-        shape.Delete()
 
     @classmethod
     def write_used_brush_sets(cls):

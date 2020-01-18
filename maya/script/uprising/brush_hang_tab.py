@@ -1,22 +1,12 @@
-import sys
 import os
-import json
-import pymel.core as pm
-import random
-from robolink import Robolink, COLLISION_OFF
-import write
-import props
-import uprising_util as uutl
-import curve_utils as cutl
-import palette_utils as putl
 
-import props
-
-from studio import Studio
-from brush import Brush
-from paint import Paint
 import const as k
+import pymel.core as pm
 import pymel.core.uitypes as gui
+import robo
+import uprising_util as uutl
+import write
+from studio import Studio
 
 
 class brushHangTab(gui.FormLayout):
@@ -115,7 +105,7 @@ class brushHangTab(gui.FormLayout):
 
             studio = Studio(brush_hang_data=data, pause=300)
             studio.write()
-            write.write_program(Robolink(), directory, k.BRUSH_HANG_PROGRAM_NAME)
+            robo.write_program(directory, k.BRUSH_HANG_PROGRAM_NAME)
 
         uutl.show_in_window(
             [

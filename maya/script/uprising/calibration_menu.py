@@ -3,11 +3,10 @@ import pymel.core as pm
 import palette_utils as putl
 import write
 import uprising.uprising_util as uutl
-import props
 from studio import Studio
-from robolink import Robolink
 import sheets
 import const as k
+import robo
 
 
 def create():
@@ -91,7 +90,7 @@ def generate_pick_place_exercise():
     studio = Studio(do_pap_exercise=True, pick_and_place_slots="all")
     studio.write()
 
-    write.write_program(Robolink(), directory, k.PAP_EXERCISE_PROGRAM_NAME)
+    robo.write_program( directory, k.PAP_EXERCISE_PROGRAM_NAME)
 
 
 def _read_triangulation(sheet_range):
@@ -138,8 +137,7 @@ def _generate_calibration(which, *reference_geo):
     studio = Studio(**kw)
     studio.write()
 
-    write.write_program(Robolink(), directory, which)
-    props.send(reference_geo)
+    robo.send(reference_geo)
 
 
 def read_rack_triangulation():

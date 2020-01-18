@@ -1,18 +1,14 @@
 import logging
 
-from robolink import ITEM_TYPE_ROBOT, Robolink
-
 import brush_utils as butl
 import const as k
 import palette_utils as putl
 import props
 import pymel.core as pm
-import sheets
+import robo
 import uprising_util as uutl
 from brush import Brush
 from paint import Paint
-
-
 from program import (
     BoardCalibration,
     BrushHangProgram,
@@ -228,14 +224,14 @@ class Studio(object):
     ####################################
 
     def write_approaches(self):
-        self.approaches_frame = uutl.create_frame("ax_frame")
-        self.tool_approach = uutl._create_joint_target(
+        self.approaches_frame = robo.create_frame("ax_frame")
+        self.tool_approach = robo.create_joint_target(
             pm.PyNode(TOOL_TARGET), "tool_approach", self.approaches_frame
         )
-        self.home_approach = uutl._create_joint_target(
+        self.home_approach = robo.create_joint_target(
             pm.PyNode(HOME_TARGET), "home_approach", self.approaches_frame
         )
-        self.dip_approach = uutl._create_joint_target(
+        self.dip_approach = robo.create_joint_target(
             pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame
         )
 
@@ -257,7 +253,7 @@ class Studio(object):
     def write_pick_place_program(self, index):
         rack_context = pm.PyNode("RACK1_CONTEXT")
         if self.pick_place_programs and index < len(self.pick_place_programs):
-            self.pick_place_frame = uutl.create_frame("pick_place_frame")
+            self.pick_place_frame = robo.create_frame("pick_place_frame")
             with uutl.final_position(rack_context):
                 prg = self.pick_place_programs[index]
                 prg.write(self)
@@ -265,21 +261,21 @@ class Studio(object):
 
     def write_dip_program(self, index):
         if self.dip_programs and index < len(self.dip_programs):
-            self.dips_frame = uutl.create_frame("dips_frame")
+            self.dips_frame = robo.create_frame("dips_frame")
             prg = self.dip_programs[index]
             prg.write(self)
             return prg.program_name
 
     def write_water_program(self, index):
         if self.water_programs and index < len(self.water_programs):
-            self.wash_frame = uutl.create_frame("wash_frame")
+            self.wash_frame = robo.create_frame("wash_frame")
             prg = self.water_programs[index]
             prg.write(self)
             return prg.program_name
 
     def write_retardant_program(self, index):
         if self.retardant_programs and index < len(self.retardant_programs):
-            self.wash_frame = uutl.create_frame("wash_frame")
+            self.wash_frame = robo.create_frame("wash_frame")
             prg = self.retardant_programs[index]
             prg.write(self)
             return prg.program_name
@@ -295,13 +291,13 @@ class Studio(object):
             self.painting_program.write(self)
 
         if self.pick_place_programs:
-            self.pick_place_frame = uutl.create_frame("pick_place_frame")
+            self.pick_place_frame = robo.create_frame("pick_place_frame")
             with uutl.final_position(rack_context):
                 for prog in self.pick_place_programs:
                     prog.write(self)
 
         if self.dip_programs:
-            self.dips_frame = uutl.create_frame("dips_frame")
+            self.dips_frame = robo.create_frame("dips_frame")
             for dip in self.dip_programs:
                 dip.write(self)
             if self.do_rack_and_holder_geo:
@@ -309,12 +305,12 @@ class Studio(object):
                     Paint.write_geos()
 
         if self.water_programs:
-            self.wash_frame = uutl.create_frame("wash_frame")
+            self.wash_frame = robo.create_frame("wash_frame")
             for water in self.water_programs:
                 water.write(self)
 
         if self.retardant_programs:
-            self.wash_frame = uutl.create_frame("wash_frame")
+            self.wash_frame = robo.create_frame("wash_frame")
             for retardant in self.retardant_programs:
                 retardant.write(self)
 
@@ -329,7 +325,7 @@ class Studio(object):
                 self._write_rack_and_holder_geo()
 
         if self.brush_hang_program:
-            self.hang_frame = uutl.create_frame("hang_frame")
+            self.hang_frame = robo.create_frame("hang_frame")
             with uutl.final_position(rack_context):
                 self.brush_hang_program.write(self)
                 props.send([pm.PyNode("rackTop")])

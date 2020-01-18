@@ -1,17 +1,8 @@
-import sys
-import re
-import pymel.core as pm
-
-import curve_utils as cutl
+ 
 import brush_utils as butl
-import culling
-
-import stroke_factory_utils as sfu
+import curve_utils as cutl
+import pymel.core as pm
 import pymel.core.uitypes as gui
-
-from robolink import (
-    Robolink
-)
 
 
 class PaintingTab(gui.FormLayout):
@@ -52,13 +43,6 @@ class PaintingTab(gui.FormLayout):
             label='Contact',
             command=pm.Callback(self.on_propagate_contact_ramp))
 
-
-        # flat_only = 1
-        # self.flat_only_cb = pm.checkBox(
-        #     label='Flat only',
-        #     value=flat_only,
-        #     annotation='Only propagate flat brush ramps')
-
         pm.setParent('..')
 
 
@@ -68,57 +52,6 @@ class PaintingTab(gui.FormLayout):
             buttonLabel='Go',
             buttonCommand=pm.Callback(
                 self.on_rename_inputs))
-
-
-
-        # self.lift_length_ff = pm.floatSliderButtonGrp(
-        #     label='Tip length to lift length',
-        #     field=True,
-        #     maxValue=5.0,
-        #     step=0.01,
-        #     value=1.1,
-        #     symbolButtonDisplay=False,
-        #     buttonLabel="Go",
-        #     buttonCommand=pm.Callback(self.on_tip_length_to_lift_length),
-        #     columnWidth=(4, 60)
-        # )
-
-        # self.lift_height_ff = pm.floatSliderButtonGrp(
-        #     label='Tip length to lift height',
-        #     field=True,
-        #     maxValue=5.0,
-        #     step=0.01,
-        #     value=1.1,
-        #     symbolButtonDisplay=False,
-        #     buttonLabel="Go",
-        #     buttonCommand=pm.Callback(self.on_tip_length_to_lift_height),
-        #     columnWidth=(4, 60)
-        # )
-
-        # self.lift_bias_ff = pm.floatSliderButtonGrp(
-        #     label='Tip length to lift bias',
-        #     field=True,
-        #     maxValue=5.0,
-        #     step=0.01,
-        #     value=1.1,
-        #     symbolButtonDisplay=False,
-        #     buttonLabel="Go",
-        #     buttonCommand=pm.Callback(self.on_tip_length_to_lift_bias),
-        #     columnWidth=(4, 60)
-        # )
-
-        # self.profile_height_max_ff = pm.floatSliderButtonGrp(
-        #     label='Tip length to profile max',
-        #     field=True,
-        #     maxValue=5.0,
-        #     step=0.01,
-        #     value=1.0,
-        #     symbolButtonDisplay=False,
-        #     buttonLabel="Go",
-        #     buttonCommand=pm.Callback(self.on_tip_length_to_profile_max),
-        #     columnWidth=(4, 60)
-        # )
-
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -143,32 +76,19 @@ class PaintingTab(gui.FormLayout):
 
     def populate(self):
         pass
-        # val = "default"
-        # if "up_setup_palette_name" in pm.optionVar:
-        #     val = pm.optionVar["up_setup_palette_name"]
-        # print val
-        # pm.textFieldGrp(self.setup_paints_tf, e=True, text=val)
+
 
     def save(self):
         pass
-        # val = pm.textFieldButtonGrp(self.setup_paints_tf, q=True, text=True)
-        # pm.optionVar["up_setup_palette_name"] = val
 
-    # def on_propagate_profile_ramp(self):
-    #     flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
-    #     cutl.propagate_ramp_attribute(
-    #         "strokeProfileRamp", "strokeProfileScale", flat)
 
     def on_propagate_tilt_ramp(self):
-        # flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
         cutl.propagate_ramp_attribute("brushTiltRamp", "brushTiltRange")
 
     def on_propagate_bank_ramp(self):
-        # flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
         cutl.propagate_ramp_attribute("brushBankRamp", "brushBankRange")
 
     def on_propagate_twist_ramp(self):
-        # flat = pm.checkBox(self.flat_only_cb, query=True, v=True)
         cutl.propagate_ramp_attribute(
             "brushTwistRamp", "brushTwistRange")
 
@@ -252,4 +172,3 @@ class PaintingTab(gui.FormLayout):
     def on_tip_length_to_profile_max(self):
         mult = pm.floatSliderButtonGrp(self.profile_height_max_ff, query=True, value=True)
         self.on_tip_length_to_attr("strokeProfileScaleMax", mult)
-        

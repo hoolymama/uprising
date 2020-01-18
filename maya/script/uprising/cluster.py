@@ -5,7 +5,7 @@ from uprising_util import ClusterError
 from stroke import Stroke
 
 import pymel.core as pm
-from robo import Robo
+import robo
 
 
 class Cluster(object):
@@ -33,15 +33,12 @@ class Cluster(object):
         return "{}_c{}".format(program.Name(), self.id)
 
     def write(self, program, frame, motion):
-        rodk = Robo()
-        rlink = rodk.link
-
-        tool = rlink.Item(self.brush.name)
+        link = robo.link()
+        tool = link.Item(self.brush.name)
         if not tool.Valid():
             raise ClusterError("SERIOUS RISK OF DAMAGE! Can't find valid tool!")
 
         program.setPoseTool(tool)
-
         cluster_name = self.name(program)
 
         program.RunInstruction("Cluster %s" % cluster_name, INSTRUCTION_COMMENT)

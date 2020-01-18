@@ -5,14 +5,14 @@ import os
 import time
 from contextlib import contextmanager
 
-from robolink import Robolink
 
 import pymel.core as pm
 import pymel.core.uitypes as gui
+import robo
 import uprising_util as uutl
 import write
 from studio import Studio
-from robo import Robo
+
 
 @contextmanager
 def isolate_nodes(show_nodes, all_nodes):
@@ -90,25 +90,7 @@ class retriesTab(gui.FormLayout):
             height=30)
         pm.setParent("..")
 
-        pm.frameLayout(
-            bv=True,
-            collapse=False,
-            labelVisible=True,
-            label="Developer"
-        )
-        self.robolink_render_cb = pm.checkBoxGrp(
-            label='Robolink Visible',
-            value1=0,
-            annotation='Display on off for profiling purposes',
-            height=30)
-
-        self.robolink_rnewinst_cb = pm.checkBoxGrp(
-            label='New instance per retry',
-            value1=0,
-            height=30)
-
-        pm.setParent("..")
-
+ 
 
         pm.frameLayout(
             bv=True,
@@ -159,17 +141,12 @@ class retriesTab(gui.FormLayout):
 
     def on_preview(self):
         self.dry = True
-        # uutl.checkRobolink()
         pack = self.get_pack()
-        # for ps in pack["passes"]:
         pack["plugs"]=[str(plug) for plug in pack["plugs"]]
         print json.dumps(pack, indent=2)
         self.on_go()
 
     def on_go(self):
-
-        self.mode = "show" if  pm.checkBoxGrp(self.robolink_render_cb, query=True, value1=True) else "hidden"
-        self.newinst =  pm.checkBoxGrp(self.robolink_rnewinst_cb, query=True, value1=True)
 
 
         timer_start = time.time()
@@ -315,15 +292,8 @@ class retriesTab(gui.FormLayout):
 
             iter_start = time.time()
             
-            if not self.newinst:
-                rodk = Robo(mode=self.mode)
-                rodk.clean()
-            else:
-                rodk = Robo(mode=self.mode, force=True)
-            time.sleep(1)
-            # items = rodk.link.ItemList()
-            # for item in items:
-            #     print item.Name()
+
+            robo.new()
 
             studio = Studio(do_painting=True)
             before_write = time.time()

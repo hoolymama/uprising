@@ -1,18 +1,15 @@
 import pymel.core as pm
 import uprising.maya_util as mutil
-
-
-from robolink import Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TARGET
 import robodk as rdk
-from robo import Robo
+import robo
 
 
 def get_targets_frame():
-    rodk = Robo()
-    rlink = rodk.link
-    targets_parent = rlink.Item("Targets", ITEM_TYPE_TARGET)
+    link = robo.link()
+
+    targets_parent = link.Item("Targets", ITEM_TYPE_TARGET)
     if not targets_parent.Valid():
-        targets_parent = rlink.AddFrame("Targets", itemparent=0)
+        targets_parent = link.AddFrame("Targets", itemparent=0)
         targets_parent.setPose(rdk.eye())
     return targets_parent
 
@@ -25,14 +22,13 @@ def send_object(node, parent):
     mesh, we rebuild triangles in robodk and add it to the
     hierarchy.
     """
-    rodk = Robo()
-    rlink = rodk.link
+    link = robo.link()
 
     name = node.name()
 
     if isinstance(node, pm.nodetypes.Transform):
         mat = mutil.get_robodk_mat(node, "object")
-        frame = rlink.AddFrame(name, parent)
+        frame = link.AddFrame(name, parent)
         frame.setPose(rdk.Mat(mat))
         frame.setVisible(False, visible_frame=False)
         for child in node.getChildren():
@@ -47,7 +43,7 @@ def send_object(node, parent):
             triangles.append(
                 [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10]
             )
-        shape = rlink.AddShape(triangles)
+        shape = link.AddShape(triangles)
         shape.setParent(parent)
         shape.setName(name)
         shape.setColor(list(color))

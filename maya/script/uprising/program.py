@@ -7,16 +7,13 @@ from brush import Brush
 import pymel.core as pm
 import props
 import robodk as rdk
-from robo import Robo
+import robo 
 
 from robolink import (
-    # Robolink,
-    ITEM_TYPE_ROBOT,
     INSTRUCTION_COMMENT,
     INSTRUCTION_SHOW_MESSAGE,
     INSTRUCTION_CALL_PROGRAM,
-    INSTRUCTION_INSERT_CODE,
-    COLLISION_OFF,
+    INSTRUCTION_INSERT_CODE
 )
 
 import const as k
@@ -84,7 +81,7 @@ class MainProgram(Program):
 
         super(MainProgram, self).write()
 
-        self.frame = uutl.create_frame("{}_frame".format(self.program_name))
+        self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
         self.painting.write_brushes()
 
@@ -224,7 +221,7 @@ class PapExerciseProgram(Program):
     def write(self, studio):
 
         super(PapExerciseProgram, self).write()
-        self.frame = uutl.create_frame("{}_frame".format(self.program_name))
+        self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
         with uutl.minimize_robodk():
 
@@ -278,7 +275,7 @@ class PotHandleExerciseProgram(Program):
     def write(self, studio):
 
         super(PotHandleExerciseProgram, self).write()
-        self.frame = uutl.create_frame("{}_frame".format(self.program_name))
+        self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
         with uutl.minimize_robodk():
 
@@ -338,7 +335,7 @@ class BrushHangProgram(Program):
     def write(self, studio):
 
         super(BrushHangProgram, self).write()
-        self.frame = uutl.create_frame("{}_frame".format(self.program_name))
+        self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
         mats = {
             "A": pm.PyNode("hangLocal|approach_loc").attr("worldMatrix[0]").get(),
@@ -382,8 +379,7 @@ class BrushHangProgram(Program):
         self.program.addMoveJ(studio.home_approach)
 
     def _write_one_hang(self, pack, mats):
-        rodk = Robo()
-        rlink = rodk.link
+        link = robo.link()
 
         targets = {}
         for key in mats:
@@ -395,7 +391,7 @@ class BrushHangProgram(Program):
 
         #write the brush
         pack["brush"].write()
-        tool = rlink.Item(pack["brush"].name)
+        tool = link.Item(pack["brush"].name)
         if not tool.Valid():
             raise ProgramError("Brush is not valid. Risk of damage. Can't continue.")
 
@@ -432,13 +428,11 @@ class BrushHangProgram(Program):
 
 
     def _create_target_for_brush(self, brush, mat, name):
-        rodk = Robo()
-        robot = rodk.robot
-        rlink = rodk.link
-
-        tool_pose = uutl.maya_to_robodk_mat(mat)
+        robot = robo.robot()
+        link = robo.link()
+        tool_pose = robo.maya_to_robodk_mat(mat)
         flange_pose = tool_pose * brush.matrix.invH()
-        target = rlink.AddTarget(name, self.frame, robot)
+        target = link.AddTarget(name, self.frame, robot)
         joints =  robot.SolveIK(flange_pose, k.FACING_RACK_JOINTS)
         target.setPose(tool_pose)
         target.setJoints(joints)
@@ -605,13 +599,12 @@ class CalibrationProgram(Program):
         raise NotImplementedError
 
     def write(self, tool_approach, home_approach):
-        rodk = Robo()
-        rlink = rodk.link
+        link = robo.link()
         super(CalibrationProgram, self).write()
-        self.frame = uutl.create_frame("{}_frame".format(self.program_name))
+        self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
         self.brush.write()
-        self.tool = rlink.Item(self.brush.name)
+        self.tool = link.Item(self.brush.name)
         if not self.tool.Valid():
             raise ProgramError("No Probe Brush. Risk of damage. Can't continue.")
 
@@ -669,12 +662,11 @@ class CalibrationProgram(Program):
                     self.program.addMoveJ(target)
 
     def _create_a_target(self, mat, name, facing_joints):
-        rodk = Robo()
-        robot = rodk.robot
-        rlink = rodk.link
-        tool_pose = uutl.maya_to_robodk_mat(mat)
+        robot = robo.robot()
+        link = robo.link()
+        tool_pose = robo.maya_to_robodk_mat(mat)
         flange_pose = tool_pose * self.brush.matrix.invH()
-        target = rlink.AddTarget(name, self.frame, robot)
+        target = link.AddTarget(name, self.frame, robot)
         joints = robot.SolveIK(flange_pose, facing_joints)
         target.setPose(tool_pose)
         target.setJoints(joints)
@@ -942,31 +934,28 @@ class PickPlaceProgram(Program):
         self.targets = {}
 
     def write_brush(self):
-        rodk = Robo()
-        robot = rodk.robot
-        rlink = rodk.link
-        existing_brush = rlink.Item(self.brush.name)
+        robot = robo.robot()
+        link = robo.link()
+        existing_brush = link.Item(self.brush.name)
         if existing_brush.Valid():
             return
 
         tool_item = robot.AddTool(self.brush.matrix, self.brush.name)
         triangles = props.mesh_triangles(pm.PyNode("GRIPPER"))
-        shape = rlink.AddShape(triangles)
+        shape = link.AddShape(triangles)
         tool_item.AddGeometry(shape, rdk.eye())
         robot.setPoseTool(tool_item)
         shape.Delete()
 
     def write(self, studio):
-        rodk = Robo()
-        robot = rodk.robot
-        rlink = rodk.link
+        link = robo.link()
 
         self.frame = studio.pick_place_frame
         super(PickPlaceProgram, self).write()
 
         self.write_brush()
 
-        self.tool = rlink.Item(self.brush.name)
+        self.tool = link.Item(self.brush.name)
         if not self.tool.Valid():
             raise ProgramError("No Gripper Brush. Risk of damage. Can't continue.")
 
@@ -987,15 +976,14 @@ class PickPlaceProgram(Program):
         )
 
     def _create_a_target(self, mat, name, facing_joints):
-        rodk = Robo()
-        robot = rodk.robot
-        rlink = rodk.link
-        target = rlink.Item(name)
+        link = robo.link()
+        robot = robo.robot()
+        target = link.Item(name)
         if target.Valid():
             return target
-        tool_pose = uutl.maya_to_robodk_mat(mat)
+        tool_pose = robo.maya_to_robodk_mat(mat)
         flange_pose = tool_pose * self.brush.matrix.invH()
-        target = rlink.AddTarget(name, self.frame, robot)
+        target = link.AddTarget(name, self.frame, robot)
         joints = robot.SolveIK(flange_pose, facing_joints)
         target.setPose(tool_pose)
         target.setJoints(joints)

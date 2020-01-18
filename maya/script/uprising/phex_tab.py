@@ -1,22 +1,15 @@
-import sys
 import os
-import json
-import pymel.core as pm
-import random
-from robolink import Robolink, COLLISION_OFF
-import write
-import props
-import uprising_util as uutl
-import curve_utils as cutl
+
+import const as k
 import palette_utils as putl
-
 import props
-
-from studio import Studio
+import pymel.core as pm
+import pymel.core.uitypes as gui
+import robo
+import write
 from brush import Brush
 from paint import Paint
-import const as k
-import pymel.core.uitypes as gui
+from studio import Studio
 
 
 class phexTab(gui.FormLayout):
@@ -109,7 +102,7 @@ class phexTab(gui.FormLayout):
 
             studio = Studio(pot_handle_exercise_data=data["combinations"])
             studio.write()
-            write.write_program(Robolink(), directory, k.POT_HANDLE_EXERCISE_PROGRAM_NAME)
+            robo.write_program(directory, k.POT_HANDLE_EXERCISE_PROGRAM_NAME)
         uutl.show_in_window(data, title="Pot/holder  exercise stats")
 
 

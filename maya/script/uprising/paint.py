@@ -1,8 +1,6 @@
 import pymel.core as pm
-from robolink import Robolink, ITEM_TYPE_ROBOT
-import uprising_util as uutl
 import uprising.maya_util as mutil
-from robo import Robo
+import robo
 
 
 class Paint(object):
@@ -36,7 +34,7 @@ class Paint(object):
     @classmethod
     def write_geos(cls):
 
-        frame = uutl.create_frame("tx_frame")
+        frame = robo.create_frame("tx_frame")
         node = pm.PyNode("mainPaintingShape")
 
         dc = pm.paintingQuery(node, dc=True)
@@ -46,9 +44,7 @@ class Paint(object):
             paints[pid].write_geo(frame)
 
     def write_geo(self, frame):
-        rodk = Robo()
-        rlink = rodk.link
-
+        link = robo.link()
         tray = pm.PyNode(self.name)
         geo = pm.ls(tray.getParent().getParent(), dag=True, leaf=True, type="mesh")
         for g in geo:
@@ -65,9 +61,7 @@ class Paint(object):
                         points[vert_id].z * 10,
                     ]
                 )
-
-            shape = rlink.AddShape(triangles)
-
+            shape = link.AddShape(triangles)
             shape.setName(str(xf).replace("|", "_"))
             shape.setColor(list(color))
             shape.setParent(frame)

@@ -1,12 +1,9 @@
-from robolink import Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TOOL, ITEM_TYPE_PROGRAM
-import sys
-import os
 import errno
 import json
-import robodk as rdk
-import pymel.core as pm
+import os
 from contextlib import contextmanager
-from robo import Robo
+
+import pymel.core as pm
 
 PI = 3.14159265359
 
@@ -173,6 +170,13 @@ def deg2rad(deg):
     return deg / (180 / PI)
 
 
+def numeric(s):
+    try:
+        return float(s)
+    except ValueError:
+        return s
+
+
 class PaintingError(Exception):
     pass
 
@@ -183,105 +187,6 @@ class ClusterError(Exception):
 
 class StrokeError(Exception):
     pass
-
-
-def maya_to_robodk_mat(rhs):
-    """Get transposed mat with translate in mm."""
-    mat = rhs.transpose()
-    mat = [list(row) for row in mat]
-    mat[0][3] = mat[0][3] * 10.0
-    mat[1][3] = mat[1][3] * 10.0
-    mat[2][3] = mat[2][3] * 10.0
-    return rdk.Mat(mat)
-
-
-def create_program(name):
-    rodk = Robo()
-    rlink = rodk.link
-    program = rlink.Item(name)
-    if program.Valid():
-        program.Delete()
-    return rlink.AddProgram(name)
-
-
-def create_frame(name, force=True):
-    rodk = Robo()
-    rlink = rodk.link
-    frame = rlink.Item(name)
-    if frame.Valid():
-        if force:
-            frame.Delete()
-        else:
-            return frame
-    frame = rlink.AddFrame(name)
-    frame.setPose(rdk.eye())
-    return frame
-
-
-def delete_tools():
-    rodk = Robo()
-    rlink = rodk.link
-    for t in rlink.ItemList(filter=ITEM_TYPE_TOOL):
-        t.Delete()
-
-
-def delete_programs():
-    rodk = Robo()
-    rlink = rodk.link
-    for t in rlink.ItemList(filter=ITEM_TYPE_PROGRAM):
-        t.Delete()
-
-
-def numeric(s):
-    try:
-        return float(s)
-    except ValueError:
-        return s
-
-
-def config_key(config):
-    if config:
-        return "%d%d%d" % tuple(config.list2()[0][0:3])
-
-
-def config_000_poses(pose):
-    rodk = Robo()
-    # rlink = rodk.link
-    robot = rodk.robot
-    result = []
-    ik = robot.SolveIK_All(pose)
-    siz = ik.size()
-    if not (ik and siz[0] and siz[1] and (len(ik.list()) > 5)):
-        return result
-    joint_poses = [el[0:6] for el in ik.list2()]
-    for joint_pose in joint_poses:
-        key = config_key(robot.JointsConfig(joint_pose))
-        if key == "000":
-            result.append(joint_pose)
-    return result
-
-
-def _create_joint_target(obj, name, frame):
-    rodk = Robo()
-    robot = rodk.robot
-    rlink = rodk.link
-
-    mat = obj.attr("worldMatrix[0]").get()
-
-    mat = maya_to_robodk_mat(mat)
-
-    joint_poses = config_000_poses(mat)
-    if not joint_poses:
-        raise Exception("No configs for approach mat. Try repositioning.")
-    joints = joint_poses[0]
-
-    old_approach = rlink.Item(name)
-    if old_approach.Valid():
-        old_approach.Delete()
-    target = rlink.AddTarget(name, frame, robot)
-    target.setAsJointTarget()
-    target.setJoints(joints)
-    return target
 
 
 def show_in_window(data, **kw):

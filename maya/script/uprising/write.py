@@ -2,20 +2,19 @@
 import tarfile
 
 import os
-import time
 import json
 import datetime
 import pymel.core as pm
 import uprising_util as uutl
 
-from robolink import (Robolink, ITEM_TYPE_STATION, ITEM_TYPE_PROGRAM)
 from studio import Studio
 from paint import Paint
 from brush import Brush
 import math
 
-from robo import Robo
+import robo 
 
+ 
 
 
 # import setup_dip
@@ -31,19 +30,10 @@ def split_desc(desc):
         result[1] = "\n".join(lines[1:])
     return result
 
-def init_robodk(**kw):
-    mode = kw.get("mode", "hidden")
-    if not kw.get("newinst", True):
-        rodk = Robo(mode=mode)
-        rodk.clean()
-    else:
-        rodk = Robo(mode=mode , force=True)
-    time.sleep(1)
+ 
 
 
 def publish_separate_files( directory, **kw):
-    # rodk = Robo()
-    # rlink = rodk.link
  
     pause_gripper_ms = kw.get("pause_gripper_ms")
     water_wipe_repeats = kw.get("water_wipe_repeats")
@@ -53,7 +43,7 @@ def publish_separate_files( directory, **kw):
     uutl.mkdir_p(src)
     uutl.mkdir_p(rdk)
     
-    init_robodk(**kw)
+    robo.new()
 
     studio = Studio(
                 do_painting=True,
@@ -67,10 +57,10 @@ def publish_separate_files( directory, **kw):
     
     cluster_count = len(studio.painting_program.painting.clusters)
     cluster_chunk_size=kw.get("cluster_chunk_size", cluster_count)
-    num_main_painting_chunks = int(math.ceil( cluster_count / float(cluster_chunk_size)))
+    num_chunks = int(math.ceil( cluster_count / float(cluster_chunk_size)))
 
-    for i in range(num_main_painting_chunks):
-        init_robodk(newinst=False)
+    for i in range(num_chunks):
+        robo.new()
         studio.write_approaches()
         program_name = studio.write_painting_program(i, cluster_chunk_size)
         save_prog_and_station(src, rdk, program_name)
@@ -78,7 +68,7 @@ def publish_separate_files( directory, **kw):
 
     count = len(studio.pick_place_programs)
     for i in range(count):
-        init_robodk(newinst=False)
+        robo.new()
         studio.write_approaches()
         studio.write_approaches()
         program_name = studio.write_pick_place_program(i)
@@ -87,8 +77,9 @@ def publish_separate_files( directory, **kw):
         print "Pick-Place {}/{}".format(i, count)
 
     count = len(studio.dip_programs)
+    robo.new()
     for i in range(count):
-        init_robodk(newinst=False)
+        robo.clean()
         studio.write_approaches()
         program_name = studio.write_dip_program(i)
         save_prog_and_station(src, rdk, program_name)
@@ -97,7 +88,7 @@ def publish_separate_files( directory, **kw):
 
     count = len(studio.water_programs)
     for i in range(count):
-        init_robodk(newinst=False)
+        robo.clean()
         studio.write_approaches()
         program_name = studio.write_water_program(i)
         save_prog_and_station(src, rdk, program_name)
@@ -106,7 +97,7 @@ def publish_separate_files( directory, **kw):
 
     count = len(studio.retardant_programs)
     for i in range(count):
-        init_robodk(newinst=False)
+        robo.clean()
         studio.write_approaches()
         program_name = studio.write_retardant_program(i)
         save_prog_and_station(src, rdk, program_name)
@@ -171,8 +162,8 @@ def write_orchestrator(directory, programs):
 
 
 def save_prog_and_station(src, rdk, program_name ):
-    write_program(src, program_name)
-    write_station(rdk, program_name)
+    robo.write_program(src, program_name)
+    robo.write_station(rdk, program_name)
     print "Wrote src and rdk: {}".format(program_name)
 
 
@@ -185,7 +176,6 @@ def publish_sequence(
 ):
     results = []
     painting_node = pm.PyNode("mainPaintingShape")
-    RL = Robolink()
     src = os.path.join(directory, "src")
     rdk = os.path.join(directory, "rdk")
     for frame in range(frame_range[0], frame_range[1] + 1):
@@ -207,7 +197,7 @@ def publish_sequence(
             pause=pause
             )
         studio.write()
-        save_prog_and_station(RL, src, rdk, program_name)
+        save_prog_and_station(src, rdk, program_name)
         results.append(program_name)
     return results
 
@@ -301,21 +291,6 @@ def write_image_sequence(
 
 def setup_clean_top(painting_node):
     pass
-
-def write_program(  directory, progname):
-    rodk = Robo()
-    rlink = rodk.link
-    program = rlink.Item(progname, ITEM_TYPE_PROGRAM)
-    program.MakeProgram(directory)
-    return (progname,program.Valid())
-
-
-def write_station(  directory, name):
-    rodk = Robo()
-    rlink = rodk.link
-    station = rlink.Item("", ITEM_TYPE_STATION)
-    station.setName(name)
-    rlink.Save(os.path.join(directory, "{}.rdk".format(name)))
 
 def write_maya_scene(ts_dir, name):
     new_name = os.path.join(ts_dir, "{}.ma".format(name) )
