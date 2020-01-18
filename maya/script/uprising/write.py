@@ -14,12 +14,6 @@ import math
 
 import robo 
 
- 
-
-
-# import setup_dip
-import palette_utils as putl
- 
 def split_desc(desc):
     result = [None, None]
     lines = desc.splitlines()
