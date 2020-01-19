@@ -19,6 +19,7 @@ from uprising import (
     palette_menu,
     info_menu,
     calibration_menu,
+    calibration,
     robo,
 )
 
@@ -81,7 +82,7 @@ reload(images_menu)
 reload(select_menu)
 
 reload(images)
-
+reload(calibration)
 reload(calibration_menu)
 reload(studio)
 

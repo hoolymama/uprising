@@ -7,13 +7,27 @@ import os
 import time
 from robolink import Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TARGET, ITEM_TYPE_STATION, ITEM_TYPE_PROGRAM
 import robodk as rdk
+import pymel.core as pm
 
 CLEAN_FILE = os.path.join(os.environ["UPRISING_PROJECT_PATH"], "robodk", "clean.rdk")
 ROBODK_PATH = "/Applications/RoboDK/RoboDK.app/Contents/MacOS/RoboDK"
+DIP_TARGET = "dipTarget"
+TOOL_TARGET = "toolChangeTarget"
+HOME_TARGET = "homeTarget"
+
 
 _robot=None
 _link=None
+dip_approach=None
+home_approach=None
+tool_approach=None
+dips_frame=None
+wash_frame=None
+pick_place_frame=None
+calibration_frame=None
+
 _debug=None
+
 
 def empty():
     global _link
@@ -48,6 +62,8 @@ def new(debug=False):
 
     _link = Robolink(args=args, robodk_path=ROBODK_PATH)
     _link.AddFile(CLEAN_FILE)
+    _create_infrastructure()
+    
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _robot.setParam("PostProcessor", "KUKA KRC4_RN")
 
@@ -77,6 +93,7 @@ def clean():
     global _link
     empty()
     _link.AddFile(CLEAN_FILE)
+    _create_infrastructure()
     print "Added clean file: {}".format(CLEAN_FILE)
 
 def create_program(name):
@@ -159,3 +176,33 @@ def write_program(directory, name):
         program = _link.Item(name, ITEM_TYPE_PROGRAM)
         program.MakeProgram(directory)
         return (name,program.Valid())
+
+
+def _create_infrastructure():
+    global dip_approach
+    global home_approach
+    global tool_approach
+    global dips_frame
+    global wash_frame
+    global pick_place_frame
+    global calibration_frame
+
+
+    calibration_frame =  create_frame("calibration_frame")
+    dips_frame = create_frame("dips_frame")
+    wash_frame = create_frame("wash_frame")
+    pick_place_frame = create_frame("pick_place_frame")
+
+    _approaches_frame = create_frame("ax_frame")
+
+    tool_approach = create_joint_target(
+        pm.PyNode(TOOL_TARGET), "tool_approach", _approaches_frame
+    )
+    home_approach = create_joint_target(
+        pm.PyNode(HOME_TARGET), "home_approach", _approaches_frame
+    )
+    dip_approach = create_joint_target(
+        pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame
+    )
+
+ 

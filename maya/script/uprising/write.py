@@ -11,6 +11,7 @@ from studio import Studio
 from paint import Paint
 from brush import Brush
 import math
+import progress
 
 import robo 
 
@@ -25,6 +26,56 @@ def split_desc(desc):
     return result
 
  
+
+def _get_or_create_dirs(directory):
+
+    src = os.path.join(directory, "src")
+    rdk = os.path.join(directory, "rdk")
+    uutl.mkdir_p(src)
+    uutl.mkdir_p(rdk)
+
+    return (src, rdk)
+
+def publish_painting(directory, **kw):
+    # pause_gripper_ms = kw.get("pause_gripper_ms", 200)
+    # water_wipe_repeats = kw.get("water_wipe_repeats",1)
+    src, rdk = _get_or_create_dirs(directory)
+ 
+    robo.new()
+
+    cluster_count = pm.paintingQuery(cc=True)
+    progress.update(major_max=cluster_count, header="Creating main painting {:d} clusters".format(cluster_count))
+
+    studio = Studio(do_painting=True)
+
+    cluster_count = len(studio.painting_program.painting.clusters)
+
+    cluster_chunk_size=kw.get("cluster_chunk_size", cluster_count)
+    num_chunks = int(math.ceil( cluster_count / float(cluster_chunk_size)))
+
+    progress.update(major_max=num_chunks, header="Writing {} main program chunks".format(num_chunks))
+
+    program = studio.painting_program
+    if not program:
+        return
+    for i in range(num_chunks):
+        progress.update(major_progress=i, header="Writing {:d} of {:d} chunks".format(i+1, num_chunks))
+
+        robo.new()
+        subprograms = program.write(chunk_id=i, chunk_length=num_chunks)
+        save_prog_and_station(src, rdk, program.program_name, subprograms=subprograms)
+
+def publish_pick_place(directory):
+    rack_context = pm.PyNode("RACK1_CONTEXT")
+    
+    src, rdk = _get_or_create_dirs(directory)
+    studio = Studio( pick_and_place_slots="used" )
+    count = len(studio.pick_place_programs)
+    for i in range(count):
+        robo.new()
+        program_name = studio.write_pick_place_program(i)
+        save_prog_and_station(src, rdk, program_name)
+
 
 
 def publish_separate_files( directory, **kw):
@@ -50,6 +101,7 @@ def publish_separate_files( directory, **kw):
     result = {"painting": [], "others": []}
     
     cluster_count = len(studio.painting_program.painting.clusters)
+
     cluster_chunk_size=kw.get("cluster_chunk_size", cluster_count)
     num_chunks = int(math.ceil( cluster_count / float(cluster_chunk_size)))
 
@@ -155,7 +207,7 @@ def write_orchestrator(directory, programs):
 #     studio.write_approaches()
 
 
-def save_prog_and_station(src, rdk, program_name ):
+def save_prog_and_station(src, rdk, program_name, subprograms=None ):
     robo.write_program(src, program_name)
     robo.write_station(rdk, program_name)
     print "Wrote src and rdk: {}".format(program_name)

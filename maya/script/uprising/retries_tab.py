@@ -64,30 +64,30 @@ class retriesTab(gui.FormLayout):
         )
         self.varying_attrib_wg = pm.textFieldGrp(
             label='Attribute', text='splitAngle',
-            height=30)
+            )
 
         self.varying_range_wg = pm.floatFieldGrp(
             numberOfFields=2, label='Range', value1=270, value2=0.0,
-            height=30)
+            )
 
 
         self.num_retries_wg = pm.intFieldGrp(
             label='Attempts',
             numberOfFields=1,
             value1=12,
-            height=30)
+            )
 
         self.try_existing_first_cb = pm.checkBoxGrp(
             label='Try current first',
             value1=0,
             annotation='Before trying the set range of values, try the existing value',
-            height=30)
+            )
 
         self.publish_cb = pm.checkBoxGrp(
             label='Publish',
             value1=1,
             annotation='Also publish if retries succeed',
-            height=30)
+            )
         pm.setParent("..")
 
  
@@ -236,7 +236,7 @@ class retriesTab(gui.FormLayout):
         if not num_plugs:
             pm.error("No Plugs")
 
-        pm.progressBar(self.progressControl, edit=True,  maxValue=num_plugs, isInterruptable=True)
+        pm.progressBar(self.progressControl, edit=True,  maxValue=num_plugs)
 
         pm.scrollField(  self.progress_info_field, edit=True, text="Retrying plug {:d} of {:d}".format(0, num_plugs) )
 
@@ -378,16 +378,6 @@ def get_step_values(low, high, count):
     vals = [low + (gap * x) for x in range(count)]
     return vals
 
-def fetch_plugs(attribute, nodes):
-    result = []
-    for node in nodes:
-        plug = pm.PyNode(node).attr(attribute)
-        if plug.get(lock=True):
-            pm.error("{} is locked. Can't adjust.")
-        if plug.inputs():
-            pm.error("{} has input connections. Can't adjust.")
-        result.append(plug)
-    return result
 
 
 
