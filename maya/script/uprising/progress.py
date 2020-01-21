@@ -62,14 +62,6 @@ def update(**kw):
         info = "{}\n{}\n{}".format(_header, _major_line, _minor_line)
         pm.scrollField(_info_field, edit=True, text=info)
 
-    major_max = kw.get("major_max")
-    if major_max is not None:
-        pm.progressBar(_major_bar, edit=True, maxValue=major_max)
-
-    minor_max = kw.get("minor_max")
-    if minor_max is not None:
-        pm.progressBar(_minor_bar, edit=True, maxValue=minor_max)
-
     major_progress = kw.get("major_progress")
     if major_progress is not None:
         pm.progressBar(_major_bar, edit=True, progress=major_progress)
@@ -78,3 +70,12 @@ def update(**kw):
     if minor_progress is not None:
         pm.progressBar(_minor_bar, edit=True, progress=minor_progress)
 
+    major_max = kw.get("major_max")
+    if major_max is not None:
+        minval = pm.progressBar(_major_bar, q=True, minValue=True)
+        pm.progressBar(_major_bar, edit=True, maxValue=max(major_max, (minval + 1)))
+
+    minor_max = kw.get("minor_max")
+    if minor_max is not None:
+        minval = pm.progressBar(_minor_bar, q=True, minValue=True)
+        pm.progressBar(_minor_bar, edit=True, maxValue=max(minor_max, (minval + 1)))

@@ -1,16 +1,18 @@
-
+import datetime
 import os
+import tarfile
 import time
 from contextlib import contextmanager
 
+import calibration as cal
+import progress
 import pymel.core as pm
 import pymel.core.uitypes as gui
 import robo
+import stats
 import uprising_util as uutl
 import write
-import progress
 from studio import Studio
-import calibration as cal
 
 
 @contextmanager
@@ -66,7 +68,7 @@ class PublishTab(gui.FormLayout):
         self.varying_attrib_wg = pm.textFieldGrp(label="Attribute", text="splitAngle")
 
         self.varying_range_wg = pm.floatFieldGrp(
-            numberOfFields=2, label="Range", value1=270, value2=30.0
+            numberOfFields=2, label="Range", value1=270, value2=0.0
         )
 
         self.num_retries_wg = pm.intFieldGrp(
@@ -194,47 +196,86 @@ class PublishTab(gui.FormLayout):
         if read_board_cal:
             cal.read_board_calibration()
 
+        total_timer_start = time.time()
+
         if should_do_retries:
             nodes = (
                 pm.ls(sl=True) if retries_scope == 1 else pm.ls(type="skeletonStroke")
             )
             try_existing = retries_mode == 2
             step_values = get_step_values(first, last, retries_count)
-            do_retries(
-                nodes,
-                retries_attribute,
-                try_existing,
-                step_values,
-                directory 
+            retries_result = do_retries(
+                nodes, retries_attribute, try_existing, step_values
+            )
+            uutl.show_in_window(retries_result, title="Retries results")
+            write.json_report(directory, "retries", retries_result)
+
+            status = "SUCCESS" if retries_result["success"] else "FAILURE"
+            time_str = str(datetime.timedelta(seconds=int(retries_result["timer"])))
+            progress.update(
+                major_line="Retries completed in {} : {}".format(time_str, status),
+                minor_line="",
+                major_progress=0,
+                minor_progress=0,
             )
 
         if do_painting:
-            write.publish_separate_files(
-                directory,
-                water_wipe_repeats=water_wipe_repeats,
-                cluster_chunk_size=cluster_chunk_size,
+            write.publish_painting(directory, cluster_chunk_size=cluster_chunk_size)
+
+        if do_subprograms:
+            write.publish_pick_place(directory)
+            write.publish_dips(directory, water_wipe_repeats)
+
+        if do_painting or do_subprograms:
+            src_folder = os.path.join(directory, "src")
+            with tarfile.open("{}.tar.gz".format(src_folder), "w:gz") as tar:
+                tar.add(src_folder, arcname=os.path.sep)
+
+            progress.update(
+                header="Export completed",
+                major_line="",
+                minor_line="",
+                major_progress=0,
+                minor_progress=0,
             )
- 
- 
-def do_retries(nodes, attribute, try_existing, step_values, directory):
+
+        delta = int(time.time() - total_timer_start)
+
+        total_time_str = str(datetime.timedelta(seconds=delta))
+        progress.update(
+            major_line="Total time: {}".format(total_time_str),
+            minor_line="",
+            major_progress=0,
+            minor_progress=0,
+        )
+
+        ptg_stats = stats.stats()
+        uutl.show_in_window(ptg_stats, title="Retries results")
+        write.json_report(directory, "stats", ptg_stats)
+        write.write_maya_scene(directory, "scene")
+
+
+def do_retries(nodes, attribute, try_existing, step_values):
     timer_start = time.time()
     validate_retries_params(attribute, nodes)
-    plugs = fetch_plugs(attribute, nodes)
+
+    plugs = [pm.PyNode(node).attr(attribute) for node in nodes]
+
     num_plugs = len(plugs)
     all_skels = pm.ls(type="skeletonStroke")
     results = []
-
-    progress.update(major_max=num_plugs, header="Running {:d} Retries".format(num_plugs))
+    robo.new()
+    progress.update(
+        major_max=num_plugs, header="Running {:d} Retries".format(num_plugs)
+    )
 
     for plug_index, plug in enumerate(plugs):
         node = plug.node()
 
-        progress.update(major_progress=plug_index, major_line= "Retrying plug#: {:d} - {}".format(plug, (plug_index+1)))
-  
         with isolate_nodes([node], all_skels):
             result = do_retries_for_plug(
-                    plug_index, num_plugs, plug, step_values, try_existing
-                )
+                plug_index, num_plugs, plug, step_values, try_existing
+            )
             results.append(result)
 
     timer_end = time.time()
@@ -243,70 +284,76 @@ def do_retries(nodes, attribute, try_existing, step_values, directory):
         "success": all([res["solved"] for res in results]),
         "timer": timer_end - timer_start,
     }
-    uutl.show_in_window(result_data, title="Retries results")
-    write.json_report(directory ,  "retries", result_data)
+
+    robo.close()
+    return result_data
 
 
-def do_retries_for_plug( plug_index,num_plugs, plug, step_values, try_existing):
+def do_retries_for_plug(plug_index, num_plugs, plug, step_values, try_existing):
     result = {
         "plug": str(plug),
         "attempts": -1,
         "path_results": [],
         "solved": False,
-        "frame":plug_index,
-        "timer":0
-     }
+        "frame": plug_index,
+        "timer": 0,
+    }
 
-    print "RUNNING RETRIES: {} {}".format( plug,  "*" * 20 )
+    # print "RUNNING RETRIES: {} {}".format( plug,  "*" * 20 )
     painting_node = pm.PyNode("mainPaintingShape")
     try:
         pm.paintingQuery(painting_node, cc=True)
     except RuntimeError as ex:
-        pm.displaInfo(ex.message)
+        pm.displayInfo(ex.message)
         result["solved"] = True
         return result
 
-    existing = plug.get()
     if try_existing:
-        values =  [existing]+[v for v in step_values if v < existing]
+        existing = plug.get()
+        values = [existing] + [v for v in step_values if v < existing]
     else:
         values = step_values
 
-
     plug_start = time.time()
-    count = len(values)
 
-    progress.update(minor_max=count, major_line= "Retrying plug#: {:d} - {}".format(plug, plug_index))
+    progress.update(major_progress=plug_index)
 
+    num_values = len(values)
     for i, value in enumerate(values):
         plug.set(value)
         pm.refresh()
 
-        progress.update(minor_progress=count, minor_line="Iteration#: {:d} of {:d} value={:f}".format((i + 1), count,value))
-
-
+        progress.update(
+            major_line="Retrying plug: {} - {:d}/{:d}, Iteration:{:d}/{:d} Value:{:f}".format(
+                plug, (plug_index + 1), num_plugs, i + 1, num_values, value
+            )
+        )
 
         iter_start = time.time()
 
         robo.new()
 
-        studio = Studio(do_painting=True)
-        studio.write()
-        path_result = studio.painting_program.validate_path() or {"status": "SUCCESS"}
+        program = Studio(do_painting=True).painting_program
 
-        iter_end = time.time()
+        if not program and program.painting and program.painting.clusters:
+            continue
 
+        program.write()
 
-        metadata = {"iteration": i,  "value": value, "timer":iter_end-iter_start }
-        path_result.update(metadata)
+        path_result = program.validate_path() or {"status": "SUCCESS"}
+
+        path_result.update(
+            {"iteration": i, "value": value, "timer": time.time() - iter_start}
+        )
+
         result["path_results"].append(path_result)
 
         if path_result["status"] == "SUCCESS":
             result["attempts"] = i + 1
             result["solved"] = True
             break
-    plug_end = time.time()
-    result["timer"] = plug_end-plug_start
+
+    result["timer"] = time.time() - plug_start
     return result
 
 
@@ -325,20 +372,12 @@ def validate_retries_params(attribute, nodes):
         if confirm == "No":
             pm.error("User aborted")
 
-
-        
-
-
-def fetch_plugs(attribute, nodes):
-    result = []
     for node in nodes:
         plug = pm.PyNode(node).attr(attribute)
         if plug.get(lock=True):
-            pm.error("{} is locked. Can't adjust.")
+            pm.error("{} is locked. Can't adjust.".format(plug))
         if plug.inputs():
-            pm.error("{} has input connections. Can't adjust.")
-        result.append(plug)
-    return result
+            pm.error("{} has input connections. Can't adjust.".format(plug))
 
 
 def get_step_values(low, high, count):
@@ -355,82 +394,4 @@ def get_step_values(low, high, count):
 
     def save(self):
         pass
-
-# def publish_to_directory(self, directory, **kw):
-
-#     try:
-#         pm.paintingQuery("mainPaintingShape", cc=True)
-#     except:
-#         pm.warning("Something not right!! Do you have any thing selected?")
-#         return
-
-#     # wait = pm.checkBoxGrp(self.gripper_wait_cb, query=True, value1=True)
-#     # pause = (
-#     #     -1
-#     #     if wait
-#     #     else pm.intFieldGrp(self.gripper_pause_if, query=True, value1=True)
-#     # )
-
-#     water_wipe_repeats = pm.intSliderGrp(
-#         self.water_wipe_repeats_isg, query=True, value=True
-#     )
-#     cluster_chunk_size = pm.intFieldGrp(self.cluster_chunk_if, query=True, value1=True)
-#     do_separate_files = pm.checkBoxGrp(self.separate_files_cb, query=True, value1=True)
-
-#     if do_separate_files:
-
-#         program_files = write.publish_separate_files(
-#             directory,
-#             pause_gripper_ms=pause,
-#             water_wipe_repeats=water_wipe_repeats,
-#             cluster_chunk_size=cluster_chunk_size,
-#         )
-#         return program_files
-
-#     pm.cutKey("collectStrokesMain", at=("startFrom", "endAt"), option="keys")
-#     frames = self.setup_chunks()
-
-#     program_files = write.publish_sequence(directory, frames, pause, water_wipe_repeats)
-
-#     return program_files
-
-
-# def get_retries_parameters(slf):
-#     try_existing = pm.checkBoxGrp(self.try_existing_first_cb, query=True, value1=True)
-#     attribute = pm.textFieldGrp(self.varying_attrib_wg, query=True, text=True)
-#     count = pm.intFieldGrp(self.num_retries_wg, query=True, value1=True)
-#     low, high = pm.floatFieldGrp(self.varying_range_wg, query=True, value=True)
-#     step_values = get_step_values(low, high, count)
-
-#     return {
-#         "attribute": attribute,
-#         "try_existing": try_existing,
-#         "step_values": step_values,
-#     }
-
-
-# def get_pack(self):
-
-#     result = self.get_retries_parameters()
-#     result["plugs"] = []
-
-#     nodes = pm.ls(sl=True, dag=True, leaf=True, type="skeletonStroke")
-
-#     if len(nodes) == 0:
-#         pm.warning("No nodes selected. Aborting!")
-#         return result
-
-#     if any([n.type() != "skeletonStroke" for n in nodes]):
-#         confirm = pm.confirmDialog(
-#             title="Confirm",
-#             message="Some selected nodes are not skeletonStrokes. Continue? ",
-#             button=["Yes", "No"],
-#             defaultButton="Yes",
-#             cancelButton="No",
-#             dismissString="No",
-#         )
-#         if confirm == "No":
-#             return result
-#     result["plugs"] = fetch_plugs(result["attribute"], nodes)
-#     return result
 

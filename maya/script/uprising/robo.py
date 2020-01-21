@@ -5,9 +5,12 @@ Module as a singleton that stores the robot and the link.
 
 import os
 import time
-from robolink import Robolink, ITEM_TYPE_ROBOT, ITEM_TYPE_TARGET, ITEM_TYPE_STATION, ITEM_TYPE_PROGRAM
-import robodk as rdk
+
+from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT, ITEM_TYPE_STATION,
+                      ITEM_TYPE_TARGET, Robolink)
+
 import pymel.core as pm
+import robodk as rdk
 
 CLEAN_FILE = os.path.join(os.environ["UPRISING_PROJECT_PATH"], "robodk", "clean.rdk")
 ROBODK_PATH = "/Applications/RoboDK/RoboDK.app/Contents/MacOS/RoboDK"
@@ -34,7 +37,7 @@ def empty():
     try:
         for station in _link.getOpenStations():
             station.Delete()
-    except:
+    except BaseException:
         print "No stations to empty"
 
 def close():
@@ -52,7 +55,7 @@ def new(debug=False):
     global _link
     global _robot
     global _debug
-    
+
     _debug = debug
     close()
 
@@ -61,11 +64,8 @@ def new(debug=False):
         args.append("-DEBUG")
 
     _link = Robolink(args=args, robodk_path=ROBODK_PATH)
-    _link.AddFile(CLEAN_FILE)
-    _create_infrastructure()
-    
-    _robot = _link.Item("", ITEM_TYPE_ROBOT)
-    _robot.setParam("PostProcessor", "KUKA KRC4_RN")
+
+    clean()
 
 
 def link():
@@ -91,8 +91,14 @@ def hide():
 
 def clean():
     global _link
+    global _robot
     empty()
     _link.AddFile(CLEAN_FILE)
+    _robot = _link.Item("", ITEM_TYPE_ROBOT)
+    _robot.setParam("PostProcessor", "KUKA KRC4_RN")
+    _create_infrastructure()
+
+
     _create_infrastructure()
     print "Added clean file: {}".format(CLEAN_FILE)
 
@@ -147,6 +153,7 @@ def create_joint_target(obj, name, frame):
     global _link
     global _robot
 
+
     mat = maya_to_robodk_mat(obj.attr("worldMatrix[0]").get())
 
     joint_poses = config_000_poses(mat)
@@ -157,7 +164,7 @@ def create_joint_target(obj, name, frame):
     old_approach = _link.Item(name)
     if old_approach.Valid():
         old_approach.Delete()
-    target = _link.AddTarget(name, frame, robot)
+    target = _link.AddTarget(name, frame, _robot)
     target.setAsJointTarget()
     target.setJoints(joints)
     return target
@@ -168,14 +175,17 @@ def write_station(directory, name):
     if _link:
         station = _link.Item("", ITEM_TYPE_STATION)
         station.setName(name)
-    _link.Save(os.path.join(directory, "{}.rdk".format(name)))
+        filename = os.path.join(directory, "{}.rdk".format(name))
+        _link.Save(filename)
+        return filename
+
 
 def write_program(directory, name):
     global _link
     if _link:
         program = _link.Item(name, ITEM_TYPE_PROGRAM)
         program.MakeProgram(directory)
-        return (name,program.Valid())
+        return os.path.join(directory, "{}.src".format(name))
 
 
 def _create_infrastructure():
@@ -204,5 +214,3 @@ def _create_infrastructure():
     dip_approach = create_joint_target(
         pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame
     )
-
- 

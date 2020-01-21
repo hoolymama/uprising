@@ -5,7 +5,6 @@ import const as k
 import palette_utils as putl
 import props
 import pymel.core as pm
-import robo
 import uprising_util as uutl
 from brush import Brush
 from paint import Paint
@@ -24,7 +23,6 @@ from program import (
     PlaceProgram,
     PotCalibration,
     PotHandleExerciseProgram,
-    PotHolderCalibration,
     RetardantProgram,
     WaterProgram,
 )
@@ -37,14 +35,8 @@ class StudioError(Exception):
 
 
 class Studio(object):
-    """Glue together the entire studio."""
-
     def __init__(self, **kw):
 
-        # self.approaches_frame = None
-        # self.dip_approach = None
-        # self.tool_approach = None
-        # self.home_approach = None
         self.painting_program = None
         self.rack_cal_program = None
 
@@ -67,16 +59,9 @@ class Studio(object):
         self.pause = kw.get("pause", -1)
         self.do_rack_and_holder_geo = kw.get("do_rack_and_holder_geo")
 
-        # self.dips_frame = None
-        # self.wash_frame = None
-
-        # self.do_subprograms = kw.get("do_subprograms")
         self.partial_size = kw.get("partial_size", 0)
 
         water_wipe_repeats = kw.get("water_wipe_repeats")
-
-        # Must explicitly ask for pick and place to be generated, even
-        # if gripper on. Otherwise we can't do partials, like validation.
 
         pick_and_place_slots = kw.get("pick_and_place_slots")
         pot_handle_exercise_data = kw.get("pot_handle_exercise_data", [])
@@ -206,7 +191,6 @@ class Studio(object):
         result = []
         for p in packs:
             pack = packs[p]
-
             if brush_ids == "calibration":
                 pick_prg = PickAtHomeProgram(gripper, pack)
                 place_prg = PlaceAtHomeProgram(gripper, pack)
@@ -218,18 +202,6 @@ class Studio(object):
 
     ####################################
 
-    # def write_approaches(self):
-    #     self.approaches_frame = robo.create_frame("ax_frame")
-    #     self.tool_approach = robo.create_joint_target(
-    #         pm.PyNode(TOOL_TARGET), "tool_approach", self.approaches_frame
-    #     )
-    #     self.home_approach = robo.create_joint_target(
-    #         pm.PyNode(HOME_TARGET), "home_approach", self.approaches_frame
-    #     )
-    #     self.dip_approach = robo.create_joint_target(
-    #         pm.PyNode(DIP_TARGET), "dip_approach", self.approaches_frame
-    #     )
-
     def _write_rack_and_holder_geo(self):
         if self.do_rack_and_holder_geo:
             rack_context = pm.PyNode("RACK1_CONTEXT")
@@ -238,61 +210,20 @@ class Studio(object):
                 ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
                 props.send(ref_geo)
 
-    def write_painting_program(self, chunk_id, chunk_length):
-        prg = self.painting_program
-        if not prg:
-            return
-        prg.write(self, chunk_id=chunk_id, chunk_length=chunk_length)
-        return prg.program_name
-
-    def write_pick_place_program(self, index):
-        rack_context = pm.PyNode("RACK1_CONTEXT")
-        if self.pick_place_programs and index < len(self.pick_place_programs):
-            self.pick_place_frame = robo.create_frame("pick_place_frame")
-            with uutl.final_position(rack_context):
-                prg = self.pick_place_programs[index]
-                prg.write()
-            return prg.program_name
-
-    def write_dip_program(self, index):
-        if self.dip_programs and index < len(self.dip_programs):
-            # self.dips_frame = robo.create_frame("dips_frame")
-            prg = self.dip_programs[index]
-            prg.write(self)
-            return prg.program_name
-
-    def write_water_program(self, index):
-        if self.water_programs and index < len(self.water_programs):
-            # self.wash_frame = robo.create_frame("wash_frame")
-            prg = self.water_programs[index]
-            prg.write(self)
-            return prg.program_name
-
-    def write_retardant_program(self, index):
-        if self.retardant_programs and index < len(self.retardant_programs):
-            # self.wash_frame = robo.create_frame("wash_frame")
-            prg = self.retardant_programs[index]
-            prg.write(self)
-            return prg.program_name
-
     def write(self):
-
-        self.write_approaches()
 
         rack_context = pm.PyNode("RACK1_CONTEXT")
         painting_context = pm.PyNode("mainPaintingGroup")
 
         if self.painting_program:
-            self.painting_program.write(self)
+            self.painting_program.write()
 
         if self.pick_place_programs:
-            # self.pick_place_frame = robo.create_frame("pick_place_frame")
             with uutl.final_position(rack_context):
                 for prog in self.pick_place_programs:
                     prog.write(self)
 
         if self.dip_programs:
-            # self.dips_frame = robo.create_frame("dips_frame")
             for dip in self.dip_programs:
                 dip.write(self)
             if self.do_rack_and_holder_geo:
@@ -300,12 +231,10 @@ class Studio(object):
                     Paint.write_geos()
 
         if self.water_programs:
-            # self.wash_frame = robo.create_frame("wash_frame")
             for water in self.water_programs:
                 water.write(self)
 
         if self.retardant_programs:
-            # self.wash_frame = robo.create_frame("wash_frame")
             for retardant in self.retardant_programs:
                 retardant.write(self)
 
@@ -320,26 +249,25 @@ class Studio(object):
                 self._write_rack_and_holder_geo()
 
         if self.brush_hang_program:
-            # self.hang_frame = robo.create_frame("hang_frame")
             with uutl.final_position(rack_context):
                 self.brush_hang_program.write(self)
                 props.send([pm.PyNode("rackTop")])
 
         if self.pot_cal_program:
             with uutl.final_position(rack_context):
-                self.pot_cal_program.write(self.tool_approach, self.home_approach)
+                self.pot_cal_program.write()
 
         if self.holder_cal_program:
             with uutl.final_position(rack_context):
-                self.holder_cal_program.write(self.tool_approach, self.home_approach)
+                self.holder_cal_program.write()
 
         if self.perspex_cal_program:
             with uutl.final_position(rack_context):
-                self.perspex_cal_program.write(self.tool_approach, self.home_approach)
+                self.perspex_cal_program.write()
 
         if self.manual_tri_program:
-            self.manual_tri_program.write(self.tool_approach, self.home_approach)
+            self.manual_tri_program.write()
 
         if self.board_cal_program:
             with uutl.final_position(painting_context):
-                self.board_cal_program.write(self.tool_approach, self.home_approach)
+                self.board_cal_program.write()

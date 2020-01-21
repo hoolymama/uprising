@@ -1,18 +1,17 @@
-import os
+
+import csv
+import json
 import sys
+from random import random
+
+import brush_utils as butl
+import curve_utils as cutl
 import pymel.core as pm
 import setup_dip
-import write
-import curve_utils as cutl
-import brush_utils as butl
+import stats
 import uprising_util as uutl
-import json
-import csv
 from brush import Brush
-import palette_utils as putl
-import board_utils as bdutl
-from random import seed
-from random import random
+
 
 def create():
     menu = pm.menu(label="Tools", tearOff=True)
@@ -148,9 +147,7 @@ def on_connect_texture(attribute):
 
 
 def on_print_stats():
-    uutl.show_in_window(write.stats(), title="Painting stats")
-
-
+    uutl.show_in_window(stats.stats(), title="Painting stats")
 
 def on_print_stats_range():
     min_frame = int(pm.playbackOptions(min=True, query=True))
@@ -159,14 +156,14 @@ def on_print_stats_range():
 
     for f in range(int(min_frame), int(max_frame + 1)):
         pm.currentTime(f)
-        p_stats = write.painting_stats(painting_node)
+        p_stats = stats.painting_stats(painting_node)
         print "%d, %d, %f, %d, %d, %f, %d, %d, %f" % tuple(
             [f] + p_stats.values())
 
 
 def on_print_paint_and_brush_stats(fmt="json"):
     painting_node = pm.PyNode("mainPaintingShape")
-    paints, brushes = write.used_paints_and_brushes(painting_node)
+    paints, brushes = stats.used_paints_and_brushes(painting_node)
     result = {"brushes": [], "paints": []}
     for brush in brushes:
         result["brushes"].append({
@@ -217,11 +214,7 @@ def randomize_dips():
 
     for p in wipe_paintings:
         brush_id = int(p.split("|")[-1][1:])
- 
         brush = Brush.brush_at_index(main_painting_node, brush_id)
         x_pos =brush.wipe_bar_position
         p.attr("tx").set(x_pos)
         p.attr("ty").set(0.6)
-
-
-

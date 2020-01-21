@@ -1,86 +1,62 @@
+import brush
+import brush_utils
+import cluster
+import const
+import curve_utils
+import images
+import palette_utils
 import pymel.core as pm
 import pymel.core.uitypes as gui
-from uprising import (
-    painting_tab,
-    setup_tab,
-    export_tab,
-    retries_tab,
-    publish_tab,
-    phex_tab,
-    brush_hang_tab,
-    brush_assign_tab,
-    brush_test_tab,
-    probes_tab,
-    tools_menu,
-    export_menu,
-    curves_menu,
-    select_menu,
-    images_menu,
-    palette_menu,
-    info_menu,
-    calibration_menu,
-    calibration,
-    robo,
-)
-
-import studio
-
 import setup_dip
-
-import brush
-
-
-import cluster
-
-
-import write
-
+import studio
 import uprising_util
-
-import const
-
-import curve_utils
-import brush_utils
-import palette_utils
-
-import images
-
+import write
+from uprising import (
+    brush_assign_tab,
+    brush_hang_tab,
+    brush_test_tab,
+    calibration,
+    calibration_menu,
+    curves_menu,
+    export_menu,
+    export_tab,
+    images_menu,
+    info_menu,
+    painting_tab,
+    palette_menu,
+    phex_tab,
+    probes_tab,
+    publish_tab,
+    robo,
+    select_menu,
+    setup_tab,
+    stats,
+    tools_menu,
+)
 
 reload(uprising_util)
 reload(robo)
 reload(brush)
-
+reload(stats)
 reload(cluster)
 reload(write)
 reload(setup_dip)
 reload(const)
-
-
 reload(curve_utils)
 reload(brush_utils)
 reload(palette_utils)
-
 reload(setup_tab)
-
 reload(phex_tab)
 reload(brush_hang_tab)
-
-reload(export_tab)
-reload(retries_tab)
-
 reload(publish_tab)
 reload(brush_assign_tab)
 reload(brush_test_tab)
-
 reload(probes_tab)
 reload(tools_menu)
 reload(info_menu)
-
 reload(curves_menu)
-
 reload(images_menu)
 reload(select_menu)
-
 reload(images)
 reload(calibration)
 reload(calibration_menu)
@@ -135,14 +111,8 @@ class RobotWindow(gui.Window):
         self.tabs.setTabLabel((self.brush_hang_tab, "Brush Hang"))
 
         pm.setParent(self.tabs)
-        self.retries_tab = retries_tab.retriesTab()
-        self.tabs.setTabLabel((self.retries_tab, "Retries"))
-
-        pm.setParent(self.tabs)
         self.publish_tab = publish_tab.PublishTab()
         self.tabs.setTabLabel((self.publish_tab, "Publish"))
-        # retries tab needs to know about publish tab
-        self.retries_tab.set_publish_tab(self.publish_tab)
 
         pm.setParent(self.tabs)
         self.probes_tab = probes_tab.probesTab()

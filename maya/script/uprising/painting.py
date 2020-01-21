@@ -2,7 +2,7 @@ import pymel.core as pm
 from paint import Paint
 from brush import Brush
 from cluster import Cluster
-
+import progress
 
 def paint_and_brush_name(paint, brush):
     return "%s_%d_%s_%d" % (paint.name, paint.id, brush.name, brush.id)
@@ -25,11 +25,20 @@ class Painting(object):
         try:
             num_clusters = pm.paintingQuery(self.node, clusterCount=True)
         except RuntimeError:
-            num_clusters = 0
+            return
+
+        progress.update(
+            minor_max=num_clusters,
+            minor_progress=0)
+
         print "Creating {} clusters for {}".format(num_clusters, self.node)
         for i in range(num_clusters):
-            if (i % 10 == 0) or (i == num_clusters-1):
-                print "Cluster {}/{}".format(i+1, num_clusters)
+
+
+            progress.update(
+            minor_line= "Cluster {}/{}".format(i+1, num_clusters),
+            minor_progress=i)
+ 
             brush_id = pm.paintingQuery(self.node, clusterIndex=i, clusterBrushId=True)
             paint_id = pm.paintingQuery(self.node, clusterIndex=i, clusterPaintId=True)
 
