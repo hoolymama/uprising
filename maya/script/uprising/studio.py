@@ -221,7 +221,7 @@ class Studio(object):
         if self.pick_place_programs:
             with uutl.final_position(rack_context):
                 for prog in self.pick_place_programs:
-                    prog.write(self)
+                    prog.write()
 
         if self.dip_programs:
             for dip in self.dip_programs:
@@ -232,11 +232,11 @@ class Studio(object):
 
         if self.water_programs:
             for water in self.water_programs:
-                water.write(self)
+                water.write()
 
         if self.retardant_programs:
             for retardant in self.retardant_programs:
-                retardant.write(self)
+                retardant.write()
 
         if self.exercise_program:
             self.exercise_program.write(self)
@@ -250,7 +250,7 @@ class Studio(object):
 
         if self.brush_hang_program:
             with uutl.final_position(rack_context):
-                self.brush_hang_program.write(self)
+                self.brush_hang_program.write()
                 props.send([pm.PyNode("rackTop")])
 
         if self.pot_cal_program:

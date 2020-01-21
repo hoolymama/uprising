@@ -3,9 +3,9 @@ import os
 
 import const as k
 import palette_utils as putl
+import props
 import pymel.core as pm
 import robo
-import props
 import sheets
 import uprising.uprising_util as uutl
 import write
@@ -69,10 +69,13 @@ def _generate_calibration(which, *reference_geo):
         which,
         timestamp)
     uutl.mkdir_p(directory)
+
+    robo.new()
     studio = Studio(**kw)
     studio.write()
-
     props.send(reference_geo)
+    robo.show()
+    src_fn,rdk_fn = write.save_prog_and_station(directory, which)
 
 
 def read_rack_triangulation():
