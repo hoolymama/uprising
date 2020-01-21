@@ -193,6 +193,8 @@ class PublishTab(gui.FormLayout):
         timestamp = write.get_timestamp()
         directory = os.path.join(directory, timestamp)
 
+        uutl.mkdir_p(directory)
+
         if read_board_cal:
             cal.read_board_calibration()
 
