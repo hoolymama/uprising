@@ -178,24 +178,25 @@ def get_timestamp(suffix=None):
         timestamp = "%s_%s" % (timestamp, suffix)
     return timestamp
 
-def write_csv(export_dir, timestamp):
+def session_entry(directory, timestamp, stats):
+    fn = os.path.join(directory, "session_entry.txt")
 
-    fn = os.path.join(export_dir, "session_entries.csv")
-    export_root = os.path.join(pm.workspace.getPath(), 'export')
-    folder = export_dir.replace(export_root, "")
-    folder = folder.strip("/")
-    line = (",").join([folder,
-                       "ID",
-                       timestamp,
-                       "description",
-                       "acrylic",
-                       "canvas board",
-                       "1",
-                       "LINK",
-                       "Waiting",
-                       "notes"])
-
-    with open(fn, 'a+') as the_file:
+    fields = [
+        pm.Attribute("mainPaintingShape.subject").get(),
+        "0",
+        "CAR00000",
+        timestamp,
+        "200000_0000",
+        "00:00:00",
+        "Link",
+        "Golden Heavy Body",
+        '48" Sq Wood board',
+        str(stats["painting_node"]["stroke_count"]),
+        str(stats["painting_node"]["total_stroke_travel"]),
+        "Waiting"
+    ]
+    line = ("\t").join(fields)
+    with open(fn, 'w') as the_file:
         the_file.write(line)
         the_file.write("\n")
 

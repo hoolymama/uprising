@@ -86,6 +86,21 @@ class PublishTab(gui.FormLayout):
 
         frame = pm.frameLayout(label="Export", bv=True)
 
+        try:
+            pm.Attribute("mainPaintingShape.subject")
+        except BaseException:
+            try:
+                pm.PyNode("mainPaintingShape").addAttr("subject", dataType="string")
+            except BaseException:
+                pass
+
+        try:
+            self.subject_field = pm.attrControlGrp(
+                attribute="mainPaintingShape.subject"
+            )
+        except BaseException:
+            pass
+
         self.export_ops_cb = pm.checkBoxGrp(
             numberOfCheckBoxes=2,
             label="Export",
@@ -255,6 +270,7 @@ class PublishTab(gui.FormLayout):
         uutl.show_in_window(ptg_stats, title="Retries results")
         write.json_report(directory, "stats", ptg_stats)
         write.write_maya_scene(directory, "scene")
+        write.session_entry(directory, timestamp, ptg_stats)
 
 
 def do_retries(nodes, attribute, try_existing, step_values):
