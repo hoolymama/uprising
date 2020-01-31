@@ -1,5 +1,4 @@
 import logging
-
 import brush_utils as butl
 import const as k
 import palette_utils as putl
@@ -187,6 +186,7 @@ class Studio(object):
             raise StudioError("No Gripper. Risk of damage. Can't continue.")
 
         packs = putl.get_pick_place_packs(brush_ids)
+        # print packs
 
         result = []
         for p in packs:
@@ -239,12 +239,12 @@ class Studio(object):
                 retardant.write()
 
         if self.exercise_program:
-            self.exercise_program.write(self)
+            self.exercise_program.write()
             with uutl.final_position(rack_context):
                 self._write_rack_and_holder_geo()
 
         if self.pot_handle_exercise_program:
-            self.pot_handle_exercise_program.write(self)
+            self.pot_handle_exercise_program.write()
             with uutl.final_position(rack_context):
                 self._write_rack_and_holder_geo()
 

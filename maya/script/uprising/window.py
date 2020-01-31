@@ -32,6 +32,7 @@ from uprising import (
     setup_tab,
     stats,
     tools_menu,
+    studio,
 )
 
 reload(uprising_util)
