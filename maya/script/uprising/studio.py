@@ -225,7 +225,7 @@ class Studio(object):
 
         if self.dip_programs:
             for dip in self.dip_programs:
-                dip.write(self)
+                dip.write()
             if self.do_rack_and_holder_geo:
                 with uutl.final_position(rack_context):
                     Paint.write_geos()

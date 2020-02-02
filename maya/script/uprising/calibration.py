@@ -22,6 +22,7 @@ def generate_pick_place_exercise():
         k.PAP_EXERCISE_PROGRAM_NAME,
         timestamp)
     uutl.mkdir_p(directory)
+    robo.new()
     studio = Studio(do_pap_exercise=True, pick_and_place_slots="all")
     studio.write()
 

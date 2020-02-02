@@ -10,7 +10,7 @@ import write
 from brush import Brush
 from paint import Paint
 from studio import Studio
-
+import uprising_util as uutl
 
 class phexTab(gui.FormLayout):
     def __init__(self):
@@ -23,11 +23,11 @@ class phexTab(gui.FormLayout):
         self.create_action_buttons()
 
         pm.setParent(self)
- 
+
 
     def create_ui(self):
 
-        
+
         frame = pm.frameLayout(
             collapsable=False,
             collapse=False,
@@ -60,7 +60,7 @@ class phexTab(gui.FormLayout):
 
         pm.setParent("..")
         return frame
- 
+
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -89,7 +89,7 @@ class phexTab(gui.FormLayout):
 
     def on_go(self):
         data = self.get_pot_handle_exercise_data()
-       
+
         timestamp =  write.get_timestamp()
         if data["combinations"]:
             directory = os.path.join(
@@ -99,7 +99,7 @@ class phexTab(gui.FormLayout):
                 k.POT_HANDLE_EXERCISE_PROGRAM_NAME,
                 timestamp)
             uutl.mkdir_p(directory)
-
+            robo.new()
             studio = Studio(pot_handle_exercise_data=data["combinations"])
             studio.write()
             robo.write_program(directory, k.POT_HANDLE_EXERCISE_PROGRAM_NAME)
@@ -155,7 +155,7 @@ class phexTab(gui.FormLayout):
         return tf
 
     def get_pot_handle_exercise_data(self):
- 
+
         data = {"combinations": [], "brushes": []}
         tfs = pm.columnLayout(self.brushes_column, q=True, ca=True)
         for tf in tfs:

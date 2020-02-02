@@ -7,7 +7,7 @@ from brush import Brush
 import pymel.core as pm
 import props
 import robodk as rdk
-import robo 
+import robo
 import progress
 
 from robolink import (
@@ -83,7 +83,7 @@ class MainProgram(Program):
         self.bump_program_name(chunk_id)
 
 
-        progress.update( 
+        progress.update(
             minor_line= "Writing {} clusters from {} to {}".format(self.program_name, start, end)
             )
 
@@ -100,7 +100,7 @@ class MainProgram(Program):
 
         sub_programs = self._write_program_body(start, end, last_cluster, is_last_chunk)
         return sub_programs
-        
+
 
 
     def _write_program_body(self, start, end, last_cluster, is_last_chunk):
@@ -152,7 +152,7 @@ class MainProgram(Program):
                 self.program.RunInstruction("HALT {:d}".format(wait), INSTRUCTION_INSERT_CODE)
 
         pick_program_name = PickProgram.generate_program_name(bid)
-        if call_program: 
+        if call_program:
             self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
         result.add(pick_program_name)
         ### Initial Wait
@@ -214,7 +214,7 @@ class PapExerciseProgram(Program):
         super(PapExerciseProgram, self).write()
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
-        
+
 
         last_brush_id = None
         for brush_id in range(20):
@@ -263,12 +263,12 @@ class PotHandleExerciseProgram(Program):
         super(PotHandleExerciseProgram, self).__init__(name)
         self.data=data
 
-    def write(self, robo):
+    def write(self):
 
         super(PotHandleExerciseProgram, self).write()
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
-        
+
 
         last_brush_id = None
 
@@ -334,7 +334,7 @@ class BrushHangProgram(Program):
             "S": pm.PyNode("hangLocal|loc_S").attr("worldMatrix[0]").get()
         }
 
-        
+
 
         last_brush_id = None
 
@@ -449,11 +449,11 @@ class DipProgram(Program):
             return
 
         super(DipProgram, self).write()
- 
+
         self.dip_painting.write_brushes()
         self.wipe_painting.write_brushes()
 
-        
+
         self.program.RunInstruction(
             "Dip with tool %s" % self.dip_painting.clusters[0].brush.node_name,
             INSTRUCTION_COMMENT,
@@ -503,7 +503,7 @@ class WashProgram(Program):
         self.dip_painting.write_brushes()
         self.wipe_painting.write_brushes()
 
-        
+
         self.program.RunInstruction(
             "{} dip with tool {}".format(self.__class__.__name__[:-7], self.dip_painting.clusters[0].brush.node_name) ,
             INSTRUCTION_COMMENT,
@@ -979,7 +979,7 @@ class PickProgram(PickPlaceProgram):
 
     def write(self):
 
- 
+
         super(PickProgram, self).write()
 
         self.program.RunInstruction("Starting pick", INSTRUCTION_COMMENT)
@@ -1016,8 +1016,8 @@ class PlaceProgram(PickPlaceProgram):
 
     def write(self):
 
-      
-        
+
+
         super(PlaceProgram, self).write()
 
         self.program.RunInstruction("Starting place", INSTRUCTION_COMMENT)
@@ -1049,7 +1049,7 @@ class PickAtHomeProgram(PickPlaceProgram):
 
     def write(self):
 
-        
+
         super(PickAtHomeProgram, self).write()
 
         self.program.RunInstruction("Starting pick", INSTRUCTION_COMMENT)
@@ -1081,7 +1081,7 @@ class PlaceAtHomeProgram(PickPlaceProgram):
 
     def write(self):
 
-        
+
         super(PlaceAtHomeProgram, self).write()
 
         self.program.RunInstruction("Starting place", INSTRUCTION_COMMENT)
