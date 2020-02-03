@@ -130,12 +130,18 @@ public:
 		int repeatId,
 		bool backstroke);
 
+	~Stroke();
+
 	void offset(
 		double offset,
 		bool reverse,
 		int repeatId);
 
-	~Stroke();
+	void offset(
+		double tangentOffset,
+		double normalOffset,
+		bool reverse,
+		int repeatId);
 
 	void setRotations(const MObject &thisObj,
 					  const StrokeRotationSpec &rotSpec);

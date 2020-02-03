@@ -5,14 +5,13 @@
 #include <maya/MObject.h>
 #include <maya/MAngle.h>
 
-class StrokeRepeatSpec {
+class StrokeRepeatSpec
+{
 public:
-
 	// enum Scope { kStroke, kTravelStroke, kCurve };
 
-
-	StrokeRepeatSpec() {};
-	~StrokeRepeatSpec() {};
+	StrokeRepeatSpec(){};
+	~StrokeRepeatSpec(){};
 
 	int repeats;
 	double offset;
@@ -20,9 +19,25 @@ public:
 	bool oscillate;
 	double fan;
 
-	int count() const {
-		return 1 + (mirror ? repeats * 2 : repeats);
+	int seed;
+	double probability;
+	double angleOffset;
+	double tangentOffset;
+	double normalOffset;
+
+	double calcFan(int j) const
+	{
+
+		return (fan * (j + 1)) + (((drand48() * 2) - 1) * angleOffset);
+	}
+
+	void calcOffsets(int j, double &tOffset, double &nOffset) const
+	{
+
+		tOffset = ((drand48() * 2) - 1) * tangentOffset;
+
+		nOffset = (offset * (j + 1)) + (((drand48() * 2) - 1) * normalOffset);
+		return;
 	}
 };
 #endif
-

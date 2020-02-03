@@ -73,40 +73,49 @@ unsigned Stroke::create(
 	motherStroke.setRotations(thisObj, rotSpec);
 	motherStroke.setTransitionContact();
 
-	repeatId++;
-
-	// motherStroke.setPivot(dCurve, pivotParam, startDist, endDist);
-
 	strokes->push_back(motherStroke);
+	int count = 1;
 
-	// const Stroke &mother = stk;
+	double fan;
+	double tangentOffset;
+	double normalOffset;
 
 	for (int j = 0; j < repeatSpec.repeats; ++j)
 	{
-
-		double fan = repeatSpec.fan * (j + 1);
 		bool reverse = (repeatSpec.oscillate && (j % 2 == 0));
-
-		double offset = repeatSpec.offset * (j + 1);
-		Stroke stk(motherStroke);
-		stk.offset(offset, reverse, repeatId++);
-		stk.setRotations(thisObj, rotSpec);
-		stk.setTransitionContact();
-		stk.rotate(fan);
-		strokes->push_back(stk);
-		// cerr << "repeatSpec.mirror" << repeatSpec.mirror << endl;
-		if (repeatSpec.mirror)
+		repeatId = (j * 2) + 1;
+		if (drand48() < repeatSpec.probability)
 		{
+			fan = repeatSpec.calcFan(j);
+			repeatSpec.calcOffsets(j, tangentOffset, normalOffset);
+
 			Stroke stk(motherStroke);
-			stk.offset(-offset, reverse, repeatId++);
+			stk.offset(tangentOffset, normalOffset, reverse, repeatId);
+			stk.setRotations(thisObj, rotSpec);
+			stk.setTransitionContact();
+			stk.rotate(fan);
+			strokes->push_back(stk);
+			count++;
+		}
+
+		// cerr << "repeatSpec.mirror" << repeatSpec.mirror << endl;
+		if (repeatSpec.mirror && (drand48() < repeatSpec.probability))
+		{
+			repeatId = (j * 2) + 2;
+			fan = repeatSpec.calcFan(j);
+			repeatSpec.calcOffsets(j, tangentOffset, normalOffset);
+
+			Stroke stk(motherStroke);
+			stk.offset(tangentOffset, -normalOffset, reverse, repeatId);
 			stk.setRotations(thisObj, rotSpec);
 			stk.setTransitionContact();
 			stk.rotate(-fan);
 			strokes->push_back(stk);
+			count++;
 		}
 	}
 
-	return repeatSpec.count();
+	return count;
 }
 
 Stroke::Stroke() : m_targets(),
@@ -238,6 +247,42 @@ void Stroke::offset(
 			iter->offsetBy(offsetVec);
 		}
 		offsetVec = (m_pivot.tangent() ^ MVector::zAxis) * offset;
+		m_pivot.offsetBy(offsetVec);
+	}
+	setArcLength();
+}
+
+void Stroke::offset(
+	double tangentOffset,
+	double normalOffset,
+	bool reverse,
+	int repeatId)
+{
+
+	std::vector<Target>::iterator iter;
+	m_repeatId = repeatId;
+	if (reverse)
+	{
+		m_backstroke = !m_backstroke;
+		std::reverse(m_targets.begin(), m_targets.end());
+		for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+		{
+			iter->reverseParam();
+		}
+	}
+
+	MVector offsetVec;
+	if ((fabs(tangentOffset) > epsilon) || (fabs(normalOffset) > epsilon))
+	{
+		std::vector<Target>::iterator iter;
+		for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+		{
+			offsetVec = (iter->tangent() ^ MVector::zAxis) * normalOffset;
+			offsetVec += iter->tangent() * tangentOffset;
+			iter->offsetBy(offsetVec);
+		}
+		offsetVec = (m_pivot.tangent() ^ MVector::zAxis) * normalOffset;
+		offsetVec += m_pivot.tangent() * tangentOffset;
 		m_pivot.offsetBy(offsetVec);
 	}
 	setArcLength();

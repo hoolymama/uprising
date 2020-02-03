@@ -71,6 +71,13 @@ MObject strokeNode::aRepeatMirror;
 MObject strokeNode::aRepeatOscillate;
 MObject strokeNode::aRepeatFan;
 
+MObject strokeNode::aRepeatSeed;
+MObject strokeNode::aRepeatProbability;
+
+MObject strokeNode::aRepeatRandomAngleOffset;
+MObject strokeNode::aRepeatRandomTangentOffset;
+MObject strokeNode::aRepeatRandomNormalOffset;
+
 MObject strokeNode::aSeed;
 
 MObject strokeNode::aStrokeDirection;
@@ -302,6 +309,37 @@ MStatus strokeNode::initialize()
   uAttr.setKeyable(true);
   uAttr.setStorable(true);
   addAttribute(aRepeatFan);
+
+  aRepeatSeed = nAttr.create("repeatSeed", "rpsd", MFnNumericData::kInt);
+  mser;
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setWritable(true);
+  st = addAttribute(aRepeatSeed);
+  mser;
+
+  aRepeatProbability = nAttr.create("repeatProbability", "rppb", MFnNumericData::kDouble);
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  addAttribute(aRepeatProbability);
+
+  aRepeatRandomAngleOffset = uAttr.create("repeatRandomAngleOffset", "rprao", MFnUnitAttribute::kAngle);
+  uAttr.setHidden(false);
+  uAttr.setKeyable(true);
+  st = addAttribute(aRepeatRandomAngleOffset);
+  mser;
+
+  aRepeatRandomTangentOffset = nAttr.create("repeatRandomTangentOffset", "rprto", MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aRepeatRandomTangentOffset);
+
+  aRepeatRandomNormalOffset = nAttr.create("repeatRandomNormalOffset", "rpno", MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aRepeatRandomNormalOffset);
 
   aSeed = nAttr.create("seed", "sd", MFnNumericData::kInt);
   nAttr.setHidden(false);
@@ -644,6 +682,13 @@ MStatus strokeNode::initialize()
   st = attributeAffects(aRepeatOffset, aOutput);
   st = attributeAffects(aRepeatMirror, aOutput);
   st = attributeAffects(aRepeatOscillate, aOutput);
+
+  st = attributeAffects(aRepeatSeed, aOutput);
+  st = attributeAffects(aRepeatProbability, aOutput);
+
+  st = attributeAffects(aRepeatRandomAngleOffset, aOutput);
+  st = attributeAffects(aRepeatRandomTangentOffset, aOutput);
+  st = attributeAffects(aRepeatRandomNormalOffset, aOutput);
 
   st = attributeAffects(aRepeatFan, aOutput);
 

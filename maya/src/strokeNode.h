@@ -78,6 +78,13 @@ protected:
   static MObject aRepeatOscillate;
   static MObject aRepeatFan;
 
+  static MObject aRepeatSeed;
+  static MObject aRepeatProbability;
+
+  static MObject aRepeatRandomAngleOffset;
+  static MObject aRepeatRandomTangentOffset;
+  static MObject aRepeatRandomNormalOffset;
+
   static MObject aSeed;
 
   static MObject aStrokeDirection;

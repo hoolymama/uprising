@@ -134,7 +134,7 @@ def insert_external_dependencies(subprograms, src_fn):
 
 def orchestrator(directory, programs):
     uutl.mkdir_p(directory)
-    orchestrator_file = os.path.join(directory, "main.src")
+    orchestrator_file = os.path.join(directory,"src", "main.src")
     with open(orchestrator_file, 'w') as ofile:
         ofile.write("&ACCESS RVP\n")
         ofile.write("&REL 1\n")

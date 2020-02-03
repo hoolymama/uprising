@@ -549,6 +549,13 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     repeatSpec.oscillate = data.inputValue(aRepeatOscillate).asBool();
     repeatSpec.fan = data.inputValue(aRepeatFan).asAngle().asRadians();
 
+    repeatSpec.seed = data.inputValue(aRepeatSeed).asInt();
+    repeatSpec.probability = data.inputValue(aRepeatProbability).asDouble();
+
+    repeatSpec.angleOffset = data.inputValue(aRepeatRandomAngleOffset).asAngle().asRadians();
+    repeatSpec.normalOffset = data.inputValue(aRepeatRandomNormalOffset).asDouble();
+    repeatSpec.tangentOffset = data.inputValue(aRepeatRandomTangentOffset).asDouble();
+
     short brushId = data.inputValue(aBrushId).asShort();
     short paintId = data.inputValue(aPaintId).asShort();
     int layerId = data.inputValue(aLayerId).asInt();
@@ -575,6 +582,8 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
     MArrayDataHandle hChains = data.inputValue(aChains, &st);
     msert;
     unsigned nInputs = hChains.elementCount();
+
+    srand48(repeatSpec.seed);
 
     for (unsigned i = 0; i < nInputs; i++, hChains.next())
     {

@@ -32,6 +32,14 @@ global proc AEstrokeNodeInclude ( string $nodeName )
 	editorTemplate -addControl "repeatFan" ;
  	editorTemplate -addControl "repeatMirror" ;
  	editorTemplate -addControl "repeatOscillate" ;
+
+ 	editorTemplate -addControl "repeatSeed";
+ 	editorTemplate -addControl "repeatProbability";
+ 	editorTemplate -addControl "repeatRandomAngleOffset";
+ 	editorTemplate -addControl "repeatRandomTangentOffset";
+ 	editorTemplate -addControl "repeatRandomNormalOffset";
+
+
 	editorTemplate -endLayout;
 	
 	AEsortFilterInclude($nodeName);
