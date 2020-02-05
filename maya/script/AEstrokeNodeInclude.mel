@@ -91,5 +91,9 @@ global proc AEstrokeNodeInclude ( string $nodeName )
 
 	editorTemplate -endLayout;
 
+	editorTemplate -cl 0  -beginLayout "Output";		
+	editorTemplate -addControl "outCoil";
+	editorTemplate -endLayout;
+
 }
 

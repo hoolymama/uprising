@@ -159,6 +159,17 @@ MStatus skeletonStrokeNode::initialize()
     attributeAffects(aExtendEntry, aOutput);
     attributeAffects(aExtendExit, aOutput);
 
+    attributeAffects(aChains, aOutCoil);
+    attributeAffects(aBrushFilter, aOutCoil);
+    attributeAffects(aBrushes, aOutCoil);
+    attributeAffects(aStrokeLength, aOutCoil);
+    attributeAffects(aOverlap, aOutCoil);
+    attributeAffects(aBrushRampScope, aOutCoil);
+    attributeAffects(aSplitAngle, aOutCoil);
+    attributeAffects(aSplitTestInterval, aOutCoil);
+    attributeAffects(aExtendEntry, aOutCoil);
+    attributeAffects(aExtendExit, aOutCoil);
+
     return (MS::kSuccess);
 }
 
@@ -167,7 +178,8 @@ double skeletonStrokeNode::findEndDist(
     double startDist,
     double endDist,
     double splitAngle,
-    double splitTestInterval) const
+    double splitTestInterval,
+    double &maxCoil) const
 {
 
     double leftExtent = 0;
@@ -210,8 +222,15 @@ double skeletonStrokeNode::findEndDist(
         {
             rightExtent = accumAngle;
         }
-        foundEnd = ((rightExtent - leftExtent) > splitAngle);
+        double coil = rightExtent - leftExtent;
+        foundEnd = (coil > splitAngle);
+
+        if (coil > maxCoil)
+        {
+            maxCoil = coil;
+        }
     } while (!foundEnd);
+
     return currDist;
 }
 
@@ -221,7 +240,8 @@ unsigned int skeletonStrokeNode::getStrokeBoundaries(
     float overlap,
     double splitAngle,
     double splitTestInterval,
-    MVectorArray &result) const
+    MVectorArray &result,
+    double &maxCoil) const
 {
     const double epsilon = 0.0001;
 
@@ -252,7 +272,7 @@ unsigned int skeletonStrokeNode::getStrokeBoundaries(
 
         if (splitAngle > 0.0001 && splitTestInterval > 0.01)
         {
-            endDist = findEndDist(dCurve, startDist, endDist, splitAngle, splitTestInterval);
+            endDist = findEndDist(dCurve, startDist, endDist, splitAngle, splitTestInterval, maxCoil);
         }
 
         result.append(MVector(startDist, endDist));
@@ -484,7 +504,7 @@ void skeletonStrokeNode::getPointsAndContacts(
 }
 
 MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
-                                                   std::vector<Stroke> *pStrokes) const
+                                                   std::vector<Stroke> *pStrokes, double &maxCoil) const
 {
 
     MStatus st;
@@ -585,6 +605,8 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
 
     srand48(repeatSpec.seed);
 
+    maxCoil = 0.0;
+
     for (unsigned i = 0; i < nInputs; i++, hChains.next())
     {
         int index = hChains.elementIndex(&st);
@@ -641,7 +663,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(MDataBlock &data,
             double curveLength = curveFn.length(epsilon);
             MVectorArray boundaries;
             if (!getStrokeBoundaries(dCurve, strokeLength, overlap, splitAngle, splitTestInterval,
-                                     boundaries))
+                                     boundaries, maxCoil))
             {
                 continue;
             }

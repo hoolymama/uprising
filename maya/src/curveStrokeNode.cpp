@@ -267,7 +267,7 @@ unsigned int curveStrokeNode::getStrokeBoundaries(
 }
 
 MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
-                                                std::vector<Stroke> *pStrokes) const
+                                                std::vector<Stroke> *pStrokes, double &coilRadians) const
 {
 
     MStatus st;

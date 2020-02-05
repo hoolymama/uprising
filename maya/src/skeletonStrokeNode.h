@@ -66,7 +66,8 @@ private:
         double startDist,
         double endDist,
         double steerThreshold,
-        double steerTestInterval) const;
+        double steerTestInterval,
+        double &maxCoil) const;
 
     unsigned int getStrokeBoundaries(
         const MObject &dCurve,
@@ -74,7 +75,8 @@ private:
         float overlap,
         double steerThreshold,
         double steerTestInterval,
-        MVectorArray &result) const;
+        MVectorArray &result,
+        double &maxCoil) const;
 
     unsigned int getStrokeBoundaries(
         const MObject &dCurve,
@@ -88,7 +90,7 @@ private:
                      double approachStart, double approachMid, double approachEnd) const;
 
     MStatus generateStrokeGeometry(MDataBlock &data,
-                                   std::vector<Stroke> *geom) const;
+                                   std::vector<Stroke> *geoms, double &maxCoil) const;
 
     std::vector<std::pair<int, float>> getBrushRadii(
         MDataBlock &data) const;

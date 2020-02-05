@@ -7,6 +7,8 @@ from brush import Brush
 from paint import Paint
 import pymel.core.uitypes as gui
 
+import robo
+
 
 class exportTab(gui.FormLayout):
     def __init__(self):
@@ -142,7 +144,7 @@ class exportTab(gui.FormLayout):
 
     def on_go(self):
 
-        pot_handle_exercise_data = self.get_pot_handle_exercise_data()
+        # pot_handle_exercise_data = self.get_pot_handle_exercise_data()
 
         pp = pm.radioButtonGrp(self.pp_wg, query=True, sl=True)
         pp_value = [None, None, [0], "used", "all"][pp]
@@ -168,7 +170,7 @@ class exportTab(gui.FormLayout):
             "do_approaches": pm.checkBoxGrp(self.approaches_wg, query=True, v1=True),
             "pick_and_place_slots": pp_value,
         }
-
+        robo.new()
         studio = Studio(**studio_kwargs)
         studio.write()
 

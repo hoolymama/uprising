@@ -55,9 +55,9 @@ class PublishTab(gui.FormLayout):
         self.retries_mode_rb = pm.radioButtonGrp(
             height=30,
             l="Retries mode",
-            sl=3,
-            nrb=3,
-            la3=["None", "Current first", "All"],
+            sl=4,
+            nrb=4,
+            la4=["None", "Current first", "All", "Coil"],
             changeCommand=pm.Callback(self.on_ops_change),
         )
 
@@ -65,7 +65,12 @@ class PublishTab(gui.FormLayout):
             label="Read Calibration", label1="Board", value1=1
         )
 
-        self.varying_attrib_wg = pm.textFieldGrp(label="Attribute", text="splitAngle")
+        # self.varying_attrib_wg = pm.textFieldGrp(label="Attribute", text="splitAngle")
+
+        self.coil_delta_ff = pm.floatFieldGrp(
+            numberOfFields=1, label="Delta", value1=20
+        )
+
 
         self.varying_range_wg = pm.floatFieldGrp(
             numberOfFields=2, label="Range", value1=270, value2=0.0
@@ -148,6 +153,15 @@ class PublishTab(gui.FormLayout):
         pm.intFieldGrp(self.cluster_chunk_if, edit=True, en=do_painting)
         pm.intSliderGrp(self.water_wipe_repeats_isg, edit=True, en=do_subprograms)
         retries_mode = pm.radioButtonGrp(self.retries_mode_rb, query=True, sl=True)
+
+
+        coil = (retries_mode==4)
+        pm.floatFieldGrp(self.varying_range_wg, edit=True, en=(not coil))
+        pm.intFieldGrp(self.num_retries_wg, edit=True, en=(not coil))
+        
+        pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=(coil))
+        
+
         can_go = (
             (can_do_retries and (retries_mode > 1)) or do_painting or do_subprograms
         )
@@ -185,9 +199,12 @@ class PublishTab(gui.FormLayout):
             not (do_subprograms and not do_painting)
         ) and retries_mode > 1
 
-        retries_attribute = pm.textFieldGrp(
-            self.varying_attrib_wg, query=True, text=True
-        )
+        retries_attribute = "splitAngle"
+        delta = pm.floatFieldGrp(self.coil_delta_ff, query=True, value1=True)
+
+        # pm.textFieldGrp(
+        #     self.varying_attrib_wg, query=True, text=True
+        # )
 
         read_board_cal = pm.checkBoxGrp(
             self.read_board_calibration_cb, query=True, value1=True
@@ -219,11 +236,14 @@ class PublishTab(gui.FormLayout):
             nodes = (
                 pm.ls(sl=True) if retries_scope == 1 else pm.ls(type="skeletonStroke")
             )
-            try_existing = retries_mode == 2
+            # try_existing = retries_mode == 2
+
             step_values = get_step_values(first, last, retries_count)
+
             retries_result = do_retries(
-                nodes, retries_attribute, try_existing, step_values
+                nodes, retries_attribute, retries_mode, step_values, delta
             )
+
             uutl.show_in_window(retries_result, title="Retries results")
             write.json_report(directory, "retries", retries_result)
 
@@ -273,7 +293,10 @@ class PublishTab(gui.FormLayout):
         write.session_entry(directory, timestamp, ptg_stats)
 
 
-def do_retries(nodes, attribute, try_existing, step_values):
+def do_retries(nodes, attribute, retries_mode, step_values, delta):
+    try_existing = retries_mode == 2
+    coil = retries_mode == 4
+
     timer_start = time.time()
     validate_retries_params(attribute, nodes)
 
@@ -291,9 +314,12 @@ def do_retries(nodes, attribute, try_existing, step_values):
         node = plug.node()
 
         with isolate_nodes([node], all_skels):
-            result = do_retries_for_plug(
-                plug_index, num_plugs, plug, step_values, try_existing
-            )
+            if coil:
+                result = do_coil_retries_for_plug(plug_index, num_plugs, plug, delta)
+            else:
+                result = do_retries_for_plug(
+                    plug_index, num_plugs, plug, step_values, try_existing
+                )
             results.append(result)
 
     timer_end = time.time()
@@ -349,7 +375,7 @@ def do_retries_for_plug(plug_index, num_plugs, plug, step_values, try_existing):
 
         iter_start = time.time()
 
-        robo.new()
+        robo.new(False)
 
         program = Studio(do_painting=True).painting_program
 
@@ -370,6 +396,83 @@ def do_retries_for_plug(plug_index, num_plugs, plug, step_values, try_existing):
             result["attempts"] = i + 1
             result["solved"] = True
             break
+
+    result["timer"] = time.time() - plug_start
+    return result
+
+
+def do_coil_retries_for_plug(plug_index, num_plugs, plug, delta):
+    result = {
+        "plug": str(plug),
+        "attempts": -1,
+        "path_results": [],
+        "solved": False,
+        "frame": plug_index,
+        "timer": 0,
+    }
+
+    # print "RUNNING RETRIES: {} {}".format( plug,  "*" * 20 )
+    painting_node = pm.PyNode("mainPaintingShape")
+    try:
+        pm.paintingQuery(painting_node, cc=True)
+    except RuntimeError as ex:
+        pm.displayInfo(ex.message)
+        result["solved"] = True
+        return result
+
+    plug_start = time.time()
+
+    progress.update(major_progress=plug_index)
+
+    i = 0
+    values = []
+    plug.set(360)
+    while True:
+        value = plug.get()
+        values.append(value)
+
+        pm.refresh()
+
+        progress.update(
+            major_line="Plug: {} - {:d}/{:d}, Attempt:{:d} Vals:{}".format(
+                plug,
+                (plug_index + 1),
+                num_plugs,
+                i + 1,
+                (",").join(["{:.1f}".format(v) for v in values]),
+            )
+        )
+
+        iter_start = time.time()
+
+        robo.new(False)
+
+        program = Studio(do_painting=True).painting_program
+        if program and program.painting and program.painting.clusters:
+
+            program.write()
+
+            path_result = program.validate_path() or {"status": "SUCCESS"}
+
+            path_result.update(
+                {"iteration": i, "value": value, "timer": time.time() - iter_start}
+            )
+
+            result["path_results"].append(path_result)
+
+            if path_result["status"] == "SUCCESS":
+                result["attempts"] = i + 1
+                result["solved"] = True
+                break
+
+            # Here if we need to try again
+            i += 1
+            coil = pm.PyNode(plug).node().attr("outCoil").get()
+            next_val = min(coil, value) - delta
+            print "Coil: {}, Value: {}, Next: {}".format(coil, value, next_val)
+            if next_val < 0:
+                break
+            plug.set(next_val)
 
     result["timer"] = time.time() - plug_start
     return result

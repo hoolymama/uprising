@@ -50,13 +50,11 @@ def publish_painting(directory, **kw):
         header="Writing {} main program chunks".format(num_chunks)
         )
 
-    if not program:
-        return
     for i in range(num_chunks):
         progress.update(
             major_progress=i, major_line="Writig {:d} of {:d} chunks".format(i+1, num_chunks))
 
-        robo.new()
+        robo.new(False)
         subprograms = program.write(chunk_id=i, chunk_length=cluster_chunk_size)
 
         src_fn,rdk_fn = save_prog_and_station(directory, program.program_name)
@@ -83,7 +81,7 @@ def publish_pick_place(directory):
 
     with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
         for i, program in enumerate(programs):
-            robo.new()
+            robo.new(False)
             program.write()
             save_prog_and_station(directory, program.program_name)
 
@@ -111,7 +109,7 @@ def publish_dips(directory, water_wipe_repeats):
 
     with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
         for i, program in enumerate(programs):
-            robo.new()
+            robo.new(False)
             program.write()
             save_prog_and_station(directory, program.program_name)
             progress.update(

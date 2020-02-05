@@ -153,7 +153,7 @@ MObject strokeNode::aTranslationScale;
 MObject strokeNode::aTranslationDirection;
 
 MObject strokeNode::aOutput;
-
+MObject strokeNode::aOutCoil;
 MTypeId strokeNode::id(k_strokeNode);
 
 strokeNode::strokeNode() {}
@@ -666,6 +666,12 @@ MStatus strokeNode::initialize()
   ;
   mser;
 
+  aOutCoil = uAttr.create("outCoil", "ocl", MFnUnitAttribute::kAngle);
+  uAttr.setReadable(true);
+  uAttr.setWritable(false);
+  uAttr.setStorable(false);
+  st = addAttribute(aOutCoil);
+
   aOutput = tAttr.create("output", "out", strokeData::id);
   tAttr.setReadable(true);
   tAttr.setStorable(false);
@@ -673,54 +679,38 @@ MStatus strokeNode::initialize()
 
   st = attributeAffects(aPointDensity, aOutput);
   st = attributeAffects(aMinimumPoints, aOutput);
-
   st = attributeAffects(aStrokeDirection, aOutput);
-
   st = attributeAffects(aPaintFlowFactor, aOutput);
-
   st = attributeAffects(aRepeats, aOutput);
   st = attributeAffects(aRepeatOffset, aOutput);
   st = attributeAffects(aRepeatMirror, aOutput);
   st = attributeAffects(aRepeatOscillate, aOutput);
-
   st = attributeAffects(aRepeatSeed, aOutput);
   st = attributeAffects(aRepeatProbability, aOutput);
-
   st = attributeAffects(aRepeatRandomAngleOffset, aOutput);
   st = attributeAffects(aRepeatRandomTangentOffset, aOutput);
   st = attributeAffects(aRepeatRandomNormalOffset, aOutput);
-
   st = attributeAffects(aRepeatFan, aOutput);
-
   st = attributeAffects(aSeed, aOutput);
-
   st = attributeAffects(aActive, aOutput);
   st = attributeAffects(aStrokeCountFactor, aOutput);
   st = attributeAffects(aPivotFraction, aOutput);
   st = attributeAffects(aRepeatPivot, aOutput);
-
   st = attributeAffects(aEntryLength, aOutput);
   st = attributeAffects(aExitLength, aOutput);
   st = attributeAffects(aLocalContact, aOutput);
-
   st = attributeAffects(aTransitionBlendMethod, aOutput);
-
   st = attributeAffects(aBrushTiltRamp, aOutput);
   st = attributeAffects(aBrushBankRamp, aOutput);
   st = attributeAffects(aBrushTwistRamp, aOutput);
-
   st = attributeAffects(aBrushTiltRange, aOutput);
   st = attributeAffects(aBrushBankRange, aOutput);
   st = attributeAffects(aBrushTwistRange, aOutput);
-
   st = attributeAffects(aBrushFollowStroke, aOutput);
-
   st = attributeAffects(aBrushId, aOutput);
   st = attributeAffects(aPaintId, aOutput);
   st = attributeAffects(aLayerId, aOutput);
-
   st = attributeAffects(aProjection, aOutput);
-
   st = attributeAffects(aBrushIdTexture, aOutput);
   st = attributeAffects(aBrushIdRemapRamp, aOutput);
   st = attributeAffects(aBrushIdRemapRange, aOutput);
@@ -728,35 +718,91 @@ MStatus strokeNode::initialize()
   st = attributeAffects(aPaintIdRemapRamp, aOutput);
   st = attributeAffects(aPaintIdRemapRange, aOutput);
   st = attributeAffects(aPaintIdRemapIndices, aOutput);
-
   st = attributeAffects(aStrokeSortKey, aOutput);
   st = attributeAffects(aStrokeSortDirection, aOutput);
   st = attributeAffects(aStrokeSortList, aOutput);
   st = attributeAffects(aStrokeSortTexture, aOutput);
-
   st = attributeAffects(aStrokeFilterKey, aOutput);
   st = attributeAffects(aStrokeFilterOperator, aOutput);
   st = attributeAffects(aStrokeFilterOperand, aOutput);
   st = attributeAffects(aStrokeFilterList, aOutput);
   st = attributeAffects(aStrokeFilterTexture, aOutput);
-
   st = attributeAffects(aStartFrom, aOutput);
   st = attributeAffects(aEndAt, aOutput);
-
   st = attributeAffects(aTransformPivot, aOutput);
   st = attributeAffects(aRotationTexture, aOutput);
   st = attributeAffects(aTranslationTexture, aOutput);
   st = attributeAffects(aTranslationSampleDistance, aOutput);
   st = attributeAffects(aTranslationScale, aOutput);
   st = attributeAffects(aTranslationDirection, aOutput);
-
   st = attributeAffects(aRotationScale, aOutput);
+
+  attributeAffects(aPointDensity, aOutCoil);
+  attributeAffects(aMinimumPoints, aOutCoil);
+  attributeAffects(aStrokeDirection, aOutCoil);
+  attributeAffects(aPaintFlowFactor, aOutCoil);
+  attributeAffects(aRepeats, aOutCoil);
+  attributeAffects(aRepeatOffset, aOutCoil);
+  attributeAffects(aRepeatMirror, aOutCoil);
+  attributeAffects(aRepeatOscillate, aOutCoil);
+  attributeAffects(aRepeatSeed, aOutCoil);
+  attributeAffects(aRepeatProbability, aOutCoil);
+  attributeAffects(aRepeatRandomAngleOffset, aOutCoil);
+  attributeAffects(aRepeatRandomTangentOffset, aOutCoil);
+  attributeAffects(aRepeatRandomNormalOffset, aOutCoil);
+  attributeAffects(aRepeatFan, aOutCoil);
+  attributeAffects(aSeed, aOutCoil);
+  attributeAffects(aActive, aOutCoil);
+  attributeAffects(aStrokeCountFactor, aOutCoil);
+  attributeAffects(aPivotFraction, aOutCoil);
+  attributeAffects(aRepeatPivot, aOutCoil);
+  attributeAffects(aEntryLength, aOutCoil);
+  attributeAffects(aExitLength, aOutCoil);
+  attributeAffects(aLocalContact, aOutCoil);
+  attributeAffects(aTransitionBlendMethod, aOutCoil);
+  attributeAffects(aBrushTiltRamp, aOutCoil);
+  attributeAffects(aBrushBankRamp, aOutCoil);
+  attributeAffects(aBrushTwistRamp, aOutCoil);
+  attributeAffects(aBrushTiltRange, aOutCoil);
+  attributeAffects(aBrushBankRange, aOutCoil);
+  attributeAffects(aBrushTwistRange, aOutCoil);
+  attributeAffects(aBrushFollowStroke, aOutCoil);
+  attributeAffects(aBrushId, aOutCoil);
+  attributeAffects(aPaintId, aOutCoil);
+  attributeAffects(aLayerId, aOutCoil);
+  attributeAffects(aProjection, aOutCoil);
+  attributeAffects(aBrushIdTexture, aOutCoil);
+  attributeAffects(aBrushIdRemapRamp, aOutCoil);
+  attributeAffects(aBrushIdRemapRange, aOutCoil);
+  attributeAffects(aPaintIdTexture, aOutCoil);
+  attributeAffects(aPaintIdRemapRamp, aOutCoil);
+  attributeAffects(aPaintIdRemapRange, aOutCoil);
+  attributeAffects(aPaintIdRemapIndices, aOutCoil);
+  attributeAffects(aStrokeSortKey, aOutCoil);
+  attributeAffects(aStrokeSortDirection, aOutCoil);
+  attributeAffects(aStrokeSortList, aOutCoil);
+  attributeAffects(aStrokeSortTexture, aOutCoil);
+  attributeAffects(aStrokeFilterKey, aOutCoil);
+  attributeAffects(aStrokeFilterOperator, aOutCoil);
+  attributeAffects(aStrokeFilterOperand, aOutCoil);
+  attributeAffects(aStrokeFilterList, aOutCoil);
+  attributeAffects(aStrokeFilterTexture, aOutCoil);
+  attributeAffects(aStartFrom, aOutCoil);
+  attributeAffects(aEndAt, aOutCoil);
+  attributeAffects(aTransformPivot, aOutCoil);
+  attributeAffects(aRotationTexture, aOutCoil);
+  attributeAffects(aTranslationTexture, aOutCoil);
+  attributeAffects(aTranslationSampleDistance, aOutCoil);
+  attributeAffects(aTranslationScale, aOutCoil);
+  attributeAffects(aTranslationDirection, aOutCoil);
+  attributeAffects(aRotationScale, aOutCoil);
 
   return (MS::kSuccess);
 }
 
 MStatus strokeNode::generateStrokeGeometry(MDataBlock &data,
-                                           std::vector<Stroke> *geom) const
+                                           std::vector<Stroke> *geom,
+                                           double &coilRadians) const
 {
   return MS::kSuccess;
 }
@@ -764,10 +810,12 @@ MStatus strokeNode::generateStrokeGeometry(MDataBlock &data,
 MStatus strokeNode::compute(const MPlug &plug, MDataBlock &data)
 {
   MStatus st;
-  if (plug != aOutput)
+  if (!((plug == aOutput) || (plug == aOutCoil)))
   {
     return (MS::kUnknownParameter);
   }
+
+  double coilRadians = 0.0;
 
   MDataHandle hOutput = data.outputValue(aOutput);
   MFnPluginData fnOut;
@@ -778,7 +826,7 @@ MStatus strokeNode::compute(const MPlug &plug, MDataBlock &data)
   mser;
 
   std::vector<Stroke> *geom = newData->fGeometry;
-  st = generateStrokeGeometry(data, geom);
+  st = generateStrokeGeometry(data, geom, coilRadians);
 
   bool transformPivot = data.inputValue(aTransformPivot).asBool();
 
@@ -795,8 +843,13 @@ MStatus strokeNode::compute(const MPlug &plug, MDataBlock &data)
   sortStrokes(data, geom);
   cullStartEnd(data, geom);
 
+  MDataHandle hCoil = data.outputValue(aOutCoil);
+  hCoil.set(MAngle(coilRadians));
+  hCoil.setClean();
+
   hOutput.set(newData);
-  data.setClean(plug);
+  hOutput.setClean();
+  // data.setClean(plug);
 
   return MS::kSuccess;
 }

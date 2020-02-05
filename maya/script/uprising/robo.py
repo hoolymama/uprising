@@ -51,17 +51,21 @@ def close():
     _link = None
     _robot = None
 
-def new(debug=False):
+def new(newinst=True, debug=False):
     global _link
     global _robot
     global _debug
 
-    _debug = debug
-    close()
 
-    args = ["-NEWINSTANCE", "-NOUI", "-EXIT_LAST_COM"]
+
+    _debug = debug
+    args = ["-NOUI", "-EXIT_LAST_COM"]
     if _debug:
         args.append("-DEBUG")
+
+    if newinst:
+        close()
+        args.append("-NEWINSTANCE")
 
     _link = Robolink(args=args, robodk_path=ROBODK_PATH)
 

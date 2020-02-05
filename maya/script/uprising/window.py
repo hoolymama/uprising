@@ -62,6 +62,8 @@ reload(images)
 reload(calibration)
 reload(calibration_menu)
 reload(studio)
+reload(export_tab)
+reload(export_menu)
 
 
 class RobotWindow(gui.Window):

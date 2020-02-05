@@ -40,7 +40,7 @@ protected:
               MFloatArray &vVals) const;
 
   virtual MStatus generateStrokeGeometry(MDataBlock &data,
-                                         std::vector<Stroke> *geom) const;
+                                         std::vector<Stroke> *geom, double &coilRadians) const;
 
   virtual void assignUVs(MDataBlock &data, std::vector<Stroke> *geom) const;
   virtual bool overridePaintIds(MDataBlock &data, std::vector<Stroke> *geom) const;
@@ -156,6 +156,7 @@ protected:
   static MObject aTranslationScale;
 
   static MObject aOutput;
+  static MObject aOutCoil;
 };
 
 #endif
