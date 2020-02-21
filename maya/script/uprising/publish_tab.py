@@ -156,14 +156,17 @@ class PublishTab(gui.FormLayout):
 
 
         coil = (retries_mode==4)
-        pm.floatFieldGrp(self.varying_range_wg, edit=True, en=(not coil))
-        pm.intFieldGrp(self.num_retries_wg, edit=True, en=(not coil))
+ 
+
+        pm.floatFieldGrp(self.varying_range_wg, edit=True, en=((not coil) and do_retries))
+        pm.intFieldGrp(self.num_retries_wg, edit=True, en=((not coil) and do_retries))
         
-        pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=(coil))
-        
+        pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=(coil and do_retries))
+        pm.radioButtonGrp(self.retries_scope_rb, edit=True, en=(do_retries))
+        pm.checkBoxGrp(self.read_board_calibration_cb, edit=True, en=(do_retries))
 
         can_go = (
-            (can_do_retries and (retries_mode > 1)) or do_painting or do_subprograms
+            (can_do_retries and (retries_mode>1)) or do_painting or do_subprograms
         )
         pm.button(self.go_but, edit=True, en=can_go)
 
@@ -227,16 +230,17 @@ class PublishTab(gui.FormLayout):
 
         uutl.mkdir_p(directory)
 
-        if read_board_cal:
-            cal.read_board_calibration()
 
         total_timer_start = time.time()
 
         if should_do_retries:
+            
+            if read_board_cal:
+                cal.read_board_calibration()
+
             nodes = (
                 pm.ls(sl=True) if retries_scope == 1 else pm.ls(type="skeletonStroke")
             )
-            # try_existing = retries_mode == 2
 
             step_values = get_step_values(first, last, retries_count)
 
@@ -375,7 +379,7 @@ def do_retries_for_plug(plug_index, num_plugs, plug, step_values, try_existing):
 
         iter_start = time.time()
 
-        robo.new(False)
+        robo.new()
 
         program = Studio(do_painting=True).painting_program
 
@@ -445,7 +449,7 @@ def do_coil_retries_for_plug(plug_index, num_plugs, plug, delta):
 
         iter_start = time.time()
 
-        robo.new(False)
+        robo.new()
 
         program = Studio(do_painting=True).painting_program
         if program and program.painting and program.painting.clusters:

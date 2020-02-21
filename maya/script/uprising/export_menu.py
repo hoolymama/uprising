@@ -79,7 +79,7 @@ def export_whole():
     for i in range(num_chunks):
         progress.update(
             major_progress=i,
-            major_line="Writig {:d} of {:d} chunks".format(i + 1, num_chunks),
+            major_line="Writing {:d} of {:d} chunks".format(i + 1, num_chunks),
         )
 
         program.write(chunk_id=i, chunk_length=cluster_chunk_size)

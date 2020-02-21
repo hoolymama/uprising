@@ -73,12 +73,17 @@ class MainProgram(Program):
             return
         num_clusters = len(self.painting.clusters)
         chunk_id = kw.get("chunk_id", 0)
+
+
         chunk_length = kw.get("chunk_length", num_clusters )
-        start = chunk_id*chunk_length
+
+        start = kw.get("chunk_start", (chunk_id*chunk_length) )
+        # start = chunk_id*chunk_length
+
         end = start+chunk_length
         end = min(end, num_clusters)
         is_last_chunk = (end >= num_clusters)
-        is_first_chunk = start == 0
+        is_first_chunk = chunk_id == 0
 
         self.bump_program_name(chunk_id)
 

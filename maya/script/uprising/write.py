@@ -22,6 +22,8 @@ def split_desc(desc):
         result[1] = "\n".join(lines[1:])
     return result
 
+
+
 def publish_painting(directory, **kw):
     painting_node = pm.PyNode("mainPaintingShape")
     program_names = []
@@ -52,12 +54,12 @@ def publish_painting(directory, **kw):
 
     for i in range(num_chunks):
         progress.update(
-            major_progress=i, major_line="Writig {:d} of {:d} chunks".format(i+1, num_chunks))
+            major_progress=i, major_line="Writing {:d} of {:d} chunks".format(i+1, num_chunks))
 
-        robo.new(False)
+        robo.new()
         subprograms = program.write(chunk_id=i, chunk_length=cluster_chunk_size)
 
-        src_fn,rdk_fn = save_prog_and_station(directory, program.program_name)
+        src_fn,_ = save_prog_and_station(directory, program.program_name)
 
         insert_external_dependencies(subprograms, src_fn)
 
@@ -81,7 +83,7 @@ def publish_pick_place(directory):
 
     with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
         for i, program in enumerate(programs):
-            robo.new(False)
+            robo.new()
             program.write()
             save_prog_and_station(directory, program.program_name)
 
@@ -109,7 +111,7 @@ def publish_dips(directory, water_wipe_repeats):
 
     with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
         for i, program in enumerate(programs):
-            robo.new(False)
+            robo.new()
             program.write()
             save_prog_and_station(directory, program.program_name)
             progress.update(

@@ -99,7 +99,7 @@ def clean():
     empty()
     _link.AddFile(CLEAN_FILE)
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
-    _robot.setParam("PostProcessor", "KUKA KRC4_RN")
+    _robot.setParam("PostProcessor", "KUKA KRC4")
     _create_infrastructure()
 
 
