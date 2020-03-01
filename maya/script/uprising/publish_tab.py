@@ -157,13 +157,15 @@ class PublishTab(gui.FormLayout):
 
         coil = (retries_mode==4)
  
+        do_varying_range = (not coil) and can_do_retries
+ 
 
-        pm.floatFieldGrp(self.varying_range_wg, edit=True, en=((not coil) and do_retries))
-        pm.intFieldGrp(self.num_retries_wg, edit=True, en=((not coil) and do_retries))
+        pm.floatFieldGrp(self.varying_range_wg, edit=True, en=do_varying_range)
+        pm.intFieldGrp(self.num_retries_wg, edit=True, en=do_varying_range)
         
-        pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=(coil and do_retries))
-        pm.radioButtonGrp(self.retries_scope_rb, edit=True, en=(do_retries))
-        pm.checkBoxGrp(self.read_board_calibration_cb, edit=True, en=(do_retries))
+        pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=(coil and can_do_retries))
+        pm.radioButtonGrp(self.retries_scope_rb, edit=True, en=(can_do_retries))
+        pm.checkBoxGrp(self.read_board_calibration_cb, edit=True, en=(can_do_retries))
 
         can_go = (
             (can_do_retries and (retries_mode>1)) or do_painting or do_subprograms
@@ -289,10 +291,14 @@ class PublishTab(gui.FormLayout):
             major_progress=0,
             minor_progress=0,
         )
-
         ptg_stats = stats.stats()
-        uutl.show_in_window(ptg_stats, title="Retries results")
-        write.json_report(directory, "stats", ptg_stats)
+        all_stats = {
+            "painting_stats":ptg_stats,
+            "per_brush_stats": stats.stats_per_brush()
+        }
+        ptg_stats = stats.stats()
+        uutl.show_in_window(all_stats, title="Painting stats")
+        write.json_report(directory, "stats", all_stats)
         write.write_maya_scene(directory, "scene")
         write.session_entry(directory, timestamp, ptg_stats)
 
