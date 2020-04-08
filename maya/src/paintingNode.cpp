@@ -242,8 +242,8 @@ MStatus painting::initialize()
   tAttr.setReadable(false);
   tAttr.setStorable(false);
   tAttr.setArray(true);
+  tAttr.setIndexMatters(true);
   tAttr.setKeyable(true);
-
   tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   addAttribute(aStrokes);
 

@@ -3,6 +3,7 @@ import brush_utils
 import cluster
 import const
 import curve_utils
+import chain_menu
 import images
 import palette_utils
 import pymel.core as pm
@@ -13,6 +14,7 @@ import uprising_util
 import write
 from uprising import (
     brush_assign_tab,
+    color_tab,
     brush_hang_tab,
     brush_test_tab,
     calibration,
@@ -29,6 +31,7 @@ from uprising import (
     publish_tab,
     robo,
     select_menu,
+    chain_menu,
     setup_tab,
     stats,
     tools_menu,
@@ -46,7 +49,10 @@ reload(const)
 reload(curve_utils)
 reload(brush_utils)
 reload(palette_utils)
+reload(chain_menu)
+
 reload(setup_tab)
+reload(color_tab)
 reload(phex_tab)
 reload(brush_hang_tab)
 reload(publish_tab)
@@ -121,6 +127,11 @@ class RobotWindow(gui.Window):
         self.probes_tab = probes_tab.probesTab()
         self.tabs.setTabLabel((self.probes_tab, "Probes"))
 
+        pm.setParent(self.tabs)
+        self.color_tab = color_tab.ColorTab()
+        self.tabs.setTabLabel((self.color_tab, "Color"))
+
+
         pm.setParent(self.menuBarLayout)
         self.tools_menu = tools_menu.create()
 
@@ -142,6 +153,9 @@ class RobotWindow(gui.Window):
         pm.setParent(self.menuBarLayout)
         self.calibration_menu = calibration_menu.create()
 
+        pm.setParent(self.menuBarLayout)
+        self.chain_menu = chain_menu.create()
+        
         pm.setParent(self.menuBarLayout)
         self.export_menu = export_menu.create()
 

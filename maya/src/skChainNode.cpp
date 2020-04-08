@@ -15,6 +15,8 @@
 #include "skGraph/skGraph.h"
 #include "skChainNode.h"
 
+#include <maya/MArrayDataBuilder.h>
+
 MObject skChainNode::aImage;
 
 MObject skChainNode::aMaxIterations;
@@ -28,7 +30,12 @@ MObject skChainNode::aProjectionMatrix;
 MObject skChainNode::aRadiusMult;
 MObject skChainNode::aRadiusOffset;
 
+MObject skChainNode::aMaxChainsPerOutput;
 MObject skChainNode::aOutput;
+MObject skChainNode::aOutputs;
+MObject skChainNode::aOutputCount;
+
+// MObject skChainNode::aOutput;
 
 MTypeId skChainNode::id(k_skChainNode);
 
@@ -134,23 +141,70 @@ MStatus skChainNode::initialize()
   mAttr.setDefault(identity);
   addAttribute(aProjectionMatrix);
 
+  aMaxChainsPerOutput = nAttr.create("maxChainsPerOutput", "mco", MFnNumericData::kInt);
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(0);
+  nAttr.setMin(0);
+  st = addAttribute(aMaxChainsPerOutput);
+  mser;
+
+  aOutputs = tAttr.create("outputs", "outs", skChainData::id);
+  tAttr.setReadable(true);
+  tAttr.setStorable(false);
+  tAttr.setArray(true);
+  tAttr.setUsesArrayDataBuilder(true);
+  addAttribute(aOutputs);
+
+  aOutputCount = nAttr.create("outputCount", "opc", MFnNumericData::kInt);
+  nAttr.setHidden(false);
+  nAttr.setStorable(false);
+  nAttr.setReadable(true);
+  nAttr.setWritable(false);
+  st = addAttribute(aOutputCount);
+
   aOutput = tAttr.create("output", "out", skChainData::id);
   tAttr.setReadable(true);
   tAttr.setStorable(false);
   addAttribute(aOutput);
 
-  attributeAffects(aImage, aOutput);
+  // attributeAffects(aImage, aOutput);
+  // attributeAffects(aMaxIterations, aOutput);
+  // attributeAffects(aMinBranchTwigLength, aOutput);
+  // attributeAffects(aMinLooseTwigLength, aOutput);
+  // attributeAffects(aSpan, aOutput);
+  // attributeAffects(aMaxWidth, aOutput);
+  // attributeAffects(aProjectionMatrix, aOutput);
+  // attributeAffects(aRadiusMult, aOutput);
+  // attributeAffects(aRadiusOffset, aOutput);
+  // attributeAffects(aMaxStampWidth, aOutput);
+  // attributeAffects(aMaxChainsPerOutput, aOutput);
 
-  attributeAffects(aMaxIterations, aOutput);
-  attributeAffects(aMinBranchTwigLength, aOutput);
-  attributeAffects(aMinLooseTwigLength, aOutput);
-  attributeAffects(aSpan, aOutput);
-  attributeAffects(aMaxWidth, aOutput);
-  attributeAffects(aProjectionMatrix, aOutput);
+  attributeAffects(aImage, aOutputs);
+  attributeAffects(aMaxIterations, aOutputs);
+  attributeAffects(aMinBranchTwigLength, aOutputs);
+  attributeAffects(aMinLooseTwigLength, aOutputs);
+  attributeAffects(aSpan, aOutputs);
+  attributeAffects(aMaxWidth, aOutputs);
+  attributeAffects(aProjectionMatrix, aOutputs);
+  attributeAffects(aRadiusMult, aOutputs);
+  attributeAffects(aRadiusOffset, aOutputs);
+  attributeAffects(aMaxStampWidth, aOutputs);
+  attributeAffects(aMaxChainsPerOutput, aOutputs);
 
-  attributeAffects(aRadiusMult, aOutput);
-  attributeAffects(aRadiusOffset, aOutput);
-  attributeAffects(aMaxStampWidth, aOutput);
+  attributeAffects(aImage, aOutputCount);
+  attributeAffects(aMaxIterations, aOutputCount);
+  attributeAffects(aMinBranchTwigLength, aOutputCount);
+  attributeAffects(aMinLooseTwigLength, aOutputCount);
+  attributeAffects(aSpan, aOutputCount);
+  attributeAffects(aMaxWidth, aOutputCount);
+  attributeAffects(aProjectionMatrix, aOutputCount);
+  attributeAffects(aRadiusMult, aOutputCount);
+  attributeAffects(aRadiusOffset, aOutputCount);
+  attributeAffects(aMaxStampWidth, aOutputCount);
+  attributeAffects(aMaxChainsPerOutput, aOutputCount);
 
   return (MS::kSuccess);
 }
@@ -158,29 +212,74 @@ MStatus skChainNode::initialize()
 MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
 {
   MStatus st;
-  if (plug != aOutput)
+  if (!((plug == aOutputs) || (plug == aOutputCount)))
   {
     return (MS::kUnknownParameter);
   }
-
-  MDataHandle hOutput = data.outputValue(aOutput);
+  int maxChains = data.inputValue(aMaxChainsPerOutput).asInt();
   MFnPluginData fnOut;
   MTypeId kdid(skChainData::id);
-  MObject dOut = fnOut.create(kdid, &st);
-  skChainData *newData = (skChainData *)fnOut.data(&st);
+
+  MArrayDataHandle hOutputs = data.outputArrayValue(aOutputs, &st);
   mser;
-  std::vector<skChain> *geom = newData->fGeometry;
-  geom->clear();
-
-  st = generate(data, geom);
-  if (st.error())
+  MArrayDataBuilder bOutputs = hOutputs.builder();
+  int nextPlugIndex = 0;
+  // cerr << "maxChains: " << maxChains << endl;
+  if (maxChains < 1)
   {
-    return (MS::kUnknownParameter);
+
+    MDataHandle hOutput = bOutputs.addElement(0);
+    // cerr << "Here 1:" << endl;
+    MObject dOut = fnOut.create(kdid, &st);
+    // cerr << "Here 2:" << endl;
+    skChainData *newData = (skChainData *)fnOut.data(&st);
+    mser;
+    // cerr << "Here 3:" << endl;
+    std::vector<skChain> *geom = newData->fGeometry;
+    geom->clear();
+    // cerr << "Here 4:" << endl;
+    st = generate(data, geom);
+    // cerr << "Here 5:" << endl;
+    if (st.error())
+    {
+      return (MS::kUnknownParameter);
+    }
+    hOutput.set(newData);
+    // cerr << "Here 6:" << endl;
+    nextPlugIndex++;
   }
+  else
+  {
+    std::vector<skChain> *allGeom = new std::vector<skChain>;
+    st = generate(data, allGeom);
+    int geomLength = allGeom->size();
 
-  hOutput.set(newData);
-  data.setClean(plug);
+    for (size_t i = 0; i < allGeom->size(); i += maxChains, nextPlugIndex++)
+    {
+      auto last = std::min(allGeom->size(), i + maxChains);
 
+      auto start_itr = allGeom->begin() + i;
+      auto end_itr = allGeom->begin() + last;
+
+      MDataHandle hOutput = bOutputs.addElement(nextPlugIndex);
+      MObject dOut = fnOut.create(kdid, &st);
+      mser;
+      skChainData *newData = (skChainData *)fnOut.data(&st);
+      std::vector<skChain> *geom = newData->fGeometry;
+      geom->resize(last - i);
+
+      std::copy(start_itr, end_itr, geom->begin());
+
+      hOutput.set(newData);
+    }
+  }
+  // cerr << "nextPlugIndex: " << nextPlugIndex << endl;
+  MDataHandle hOutputCount = data.outputValue(aOutputCount);
+  hOutputCount.set(nextPlugIndex);
+  // cerr << "Here 7:" << endl;
+  hOutputs.setAllClean();
+  hOutputCount.setClean();
+  // cerr << "Here 8:" << endl;
   return MS::kSuccess;
 }
 

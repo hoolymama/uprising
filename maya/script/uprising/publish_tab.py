@@ -52,12 +52,22 @@ class PublishTab(gui.FormLayout):
     def create_retries_frame(self):
         frame = pm.frameLayout(label="Retries", bv=True)
 
+
+        # with uutl.activatable(): 
+        #     self.max_chains_if = pm.intFieldGrp(
+        #         numberOfFields=1, label="Max chains/node", value1=50
+        #     )
+
+        ann = "\n\Current first: Starts from existing splitAngle, and works down"
+        ann += "\n\nCoil: Resets the splitAngle to 360, then finds the coil value and works don from there by delta."
+        
         self.retries_mode_rb = pm.radioButtonGrp(
             height=30,
             l="Retries mode",
             sl=4,
             nrb=4,
             la4=["None", "Current first", "All", "Coil"],
+            ann=ann,
             changeCommand=pm.Callback(self.on_ops_change),
         )
 
@@ -80,9 +90,9 @@ class PublishTab(gui.FormLayout):
             label="Attempts", numberOfFields=1, value1=12
         )
 
-        self.retries_scope_rb = pm.radioButtonGrp(
-            height=30, l="Retries scope", sl=2, nrb=2, la2=["Selected", "All"]
-        )
+        # self.retries_scope_rb = pm.radioButtonGrp(
+        #     height=30, l="Retries scope", sl=2, nrb=2, la2=["Selected", "All"]
+        # )
 
         pm.setParent("..")
         return frame
@@ -164,7 +174,7 @@ class PublishTab(gui.FormLayout):
         pm.intFieldGrp(self.num_retries_wg, edit=True, en=do_varying_range)
         
         pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=(coil and can_do_retries))
-        pm.radioButtonGrp(self.retries_scope_rb, edit=True, en=(can_do_retries))
+        # pm.radioButtonGrp(self.retries_scope_rb, edit=True, en=(can_do_retries))
         pm.checkBoxGrp(self.read_board_calibration_cb, edit=True, en=(can_do_retries))
 
         can_go = (
@@ -196,7 +206,7 @@ class PublishTab(gui.FormLayout):
             self.export_ops_cb, query=True, valueArray2=True
         )
         retries_mode = pm.radioButtonGrp(self.retries_mode_rb, query=True, sl=True)
-        retries_scope = pm.radioButtonGrp(self.retries_scope_rb, query=True, sl=True)
+        # retries_scope = pm.radioButtonGrp(self.retries_scope_rb, query=True, sl=True)
         retries_count = pm.intFieldGrp(self.num_retries_wg, query=True, value1=True)
         first, last = pm.floatFieldGrp(self.varying_range_wg, query=True, value=True)
 
@@ -240,9 +250,8 @@ class PublishTab(gui.FormLayout):
             if read_board_cal:
                 cal.read_board_calibration()
 
-            nodes = (
-                pm.ls(sl=True) if retries_scope == 1 else pm.ls(type="skeletonStroke")
-            )
+            nodes = find_contributing_skel_nodes()
+
 
             step_values = get_step_values(first, last, retries_count)
 
@@ -525,4 +534,24 @@ def get_step_values(low, high, count):
 
     def save(self):
         pass
+
+def find_contributing_skel_nodes():
+
+
+    painting_node = pm.PyNode("mainPaintingShape")
+    all_skels = pm.ls(type="skeletonStroke")
+ 
+    result = [n for n in pm.ls(sl=True) if n.type() == "skeletonStroke"] 
+    if result:
+        return result
+
+    for node in all_skels:
+        with isolate_nodes([node], all_skels):
+            try:
+                pm.paintingQuery(painting_node, cc=True)
+            except RuntimeError:
+                continue
+        result.append(node)
+    print "{} of {} skeleton nodes contributing".format(len(result), len(all_skels))
+    return result
 

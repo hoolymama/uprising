@@ -130,6 +130,7 @@ MStatus collectStrokes::initialize()
   tAttr.setStorable(false);
   tAttr.setArray(true);
   tAttr.setKeyable(true);
+  tAttr.setIndexMatters(true);
   tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   addAttribute(aStrokes);
 

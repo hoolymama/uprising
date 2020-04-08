@@ -59,7 +59,7 @@ MStatus mapStrokes::initialize()
   tAttr.setReadable(false);
   tAttr.setStorable(false);
   tAttr.setKeyable(true);
-  tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
+  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   addAttribute(aStrokes);
 
   MMatrix identity;

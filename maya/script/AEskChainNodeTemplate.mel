@@ -16,16 +16,13 @@ global proc AEskChainNodeNew (string $nodeAttr) {
 global proc AEskChainNodeTemplate ( string $nodeName )
 {
 	editorTemplate -beginScrollLayout;
-	editorTemplate -cl 0  -beginLayout "Image Attributes";		
-	editorTemplate -callCustom "AEskChainNodeNew" "AEskChainNodeReplace" "image";
-	editorTemplate -endLayout;
+
 
 	editorTemplate -cl 0  -beginLayout "Radius Attributes";	
-	editorTemplate -addControl "maxWidthPixels";	
- 	editorTemplate -addControl "maxStampWidthPixels";
-	editorTemplate -addControl "aSmallestMaxWidthPixels";
- 	// editorTemplate -addControl "radiusMult";
- 	// editorTemplate -addControl "radiusOffset";
+	editorTemplate -addControl "maxWidth";	
+ 	editorTemplate -addControl "maxStampWidth";
+ 	editorTemplate -addControl "radiusMult";
+ 	editorTemplate -addControl "radiusOffset";
  	editorTemplate -endLayout;
 
  
@@ -35,10 +32,19 @@ global proc AEskChainNodeTemplate ( string $nodeName )
 	editorTemplate -addControl "maxIterations";
 	editorTemplate -addControl "minBranchTwigLength";
 	editorTemplate -addControl "minLooseTwigLength";
-
-	editorTemplate -addControl "spanPixels";
-
+	editorTemplate -addControl "span";
 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Image Attributes";		
+	editorTemplate -callCustom "AEskChainNodeNew" "AEskChainNodeReplace" "image";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Output Control";		
+	editorTemplate -addControl "maxChainsPerOutput";
+	editorTemplate -addControl "outputCount";
+	editorTemplate -endLayout;
+
+ 	editorTemplate -suppress "outputs";
 
 
 	editorTemplate -addExtraControls;
