@@ -18,13 +18,6 @@ class PaintingTab(gui.FormLayout):
     def create_buttons(self):
         pm.setParent(self.column)
  
-        
-        pm.rowLayout(
-            numberOfColumns=5, columnWidth5=(
-                110, 60, 60, 60, 60), columnAlign=(
-                1, 'right'), columnAttach=[
-                (1, 'both', 2), (2, 'both', 2), (3, 'both', 2), (4, 'both', 2) , (5, 'both', 2)])
-
         pm.text(label='Propagate ramps')
 
         pm.button(

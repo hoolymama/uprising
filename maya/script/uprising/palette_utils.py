@@ -1,7 +1,8 @@
 import pymel.core as pm
 import stroke_factory_utils as sfu
 import uprising.uprising_util as uutl
-import sheets
+
+# import sheets
 from paint import Paint
 from brush import Brush
 
@@ -99,12 +100,12 @@ def clean_palette():
         pot.rename("pot")
 
 
-def validate_paint_data(data):
-    if not len(data):
-        raise ValueError("No paint data from Google sheets")
-    for row in data:
-        if not len(row) > 4:
-            raise ValueError("Invalid paint data from Google sheets")
+# def validate_paint_data(data):
+#     if not len(data):
+#         raise ValueError("No paint data from Google sheets")
+#     for row in data:
+#         if not len(row) > 4:
+#             raise ValueError("Invalid paint data from Google sheets")
 
 
 def delete_shaders():
@@ -169,23 +170,23 @@ def connect_paint_to_node(pot, node, connect_to="next_available"):
             sfu.create_and_connect_driver(pot, att)
 
 
-def setup_paints_from_sheet(palette_name):
-    resource = sheets.get_resource_by_name(palette_name, "Paints")
-    data = resource["data"]
+# def setup_paints_from_sheet(palette_name):
+#     resource = sheets.get_resource_by_name(palette_name, "Paints")
+#     data = resource["data"]
 
-    validate_paint_data(data)
-    colors = []
-    for i, row in enumerate(data):
-        color = {
-            "index": i,
-            "r": uutl.numeric(row[0]) / 255.0,
-            "g": uutl.numeric(row[1]) / 255.0,
-            "b": uutl.numeric(row[2]) / 255.0,
-            "name": row[3],
-            "code": row[4],
-        }
-        colors.append(color)
-    set_up_rack(colors)
+#     validate_paint_data(data)
+#     colors = []
+#     for i, row in enumerate(data):
+#         color = {
+#             "index": i,
+#             "r": uutl.numeric(row[0]) / 255.0,
+#             "g": uutl.numeric(row[1]) / 255.0,
+#             "b": uutl.numeric(row[2]) / 255.0,
+#             "name": row[3],
+#             "code": row[4],
+#         }
+#         colors.append(color)
+#     set_up_rack(colors)
 
 
 def get_pot_handle_packs():
@@ -307,4 +308,3 @@ def get_dip_wipe_packs(**kw):
         }
 
     return result
-

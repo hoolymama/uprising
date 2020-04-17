@@ -1,8 +1,10 @@
 import pymel.core as pm
 from brush import Brush
-import uprising_util as uutl
-import sheets
-import copy
+
+# import uprising_util as uutl
+
+# import sheets
+# import copy
 
 
 def connect_skels(painting, skels):
@@ -79,10 +81,11 @@ def reset_brush(brush_xf, **kw):
 
     if geo.attr("tip2").get() < 0.0001:
         geo.attr("tip2").set(kw["z"])
-        
+
     geo.attr("bristleHeight").set(kw["bristle_height"])
 
     geo.attr("shape").set(shape_index)
+
 
 def remove_brush_multi_atts(*nodes):
     for node in nodes:
@@ -101,144 +104,145 @@ def delete_brushes(painting_node):
     remove_brush_multi_atts(painting_node)
 
 
-def validate_brush_data(data):
-    result = []
-    if not len(data):
-        raise ValueError("No brush data from Google sheets")
+# def validate_brush_data(data):
+#     result = []
+#     if not len(data):
+#         raise ValueError("No brush data from Google sheets")
 
-    for row in data:
-        if not len(row) > 9:
-            continue
-        try:
-            int(row[0])
-        except ValueError:
-            continue
-        result.append(row)
-    return result
-
-
-def setup_custom_brush_from_sheet(cell):
-    service = sheets._get_service()
-    result = (
-        service.spreadsheets()
-        .values()
-        .get(
-            spreadsheetId=sheets.SHEETS["Measurements"], range="Brushes!{}".format(cell)
-        )
-        .execute()
-    )
-
-    row = result.get("values", [])[0]
-    row = [uutl.numeric(s) for s in row]
-    kw = {
-        "id": 0,
-        "physical_id": 0,
-        "x": row[1],
-        "y": row[2],
-        "z": row[13],
-        "bristle_height": row[4],
-        "width": row[5],
-        "name": row[6],
-        "shape": row[7],
-        "painting_param": row[8],
-        "dip_param": row[9],
-        "wipe_param": row[10],
-        "retention": row[11],
-        "trans_param": row[12],
-        "contact_power": 1,
-        "pouch": "utility",
-        "prefix": "bpx",
-    }
-    return create_brush_geo(**kw)
+#     for row in data:
+#         if not len(row) > 9:
+#             continue
+#         try:
+#             int(row[0])
+#         except ValueError:
+#             continue
+#         result.append(row)
+#     return result
 
 
-def setup_probe_from_sheet():
-    return setup_custom_brush_from_sheet("A3:N3")
+# def setup_custom_brush_from_sheet(cell):
+#     service = sheets._get_service()
+#     result = (
+#         service.spreadsheets()
+#         .values()
+#         .get(
+#             spreadsheetId=sheets.SHEETS["Measurements"], range="Brushes!{}".format(cell)
+#         )
+#         .execute()
+#     )
+
+#     row = result.get("values", [])[0]
+#     row = [uutl.numeric(s) for s in row]
+#     kw = {
+#         "id": 0,
+#         "physical_id": 0,
+#         "x": row[1],
+#         "y": row[2],
+#         "z": row[13],
+#         "bristle_height": row[4],
+#         "width": row[5],
+#         "name": row[6],
+#         "shape": row[7],
+#         "painting_param": row[8],
+#         "dip_param": row[9],
+#         "wipe_param": row[10],
+#         "retention": row[11],
+#         "trans_param": row[12],
+#         "contact_power": 1,
+#         "pouch": "utility",
+#         "prefix": "bpx",
+#     }
+#     return create_brush_geo(**kw)
 
 
-def setup_gripper_from_sheet():
-    return setup_custom_brush_from_sheet("A4:N4")
+# def setup_probe_from_sheet():
+#     return setup_custom_brush_from_sheet("A3:N3")
 
 
-def setup_brushes_from_sheet(pouch_name):
-    painting_node = pm.PyNode("mainPaintingShape")
-    pouch = sheets.get_resource_by_name(pouch_name, "Brushes")
-    data = validate_brush_data(pouch["data"])
-    delete_brushes(painting_node)
-
-    try:
-        brush_nodes_grp = pm.PyNode("BRUSHES|brushNodes")
-    except BaseException:
-        g = pm.group(empty=True)
-        pm.parent(g, pm.PyNode("brushes"))
-        g.rename("brushNodes")
-        brush_nodes_grp = pm.PyNode("BRUSHES|brushNodes")
-
-    for i, row in enumerate(data):
-        row = [uutl.numeric(s) for s in row]
-
-        kw = {
-            "id": i,
-            "physical_id": row[0],
-            "x": row[1],
-            "y": row[2],
-            "z": row[13],
-            "bristle_height": row[4],
-            "width": row[5],
-            "name": row[6],
-            "shape": row[7],
-            "painting_param": row[8],
-            "dip_param": row[9],
-            "wipe_param": row[10],
-            "retention": row[11],
-            "trans_param": row[12],
-            "contact_power": row[14],
-            "pouch": pouch["name"],
-            "prefix": "bpx",
-        }
-
-        geo = create_brush_geo(**kw)
-        pm.parent(geo.getParent(), brush_nodes_grp)
-        geo.attr("outPaintBrush") >> painting_node.attr("brushes[%d]" % i)
-
-    # connect_skels(painting_node, pm.ls(type="skeletonStroke"))
+# def setup_gripper_from_sheet():
+#     return setup_custom_brush_from_sheet("A4:N4")
 
 
-def apply_brush_values_from_sheet(pouch_name):
+# def setup_brushes_from_sheet(pouch_name):
+#     painting_node = pm.PyNode("mainPaintingShape")
+#     pouch = sheets.get_resource_by_name(pouch_name, "Brushes")
+#     data = validate_brush_data(pouch["data"])
+#     delete_brushes(painting_node)
 
-    print "apply_brush_values_from_sheet"
-    painting_node = pm.PyNode("mainPaintingShape")
-    pouch = sheets.get_resource_by_name(pouch_name, "Brushes")
-    data = validate_brush_data(pouch["data"])
+#     try:
+#         brush_nodes_grp = pm.PyNode("BRUSHES|brushNodes")
+#     except BaseException:
+#         g = pm.group(empty=True)
+#         pm.parent(g, pm.PyNode("brushes"))
+#         g.rename("brushNodes")
+#         brush_nodes_grp = pm.PyNode("BRUSHES|brushNodes")
 
-    data_length = len(data)
+#     for i, row in enumerate(data):
+#         row = [uutl.numeric(s) for s in row]
 
-    brushes = painting_node.attr("brushes").connections(s=True)
+#         kw = {
+#             "id": i,
+#             "physical_id": row[0],
+#             "x": row[1],
+#             "y": row[2],
+#             "z": row[13],
+#             "bristle_height": row[4],
+#             "width": row[5],
+#             "name": row[6],
+#             "shape": row[7],
+#             "painting_param": row[8],
+#             "dip_param": row[9],
+#             "wipe_param": row[10],
+#             "retention": row[11],
+#             "trans_param": row[12],
+#             "contact_power": row[14],
+#             "pouch": pouch["name"],
+#             "prefix": "bpx",
+#         }
 
-    num_brushes = len(brushes)
-    if num_brushes != data_length:
-        raise ValueError("Different number of brushes in sheet to scene")
+#         geo = create_brush_geo(**kw)
+#         pm.parent(geo.getParent(), brush_nodes_grp)
+#         geo.attr("outPaintBrush") >> painting_node.attr("brushes[%d]" % i)
 
-    for i, row in enumerate(data):
-        row = [uutl.numeric(s) for s in row]
+# connect_skels(painting_node, pm.ls(type="skeletonStroke"))
 
-        kw = {
-            "id": i,
-            "physical_id": row[0],
-            # "x": row[1],
-            # "y": row[2],
-            "z": row[13],
-            "bristle_height": row[4],
-            "name": row[6],
-            "shape": row[7],
-            "pouch": pouch["name"],
-            "prefix": "bpx",
-        }
 
-        reset_brush(brushes[i], **kw)
+# def apply_brush_values_from_sheet(pouch_name):
 
-    for b in brushes:
-        pm.reorder(b, back=True)
+#     print "apply_brush_values_from_sheet"
+#     painting_node = pm.PyNode("mainPaintingShape")
+#     pouch = sheets.get_resource_by_name(pouch_name, "Brushes")
+#     data = validate_brush_data(pouch["data"])
+
+#     data_length = len(data)
+
+#     brushes = painting_node.attr("brushes").connections(s=True)
+
+#     num_brushes = len(brushes)
+#     if num_brushes != data_length:
+#         raise ValueError("Different number of brushes in sheet to scene")
+
+#     for i, row in enumerate(data):
+#         row = [uutl.numeric(s) for s in row]
+
+#         kw = {
+#             "id": i,
+#             "physical_id": row[0],
+#             # "x": row[1],
+#             # "y": row[2],
+#             "z": row[13],
+#             "bristle_height": row[4],
+#             "name": row[6],
+#             "shape": row[7],
+#             "pouch": pouch["name"],
+#             "prefix": "bpx",
+#         }
+
+#         reset_brush(brushes[i], **kw)
+
+#     for b in brushes:
+#         pm.reorder(b, back=True)
+
 
 def set_stroke_curve_att_from_brush_tip(attribute, mult=1, offset=0):
     sc = attribute.node()

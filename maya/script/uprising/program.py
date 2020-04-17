@@ -622,7 +622,8 @@ class CalibrationProgram(Program):
         raise NotImplementedError
 
     def _get_probe_brush(self):
-        geo = butl.setup_probe_from_sheet()
+        # geo = butl.setup_probe_from_sheet()
+        geo = pm.PyNode("bpx_0_utility_B0_probe_roundShape")
         return Brush(0, geo.attr("outPaintBrush"))
 
     def _write_stops(self, loc_a, loc_b, facing_joints):
@@ -814,7 +815,8 @@ class ManualTriangulation(CalibrationProgram):
     #     super(ManualTriangulation, self).__init__(name)
 
     def _get_probe_brush(self):
-        geo = butl.setup_probe_from_sheet()
+        # geo = butl.setup_probe_from_sheet()
+        geo = pm.PyNode("bpx_0_utility_B0_probe_roundShape")
         geo.attr("paintingParam").set(0)
         geo.attr("dipParam").set(0)
         geo.attr("wipeParam").set(0)

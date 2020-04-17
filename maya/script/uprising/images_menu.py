@@ -28,7 +28,7 @@ def make_snapshot():
         pm.displayWarning('Nothing Selected')
         return
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
-    write.write_ref_image(entries[0], timestamp, res)
+    # write.write_ref_image(entries[0], timestamp, res)
 
 
 def write_png_palette_csv():

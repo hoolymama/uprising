@@ -32,7 +32,7 @@ from uprising import (
     robo,
     select_menu,
     chain_menu,
-    setup_tab,
+    # setup_tab,
     stats,
     tools_menu,
     studio,
@@ -51,7 +51,7 @@ reload(brush_utils)
 reload(palette_utils)
 reload(chain_menu)
 
-reload(setup_tab)
+# reload(setup_tab)
 reload(color_tab)
 reload(phex_tab)
 reload(brush_hang_tab)
@@ -91,9 +91,9 @@ class RobotWindow(gui.Window):
 
         self.tabs = pm.tabLayout(changeCommand=pm.Callback(self.on_tab_changed))
 
-        pm.setParent(self.tabs)
-        self.setup_tab = setup_tab.SetupTab()
-        self.tabs.setTabLabel((self.setup_tab, "Setup"))
+        # pm.setParent(self.tabs)
+        # self.setup_tab = setup_tab.SetupTab()
+        # self.tabs.setTabLabel((self.setup_tab, "Setup"))
 
         pm.setParent(self.tabs)
         self.brush_test_tab = brush_test_tab.BrushTestTab()
@@ -131,7 +131,6 @@ class RobotWindow(gui.Window):
         self.color_tab = color_tab.ColorTab()
         self.tabs.setTabLabel((self.color_tab, "Color"))
 
-
         pm.setParent(self.menuBarLayout)
         self.tools_menu = tools_menu.create()
 
@@ -155,7 +154,7 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.chain_menu = chain_menu.create()
-        
+
         pm.setParent(self.menuBarLayout)
         self.export_menu = export_menu.create()
 

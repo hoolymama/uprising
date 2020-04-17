@@ -179,8 +179,9 @@ class Studio(object):
         return result
 
     def _build_pick_place_programs(self, brush_ids):
+        gripper_geo = pm.PyNode("bpx_0_utility_B0_gripper_roundShape")
+        # gripper_geo = butl.setup_gripper_from_sheet()
 
-        gripper_geo = butl.setup_gripper_from_sheet()
         gripper = Brush(0, gripper_geo.attr("outPaintBrush"))
         if not gripper:
             raise StudioError("No Gripper. Risk of damage. Can't continue.")

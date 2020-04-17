@@ -71,9 +71,9 @@ class PublishTab(gui.FormLayout):
             changeCommand=pm.Callback(self.on_ops_change),
         )
 
-        self.read_board_calibration_cb = pm.checkBoxGrp(
-            label="Read Calibration", label1="Board", value1=1
-        )
+        # self.read_board_calibration_cb = pm.checkBoxGrp(
+        #     label="Read Calibration", label1="Board", value1=1
+        # )
 
         # self.varying_attrib_wg = pm.textFieldGrp(label="Attribute", text="splitAngle")
 
@@ -175,7 +175,7 @@ class PublishTab(gui.FormLayout):
         
         pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=(coil and can_do_retries))
         # pm.radioButtonGrp(self.retries_scope_rb, edit=True, en=(can_do_retries))
-        pm.checkBoxGrp(self.read_board_calibration_cb, edit=True, en=(can_do_retries))
+        # pm.checkBoxGrp(self.read_board_calibration_cb, edit=True, en=(can_do_retries))
 
         can_go = (
             (can_do_retries and (retries_mode>1)) or do_painting or do_subprograms
@@ -221,9 +221,9 @@ class PublishTab(gui.FormLayout):
         #     self.varying_attrib_wg, query=True, text=True
         # )
 
-        read_board_cal = pm.checkBoxGrp(
-            self.read_board_calibration_cb, query=True, value1=True
-        )
+        # read_board_cal = pm.checkBoxGrp(
+        #     self.read_board_calibration_cb, query=True, value1=True
+        # )
 
         water_wipe_repeats = pm.intSliderGrp(
             self.water_wipe_repeats_isg, query=True, value=True
@@ -247,8 +247,8 @@ class PublishTab(gui.FormLayout):
 
         if should_do_retries:
             
-            if read_board_cal:
-                cal.read_board_calibration()
+            # if read_board_cal:
+            #     cal.read_board_calibration()
 
             nodes = find_contributing_skel_nodes()
 

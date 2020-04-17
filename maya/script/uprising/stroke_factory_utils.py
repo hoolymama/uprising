@@ -3,8 +3,7 @@ import pymel.core as pm
 from paint import Paint
 from brush import Brush
 
-import sheets
-
+ 
 import uprising.uprising_util as uutl
 
 def input_connection(attribute):
