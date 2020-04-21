@@ -15,7 +15,7 @@ def create():
 
     pm.menuItem(
         label="Read rack triangulation",
-        command=pm.Callback(cal.read_rack_triangulation),
+        command=pm.Callback(cal.read_calibration, "rack_triangulation"),
     )
 
     pm.menuItem(divider=True)
@@ -26,7 +26,8 @@ def create():
     )
 
     pm.menuItem(
-        label="Read pot calibration", command=pm.Callback(cal.read_pot_calibration)
+        label="Read pot calibration",
+        command=pm.Callback(cal.read_calibration, "pot_calibration"),
     )
 
     pm.menuItem(divider=True)
@@ -38,7 +39,7 @@ def create():
 
     pm.menuItem(
         label="Read holder calibration",
-        command=pm.Callback(cal.read_holder_calibration),
+        command=pm.Callback(cal.read_calibration, "holder_calibration"),
     )
 
     pm.menuItem(divider=True)
@@ -50,7 +51,7 @@ def create():
 
     pm.menuItem(
         label="Read perspex calibration",
-        command=pm.Callback(cal.read_perspex_calibration),
+        command=pm.Callback(cal.read_calibration, "perspex_calibration"),
     )
 
     pm.setParent("..", menu=True)
@@ -59,7 +60,7 @@ def create():
 
     pm.menuItem(
         label="Read board triangulation",
-        command=pm.Callback(cal.read_board_triangulation),
+        command=pm.Callback(cal.read_calibration, "board_triangulation"),
     )
 
     pm.menuItem(
@@ -68,7 +69,8 @@ def create():
     )
 
     pm.menuItem(
-        label="Read board calibration", command=pm.Callback(cal.read_board_calibration)
+        label="Read board calibration",
+        command=pm.Callback(cal.read_calibration, "board_calibration"),
     )
 
     pm.setParent("..", menu=True)
