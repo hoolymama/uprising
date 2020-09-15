@@ -13,7 +13,7 @@ import pymel.core as pm
 import robodk as rdk
 
 CLEAN_FILE = os.path.join(os.environ["UPRISING_PROJECT_PATH"], "robodk", "clean.rdk")
-ROBODK_PATH = "/Applications/RoboDK/RoboDK.app/Contents/MacOS/RoboDK"
+ROBODK_PATH = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/MacOS/RoboDK")
 DIP_TARGET = "dipTarget"
 TOOL_TARGET = "toolChangeTarget"
 HOME_TARGET = "homeTarget"
