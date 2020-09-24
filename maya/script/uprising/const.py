@@ -1,16 +1,16 @@
 BRUSH_SHAPES = ["flat", "round", "filbert"]
 
 
-HOME_JOINTS = [0, -90, 90, 0, 0, 0]
+HOME_JOINTS = [90, -90, 90, 0, 0, 0]
 
 
-PAINTING_START_JOINTS = [-90, -90, 120, 0, -30, 0]
+PAINTING_START_JOINTS = [0, -90, 120, 0, -30, 0]
 
-DIP_START_JOINTS = [-60, -60, 110, 0, 20, 50]
+DIP_START_JOINTS = [30, -60, 110, 0, 20, 50]
 
-FACING_BOARD_JOINTS = [-90, -90, 90, 0, 0, 0]
+FACING_BOARD_JOINTS = [0, -90, 90, 0, 0, 0]
 
-FACING_RACK_JOINTS = [0, -60, 90, 0, 60, 0]
+FACING_RACK_JOINTS = [90, -60, 90, 0, 60, 0]
 
 # RACK_POT_DEPTH = 3.7 # 3.5 next time
 # RACK_HANDLE_HEIGHT = 3.8 #4.5 next time

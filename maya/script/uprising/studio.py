@@ -94,7 +94,7 @@ class Studio(object):
                 )
 
         if kw.get("do_pot_calibration"):
-            logger.debug("Studio:  pot_holder_calibration")
+            logger.debug("Studio:  pot_calibration")
             self.pot_cal_program = PotCalibration(k.POT_CALIBRATION_PROGRAM_NAME)
 
         if kw.get("do_holder_calibration"):

@@ -268,6 +268,9 @@ def _generate_calibration(which, *reference_geo):
     robo.show()
     src_fn, rdk_fn=write.save_prog_and_station(directory, which)
 
+    with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+        for i, program in enumerate(studio.pick_place_programs):
+            write.save_prog_and_station(directory, program.program_name)
 
 
 
@@ -288,7 +291,11 @@ def generate_holder_calibration():
     _generate_calibration(k.HOLDER_CALIBRATION_PROGRAM_NAME)
 
 def generate_pot_calibration():
-    _generate_calibration(k.POT_CALIBRATION_PROGRAM_NAME)
+    ref_geo=[pm.PyNode("rackTop")]
+    ref_geo += pm.ls("holes|*|holeTrans|dip_loc|pot")
+    ref_geo += pm.ls("holes|*|holeTrans|wipe_loc|handle")
+
+    _generate_calibration(k.POT_CALIBRATION_PROGRAM_NAME, *ref_geo)
 
 
 

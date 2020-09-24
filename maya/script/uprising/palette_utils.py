@@ -5,6 +5,7 @@ import uprising.uprising_util as uutl
 # import sheets
 from paint import Paint
 from brush import Brush
+import const as k
 
 
 def dip_combinations():
@@ -130,7 +131,8 @@ def set_pot_colors(pots, colors):
     pot_cols = zip(pots, colors)
     delete_shaders()
     for geo, color in pot_cols:
-        ss = pm.shadingNode("lambert", asShader=True, name=("sx_%s" % color["name"]))
+        ss = pm.shadingNode("lambert", asShader=True,
+                            name=("sx_%s" % color["name"]))
         sg = pm.sets(
             renderable=True,
             noSurfaceShader=True,
@@ -162,7 +164,8 @@ def connect_pots(pots):
 
 def connect_paint_to_node(pot, node, connect_to="next_available"):
     index = sfu.get_index(node, "paints.paintTravel", connect_to)
-    whitelist = ["double", "float", "short", "bool", "string", "float3", "double3"]
+    whitelist = ["double", "float", "short",
+                 "bool", "string", "float3", "double3"]
     atts = node.attr("paints[%d]" % index).getChildren()
     for att in atts:
         att_type = att.type()
@@ -190,22 +193,46 @@ def connect_paint_to_node(pot, node, connect_to="next_available"):
 
 
 def get_pot_handle_packs():
-    result = []
+    result = {
+        "pot": [],
+        "handle": [],
+        "face": []
+    }
+
     for i, p in enumerate(pm.ls("RACK1_CONTEXT|j1|rack|holes|holeRot*|holeTrans")):
-        _1, _2, pot_base, pot_ap, handle_base, handle_ap = [
-            x for x in p.getChildren(type="transform")
-        ]
-        name = "ph_{:02d}".format(i)
-        result.append(
+        _1, _2, pot_base,  handle_base, face_base = p.getChildren(
+            type="transform")
+
+        row = CAL_SHEET_FIRST_ROW = 6 + i  # mm
+        result["pot"].append(
             {
-                "pot_base": pot_base,
-                "pot_approach": pot_ap,
-                "handle_base": handle_base,
-                "handle_approach": handle_ap,
-                "name": name,
+                "base": pot_base,
+                "approach": pot_base.getChildren(type="transform")[0],
+                "name": "pot_{:02d}".format(i),
                 "index": i,
+                "cell": "B:{}".format(row)
             }
         )
+        result["handle"].append(
+            {
+                "base": handle_base,
+                "approach": handle_base.getChildren(type="transform")[0],
+                "name": "handle_{:02d}".format(i),
+                "index": i,
+                "cell": "C:{}".format(row)
+            }
+        )
+
+        result["face"].append(
+            {
+                "base": face_base,
+                "approach": face_base.getChildren(type="transform")[0],
+                "name": "face_{:02d}".format(i),
+                "index": i,
+                "cell": "D:{}".format(row)
+            }
+        )
+
     return result
 
 
@@ -213,7 +240,8 @@ def get_pick_place_packs(brush_ids="used"):
     result = {}
     painting = pm.PyNode("mainPaintingShape")
     if brush_ids == "all":
-        bids = [int(n[-2:]) for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
+        bids = [int(n[-2:])
+                for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
     elif brush_ids == "used":
         dc = pm.paintingQuery(painting, dc=True)
         bids = set(dc[::2])
