@@ -5,6 +5,7 @@ Module as a singleton that stores the robot and the link.
 
 import os
 import time
+import uprising_util as uutl
 
 from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT, ITEM_TYPE_STATION,
                       ITEM_TYPE_TARGET, Robolink)
@@ -12,7 +13,6 @@ from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT, ITEM_TYPE_STATION,
 import pymel.core as pm
 import robodk as rdk
 
-CLEAN_FILE = os.path.join(os.environ["UPRISING_PROJECT_PATH"], "robodk", "clean.rdk")
 ROBODK_PATH = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/MacOS/RoboDK")
 DIP_TARGET = "dipTarget"
 TOOL_TARGET = "toolChangeTarget"
@@ -97,14 +97,14 @@ def clean():
     global _link
     global _robot
     empty()
-    _link.AddFile(CLEAN_FILE)
+    _link.AddFile(uutl.CLEAN_FILE)
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _robot.setParam("PostProcessor", "KUKA KRC4")
     _create_infrastructure()
 
 
     _create_infrastructure()
-    print "Added clean file: {}".format(CLEAN_FILE)
+    print "Added clean file: {}".format(uutl.CLEAN_FILE)
 
 def create_program(name):
     global _link

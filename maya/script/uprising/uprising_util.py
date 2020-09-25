@@ -7,8 +7,9 @@ import pymel.core as pm
 
 PI = 3.14159265359
 
-
-CLEAN_FILE = os.path.join(os.environ["UPRISING_PROJECT_PATH"], "robodk", "clean.rdk")
+ 
+UPRISING_PROJECT_PATH = os.path.dirname(pm.getModulePath(moduleName="uprising"))
+CLEAN_FILE = os.path.join(UPRISING_PROJECT_PATH, "robodk", "clean.rdk")
 
 
 @contextmanager
