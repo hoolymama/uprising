@@ -268,10 +268,16 @@ def _generate_calibration(which, *reference_geo):
     robo.show()
     src_fn, rdk_fn=write.save_prog_and_station(directory, which)
 
+    print "Wrote", src_fn
+    subprogram_names = []
     with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
         for i, program in enumerate(studio.pick_place_programs):
-            write.save_prog_and_station(directory, program.program_name)
-
+            name =  program.program_name
+            print "Writing PP", name
+            subprogram_names.append(name)
+            write.save_prog_and_station(directory, name)
+    
+    write.insert_external_dependencies(subprogram_names,src_fn)
 
 
 def create_manual_triangulation():

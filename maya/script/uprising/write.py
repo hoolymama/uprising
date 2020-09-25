@@ -120,6 +120,7 @@ def publish_dips(directory, water_wipe_repeats):
 
 
 def insert_external_dependencies(subprograms, src_fn):
+    print "Writing Externals", subprograms
     func = os.path.splitext(os.path.basename(src_fn))[0]
     func = "DEF {}".format(func)
     ext_lines = ["EXT {}()".format(s) for s in subprograms]

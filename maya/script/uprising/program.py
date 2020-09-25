@@ -584,6 +584,7 @@ class CalibrationProgram(Program):
         raise NotImplementedError
 
     def write(self):
+        subprograms = []
         link = robo.link()
         super(CalibrationProgram, self).write()
         self.brush.write()
@@ -592,7 +593,7 @@ class CalibrationProgram(Program):
             raise ProgramError(
                 "No Probe Brush. Risk of damage. Can't continue.")
 
-        self.write_probe_attach_gripper()
+        subprograms.append(self.write_pick_probe_home())
 
         self.program.setSpeed(k.CAL_LINEAR_SPEED, k.CAL_ANGULAR_SPEED)
         self.program.setRounding(k.CAL_ROUNDING_DISTANCE)
@@ -601,20 +602,24 @@ class CalibrationProgram(Program):
             "Starting calibration", INSTRUCTION_COMMENT)
 
         self.write_locator_packs()
-        self.write_probe_detach_gripper()
+        subprograms.append(self.write_place_probe_home()) 
         self.program.addMoveJ(robo.home_approach)
+        return subprograms
+        
 
-    def write_probe_attach_gripper(self):
-        print "write_probe_attach_gripper PickAtHomeProgram"
+    def write_pick_probe_home(self):
+        print "write_pick_probe_home PickAtHomeProgram"
         pick_program_name = PickAtHomeProgram.generate_program_name(0)
         self.program.RunInstruction(
             pick_program_name, INSTRUCTION_CALL_PROGRAM)
+        return pick_program_name
 
-    def write_probe_detach_gripper(self):
-        print "write_probe_detach_gripper PlaceAtHomeProgram"
+    def write_place_probe_home(self):
+        print "write_place_probe_home PlaceAtHomeProgram"
         place_program_name = PlaceAtHomeProgram.generate_program_name(0)
         self.program.RunInstruction(
             place_program_name, INSTRUCTION_CALL_PROGRAM)
+        return place_program_name
 
     def write_locator_packs(self):
         raise NotImplementedError
