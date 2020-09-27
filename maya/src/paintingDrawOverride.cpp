@@ -112,6 +112,8 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	MPlug(paintingObj, painting::aDisplayRepeatIds).getValue(data->displayRepeatIds);
 	MPlug(paintingObj, painting::aArrowheadSize).getValue(data->arrowheadSize);
 	MPlug(paintingObj, painting::aStackGap).getValue(data->stackGap);
+	MPlug(paintingObj, painting::aDrawParam).getValue(data->drawParam);
+	
 	MPlug offPlug(paintingObj, painting::aIdDisplayOffset);
 
 	offPlug.child(0).getValue(data->idDisplayOffset[0]);
@@ -166,10 +168,27 @@ void paintingDrawOverride::addUIDrawables(
 
 void paintingDrawOverride::drawShaded(
 	MHWRender::MUIDrawManager &drawManager,
-	const PaintingDrawData *cdata)
+	const PaintingDrawData *cdata 
+	)
 {
+
+
+	int total_segments = 0;
+	for (auto cluster : cdata->geom->clusters())
+	{
+		for (auto stroke : cluster.strokes())
+		{
+			total_segments += stroke.size() -1;
+		}
+	}
+	int num_visited_segments = 0;
+	int segments = -1;
+
+	float drawParam =  cdata->drawParam;
+
 	drawManager.beginDrawable();
 	double stackHeight = 0.0;
+	bool done = false;
 	for (auto cluster : cdata->geom->clusters())
 	{
 		const Brush &brush = cdata->geom->brushFromId(cluster.brushId());
@@ -178,11 +197,32 @@ void paintingDrawOverride::drawShaded(
 
 		for (auto stroke : cluster.strokes())
 		{
+			///////// Calculate how many segments to draw
+			int this_stroke_segments =  stroke.size() -1;
+			float last_param = num_visited_segments / float(total_segments);
+			int next_accum_segments = num_visited_segments + this_stroke_segments;
+			float next_param = next_accum_segments / float(total_segments);
+
+			if (next_param > drawParam) {
+				segments = (int)(
+					((drawParam - last_param) / (next_param - last_param)) * this_stroke_segments
+					);
+				done = true;
+			}
+
+
 			stackHeight += cdata->stackGap;
 			MPointArray triangles;
-			stroke.getTriangleStrip(brush, stackHeight, triangles, cdata->displayContactWidth);
+			stroke.getTriangleStrip(brush, stackHeight, triangles, cdata->displayContactWidth, segments);
 			drawManager.mesh(
 				MHWRender::MUIDrawManager::kTriStrip, triangles);
+			num_visited_segments = next_accum_segments;
+			if (done){
+				break;
+			}
+		}
+		if (done){
+			break;
 		}
 	}
 	drawManager.endDrawable();

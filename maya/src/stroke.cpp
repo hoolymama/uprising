@@ -878,9 +878,21 @@ void Stroke::getTriangleStrip(
 	const Brush &brush,
 	double stackHeight,
 	MPointArray &result,
-	bool displayContactWidth) const
+	bool displayContactWidth,
+	int maxSegments) const
 {
+	if (maxSegments == 0) {
+		result.setLength(0);
+		return;
+	}
 	unsigned len = m_targets.size();
+	if (maxSegments>-1)
+	{
+	 	if (maxSegments+1 < len) {
+			len = maxSegments+1;
+		}
+	}
+
 	result.setLength(len * 2);
 
 	MVector stackOffset = MVector::zAxis * stackHeight;
@@ -889,8 +901,9 @@ void Stroke::getTriangleStrip(
 	bool flat = (brush.shape() == Brush::kFlat);
 	std::vector<Target>::const_iterator citer;
 	unsigned i = 0;
+	unsigned j=0;
 
-	for (citer = m_targets.begin(); citer != m_targets.end(); citer++, i += 2)
+	for (citer = m_targets.begin(); citer != m_targets.end() || j < len  ; citer++, i += 2, j++)
 	{
 		citer->getBorderPoints(result[i], result[i + 1], width, flat, displayContactWidth);
 		result[i] += stackOffset;

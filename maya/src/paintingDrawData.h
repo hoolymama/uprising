@@ -35,6 +35,8 @@ public:
 	float lineLength;
 	float lineThickness;
 	float stackGap;
+	float drawParam;
+	
 	float arrowheadSize;
 
 	short displayTargets;

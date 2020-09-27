@@ -137,6 +137,7 @@ MObject painting::aIdDisplayOffset;
 MObject painting::aArrowheadSize;
 
 MObject painting::aStackGap;
+MObject painting::aDrawParam;
 
 MObject painting::aOutput;
 
@@ -445,6 +446,16 @@ MStatus painting::initialize()
   nAttr.setDefault(0);
   addAttribute(aStackGap);
 
+
+  aDrawParam = nAttr.create("drawParam", "dprm", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setMin(0.0f);
+  nAttr.setSoftMax(1.0f);
+  nAttr.setDefault(1.0f);
+  addAttribute(aDrawParam);
+
+  
   st = attributeAffects(aStrokes, aOutput);
   st = attributeAffects(aLinearSpeed, aOutput);
   st = attributeAffects(aAngularSpeed, aOutput);
@@ -533,7 +544,7 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
   pGeom->setBrushes(brushes);
   pGeom->setPaints(paints);
 
-  std::vector<Stroke> strokes;
+  // std::vector<Stroke> strokes;
 
   addStrokes(data, pGeom);
 

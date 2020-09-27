@@ -273,7 +273,8 @@ public:
 		const Brush &brush,
 		double stackHeight,
 		MPointArray &result,
-		bool displayContactWidth) const;
+		bool displayContactWidth,
+		int maxSegments =-1) const;
 
 	void positions(const MMatrix &space, MPointArray &result) const;
 	void rotations(

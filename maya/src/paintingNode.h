@@ -173,6 +173,8 @@ public:
   static MObject aArrowheadSize;
 
   static MObject aStackGap;
+  static MObject aDrawParam;
+  
 
   static MObject aOutput;
 };
