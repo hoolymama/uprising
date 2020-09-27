@@ -199,18 +199,19 @@ def get_pot_handle_packs():
         "face": []
     }
 
+    period = 20
     for i, p in enumerate(pm.ls("RACK1_CONTEXT|j1|rack|holes|holeRot*|holeTrans")):
         _1, _2, pot_base,  handle_base, face_base = p.getChildren(
             type="transform")
 
-        row = CAL_SHEET_FIRST_ROW = 6 + i  # mm
+        # row = CAL_SHEET_FIRST_ROW = 6 + i  # mm
         result["pot"].append(
             {
                 "base": pot_base,
                 "approach": pot_base.getChildren(type="transform")[0],
                 "name": "pot_{:02d}".format(i),
                 "index": i,
-                "cell": "B:{}".format(row)
+                "cell": "B:{}".format(k.CAL_SHEET_FIRST_ROW+i)
             }
         )
         result["handle"].append(
@@ -219,7 +220,7 @@ def get_pot_handle_packs():
                 "approach": handle_base.getChildren(type="transform")[0],
                 "name": "handle_{:02d}".format(i),
                 "index": i,
-                "cell": "C:{}".format(row)
+                "cell": "B:{}".format(k.CAL_SHEET_FIRST_ROW+i+period)
             }
         )
 
@@ -229,7 +230,7 @@ def get_pot_handle_packs():
                 "approach": face_base.getChildren(type="transform")[0],
                 "name": "face_{:02d}".format(i),
                 "index": i,
-                "cell": "D:{}".format(row)
+                "cell": "B:{}".format(k.CAL_SHEET_FIRST_ROW+i+period+period)
             }
         )
 

@@ -625,9 +625,10 @@ class CalibrationProgram(Program):
         raise NotImplementedError
 
     def _get_probe_brush(self):
-        # geo = butl.setup_probe_from_sheet()
         geo = pm.PyNode("bpx_0_utility_B0_probe_roundShape")
-        return Brush(0, geo.attr("outPaintBrush"))
+        with uutl.at_value(geo.attr("paintingParam"), 0.4):
+            tool = Brush(0, geo.attr("outPaintBrush"))
+        return tool
 
     def _write_stops(self, loc_a, loc_b, facing_joints):
         if loc_a and loc_b:
@@ -807,26 +808,19 @@ class PerspexCalibration(CalibrationProgram):
 
 
 class ManualTriangulation(CalibrationProgram):
-    # def __init__(self, name):
-    #     super(ManualTriangulation, self).__init__(name)
-
+ 
     def _get_probe_brush(self):
-        # geo = butl.setup_probe_from_sheet()
-        geo=pm.PyNode("bpx_0_utility_B0_probe_roundShape")
-        geo.attr("paintingParam").set(0)
-        geo.attr("dipParam").set(0)
-        geo.attr("wipeParam").set(0)
-        return Brush(0, geo.attr("outPaintBrush"))
+        geo = pm.PyNode("bpx_0_utility_B0_probe_roundShape")
+        with uutl.at_value(geo.attr("paintingParam"), 0.0):
+            tool = Brush(0, geo.attr("outPaintBrush"))
+        return tool
 
     def write_locator_packs(self):
-
         self.program.Pause()
         self.program.RunInstruction(
             "Manually record the 3 leg centers with the brush tip", INSTRUCTION_COMMENT
         )
 
-
-################# CALIBRATION #################
 class BoardCalibration(CalibrationProgram):
     def __init__(self, name):
         super(BoardCalibration, self).__init__(name)
