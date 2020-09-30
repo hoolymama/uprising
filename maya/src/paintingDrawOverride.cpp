@@ -98,7 +98,7 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	MPlug(paintingObj, painting::aPointSize).getValue(data->pointSize);
 	MPlug(paintingObj, painting::aLineLength).getValue(data->lineLength);
 	MPlug(paintingObj, painting::aLineThickness).getValue(data->lineThickness);
-	MPlug(paintingObj, painting::aStackGap).getValue(data->stackGap);
+	// MPlug(paintingObj, painting::aStackGap).getValue(data->stackGap);
 	MPlug(paintingObj, painting::aDisplayTargets).getValue(data->displayTargets);
 	MPlug(paintingObj, painting::aDisplayApproachTargets).getValue(data->displayApproachTargets);
 	MPlug(paintingObj, painting::aDisplayClusterPath).getValue(data->displayClusterPath);
@@ -209,8 +209,7 @@ void paintingDrawOverride::drawShaded(
 					);
 				done = true;
 			}
-
-
+			
 			stackHeight += cdata->stackGap;
 			MPointArray triangles;
 			stroke.getTriangleStrip(brush, stackHeight, triangles, cdata->displayContactWidth, segments);

@@ -903,7 +903,7 @@ void Stroke::getTriangleStrip(
 	unsigned i = 0;
 	unsigned j=0;
 
-	for (citer = m_targets.begin(); citer != m_targets.end() || j < len  ; citer++, i += 2, j++)
+	for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len)  ; citer++, i += 2, j++)
 	{
 		citer->getBorderPoints(result[i], result[i + 1], width, flat, displayContactWidth);
 		result[i] += stackOffset;
