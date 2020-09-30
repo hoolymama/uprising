@@ -172,7 +172,7 @@ void paintingDrawOverride::drawShaded(
 	)
 {
 
-
+	// TODO: Split function based on draw param.
 	int total_segments = 0;
 	for (auto cluster : cdata->geom->clusters())
 	{
