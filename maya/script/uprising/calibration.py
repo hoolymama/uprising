@@ -6,7 +6,6 @@ import palette_utils as putl
 import props
 import pymel.core as pm
 import robo
-# import sheets
 import uprising.uprising_util as uutl
 import write
 from studio import Studio
@@ -58,7 +57,6 @@ def pasted_sheet_layout(which):
     scroll =  pm.scrollField(w=400, h=400, editable=False)
     pm.textFieldGrp(tf, edit=True, changeCommand=pm.Callback(updateDisplay, tf, scroll))
 
-    # scroll = pm.cmdtextFieldGrpExecuter(sourceType="python")
 
 
     b1 = pm.button(label="Abort", command=pm.Callback(_dismiss))
@@ -98,10 +96,10 @@ def read_calibration(which):
 def data_matrix(content):
     result = []
     rows =  list(filter(None, content.split("\n")))
-    print "len(rows)", len(rows)
+ 
     for row in rows:
         cells = list(filter(None, row.split()))
-        print "len(cells)", len(cells)
+     
         result.append(cells)
     return result
 
@@ -162,39 +160,55 @@ def _read_board_calibration(content):
 
 def _read_pot_calibration(content):
  
+    COS_30 = 0.866
+
     data = data_matrix(content)
     pots=putl.get_pots()
     handles=putl.get_handles()
-    if len(pots) != len(handles):
-        raise IndexError("Sheet data and number of pots are different lengths")
-    verify(data, len(pots), 3)
+    potslen = len(pots) 
+
+    if potslen != len(handles):
+        raise IndexError("handles and pots are different lengths")
+    datalen = potslen*3
+    verify(data, datalen) # 60
  
     pot_depth=pm.PyNode("rack|holes").attr("calibrationPotDepth").get()
-    handle_height=pm.PyNode("rack|holes").attr(
-        "calibrationHandleHeight").get()
+    handle_height=pm.PyNode("rack|holes").attr("calibrationHandleHeight").get()
+    handle_posx=pm.PyNode("rack|holes").attr("calibrationHandlePosX").get()
+ 
+    flat = [uutl.numeric(row[0]) for row in data ]
+    potvals = flat[0:potslen]
+    handlevals = flat[potslen:potslen*2]
+    facevals = flat[potslen*2:datalen]
 
-    for row in data:
-        i=int(uutl.numeric(row[0]))
-        _set_precise(pots[i].getParent(), uutl.numeric(row[1]), pot_depth)
-        _set_precise(
-            handles[i].getParent(),
-            uutl.numeric(
-                row[2]),
-            handle_height)
+    for i in range(potslen):
+        handle_parent = handles[i].getParent()
+        pot_parent = pots[i].getParent()
+
+        pot_height_precise = pot_depth + (potvals[i] * 0.1) - 1.0
+        pot_parent.attr("tz").set(pot_height_precise)
+
+        handle_height_precise = handle_height + (handlevals[i] * 0.1) - 1.0
+        handle_parent.attr("tz").set(handle_height_precise)
+
+        handle_face_precise = handle_posx + (((facevals[i] * 0.1) - 1.0) * COS_30)
+        handle_parent.attr("tx").set(handle_face_precise)
+
+
 
 def _read_holder_calibration(content):
  
     data = data_matrix(content)
     holders=pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*|holderTrans")
+    holder_height=pm.PyNode("rack|holders").attr("calibrationHolderHeight").get()
+    holder_distance=pm.PyNode("rack|holders").attr("calibrationHolderDistance").get()
+ 
     verify(data, len(holders), 3)
  
-    for row in data:
-        i=int(uutl.numeric(row[0]))
-        _set_precise(holders[i], uutl.numeric(row[0]), k.RACK_HOLDER_HEIGHT)
-
+    for i, row in enumerate(data):
+        holders[i].attr("tz").set(holder_height +  (uutl.numeric(row[0]) * 0.1) - 1.0)
         holders[i].attr("ty").set(uutl.numeric(row[1]) * 0.1)
-        holders[i].attr("tx").set(
-            (uutl.numeric(row[2]) * 0.1) + k.RACK_HOLDER_DISTANCE)
+        holders[i].attr("tx").set( (uutl.numeric(row[2]) * 0.1) + holder_distance)
 
 
 def _read_perspex_calibration(content):
@@ -214,13 +228,6 @@ def _read_perspex_calibration(content):
             _set_precise(dup, uutl.numeric( val), 0)
             dup.rename("Calib_{}".format(pack["name"]))
             pm.parent(dup, world=True)
-
-
-
-
-
-
-
 
 def generate_pick_place_exercise():
 
