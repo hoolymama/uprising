@@ -105,7 +105,23 @@ class brushHangTab(gui.FormLayout):
 
             studio = Studio(brush_hang_data=data, pause=300)
             studio.write()
-            robo.write_program(directory, k.BRUSH_HANG_PROGRAM_NAME)
+            # robo.write_program(directory, k.BRUSH_HANG_PROGRAM_NAME)
+
+            robo.show()
+            src_fn, rdk_fn=write.save_prog_and_station(directory, k.BRUSH_HANG_PROGRAM_NAME)
+
+            subprogram_names = []
+            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+                for i, program in enumerate(studio.pick_place_programs):
+                    name =  program.program_name
+                    print "Writing PP", name
+                    subprogram_names.append(name)
+                    write.save_prog_and_station(directory, name)
+            
+            write.insert_external_dependencies(subprogram_names,src_fn)
+
+
+
 
         uutl.show_in_window(
             [
