@@ -56,16 +56,18 @@ def new(newinst=True, debug=False):
     global _robot
     global _debug
 
-
-
     _debug = debug
-    args = ["-NOUI", "-EXIT_LAST_COM"]
-    if _debug:
-        args.append("-DEBUG")
 
-    if newinst:
-        close()
-        args.append("-NEWINSTANCE")
+
+    # args = ["-NOUI", "-EXIT_LAST_COM"]
+    # if _debug:
+    #     args.append("-DEBUG")
+    # if newinst:
+    #     close()
+    #     args.append("-NEWINSTANCE")
+
+
+    args = ["-SKIPINI", "-NOUI"]
 
     _link = Robolink(args=args, robodk_path=ROBODK_PATH)
 
