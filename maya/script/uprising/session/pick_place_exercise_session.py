@@ -1,19 +1,16 @@
 
 import logging
-import brush_utils as butl
-import const as k
-import palette_utils as putl
-import props
+import os
 import pymel.core as pm
 import uprising_util as uutl
-from brush import Brush
-from paint import Paint
 import session
-import write
+import datetime
+from uprising import robo
 
-from program import ( PickProgram, PlaceProgram)
- 
+from uprising.session.program import PapExerciseProgram
+
 logger = logging.getLogger("uprising")
+
 
 class PickPlaceExercise(session.Session):
 
@@ -29,23 +26,28 @@ class PickPlaceExercise(session.Session):
             self.publish()
 
     def send(self):
+        rack_context = pm.PyNode("RACK1_CONTEXT")
         with uutl.final_position(rack_context):
             session.send_rack_geo()
             session.send_holder_geo()
-        
+
         self.exercise_program.write()
         for prog in self.pick_place_programs:
             prog.write()
 
     def publish(self):
         timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-        directory=os.path.join( pm.workspace.getPath(), 'export', 'calibrations', self.PROGRAM_NAME, timestamp)
+        directory = os.path.join(pm.workspace.getPath(
+        ), 'export', 'calibrations', self.PROGRAM_NAME, timestamp)
 
-        src_fn,_ = write.save_prog_and_station(directory, self.PROGRAM_NAME)
+        src_fn = session.save_program(directory, self.PROGRAM_NAME)
 
         program_names = []
         for prog in self.pick_place_programs:
-            program_names.append( prog.program_name)
-            write.save_prog_and_station(directory, prog.program_name)
+            program_names.append(prog.program_name)
+            session.save_program(directory, prog.program_name)
 
-        write.insert_external_dependencies(program_names, src_fn)
+        session.insert_external_dependencies(program_names, src_fn)
+
+
+ 

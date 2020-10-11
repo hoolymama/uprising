@@ -19,17 +19,17 @@ TOOL_TARGET = "toolChangeTarget"
 HOME_TARGET = "homeTarget"
 
 
-_robot=None
-_link=None
-dip_approach=None
-home_approach=None
-tool_approach=None
-dips_frame=None
-wash_frame=None
-pick_place_frame=None
-calibration_frame=None
+_robot = None
+_link = None
+dip_approach = None
+home_approach = None
+tool_approach = None
+dips_frame = None
+wash_frame = None
+pick_place_frame = None
+calibration_frame = None
 
-_debug=None
+_debug = None
 
 
 def empty():
@@ -40,16 +40,18 @@ def empty():
     except BaseException:
         print "No stations to empty"
 
+
 def close():
     global _link
     global _robot
     empty()
     try:
-       _link.Disconnect()
+        _link.Disconnect()
     except BaseException:
         print "Not connected"
     _link = None
     _robot = None
+
 
 def new(newinst=True, debug=False):
     global _link
@@ -58,14 +60,12 @@ def new(newinst=True, debug=False):
 
     _debug = debug
 
-
     # args = ["-NOUI", "-EXIT_LAST_COM"]
     # if _debug:
     #     args.append("-DEBUG")
     # if newinst:
     #     close()
     #     args.append("-NEWINSTANCE")
-
 
     args = ["-SKIPINI", "-NOUI"]
 
@@ -87,13 +87,16 @@ def robot():
         new()
     return _robot
 
+
 def show():
     global _link
     _link.ShowRoboDK()
 
+
 def hide():
     global _link
     _link.HideRoboDK()
+
 
 def clean():
     global _link
@@ -104,9 +107,9 @@ def clean():
     _robot.setParam("PostProcessor", "KUKA KRC4")
     _create_infrastructure()
 
-
     _create_infrastructure()
     print "Added clean file: {}".format(uutl.CLEAN_FILE)
+
 
 def create_program(name):
     global _link
@@ -114,6 +117,7 @@ def create_program(name):
     if program.Valid():
         program.Delete()
     return _link.AddProgram(name)
+
 
 def create_frame(name, force=True):
     global _link
@@ -132,6 +136,7 @@ def _config_key(config):
     if config:
         return "%d%d%d" % tuple(config.list2()[0][0:3])
 
+
 def config_000_poses(pose):
     global _robot
     result = []
@@ -146,6 +151,7 @@ def config_000_poses(pose):
             result.append(joint_pose)
     return result
 
+
 def maya_to_robodk_mat(rhs):
     """Get transposed mat with translate in mm."""
     mat = rhs.transpose()
@@ -155,10 +161,10 @@ def maya_to_robodk_mat(rhs):
     mat[2][3] = mat[2][3] * 10.0
     return rdk.Mat(mat)
 
+
 def create_joint_target(obj, name, frame):
     global _link
     global _robot
-
 
     mat = maya_to_robodk_mat(obj.attr("worldMatrix[0]").get())
 
@@ -203,8 +209,7 @@ def _create_infrastructure():
     global pick_place_frame
     global calibration_frame
 
-
-    calibration_frame =  create_frame("calibration_frame")
+    calibration_frame = create_frame("calibration_frame")
     dips_frame = create_frame("dips_frame")
     wash_frame = create_frame("wash_frame")
     pick_place_frame = create_frame("pick_place_frame")
