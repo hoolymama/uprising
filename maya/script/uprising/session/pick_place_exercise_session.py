@@ -2,52 +2,53 @@
 import logging
 import os
 import pymel.core as pm
-import uprising_util as uutl
-import session
+import uprising.uprising_util as uutl
+from uprising.session import session
 import datetime
 from uprising import robo
 
-from uprising.session.program import PapExerciseProgram
+from uprising.session.session import Session
+
+from uprising.session.pick_place_exercise_program import PickPlaceExerciseProgram
+from uprising.session.pick_place_program import PickPlaceCollection
 
 logger = logging.getLogger("uprising")
 
 
-class PickPlaceExercise(session.Session):
+class PickPlaceExerciseSession(Session):
 
     PROGRAM_NAME = "pap"
 
-    def __init__(self, publish=False):
-        robo.new()
+    def __init__(self):
 
-        self.pick_place_programs = session.build_all_pick_place_programs()
-        self.exercise_program = PapExerciseProgram(self.PROGRAM_NAME)
-        self.send()
-        if publish:
-            self.publish()
+        self.pick_place_collection = PickPlaceCollection("all")
+        self.exercise_program = PickPlaceExerciseProgram(self.PROGRAM_NAME)
+        # self.send()
+        # if publish:
+        #     self.publish()
 
     def send(self):
+        robo.new()
+        robo.hide()
+        self.exercise_program.send()
+        self.pick_place_collection.send()
+
         rack_context = pm.PyNode("RACK1_CONTEXT")
         with uutl.final_position(rack_context):
-            session.send_rack_geo()
-            session.send_holder_geo()
-
-        self.exercise_program.write()
-        for prog in self.pick_place_programs:
-            prog.write()
+            self.send_rack_geo()
+            self.send_holder_geo()
+        robo.show()
 
     def publish(self):
+        program_name = self.exercise_program.program_name
         timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
         directory = os.path.join(pm.workspace.getPath(
-        ), 'export', 'calibrations', self.PROGRAM_NAME, timestamp)
+        ), 'export', 'calibrations', program_name, timestamp)
 
-        src_fn = session.save_program(directory, self.PROGRAM_NAME)
+        src_fn = self.save_program(directory, program_name)
 
-        program_names = []
-        for prog in self.pick_place_programs:
-            program_names.append(prog.program_name)
-            session.save_program(directory, prog.program_name)
+        program_names = self.pick_place_collection.program_names()
+        for program_name in program_names:
+            self.save_program(directory, program_name)
 
-        session.insert_external_dependencies(program_names, src_fn)
-
-
- 
+        self.insert_external_dependencies(program_names, src_fn)

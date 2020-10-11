@@ -1,5 +1,4 @@
 import logging
-import brush_utils as butl
 import const as k
 import palette_utils as putl
 import props
@@ -16,15 +15,12 @@ from program import (
     ManualTriangulation,
     PapExerciseProgram,
     PerspexCalibration,
-    PickAtHomeProgram,
-    PickProgram,
-    PlaceAtHomeProgram,
-    PlaceProgram,
     PotCalibration,
     PotHandleExerciseProgram,
     RetardantProgram,
     WaterProgram,
 )
+
 
 logger = logging.getLogger("uprising")
 
@@ -69,9 +65,11 @@ class Studio(object):
         if kw.get("do_painting"):
             logger.debug("Studio: main_painting")
             with uutl.final_position(pm.PyNode("mainPaintingShape")):
-                pm.PyNode("mainPaintingShape").attr("applyBrushBiases").set(True)
+                pm.PyNode("mainPaintingShape").attr(
+                    "applyBrushBiases").set(True)
                 self.painting_program = MainProgram("px", **kw)
-                pm.PyNode("mainPaintingShape").attr("applyBrushBiases").set(False)
+                pm.PyNode("mainPaintingShape").attr(
+                    "applyBrushBiases").set(False)
 
         if kw.get("do_dips"):
             logger.debug("Studio: dips")
@@ -80,7 +78,8 @@ class Studio(object):
 
             logger.debug("Studio: water dips")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                self.water_programs = self._build_water_programs(water_wipe_repeats)
+                self.water_programs = self._build_water_programs(
+                    water_wipe_repeats)
 
             logger.debug("Studio: retardant dips")
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
@@ -95,7 +94,8 @@ class Studio(object):
 
         if kw.get("do_pot_calibration"):
             logger.debug("Studio:  pot_calibration")
-            self.pot_cal_program = PotCalibration(k.POT_CALIBRATION_PROGRAM_NAME)
+            self.pot_cal_program = PotCalibration(
+                k.POT_CALIBRATION_PROGRAM_NAME)
 
         if kw.get("do_holder_calibration"):
             logger.debug("Studio:  holder_calibration")
@@ -117,15 +117,19 @@ class Studio(object):
 
         if kw.get("do_board_calibration"):
             logger.debug("Studio: board_calibration")
-            self.board_cal_program = BoardCalibration(k.BOARD_CALIBRATION_PROGRAM_NAME)
+            self.board_cal_program = BoardCalibration(
+                k.BOARD_CALIBRATION_PROGRAM_NAME)
 
         if kw.get("do_pap_exercise"):
-            self.exercise_program = PapExerciseProgram(k.PAP_EXERCISE_PROGRAM_NAME)
+            self.exercise_program = PapExerciseProgram(
+                k.PAP_EXERCISE_PROGRAM_NAME)
 
         if pot_handle_exercise_data:
             logger.debug("Studio:  pot_handle_exercise")
-            brush_ids = list(set([b["brush"] for b in pot_handle_exercise_data]))
-            self.pick_place_programs = self._build_pick_place_programs(brush_ids)
+            brush_ids = list(set([b["brush"]
+                                  for b in pot_handle_exercise_data]))
+            self.pick_place_programs = self._build_pick_place_programs(
+                brush_ids)
 
             with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
                 self.dip_programs = self._build_dip_programs(
@@ -139,7 +143,8 @@ class Studio(object):
         if brush_hang_data:
             logger.debug("Studio:  brush_hang_data")
             brush_ids = [b["id"] for b in brush_hang_data]
-            self.pick_place_programs = self._build_pick_place_programs(brush_ids)
+            self.pick_place_programs = self._build_pick_place_programs(
+                brush_ids)
 
             self.brush_hang_program = BrushHangProgram(
                 k.BRUSH_HANG_PROGRAM_NAME, brush_hang_data

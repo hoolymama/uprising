@@ -1,7 +1,7 @@
 
  
-import robo
-import progress
+from uprising import robo
+from uprising import progress
 
 from robolink import (
     COLLISION_OFF,

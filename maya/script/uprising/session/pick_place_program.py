@@ -3,7 +3,9 @@ import pymel.core as pm
 from uprising import props
 import robodk as rdk
 from uprising import robo
+from uprising.brush import Brush
 from uprising.session.program import Program, ProgramError
+import uprising.uprising_util as uutl
 
 from robolink import (
     INSTRUCTION_COMMENT,
@@ -11,7 +13,7 @@ from robolink import (
     INSTRUCTION_INSERT_CODE
 )
 
-import const as k
+from uprising import const as k
 import logging
 
 logger = logging.getLogger("uprising")
@@ -95,9 +97,9 @@ class PickProgram(PickPlaceProgram):
         name = PickProgram.generate_program_name(pack["brush_id"])
         super(PickProgram, self).__init__(brush, pack, name)
 
-    def write(self):
+    def send(self):
 
-        super(PickProgram, self).write()
+        super(PickProgram, self).send()
 
         self.program.RunInstruction("Starting pick", INSTRUCTION_COMMENT)
         self.program.addMoveJ(self.pin_ap_target)
@@ -133,9 +135,9 @@ class PlaceProgram(PickPlaceProgram):
         name = PlaceProgram.generate_program_name(pack["brush_id"])
         super(PlaceProgram, self).__init__(brush, pack, name)
 
-    def write(self):
+    def send(self):
 
-        super(PlaceProgram, self).write()
+        super(PlaceProgram, self).send()
 
         self.program.RunInstruction("Starting place", INSTRUCTION_COMMENT)
         self.program.addMoveJ(self.clear_ap_target)
@@ -166,9 +168,9 @@ class PickAtHomeProgram(PickPlaceProgram):
         name = PickAtHomeProgram.generate_program_name(pack["brush_id"])
         super(PickAtHomeProgram, self).__init__(brush, pack, name)
 
-    def write(self):
+    def send(self):
 
-        super(PickAtHomeProgram, self).write()
+        super(PickAtHomeProgram, self).send()
 
         self.program.RunInstruction("Starting pick", INSTRUCTION_COMMENT)
 
@@ -199,9 +201,9 @@ class PlaceAtHomeProgram(PickPlaceProgram):
         name = PlaceAtHomeProgram.generate_program_name(pack["brush_id"])
         super(PlaceAtHomeProgram, self).__init__(brush, pack, name)
 
-    def write(self):
+    def send(self):
 
-        super(PlaceAtHomeProgram, self).write()
+        super(PlaceAtHomeProgram, self).send()
 
         self.program.RunInstruction("Starting place", INSTRUCTION_COMMENT)
         self.program.addMoveJ(robo.home_approach)
@@ -226,24 +228,24 @@ class PickPlaceCollection(object):
     def __init__(self, brush_ids):
 
         self.brush_ids = self._resolve_brush_ids(brush_ids)
-        self.packs = self._get_pick_place_packs()
+        self.packs = self._get_packs()
+        self.programs = self._build()
 
     @staticmethod
     def _resolve_brush_ids(brush_ids):
-        result = {}
         if brush_ids == "all":
             return [int(n[-2:]) for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
         if brush_ids == "used":
             painting = pm.PyNode("mainPaintingShape")
             dc = pm.paintingQuery(painting, dc=True)
-            return = set(dc[::2])
+            return set(dc[::2])
 
         if brush_ids == "calibration":
             return [0]
 
         return list(brush_ids)
 
-    def _get_pick_place_packs(self):
+    def _get_packs(self):
         result = {}
 
         holders_node = pm.PyNode("RACK1_CONTEXT|j1|rack|holders")
@@ -268,7 +270,7 @@ class PickPlaceCollection(object):
             result[key].update(path_attributes)
         return result
 
-    def build(self):
+    def _build(self):
         with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
             gripper_geo = pm.PyNode("bpx_0_utility_B0_gripper_roundShape")
             gripper = Brush(0, gripper_geo.attr("outPaintBrush"))
@@ -278,8 +280,20 @@ class PickPlaceCollection(object):
 
             result = []
             for p in self.packs:
-                pack = packs[p]
+                pack = self.packs[p]
                 pick_prg = PickProgram(gripper, pack)
                 place_prg = PlaceProgram(gripper, pack)
-                result.append(pick_prg, place_prg)
-            return result
+                result.append({"pick": pick_prg, "place": place_prg})
+        return result
+
+    def send(self):
+        for pair in self.programs:
+            pair["pick"].send()
+            pair["place"].send()
+
+    def program_names(self):
+        result = []
+        for pair in self.programs:
+            result.append(pair["pick"].program_name)
+            result.append(pair["place"].program_name)
+        return result

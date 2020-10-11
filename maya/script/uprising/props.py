@@ -3,6 +3,7 @@ import uprising.maya_util as mutil
 import robodk as rdk
 import robo
 
+from robolink import ITEM_TYPE_TARGET
 
 def get_targets_frame():
     link = robo.link()

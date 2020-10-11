@@ -1,17 +1,16 @@
 
 import os
 
-import const as k
-import palette_utils as putl
-import props
+from uprising import const as k
+from uprising import palette_utils as putl
+from uprising import props
 import pymel.core as pm
-import robo
+from uprising import robo
 import uprising.uprising_util as uutl
-import write
-from studio import Studio
+from uprising import write
+from uprising.studio import Studio
 
-
-
+from uprising.session.pick_place_exercise_session import PickPlaceExerciseSession
 
 
 def _dismiss():
@@ -46,22 +45,22 @@ def updateDisplay(tf, scroll):
     pm.scrollField(scroll, edit=True, text=content)
     pm.textFieldGrp(tf, edit=True, text="")
 
+
 def pasted_sheet_layout(which):
 
     form = pm.setParent(query=True)
     pm.formLayout(form, edit=True, width=300)
-    title = "Calibration for {}".format(" ".join([p.capitalize() for p in which.split("_")]))
+    title = "Calibration for {}".format(
+        " ".join([p.capitalize() for p in which.split("_")]))
     text = pm.text(label=title)
 
-    tf = pm.textFieldGrp(label = "Paste bin ->", w=400)
-    scroll =  pm.scrollField(w=400, h=400, editable=False)
-    pm.textFieldGrp(tf, edit=True, changeCommand=pm.Callback(updateDisplay, tf, scroll))
-
-
+    tf = pm.textFieldGrp(label="Paste bin ->", w=400)
+    scroll = pm.scrollField(w=400, h=400, editable=False)
+    pm.textFieldGrp(tf, edit=True, changeCommand=pm.Callback(
+        updateDisplay, tf, scroll))
 
     b1 = pm.button(label="Abort", command=pm.Callback(_dismiss))
     b2 = pm.button(label="Go", command=pm.Callback(_okay, scroll, which))
-
 
     form.attachForm(text, 'left', 2)
     form.attachForm(text, 'right', 2)
@@ -90,42 +89,50 @@ def pasted_sheet_layout(which):
 
     pm.setParent(form)
 
+
 def read_calibration(which):
     return pm.layoutDialog(ui=pm.Callback(pasted_sheet_layout, which))
 
+
 def data_matrix(content):
     result = []
-    rows =  list(filter(None, content.split("\n")))
- 
+    rows = list(filter(None, content.split("\n")))
+
     for row in rows:
         cells = list(filter(None, row.split()))
-     
+
         result.append(cells)
     return result
+
 
 def verify(data, nrows=-1, ncolumns=-1):
     if nrows != -1:
         if len(data) != nrows:
-            raise ValueError("Wrong number of rows. Should be {}".format(nrows))
+            raise ValueError(
+                "Wrong number of rows. Should be {}".format(nrows))
     if ncolumns != -1:
         for row in data:
             if len(row) != ncolumns:
                 print len(row)
-                raise ValueError("Wrong number of columns. Should be {}".format(ncolumns))
+                raise ValueError(
+                    "Wrong number of columns. Should be {}".format(ncolumns))
+
 
 def _read_board_triangulation(content):
- 
+
     _read_any_triangulation(content)
 
     height = (pm.PyNode("board_TL").attr("translate").get() -
-            pm.PyNode("board_BL").attr("translate").get()).length()
+              pm.PyNode("board_BL").attr("translate").get()).length()
     width = (pm.PyNode("board_TR").attr("translate").get() -
-            pm.PyNode("board_TL").attr("translate").get()).length()
+             pm.PyNode("board_TL").attr("translate").get()).length()
     pm.PyNode("canvas").attr("width").set(width)
     pm.PyNode("canvas").attr("height").set(height)
 
+
 def _read_rack_triangulation(content):
     _read_any_triangulation(content)
+
 
 def _read_any_triangulation(content):
     data = data_matrix(content)
@@ -143,40 +150,41 @@ def _read_any_triangulation(content):
         print "{} - set {} {} {}".format(node, vals[0], vals[1], vals[2])
         node.attr("translate").set(*vals)
 
+
 def _read_board_calibration(content):
     data = data_matrix(content)
 
-    verts=[item for sublist in pm.sets(
+    verts = [item for sublist in pm.sets(
         "probePointsSet", q=True) for item in sublist]
 
     verify(data, len(verts), 1)
 
     for val, vtx in zip(zip(*data)[0], verts):
-        pos=vtx.getPosition(space="world")
-        pos.z=(uutl.numeric(val) * 0.1) - 1.0
+        pos = vtx.getPosition(space="world")
+        pos.z = (uutl.numeric(val) * 0.1) - 1.0
         vtx.setPosition(pos, space="world")
 
 
-
 def _read_pot_calibration(content):
- 
+
     COS_30 = 0.866
 
     data = data_matrix(content)
-    pots=putl.get_pots()
-    handles=putl.get_handles()
-    potslen = len(pots) 
+    pots = putl.get_pots()
+    handles = putl.get_handles()
+    potslen = len(pots)
 
     if potslen != len(handles):
         raise IndexError("handles and pots are different lengths")
     datalen = potslen*3
-    verify(data, datalen) # 60
- 
-    pot_depth=pm.PyNode("rack|holes").attr("calibrationPotDepth").get()
-    handle_height=pm.PyNode("rack|holes").attr("calibrationHandleHeight").get()
-    handle_posx=pm.PyNode("rack|holes").attr("calibrationHandlePosX").get()
- 
-    flat = [uutl.numeric(row[0]) for row in data ]
+    verify(data, datalen)  # 60
+
+    pot_depth = pm.PyNode("rack|holes").attr("calibrationPotDepth").get()
+    handle_height = pm.PyNode("rack|holes").attr(
+        "calibrationHandleHeight").get()
+    handle_posx = pm.PyNode("rack|holes").attr("calibrationHandlePosX").get()
+
+    flat = [uutl.numeric(row[0]) for row in data]
     potvals = flat[0:potslen]
     handlevals = flat[potslen:potslen*2]
     facevals = flat[potslen*2:datalen]
@@ -191,65 +199,57 @@ def _read_pot_calibration(content):
         handle_height_precise = handle_height + (handlevals[i] * 0.1) - 1.0
         handle_parent.attr("tz").set(handle_height_precise)
 
-        handle_face_precise = handle_posx + (((facevals[i] * 0.1) - 1.0) * COS_30)
+        handle_face_precise = handle_posx + \
+            (((facevals[i] * 0.1) - 1.0) * COS_30)
         handle_parent.attr("tx").set(handle_face_precise)
 
 
-
 def _read_holder_calibration(content):
- 
+
     data = data_matrix(content)
-    holders=pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*|holderTrans")
-    holder_height=pm.PyNode("rack|holders").attr("calibrationHolderHeight").get()
-    holder_distance=pm.PyNode("rack|holders").attr("calibrationHolderDistance").get()
- 
+    holders = pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*|holderTrans")
+    holder_height = pm.PyNode("rack|holders").attr(
+        "calibrationHolderHeight").get()
+    holder_distance = pm.PyNode("rack|holders").attr(
+        "calibrationHolderDistance").get()
+
     verify(data, len(holders), 3)
- 
+
     for i, row in enumerate(data):
-        holders[i].attr("tz").set(holder_height +  (uutl.numeric(row[0]) * 0.1) - 1.0)
+        holders[i].attr("tz").set(
+            holder_height + (uutl.numeric(row[0]) * 0.1) - 1.0)
         holders[i].attr("ty").set(uutl.numeric(row[1]) * 0.1)
-        holders[i].attr("tx").set( (uutl.numeric(row[2]) * 0.1) + holder_distance)
+        holders[i].attr("tx").set(
+            (uutl.numeric(row[2]) * 0.1) + holder_distance)
 
 
 def _read_perspex_calibration(content):
     data = data_matrix(content)
     verify(data, 12, 1)
-    packs=putl.get_perspex_packs()
-    pack_len=len(packs)
- 
+    packs = putl.get_perspex_packs()
+    pack_len = len(packs)
+
     for pack in packs:
-        index=pack["index"]
-        row=data[index]
-      
-        val =  row[0]
-        if  not val.startswith("X"):
-            dup=pm.duplicate(pack["base"])
-            dup=dup[0]
-            _set_precise(dup, uutl.numeric( val), 0)
+        index = pack["index"]
+        row = data[index]
+
+        val = row[0]
+        if not val.startswith("X"):
+            dup = pm.duplicate(pack["base"])
+            dup = dup[0]
+            _set_precise(dup, uutl.numeric(val), 0)
             dup.rename("Calib_{}".format(pack["name"]))
             pm.parent(dup, world=True)
 
+
 def generate_pick_place_exercise():
-
-    timestamp=write.get_timestamp()
-    directory=os.path.join(
-        pm.workspace.getPath(),
-        'export',
-        'calibrations',
-        k.PAP_EXERCISE_PROGRAM_NAME,
-        timestamp)
-    uutl.mkdir_p(directory)
-    robo.new()
-    studio=Studio(do_pap_exercise=True, pick_and_place_slots="all")
-    studio.write()
-
-    robo.write_program(directory, k.PAP_EXERCISE_PROGRAM_NAME)
-    robo.show()
-
+    ppe_session = PickPlaceExerciseSession()
+    ppe_session.send()
+    ppe_session.publish()
 
 def _generate_calibration(which, *reference_geo):
 
-    kw={
+    kw = {
         "do_perspex_triangulation": which == k.TRI_CALIBRATION_PROGRAM_NAME,
         "do_pot_calibration": which == k.POT_CALIBRATION_PROGRAM_NAME,
         "do_holder_calibration": which == k.HOLDER_CALIBRATION_PROGRAM_NAME,
@@ -259,8 +259,8 @@ def _generate_calibration(which, *reference_geo):
         "pause": -1
     }
 
-    timestamp=write.get_timestamp()
-    directory=os.path.join(
+    timestamp = write.get_timestamp()
+    directory = os.path.join(
         pm.workspace.getPath(),
         'export',
         'calibrations',
@@ -269,31 +269,31 @@ def _generate_calibration(which, *reference_geo):
     uutl.mkdir_p(directory)
 
     robo.new()
-    studio=Studio(**kw)
+    studio = Studio(**kw)
     studio.write()
     props.send(reference_geo)
     robo.show()
-    src_fn, rdk_fn=write.save_prog_and_station(directory, which)
+    src_fn, rdk_fn = write.save_prog_and_station(directory, which)
 
     print "Wrote", src_fn
     subprogram_names = []
     with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
         for i, program in enumerate(studio.pick_place_programs):
-            name =  program.program_name
+            name = program.program_name
             print "Writing PP", name
             subprogram_names.append(name)
             write.save_prog_and_station(directory, name)
-    
-    write.insert_external_dependencies(subprogram_names,src_fn)
+
+    write.insert_external_dependencies(subprogram_names, src_fn)
 
 
 def create_manual_triangulation():
-    ref_geo=pm.PyNode("rackTop")
+    ref_geo = pm.PyNode("rackTop")
     _generate_calibration(k.TRI_CALIBRATION_PROGRAM_NAME, ref_geo)
 
 
 def generate_pot_holder_calibration():
-    ref_geo=[pm.PyNode("rackTop")]
+    ref_geo = [pm.PyNode("rackTop")]
     ref_geo += pm.ls("holes|*|holeTrans|dip_loc|pot")
     ref_geo += pm.ls("holes|*|holeTrans|wipe_loc|handle")
     ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
@@ -303,26 +303,25 @@ def generate_pot_holder_calibration():
 def generate_holder_calibration():
     _generate_calibration(k.HOLDER_CALIBRATION_PROGRAM_NAME)
 
+
 def generate_pot_calibration():
-    ref_geo=[pm.PyNode("rackTop")]
+    ref_geo = [pm.PyNode("rackTop")]
     ref_geo += pm.ls("holes|*|holeTrans|dip_loc|pot")
     ref_geo += pm.ls("holes|*|holeTrans|wipe_loc|handle")
 
     _generate_calibration(k.POT_CALIBRATION_PROGRAM_NAME, *ref_geo)
 
 
-
 def generate_perspex_calibration():
-    ref_geo=pm.PyNode("rackTop")
+    ref_geo = pm.PyNode("rackTop")
     _generate_calibration(k.PERSPEX_CALIBRATION_PROGRAM_NAME, ref_geo)
 
 
 def generate_board_calibration():
-    ref_geo=pm.PyNode("canvas")
+    ref_geo = pm.PyNode("canvas")
     _generate_calibration(k.BOARD_CALIBRATION_PROGRAM_NAME, ref_geo)
 
 
 def _set_precise(xf, gauge_reading, probe_height):
-    new_pos=probe_height + (gauge_reading * 0.1) - 1.0
+    new_pos = probe_height + (gauge_reading * 0.1) - 1.0
     xf.attr("tz").set(new_pos)
-

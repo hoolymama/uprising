@@ -5,13 +5,21 @@ Module as a singleton that stores the robot and the link.
 
 import os
 import time
-import uprising_util as uutl
+from uprising import uprising_util as uutl
+
 
 from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT, ITEM_TYPE_STATION,
                       ITEM_TYPE_TARGET, Robolink)
 
 import pymel.core as pm
 import robodk as rdk
+
+UPRISING_PROJECT_PATH = os.path.dirname(
+    pm.getModulePath(moduleName="uprising"))
+CLEAN_FILE = os.path.join(UPRISING_PROJECT_PATH, "robodk", "clean.rdk")
+LICENSE_FILE = os.path.join(
+    UPRISING_PROJECT_PATH, "robodk", "RobAndNickCarterRoboDKLicense.rdklic")
+
 
 ROBODK_PATH = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/MacOS/RoboDK")
 DIP_TARGET = "dipTarget"
@@ -32,7 +40,7 @@ calibration_frame = None
 _debug = None
 
 
-def empty():
+def deleteAllStations():
     global _link
     try:
         for station in _link.getOpenStations():
@@ -44,7 +52,7 @@ def empty():
 def close():
     global _link
     global _robot
-    empty()
+    deleteAllStations()
     try:
         _link.Disconnect()
     except BaseException:
@@ -53,23 +61,24 @@ def close():
     _robot = None
 
 
-def new(newinst=True, debug=False):
+def new():
     global _link
     global _robot
     global _debug
 
-    _debug = debug
+    # _debug = debug
 
-    # args = ["-NOUI", "-EXIT_LAST_COM"]
+    # args = ["-SKIPINI"]
     # if _debug:
     #     args.append("-DEBUG")
     # if newinst:
     #     close()
     #     args.append("-NEWINSTANCE")
 
-    args = ["-SKIPINI", "-NOUI"]
+    # args = ["-SKIPINI", "-NOUI"]
 
-    _link = Robolink(args=args, robodk_path=ROBODK_PATH)
+    _link = Robolink(robodk_path=ROBODK_PATH)
+    _link.AddFile(LICENSE_FILE)
 
     clean()
 
@@ -101,14 +110,14 @@ def hide():
 def clean():
     global _link
     global _robot
-    empty()
-    _link.AddFile(uutl.CLEAN_FILE)
+    deleteAllStations()
+    _link.AddFile(CLEAN_FILE)
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _robot.setParam("PostProcessor", "KUKA KRC4")
     _create_infrastructure()
 
-    _create_infrastructure()
-    print "Added clean file: {}".format(uutl.CLEAN_FILE)
+    # _create_infrastructure()
+    print "Added clean file: {}".format(CLEAN_FILE)
 
 
 def create_program(name):

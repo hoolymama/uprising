@@ -2,10 +2,8 @@ import math
 import painting as ptg
 import uprising_util as uutl
 import palette_utils as putl
-import brush_utils as butl
 from brush import Brush
 import pymel.core as pm
-import props
 import robodk as rdk
 import robo
 import progress
@@ -94,7 +92,7 @@ class MainProgram(Program):
         progress.update(
             minor_line="Writing {} clusters from {} to {}".format(
                 self.program_name, start, end)
-            )
+        )
 
         super(MainProgram, self).write()
 
@@ -171,7 +169,7 @@ class MainProgram(Program):
             water_program_name = WaterProgram.generate_program_name(bid)
             if call_program:
                 self.program.RunInstruction(water_program_name,
-                    INSTRUCTION_CALL_PROGRAM)
+                                            INSTRUCTION_CALL_PROGRAM)
             result.add(water_program_name)
         return result
 
@@ -324,8 +322,8 @@ class BrushHangProgram(Program):
                     "brush": Brush.brush_set_at_index(b["id"])["outDipBrush"],
                     "twist": b["twist"],
                     "id": b["id"]
-                    }
-                    )
+                }
+                )
 
         return result
 
@@ -378,10 +376,10 @@ class BrushHangProgram(Program):
         targets = {}
         for key in mats:
             targets[key] = self._create_target_for_brush(
-            pack["brush"],
-            mats[key],
-            "hang_{}_{:02d}".format(key, pack["id"])
-        )
+                pack["brush"],
+                mats[key],
+                "hang_{}_{:02d}".format(key, pack["id"])
+            )
 
         # write the brush
         pack["brush"].write()
@@ -512,7 +510,7 @@ class WashProgram(Program):
                 self.program,
                 robo.wash_frame,
                 self.dip_painting.motion
-                )
+            )
 
         for repeat in range(self.repeats):
             for cluster in self.wipe_painting.clusters:
@@ -602,10 +600,9 @@ class CalibrationProgram(Program):
             "Starting calibration", INSTRUCTION_COMMENT)
 
         self.write_locator_packs()
-        subprograms.append(self.write_place_probe_home()) 
+        subprograms.append(self.write_place_probe_home())
         self.program.addMoveJ(robo.home_approach)
         return subprograms
-        
 
     def write_pick_probe_home(self):
         print "write_pick_probe_home PickAtHomeProgram"
@@ -737,7 +734,7 @@ class PotCalibration(CalibrationProgram):
                 # self._write_stops(last, pack["approach"], k.FACING_RACK_JOINTS)
 
                 self.program.RunInstruction(
-                "Moving to {}".format(pack["name"]), INSTRUCTION_COMMENT
+                    "Moving to {}".format(pack["name"]), INSTRUCTION_COMMENT
                 )
                 self._write_one_probe(pack)
 
@@ -761,7 +758,8 @@ class PotCalibration(CalibrationProgram):
         self.program.addMoveL(base_target)
         self.program.Pause()
         self.program.RunInstruction(
-            "{} {} in cell {}".format(k.CAL_PAUSE_MESSAGE,   pack["name"],    pack["cell"]),
+            "{} {} in cell {}".format(
+                k.CAL_PAUSE_MESSAGE,   pack["name"],    pack["cell"]),
             INSTRUCTION_SHOW_MESSAGE,
         )
         self.program.addMoveL(approach_target)
@@ -770,7 +768,7 @@ class PotCalibration(CalibrationProgram):
 class PerspexCalibration(CalibrationProgram):
     def __init__(self, name):
         super(PerspexCalibration, self).__init__(name)
-        self.locators=putl.get_perspex_packs()
+        self.locators = putl.get_perspex_packs()
 
     def write_locator_packs(self):
         for pack in self.locators:
@@ -783,15 +781,15 @@ class PerspexCalibration(CalibrationProgram):
             INSTRUCTION_COMMENT,
         )
 
-        row=k.PERSPEX_CAL_SHEET_FIRST_ROW + int(pack["index"])
+        row = k.PERSPEX_CAL_SHEET_FIRST_ROW + int(pack["index"])
 
-        base_target=self._create_a_target(
+        base_target = self._create_a_target(
             pack["base"].attr("worldMatrix[0]").get(),
             "base_{}".format(pack["name"]),
             k.FACING_RACK_JOINTS,
         )
 
-        approach_target=self._create_a_target(
+        approach_target = self._create_a_target(
             pack["approach"].attr("worldMatrix[0]").get(),
             "approach_{}".format(pack["name"]),
             k.FACING_RACK_JOINTS,
@@ -808,7 +806,7 @@ class PerspexCalibration(CalibrationProgram):
 
 
 class ManualTriangulation(CalibrationProgram):
- 
+
     def _get_probe_brush(self):
         geo = pm.PyNode("bpx_0_utility_B0_probe_roundShape")
         with uutl.at_value(geo.attr("paintingParam"), 0.0):
@@ -821,16 +819,17 @@ class ManualTriangulation(CalibrationProgram):
             "Manually record the 3 leg centers with the brush tip", INSTRUCTION_COMMENT
         )
 
+
 class BoardCalibration(CalibrationProgram):
     def __init__(self, name):
         super(BoardCalibration, self).__init__(name)
-        top_node=pm.PyNode("mainPaintingGroup")
+        top_node = pm.PyNode("mainPaintingGroup")
         top_node.attr("zeroPosition").set(1)
-        self.locators=self._setup_locators()
+        self.locators = self._setup_locators()
 
     def write_locator_packs(self):
 
-        last=None
+        last = None
         for locator_pack in self.locators:
             self._write_stops(
                 last, locator_pack["approach_loc"], k.FACING_BOARD_JOINTS)
@@ -896,205 +895,3 @@ class BoardCalibration(CalibrationProgram):
 
 
 ################# PICK PLACE #################
-
-
-class PickPlaceProgram(Program):
-    @staticmethod
-    def generate_program_name(brush_id):
-        raise NotImplementedError
-
-    def __init__(self, brush, pack, name):
-
-        super(PickPlaceProgram, self).__init__(name)
-
-        self.brush = brush
-        self.pack = pack
-        self.targets = {}
-
-    def write_brush(self):
-        robot = robo.robot()
-        link = robo.link()
-        existing_brush = link.Item(self.brush.name)
-        if existing_brush.Valid():
-            return
-        print "self.brush.name", self.brush.name
-        tool_item = robot.AddTool(self.brush.matrix, self.brush.name)
-        triangles = props.mesh_triangles(pm.PyNode("GRIPPER"))
-        shape = link.AddShape(triangles)
-        tool_item.AddGeometry(shape, rdk.eye())
-        robot.setPoseTool(tool_item)
-        shape.Delete()
-
-    def write(self):
-        link = robo.link()
-        super(PickPlaceProgram, self).write()
-
-        self.write_brush()
-
-        self.tool = link.Item(self.brush.name)
-        if not self.tool.Valid():
-            raise ProgramError("No Gripper Brush. Risk of damage. Can't continue.")
-
-        self.program.setRounding(self.pack["rounding"])
-        self.program.setPoseTool(self.tool)
-
-        self.pin_target = self._create_target_from_pack("pin")
-        self.pin_ap_target = self._create_target_from_pack("pin_ap")
-        self.clear_target = self._create_target_from_pack("clear")
-        self.clear_ap_target = self._create_target_from_pack("clear_ap")
-
-    def _create_target_from_pack(self, key):
-
-        return self._create_a_target(
-            self.pack[key].attr("worldMatrix[0]").get(),
-            "pick_place_{}_{:02d}".format(key, self.pack["brush_id"]),
-            k.FACING_RACK_JOINTS
-        )
-
-    def _create_a_target(self, mat, name, facing_joints):
-        link = robo.link()
-        robot = robo.robot()
-        target = link.Item(name)
-        if target.Valid():
-            return target
-        tool_pose = robo.maya_to_robodk_mat(mat)
-        flange_pose = tool_pose * self.brush.matrix.invH()
-        target = link.AddTarget(name, robo.pick_place_frame, robot)
-        joints = robot.SolveIK(flange_pose, facing_joints)
-        target.setPose(tool_pose)
-        target.setJoints(joints)
-        return target
-
-
-class PickProgram(PickPlaceProgram):
-    @staticmethod
-    def generate_program_name(brush_id):
-        return "pick_{:02d}".format(brush_id)
-
-    def __init__(self, brush, pack):
-        name = PickProgram.generate_program_name(pack["brush_id"])
-        super(PickProgram, self).__init__(brush, pack, name)
-
-    def write(self):
-
-
-        super(PickProgram, self).write()
-
-        self.program.RunInstruction("Starting pick", INSTRUCTION_COMMENT)
-        self.program.addMoveJ(self.pin_ap_target)
-
-        self.program.setSpeed(
-            self.pack["precision_lin_speed"], self.pack["ang_speed"]
-        )
-        self.program.addMoveL(self.pin_target)
-
-        self.program.RunInstruction("Gripper closes here", INSTRUCTION_SHOW_MESSAGE)
-        self.program.Pause(k.GRIPPER_OPEN_CLOSE_PAUSE)
-        self.program.RunInstruction("$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("$OUT[2]=TRUE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("WAIT FOR ($IN[1])", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction(
-            "Gripper open. Make sure it dropped the tool properly.",
-            INSTRUCTION_SHOW_MESSAGE,
-        )
-        self.program.Pause(k.GRIPPER_OPEN_CLOSE_PAUSE)
-        self.program.addMoveL(self.clear_target)
-        self.program.setSpeed(self.pack["lin_speed"], self.pack["ang_speed"])
-        self.program.addMoveL(self.clear_ap_target)
-
-
-class PlaceProgram(PickPlaceProgram):
-    @staticmethod
-    def generate_program_name(brush_id):
-        return "place_{:02d}".format(brush_id)
-
-    def __init__(self, brush, pack):
-        name = PlaceProgram.generate_program_name(pack["brush_id"])
-        super(PlaceProgram, self).__init__(brush, pack, name)
-
-    def write(self):
-
-
-
-        super(PlaceProgram, self).write()
-
-        self.program.RunInstruction("Starting place", INSTRUCTION_COMMENT)
-        self.program.addMoveJ(self.clear_ap_target)
-        self.program.setSpeed(self.pack["lin_speed"], self.pack["ang_speed"])
-        self.program.addMoveL(self.clear_target)
-        self.program.setSpeed(
-            self.pack["precision_lin_speed"], self.pack["ang_speed"]
-        )
-        self.program.addMoveL(self.pin_target)
-
-        self.program.RunInstruction("Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
-        self.program.Pause(k.GRIPPER_OPEN_CLOSE_PAUSE)
-        self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
-        self.program.Pause(k.GRIPPER_OPEN_CLOSE_PAUSE)
-        self.program.addMoveL(self.pin_ap_target)
-
-
-class PickAtHomeProgram(PickPlaceProgram):
-    @staticmethod
-    def generate_program_name(brush_id):
-        return "pick_{:02d}".format(brush_id)
-
-    def __init__(self, brush, pack):
-        name = PickAtHomeProgram.generate_program_name(pack["brush_id"])
-        super(PickAtHomeProgram, self).__init__(brush, pack, name)
-
-    def write(self):
-
-
-        super(PickAtHomeProgram, self).write()
-
-        self.program.RunInstruction("Starting pick", INSTRUCTION_COMMENT)
-
-        self.program.addMoveJ(robo.home_approach)
-        self.program.RunInstruction(
-            "Continue when you are ready for the robot to grip the probe.",
-            INSTRUCTION_SHOW_MESSAGE,
-        )
-        self.program.Pause(-1)
-        self.program.RunInstruction("$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("$OUT[2]=TRUE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("WAIT FOR ($IN[1])", INSTRUCTION_INSERT_CODE)
-
-        self.program.RunInstruction(
-            "Did it grip properly? If so hit continue.", INSTRUCTION_SHOW_MESSAGE
-        )
-        self.program.Pause(-1)
-
-
-class PlaceAtHomeProgram(PickPlaceProgram):
-    @staticmethod
-    def generate_program_name(brush_id):
-        return "place_{:02d}".format(brush_id)
-
-    def __init__(self, brush, pack):
-        name = PlaceAtHomeProgram.generate_program_name(pack["brush_id"])
-        super(PlaceAtHomeProgram, self).__init__(brush, pack, name)
-
-    def write(self):
-
-
-        super(PlaceAtHomeProgram, self).write()
-
-        self.program.RunInstruction("Starting place", INSTRUCTION_COMMENT)
-        self.program.addMoveJ(robo.home_approach)
-
-        self.program.RunInstruction(
-            "Continue when you are ready for the robot to release the probe.",
-            INSTRUCTION_SHOW_MESSAGE,
-        )
-        self.program.Pause(-1)
-        self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction(
-            "Did you catch it? Hit continue to end the program.",
-            INSTRUCTION_SHOW_MESSAGE,
-        )
-

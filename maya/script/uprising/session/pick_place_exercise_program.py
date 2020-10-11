@@ -12,13 +12,13 @@ from robolink import (
 )
 
 
-class PapExerciseProgram(Program):
+class PickPlaceExerciseProgram(Program):
     def __init__(self, name):
-        super(PapExerciseProgram, self).__init__(name)
+        super(PickPlaceExerciseProgram, self).__init__(name)
 
     def send(self):
 
-        super(PapExerciseProgram, self).send()
+        super(PickPlaceExerciseProgram, self).send()
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
         last_brush_id = None
