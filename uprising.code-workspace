@@ -68,6 +68,9 @@
 			"type_traits": "cpp",
 			"typeinfo": "cpp",
 			"utility": "cpp"
-		}
+		},
+		"python.linting.flake8Args": [
+			"--max-line-length=120"
+		]
 	}
 }
