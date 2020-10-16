@@ -337,7 +337,8 @@ public:
 	void translate(const MVector &translation, bool transformPivot = false);
 
 	friend bool operator<(const Stroke &a, const Stroke &b);
-
+	friend ostream &operator<<(ostream &os, const Stroke &s);
+	
 private:
 	static void reverseArray(MDoubleArray &arr);
 	static void reverseArray(const MDoubleArray &arr, MDoubleArray &result);
@@ -387,6 +388,8 @@ private:
 
 	float m_linearSpeed;
 	float m_angularSpeed;
+
+
 };
 
 inline double Stroke::interpContact(const MDoubleArray &contacts,
@@ -408,5 +411,7 @@ inline double Stroke::interpContact(const MDoubleArray &contacts,
 	int lindex = int(t);
 	return (contacts[lindex] * (1 - r)) + (contacts[(lindex + 1)] * (r));
 }
+
+
 
 #endif

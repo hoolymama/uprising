@@ -70,8 +70,14 @@ unsigned Stroke::create(
 		repeatId,
 		backstroke);
 
+	
+	// cerr << "Made a stroke" << endl;
+	// cerr << motherStroke<< endl;
 	motherStroke.setRotations(thisObj, rotSpec);
 	motherStroke.setTransitionContact();
+	// if (motherStroke.size() > 100) {
+	// 	cerr << motherStroke<< endl;
+	// }
 
 	strokes->push_back(motherStroke);
 	int count = 1;
@@ -191,7 +197,7 @@ Stroke::Stroke(
 		numPoints = minimumPoints;
 	}
 	double gap = strokeRange / (numPoints - 1); // can be negative
-
+	// cerr << "Making stroke with " << numPoints << " points" <<  endl;
 	for (unsigned i = 0; i < numPoints; i++)
 	{
 
@@ -208,7 +214,7 @@ Stroke::Stroke(
 
 		MPoint pt;
 		curveFn.getPointAtParam(uniformParam, pt, MSpace::kObject);
-
+	
 		m_targets.push_back(
 			Target(pt, tangent, strokeParam, curveParam, contact));
 	}
@@ -1137,7 +1143,12 @@ void Stroke::offsetBrushContact(const Brush &brush)
 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
 	{
 		float dist = (1.0 - iter->contact());
-		dist = pow(dist, power) * height;
+		if (dist > epsilon) {
+			dist = pow(dist, power) * height;
+		} else {
+			dist=0;
+		}
+
 		if (m_localContact)
 		{
 			iter->offsetLocalZ(-dist);
@@ -1263,7 +1274,6 @@ void Stroke::applyForwardBias(const Brush &brush, float mult)
 		{
 			newTangent = -newTangent;
 		}
-		// cerr << i << " param: " << param << " newPoint: " << newPoint << " newTangent: " << newTangent << endl;
 
 		// bundle these three together.
 		MVector offset = newPoint - editPoints[i];
@@ -1532,4 +1542,18 @@ void Stroke::translate(const MVector &translation, bool transformPivot)
 	{
 		m_pivot.offsetBy(translation);
 	}
+}
+
+ostream &operator<<(ostream &os, const Stroke &s)
+{
+
+	const std::vector<Target> &targets = s.targets();
+	os << "TTT: Size" << targets.size() << endl;
+	std::vector<Target>::const_iterator citer;
+	for (citer = targets.begin(); citer != targets.end(); citer++)
+	{
+		os << "TTT: p" <<  citer->position() << " t:"<< citer->tangent()  <<  " contact: " << citer->contact() << endl;
+	}
+  
+	return os;
 }

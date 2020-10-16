@@ -10,7 +10,7 @@ def create():
 
     pm.menuItem(
         label="Create manual triangulation program",
-        command=pm.Callback(cal.create_manual_triangulation),
+        command=pm.Callback(cal.generate_manual_probe_calibration),
     )
 
     pm.menuItem(
@@ -45,8 +45,8 @@ def create():
     pm.menuItem(divider=True)
 
     pm.menuItem(
-        label="Generate perspex calibration",
-        command=pm.Callback(cal.generate_perspex_calibration),
+        label="Generate rack calibration",
+        command=pm.Callback(cal.generate_rack_calibration),
     )
 
     pm.menuItem(

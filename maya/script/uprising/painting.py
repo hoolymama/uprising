@@ -4,6 +4,7 @@ from brush import Brush
 from cluster import Cluster
 import progress
 
+
 def paint_and_brush_name(paint, brush):
     return "%s_%d_%s_%d" % (paint.name, paint.id, brush.name, brush.id)
 
@@ -34,13 +35,14 @@ class Painting(object):
         print "Creating {} clusters for {}".format(num_clusters, self.node)
         for i in range(num_clusters):
 
-
             progress.update(
-            minor_line= "Cluster {}/{}".format(i+1, num_clusters),
-            minor_progress=i)
- 
-            brush_id = pm.paintingQuery(self.node, clusterIndex=i, clusterBrushId=True)
-            paint_id = pm.paintingQuery(self.node, clusterIndex=i, clusterPaintId=True)
+                minor_line="Cluster {}/{}".format(i+1, num_clusters),
+                minor_progress=i)
+
+            brush_id = pm.paintingQuery(
+                self.node, clusterIndex=i, clusterBrushId=True)
+            paint_id = pm.paintingQuery(
+                self.node, clusterIndex=i, clusterPaintId=True)
 
             brush = self.brushes.get(brush_id)
             paint = self.paints.get(paint_id)
@@ -48,7 +50,6 @@ class Painting(object):
             cluster = Cluster(i, self.node, brush, paint)
             self.clusters.append(cluster)
 
-
-    def write_brushes(self):
+    def send_brushes(self):
         for brush in self.brushes:
-            self.brushes[brush].write()
+            self.brushes[brush].send()

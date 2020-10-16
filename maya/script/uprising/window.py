@@ -1,18 +1,16 @@
-import brush
-import brush_utils
-import cluster
-import const
-import curve_utils
-import chain_menu
-import images
-import palette_utils
-import pymel.core as pm
 import pymel.core.uitypes as gui
-import setup_dip
-import studio
-import uprising_util
-import write
+import pymel.core as pm
 from uprising import (
+    brush,
+    brush_utils,
+    cluster,
+    const,
+    curve_utils,
+    images,
+    palette_utils,
+    setup_dip,
+    uprising_util,
+    write,
     brush_assign_tab,
     color_tab,
     brush_hang_tab,
@@ -32,10 +30,9 @@ from uprising import (
     robo,
     select_menu,
     chain_menu,
-    # setup_tab,
     stats,
     tools_menu,
-    studio,
+    studio
 )
 
 reload(uprising_util)
@@ -50,8 +47,6 @@ reload(curve_utils)
 reload(brush_utils)
 reload(palette_utils)
 reload(chain_menu)
-
-# reload(setup_tab)
 reload(color_tab)
 reload(phex_tab)
 reload(brush_hang_tab)
@@ -89,11 +84,8 @@ class RobotWindow(gui.Window):
 
         self.menuBarLayout = pm.menuBarLayout()
 
-        self.tabs = pm.tabLayout(changeCommand=pm.Callback(self.on_tab_changed))
-
-        # pm.setParent(self.tabs)
-        # self.setup_tab = setup_tab.SetupTab()
-        # self.tabs.setTabLabel((self.setup_tab, "Setup"))
+        self.tabs = pm.tabLayout(
+            changeCommand=pm.Callback(self.on_tab_changed))
 
         pm.setParent(self.tabs)
         self.brush_test_tab = brush_test_tab.BrushTestTab()

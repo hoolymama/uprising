@@ -13,22 +13,24 @@ def create():
     menu = pm.menu(label="Export", tearOff=True)
 
     pm.menuItem(
-        label="Used brush sets", command=pm.Callback(Brush.write_used_brush_sets)
+        label="Used brush sets", command=pm.Callback(Brush.send_used_brush_sets)
     )
 
     pm.menuItem(
-        label="Connected brushes", command=pm.Callback(Brush.write_connected_brushes)
+        label="Connected brushes", command=pm.Callback(Brush.send_connected_brushes)
     )
 
     pm.menuItem(
-        label="Selected brushes", command=pm.Callback(Brush.write_selected_brushes)
+        label="Selected brushes", command=pm.Callback(Brush.send_selected_brushes)
     )
 
     pm.menuItem(label="Used Paints", command=pm.Callback(Paint.write_geos))
 
-    pm.menuItem(label="Selected geometry", command=pm.Callback(props.send_selected))
+    pm.menuItem(label="Selected geometry",
+                command=pm.Callback(props.send_selected))
 
-    pm.menuItem(label="Global approaches", command=pm.Callback(export_approaches))
+    pm.menuItem(label="Global approaches",
+                command=pm.Callback(export_approaches))
 
     pm.menuItem(label="Whole painting", command=pm.Callback(export_whole))
 
@@ -45,7 +47,7 @@ def export_approaches():
 
 def export_whole():
 
-    ################### PAINTING
+    # PAINTING
 
     painting_node = pm.PyNode("mainPaintingShape")
     program_names = []
@@ -73,7 +75,8 @@ def export_whole():
     num_chunks = int(math.ceil(cluster_count / float(cluster_chunk_size)))
 
     progress.update(
-        major_max=num_chunks, header="Writing {} main program chunks".format(num_chunks)
+        major_max=num_chunks, header="Writing {} main program chunks".format(
+            num_chunks)
     )
 
     for i in range(num_chunks):
@@ -88,7 +91,7 @@ def export_whole():
 
     progress.update(major_progress=num_chunks, major_line="Done")
 
-    ################### PICK PLACE
+    # PICK PLACE
     programs = studio.pick_place_programs
     count = len(programs)
     progress.update(
@@ -109,7 +112,7 @@ def export_whole():
                 ),
             )
 
-    ################### DIPS
+    # DIPS
     programs = studio.dip_programs + studio.water_programs + studio.retardant_programs
     count = len(programs)
     progress.update(
@@ -129,7 +132,7 @@ def export_whole():
                 ),
             )
 
-    ####################### GEO
+    # GEO
 
     robo.show()
 

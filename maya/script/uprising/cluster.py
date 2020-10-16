@@ -13,13 +13,16 @@ class Cluster(object):
         self.id = _id
         self.brush = brush
         self.paint = paint
-        self.travel = pm.paintingQuery(node, clusterIndex=_id, clusterTravel=True)
-        self.reason = pm.paintingQuery(node, clusterIndex=_id, clusterReason=True)
+        self.travel = pm.paintingQuery(
+            node, clusterIndex=_id, clusterTravel=True)
+        self.reason = pm.paintingQuery(
+            node, clusterIndex=_id, clusterReason=True)
         self.build_strokes(node)
 
     def build_strokes(self, node):
         self.strokes = []
-        num_strokes = pm.paintingQuery(node, clusterIndex=self.id, strokeCount=True)
+        num_strokes = pm.paintingQuery(
+            node, clusterIndex=self.id, strokeCount=True)
         for i in range(num_strokes):
             stroke = Stroke(self.id, i, self.brush, node)
             self.strokes.append(stroke)
@@ -32,20 +35,22 @@ class Cluster(object):
     def name(self, program):
         return "{}_c{}".format(program.Name(), self.id)
 
-    def write(self, program, frame, motion):
+    def send(self, program, frame, motion):
         link = robo.link()
         tool = link.Item(self.brush.name)
         if not tool.Valid():
-            raise ClusterError("SERIOUS RISK OF DAMAGE! Can't find valid tool!")
+            raise ClusterError(
+                "SERIOUS RISK OF DAMAGE! Can't find valid tool!")
 
         program.setPoseTool(tool)
         cluster_name = self.name(program)
 
-        program.RunInstruction("Cluster %s" % cluster_name, INSTRUCTION_COMMENT)
+        program.RunInstruction("Cluster %s" %
+                               cluster_name, INSTRUCTION_COMMENT)
         program.setRounding(motion["rounding"])
 
         for stroke in self.strokes:
-            stroke.write(cluster_name, program, frame, motion)
+            stroke.send(cluster_name, program, frame, motion)
 
     def get_flow_info(self, last_cluster):
         last_brush_id = last_cluster.brush.id if last_cluster else None
@@ -54,4 +59,3 @@ class Cluster(object):
         did_change_brush = did_change_tool and (last_brush_id != this_brush_id)
         did_end_last_brush = did_change_brush and (last_brush_id != None)
         return (did_change_tool, did_change_brush, did_end_last_brush)
-

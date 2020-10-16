@@ -289,51 +289,51 @@ def get_perspex_packs():
     return result
 
 
-def get_dip_wipe_packs(**kw):
+# def get_dip_wipe_packs(**kw):
 
-    result = {}
-    paint_id = kw.get("paint_id")
-    if paint_id != None:
-        combos = []
-        dc = pm.paintingQuery("mainPaintingShape", dc=True)
-        bids = sorted(set(dc[::2]))
-        for brush_id in bids:
-            combos.append({"brush": int(brush_id), "paint": paint_id})
-    elif kw.get("dip_combinations"):
-        combos = kw.get("dip_combinations")
-    else:
-        combos = dip_combination_ids()
+#     result = {}
+#     paint_id = kw.get("paint_id")
+#     if paint_id != None:
+#         combos = []
+#         dc = pm.paintingQuery("mainPaintingShape", dc=True)
+#         bids = sorted(set(dc[::2]))
+#         for brush_id in bids:
+#             combos.append({"brush": int(brush_id), "paint": paint_id})
+#     elif kw.get("dip_combinations"):
+#         combos = kw.get("dip_combinations")
+#     else:
+#         combos = dip_combination_ids()
 
-    for combo in combos:
+#     for combo in combos:
 
-        dip_ptg_path = "rack|holes|holeRot_{:02d}|holeTrans|dip_loc|b{:02d}|*".format(
-            combo["paint"], combo["brush"]
-        )
-        wipe_ptg_path = "rack|holes|holeRot_{:02d}|holeTrans|wipe_loc|b{:02d}|*".format(
-            combo["paint"], combo["brush"]
-        )
+#         dip_ptg_path = "rack|holes|holeRot_{:02d}|holeTrans|dip_loc|b{:02d}|*".format(
+#             combo["paint"], combo["brush"]
+#         )
+#         wipe_ptg_path = "rack|holes|holeRot_{:02d}|holeTrans|wipe_loc|b{:02d}|*".format(
+#             combo["paint"], combo["brush"]
+#         )
 
-        paint_key = "p{:02d}".format(combo["paint"])
-        brush_key = "b{:02d}".format(combo["brush"])
+#         paint_key = "p{:02d}".format(combo["paint"])
+#         brush_key = "b{:02d}".format(combo["brush"])
 
-        try:
-            dip_ptg = pm.ls(dip_ptg_path, type="painting")[0]
-            wipe_ptg = pm.ls(wipe_ptg_path, type="painting")[0]
-        except IndexError:
-            raise IndexError(
-                "Either dip or wipe node is missing: for {} {}".format(
-                    paint_key, brush_key
-                )
-            )
+#         try:
+#             dip_ptg = pm.ls(dip_ptg_path, type="painting")[0]
+#             wipe_ptg = pm.ls(wipe_ptg_path, type="painting")[0]
+#         except IndexError:
+#             raise IndexError(
+#                 "Either dip or wipe node is missing: for {} {}".format(
+#                     paint_key, brush_key
+#                 )
+#             )
 
-        if paint_key not in result:
-            result[paint_key] = {}
-        result[paint_key][brush_key] = {
-            "dip": dip_ptg,
-            "wipe": wipe_ptg,
-            "paint_id": combo["paint"],
-            "brush_id": combo["brush"],
-            "name": "{}_{}".format(paint_key, brush_key),
-        }
+#         if paint_key not in result:
+#             result[paint_key] = {}
+#         result[paint_key][brush_key] = {
+#             "dip": dip_ptg,
+#             "wipe": wipe_ptg,
+#             "paint_id": combo["paint"],
+#             "brush_id": combo["brush"],
+#             "name": "{}_{}".format(paint_key, brush_key),
+#         }
 
-    return result
+#     return result

@@ -80,8 +80,6 @@ def new():
     _link = Robolink(robodk_path=ROBODK_PATH)
     _link.AddFile(LICENSE_FILE)
 
-    clean()
-
 
 def link():
     global _link
@@ -115,8 +113,7 @@ def clean():
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _robot.setParam("PostProcessor", "KUKA KRC4")
     _create_infrastructure()
-
-    # _create_infrastructure()
+ 
     print "Added clean file: {}".format(CLEAN_FILE)
 
 

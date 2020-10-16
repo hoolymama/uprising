@@ -31,11 +31,10 @@ MObject skChainNode::aRadiusMult;
 MObject skChainNode::aRadiusOffset;
 
 MObject skChainNode::aMaxChainsPerOutput;
-MObject skChainNode::aOutput;
 MObject skChainNode::aOutputs;
 MObject skChainNode::aOutputCount;
 
-// MObject skChainNode::aOutput;
+ 
 
 MTypeId skChainNode::id(k_skChainNode);
 
@@ -165,10 +164,10 @@ MStatus skChainNode::initialize()
   nAttr.setWritable(false);
   st = addAttribute(aOutputCount);
 
-  aOutput = tAttr.create("output", "out", skChainData::id);
-  tAttr.setReadable(true);
-  tAttr.setStorable(false);
-  addAttribute(aOutput);
+  // aOutput = tAttr.create("output", "out", skChainData::id);
+  // tAttr.setReadable(true);
+  // tAttr.setStorable(false);
+  // addAttribute(aOutput);
 
   // attributeAffects(aImage, aOutput);
   // attributeAffects(aMaxIterations, aOutput);

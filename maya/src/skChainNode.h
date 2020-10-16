@@ -50,7 +50,6 @@ private:
 
   static MObject aProjectionMatrix;
 
-  static MObject aOutput;
 
   static MObject aMaxChainsPerOutput;
   static MObject aOutputCount;

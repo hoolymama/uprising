@@ -1,16 +1,17 @@
 
-import os
-
-from uprising import const as k
 from uprising import palette_utils as putl
-from uprising import props
+
 import pymel.core as pm
-from uprising import robo
+
 import uprising.uprising_util as uutl
-from uprising import write
-from uprising.studio import Studio
+
 
 from uprising.session.pick_place_exercise_session import PickPlaceExerciseSession
+from uprising.session.pot_calibration_session import PotCalibrationSession
+from uprising.session.holder_calibration_session import HolderCalibrationSession
+from uprising.session.board_calibration_session import BoardCalibrationSession
+from uprising.session.rack_calibration_session import RackCalibrationSession
+from uprising.session.manual_probe_session import ManualProbeSession
 
 
 def _dismiss():
@@ -227,7 +228,6 @@ def _read_perspex_calibration(content):
     data = data_matrix(content)
     verify(data, 12, 1)
     packs = putl.get_perspex_packs()
-    pack_len = len(packs)
 
     for pack in packs:
         index = pack["index"]
@@ -242,86 +242,112 @@ def _read_perspex_calibration(content):
             pm.parent(dup, world=True)
 
 
-def generate_pick_place_exercise():
-    ppe_session = PickPlaceExerciseSession()
-    ppe_session.send()
-    ppe_session.publish()
-
-def _generate_calibration(which, *reference_geo):
-
-    kw = {
-        "do_perspex_triangulation": which == k.TRI_CALIBRATION_PROGRAM_NAME,
-        "do_pot_calibration": which == k.POT_CALIBRATION_PROGRAM_NAME,
-        "do_holder_calibration": which == k.HOLDER_CALIBRATION_PROGRAM_NAME,
-        "do_board_calibration": which == k.BOARD_CALIBRATION_PROGRAM_NAME,
-        "do_perspex_calibration": which == k.PERSPEX_CALIBRATION_PROGRAM_NAME,
-        "pick_and_place_slots": "calibration",  # all, used, specific ids
-        "pause": -1
-    }
-
-    timestamp = write.get_timestamp()
-    directory = os.path.join(
-        pm.workspace.getPath(),
-        'export',
-        'calibrations',
-        which,
-        timestamp)
-    uutl.mkdir_p(directory)
-
-    robo.new()
-    studio = Studio(**kw)
-    studio.write()
-    props.send(reference_geo)
-    robo.show()
-    src_fn, rdk_fn = write.save_prog_and_station(directory, which)
-
-    print "Wrote", src_fn
-    subprogram_names = []
-    with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-        for i, program in enumerate(studio.pick_place_programs):
-            name = program.program_name
-            print "Writing PP", name
-            subprogram_names.append(name)
-            write.save_prog_and_station(directory, name)
-
-    write.insert_external_dependencies(subprogram_names, src_fn)
-
-
-def create_manual_triangulation():
-    ref_geo = pm.PyNode("rackTop")
-    _generate_calibration(k.TRI_CALIBRATION_PROGRAM_NAME, ref_geo)
-
-
-def generate_pot_holder_calibration():
-    ref_geo = [pm.PyNode("rackTop")]
-    ref_geo += pm.ls("holes|*|holeTrans|dip_loc|pot")
-    ref_geo += pm.ls("holes|*|holeTrans|wipe_loc|handle")
-    ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
-    _generate_calibration(k.POT_HOLDER_CALIBRATION_PROGRAM_NAME, *ref_geo)
-
-
-def generate_holder_calibration():
-    _generate_calibration(k.HOLDER_CALIBRATION_PROGRAM_NAME)
-
-
-def generate_pot_calibration():
-    ref_geo = [pm.PyNode("rackTop")]
-    ref_geo += pm.ls("holes|*|holeTrans|dip_loc|pot")
-    ref_geo += pm.ls("holes|*|holeTrans|wipe_loc|handle")
-
-    _generate_calibration(k.POT_CALIBRATION_PROGRAM_NAME, *ref_geo)
-
-
-def generate_perspex_calibration():
-    ref_geo = pm.PyNode("rackTop")
-    _generate_calibration(k.PERSPEX_CALIBRATION_PROGRAM_NAME, ref_geo)
-
-
-def generate_board_calibration():
-    ref_geo = pm.PyNode("canvas")
-    _generate_calibration(k.BOARD_CALIBRATION_PROGRAM_NAME, ref_geo)
-
-
 def _set_precise(xf, gauge_reading, probe_height):
     new_pos = probe_height + (gauge_reading * 0.1) - 1.0
     xf.attr("tz").set(new_pos)
+
+
+def generate_pick_place_exercise():
+    session = PickPlaceExerciseSession()
+    session.send()
+    session.publish()
+
+
+def generate_pot_calibration():
+    session = PotCalibrationSession()
+    session.send()
+    session.publish()
+
+
+def generate_holder_calibration():
+    session = HolderCalibrationSession()
+    session.send()
+    session.publish()
+
+
+def generate_board_calibration():
+    session = BoardCalibrationSession()
+    session.send()
+    session.publish()
+
+
+def generate_rack_calibration():
+    session = RackCalibrationSession()
+    session.send()
+    session.publish()
+
+
+def generate_manual_probe_calibration():
+    session = ManualProbeSession()
+    session.send()
+    session.publish()
+
+
+# def _generate_calibration(which, *reference_geo):
+
+#     kw = {
+#         "do_perspex_triangulation": which == k.TRI_CALIBRATION_PROGRAM_NAME,
+#         "do_pot_calibration": which == k.POT_CALIBRATION_PROGRAM_NAME,
+#         "do_holder_calibration": which == k.HOLDER_CALIBRATION_PROGRAM_NAME,
+#         "do_board_calibration": which == k.BOARD_CALIBRATION_PROGRAM_NAME,
+#         "do_perspex_calibration": which == k.PERSPEX_CALIBRATION_PROGRAM_NAME,
+#         "pick_and_place_slots": "calibration",  # all, used, specific ids
+#         "pause": -1
+#     }
+
+#     timestamp = write.get_timestamp()
+#     directory = os.path.join(
+#         pm.workspace.getPath(),
+#         'export',
+#         'calibrations',
+#         which,
+#         timestamp)
+#     uutl.mkdir_p(directory)
+
+#     robo.new()
+#     studio = Studio(**kw)
+#     studio.write()
+#     props.send(reference_geo)
+#     robo.show()
+#     src_fn, rdk_fn = write.save_prog_and_station(directory, which)
+
+#     print "Wrote", src_fn
+#     subprogram_names = []
+#     with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+#         for i, program in enumerate(studio.pick_place_programs):
+#             name = program.program_name
+#             print "Writing PP", name
+#             subprogram_names.append(name)
+#             write.save_prog_and_station(directory, name)
+
+#     write.insert_external_dependencies(subprogram_names, src_fn)
+
+
+# def generate_pot_holder_calibration():
+#     ref_geo = [pm.PyNode("rackTop")]
+#     ref_geo += pm.ls("holes|*|holeTrans|dip_loc|pot")
+#     ref_geo += pm.ls("holes|*|holeTrans|wipe_loc|handle")
+#     ref_geo += pm.ls("holders|*|holderTrans|lowResGeo")
+#     _generate_calibration(k.POT_HOLDER_CALIBRATION_PROGRAM_NAME, *ref_geo)
+
+
+# def generate_holder_calibration():
+#     _generate_calibration(k.HOLDER_CALIBRATION_PROGRAM_NAME)
+
+
+# def generate_pot_calibration():
+#     ref_geo = [pm.PyNode("rackTop")]
+#     ref_geo += pm.ls("holes|*|holeTrans|dip_loc|pot")
+#     ref_geo += pm.ls("holes|*|holeTrans|wipe_loc|handle")
+
+#     _generate_calibration(k.POT_CALIBRATION_PROGRAM_NAME, *ref_geo)
+
+
+# def generate_rack_calibration():
+#     ref_geo = pm.PyNode("rackTop")
+#     _generate_calibration(k.PERSPEX_CALIBRATION_PROGRAM_NAME, ref_geo)
+
+
+# def generate_board_calibration():
+#     ref_geo = pm.PyNode("canvas")
+#     _generate_calibration(k.BOARD_CALIBRATION_PROGRAM_NAME, ref_geo)

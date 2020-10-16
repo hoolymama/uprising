@@ -17,7 +17,8 @@ class Target(object):
         self.joint_poses = robo.config_000_poses(self.flange_pose)
 
         if not self.joint_poses:
-            raise StrokeError("Cant initialize target: %d, no ik solutions" % self.id)
+            raise StrokeError(
+                "Cant initialize target: %d, no ik solutions" % self.id)
 
     def configure(self):
         self.joint_pose = self.joint_poses[0]
@@ -25,7 +26,7 @@ class Target(object):
     def name(self, prefix):
         return "%s_t%d" % (prefix, self.id)
 
-    def write(self, prefix, program, frame):
+    def send(self, prefix, program, frame):
         link = robo.link()
         robot = robo.robot()
         target_name = self.name(prefix)

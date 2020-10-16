@@ -72,8 +72,10 @@ class exportTab(gui.FormLayout):
             bv=True,
             label="Perspex programs",
         )
-        self.perspex_tri_wg = pm.checkBoxGrp(h=24, l="Perspex triangulation", v1=0)
-        self.perspex_cal_wg = pm.checkBoxGrp(h=24, l="Perspex calibration", v1=0)
+        self.perspex_tri_wg = pm.checkBoxGrp(
+            h=24, l="Perspex triangulation", v1=0)
+        self.perspex_cal_wg = pm.checkBoxGrp(
+            h=24, l="Perspex calibration", v1=0)
         pm.setParent("..")
 
         pm.frameLayout(
@@ -130,7 +132,8 @@ class exportTab(gui.FormLayout):
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
-        go_but = pm.button(label="Send to RoboDK", command=pm.Callback(self.on_go))
+        go_but = pm.button(label="Send to RoboDK",
+                           command=pm.Callback(self.on_go))
 
         self.attachForm(self.simple_ui, "left", 2)
         self.attachForm(self.simple_ui, "right", 2)
@@ -174,13 +177,14 @@ class exportTab(gui.FormLayout):
         studio = Studio(**studio_kwargs)
         studio.write()
 
-        brush_tools = pm.radioButtonGrp(self.brush_tools_wg, query=True, sl=True)
+        brush_tools = pm.radioButtonGrp(
+            self.brush_tools_wg, query=True, sl=True)
         if brush_tools == 2:
-            Brush.write_used_brush_sets()
+            Brush.send_used_brush_sets()
         elif brush_tools == 3:
-            Brush.write_connected_brushes()
+            Brush.send_connected_brushes()
         elif brush_tools == 4:
-            Brush.write_selected_brushes()
+            Brush.send_selected_brushes()
 
         if pm.checkBoxGrp(self.sel_geo_wg, query=True, v1=True):
             props.send_selected()
@@ -188,7 +192,8 @@ class exportTab(gui.FormLayout):
         if pm.checkBoxGrp(self.pots_geo_wg, query=True, v1=True):
             Paint.write_geos()
 
-        result = {"stats": write.painting_stats(pm.PyNode("mainPaintingShape"))}
+        result = {"stats": write.painting_stats(
+            pm.PyNode("mainPaintingShape"))}
 
         if studio_kwargs.get("do_painting"):
             result["painting"] = studio.painting_program.validate_path()
@@ -200,4 +205,3 @@ class exportTab(gui.FormLayout):
                 result["dips"].append(stats)
 
         uutl.show_in_window(result, title="Test export results")
-

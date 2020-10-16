@@ -226,9 +226,9 @@ class PlaceAtHomeProgram(PickPlaceProgram):
 class PickPlaceCollection(object):
 
     def __init__(self, brush_ids):
-
+        self.is_caibration = brush_ids == "calibration"
         self.brush_ids = self._resolve_brush_ids(brush_ids)
-        self.packs = self._get_packs()
+        self.packs = self.get_packs()
         self.programs = self._build()
 
     @staticmethod
@@ -245,7 +245,7 @@ class PickPlaceCollection(object):
 
         return list(brush_ids)
 
-    def _get_packs(self):
+    def get_packs(self):
         result = {}
 
         holders_node = pm.PyNode("RACK1_CONTEXT|j1|rack|holders")
@@ -281,8 +281,13 @@ class PickPlaceCollection(object):
             result = []
             for p in self.packs:
                 pack = self.packs[p]
-                pick_prg = PickProgram(gripper, pack)
-                place_prg = PlaceProgram(gripper, pack)
+                if self.is_caibration:
+                    pick_prg = PickAtHomeProgram(gripper, pack)
+                    place_prg = PlaceAtHomeProgram(gripper, pack)
+                else:
+                    pick_prg = PickProgram(gripper, pack)
+                    place_prg = PlaceProgram(gripper, pack)
+
                 result.append({"pick": pick_prg, "place": place_prg})
         return result
 

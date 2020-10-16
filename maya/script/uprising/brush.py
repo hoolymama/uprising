@@ -44,7 +44,7 @@ class Brush(object):
     def is_flat(self):
         return self.shape == 0
 
-    def write(self, with_geo=False):
+    def send(self, with_geo=False):
         link = robo.link()
         robot = robo.robot()
 
@@ -53,7 +53,8 @@ class Brush(object):
             return
         tool_item = robot.AddTool(self.matrix, self.name)
         if with_geo:
-            triangles = uutl.to_vector_array(pm.brushQuery(self.plug, tri=True))
+            triangles = uutl.to_vector_array(
+                pm.brushQuery(self.plug, tri=True))
             triangles = [[t.x * 10, t.y * 10, t.z * 10] for t in triangles]
             shape = link.AddShape(triangles)
             tool_item.AddGeometry(shape, rdk.eye())
@@ -61,30 +62,31 @@ class Brush(object):
         robot.setPoseTool(tool_item)
 
     @classmethod
-    def write_used_brush_sets(cls):
+    def send_used_brush_sets(cls):
         painting = pm.PyNode("mainPaintingShape")
         dc = pm.paintingQuery(painting, dc=True)
         bids = sorted(set(dc[::2]))
         for bid in bids:
             brush_set = Brush.brush_set_at_index(bid)
             for key in brush_set:
-                brush_set[key].write()
+                brush_set[key].send()
 
     @classmethod
-    def write_connected_brushes(cls):
+    def send_connected_brushes(cls):
         painting = pm.PyNode("mainPaintingShape")
         brushes = Brush.brushes(painting)
         for brush in brushes:
-            brushes[brush].write()
+            brushes[brush].send()
 
     @classmethod
-    def write_selected_brushes(cls):
-        brushNodes = pm.ls(selection=True, dag=True, leaf=True, type="brushNode")
+    def send_selected_brushes(cls):
+        brushNodes = pm.ls(selection=True, dag=True,
+                           leaf=True, type="brushNode")
         brush_atts = ["outPaintBrush", "outDipBrush", "outWipeBrush"]
         for brush_node in brushNodes:
             for brush_att in brush_atts:
                 plug = brush_node.attr(brush_att)
-                Brush(0, plug).write()
+                Brush(0, plug).send()
 
     @classmethod
     def brush_at_index(cls, node, index):
@@ -98,7 +100,7 @@ class Brush(object):
     @classmethod
     def brush_set_at_index(cls, index):
         """ Get paint, dip, and wipe brushes corresponding to index.
-            
+
             Always use the painting node
         """
         node = pm.PyNode("mainPaintingShape")
@@ -143,4 +145,3 @@ class Brush(object):
         except RuntimeError:
             pass
         return result
-
