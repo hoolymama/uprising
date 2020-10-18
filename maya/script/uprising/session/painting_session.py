@@ -30,6 +30,9 @@ class PaintingSession(Session):
         self.painting_node = pm.PyNode("mainPaintingShape")
         self.program_names = []
 
+        robo.new()
+        robo.hide()
+
         self.cluster_count = pm.paintingQuery(self.painting_node, cc=True)
         self.cluster_chunk_size = cluster_chunk_size or self.cluster_count
 
@@ -51,6 +54,8 @@ class PaintingSession(Session):
         self.send_dip_wipe_programs()
         self.publish_dip_wipe_programs()
 
+        robo.close()
+
         duration = int(time.time() - timer_start)
         progress.update(
             major_line="Total time: {}".format(
@@ -65,8 +70,7 @@ class PaintingSession(Session):
 
     def build_painting_program(self):
         self.init_progress()
-        robo.new()
-        robo.hide()
+
         robo.clean()
         with uutl.final_position(pm.PyNode("mainPaintingShape")):
             with uutl.at_value(pm.PyNode("mainPaintingShape").attr("applyBrushBiases"), True):
