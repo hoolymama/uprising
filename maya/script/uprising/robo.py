@@ -114,9 +114,7 @@ def clean():
     _robot.setParam("PostProcessor", "KUKA KRC4")
     _create_infrastructure()
  
-    print "Added clean file: {}".format(CLEAN_FILE)
-
-
+ 
 def create_program(name):
     global _link
     program = _link.Item(name)

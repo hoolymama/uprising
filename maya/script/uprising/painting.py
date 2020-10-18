@@ -31,8 +31,7 @@ class Painting(object):
         progress.update(
             minor_max=num_clusters,
             minor_progress=0)
-
-        print "Creating {} clusters for {}".format(num_clusters, self.node)
+ 
         for i in range(num_clusters):
 
             progress.update(

@@ -126,6 +126,7 @@ class PublishTab(gui.FormLayout):
         if do_retries:
             stroke_nodes = find_contributing_stroke_nodes() if do_retries else []
             retries_session = RetriesSession(coil_delta, stroke_nodes)
+            print retries_session.plugs
             retries_session.run()
             retries_session.show_results()
             retries_session.write_results()

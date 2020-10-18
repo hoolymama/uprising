@@ -39,9 +39,9 @@ def isolate_nodes(show_nodes, all_nodes):
 class RetriesSession(Session):
 
     def __init__(self, coil_delta, stroke_nodes, directory=None):
-        validate_retries_params(stroke_nodes)
+        self.validate_retries_params(stroke_nodes)
         self.directory = directory or self.choose_session_dir()
-        if not directory:
+        if not self.directory:
             return
         self.painting_node = pm.PyNode("mainPaintingShape")
         self.all_skels = pm.ls(type="skeletonStroke")
@@ -49,6 +49,7 @@ class RetriesSession(Session):
         self.nodes = stroke_nodes
         self.plugs = [pm.PyNode(node).attr(ATTRIBUTE) for node in stroke_nodes]
 
+ 
         self.start_time = None
 
         self.result_data = {
@@ -160,14 +161,14 @@ class RetriesSession(Session):
             result["solved"] = True
         return result
 
+    @staticmethod
+    def validate_retries_params(nodes):
 
-def validate_retries_params(self, nodes):
-
-    if len(nodes) == 0:
-        pm.error("No nodes selected. Aborting!")
-    for node in nodes:
-        plug = pm.PyNode(node).attr(ATTRIBUTE)
-        if plug.get(lock=True):
-            pm.error("{} is locked. Can't adjust.".format(plug))
-        if plug.inputs():
-            pm.error("{} has input connections. Can't adjust.".format(plug))
+        if len(nodes) == 0:
+            pm.error("No nodes selected. Aborting!")
+        for node in nodes:
+            plug = pm.PyNode(node).attr(ATTRIBUTE)
+            if plug.get(lock=True):
+                pm.error("{} is locked. Can't adjust.".format(plug))
+            if plug.inputs():
+                pm.error("{} has input connections. Can't adjust.".format(plug))

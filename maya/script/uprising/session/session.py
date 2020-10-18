@@ -94,10 +94,11 @@ class Session(object):
             return
 
         timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-        directory = os.path.join(directory, timestamp)
+        directory = os.path.join(entries[0], timestamp)
         uutl.mkdir_p(directory)
         return directory
 
+    @staticmethod
     def orchestrate(directory, programs):
         uutl.mkdir_p(directory)
         orchestrator_file = os.path.join(directory, "src", "main.src")

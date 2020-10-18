@@ -15,18 +15,16 @@ from uprising.session.painting_program import PaintingProgram
 from uprising.session.pick_place_program import PickPlaceCollection
 from uprising.session.dip_wipe_program import DipWipeCollection, WaterCollection, RetardantCollection
 
-
 logger = logging.getLogger("uprising")
-
 
 class PaintingSession(Session):
 
     PROGRAM_NAME = "px"
 
-    def __init__(self, directory=None, cluster_chunk_size=None):
+    def __init__(self, cluster_chunk_size=None, directory=None):
 
         self.directory = directory or self.choose_session_dir()
-        if not directory:
+        if not self.directory:
             return
 
         self.painting_node = pm.PyNode("mainPaintingShape")
@@ -106,7 +104,7 @@ class PaintingSession(Session):
         if len(self.program_names) > 1:
             self.orchestrate(self.directory, self.program_names)
 
-    def send_and_publish_painting_pick_place_programs(self):
+    def send_and_publish_pick_place_programs(self):
 
         program_names = self.pick_place_collection.program_names()
         count = len(program_names)
@@ -138,6 +136,8 @@ class PaintingSession(Session):
 
         for program_name in program_names:
             self.save_program(self.directory, program_name)
+
+        self.save_station(self.directory, "dw")
 
     def init_progress(self):
         progress.update(
