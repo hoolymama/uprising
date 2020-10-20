@@ -30,8 +30,6 @@ class DipWipeExerciseSession(Session):
             self.exercise_program = DipWipeExerciseProgram(self.PROGRAM_NAME, combinations)
 
     def send(self):
-
-
         with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
             self.exercise_program.send()
             self.pick_place_collection.send()
@@ -56,4 +54,4 @@ class DipWipeExerciseSession(Session):
             self.save_program(directory, program_name)
 
         self.insert_external_dependencies(program_names, src_fn)
- 
+        self.save_station(directory, program_name)

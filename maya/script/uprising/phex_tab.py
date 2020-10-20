@@ -88,6 +88,7 @@ class phexTab(gui.FormLayout):
         data = self.get_pot_handle_exercise_data()
         session = DipWipeExerciseSession(data["combinations"])
         session.send()
+        session.publish()
 
     def on_load_selected_brushes(self):
         brushes = pm.ls(selection=True, dag=True, leaf=True, type="brushNode")

@@ -6,7 +6,8 @@ import pymel.core.uitypes as gui
 import robo
 import uprising_util as uutl
 import write
-from studio import Studio
+# from studio import Studio
+from uprising.session.brush_hang_session import BrushHangSession
 
 
 class brushHangTab(gui.FormLayout):
@@ -92,44 +93,48 @@ class brushHangTab(gui.FormLayout):
 
     def on_go(self):
         data = self.get_brush_twist_data()
-        timestamp = write.get_timestamp()
-        if data:
-            directory = os.path.join(
-                pm.workspace.getPath(),
-                "export",
-                "calibrations",
-                k.BRUSH_HANG_PROGRAM_NAME,
-                timestamp,
-            )
-            uutl.mkdir_p(directory)
+        session = BrushHangSession(data)
+        session.send()
+        session.publish()
 
-            studio = Studio(brush_hang_data=data, pause=300)
-            studio.write()
-            # robo.write_program(directory, k.BRUSH_HANG_PROGRAM_NAME)
+        # timestamp = write.get_timestamp()
+        # if data:
+        #     directory = os.path.join(
+        #         pm.workspace.getPath(),
+        #         "export",
+        #         "calibrations",
+        #         k.BRUSH_HANG_PROGRAM_NAME,
+        #         timestamp,
+        #     )
+        #     uutl.mkdir_p(directory)
 
-            robo.show()
-            src_fn, rdk_fn=write.save_prog_and_station(directory, k.BRUSH_HANG_PROGRAM_NAME)
+        #     studio = Studio(brush_hang_data=data, pause=300)
+        #     studio.write()
+        #     # robo.write_program(directory, k.BRUSH_HANG_PROGRAM_NAME)
 
-            subprogram_names = []
-            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                for i, program in enumerate(studio.pick_place_programs):
-                    name =  program.program_name
-                    print "Writing PP", name
-                    subprogram_names.append(name)
-                    write.save_prog_and_station(directory, name)
+        #     robo.show()
+        #     src_fn, rdk_fn=write.save_prog_and_station(directory, k.BRUSH_HANG_PROGRAM_NAME)
+
+        #     subprogram_names = []
+        #     with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+        #         for i, program in enumerate(studio.pick_place_programs):
+        #             name =  program.program_name
+        #             print "Writing PP", name
+        #             subprogram_names.append(name)
+        #             write.save_prog_and_station(directory, name)
             
-            write.insert_external_dependencies(subprogram_names,src_fn)
+        #     write.insert_external_dependencies(subprogram_names,src_fn)
 
 
 
 
-        uutl.show_in_window(
-            [
-                {"brush": str(b["brush"]), "id": b["id"], "twist": b["twist"]}
-                for b in data
-            ],
-            title="Brush hang values",
-        )
+        # uutl.show_in_window(
+        #     [
+        #         {"brush": str(b["brush"]), "id": b["id"], "twist": b["twist"]}
+        #         for b in data
+        #     ],
+        #     title="Brush hang values",
+        # )
 
     def on_twist_on(self):
         for cb in pm.columnLayout(self.brushes_column, q=True, ca=True):
