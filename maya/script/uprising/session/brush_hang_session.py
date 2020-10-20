@@ -36,8 +36,6 @@ class BrushHangSession(Session):
             self.pick_place_collection.send()
             self.send_rack_geo()
             self.send_holder_geo()
-        
-   
 
     def publish(self):
         program_name = self.program.program_name
@@ -47,10 +45,9 @@ class BrushHangSession(Session):
 
         src_fn = self.save_program(directory, program_name)
 
-        program_names = self.pick_place_collection.program_names() 
+        program_names = self.pick_place_collection.program_names()
         for program_name in program_names:
             self.save_program(directory, program_name)
 
         self.insert_external_dependencies(program_names, src_fn)
         self.save_station(directory, program_name)
- 

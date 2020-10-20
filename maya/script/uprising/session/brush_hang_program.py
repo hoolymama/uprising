@@ -6,15 +6,12 @@ import uprising.uprising_util as uutl
 from uprising.brush import Brush
 from uprising.session.program import Program, ProgramError
 from uprising.session.pick_place_program import PickProgram, PlaceProgram
-from uprising import painting
-from uprising import progress
 from robolink import (
-    INSTRUCTION_COMMENT,
     INSTRUCTION_SHOW_MESSAGE,
     INSTRUCTION_CALL_PROGRAM,
-    INSTRUCTION_INSERT_CODE
+
 )
-import const as k
+from uprising import const as k
 WATER_POT_ID = 9
 WATER_REPEATS = 2
 
