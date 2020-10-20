@@ -271,24 +271,24 @@ class PickPlaceCollection(object):
         return result
 
     def _build(self):
-        with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-            gripper_geo = pm.PyNode("bpx_0_utility_B0_gripper_roundShape")
-            gripper = Brush(0, gripper_geo.attr("outPaintBrush"))
-            if not gripper:
-                raise ProgramError(
-                    "No Gripper. Risk of damage. Can't continue.")
+ 
+        gripper_geo = pm.PyNode("bpx_0_utility_B0_gripper_roundShape")
+        gripper = Brush(0, gripper_geo.attr("outPaintBrush"))
+        if not gripper:
+            raise ProgramError(
+                "No Gripper. Risk of damage. Can't continue.")
 
-            result = []
-            for p in self.packs:
-                pack = self.packs[p]
-                if self.is_caibration:
-                    pick_prg = PickAtHomeProgram(gripper, pack)
-                    place_prg = PlaceAtHomeProgram(gripper, pack)
-                else:
-                    pick_prg = PickProgram(gripper, pack)
-                    place_prg = PlaceProgram(gripper, pack)
+        result = []
+        for p in self.packs:
+            pack = self.packs[p]
+            if self.is_caibration:
+                pick_prg = PickAtHomeProgram(gripper, pack)
+                place_prg = PlaceAtHomeProgram(gripper, pack)
+            else:
+                pick_prg = PickProgram(gripper, pack)
+                place_prg = PlaceProgram(gripper, pack)
 
-                result.append({"pick": pick_prg, "place": place_prg})
+            result.append({"pick": pick_prg, "place": place_prg})
         return result
 
     def send(self):

@@ -17,4 +17,5 @@ class BoardCalibrationSession(CalibrationSession):
         self.program = BoardCalibrationProgram(self.PROGRAM_NAME)
 
     def send_props(self):
-        self.send_board_geo()
+        with uutl.final_position(pm.PyNode("mainPaintingShape")):
+            self.send_board_geo()

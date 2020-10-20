@@ -76,6 +76,7 @@ reload(chain_menu)
 reload(color_tab)
 reload(phex_tab)
 reload(brush_hang_tab)
+
 reload(publish_tab)
 reload(brush_assign_tab)
 reload(brush_test_tab)
@@ -117,6 +118,7 @@ reload(dip_wipe_program)
 
 reload(painting_session)
 reload(retries_session)
+
 
 class RobotWindow(gui.Window):
     def __init__(self):

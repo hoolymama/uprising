@@ -16,8 +16,6 @@ CAL_APPROACH_HEIGHT = 20
 class BoardCalibrationProgram(CalibrationProgram):
     def __init__(self, name):
         super(BoardCalibrationProgram, self).__init__(name)
-        pm.PyNode("mainPaintingGroup").attr("zeroPosition").set(1)
-
         self.packs = self.get_packs()
 
     def send_locator_packs(self):
@@ -62,32 +60,33 @@ class BoardCalibrationProgram(CalibrationProgram):
     @staticmethod
     def get_packs():
         packs = []
-        verts = [
-            item for sublist in pm.sets("probePointsSet", q=True) for item in sublist
-        ]
-        parent = pm.PyNode("|mainPaintingGroup|jpos|probes")
-        rot = pm.dt.Vector(180, 0, -90)
-        for i, v in enumerate(verts):
-            index = int(str(v).split("[")[1].split("]")[0])
-            px, py, _ = v.getPosition(space="world")
-            name = "board_cal_{:02}".format(index)
-            pack = {"name": name, "id": i}
-            pack["base_loc"] = CalibrationProgram._make_locator(
-                parent,
-                "base_{}".format(name),
-                pm.dt.Vector(px, py, 0.0),
-                relative=False,
-                rotation=rot
-            )
+        with uutl.zero_position(pm.PyNode("mainPaintingShape")):
+            verts = [
+                item for sublist in pm.sets("probePointsSet", q=True) for item in sublist
+            ]
+            parent = pm.PyNode("|mainPaintingGroup|jpos|probes")
+            rot = pm.dt.Vector(180, 0, -90)
+            for i, v in enumerate(verts):
+                index = int(str(v).split("[")[1].split("]")[0])
+                px, py, _ = v.getPosition(space="world")
+                name = "board_cal_{:02}".format(index)
+                pack = {"name": name, "id": i}
+                pack["base_loc"] = CalibrationProgram._make_locator(
+                    parent,
+                    "base_{}".format(name),
+                    pm.dt.Vector(px, py, 0.0),
+                    relative=False,
+                    rotation=rot
+                )
 
-            pack["approach_loc"] = CalibrationProgram._make_locator(
-                parent,
-                "approach_{}".format(name),
-                pm.dt.Vector(px, py, CAL_APPROACH_HEIGHT),
-                relative=False,
-                rotation=rot
-            )
+                pack["approach_loc"] = CalibrationProgram._make_locator(
+                    parent,
+                    "approach_{}".format(name),
+                    pm.dt.Vector(px, py, CAL_APPROACH_HEIGHT),
+                    relative=False,
+                    rotation=rot
+                )
 
-            packs.append(pack)
+                packs.append(pack)
 
         return packs

@@ -145,8 +145,7 @@ class RetardantProgram(WashProgram):
 class RackCollection(object):
     def __init__(self):
         self.painting_node = pm.PyNode("mainPaintingShape")
-        self.combination_ids = self._resolve_combination_ids()
-
+        self._resolve_combination_ids()
         self.packs = self.get_packs()
         self.programs = self._build()
 
@@ -216,7 +215,8 @@ class WaterCollection(RackCollection):
     def _resolve_combination_ids(self):
         combos = pm.paintingQuery(self.painting_node, dc=True) or []
         brush_ids = sorted(set(combos[::2]))
-        return [{"brush": int(brush_id), "paint": WATER_POT_ID} for brush_id in brush_ids]
+        self.combination_ids = [
+            {"brush": int(brush_id), "paint": WATER_POT_ID} for brush_id in brush_ids]
 
     def _build(self):
         result = []
@@ -233,7 +233,8 @@ class RetardantCollection(RackCollection):
     def _resolve_combination_ids(self):
         combos = pm.paintingQuery(self.painting_node, dc=True) or []
         brush_ids = sorted(set(combos[::2]))
-        return [{"brush": int(brush_id), "paint": RETARDANT_POT_ID} for brush_id in brush_ids]
+        self.combination_ids = [
+            {"brush": int(brush_id), "paint": RETARDANT_POT_ID} for brush_id in brush_ids]
 
     def _build(self):
         result = []
@@ -254,7 +255,30 @@ class DipWipeCollection(RackCollection):
         for i in range(0, len(combos), 2):
             result.append(
                 {"brush": int(combos[i]), "paint": int(combos[i + 1])})
+        self.combination_ids = result
+
+    def _build(self):
+        result = []
+        for paint_id in self.packs:
+            paint_pack = self.packs[paint_id]
+            for brush_id in paint_pack:
+                pack = paint_pack[brush_id]
+                result.append(DipWipeProgram(pack))
         return result
+
+
+class DipWipeExerciseCollection(RackCollection):
+
+    def __init__(self, combination_ids):
+        self.combination_ids = combination_ids
+        self.painting_node = pm.PyNode("mainPaintingShape")
+        self.packs = self.get_packs()
+        self.programs = self._build()
+
+
+    def _resolve_combination_ids(self):
+        # Already resolved in constructor
+        pass
 
     def _build(self):
         result = []

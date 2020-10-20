@@ -51,8 +51,8 @@ class PaintingSession(Session):
             self.water_collection = WaterCollection()
             self.retardant_collection = RetardantCollection()
 
-        self.send_dip_wipe_programs()
-        self.publish_dip_wipe_programs()
+            self.send_dip_wipe_programs()
+            self.publish_dip_wipe_programs()
 
         robo.close()
 

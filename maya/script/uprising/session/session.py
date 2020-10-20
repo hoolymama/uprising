@@ -22,37 +22,28 @@ class Session(object):
 
     @staticmethod
     def send_rack_geo():
-        rack_context = pm.PyNode("RACK1_CONTEXT")
-        with uutl.final_position(rack_context):
-            geo = [pm.PyNode("rackTop")]
-            props.send(geo)
+        geo = [pm.PyNode("rackTop")]
+        props.send(geo)
 
     @staticmethod
     def send_holder_geo():
-        rack_context = pm.PyNode("RACK1_CONTEXT")
-        with uutl.final_position(rack_context):
-            geo = pm.ls("holders|*|holderTrans|lowResGeo")
-            props.send(geo)
+        geo = pm.ls("holders|*|holderTrans|lowResGeo")
+        props.send(geo)
 
     @staticmethod
     def send_handle_geo():
-        rack_context = pm.PyNode("RACK1_CONTEXT")
-        with uutl.final_position(rack_context):
-            geo = pm.ls("holes|*|holeTrans|wipe_loc|handle")
-            props.send(geo)
+        geo = pm.ls("holes|*|holeTrans|wipe_loc|handle")
+        props.send(geo)
 
     @staticmethod
     def send_pot_geo():
-        rack_context = pm.PyNode("RACK1_CONTEXT")
-        with uutl.final_position(rack_context):
-            geo = pm.ls("holes|*|holeTrans|dip_loc|pot")
-            props.send(geo)
+        geo = pm.ls("holes|*|holeTrans|dip_loc|pot")
+        props.send(geo)
 
     @staticmethod
     def send_board_geo():
         geo = pm.PyNode("canvas")
-        with uutl.final_position(geo):
-            props.send(geo)
+        props.send(geo)
 
     @staticmethod
     def insert_external_dependencies(subprograms, src_fn):

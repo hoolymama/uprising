@@ -14,10 +14,10 @@ class HolderCalibrationSession(CalibrationSession):
 
     def __init__(self):
         super(HolderCalibrationSession, self).__init__()
-        self.program = HolderCalibrationProgram(self.PROGRAM_NAME)
+        with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+            self.program = HolderCalibrationProgram(self.PROGRAM_NAME)
 
     def send_props(self):
-        rack_context = pm.PyNode("RACK1_CONTEXT")
-        with uutl.final_position(rack_context):
+        with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
             self.send_rack_geo()
             self.send_holder_geo()

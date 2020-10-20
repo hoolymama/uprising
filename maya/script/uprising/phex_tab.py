@@ -1,16 +1,15 @@
-import os
 
-import const as k
+
 import palette_utils as putl
-import props
+
 import pymel.core as pm
 import pymel.core.uitypes as gui
-import robo
-import write
-from brush import Brush
-from paint import Paint
-from studio import Studio
+
+
 import uprising_util as uutl
+
+from uprising.session.dip_wipe_exercise_session import DipWipeExerciseSession
+
 
 class phexTab(gui.FormLayout):
     def __init__(self):
@@ -24,9 +23,7 @@ class phexTab(gui.FormLayout):
 
         pm.setParent(self)
 
-
     def create_ui(self):
-
 
         frame = pm.frameLayout(
             collapsable=False,
@@ -48,10 +45,10 @@ class phexTab(gui.FormLayout):
             label="Load selected brushes", command=pm.Callback(self.on_load_selected_brushes)
         )
 
-        pm.button(label="Load all brushes", command=pm.Callback(self.on_load_all_brushes))
+        pm.button(label="Load all brushes",
+                  command=pm.Callback(self.on_load_all_brushes))
 
         pm.button(label="Clear", command=pm.Callback(self.on_clear_brushes))
-
 
         pm.setParent("..")
 
@@ -61,12 +58,12 @@ class phexTab(gui.FormLayout):
         pm.setParent("..")
         return frame
 
-
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
         go_but = pm.button(label="Export", command=pm.Callback(self.on_go))
-        print_but = pm.button(label="Show stats", command=pm.Callback(self.on_show))
+        print_but = pm.button(label="Show stats",
+                              command=pm.Callback(self.on_show))
 
         self.attachForm(self.frame, "left", 2)
         self.attachForm(self.frame, "right", 2)
@@ -89,55 +86,37 @@ class phexTab(gui.FormLayout):
 
     def on_go(self):
         data = self.get_pot_handle_exercise_data()
-
-        timestamp =  write.get_timestamp()
-        if data["combinations"]:
-            directory = os.path.join(
-                pm.workspace.getPath(),
-                'export',
-                'calibrations',
-                k.POT_HANDLE_EXERCISE_PROGRAM_NAME,
-                timestamp)
-            uutl.mkdir_p(directory)
-            robo.new()
-            studio = Studio(pot_handle_exercise_data=data["combinations"])
-            studio.write()
-            robo.write_program(directory, k.POT_HANDLE_EXERCISE_PROGRAM_NAME)
-        uutl.show_in_window(data, title="Pot/holder  exercise stats")
-
+        session = DipWipeExerciseSession(data["combinations"])
+        session.send()
 
     def on_load_selected_brushes(self):
         brushes = pm.ls(selection=True, dag=True, leaf=True, type="brushNode")
         self._load_brush_nodes(brushes)
 
     def on_load_all_brushes(self):
-        brushes = pm.PyNode("mainPaintingShape").attr("brushes").connections(s=True)
+        brushes = pm.PyNode("mainPaintingShape").attr(
+            "brushes").connections(s=True)
         self._load_brush_nodes(brushes)
 
     def on_clear_brushes(self):
         self._clear_entries()
 
-
-    def _get_main_painting_connection_id(self,brush):
+    def _get_main_painting_connection_id(self, brush):
         conns = pm.PyNode(brush).attr("outPaintBrush").connections(p=True)
         return [p.logicalIndex() for p in conns if p.node() == "mainPaintingShape"][0]
-
 
     def _load_brush_nodes(self, brushes):
         self._clear_entries()
         if not brushes:
             return
         frame = 0
-        painting_node = pm.PyNode("mainPaintingShape")
+        # painting_node = pm.PyNode("mainPaintingShape")
         combos = putl.dip_combination_ids()
         print "COMBOS", combos
         for brush in brushes:
             conns = pm.PyNode(brush).attr("outPaintBrush").connections(p=True)
             brush_id = self._get_main_painting_connection_id(brush)
-            paint_ids =  [c["paint"] for c in combos if  c["brush"] == brush_id]
-
-            print "PAINT_IDS",paint_ids
-
+            paint_ids = [c["paint"] for c in combos if c["brush"] == brush_id]
             pm.setParent(self.brushes_column)
             self._create_entry(brush, paint_ids, frame)
             frame += 1
@@ -147,7 +126,7 @@ class phexTab(gui.FormLayout):
         if children:
             pm.deleteUI(children)
 
-    def _create_entry(self, brush,paint_ids, frame):
+    def _create_entry(self, brush, paint_ids, frame):
         text = ",".join(str(p) for p in paint_ids)
         tf = pm.textFieldGrp(
             columnWidth2=(300, 200), label=brush, text=text, cw2=(140, 300)
@@ -156,9 +135,9 @@ class phexTab(gui.FormLayout):
 
     def get_pot_handle_exercise_data(self):
 
-        data = {"combinations": [], "brushes": []}
-        tfs = pm.columnLayout(self.brushes_column, q=True, ca=True)
-        for tf in tfs:
+        data = {"combinations": [], "brushes": [], "paints": []}
+        text_fields = pm.columnLayout(self.brushes_column, q=True, ca=True)
+        for tf in text_fields:
             brush_name = pm.textFieldGrp(tf, q=True, label=True)
             brush = pm.PyNode(brush_name)
 
@@ -169,7 +148,8 @@ class phexTab(gui.FormLayout):
             for paint_id in [
                 int(i) for i in val.split(",") if i is not None and i.isdigit()
             ]:
-                data["combinations"].append({"brush": brush_id, "paint": paint_id})
+                data["combinations"].append(
+                    {"brush": brush_id, "paint": paint_id})
                 data["brushes"].append(brush_name)
 
         data["paints"] = list(set([c["paint"] for c in data["combinations"]]))
