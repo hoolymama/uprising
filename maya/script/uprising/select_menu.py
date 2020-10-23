@@ -11,11 +11,14 @@ def create():
 
     pm.menuItem(label="All handles", command=pm.Callback(putl.select_handles))
 
-    pm.menuItem(label="Used handles", command=pm.Callback(putl.select_used_handles))
+    pm.menuItem(label="Used handles", command=pm.Callback(
+        putl.select_used_handles))
 
-    pm.menuItem(label="All dip paintings", command=pm.Callback(select_dip_paintings))
+    pm.menuItem(label="All dip paintings",
+                command=pm.Callback(select_dip_paintings))
 
-    pm.menuItem(label="All wipe paintings", command=pm.Callback(select_wipe_paintings))
+    pm.menuItem(label="All wipe paintings",
+                command=pm.Callback(select_wipe_paintings))
 
     return menu
 
@@ -40,4 +43,3 @@ def select_wipe_paintings():
             type="painting",
         )
     )
-

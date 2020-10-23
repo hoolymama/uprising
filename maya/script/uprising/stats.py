@@ -32,7 +32,7 @@ def painting_stats(node):
     try:
         cluster_count = pm.paintingQuery(node, cc=True)
     except RuntimeError:
-       return  
+        return
     stroke_count = 0
     reason_result = {"dip": 0, "tool": 0, "tcp": 0}
     travel = []
@@ -80,7 +80,8 @@ def stats():
 
     result["paints_in_use"] = []
     for paint in _used_paints(painting_node):
-        result["paints_in_use"].append("paint:{}({:02d})".format(paint.name, paint.id))
+        result["paints_in_use"].append(
+            "paint:{}({:02d})".format(paint.name, paint.id))
 
     result["painting_node"] = painting_stats(painting_node)
     return result
@@ -92,8 +93,10 @@ def stats_per_brush():
     painting_node = pm.PyNode("mainPaintingShape")
     collector_node = pm.PyNode("collectStrokesMain")
 
-    brush_operator = collector_node.attr("strokeFilterList[3].strokeFilterOperator").get()
-    brush_operand = collector_node.attr("strokeFilterList[3].strokeFilterOperand").get()
+    brush_operator = collector_node.attr(
+        "strokeFilterList[3].strokeFilterOperator").get()
+    brush_operand = collector_node.attr(
+        "strokeFilterList[3].strokeFilterOperand").get()
 
     collector_node.attr("strokeFilterList[3].strokeFilterOperator").set(2)
 
@@ -104,7 +107,9 @@ def stats_per_brush():
         if brush_stats:
             result[str(brush)] = brush_stats
 
-    collector_node.attr("strokeFilterList[3].strokeFilterOperator").set(brush_operator)
-    collector_node.attr("strokeFilterList[3].strokeFilterOperand").set(brush_operand)
+    collector_node.attr(
+        "strokeFilterList[3].strokeFilterOperator").set(brush_operator)
+    collector_node.attr(
+        "strokeFilterList[3].strokeFilterOperand").set(brush_operand)
 
     return result

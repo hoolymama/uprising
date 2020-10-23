@@ -1,11 +1,11 @@
- 
+
 import pymel.core as pm
 import curve_utils as cutl
 import uprising_util as uutl
 
- 
+
 import pymel.core.uitypes as gui
-  
+
 
 class RingsSetupTab(gui.FormLayout):
 
@@ -221,7 +221,6 @@ class RingsSetupTab(gui.FormLayout):
             subcurve_factor,
             rand_rotate,
             density)
-
 
     def populate(self):
 
@@ -458,4 +457,3 @@ class RingsSetupTab(gui.FormLayout):
         var = "upov_density_pow_ctl"
         pm.optionVar[var] = pm.floatFieldGrp(
             self.density_pow_ctl, q=True, value1=True)
-

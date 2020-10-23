@@ -7,8 +7,6 @@ import pymel.core as pm
 
 PI = 3.14159265359
 
- 
-
 
 @contextmanager
 def at_value(attr, value):
@@ -103,7 +101,8 @@ def activatable(**kw):
 
     ctrl = children[0]
     pm.checkBox(
-        cb, edit=True, changeCommand=pm.Callback(_on_active_cb_change, ctrl, cb)
+        cb, edit=True, changeCommand=pm.Callback(
+            _on_active_cb_change, ctrl, cb)
     )
 
     form.attachForm(cb, "top", 2)

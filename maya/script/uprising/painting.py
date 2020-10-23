@@ -31,7 +31,7 @@ class Painting(object):
         progress.update(
             minor_max=num_clusters,
             minor_progress=0)
- 
+
         for i in range(num_clusters):
 
             progress.update(

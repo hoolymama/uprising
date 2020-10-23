@@ -8,7 +8,6 @@ class Target(object):
     def __init__(self, id_, position, rotation, tangent, brush):
         self.id = id_
         self.linear = True
-
         self.tangent = tangent
         self.joint_pose = None
         self.tool_pose = rdk.TxyzRxyz_2_Pose(list(position) + list(rotation))

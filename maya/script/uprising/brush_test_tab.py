@@ -1,10 +1,7 @@
-import sys
 import pymel.core as pm
 from brush import Brush
 import curve_utils as cutl
-import uprising_util as uutl
 import pymel.core.uitypes as gui
-import stroke_factory_utils as sfu
 
 
 class BrushTestTab(gui.FormLayout):
@@ -16,7 +13,7 @@ class BrushTestTab(gui.FormLayout):
         self.column.adjustableColumn(True)
         self.create_buttons()
         self.create_action_buttons()
-        
+
     def create_buttons(self):
         pm.setParent(self.column)
 
@@ -46,7 +43,6 @@ Gap is the offset from one curve to the next. If you want to line strokes up nex
             height=30,
             label='Brush width mult',
             numberOfFields=1, value1=1.0, pre=3)
-
 
         # self.collector_nf = pm.textFieldButtonGrp(label="Collector", editable=False, buttonLabel="select")
 
@@ -84,9 +80,10 @@ Gap is the offset from one curve to the next. If you want to line strokes up nex
         use_widths = pm.checkBoxGrp(
             self.add_widths_cb, query=True, value1=True)
 
-        brush_width_mult = pm.floatFieldGrp(self.brush_width_mult_ff, query=True, value1=True)
+        brush_width_mult = pm.floatFieldGrp(
+            self.brush_width_mult_ff, query=True, value1=True)
 
-        if offset[0] == 0 and  offset[1] == 0:
+        if offset[0] == 0 and offset[1] == 0:
             pm.error("Please provide a gap")
 
         direction = pm.dt.Vector(offset[0], offset[1], 0).normal()
@@ -113,17 +110,15 @@ Gap is the offset from one curve to the next. If you want to line strokes up nex
         if not brush_nodes:
             pm.error("No brushNodes selected")
 
- 
-        collector = pm.ls( selection=True,type="collectStrokes")
+        collector = pm.ls(selection=True, type="collectStrokes")
         if not collector:
             pm.error("No collectStrokes selected")
         collector = collector[0]
- 
+
         # half - and / 10 because cm to mm
         width_mult = brush_width_mult * 0.05
 
         orig_curve_xf = curves[0].getParent()
-        pos = orig_curve_xf.attr("t")
         extent = 0
         new_curves = []
         for brush_node in brush_nodes:
@@ -136,9 +131,11 @@ Gap is the offset from one curve to the next. If you want to line strokes up nex
             curve_xf = pm.duplicate(orig_curve_xf, rr=True)[0]
             curve_xf.rename("crv_{}".format(brush.node_name))
             curr_pos = direction*extent
-            pm.move(curr_pos[0],curr_pos[1], curr_pos[2], curve_xf, relative=True )
-            extent +=  (brush.width*width_mult)
-            cutl.connect_curve_to_strokes_att(curve_xf.getShapes()[0], collector, connect_to="next_available")
+            pm.move(curr_pos[0], curr_pos[1],
+                    curr_pos[2], curve_xf, relative=True)
+            extent += (brush.width*width_mult)
+            cutl.connect_curve_to_strokes_att(
+                curve_xf.getShapes()[0], collector, connect_to="next_available")
 
             curve_stroke = cutl.get_stroke_node(curve_xf)
 
@@ -147,218 +144,3 @@ Gap is the offset from one curve to the next. If you want to line strokes up nex
             new_curves.append(curve_xf)
 
         cutl.curve_vis_active_connection(new_curves)
-
-
-
-
-            # brush.width
-            # brush.node_name
-
-            # print main_conn, index, brush
-
-            # xf = pm.duplicate(orig_curve_xf, rr=True)[0]
-            # index = brushNode.connections(destination=True, source=False, type="painting" )
-
-
-# conn[0].node()
-
-
-# conns = brush_node.connections(destination=True, source=False  )
-
-# conns[0].node()
-
-        # attach colllectStrokes to painting
-
-        # random_paint_params = self.get_random_resource_values(
-        #     self.random_paints_row)
-        # random_brush_params = self.get_random_resource_values(
-        #     self.random_brushes_row)
-
-        # do_max = pm.floatFieldGrp(self.max_extent_ctrl, query=True, en=True)
-
-        # spacing_type = "none"
-        # if pm.rowLayout(
-        #         self.spacing_row,
-        #         query=True, en=True):
-        #     spacing_type = "spine" if (
-        #         pm.radioButtonGrp(
-        #             self.spacing_type_ctl,
-        #             query=True,
-        #             sl=True) == 1) else "gap"
-
-        # spacing = pm.floatFieldGrp(self.spacing_ctl, query=True, value1=True)
-        # max_extent = pm.floatFieldGrp(
-        #     self.max_extent_ctrl,
-        #     query=True,
-        #     value1=True) if do_max else None
-
-        # # print "max_extent : %s" % max_extent
-        # curves = pm.ls(
-        #     selection=True,
-        #     dag=True,
-        #     leaf=True,
-        #     type="nurbsCurve",
-        #     ni=True)
-        # if not curves:
-        #     pm.error("No curves selected")
-        #     return
-
-        # paint_ids = []
-        # brush_ids = []
-        # if random_paint_params and random_paint_params[0] == "":
-        #     for curve in curves:
-        #         sc = cutl.get_stroke_node(curve)
-        #         paint_ids.append(sc.attr("paintId").get())
-
-        # if random_brush_params and random_brush_params[0] == "":
-        #     for curve in curves:
-        #         sc = cutl.get_stroke_node(curve)
-        #         paint_ids.append(sc.attr("brushId").get())
-
-        # curves_packs = map(None, curves, brush_ids, paint_ids)
-
-        # if do_keys:
-        #     start_frame = int(pm.playbackOptions(q=True, min=True))
-        #     end_frame = int(pm.playbackOptions(q=True, max=True))
-        #     for f in range(start_frame, end_frame + 1):
-        #         pm.currentTime(f)
-        #         cutl._randomize(
-        #             curves_packs,
-        #             random_paint_params,
-        #             random_brush_params,
-        #             max_extent,
-        #             spacing,
-        #             spacing_type,
-        #             paint_ids,
-        #             brush_ids,
-        #             True)
-        # else:
-        #     cutl._randomize(
-        #         curves_packs,
-        #         random_paint_params,
-        #         random_brush_params,
-        #         max_extent,
-        #         spacing,
-        #         spacing_type,
-        #         paint_ids,
-        #         brush_ids,
-        #         False)
-
-    # def populate(self):
-
-    #     var = ("upov_spacing_row_en", True)
-    #     pm.rowLayout(
-    #         self.spacing_row,
-    #         e=True,
-    #         en=pm.optionVar.get(
-    #             var[0],
-    #             var[1]))
-    #     uutl.conform_activatable_checkbox(self.spacing_row)
-
-    #     var = ("upov_spacing_type_ctl", 2)
-    #     pm.radioButtonGrp(
-    #         self.spacing_type_ctl,
-    #         e=True,
-    #         sl=pm.optionVar.get(
-    #             var[0],
-    #             var[1]))
-
-    #     var = ("upov_spacing_ctl", 0.3)
-    #     pm.floatFieldGrp(
-    #         self.spacing_ctl,
-    #         e=True,
-    #         value1=pm.optionVar.get(
-    #             var[0],
-    #             var[1]))
-
-    #     var = ("upov_max_extent_ctrl_en", True)
-    #     pm.floatFieldGrp(
-    #         self.max_extent_ctrl,
-    #         e=True,
-    #         en=pm.optionVar.get(
-    #             var[0],
-    #             var[1]))
-    #     uutl.conform_activatable_checkbox(self.max_extent_ctrl)
-
-    #     var = ("upov_max_extent_ctrl", 57)
-    #     pm.floatFieldGrp(
-    #         self.max_extent_ctrl,
-    #         e=True,
-    #         v1=pm.optionVar.get(
-    #             var[0],
-    #             var[1]))
-
-    #     self.populate_random_res("random_paints_row")
-    #     self.populate_random_res("random_brushes_row")
-
-    # def save(self):
-    #     # board
-    #     var = "upov_spacing_row_en"
-    #     pm.optionVar[var] = pm.rowLayout(self.spacing_row, q=True, en=True)
-
-    #     var = "upov_spacing_type_ctl"
-    #     pm.optionVar[var] = pm.radioButtonGrp(
-    #         self.spacing_type_ctl, q=True, sl=True)
-
-    #     var = "upov_spacing_ctl"
-    #     pm.optionVar[var] = pm.floatFieldGrp(
-    #         self.spacing_ctl, q=True, value1=True)
-
-    #     var = "upov_max_extent_ctrl_en"
-    #     pm.optionVar[var] = pm.floatFieldGrp(
-    #         self.max_extent_ctrl, q=True, en=True)
-
-    #     var = "upov_max_extent_ctrl"
-    #     pm.optionVar[var] = pm.floatFieldGrp(
-    #         self.max_extent_ctrl, q=True, v1=True)
-
-    #     self.save_random_res("random_paints_row")
-    #     self.save_random_res("random_brushes_row")
-
-    # def populate_random_res(self, row_attribute):
-    #     row = getattr(self, row_attribute)
-    #     var = ("upov_%s_en" % row_attribute, True)
-    #     pm.rowLayout(row, e=True, en=pm.optionVar.get(var[0], var[1]))
-
-    #     text_ctrl, steps_ctrl, power_ctrl = row.getChildArray()
-
-    #     var = ("upov_%s_spec" % row_attribute, "0-15")
-    #     pm.textFieldGrp(
-    #         text_ctrl,
-    #         e=True,
-    #         text=pm.optionVar.get(
-    #             var[0],
-    #             var[1]))
-
-    #     var = ("upov_%s_steps" % row_attribute, -1)
-    #     pm.intFieldGrp(
-    #         steps_ctrl,
-    #         e=True,
-    #         value1=pm.optionVar.get(
-    #             var[0],
-    #             var[1]))
-
-    #     var = ("upov_%s_power" % row_attribute, 0.0)
-    #     pm.floatFieldGrp(
-    #         power_ctrl,
-    #         e=True,
-    #         value1=pm.optionVar.get(
-    #             var[0],
-    #             var[1]))
-
-    # def save_random_res(self, row_attribute):
-
-    #     row = getattr(self, row_attribute)
-    #     opvar = "upov_%s_en" % row_attribute
-    #     pm.optionVar[opvar] = pm.rowLayout(row, q=True, en=True)
-
-    #     text_ctrl, steps_ctrl, power_ctrl = row.getChildArray()
-
-    #     var = "upov_%s_spec" % row_attribute
-    #     pm.optionVar[var] = pm.textFieldGrp(text_ctrl, q=True, text=True)
-
-    #     var = "upov_%s_steps" % row_attribute
-    #     pm.optionVar[var] = pm.intFieldGrp(steps_ctrl, q=True, value1=True)
-
-    #     var = "upov_%s_power" % row_attribute
-    #     pm.optionVar[var] = pm.floatFieldGrp(power_ctrl, q=True, value1=True)

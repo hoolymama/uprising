@@ -4,7 +4,6 @@ from paint import Paint
 from brush import Brush
 import palette_utils as putl
 
-import const as k
 
 import logging
 
@@ -57,10 +56,8 @@ def _find_nodes_by_short_name(nodes, name):
 
 def create_paintings(model, brushes, paints):
 
-    # pm.PyNode("collectStrokesDW_dip_bk_{}".format(model)
     _create_paintings("dip", model, brushes, paints)
 
-    # pm.PyNode("collectStrokesDW_wipe_{}".format(brush_rank["name"]))
     _create_paintings("wipe", model, brushes, paints)
 
 
@@ -72,7 +69,8 @@ def _create_paintings(which, model, brushes, paints):
 
     for p in paints:
         for brush in brushes:
-            create_painting_node(which, brush, paints[p], collector, painting_template)
+            create_painting_node(
+                which, brush, paints[p], collector, painting_template)
 
 
 def create_painting_node(which, brush, paint, collector, template):
@@ -100,4 +98,3 @@ def create_painting_node(which, brush, paint, collector, template):
     ptg_xf.rename("b{:02d}".format(brush.id))
 
     return ptg_xf
-

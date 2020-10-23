@@ -10,18 +10,13 @@ from uprising import (
     palette_utils,
     setup_dip,
     uprising_util,
-    write,
     brush_assign_tab,
-    color_tab,
     brush_hang_tab,
     brush_test_tab,
     calibration,
     calibration_menu,
     curves_menu,
-    export_menu,
-    export_tab,
     images_menu,
-    info_menu,
     painting_tab,
     palette_menu,
     phex_tab,
@@ -34,46 +29,19 @@ from uprising import (
     tools_menu
 )
 
-from uprising.session import session
-from uprising.session import program
-from uprising.session import calibration_program
-from uprising.session import calibration_session
-
-from uprising.session import board_calibration_program
-from uprising.session import board_calibration_session
-from uprising.session import holder_calibration_program
-from uprising.session import holder_calibration_session
-from uprising.session import pot_calibration_program
-from uprising.session import pot_calibration_session
-from uprising.session import rack_calibration_program
-from uprising.session import rack_calibration_session
-from uprising.session import manual_probe_program
-from uprising.session import manual_probe_session
-
-from uprising.session import pick_place_program
-
-from uprising.session import pick_place_exercise_program
-from uprising.session import pick_place_exercise_session
-
-from uprising.session import painting_program
-from uprising.session import dip_wipe_program
-
-from uprising.session import painting_session
-from uprising.session import retries_session
 
 reload(uprising_util)
 reload(robo)
 reload(brush)
 reload(stats)
 reload(cluster)
-reload(write)
 reload(setup_dip)
 reload(const)
 reload(curve_utils)
 reload(brush_utils)
 reload(palette_utils)
 reload(chain_menu)
-reload(color_tab)
+
 reload(phex_tab)
 reload(brush_hang_tab)
 
@@ -82,42 +50,12 @@ reload(brush_assign_tab)
 reload(brush_test_tab)
 reload(probes_tab)
 reload(tools_menu)
-reload(info_menu)
 reload(curves_menu)
 reload(images_menu)
 reload(select_menu)
 reload(images)
 reload(calibration)
 reload(calibration_menu)
-reload(export_tab)
-reload(export_menu)
-
-reload(session)
-reload(program)
-reload(calibration_program)
-reload(calibration_session)
-
-reload(board_calibration_program)
-reload(board_calibration_session)
-reload(holder_calibration_program)
-reload(holder_calibration_session)
-reload(pot_calibration_program)
-reload(pot_calibration_session)
-reload(rack_calibration_program)
-reload(rack_calibration_session)
-reload(manual_probe_program)
-reload(manual_probe_session)
-
-reload(pick_place_program)
-
-reload(pick_place_exercise_program)
-reload(pick_place_exercise_session)
-
-reload(painting_program)
-reload(dip_wipe_program)
-
-reload(painting_session)
-reload(retries_session)
 
 
 class RobotWindow(gui.Window):
@@ -153,10 +91,6 @@ class RobotWindow(gui.Window):
         self.tabs.setTabLabel((self.painting_tab, "Painting"))
 
         pm.setParent(self.tabs)
-        self.export_tab = export_tab.exportTab()
-        self.tabs.setTabLabel((self.export_tab, "Export"))
-
-        pm.setParent(self.tabs)
         self.phex_tab = phex_tab.phexTab()
         self.tabs.setTabLabel((self.phex_tab, "PHEX"))
 
@@ -171,10 +105,6 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.probes_tab = probes_tab.probesTab()
         self.tabs.setTabLabel((self.probes_tab, "Probes"))
-
-        pm.setParent(self.tabs)
-        self.color_tab = color_tab.ColorTab()
-        self.tabs.setTabLabel((self.color_tab, "Color"))
 
         pm.setParent(self.menuBarLayout)
         self.tools_menu = tools_menu.create()
@@ -192,16 +122,10 @@ class RobotWindow(gui.Window):
         self.palette_menu = palette_menu.create()
 
         pm.setParent(self.menuBarLayout)
-        self.info_menu = info_menu.create()
-
-        pm.setParent(self.menuBarLayout)
         self.calibration_menu = calibration_menu.create()
 
         pm.setParent(self.menuBarLayout)
         self.chain_menu = chain_menu.create()
-
-        pm.setParent(self.menuBarLayout)
-        self.export_menu = export_menu.create()
 
         self.show()
         self.setResizeToFitChildren()
@@ -218,3 +142,57 @@ class RobotWindow(gui.Window):
     def save(self):
         var = "upov_tab_index"
         pm.optionVar[var] = self.tabs.getSelectTabIndex()
+
+
+# from uprising.session import session
+# from uprising.session import program
+# from uprising.session import calibration_program
+# from uprising.session import calibration_session
+
+# from uprising.session import board_calibration_program
+# from uprising.session import board_calibration_session
+# from uprising.session import holder_calibration_program
+# from uprising.session import holder_calibration_session
+# from uprising.session import pot_calibration_program
+# from uprising.session import pot_calibration_session
+# from uprising.session import rack_calibration_program
+# from uprising.session import rack_calibration_session
+# from uprising.session import manual_probe_program
+# from uprising.session import manual_probe_session
+
+# from uprising.session import pick_place_program
+
+# from uprising.session import pick_place_exercise_program
+# from uprising.session import pick_place_exercise_session
+
+# from uprising.session import painting_program
+# from uprising.session import dip_wipe_program
+
+# from uprising.session import painting_session
+# from uprising.session import retries_session
+# reload(session)
+# reload(program)
+# reload(calibration_program)
+# reload(calibration_session)
+
+# reload(board_calibration_program)
+# reload(board_calibration_session)
+# reload(holder_calibration_program)
+# reload(holder_calibration_session)
+# reload(pot_calibration_program)
+# reload(pot_calibration_session)
+# reload(rack_calibration_program)
+# reload(rack_calibration_session)
+# reload(manual_probe_program)
+# reload(manual_probe_session)
+
+# reload(pick_place_program)
+
+# reload(pick_place_exercise_program)
+# reload(pick_place_exercise_session)
+
+# reload(painting_program)
+# reload(dip_wipe_program)
+
+# reload(painting_session)
+# reload(retries_session)

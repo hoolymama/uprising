@@ -1,26 +1,25 @@
 import random
-import math
 
 class StepRandomizer(object):
-     def __init__ (self, max_steps, power):
+    def __init__(self, max_steps, power):
         sentinel = max_steps+1
         w = {}
-        self.__max  = 0.0
+        self.__max = 0.0
         self.__weights = []
         for value in range(sentinel):
-            j=1.0-(value / float(sentinel))
-            weight = pow(j, power) 
-            self.__max += weight 
-            self.__weights.append ( (self.__max, value) )
-            if value >0:
-                self.__max += weight 
-                self.__weights.append ( (self.__max, -value) )
- 
-     def random (self):
-        r = random.random () * self.__max
+            j = 1.0-(value / float(sentinel))
+            weight = pow(j, power)
+            self.__max += weight
+            self.__weights.append((self.__max, value))
+            if value > 0:
+                self.__max += weight
+                self.__weights.append((self.__max, -value))
+
+    def random(self):
+        r = random.random() * self.__max
         for ceil, value in self.__weights:
-            if ceil > r: return value
- 
+            if ceil > r:
+                return value
 
 
 # sr = StepRandomizer (4, 2)
@@ -33,4 +32,4 @@ class StepRandomizer(object):
 
 # print ('After 10000 rounds the distribution is:')
 # print (results)
-#  
+#

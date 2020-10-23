@@ -405,7 +405,7 @@ def do_random_existing(
     num = len(r_indices)
     if not num:
         return
-    last = num - 1
+
     randomizer = StepRandomizer(steps, power)
 
     curve_packs = zip(curves, orig_ids)
@@ -420,7 +420,7 @@ def do_random_existing(
             attr.set(resource_id)
             if set_key:
                 attr.setKey(value=resource_id)
-            prev_index = rand_index  # only set prev is we successfully set the resource
+ 
         except RuntimeError:
             pm.warning("Skipping locked attribute %s" % attr)
 
@@ -592,7 +592,6 @@ def duplicate_into_gaps(curves):
 def propagate_ramp_attribute(att, auxAtt):
     nodes = pm.ls(selection=True)
     stroke_nodes = get_stroke_nodes(nodes)
-
 
     last_node = stroke_nodes[-1]
     if last_node:

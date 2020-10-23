@@ -19,15 +19,13 @@ def _get_service():
         creds = tools.run_flow(flow, STORE)
     service = build('sheets', 'v4', http=creds.authorize(Http()))
     return service
- 
+
 
 def get_measurements_values(cell_range, service, dimension="ROWS"):
     result = service.spreadsheets().values().get(
-            spreadsheetId=SHEETS["Measurements"],
-            range=cell_range,majorDimension=dimension).execute()
+        spreadsheetId=SHEETS["Measurements"],
+        range=cell_range, majorDimension=dimension).execute()
     return result.get('values', [])
-
-
 
 
 def get_named_header(search_str, sheet_name,  service):
@@ -35,17 +33,18 @@ def get_named_header(search_str, sheet_name,  service):
     batch_size = 200
     batches = 5
     total_rows = batch_size * batches
-    for r,x in [("%s!A%d:A%d" % (sheet_name, x+1, x+batch_size) , x) for x in xrange(0,total_rows,batch_size) ]:
-        values = get_measurements_values(r,service, "COLUMNS")
+    for r, x in [("%s!A%d:A%d" % (sheet_name, x+1, x+batch_size), x) for x in xrange(0, total_rows, batch_size)]:
+        values = get_measurements_values(r, service, "COLUMNS")
         if values:
             for i, v in enumerate(values[0]):
                 if v == search_str:
                     row = (x+i+1)
-                    cell_range = "%s!A%d:B%d"  % (sheet_name,row,row)
-                    header_values = get_measurements_values(cell_range,service)[0]
+                    cell_range = "%s!A%d:B%d" % (sheet_name, row, row)
+                    header_values = get_measurements_values(
+                        cell_range, service)[0]
                     # header_values.append(row)
                     return {
-                        "name":header_values[0],
+                        "name": header_values[0],
                         "args": header_values[1:],
                         "first_row": row
                     }
@@ -58,19 +57,16 @@ def get_resource_by_name(name, resource):
     if result:
         row = result["first_row"]
         # print "name: %s" % header["name"]
-        cell_range = "%s!A%d:Z%d"  % (resource, row+1,row+64)
-        data =  get_measurements_values(cell_range,service)
+        cell_range = "%s!A%d:Z%d" % (resource, row+1, row+64)
+        data = get_measurements_values(cell_range, service)
         new_data = []
-        for  entry in data:
+        for entry in data:
             if len(entry) == 0:
                 break
             new_data.append(entry)
 
         result["data"] = new_data
     return result
-
-
-
 
 
 def get_raw_board_data():
@@ -87,7 +83,6 @@ def get_raw_board_data():
 
     offset = offset_values[0][0] if offset_values else 0
 
-
     ground_result = service.spreadsheets().values().get(
         spreadsheetId=SHEETS["Measurements"],
         range='Board!A1').execute()
@@ -95,17 +90,13 @@ def get_raw_board_data():
 
     offset = offset_values[0][0] if offset_values else 0
 
-
-
     return (values, offset, ground)
 
 
-
-def  get_flange_mode():
+def get_flange_mode():
     service = _get_service()
     result = service.spreadsheets().values().get(
         spreadsheetId=SHEETS["Measurements"],
         range='Brushes!A2:A2').execute()
 
     return result['values'][0][0]
-

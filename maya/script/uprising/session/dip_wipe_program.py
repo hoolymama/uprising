@@ -271,10 +271,7 @@ class DipWipeExerciseCollection(RackCollection):
 
     def __init__(self, combination_ids):
         self.combination_ids = combination_ids
-        self.painting_node = pm.PyNode("mainPaintingShape")
-        self.packs = self.get_packs()
-        self.programs = self._build()
-
+        super(DipWipeExerciseCollection, self).__init__()
 
     def _resolve_combination_ids(self):
         # Already resolved in constructor
@@ -288,3 +285,8 @@ class DipWipeExerciseCollection(RackCollection):
                 pack = paint_pack[brush_id]
                 result.append(DipWipeProgram(pack))
         return result
+
+        self.painting_node = pm.PyNode("mainPaintingShape")
+        self._resolve_combination_ids()
+        self.packs = self.get_packs()
+        self.programs = self._build()

@@ -4,12 +4,9 @@ Module as a singleton that stores the robot and the link.
 """
 
 import os
-import time
-from uprising import uprising_util as uutl
 
-
-from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT, ITEM_TYPE_STATION,
-                      ITEM_TYPE_TARGET, Robolink)
+from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT,
+                      ITEM_TYPE_STATION, Robolink)
 
 import pymel.core as pm
 import robodk as rdk
@@ -66,17 +63,6 @@ def new():
     global _robot
     global _debug
 
-    # _debug = debug
-
-    # args = ["-SKIPINI"]
-    # if _debug:
-    #     args.append("-DEBUG")
-    # if newinst:
-    #     close()
-    #     args.append("-NEWINSTANCE")
-
-    # args = ["-SKIPINI", "-NOUI"]
-
     _link = Robolink(robodk_path=ROBODK_PATH)
     _link.AddFile(LICENSE_FILE)
 
@@ -113,8 +99,8 @@ def clean():
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _robot.setParam("PostProcessor", "KUKA KRC4")
     _create_infrastructure()
- 
- 
+
+
 def create_program(name):
     global _link
     program = _link.Item(name)

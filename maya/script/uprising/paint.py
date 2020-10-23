@@ -46,7 +46,8 @@ class Paint(object):
     def write_geo(self, frame):
         link = robo.link()
         tray = pm.PyNode(self.name)
-        geo = pm.ls(tray.getParent().getParent(), dag=True, leaf=True, type="mesh")
+        geo = pm.ls(tray.getParent().getParent(),
+                    dag=True, leaf=True, type="mesh")
         for g in geo:
             xf = g.getParent()
             triangles = []

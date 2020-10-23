@@ -9,6 +9,7 @@ def _deactivate_all_nodes(nodes):
     for node in nodes:
         node.attr("active").set(0)
 
+
 def _activate_all_nodes(nodes):
     for node in nodes:
         node.attr("active").set(1)
@@ -26,7 +27,6 @@ class KeysTab(gui.FormLayout):
 
     def create_ui(self):
         pm.setParent(self.column)
- 
 
         min_frame = pm.currentTime(q=True)
         self.frame_if = pm.intFieldGrp(
@@ -39,14 +39,12 @@ class KeysTab(gui.FormLayout):
             numberOfFields=1,
             value1=0)
 
-
         self.send_dry_run_cb = pm.checkBoxGrp(
             label='Dry run',
             value1=0,
             height=30)
 
         # self.initialize_ui()
-
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -84,27 +82,27 @@ class KeysTab(gui.FormLayout):
 
     def on_go(self):
 
-
         dry = pm.checkBoxGrp(self.send_dry_run_cb, q=True, value1=True)
 
-        first_frame= pm.intFieldGrp(
-                self.frame_if,
-                query=True,
-                value1=True)
+        first_frame = pm.intFieldGrp(
+            self.frame_if,
+            query=True,
+            value1=True)
 
-        first_parent= pm.intFieldGrp(
-                self.parent_if,
-                query=True,
-                value1=True)
+        first_parent = pm.intFieldGrp(
+            self.parent_if,
+            query=True,
+            value1=True)
 
         painting_node = pm.PyNode("mainPaintingShape")
         painting_node.attr("applyFilters").set(0)
 
         vals = []
         frame = first_frame
-        conns =painting_node.attr("strokes").connections(s=True, d=False,  c=True)
+        conns = painting_node.attr("strokes").connections(
+            s=True, d=False,  c=True)
         nodes = [c[1] for c in conns]
-        for plug, input_node,  in conns:
+        for plug, input_node, in conns:
             _deactivate_all_nodes(nodes)
             index = int(plug.split("[")[1].split("]")[0])
             if index < first_parent:
@@ -114,8 +112,7 @@ class KeysTab(gui.FormLayout):
             brush_ids_reversed = sorted(set(combos[::2]))[::-1]
             for bid in brush_ids_reversed:
                 vals.append([frame, index, bid])
-                frame+=1
-
+                frame += 1
 
         parent_id_attr = painting_node.attr("stfl[0].stfod")
         brush_id_attr = painting_node.attr("stfl[1].stfod")

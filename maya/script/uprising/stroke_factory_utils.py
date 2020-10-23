@@ -1,10 +1,5 @@
 import pymel.core as pm
 
-from paint import Paint
-from brush import Brush
-
- 
-import uprising.uprising_util as uutl
 
 def input_connection(attribute):
     conns = attribute.connections(source=True, destination=False, plugs=True)
@@ -14,6 +9,7 @@ def input_connection(attribute):
 def input_connections(attribute):
     conns = attribute.connections(source=True, destination=False, plugs=True)
     return conns
+
 
 def get_index(node, att, connect_to):
 
@@ -94,4 +90,3 @@ def create_and_connect_driver(driver_node, att):
         driver_node.attr(name).set(val)
     if not driver_node.attr(name).isConnectedTo(att):
         driver_node.attr(name) >> att
-

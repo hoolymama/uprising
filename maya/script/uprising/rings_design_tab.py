@@ -1,8 +1,9 @@
-import sys
+
 import pymel.core as pm
 import curve_utils as cutl
 import uprising_util as uutl
 import pymel.core.uitypes as gui
+
 
 class RingsDesignTab(gui.FormLayout):
 
@@ -12,9 +13,8 @@ class RingsDesignTab(gui.FormLayout):
         self.column = pm.columnLayout()
         self.column.adjustableColumn(True)
         self.create_buttons()
-        self.create_action_buttons()        
+        self.create_action_buttons()
         self.populate()
-
 
     def get_random_resource_values(self, row):
         if not pm.rowLayout(row, q=True, en=True):
@@ -36,15 +36,15 @@ class RingsDesignTab(gui.FormLayout):
                                columnWidth3=(250, 90, 90),
                                columnAlign=(1, 'right'))
 
-            text_ctrl = pm.textFieldGrp(
+            pm.textFieldGrp(
                 label=label,
                 text=default_text
             )
-            steps_ctrl = pm.intFieldGrp(
+            pm.intFieldGrp(
                 columnWidth2=(30, 60,),
                 numberOfFields=1, value1=-1, label='steps'
             )
-            power_ctrl = pm.floatFieldGrp(
+            pm.floatFieldGrp(
                 columnWidth2=(30, 60,),
                 numberOfFields=1, value1=0, label='pow'
             )
@@ -83,7 +83,6 @@ class RingsDesignTab(gui.FormLayout):
             "Random paints", "0-32")
         self.random_brushes_row = self.random_res_control(
             "Random brushes", "0-16")
-
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -147,8 +146,7 @@ class RingsDesignTab(gui.FormLayout):
             self.max_extent_ctrl,
             query=True,
             value1=True) if do_max else None
-
-        # print "max_extent : %s" % max_extent
+ 
         curves = pm.ls(
             selection=True,
             dag=True,
@@ -271,7 +269,6 @@ class RingsDesignTab(gui.FormLayout):
         self.save_random_res("random_paints_row")
         self.save_random_res("random_brushes_row")
 
-
     def populate_random_res(self, row_attribute):
         row = getattr(self, row_attribute)
         var = ("upov_%s_en" % row_attribute, True)
@@ -303,7 +300,6 @@ class RingsDesignTab(gui.FormLayout):
                 var[0],
                 var[1]))
 
-
     def save_random_res(self, row_attribute):
 
         row = getattr(self, row_attribute)
@@ -320,5 +316,3 @@ class RingsDesignTab(gui.FormLayout):
 
         var = "upov_%s_power" % row_attribute
         pm.optionVar[var] = pm.floatFieldGrp(power_ctrl, q=True, value1=True)
-
-

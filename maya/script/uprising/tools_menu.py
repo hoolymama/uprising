@@ -33,9 +33,8 @@ def create():
         command=pm.Callback(zero_disp_mesh))
 
     pm.menuItem(label="Print stats", command=pm.Callback(on_print_stats))
-    pm.menuItem(label="Print stats per brush", command=pm.Callback(on_print_stats_per_brush))
-
- 
+    pm.menuItem(label="Print stats per brush",
+                command=pm.Callback(on_print_stats_per_brush))
 
     pm.menuItem(
         label="Print paint and brush json",
@@ -91,9 +90,6 @@ def on_connect_brushids_to_skeleton():
     if not skels:
         skels = pm.ls(type="skeletonStroke")
     butl.connect_skels(painting, skels)
-
-
-
 
 
 def _bake_first_paint_id(painting, curve):
@@ -152,8 +148,9 @@ def on_connect_texture(attribute):
 def on_print_stats():
     uutl.show_in_window(stats.stats(), title="Painting stats")
 
+
 def on_print_stats_per_brush():
-    uutl.show_in_window(stats.stats_per_brush() , title="Per-brush stats")
+    uutl.show_in_window(stats.stats_per_brush(), title="Per-brush stats")
 
 
 def on_print_stats_range():
@@ -206,15 +203,17 @@ def on_print_paint_and_brush_stats(fmt="json"):
 
 
 def randomize_dips():
-    dip_paintings = pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|*", dag=True, leaf=True, type="painting"),
+    dip_paintings = pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|*",
+                          dag=True, leaf=True, type="painting"),
     dip_paintings = pm.listRelatives(dip_paintings, parent=True)
     for p in dip_paintings:
         ty = random()+0.5
-        rz=(random()*60)-30
+        rz = (random()*60)-30
         p.attr("ty").set(ty)
         p.attr("rz").set(rz)
 
-    wipe_paintings = pm.ls("rack|holes|holeRot*|holeTrans|wipe_loc|*", dag=True, leaf=True, type="painting"),
+    wipe_paintings = pm.ls(
+        "rack|holes|holeRot*|holeTrans|wipe_loc|*", dag=True, leaf=True, type="painting"),
     wipe_paintings = pm.listRelatives(wipe_paintings, parent=True)
 
     main_painting_node = pm.PyNode("mainPaintingShape")
@@ -222,6 +221,6 @@ def randomize_dips():
     for p in wipe_paintings:
         brush_id = int(p.split("|")[-1][1:])
         brush = Brush.brush_at_index(main_painting_node, brush_id)
-        x_pos =brush.wipe_bar_position
+        x_pos = brush.wipe_bar_position
         p.attr("tx").set(x_pos)
         p.attr("ty").set(0.6)

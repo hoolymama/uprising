@@ -1,20 +1,15 @@
-import os
+
 import pymel.core as pm
-import setup_dip
-import pymel.core.uitypes as gui
+
 import curve_utils as cutl
-import images
-
-
-
 
 
 def create():
     menu = pm.menu(label="Curves", tearOff=True)
     pm.menuItem(
-            label='Select strokes from curves',
-            ann="Choose curves to select connected curveStrokes",
-            command=pm.Callback(on_select_strokes))
+        label='Select strokes from curves',
+        ann="Choose curves to select connected curveStrokes",
+        command=pm.Callback(on_select_strokes))
 
     pm.menuItem(
         label='Select curves below',
@@ -46,12 +41,10 @@ def create():
         ann="Break selected curve connections",
         command=pm.Callback(on_remove_curve_instances))
 
-
     pm.menuItem(
         label='Remove curves from selected painting',
         ann="Break selected curve connections",
         command=pm.Callback(on_remove_strokes_from_selected_node))
-
 
     pm.menuItem(
         label='Connect curve visibility',
@@ -83,7 +76,6 @@ def create():
     return menu
 
 
- 
 def on_select_strokes():
     curves = pm.ls(
         selection=True,
@@ -99,6 +91,7 @@ def on_select_strokes():
             levels=1,
             type="curveStroke"))
 
+
 def on_select_curves_below():
     pm.select(pm.ls(
         selection=True,
@@ -107,6 +100,7 @@ def on_select_curves_below():
         type="nurbsCurve",
         ni=True,
         ut=True))
+
 
 def duplicate_curves_to_painting():
 
@@ -119,8 +113,10 @@ def duplicate_curves_to_painting():
     for curve in curves:
         cutl.duplicate_curve_to_painting(curve)
 
+
 def add_curves_to_strokes_att():
-    dest_node = pm.ls(selection=True, dag=True, leaf=True, type=("painting", "collectStrokes") )[0]
+    dest_node = pm.ls(selection=True, dag=True, leaf=True,
+                      type=("painting", "collectStrokes"))[0]
     if not dest_node:
         raise IndexError("No painting or collectStrokes node selected")
     curves = pm.ls(
@@ -147,6 +143,7 @@ def add_curves_to_strokes_att():
         cutl.connect_curve_to_strokes_att(
             curve, dest_node, connect_to="next_available")
 
+
 def add_curves_using_source_strokes():
 
     curves = pm.ls(
@@ -157,21 +154,17 @@ def add_curves_using_source_strokes():
         ni=True)
 
     targets = curves[:-1]
-    src =  cutl.get_stroke_node(curves[-1])
+    src = cutl.get_stroke_node(curves[-1])
     destination = cutl.get_strokes_destination(curves[-1])
 
     for curve in targets:
-        # curve_xf = pm.rebuildCurve(curve, ch=1, rpo=1, rt=0, end=0,kr=2, kcp=0, kep=1, kt=0, s=1, d=3, tol=1)[0]
 
-        # curve_xf = pm.rebuildCurve(curve, ch=1, rpo=1, rt=4, end=1,kr=2, kcp=0, kep=1, kt=0, s=1, d=3, tol=3)[0]
         curve_xf = curve.getParent()
         pm.xform(curve_xf, cpc=True)
         curve = curve_xf.getChildren()[0]
         cutl.connect_curve_using_src(curve, src, destination)
 
-    cutl.do_rename_inputs('crv_%d','strk_%d', targets)
-
-
+    cutl.do_rename_inputs('crv_%d', 'strk_%d', targets)
 
 
 def reverse_connection_order():
@@ -202,6 +195,7 @@ def reverse_connection_order():
     for conn in painting_conns:
         conn[0] >> conn[1]
 
+
 def on_remove_curve_instances():
 
     curves = pm.ls(
@@ -212,6 +206,7 @@ def on_remove_curve_instances():
         ni=True)
 
     cutl.delete_curve_instances(curves)
+
 
 def on_remove_strokes_from_selected_node():
 
@@ -224,7 +219,6 @@ def on_remove_strokes_from_selected_node():
     cutl.delete_strokes_from(nodes)
 
 
-
 def on_connect_curve_vis_active():
     curves_xfs = pm.listRelatives(pm.ls(
         selection=True,
@@ -235,6 +229,7 @@ def on_connect_curve_vis_active():
     print curves_xfs
     cutl.curve_vis_active_connection(curves_xfs, True)
 
+
 def on_disconnect_curve_vis_active():
     curves_xfs = pm.listRelatives(pm.ls(
         selection=True,
@@ -243,6 +238,7 @@ def on_disconnect_curve_vis_active():
         type="nurbsCurve",
         ni=True), parent=True)
     cutl.curve_vis_active_connection(curves_xfs, False)
+
 
 def on_remove_hanging_stroke_curves():
     curves = pm.ls(
@@ -261,10 +257,12 @@ def on_remove_hanging_stroke_curves():
         if not paintings:
             pm.delete(sc)
 
+
 def on_cleanup_curve_plugs():
     paintings = pm.ls(selection=True, type="painting")
     for p in paintings:
         cutl.remove_unconnected_curve_plugs(p)
+
 
 def on_contain_strokes_in_mesh():
     curves = pm.ls(

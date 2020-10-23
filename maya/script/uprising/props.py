@@ -5,6 +5,7 @@ import robo
 
 from robolink import ITEM_TYPE_TARGET
 
+
 def get_targets_frame():
     link = robo.link()
 
@@ -82,4 +83,3 @@ def send(objects, parent=None):
 def send_selected():
     transforms = pm.ls(sl=True, transforms=True)
     send(transforms)
-
