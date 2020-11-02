@@ -49,7 +49,6 @@ class RetriesSession(Session):
         self.nodes = stroke_nodes
         self.plugs = [pm.PyNode(node).attr(ATTRIBUTE) for node in stroke_nodes]
 
- 
         self.start_time = None
 
         self.result_data = {
@@ -107,6 +106,7 @@ class RetriesSession(Session):
         values = []
         plug.set(360)
         while True:
+
             value = plug.get()
             values.append(value)
             pm.refresh()
@@ -120,26 +120,27 @@ class RetriesSession(Session):
             iter_start = time.time()
             robo.clean()
             program = PaintingProgram("retry")
-            if program and program.painting and program.painting.clusters:
-                program.send()
-                path_result = program.validate_path() or {"status": "SUCCESS"}
-                path_result.update(
-                    {"iteration": i, "value": value,
-                        "timer": time.time() - iter_start}
-                )
-                result["path_results"].append(path_result)
-                if path_result["status"] == "SUCCESS":
-                    result["attempts"] = i + 1
-                    result["solved"] = True
-                    break
+            if not (program and program.painting and program.painting.clusters):
+                break
+            program.send()
+            path_result = program.validate_path() or {"status": "SUCCESS"}
+            path_result.update(
+                {"iteration": i, "value": value,
+                    "timer": time.time() - iter_start}
+            )
+            result["path_results"].append(path_result)
+            if path_result["status"] == "SUCCESS":
+                result["attempts"] = i + 1
+                result["solved"] = True
+                break
 
-                # Here if we need to try again
-                i += 1
-                coil = pm.PyNode(plug).node().attr("outCoil").get()
-                next_val = min(coil, value) - self.delta
-                if next_val < 0:
-                    break
-                plug.set(next_val)
+            # Here if we need to try again
+            i += 1
+            coil = pm.PyNode(plug).node().attr("outCoil").get()
+            next_val = min(coil, value) - self.delta
+            if next_val <= 0:
+                break
+            plug.set(next_val)
 
         result["timer"] = time.time() - plug_start
         return result
