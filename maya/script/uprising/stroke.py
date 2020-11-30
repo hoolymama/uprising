@@ -1,4 +1,10 @@
-from robolink import INSTRUCTION_COMMENT
+
+from robolink import (
+    INSTRUCTION_COMMENT,
+    INSTRUCTION_SHOW_MESSAGE
+)
+
+
 from target import Target, DepartureTarget, ArrivalTarget
 import pymel.core as pm
 
@@ -18,14 +24,15 @@ class Stroke(object):
         self.node = node
 
         self.brush = brush
-        # self.last_valid_joints = last_valid_joints
+
+        self.targets = []
+        self.arrivals = []
+        self.departure = None
 
         self.set_stroke_params()
         self.build_targets()
         self.build_arrivals()
         self.build_departure()
-
-        # self.build_stop_targets()
 
         self.configure()
 
@@ -67,8 +74,6 @@ class Stroke(object):
         )
 
     def build_targets(self):
-
-        self.targets = []
 
         positions = uutl.to_point_array(
             pm.paintingQuery(
@@ -115,8 +120,6 @@ class Stroke(object):
             self.targets.append(tg)
 
     def build_arrivals(self):
-
-        self.arrivals = []
 
         positions = uutl.to_point_array(
             pm.paintingQuery(
@@ -208,3 +211,46 @@ class Stroke(object):
             target.configure()
 
         self.departure.configure()
+
+
+class PovStroke(Stroke):
+    def __init__(self, cluster_id, _id, brush, node):
+        self.cluster_id = cluster_id
+        self.id = _id
+        self.node = node
+        self.brush = brush
+        self.targets = []
+
+        self.set_stroke_params()
+        self.build_targets()
+        self.configure()
+
+    def send(self, prefix, program, frame, motion):
+        stroke_name = self.name(prefix)
+        program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
+        lin = motion["linear_speed"] * self.linear_speed
+        ang = motion["angular_speed"] * self.angular_speed
+        program.setSpeed(lin, ang)
+
+        for i, t in enumerate(self.targets):
+            t.send(stroke_name, program, frame)
+
+            if i == 0:
+                program.RunInstruction(
+                    "Turn on the light and continue",
+                    INSTRUCTION_SHOW_MESSAGE,
+                )
+                program.Pause()
+
+            if (i+1) == len(self.targets):
+                program.RunInstruction(
+                    "Turn off the light and continue",
+                    INSTRUCTION_SHOW_MESSAGE,
+                )
+                program.Pause()
+
+    def configure(self):
+        if self.targets:
+            for target in self.targets:
+                target.configure()
+            self.targets[0].linear = False

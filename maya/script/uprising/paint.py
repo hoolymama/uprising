@@ -17,7 +17,8 @@ class Paint(object):
         conns = node.attr("paints[%d].paintTravel" % index).connections(
             source=True, destination=False
         )
-        vals.append(str(conns[0]))
+
+        vals.append(str(conns[0] if conns else "noname"))
 
         for att in ["paintColor", "paintOpacity", "paintTravel"]:
             vals.append(node.attr("paints[%d].%s" % (index, att)).get())

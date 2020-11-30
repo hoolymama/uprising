@@ -2,6 +2,7 @@ import pymel.core.uitypes as gui
 import pymel.core as pm
 from uprising import (
     brush,
+    paint,
     brush_utils,
     cluster,
     const,
@@ -29,10 +30,10 @@ from uprising import (
     tools_menu
 )
 
-
 reload(uprising_util)
 reload(robo)
 reload(brush)
+reload(paint)
 reload(stats)
 reload(cluster)
 reload(setup_dip)
@@ -142,57 +143,3 @@ class RobotWindow(gui.Window):
     def save(self):
         var = "upov_tab_index"
         pm.optionVar[var] = self.tabs.getSelectTabIndex()
-
-
-# from uprising.session import session
-# from uprising.session import program
-# from uprising.session import calibration_program
-# from uprising.session import calibration_session
-
-# from uprising.session import board_calibration_program
-# from uprising.session import board_calibration_session
-# from uprising.session import holder_calibration_program
-# from uprising.session import holder_calibration_session
-# from uprising.session import pot_calibration_program
-# from uprising.session import pot_calibration_session
-# from uprising.session import rack_calibration_program
-# from uprising.session import rack_calibration_session
-# from uprising.session import manual_probe_program
-# from uprising.session import manual_probe_session
-
-# from uprising.session import pick_place_program
-
-# from uprising.session import pick_place_exercise_program
-# from uprising.session import pick_place_exercise_session
-
-# from uprising.session import painting_program
-# from uprising.session import dip_wipe_program
-
-# from uprising.session import painting_session
-# from uprising.session import retries_session
-# reload(session)
-# reload(program)
-# reload(calibration_program)
-# reload(calibration_session)
-
-# reload(board_calibration_program)
-# reload(board_calibration_session)
-# reload(holder_calibration_program)
-# reload(holder_calibration_session)
-# reload(pot_calibration_program)
-# reload(pot_calibration_session)
-# reload(rack_calibration_program)
-# reload(rack_calibration_session)
-# reload(manual_probe_program)
-# reload(manual_probe_session)
-
-# reload(pick_place_program)
-
-# reload(pick_place_exercise_program)
-# reload(pick_place_exercise_session)
-
-# reload(painting_program)
-# reload(dip_wipe_program)
-
-# reload(painting_session)
-# reload(retries_session)

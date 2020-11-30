@@ -17,6 +17,7 @@ from uprising.session.dip_wipe_program import DipWipeCollection, WaterCollection
 
 logger = logging.getLogger("uprising")
 
+
 class PaintingSession(Session):
 
     PROGRAM_NAME = "px"

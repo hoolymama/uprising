@@ -7,6 +7,7 @@ import pymel.core.uitypes as gui
 
 from uprising.session.painting_session import PaintingSession
 from uprising.session.retries_session import RetriesSession
+from uprising.session.pov_session import PovSession
 
 
 @contextmanager
@@ -46,6 +47,14 @@ class PublishTab(gui.FormLayout):
 
         frame = pm.frameLayout(label="Export", bv=True)
 
+        self.painting_type_rb = pm.radioButtonGrp(
+            label='Painting type', sl=2,
+            labelArray2=[
+                'Paint robot',
+                'Light robot'],
+            numberOfRadioButtons=2,
+            changeCommand=pm.Callback(self.on_ops_change))
+
         self.do_components_cb = pm.checkBoxGrp(
             numberOfCheckBoxes=2,
             label="",
@@ -79,16 +88,22 @@ class PublishTab(gui.FormLayout):
 
     def on_ops_change(self):
 
+        if pm.radioButtonGrp(self.painting_type_rb, query=True, sl=True) == 2:
+            # POV
+            pm.intFieldGrp(self.cluster_chunk_if, edit=True, en=True)
+            pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=False)
+            pm.checkBoxGrp(self.do_components_cb, edit=True, en=False)
+            pm.button(self.go_but, edit=True, en=True)
+            return
+
+        pm.checkBoxGrp(self.do_components_cb, edit=True, en=True)
+        # PAINT
         do_retries, do_painting = pm.checkBoxGrp(
             self.do_components_cb, query=True, valueArray2=True
         )
 
-        pm.floatFieldGrp(self.coil_delta_ff, edit=True,
-                         en=(do_retries))
-
-        pm.intFieldGrp(self.cluster_chunk_if, edit=True,
-                       en=(do_painting))
-
+        pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=(do_retries))
+        pm.intFieldGrp(self.cluster_chunk_if, edit=True, en=(do_painting))
         pm.button(self.go_but, edit=True, en=(do_retries or do_painting))
 
     def create_action_buttons(self):
@@ -122,6 +137,12 @@ class PublishTab(gui.FormLayout):
             self.cluster_chunk_if, query=True, value1=True
         )
 
+        do_pov = pm.radioButtonGrp(
+            self.painting_type_rb, query=True, sl=True) == 2
+        if do_pov:
+            do_retries = None
+            do_painting = None
+
         retries_session = None
         if do_retries:
             stroke_nodes = find_contributing_stroke_nodes() if do_retries else []
@@ -137,6 +158,12 @@ class PublishTab(gui.FormLayout):
             painting_session.show_stats()
             painting_session.write_stats()
             painting_session.write_maya_scene(directory, "scene")
+
+        if do_pov:
+            pov_session = PovSession(cluster_chunk_size)
+            pov_session.show_stats()
+            pov_session.write_stats()
+            pov_session.write_maya_scene(pov_session.directory, "scene")
 
 
 def find_contributing_stroke_nodes():

@@ -21,7 +21,8 @@ class BrushAssignTab(gui.FormLayout):
 
     def _create_entry(self, node):
         connected_indices = self._connected_brush_indices(node)
-        tf = pm.textFieldGrp(label=node, text=connected_indices, cw2=(140, 300))
+        tf = pm.textFieldGrp(
+            label=node, text=connected_indices, cw2=(140, 300))
         return tf
 
     def _clear_entries(self):
@@ -46,7 +47,8 @@ class BrushAssignTab(gui.FormLayout):
     def create_action_buttons_and_layout(self):
         pm.setParent(self)  # form
 
-        reload_but = pm.button(label="Reload", command=pm.Callback(self.reload))
+        reload_but = pm.button(
+            label="Reload", command=pm.Callback(self.reload))
         go_but = pm.button(label="Apply", command=pm.Callback(self.on_go))
 
         self.attachForm(self.main_tf, "left", 2)
@@ -82,7 +84,8 @@ class BrushAssignTab(gui.FormLayout):
             node_name = pm.textFieldGrp(tf, q=True, label=True)
             node = pm.PyNode(node_name)
             val = pm.textFieldGrp(tf, q=True, text=True)
-            indices = [int(i) for i in val.split(",") if i is not None and i.isdigit()]
+            indices = [int(i) for i in val.split(
+                ",") if i is not None and i.isdigit()]
             self._replug(node, indices, all_brushes)
 
         self.reload()
@@ -97,7 +100,8 @@ class BrushAssignTab(gui.FormLayout):
         # disconnect and delete all plugs
         to_remove = node.attr("brushes").getArrayIndices()
         for i in to_remove:
-            pm.removeMultiInstance(node.attr("brushes[{:d}]".format(i)), b=True)
+            pm.removeMultiInstance(
+                node.attr("brushes[{:d}]".format(i)), b=True)
 
         # connect the new ones:
         for i in indices:
@@ -106,4 +110,5 @@ class BrushAssignTab(gui.FormLayout):
                     "Illegal index {}. All indices must be connections on the main painting"
                 )
                 continue
-            all_brushes[i].attr("outPaintBrush") >> node.attr("brushes[{:d}]".format(i))
+            all_brushes[i].attr("outPaintBrush") >> node.attr(
+                "brushes[{:d}]".format(i))

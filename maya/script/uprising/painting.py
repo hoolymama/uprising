@@ -1,7 +1,7 @@
 import pymel.core as pm
 from paint import Paint
 from brush import Brush
-from cluster import Cluster
+from cluster import Cluster, PovCluster
 import progress
 
 
@@ -52,3 +52,33 @@ class Painting(object):
     def send_brushes(self):
         for brush in self.brushes:
             self.brushes[brush].send()
+
+
+class PovPainting(Painting):
+
+    def _create_clusters(self):
+        try:
+            num_clusters = pm.paintingQuery(self.node, clusterCount=True)
+        except RuntimeError:
+            return
+
+        progress.update(
+            minor_max=num_clusters,
+            minor_progress=0)
+
+        for i in range(num_clusters):
+
+            progress.update(
+                minor_line="Cluster {}/{}".format(i+1, num_clusters),
+                minor_progress=i)
+
+            brush_id = pm.paintingQuery(
+                self.node, clusterIndex=i, clusterBrushId=True)
+            paint_id = pm.paintingQuery(
+                self.node, clusterIndex=i, clusterPaintId=True)
+
+            brush = self.brushes.get(brush_id)
+            paint = self.paints.get(paint_id)
+
+            cluster = PovCluster(i, self.node, brush, paint)
+            self.clusters.append(cluster)

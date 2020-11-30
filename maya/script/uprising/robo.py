@@ -11,19 +11,13 @@ from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT,
 import pymel.core as pm
 import robodk as rdk
 
-UPRISING_PROJECT_PATH = os.path.dirname(
-    pm.getModulePath(moduleName="uprising"))
-CLEAN_FILE = os.path.join(UPRISING_PROJECT_PATH, "robodk", "clean.rdk")
-LICENSE_FILE = os.path.join(
-    UPRISING_PROJECT_PATH, "robodk", "RobAndNickCarterRoboDKLicense.rdklic")
-
 
 ROBODK_PATH = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/MacOS/RoboDK")
 DIP_TARGET = "dipTarget"
 TOOL_TARGET = "toolChangeTarget"
 HOME_TARGET = "homeTarget"
 
-
+_model = None
 _robot = None
 _link = None
 dip_approach = None
@@ -35,6 +29,20 @@ pick_place_frame = None
 calibration_frame = None
 
 _debug = None
+
+
+def get_uprising_project_path():
+    return os.path.dirname(pm.getModulePath(moduleName="uprising"))
+
+
+def get_clean_file(model):
+    project_path = get_uprising_project_path()
+    return os.path.join(project_path, "robodk", "{}_clean.rdk".format(model))
+
+
+def get_license_file():
+    project_path = get_uprising_project_path()
+    return os.path.join(project_path, "robodk", "RobAndNickCarterRoboDKLicense.rdklic")
 
 
 def deleteAllStations():
@@ -60,11 +68,9 @@ def close():
 
 def new():
     global _link
-    global _robot
     global _debug
-
     _link = Robolink(robodk_path=ROBODK_PATH)
-    _link.AddFile(LICENSE_FILE)
+    _link.AddFile(get_license_file())
 
 
 def link():
@@ -76,27 +82,28 @@ def link():
 
 def robot():
     global _robot
-    if not _robot:
-        new()
     return _robot
 
 
 def show():
-    global _link
-    _link.ShowRoboDK()
+    link().ShowRoboDK()
 
 
 def hide():
-    global _link
-    _link.HideRoboDK()
+    link().HideRoboDK()
 
 
-def clean():
+def clean(model="kr30"):
+    global _model
     global _link
     global _robot
     deleteAllStations()
-    _link.AddFile(CLEAN_FILE)
+    clean = get_clean_file(model)
+    print "CLEAN FILE", clean
+    _link.AddFile(clean)
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
+    _model = model
+    print "CLEAN", _robot
     _robot.setParam("PostProcessor", "KUKA KRC4")
     _create_infrastructure()
 
@@ -127,8 +134,12 @@ def _config_key(config):
         return "%d%d%d" % tuple(config.list2()[0][0:3])
 
 
-def config_000_poses(pose):
+def config_poses(pose):
+    global _model
     global _robot
+
+    keys = ["000"] if _model == "kr30" else ["001"]
+
     result = []
     ik = _robot.SolveIK_All(pose)
     siz = ik.size()
@@ -137,7 +148,8 @@ def config_000_poses(pose):
     joint_poses = [el[0:6] for el in ik.list2()]
     for joint_pose in joint_poses:
         key = _config_key(_robot.JointsConfig(joint_pose))
-        if key == "000":
+        print "KEY:", key
+        if key in keys:
             result.append(joint_pose)
     return result
 
@@ -156,9 +168,14 @@ def create_joint_target(obj, name, frame):
     global _link
     global _robot
 
-    mat = maya_to_robodk_mat(obj.attr("worldMatrix[0]").get())
+    wm = obj.attr("worldMatrix[0]").get()
+    mat = maya_to_robodk_mat(wm)
 
-    joint_poses = config_000_poses(mat)
+    print "create_joint_target ------"
+    print wm
+    print mat
+
+    joint_poses = config_poses(mat)
     if not joint_poses:
         raise Exception("No configs for approach mat. Try repositioning.")
     joints = joint_poses[0]
@@ -199,6 +216,11 @@ def _create_infrastructure():
     global pick_place_frame
     global calibration_frame
 
+    try:
+        pm.PyNode(TOOL_TARGET)
+    except:
+        pass
+
     calibration_frame = create_frame("calibration_frame")
     dips_frame = create_frame("dips_frame")
     wash_frame = create_frame("wash_frame")
@@ -209,6 +231,7 @@ def _create_infrastructure():
     tool_approach = create_joint_target(
         pm.PyNode(TOOL_TARGET), "tool_approach", _approaches_frame
     )
+
     home_approach = create_joint_target(
         pm.PyNode(HOME_TARGET), "home_approach", _approaches_frame
     )

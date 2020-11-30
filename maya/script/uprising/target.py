@@ -13,7 +13,7 @@ class Target(object):
         self.tool_pose = rdk.TxyzRxyz_2_Pose(list(position) + list(rotation))
         self.flange_pose = self.tool_pose * brush.matrix.invH()
 
-        self.joint_poses = robo.config_000_poses(self.flange_pose)
+        self.joint_poses = robo.config_poses(self.flange_pose)
 
         if not self.joint_poses:
             raise StrokeError(
