@@ -44,6 +44,7 @@ def painting_stats(node):
     avg_strokes_per_cluster = stroke_count / float(cluster_count)
     total_travel = sum(travel)
     avg_travel_per_cluster = total_travel / float(cluster_count)
+
     result = {
         "cluster_count": cluster_count,
         "stroke_count": stroke_count,
@@ -53,6 +54,9 @@ def painting_stats(node):
         "tcp_only_changes": reason_result["tcp"],
         "total_stroke_travel": total_travel,
         "avg_stroke_travel_per_cluster": avg_travel_per_cluster,
+        "linear_speed": pm.PyNode("mainPaintingShape").attr("linearSpeed").get(),
+        "angular_speed": pm.PyNode("mainPaintingShape").attr("angularSpeed").get()
+
     }
     return result
 
