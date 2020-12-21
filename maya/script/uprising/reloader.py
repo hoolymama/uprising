@@ -56,6 +56,7 @@ from uprising import (
     probes_tab,
     progress,
     props,
+    props_menu,
     publish_tab,
     rings_design_tab,
     rings_setup_tab,
@@ -144,6 +145,7 @@ reload(images_menu)
 reload(palette_menu)
 reload(select_menu)
 reload(tools_menu)
+reload(props_menu)
 ####################
 
 ####################

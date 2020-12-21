@@ -16,7 +16,8 @@ from uprising import (
     publish_tab,
     select_menu,
     chain_menu,
-    tools_menu
+    tools_menu,
+    props_menu
 )
 
 from uprising import reloader
@@ -76,6 +77,9 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.tools_menu = tools_menu.create()
+
+        pm.setParent(self.menuBarLayout)
+        self.props_menu = props_menu.create()
 
         pm.setParent(self.menuBarLayout)
         self.select_menu = select_menu.create()

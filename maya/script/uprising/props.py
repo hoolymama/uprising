@@ -83,3 +83,38 @@ def send(objects, parent=None):
 def send_selected():
     transforms = pm.ls(sl=True, transforms=True)
     send(transforms)
+
+
+def send_selected_tools():
+
+    transforms = pm.ls(sl=True, transforms=True)
+    for transform in transforms:
+        send_tool(transform)
+
+
+def send_tool(transform):
+    link = robo.link()
+    robot = robo.robot()
+    meshes = pm.ls(transform, dag=True, leaf=True, type="mesh")
+
+    matrix = robo.maya_to_robodk_mat(pm.dt.Matrix(
+        pm.xform(transform, q=True, ws=True,   m=True)))
+    tool_item = robot.AddTool(matrix, transform.name())
+
+    for mesh in meshes:
+        points = mesh.getPoints(space="world")
+        color = mutil.shape_color(mesh)
+        _, vids = mesh.getTriangles()
+        triangles = []
+        for vid in vids:
+            triangles.append(
+                [points[vid].x * 10, points[vid].y * 10, points[vid].z * 10]
+            )
+
+        shape = link.AddShape(triangles)
+        shape.setColor(list(color))
+        tool_item.AddGeometry(shape, rdk.eye())
+        shape.Delete()
+        # shape.setParent(parent)
+        # shape.setName(name)
+        # shape.setVisible(True, visible_frame=False)

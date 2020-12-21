@@ -2,7 +2,7 @@ import pymel.core as pm
 
 import uprising_util as uutl
 import robodk as rdk
-import robo
+from uprising import robo
 
 
 class Brush(object):
