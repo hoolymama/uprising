@@ -91,6 +91,9 @@ public:
 
 	void applyGlobalTilt(const MFloatVector &gradient);
 
+	void applyGlobalAim(const MPoint &point);
+
+
 private:
 	MVector m_tangent; // tangent on the curve
 	MMatrix m_matrix;

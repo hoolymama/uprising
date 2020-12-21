@@ -299,6 +299,8 @@ public:
 
 	int applyGlobalTilt(const MFloatVectorArray &gradients, int index);
 
+	void applyGlobalAim(const MPoint &point);
+
 	void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
 	void offsetBrushContact(const Brush &brush);

@@ -359,3 +359,29 @@ void Target::applyGlobalTilt(const MFloatVector &gradient)
 
 	m_matrix = m_matrix * centerMat * rotMat * centerMat.inverse();
 }
+
+void Target::applyGlobalAim(const MPoint &point)
+{
+
+	MVector z1 = MVector(
+					 MPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]) - point
+
+					 )
+					 .normal();
+	// MVector z0 = MVector(m_matrix[2][0],m_matrix[2][1],m_matrix[2][2]).normal()
+
+	MMatrix rotMat = MQuaternion(MVector::zAxis, z1).asMatrix();
+	// MMatrix bankMat = MQuaternion(m_bank, m_tangent).asMatrix();
+	// MMatrix tiltMat = MQuaternion(tilt, side).asMatrix();
+
+	// MFloatVector axis = (gradient ^ MFloatVector::zAxis).normal();
+
+	// MMatrix rotMat = MQuaternion(mag, axis).asMatrix();
+
+	MMatrix centerMat = MMatrix::identity;
+	centerMat[3][0] = -m_matrix[3][0];
+	centerMat[3][1] = -m_matrix[3][1];
+	centerMat[3][2] = -m_matrix[3][2];
+
+	m_matrix = m_matrix * centerMat * rotMat * centerMat.inverse();
+}

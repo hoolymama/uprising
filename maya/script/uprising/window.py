@@ -1,20 +1,11 @@
 import pymel.core.uitypes as gui
 import pymel.core as pm
+
 from uprising import (
-    brush,
-    paint,
-    brush_utils,
-    cluster,
-    const,
-    curve_utils,
-    images,
-    palette_utils,
-    setup_dip,
-    uprising_util,
     brush_assign_tab,
     brush_hang_tab,
     brush_test_tab,
-    calibration,
+    gamut_tab,
     calibration_menu,
     curves_menu,
     images_menu,
@@ -23,41 +14,13 @@ from uprising import (
     phex_tab,
     probes_tab,
     publish_tab,
-    robo,
     select_menu,
     chain_menu,
-    stats,
     tools_menu
 )
 
-reload(uprising_util)
-reload(robo)
-reload(brush)
-reload(paint)
-reload(stats)
-reload(cluster)
-reload(setup_dip)
-reload(const)
-reload(curve_utils)
-reload(brush_utils)
-reload(palette_utils)
-reload(chain_menu)
-
-reload(phex_tab)
-reload(brush_hang_tab)
-
-reload(publish_tab)
-reload(brush_assign_tab)
-reload(brush_test_tab)
-reload(probes_tab)
-reload(tools_menu)
-reload(curves_menu)
-reload(images_menu)
-reload(select_menu)
-reload(images)
-reload(calibration)
-reload(calibration_menu)
-
+from uprising import reloader
+reload(reloader)
 
 class RobotWindow(gui.Window):
     def __init__(self):
@@ -102,6 +65,10 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.publish_tab = publish_tab.PublishTab()
         self.tabs.setTabLabel((self.publish_tab, "Publish"))
+
+        pm.setParent(self.tabs)
+        self.gamut_tab = gamut_tab.GamutTab()
+        self.tabs.setTabLabel((self.gamut_tab, "Gamut"))
 
         pm.setParent(self.tabs)
         self.probes_tab = probes_tab.probesTab()

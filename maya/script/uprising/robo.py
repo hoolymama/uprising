@@ -137,10 +137,17 @@ def _config_key(config):
 def config_poses(pose):
     global _model
     global _robot
-
-    keys = ["000"] if _model == "kr30" else ["001"]
-
-    result = []
+ 
+    result = {
+        "000": [],
+        "001": [],
+        "010": [],
+        "011": [],
+        "100": [],
+        "101": [],
+        "110": [],
+        "111": []
+    }
     ik = _robot.SolveIK_All(pose)
     siz = ik.size()
     if not (ik and siz[0] and siz[1] and (len(ik.list()) > 5)):
@@ -148,9 +155,7 @@ def config_poses(pose):
     joint_poses = [el[0:6] for el in ik.list2()]
     for joint_pose in joint_poses:
         key = _config_key(_robot.JointsConfig(joint_pose))
-        print "KEY:", key
-        if key in keys:
-            result.append(joint_pose)
+        result[key].append(joint_pose)
     return result
 
 
@@ -171,14 +176,8 @@ def create_joint_target(obj, name, frame):
     wm = obj.attr("worldMatrix[0]").get()
     mat = maya_to_robodk_mat(wm)
 
-    print "create_joint_target ------"
-    print wm
-    print mat
-
     joint_poses = config_poses(mat)
-    if not joint_poses:
-        raise Exception("No configs for approach mat. Try repositioning.")
-    joints = joint_poses[0]
+    joints = find_best_pose(joint_poses, ["000", "001"])
 
     old_approach = _link.Item(name)
     if old_approach.Valid():
@@ -187,6 +186,14 @@ def create_joint_target(obj, name, frame):
     target.setAsJointTarget()
     target.setJoints(joints)
     return target
+
+
+def find_best_pose(poses, keys):
+    """For now, take the first"""
+    for key in keys:
+        if poses[key]:
+            return poses[key][0]
+    raise ValueError("[find_best_pose]: No configs match.")
 
 
 def write_station(directory, name):

@@ -1,7 +1,8 @@
 
 from robolink import (
     INSTRUCTION_COMMENT,
-    INSTRUCTION_SHOW_MESSAGE
+    INSTRUCTION_SHOW_MESSAGE,
+    INSTRUCTION_INSERT_CODE
 )
 
 
@@ -12,12 +13,14 @@ import uprising_util as uutl
 from uprising_util import StrokeError
 
 
-def config_key(config):
-    if config:
-        return "%d%d%d%d" % tuple(config.list2()[0][0:4])
+# def config_key(config):
+#     if config:
+#         return "%d%d%d%d" % tuple(config.list2()[0][0:4])
 
 
 class Stroke(object):
+
+
     def __init__(self, cluster_id, _id, brush, node):
         self.cluster_id = cluster_id
         self.id = _id
@@ -35,6 +38,22 @@ class Stroke(object):
         self.build_departure()
 
         self.configure()
+
+    def best_config(self):
+        if not self.targets:
+            return
+
+        targets = self.targets + self.arrivals + [self.departure]
+
+        common_configs = set(targets[0].valid_configs())
+        for target in targets[1:]:
+            common_configs = common_configs.intersection(
+                target.valid_configs())
+            if not common_configs:
+                raise StrokeError(
+                    "Can't find best config for stroke. No common configs")
+
+        return sorted(list(common_configs))[0]
 
     def set_stroke_params(self):
 
@@ -95,23 +114,14 @@ class Stroke(object):
             )
         )
 
-        tangents = uutl.to_vector_array(
-            pm.paintingQuery(
-                self.node,
-                clusterIndex=self.cluster_id,
-                strokeIndex=self.id,
-                strokeTangents=True,
-            )
-        )
-
         num_targets = len(positions)
-        if not (num_targets == len(rotations) and num_targets == len(tangents)):
+        if not num_targets == len(rotations):
             raise StrokeError(
-                "Length mismatch: positions, rotations, tangents")
+                "Length mismatch: positions, rotations")
 
-        for i, (p, r, t) in enumerate(zip(positions, rotations, tangents)):
+        for i, (p, r) in enumerate(zip(positions, rotations)):
             try:
-                tg = Target(i, (p * 10), r, t, self.brush)
+                tg = Target(i, (p * 10), r, self.brush)
             except StrokeError:
                 print "Target Position:", p
                 print "StrokeId:", self.id
@@ -148,7 +158,7 @@ class Stroke(object):
         for i, (p, r) in enumerate(zip(positions, rotations)):
 
             try:
-                tg = ArrivalTarget(i, (p * 10), r, None, self.brush)
+                tg = ArrivalTarget(i, (p * 10), r, self.brush)
             except StrokeError:
                 print "ArrivalTarget Position:", p
                 print "StrokeId:", self.id
@@ -179,7 +189,7 @@ class Stroke(object):
 
         try:
             self.departure = DepartureTarget(
-                0, (position * 10), rotation, None, self.brush)
+                0, (position * 10), rotation, self.brush)
         except StrokeError:
             print "DepartureTarget Position:", position
             print "StrokeId:", self.id
@@ -203,6 +213,13 @@ class Stroke(object):
         self.departure.send(stroke_name, program, frame)
 
     def configure(self):
+        config = self.best_config()
+        if not config:  # no targets
+            return
+
+        for target in self.targets:
+            target.configure(config)
+        self.targets[0].linear = False
 
         for target in self.arrivals:
             target.configure()
@@ -214,6 +231,8 @@ class Stroke(object):
 
 
 class PovStroke(Stroke):
+
+
     def __init__(self, cluster_id, _id, brush, node):
         self.cluster_id = cluster_id
         self.id = _id
@@ -224,6 +243,23 @@ class PovStroke(Stroke):
         self.set_stroke_params()
         self.build_targets()
         self.configure()
+
+    def best_config(self):
+        if not self.targets:
+            return
+
+        common_configs = set(self.targets[0].valid_configs())
+        for target in self.targets[1:]:
+            common_configs = common_configs.intersection(
+                target.valid_configs())
+            if not common_configs:
+                print "Impossible Stroke:"
+                for target in self.targets:
+                    print "Cluster:{} - Target:{} - configs:{}".format(self.cluster_id, target.id, target.valid_configs())
+                raise StrokeError(
+                    "Can't find best config for stroke. No common configs")
+
+        return sorted(list(common_configs))[0]
 
     def send(self, prefix, program, frame, motion):
         stroke_name = self.name(prefix)
@@ -236,21 +272,23 @@ class PovStroke(Stroke):
             t.send(stroke_name, program, frame)
 
             if i == 0:
+                program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
+                program.RunInstruction("WAIT SEC 1", INSTRUCTION_INSERT_CODE)
                 program.RunInstruction(
-                    "Turn on the light and continue",
-                    INSTRUCTION_SHOW_MESSAGE,
-                )
-                program.Pause()
+                    "$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)
 
             if (i+1) == len(self.targets):
+                program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
+                program.RunInstruction("WAIT SEC 1", INSTRUCTION_INSERT_CODE)
                 program.RunInstruction(
-                    "Turn off the light and continue",
-                    INSTRUCTION_SHOW_MESSAGE,
-                )
-                program.Pause()
+                    "$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)
 
     def configure(self):
-        if self.targets:
-            for target in self.targets:
-                target.configure()
-            self.targets[0].linear = False
+        config = self.best_config()
+        print "Best Config for Cluster ID:{} Stroke ID:{} = {}".format(self.cluster_id, self.id, config)
+        if not config:  # no targets
+            return
+
+        for target in self.targets:
+            target.configure(config)
+        self.targets[0].linear = False

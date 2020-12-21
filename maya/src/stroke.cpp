@@ -1045,6 +1045,22 @@ int Stroke::applyGlobalTilt(const MFloatVectorArray &gradients, int index)
 	return index;
 }
 
+void Stroke::applyGlobalAim(const MPoint &point)
+{
+	std::vector<Target>::iterator iter;
+	for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++)
+	{
+		iter->applyGlobalAim(point);
+	}
+	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+	{
+		iter->applyGlobalAim(point);
+	}
+	m_departure.applyGlobalAim(point);
+
+}
+
+
 void Stroke::displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap)
 {
 	std::vector<Target>::iterator iter;
