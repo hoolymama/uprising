@@ -13,7 +13,8 @@ Target::Target() : m_matrix(),
 				   m_bank(0.0),
 				   m_twist(0.0),
 				   m_u(0.0f),
-				   m_v(0.0f)
+				   m_v(0.0f),
+				   m_color(0.0,0.0,0.0)
 {
 }
 
@@ -384,4 +385,15 @@ void Target::applyGlobalAim(const MPoint &point)
 	centerMat[3][2] = -m_matrix[3][2];
 
 	m_matrix = m_matrix * centerMat * rotMat * centerMat.inverse();
+}
+
+
+void Target::setColor(const MColor &color)
+{
+	m_color = color;
+}
+	
+const MColor & Target::color() const 
+{
+	return m_color;
 }

@@ -93,6 +93,11 @@ public:
 
 	void applyGlobalAim(const MPoint &point);
 
+	void setColor(const MColor &rgba);
+	
+	const MColor & color() const ;
+
+
 
 private:
 	MVector m_tangent; // tangent on the curve
@@ -105,6 +110,7 @@ private:
 	double m_twist;		 // store these when setting rotation, just in case we have to recalc
 	float m_u;
 	float m_v;
+	MColor m_color;
 };
 
 #endif

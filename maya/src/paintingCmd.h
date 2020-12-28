@@ -57,6 +57,9 @@
 #define kStrokeSpeedAngularFlag "-ssa"
 #define kStrokeSpeedAngularFlagL "-strokeSpeedAngular"
 
+#define kStrokeColorsFlag "-tcl"
+#define kStrokeColorsFlagL "-strokeColors"
+
 #define kStrokeArrivalPositionsFlag "sap"
 #define kStrokeArrivalPositionsFlagL "strokeArrivalPositions"
 
@@ -150,6 +153,8 @@ private:
 
 	MStatus handleStrokeTangentsFlag(const paintingGeom &geom, MArgDatabase &argData,
 									 const MMatrix &worldMatrix);
+
+	MStatus handleStrokeColorsFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleStrokeBackstrokeFlag(const paintingGeom &geom, MArgDatabase &argData);
 

@@ -17,6 +17,27 @@ public:
 	static MStatus getTextureName(const MObject &node, const MObject &attribute,
 								  MString &name);
 
+
+
+	static MStatus  sample3dTexture(
+		const MObject &node, 
+		const MObject &attribute,
+		float scale,
+		MFloatPointArray &points, 
+		MFloatVectorArray &result);
+
+	static MStatus  sample3dTexture(
+		const MObject &node, 
+		const MObject &attribute,
+		float scale,
+		MFloatPointArray &points, 
+		MFloatArray &result);
+
+
+
+
+
+
 	static MStatus sampleUVTexture(const MObject &node, const MObject &attribute,
 								   MFloatArray &uVals,
 								   MFloatArray &vVals, MFloatVectorArray &result);

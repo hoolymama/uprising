@@ -18,6 +18,9 @@
 
 #include "mapStrokes.h"
 #include "aimStrokes.h"
+#include "mapColorStrokes.h"
+
+
 
 #include "paintingCmd.h"
 #include "brushCmd.h"
@@ -118,6 +121,13 @@ MStatus initializePlugin(MObject obj)
 							 mapStrokes::initialize);
 	msert;
 
+
+	st = plugin.registerNode("mapColorStrokes", mapColorStrokes::id, mapColorStrokes::creator,
+							 mapColorStrokes::initialize);
+	msert;
+
+	
+
 	st = plugin.registerNode("gateRamp", gateRamp::id, gateRamp::creator,
 							 gateRamp::initialize);
 	msert;
@@ -147,6 +157,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(gateRamp::id);
+	mser;
+	
+	st = plugin.deregisterNode(mapColorStrokes::id);
 	mser;
 
 	st = plugin.deregisterNode(mapStrokes::id);

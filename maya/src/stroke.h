@@ -6,6 +6,7 @@
 #include <maya/MDoubleArray.h>
 #include <maya/MVectorArray.h>
 #include <maya/MMatrixArray.h>
+#include <maya/MColorArray.h>
 
 #include <maya/MFnMesh.h>
 
@@ -285,6 +286,8 @@ public:
 
 	void tangents(const MMatrix &space, MVectorArray &result) const;
 
+	void  colors(  MColorArray &result) const;
+
 	MPoint getHead(double stackHeight) const;
 
 	MObject generateNurbsCurve(const MPointArray &points, MStatus *st = 0) const;
@@ -337,6 +340,8 @@ public:
 
 	void rotate(double rotation);
 	void translate(const MVector &translation, bool transformPivot = false);
+	
+	void setTargetColors(const MFloatVectorArray &colors, const MFloatArray & whites, unsigned index );
 
 	friend bool operator<(const Stroke &a, const Stroke &b);
 	friend ostream &operator<<(ostream &os, const Stroke &s);
@@ -347,6 +352,9 @@ private:
 
 	static bool shouldMakeBackstroke(MObject dCurve, double startDist, double endDist,
 									 Stroke::DirectionMethod strokeDirection);
+
+
+ 
 
 	void setArcLength();
 
@@ -393,6 +401,8 @@ private:
 
 
 };
+
+
 
 inline double Stroke::interpContact(const MDoubleArray &contacts,
 									const double &uniformParam)

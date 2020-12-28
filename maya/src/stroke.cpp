@@ -988,6 +988,16 @@ void Stroke::tangents(const MMatrix &space, MVectorArray &result) const
 	}
 }
 
+void Stroke::colors(  MColorArray &result) const
+{
+	std::vector<Target>::const_iterator citer;
+	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
+	{
+		result.append(citer->color());
+	}
+}
+
+
 void Stroke::setUV(
 	const MMatrix &inversePlaneMatrix)
 {
@@ -1558,6 +1568,17 @@ void Stroke::translate(const MVector &translation, bool transformPivot)
 	{
 		m_pivot.offsetBy(translation);
 	}
+}
+
+
+void Stroke::setTargetColors(const MFloatVectorArray &colors, const MFloatArray & whites, unsigned index ) {
+
+    for (std::vector<Target>::iterator targetIter = m_targets.begin(); targetIter != m_targets.end(); targetIter++)
+    {
+        MColor color(colors[index].x,colors[index].y,colors[index].z, whites[index] );
+        targetIter->setColor(color);
+        index++;
+    }
 }
 
 ostream &operator<<(ostream &os, const Stroke &s)

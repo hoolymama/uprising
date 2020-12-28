@@ -9,6 +9,8 @@
 #include <maya/MDoubleArray.h>
 #include <maya/MVectorArray.h>
 #include <maya/MPointArray.h>
+#include <maya/MColorArray.h>
+
 #include <maya/MFloatPointArray.h>
 #include <maya/MVector.h>
 
@@ -19,6 +21,8 @@ public:
 	static void flatten(const MFloatMatrix &mat, MDoubleArray &result) ;
 
 	static void flatten(const MVectorArray &arr, MDoubleArray &result) ;
+	
+	static void flatten(const MColorArray &arr, MDoubleArray &result) ;
 
 	static void flatten(const MPointArray &arr, MDoubleArray &result) ;
 

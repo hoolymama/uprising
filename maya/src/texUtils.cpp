@@ -6,6 +6,7 @@
 #include <maya/MFloatMatrix.h>
 #include <maya/MRenderUtil.h>
 #include <maya/MRampAttribute.h>
+#include <maya/MFloatPointArray.h>
 
 #include "errorMacros.h"
 
@@ -35,6 +36,90 @@ MStatus TexUtils::getTextureName(const MObject &node, const MObject &attribute,
   name = plugArray[0].name(&st);
   return MS::kSuccess;
 }
+
+
+MStatus TexUtils::sample3dTexture(
+  const MObject &node, 
+  const MObject &attribute,
+  float scale,
+  MFloatPointArray &points, 
+  MFloatVectorArray &result)
+{
+
+  MStatus st;
+  MString plugName;
+  st = getTextureName(node, attribute, plugName);
+  if (st.error())
+  {
+    return MS::kFailure;
+  }
+  MFloatMatrix cameraMat;
+  cameraMat.setToIdentity();
+  MFloatVectorArray transparencies;
+
+  int n = points.length();
+
+  st = MRenderUtil::sampleShadingNetwork(
+    plugName, n, false, false, cameraMat,
+    &points, 0, 0, 0, &points, 0, 0, 0, result, transparencies);
+  
+  if (st.error())
+  {
+    return MS::kUnknownParameter;
+  }
+  if (scale != 1) {
+    for (int i = 0; i < n; i++)
+    {
+      result[i] = MFloatVector(result[i].x*scale,result[i].y*scale,result[i].z*scale);
+    }
+  }
+  
+  return MS::kSuccess;
+}
+
+MStatus TexUtils::sample3dTexture(
+  const MObject &node, 
+  const MObject &attribute,
+  float scale,
+  MFloatPointArray &points, 
+  MFloatArray &result)
+{
+
+  MStatus st;
+  MString plugName;
+  st = getTextureName(node, attribute, plugName);
+  if (st.error())
+  {
+    return MS::kFailure;
+  }
+  MFloatMatrix cameraMat;
+  cameraMat.setToIdentity();
+  MFloatVectorArray transparencies;
+  MFloatVectorArray colors;
+  
+
+  int n = points.length();
+
+  st = MRenderUtil::sampleShadingNetwork(
+    plugName, n, false, false, cameraMat,
+    &points, 0, 0, 0, &points, 0, 0, 0, colors, transparencies);
+  
+  if (st.error())
+  {
+    return MS::kUnknownParameter;
+  }
+  result.setLength(n);
+  for (int i = 0; i < n; i++)
+  {
+    result[i] = float(colors[i].x*scale);
+  }
+  
+  return MS::kSuccess;
+}
+
+
+
+
 
 MStatus TexUtils::sampleUVTexture(const MObject &node, const MObject &attribute,
                                   MFloatArray &uVals,

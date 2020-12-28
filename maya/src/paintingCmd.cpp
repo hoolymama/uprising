@@ -71,6 +71,8 @@ MSyntax paintingCmd::newSyntax()
 
 	syn.addFlag(kStrokeTangentsFlag, kStrokeTangentsFlagL);
 
+	syn.addFlag(kStrokeColorsFlag, kStrokeColorsFlagL);
+
 	syn.addFlag(kStrokeBackstrokeFlag, kStrokeBackstrokeFlagL);
 
 	syn.addFlag(kStrokeArcLengthFlag, kStrokeArcLengthFlagL);
@@ -227,6 +229,12 @@ MStatus paintingCmd::doIt(const MArgList &args)
 		MMatrix wm = getWorldMatrix(paintingObject, &st);
 		msert;
 		return handleStrokeTangentsFlag(*pGeom, argData, wm);
+	}
+
+
+	if (argData.isFlagSet(kStrokeColorsFlag))
+	{
+		return handleStrokeColorsFlag(*pGeom, argData);
 	}
 
 	if (argData.isFlagSet(kStrokeBackstrokeFlag))
@@ -669,6 +677,24 @@ MStatus paintingCmd::handleStrokeTangentsFlag(const paintingGeom &geom,
 	setResult(result);
 	return MS::kSuccess;
 }
+MStatus paintingCmd::handleStrokeColorsFlag(const paintingGeom &geom, MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(geom, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	MColorArray colors;
+	geom.clusters()[clusterId].strokes()[strokeId].colors(colors);
+	MDoubleArray result;
+	CmdUtils::flatten(colors, result);
+	setResult(result);
+	return MS::kSuccess;
+}
+
+
 
 MStatus paintingCmd::handleStrokeBackstrokeFlag(const paintingGeom &geom,
 												MArgDatabase &argData)

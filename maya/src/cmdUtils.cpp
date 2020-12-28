@@ -24,6 +24,22 @@ void CmdUtils::flatten(const MVectorArray &arr, MDoubleArray &result) {
 	}
 }
 
+
+void CmdUtils::flatten(const MColorArray &arr, MDoubleArray &result) {
+
+	unsigned len = arr.length();
+	result.setLength(len * 4);
+	unsigned j = 0;
+	for (int i = 0; i < len; ++i)
+	{
+		result.set(arr[i].r, j++);
+		result.set(arr[i].g, j++);
+		result.set(arr[i].b, j++);
+		result.set(arr[i].a, j++);
+		
+	}
+}
+
 void CmdUtils::flatten(const MPointArray &arr, MDoubleArray &result) {
 
 	unsigned len = arr.length();
