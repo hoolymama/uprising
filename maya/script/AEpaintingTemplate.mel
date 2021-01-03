@@ -40,6 +40,8 @@ source "AEpaintingStrokes";
 
 
 	editorTemplate -addControl "displayTargets";
+	editorTemplate -addControl "displayTargetColors";
+	
 	editorTemplate -addControl "displayApproachTargets";
 	
 	editorTemplate -addControl "displayPivots";

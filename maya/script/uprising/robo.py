@@ -98,25 +98,27 @@ def clean(model="kr30"):
     global _link
     global _robot
     deleteAllStations()
-    clean = get_clean_file(model)
-    print "CLEAN FILE", clean
-    _link.AddFile(clean)
+    cleanfile = get_clean_file(model)
+
+    _link.AddFile(cleanfile)
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _model = model
-    print "CLEAN", _robot
-    _robot.setParam("PostProcessor", "KUKA KRC4")
+    # _robot.setParam("PostProcessor", "KUKA KRC4 RN")
     _create_infrastructure()
 
 
 def create_program(name):
     global _link
+    global _robot
+
     program = _link.Item(name)
     if program.Valid():
         program.Delete()
-    return _link.AddProgram(name)
+    return _link.AddProgram(name, _robot)
 
 
 def create_frame(name, force=True):
+    print "Create Frame for ", name
     global _link
     frame = _link.Item(name)
     if frame.Valid():
@@ -124,7 +126,12 @@ def create_frame(name, force=True):
             frame.Delete()
         else:
             return frame
+    print "ADDING FRAME ", name
     frame = _link.AddFrame(name)
+    print "ADDED FRAME ", name
+
+    print "VALID:", _link.Item(name).Valid()
+
     frame.setPose(rdk.eye())
     return frame
 
@@ -137,7 +144,7 @@ def _config_key(config):
 def config_poses(pose):
     global _model
     global _robot
- 
+
     result = {
         "000": [],
         "001": [],
@@ -211,7 +218,12 @@ def write_program(directory, name):
     if _link:
         program = _link.Item(name, ITEM_TYPE_PROGRAM)
         program.MakeProgram(directory)
-        return os.path.join(directory, "{}.src".format(name))
+
+        # text_file = os.path.join(directory, "{}.txt".format(name))
+        # if os.path.isfile(text_file):
+        #     os.rename(text_file, src_file)
+        src_file = os.path.join(directory, "{}.src".format(name))
+        return src_file
 
 
 def _create_infrastructure():

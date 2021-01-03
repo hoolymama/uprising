@@ -1,4 +1,5 @@
 
+from robolink import INSTRUCTION_INSERT_CODE
 from uprising import painting
 import pymel.core as pm
 from uprising import robo
@@ -47,10 +48,34 @@ class PovProgram(Program):
 
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
+        if chunk_id == 0:
+            self.send_lights_off()
+            self.send_shutter()
+
         self.painting.send_brushes()
 
         for cluster in self.painting.clusters[start:end]:
             cluster.send(self.program, self.frame, self.painting.motion)
 
         if is_last_chunk and cluster:
+
+            self.send_shutter()
+
             self.program.addMoveJ(robo.home_approach)
+
+        self.program.setParam("PostProcessor", "KUKA KRC4")
+
+    def send_shutter(self):
+
+        self.program.RunInstruction(
+            "$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction(
+            "WAIT SEC 1", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction(
+            "$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)
+
+    def send_lights_off(self):
+        self.program.RunInstruction("$ANOUT[1]=0.0", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("$ANOUT[2]=0.0", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("$ANOUT[3]=0.0", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("$ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)

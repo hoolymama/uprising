@@ -11,6 +11,7 @@
 #include <maya/MColor.h>
 #include <maya/MStringArray.h>
 #include "paintingGeom.h"
+#include "enums.h"
 
 class PaintingDrawData : public MUserData
 {
@@ -18,7 +19,6 @@ public:
 	PaintingDrawData();
 	virtual ~PaintingDrawData();
 
-	// enum TargetDisplay {kTargetsNone, kTargetsPoint, kTargetsLine, kTargetsMatrix };
 	bool displayClusterPath;
 	bool displayPivots;
 	bool displayIds;
@@ -40,6 +40,7 @@ public:
 	float arrowheadSize;
 
 	short displayTargets;
+	short displayTargetColors;
 
 	MFloatVector idDisplayOffset;
 

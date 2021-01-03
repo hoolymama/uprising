@@ -10,6 +10,8 @@
 #include "errorMacros.h"
 #include "mayaMath.h"
 #include <stroke.h>
+#include <enums.h>
+
 
 const double epsilon = 0.0001;
 
@@ -71,13 +73,10 @@ unsigned Stroke::create(
 		backstroke);
 
 	
-	// cerr << "Made a stroke" << endl;
-	// cerr << motherStroke<< endl;
+ 
 	motherStroke.setRotations(thisObj, rotSpec);
 	motherStroke.setTransitionContact();
-	// if (motherStroke.size() > 100) {
-	// 	cerr << motherStroke<< endl;
-	// }
+ 
 
 	strokes->push_back(motherStroke);
 	int count = 1;
@@ -197,7 +196,7 @@ Stroke::Stroke(
 		numPoints = minimumPoints;
 	}
 	double gap = strokeRange / (numPoints - 1); // can be negative
-	// cerr << "Making stroke with " << numPoints << " points" <<  endl;
+ 
 	for (unsigned i = 0; i < numPoints; i++)
 	{
 
@@ -917,6 +916,49 @@ void Stroke::getTriangleStrip(
 	}
 }
 
+
+void Stroke::getTargetBorderColors(
+	 MColorArray &result, 
+	 int maxSegments, 
+	 PaintingEnums::TargetColorsDisplay displayMode) const
+{
+	result.clear();
+	if (maxSegments == 0) {
+		return;
+	}
+	unsigned len = m_targets.size();
+	if (maxSegments>-1)
+	{
+	 	if (maxSegments+1 < len) {
+			len = maxSegments+1;
+		}
+	}
+
+	result.setLength(len * 2);
+
+	std::vector<Target>::const_iterator citer;
+	unsigned i = 0;
+	unsigned j = 0;
+
+	for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len)  ; citer++, i += 2, j++)
+	{
+
+		const MColor& tc=citer->color();
+		MColor color;
+
+		if (displayMode == PaintingEnums::kTargetColorsBlend) 
+		{
+			color = MColor((tc.r + tc.a) , (tc.g + tc.a),(tc.b + tc.a)) *0.5f;
+		} else if (displayMode == PaintingEnums::kTargetColorsWhite)
+		{
+			color = MColor(tc.a , tc.a ,tc.a );
+		} else {
+			color = MColor(tc.r , tc.g, tc.b );
+		}
+		result.set(color, i);
+		result.set(color, (i+1));
+	}
+}
 ///////// ///////// /////////
 
 ///////// ///////// /////////

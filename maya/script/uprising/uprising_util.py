@@ -160,6 +160,21 @@ def to_point_array(arr):
     return result
 
 
+def to_rgba_array(arr):
+    if not arr:
+        return []
+    in_len = len(arr)
+    out_len = in_len / 4
+    if out_len * 4 != in_len:
+        raise ValueError("Input array must be multiple of 4")
+    result = []
+
+    for i in range(out_len):
+        j = i * 4
+        result.append(pm.dt.Color(arr[j], arr[j + 1], arr[j + 2], arr[j + 3]))
+    return result
+
+
 def rad2deg(rad):
     return rad * (180 / PI)
 

@@ -67,7 +67,7 @@ MStatus TexUtils::sample3dTexture(
   {
     return MS::kUnknownParameter;
   }
-  if (scale != 1) {
+  if (scale != 1.0) {
     for (int i = 0; i < n; i++)
     {
       result[i] = MFloatVector(result[i].x*scale,result[i].y*scale,result[i].z*scale);

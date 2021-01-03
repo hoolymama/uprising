@@ -52,9 +52,6 @@ MStatus mapColorStrokes::initialize()
   MFnTypedAttribute tAttr;
   MFnMatrixAttribute mAttr;
 
- 
-
-
   aStrokes = tAttr.create("strokes", "stks", strokeData::id);
   tAttr.setReadable(false);
   tAttr.setStorable(false);
@@ -110,6 +107,10 @@ MStatus mapColorStrokes::compute(const MPlug &plug, MDataBlock &data)
   points.clear();
 
   getPoints(data, geom, points);
+
+  applyColor(data, geom,points );
+
+
 
   hOutput.set(newData);
   data.setClean(plug);
@@ -173,7 +174,7 @@ void mapColorStrokes::applyColor(
     st = TexUtils::sample3dTexture(
         thisObj,
         mapColorStrokes::aRGB,
-        10.0,
+        1.0,
         points, 
         colors);
 
@@ -193,7 +194,7 @@ void mapColorStrokes::applyColor(
     st = TexUtils::sample3dTexture(
         thisObj,
         mapColorStrokes::aRGB,
-        10.0,
+        1.0,
         points, 
         whites);
 
@@ -205,7 +206,8 @@ void mapColorStrokes::applyColor(
     float white = data.inputValue(aWhite).asFloat();
     whites = MFloatArray( len,white);
   }
- 
+
+  
   std::vector<Stroke>::iterator iter = geom->begin();
   unsigned index = 0;
   for (unsigned i = 0; iter != geom->end(); iter++, i++)

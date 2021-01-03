@@ -50,31 +50,6 @@ public:
   static MString drawDbClassification;
   static MString drawRegistrantId;
 
-  // enum Spac { kParametric, kArcLen };
-  enum TargetDisplay
-  {
-    kTargetsNone,
-    kTargetsPoint,
-    kTargetsLine,
-    kTargetsMatrix
-  };
-
-  // enum StrokeSortFilterKey {
-  //   kId,
-  //   kParentId,
-  //   kBrushId,
-  //   kPaintId,
-  //   kRepeatId,
-  //   kMapRed,
-  //   kMapGreen,
-  //   kMapBlue,
-  //   kLayerId,
-  //   kCustomBrushId,
-  //   kCustomPaintId
-  // };
-
-  // enum StrokeSortDirection { kSortAscending,  kSortDescending};
-
   static MObject aInMatrix;
 
 private:
@@ -156,6 +131,7 @@ public:
   static MObject aLineThickness;
   static MObject aDisplayTargets;
   static MObject aDisplayApproachTargets;
+  static MObject aDisplayTargetColors;
 
   static MObject aDisplayClusterPath;
   static MObject aDisplayPivots;
@@ -174,30 +150,29 @@ public:
 
   static MObject aStackGap;
   static MObject aDrawParam;
-  
 
   static MObject aOutput;
 };
 
 namespace paintingCallback
 {
-static MCallbackId id;
+  static MCallbackId id;
 
-static void makeDefaultConnections(MObject &node, void *clientData)
-{
-
-  MPlug wmPlugmulti(node, painting::worldMatrix);
-  MPlug wm(wmPlugmulti.elementByLogicalIndex(0));
-  MPlug mt(node, painting::aInMatrix);
-
-  MDGModifier mod;
-  mod.connect(wm, mt);
-  MStatus stat = mod.doIt();
-  if (stat != MS::kSuccess)
+  static void makeDefaultConnections(MObject &node, void *clientData)
   {
-    stat.perror("painting ERROR :: callback unable to make matrix connections");
+
+    MPlug wmPlugmulti(node, painting::worldMatrix);
+    MPlug wm(wmPlugmulti.elementByLogicalIndex(0));
+    MPlug mt(node, painting::aInMatrix);
+
+    MDGModifier mod;
+    mod.connect(wm, mt);
+    MStatus stat = mod.doIt();
+    if (stat != MS::kSuccess)
+    {
+      stat.perror("painting ERROR :: callback unable to make matrix connections");
+    }
   }
-}
 } // namespace paintingCallback
 
 #endif

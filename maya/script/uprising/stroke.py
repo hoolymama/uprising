@@ -6,20 +6,14 @@ from robolink import (
 )
 
 
-from target import Target, DepartureTarget, ArrivalTarget
+from target import Target, PovTarget, DepartureTarget, ArrivalTarget
 import pymel.core as pm
 
 import uprising_util as uutl
 from uprising_util import StrokeError
 
-
-# def config_key(config):
-#     if config:
-#         return "%d%d%d%d" % tuple(config.list2()[0][0:4])
-
-
+ 
 class Stroke(object):
-
 
     def __init__(self, cluster_id, _id, brush, node):
         self.cluster_id = cluster_id
@@ -232,7 +226,6 @@ class Stroke(object):
 
 class PovStroke(Stroke):
 
-
     def __init__(self, cluster_id, _id, brush, node):
         self.cluster_id = cluster_id
         self.id = _id
@@ -243,6 +236,50 @@ class PovStroke(Stroke):
         self.set_stroke_params()
         self.build_targets()
         self.configure()
+
+    def build_targets(self):
+
+        positions = uutl.to_point_array(
+            pm.paintingQuery(
+                self.node,
+                clusterIndex=self.cluster_id,
+                strokeIndex=self.id,
+                strokePositions=True,
+            )
+        )
+
+        rotations = uutl.to_vector_array(
+            pm.paintingQuery(
+                self.node,
+                clusterIndex=self.cluster_id,
+                strokeIndex=self.id,
+                strokeRotations=True,
+                rotateOrder="zyx",
+                rotateUnit="rad",
+            )
+        )
+
+        colors = uutl.to_rgba_array(
+            pm.paintingQuery(
+                self.node,
+                clusterIndex=self.cluster_id,
+                strokeIndex=self.id,
+                strokeColors=True
+            )
+        )
+
+        num_targets = len(positions)
+        if not num_targets == len(rotations) and num_targets == len(colors):
+            raise StrokeError(
+                "Length mismatch: positions, rotations, colors")
+
+        for i, (p, r, c) in enumerate(zip(positions, rotations, colors)):
+            try:
+                tg = PovTarget(i, (p * 10), r, c, self.brush)
+            except StrokeError:
+                raise
+
+            self.targets.append(tg)
 
     def best_config(self):
         if not self.targets:
@@ -255,7 +292,8 @@ class PovStroke(Stroke):
             if not common_configs:
                 print "Impossible Stroke:"
                 for target in self.targets:
-                    print "Cluster:{} - Target:{} - configs:{}".format(self.cluster_id, target.id, target.valid_configs())
+                    print "Cluster:{} - Target:{} - configs:{}".format(
+                        self.cluster_id, target.id, target.valid_configs())
                 raise StrokeError(
                     "Can't find best config for stroke. No common configs")
 
@@ -268,24 +306,25 @@ class PovStroke(Stroke):
         ang = motion["angular_speed"] * self.angular_speed
         program.setSpeed(lin, ang)
 
+        last_color = None
         for i, t in enumerate(self.targets):
-            t.send(stroke_name, program, frame)
+            t.send(stroke_name, program, frame, last_color)
+            last_color = t.color
 
-            if i == 0:
-                program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
-                program.RunInstruction("WAIT SEC 1", INSTRUCTION_INSERT_CODE)
-                program.RunInstruction(
-                    "$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)
+        program.RunInstruction("End stroke {}. Set to black".format(stroke_name), INSTRUCTION_COMMENT)
+        program.RunInstruction("$ANOUT[1]=0.0", INSTRUCTION_INSERT_CODE)
+        program.RunInstruction("$ANOUT[2]=0.0", INSTRUCTION_INSERT_CODE)
+        program.RunInstruction("$ANOUT[3]=0.0", INSTRUCTION_INSERT_CODE)
+        program.RunInstruction("$ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)
 
-            if (i+1) == len(self.targets):
-                program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
-                program.RunInstruction("WAIT SEC 1", INSTRUCTION_INSERT_CODE)
-                program.RunInstruction(
-                    "$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)
+
+
+
 
     def configure(self):
         config = self.best_config()
-        print "Best Config for Cluster ID:{} Stroke ID:{} = {}".format(self.cluster_id, self.id, config)
+        print "Best Config for Cluster ID:{} Stroke ID:{} = {}".format(
+            self.cluster_id, self.id, config)
         if not config:  # no targets
             return
 

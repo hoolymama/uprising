@@ -6,14 +6,67 @@ import time
 import os
 import tarfile
 import pymel.core as pm
+from uprising.target import PovTarget
+from uprising.uprising_util import StrokeError
 from uprising import uprising_util as uutl
 from uprising import robo
 from uprising import stats
 from uprising import progress
 from uprising.session.session import Session
 from uprising.session.pov_program import PovProgram
+import maya.api.OpenMaya as om
+from uprising.brush import Brush
 
 logger = logging.getLogger("uprising")
+
+
+PROGRAM_NAME = "povtest"
+X = 120
+Y = -5
+Z = 10
+FRONT = pm.dt.Vector(1, 0, 0)
+SIDE = pm.dt.Vector(0, 1, 0)
+UP = pm.dt.Vector(0, 0, -1)
+
+
+class PovTestSession(Session):
+
+    def __init__(self):
+
+        self.directory = "/Volumes/xtr/gd/pov/export/test"
+        self.brush = Brush(0, pm.PyNode(
+            "fbx_0_slot_00_fo1_roundShape").attr("outPaintBrush"))
+
+        robo.new()
+        robo.show()
+        robo.clean("kr8")
+
+        _id = "{}_{}_{}".format(X, Y, Z)
+        mat = om.MMatrix([list(UP)+[0], list(SIDE)+[0],
+                          list(FRONT)+[0], [X, Y, Z, 1]])
+
+        mtmat = om.MTransformationMatrix(mat)
+
+        position = mtmat.translation(om.MSpace.kWorld)
+        xyz_rotation = mtmat.rotation(False)
+        zyx_rotation = xyz_rotation.reorder(om.MEulerRotation.kZYX)
+        try:
+            t = PovTarget(_id, list(position * 10),
+                          list(zyx_rotation),  pm.dt.Color(1, 0, 0, 0.5), self.brush)
+        except StrokeError:
+            return
+        print "Making Frame for", PROGRAM_NAME
+        frame = robo.create_frame("POV_frame")
+        print "Making Program for", PROGRAM_NAME
+        program = robo.create_program(PROGRAM_NAME)
+        print "Made Program for", PROGRAM_NAME
+
+        self.brush.send()
+        t.configure("001")
+        t.send("test_", program, frame, None)
+
+        self.save_program(self.directory, PROGRAM_NAME)
+        self.save_station(self.directory, PROGRAM_NAME)
 
 
 class PovSession(Session):

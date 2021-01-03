@@ -64,7 +64,7 @@ class Session(object):
         src = os.path.join(directory, "src")
         uutl.mkdir_p(src)
         src_fn = robo.write_program(src, program_name)
-        logger.info("Wrote src: {}".format(program_name))
+        print "Wrote src: {}".format(program_name)
         return src_fn
 
     @staticmethod
@@ -72,7 +72,7 @@ class Session(object):
         rdk = os.path.join(directory, "rdk")
         uutl.mkdir_p(rdk)
         rdk_fn = robo.write_station(rdk, program_name)
-        logger.info("Wrote rdk: {}".format(program_name))
+        print "Wrote rdk: {}".format(program_name)
         return rdk_fn
 
     @staticmethod

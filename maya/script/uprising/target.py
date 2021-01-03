@@ -1,4 +1,5 @@
 import robodk as rdk
+from robolink import INSTRUCTION_INSERT_CODE
 
 from uprising_util import StrokeError
 import robo
@@ -40,6 +41,43 @@ class Target(object):
                 program.addMoveL(rdk_target)
             else:
                 program.addMoveJ(rdk_target)
+
+
+class PovTarget(Target):
+    def __init__(self, id_, position, rotation, color, brush):
+        super(PovTarget, self).__init__(id_, position, rotation, brush)
+        self.color = color*10
+
+    def send(self, prefix, program, frame, last_color):
+        link = robo.link()
+        robot = robo.robot()
+        target_name = self.name(prefix)
+        rdk_target = link.AddTarget(target_name, frame, robot)
+        rdk_target.setPose(self.tool_pose)
+        rdk_target.setJoints(self.joint_pose)
+        if program:
+            if self.linear:
+                program.addMoveL(rdk_target)
+            else:
+                program.addMoveJ(rdk_target)
+            self.send_color(program, last_color=last_color)
+
+    def send_color(self, program, last_color=None):
+        if not last_color or last_color.r != self.color.r:
+            program.RunInstruction("$ANOUT[1]={:.3f}".format(
+                self.color.r), INSTRUCTION_INSERT_CODE)
+
+        if not last_color or last_color.g != self.color.g:
+            program.RunInstruction("$ANOUT[2]={:.3f}".format(
+                self.color.g), INSTRUCTION_INSERT_CODE)
+
+        if not last_color or last_color.b != self.color.b:
+            program.RunInstruction("$ANOUT[3]={:.3f}".format(
+                self.color.b), INSTRUCTION_INSERT_CODE)
+
+        if not last_color or last_color.a != self.color.a:
+            program.RunInstruction("$ANOUT[4]={:.3f}".format(
+                self.color.a), INSTRUCTION_INSERT_CODE)
 
 
 class ArrivalTarget(Target):

@@ -9,6 +9,7 @@
 #include "paintingNode.h"
 #include "paintingDrawOverride.h"
 #include "brush.h"
+#include "enums.h"
 
 paintingDrawOverride::paintingDrawOverride(const MObject &obj)
 	: MHWRender::MPxDrawOverride(obj, NULL, false)
@@ -100,7 +101,10 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	MPlug(paintingObj, painting::aLineThickness).getValue(data->lineThickness);
 	// MPlug(paintingObj, painting::aStackGap).getValue(data->stackGap);
 	MPlug(paintingObj, painting::aDisplayTargets).getValue(data->displayTargets);
+	MPlug(paintingObj, painting::aDisplayTargetColors).getValue(data->displayTargetColors);
+
 	MPlug(paintingObj, painting::aDisplayApproachTargets).getValue(data->displayApproachTargets);
+
 	MPlug(paintingObj, painting::aDisplayClusterPath).getValue(data->displayClusterPath);
 	MPlug(paintingObj, painting::aDisplayPivots).getValue(data->displayPivots);
 	MPlug(paintingObj, painting::aDisplayContactWidth).getValue(data->displayContactWidth);
@@ -113,7 +117,7 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	MPlug(paintingObj, painting::aArrowheadSize).getValue(data->arrowheadSize);
 	MPlug(paintingObj, painting::aStackGap).getValue(data->stackGap);
 	MPlug(paintingObj, painting::aDrawParam).getValue(data->drawParam);
-	
+
 	MPlug offPlug(paintingObj, painting::aIdDisplayOffset);
 
 	offPlug.child(0).getValue(data->idDisplayOffset[0]);
@@ -168,9 +172,12 @@ void paintingDrawOverride::addUIDrawables(
 
 void paintingDrawOverride::drawShaded(
 	MHWRender::MUIDrawManager &drawManager,
-	const PaintingDrawData *cdata 
+	const PaintingDrawData *cdata
 	)
 {
+
+	PaintingEnums::TargetColorsDisplay targetDisplayMode = PaintingEnums::TargetColorsDisplay(cdata->displayTargetColors);
+
 
 	// TODO: Split function based on draw param.
 	int total_segments = 0;
@@ -192,7 +199,9 @@ void paintingDrawOverride::drawShaded(
 	for (auto cluster : cdata->geom->clusters())
 	{
 		const Brush &brush = cdata->geom->brushFromId(cluster.brushId());
-		drawManager.setColor(cdata->geom->paintFromId(cluster.paintId()).color);
+		if (targetDisplayMode == PaintingEnums::kTargetColorsOff) {
+			drawManager.setColor(cdata->geom->paintFromId(cluster.paintId()).color);
+		}
 		drawManager.setDepthPriority(5);
 
 		for (auto stroke : cluster.strokes())
@@ -209,12 +218,19 @@ void paintingDrawOverride::drawShaded(
 					);
 				done = true;
 			}
-			
+
 			stackHeight += cdata->stackGap;
 			MPointArray triangles;
 			stroke.getTriangleStrip(brush, stackHeight, triangles, cdata->displayContactWidth, segments);
-			drawManager.mesh(
-				MHWRender::MUIDrawManager::kTriStrip, triangles);
+			if (targetDisplayMode != PaintingEnums::kTargetColorsOff) {
+				MColorArray colors;
+				stroke.getTargetBorderColors(colors, segments, targetDisplayMode);
+
+				drawManager.mesh(MHWRender::MUIDrawManager::kTriStrip, triangles, 0, &colors);
+			} else {
+				drawManager.mesh(MHWRender::MUIDrawManager::kTriStrip, triangles);
+			}
+
 			num_visited_segments = next_accum_segments;
 			if (done){
 				break;
@@ -242,19 +258,19 @@ void paintingDrawOverride::drawWireframeTargets(
 	MHWRender::MUIDrawManager &drawManager,
 	const PaintingDrawData *cdata)
 {
-	painting::TargetDisplay style = painting::TargetDisplay(cdata->displayTargets);
+	PaintingEnums::TargetDisplay style = PaintingEnums::TargetDisplay(cdata->displayTargets);
 
-	if (style == painting::kTargetsPoint)
+	if (style == PaintingEnums::kTargetsPoint)
 	{
 		drawWireframeTargetsPoint(drawManager, cdata);
 		return;
 	}
-	if (style == painting::kTargetsLine)
+	if (style == PaintingEnums::kTargetsLine)
 	{
 		drawWireframeTargetsLine(drawManager, cdata);
 		return;
 	}
-	if (style == painting::kTargetsMatrix)
+	if (style == PaintingEnums::kTargetsMatrix)
 	{
 		drawWireframeTargetsMatrix(drawManager, cdata);
 	}

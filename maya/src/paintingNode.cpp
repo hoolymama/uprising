@@ -41,6 +41,8 @@
 #include "errorMacros.h"
 
 #include "brushData.h"
+#include "enums.h"
+
 
 const double rad_to_deg = (180 / 3.1415927);
 
@@ -118,6 +120,7 @@ MObject painting::aLineLength;
 MObject painting::aLineThickness;
 
 MObject painting::aDisplayTargets;
+MObject painting::aDisplayTargetColors;
 MObject painting::aDisplayApproachTargets;
 MObject painting::aDisplayClusterPath;
 
@@ -341,15 +344,28 @@ MStatus painting::initialize()
   addAttribute(aArrowheadSize);
 
   aDisplayTargets = eAttr.create("displayTargets", "dtg");
-  eAttr.addField("none", painting::kTargetsNone);
-  eAttr.addField("point", painting::kTargetsPoint);
-  eAttr.addField("line", painting::kTargetsLine);
-  eAttr.addField("matrix", painting::kTargetsMatrix);
+  eAttr.addField("none", PaintingEnums::kTargetsNone);
+  eAttr.addField("point", PaintingEnums::kTargetsPoint);
+  eAttr.addField("line", PaintingEnums::kTargetsLine);
+  eAttr.addField("matrix", PaintingEnums::kTargetsMatrix);
   eAttr.setHidden(false);
   eAttr.setStorable(true);
   eAttr.setReadable(true);
-  eAttr.setDefault(painting::kTargetsNone);
+  eAttr.setDefault(PaintingEnums::kTargetsNone);
   addAttribute(aDisplayTargets);
+
+
+  aDisplayTargetColors = eAttr.create("displayTargetColors", "dtcl");
+  eAttr.addField("off", PaintingEnums::kTargetColorsOff);
+  eAttr.addField("white", PaintingEnums::kTargetColorsWhite);
+  eAttr.addField("rgb", PaintingEnums::kTargetColorsRGB);
+  eAttr.addField("blend", PaintingEnums::kTargetColorsBlend);
+  eAttr.setHidden(false);
+  eAttr.setStorable(true);
+  eAttr.setReadable(true);
+  eAttr.setDefault(PaintingEnums::kTargetColorsOff);
+  addAttribute(aDisplayTargetColors);
+
 
   aDisplayApproachTargets = nAttr.create("displayApproachTargets", "dapt",
                                          MFnNumericData::kBoolean);
@@ -690,8 +706,8 @@ void painting::drawWireframeTargets(
 
   short tmp;
   MPlug(thisObj, aDisplayTargets).getValue(tmp);
-  TargetDisplay targetDisplayStyle = TargetDisplay(tmp);
-  if (targetDisplayStyle == painting::kTargetsNone)
+  PaintingEnums::TargetDisplay targetDisplayStyle = PaintingEnums::TargetDisplay(tmp);
+  if (targetDisplayStyle == PaintingEnums::kTargetsNone)
   {
     return;
   }
@@ -699,7 +715,7 @@ void painting::drawWireframeTargets(
   bool withTraversal;
   MPlug(thisObj, aDisplayApproachTargets).getValue(withTraversal);
 
-  if (targetDisplayStyle == painting::kTargetsPoint)
+  if (targetDisplayStyle == PaintingEnums::kTargetsPoint)
   {
     double stackHeight = 0.0;
     glPushAttrib(GL_CURRENT_BIT);
@@ -726,7 +742,7 @@ void painting::drawWireframeTargets(
     return;
   }
 
-  if (targetDisplayStyle == painting::kTargetsLine)
+  if (targetDisplayStyle == PaintingEnums::kTargetsLine)
   {
     double stackHeight = 0.0;
     glPushAttrib(GL_LINE_BIT);
@@ -758,7 +774,7 @@ void painting::drawWireframeTargets(
     return;
   }
 
-  if (targetDisplayStyle == painting::kTargetsMatrix)
+  if (targetDisplayStyle == PaintingEnums::kTargetsMatrix)
   {
     double stackHeight = 0.0;
 
@@ -1239,6 +1255,7 @@ void painting::draw(M3dView &view,
                     M3dView::DisplayStyle style,
                     M3dView::DisplayStatus status)
 {
+  return;
 
   MStatus st;
 

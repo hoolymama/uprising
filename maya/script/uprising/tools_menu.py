@@ -11,6 +11,7 @@ import setup_dip
 import stats
 import uprising_util as uutl
 from brush import Brush
+from uprising.session.pov_session import PovTestSession
 
 
 def create():
@@ -81,7 +82,16 @@ def create():
 
     pm.setParent("..", menu=True)
 
+    pm.menuItem(
+        label="Test light robot session",
+        command=pm.Callback(
+            on_test_light_robot_session))
+
     return menu
+
+
+def on_test_light_robot_session():
+    PovTestSession()
 
 
 def on_connect_brushids_to_skeleton():

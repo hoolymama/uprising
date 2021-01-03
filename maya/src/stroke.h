@@ -21,6 +21,8 @@
 #include "brush.h"
 #include "paint.h"
 #include "target.h"
+#include "enums.h"
+
 
 class Stroke
 {
@@ -276,6 +278,12 @@ public:
 		MPointArray &result,
 		bool displayContactWidth,
 		int maxSegments =-1) const;
+ 
+	void  getTargetBorderColors( 
+		MColorArray &result, 
+		int maxSegments, 
+		PaintingEnums::TargetColorsDisplay displayMode) const;
+
 
 	void positions(const MMatrix &space, MPointArray &result) const;
 	void rotations(
