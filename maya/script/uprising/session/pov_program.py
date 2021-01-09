@@ -75,7 +75,7 @@ class PovProgram(Program):
             "$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)
 
     def send_lights_off(self):
-        self.program.RunInstruction("$ANOUT[1]=0.0", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("$ANOUT[2]=0.0", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("$ANOUT[3]=0.0", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("$ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[1]=0.0", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[2]=0.0", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[3]=0.0", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)

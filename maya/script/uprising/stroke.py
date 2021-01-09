@@ -312,10 +312,10 @@ class PovStroke(Stroke):
             last_color = t.color
 
         program.RunInstruction("End stroke {}. Set to black".format(stroke_name), INSTRUCTION_COMMENT)
-        program.RunInstruction("$ANOUT[1]=0.0", INSTRUCTION_INSERT_CODE)
-        program.RunInstruction("$ANOUT[2]=0.0", INSTRUCTION_INSERT_CODE)
-        program.RunInstruction("$ANOUT[3]=0.0", INSTRUCTION_INSERT_CODE)
-        program.RunInstruction("$ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)
+        program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[1]=0.0", INSTRUCTION_INSERT_CODE)
+        program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[2]=0.0", INSTRUCTION_INSERT_CODE)
+        program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[3]=0.0", INSTRUCTION_INSERT_CODE)
+        program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)
 
 
 

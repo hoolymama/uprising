@@ -64,19 +64,19 @@ class PovTarget(Target):
 
     def send_color(self, program, last_color=None):
         if not last_color or last_color.r != self.color.r:
-            program.RunInstruction("$ANOUT[1]={:.3f}".format(
+            program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[1]={:.3f}".format(
                 self.color.r), INSTRUCTION_INSERT_CODE)
 
         if not last_color or last_color.g != self.color.g:
-            program.RunInstruction("$ANOUT[2]={:.3f}".format(
+            program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[2]={:.3f}".format(
                 self.color.g), INSTRUCTION_INSERT_CODE)
 
         if not last_color or last_color.b != self.color.b:
-            program.RunInstruction("$ANOUT[3]={:.3f}".format(
+            program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[3]={:.3f}".format(
                 self.color.b), INSTRUCTION_INSERT_CODE)
 
         if not last_color or last_color.a != self.color.a:
-            program.RunInstruction("$ANOUT[4]={:.3f}".format(
+            program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4]={:.3f}".format(
                 self.color.a), INSTRUCTION_INSERT_CODE)
 
 
