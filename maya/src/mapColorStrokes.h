@@ -21,23 +21,39 @@ public:
 
 private:
 
-  void getPoints(MDataBlock &data, std::vector<Stroke> *geom, MFloatPointArray &points) const;
-
-  void applyColor(
+ 
+void getColors(
     MDataBlock &data,
     std::vector<Stroke> *geom,
-    MFloatPointArray &points ) const;
+    MFloatPointArray &points,
+    MFloatVectorArray &colors,
+    MFloatArray &whites
+     ) const;
 
 
-  // static MObject aStrokes;
+MStatus occludeColors(
+  MDataBlock &data,
+  const MFloatPointArray &points,
+  MFloatVectorArray &colors, 
+  MFloatArray &whites
+  ) const ;
 
+void applyColors(   
+    std::vector<Stroke> *geom,
+    const MFloatVectorArray &colors,
+    const MFloatArray &whites) const;
+ 
   static MObject aRGB;
-  // static MObject aR;
-  // static MObject aG;
-  // static MObject aB;
   static MObject aWhite;
 
-  // static MObject aOutput;
+ 
+  static MObject aMesh;
+  static MObject aPoint;
+  static MObject aBias;
+  static MObject aDoOcclusion;
+  
+
+ 
 };
 
 #endif

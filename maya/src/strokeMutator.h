@@ -19,8 +19,10 @@ public:
 
   static MTypeId id;
 
-  virtual MStatus mutate(MDataBlock &data, std::vector<Stroke> *geom) const ;
 protected:
+  virtual MStatus mutate(MDataBlock &data, std::vector<Stroke> *geom) const ;
+  void getPoints(MDataBlock &data, std::vector<Stroke> *geom, MFloatPointArray &points) const;
+
   static MObject aStrokes;
   static MObject aOutput;
   static MObject aTrigger;

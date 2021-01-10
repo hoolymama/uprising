@@ -5,10 +5,16 @@
 #include <maya/MFnPluginData.h>
 #include <maya/MFloatArray.h>
 #include <maya/MPoint.h>
+#include <maya/MFloatVectorArray.h> 
 #include <maya/MString.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
+
+#include <maya/MFnMesh.h>
+#include <maya/MFnMeshData.h>
+
+#include <maya/MMeshIntersector.h>
 
 #include "strokeData.h"
 #include "mapColorStrokes.h"
@@ -18,14 +24,14 @@
 #include "errorMacros.h"
 #include "texUtils.h"
 
- 
 MObject mapColorStrokes::aRGB;
-// MObject mapColorStrokes::aR;
-// MObject mapColorStrokes::aG;
-// MObject mapColorStrokes::aB;
-
 MObject mapColorStrokes::aWhite;
- 
+
+MObject mapColorStrokes::aMesh;
+MObject mapColorStrokes::aPoint;
+MObject mapColorStrokes::aBias;
+MObject mapColorStrokes::aDoOcclusion;
+
 MTypeId mapColorStrokes::id(k_mapColorStrokes);
 
 mapColorStrokes::mapColorStrokes() {}
@@ -43,27 +49,26 @@ void mapColorStrokes::postConstructor()
   MPxNode::postConstructor();
   setExistWithoutOutConnections(true);
 }
- 
 
 MStatus mapColorStrokes::initialize()
 {
   MStatus st;
   MString method("mapColorStrokes::initialize");
 
-	inheritAttributesFrom("strokeMutator");
+  inheritAttributesFrom("strokeMutator");
 
   MFnNumericAttribute nAttr;
- 
+  MFnTypedAttribute tAttr;
+
   aRGB = nAttr.createColor("rgb", "rgb");
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   addAttribute(aRGB);
 
-  MObject  aR = nAttr.child(0);
-  MObject  aG = nAttr.child(1);
-  MObject  aB = nAttr.child(2);
-
+  MObject aR = nAttr.child(0);
+  MObject aG = nAttr.child(1);
+  MObject aB = nAttr.child(2);
 
   aWhite = nAttr.create("white", "wht", MFnNumericData::kFloat);
   nAttr.setStorable(true);
@@ -71,61 +76,83 @@ MStatus mapColorStrokes::initialize()
   nAttr.setKeyable(true);
   addAttribute(aWhite);
 
-  
+  aPoint = nAttr.createPoint("occlusionPoint", "opt");
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aPoint);
 
+  aMesh = tAttr.create("occlusionMesh", "omsh", MFnData::kMesh);
+  tAttr.setReadable(false);
+  addAttribute(aMesh);
 
- 
-  st = attributeAffects(aRGB, aOutput);
+  aBias = nAttr.create("occlusionBias", "obs", MFnNumericData::kFloat);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setDefault(0.0f);
+  addAttribute(aBias);
 
-  st = attributeAffects(  aR, aOutput);
-  st = attributeAffects(  aG, aOutput);
-  st = attributeAffects(  aB, aOutput);
- 
+  aDoOcclusion = nAttr.create("doOcclusion", "occ", MFnNumericData::kBoolean);
+  nAttr.setReadable(false);
+  nAttr.setDefault(false);
+  nAttr.setKeyable(true);
+  addAttribute(aDoOcclusion);
 
-
-  st = attributeAffects(aWhite, aOutput);
+  attributeAffects(aPoint, aOutput);
+  attributeAffects(aMesh, aOutput);
+  attributeAffects(aBias, aOutput);
+  attributeAffects(aDoOcclusion, aOutput);
+  attributeAffects(aRGB, aOutput);
+  attributeAffects(aR, aOutput);
+  attributeAffects(aG, aOutput);
+  attributeAffects(aB, aOutput);
+  attributeAffects(aWhite, aOutput);
 
   return (MS::kSuccess);
 }
 
-MStatus mapColorStrokes::mutate(MDataBlock &data, std::vector<Stroke> *geom) const 
+MStatus mapColorStrokes::mutate(MDataBlock &data, std::vector<Stroke> *geom) const
 {
-
+  MStatus st;
   MFloatPointArray points;
   points.clear();
   getPoints(data, geom, points);
-  applyColor(data, geom, points );
+
+  MFloatVectorArray colors;
+  MFloatArray whites;
+  getColors(data, geom, points, colors, whites);
+
+  if ((points.length() != colors.length()) || (points.length() != whites.length()))
+  {
+    return MS::kUnknownParameter;
+  }
+
+  bool doOcclusion = data.inputValue(aDoOcclusion).asBool();
+  if (doOcclusion)
+  {
+    st = occludeColors(data, points, colors, whites);
+  }
+
+  applyColors(geom, colors, whites);
 
   return MS::kSuccess;
 }
- 
-void mapColorStrokes::getPoints(MDataBlock &data, std::vector<Stroke> *geom, MFloatPointArray &points) const
-{
-  for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
-  {
-    const std::vector<Target> targets = iter->targets();
-    for (std::vector<Target>::const_iterator targetIter = targets.begin(); targetIter != targets.end(); targetIter++)
-    {
-      const MMatrix &mat = targetIter->matrix();
-      points.append(MFloatPoint(mat[3][0],mat[3][1],mat[3][2]));
-    }
-  }
-}
 
-void mapColorStrokes::applyColor(
+void mapColorStrokes::getColors(
     MDataBlock &data,
     std::vector<Stroke> *geom,
-    MFloatPointArray &points ) const
+    MFloatPointArray &points,
+    MFloatVectorArray &colors,
+    MFloatArray &whites) const
 {
 
   MStatus st;
   MObject thisObj = thisMObject();
-  
+
   unsigned len = points.length();
   bool isColorMapped = false;
   bool isWhiteMapped = false;
-  
-  MFloatVectorArray colors;
+
   if (TexUtils::hasTexture(thisObj, mapColorStrokes::aRGB))
   {
 
@@ -133,19 +160,20 @@ void mapColorStrokes::applyColor(
         thisObj,
         mapColorStrokes::aRGB,
         1.0,
-        points, 
+        points,
         colors);
 
-    if (!st.error()) {
+    if (!st.error())
+    {
       isColorMapped = true;
     }
   }
-  if (!isColorMapped) {
+  if (!isColorMapped)
+  {
     MFloatVector color = data.inputValue(aRGB).asFloatVector();
-    colors = MFloatVectorArray(len, color );
+    colors = MFloatVectorArray(len, color);
   }
 
-  MFloatArray whites;
   if (TexUtils::hasTexture(thisObj, mapColorStrokes::aWhite))
   {
 
@@ -153,19 +181,72 @@ void mapColorStrokes::applyColor(
         thisObj,
         mapColorStrokes::aRGB,
         1.0,
-        points, 
+        points,
         whites);
 
-    if (!st.error()) {
+    if (!st.error())
+    {
       isWhiteMapped = true;
     }
   }
-  if (!isWhiteMapped) {
+  if (!isWhiteMapped)
+  {
     float white = data.inputValue(aWhite).asFloat();
-    whites = MFloatArray( len,white);
+    whites = MFloatArray(len, white);
+  }
+}
+
+MStatus mapColorStrokes::occludeColors(
+    MDataBlock &data,
+    const MFloatPointArray &points,
+    MFloatVectorArray &colors,
+    MFloatArray &whites) const
+{
+
+  MStatus st;
+  unsigned len = points.length();
+  float3 &fpoint = data.inputValue(aPoint).asFloat3();
+  MFloatPoint camPoint(fpoint[0], fpoint[1], fpoint[2]);
+  const float &bias = data.inputValue(aBias).asFloat();
+
+  MDataHandle hMesh = data.inputValue(aMesh, &st);
+  msert;
+  MObject inMesh = hMesh.asMeshTransformed();
+  MFnMesh mFnIn(inMesh, &st);
+  msert;
+
+  MMeshIsectAccelParams ap = mFnIn.autoUniformGridParams();
+  MFloatPoint fpSource;
+  MFloatVector fvRayDir;
+  float hitRayParam;
+  MFloatPoint fHitPoint;
+
+  for (unsigned i = 0; i < len; i++)
+  {
+    const MFloatVector &fvRayDir = MFloatVector(camPoint - points[i]).normal();
+
+    const MFloatPoint &fpSource = points[i] + (fvRayDir * bias);
+
+    bool hit = mFnIn.anyIntersection(
+        fpSource, fvRayDir, NULL, NULL, false,
+        MSpace::kWorld, 99999, false, &ap, fHitPoint,
+        &hitRayParam, NULL, NULL, NULL, NULL, 0.000001f, &st);
+    mser;
+    if (hit)
+    {
+      colors[i] = MFloatVector(0, 0, 0);
+      whites[i] = 0.0f;
+    }
   }
 
-  
+  return MS::kSuccess;
+}
+
+void mapColorStrokes::applyColors(
+    std::vector<Stroke> *geom,
+    const MFloatVectorArray &colors,
+    const MFloatArray &whites) const
+{
   std::vector<Stroke>::iterator iter = geom->begin();
   unsigned index = 0;
   for (unsigned i = 0; iter != geom->end(); iter++, i++)
@@ -173,5 +254,4 @@ void mapColorStrokes::applyColor(
     iter->setTargetColors(colors, whites, index);
     index += iter->size();
   }
-
 }
