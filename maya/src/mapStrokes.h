@@ -2,10 +2,10 @@
 #ifndef _mapStrokes_H
 #define _mapStrokes_H
 
-#include <maya/MPxNode.h>
+#include "strokeMutator.h"
 #include "stroke.h"
 
-class mapStrokes : public MPxNode
+class mapStrokes : public strokeMutator
 {
 public:
   mapStrokes();
@@ -14,13 +14,12 @@ public:
   static void *creator();
   static MStatus initialize();
   virtual void postConstructor();
-  virtual MStatus compute(const MPlug &plug, MDataBlock &data);
-
+  virtual bool isAbstractClass() const { return false; }
+  virtual MStatus mutate(MDataBlock &data, std::vector<Stroke> *geom) const;
   static MTypeId id;
 
 private:
-  MStatus copyStrokes(MDataBlock &data, std::vector<Stroke> *geom);
-
+ 
   void calcUVs(MDataBlock &data, std::vector<Stroke> *geom, MFloatArray &u, MFloatArray &v) const;
 
   bool speedMap(
@@ -29,13 +28,10 @@ private:
       MFloatArray &uVals,
       MFloatArray &vVals) const;
 
-  static MObject aStrokes;
   static MObject aProjection;
-
   static MObject aLinearSpeedTexture;
   static MObject aAngularSpeedTexture;
 
-  static MObject aOutput;
 };
 
 #endif

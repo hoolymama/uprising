@@ -8,14 +8,14 @@
 #include "curveStrokeNode.h"
 
 #include "skGraphNode.h"
-// #include "skGraphImage.h"
-
+ 
 #include "skeletonStrokeNode.h"
 #include "paintingNode.h"
 #include "brushNode.h"
 #include "collectStrokes.h"
-#include "tiltStrokes.h"
 
+#include "strokeMutator.h"
+#include "tiltStrokes.h"
 #include "mapStrokes.h"
 #include "aimStrokes.h"
 #include "mapColorStrokes.h"
@@ -109,24 +109,30 @@ MStatus initializePlugin(MObject obj)
 							 collectStrokes::initialize);
 	msert;
 
+
+	
+	st = plugin.registerNode("strokeMutator", strokeMutator::id, strokeMutator::creator,
+							 strokeMutator::initialize);
+	mser;
+
+ 
 	st = plugin.registerNode("tiltStrokes", tiltStrokes::id, tiltStrokes::creator,
 							 tiltStrokes::initialize);
-	msert;
+	mser;
 
 	st = plugin.registerNode("aimStrokes", aimStrokes::id, aimStrokes::creator,
 							 aimStrokes::initialize);
-	msert;
+	mser;
 
 	st = plugin.registerNode("mapStrokes", mapStrokes::id, mapStrokes::creator,
 							 mapStrokes::initialize);
-	msert;
+	mser;
 
 
 	st = plugin.registerNode("mapColorStrokes", mapColorStrokes::id, mapColorStrokes::creator,
 							 mapColorStrokes::initialize);
-	msert;
+	mser;
 
-	
 
 	st = plugin.registerNode("gateRamp", gateRamp::id, gateRamp::creator,
 							 gateRamp::initialize);
@@ -140,6 +146,8 @@ MStatus initializePlugin(MObject obj)
 								brushCmd::newSyntax);
 	mser;
 
+
+
 	return st;
 }
 
@@ -150,6 +158,11 @@ MStatus uninitializePlugin(MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin(obj);
+
+
+
+
+
 	st = plugin.deregisterCommand("brushCmd");
 	mser;
 
@@ -159,19 +172,20 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(gateRamp::id);
 	mser;
 	
+ 
 	st = plugin.deregisterNode(mapColorStrokes::id);
 	mser;
-
 	st = plugin.deregisterNode(mapStrokes::id);
-	mser;
-
 	st = plugin.deregisterNode(aimStrokes::id);
-
+	msert;
 	st = plugin.deregisterNode(tiltStrokes::id);
+	msert;
+	msert;
+	st = plugin.deregisterNode(strokeMutator::id);
+ 
+	msert;
 
-	st = plugin.deregisterNode(mapStrokes::id);
 
-	mser;
 
 	st = plugin.deregisterNode(collectStrokes::id);
 	mser;

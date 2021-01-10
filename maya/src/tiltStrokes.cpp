@@ -1,73 +1,27 @@
 
 #include <maya/MIOStream.h>
-#include <math.h>
-#include <algorithm>
-#include <map>
-
-#include <maya/MFnPluginData.h>
-#include <maya/MDoubleArray.h>
-#include <maya/MFloatVectorArray.h>
-#include <maya/MFloatArray.h>
-#include <maya/MFloatPointArray.h>
-#include <maya/MPoint.h>
-
-#include <maya/MString.h>
-#include <maya/MFloatMatrix.h>
 #include <maya/MFnTypedAttribute.h>
-
-#include <maya/MFnGenericAttribute.h>
-#include <maya/MRampAttribute.h>
-
-#include <maya/MArrayDataHandle.h>
-#include <maya/MAngle.h>
-
-#include <maya/MPlugArray.h>
-#include <maya/MRenderUtil.h>
-#include <maya/MFnDagNode.h>
-#include <maya/MDagPath.h>
-
-#include <maya/MFnUnitAttribute.h>
-
 #include <maya/MFnNumericAttribute.h>
-#include <maya/MFnMatrixArrayData.h>
-
-#include <maya/MFnVectorArrayData.h>
-
-#include <maya/MFnDoubleArrayData.h>
-#include <maya/MFnIntArrayData.h>
-#include <maya/MFnMatrixData.h>
-#include <maya/MTransformationMatrix.h>
-
-#include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
-
-#include <maya/MFnEnumAttribute.h>
-
-#include <maya/MFnNurbsCurveData.h>
 
 #include "strokeData.h"
 #include "tiltStrokes.h"
 #include "stroke.h"
 #include "cImgUtils.h"
 
-#include "filterDefinition.h"
-#include "sortDefinition.h"
-
 #include <jMayaIds.h>
-#include "mayaMath.h"
+// #include "mayaMath.h"
 #include "errorMacros.h"
 #include "texUtils.h"
 
 const double rad_to_deg = (180 / 3.1415927);
 const double deg_to_rad = (3.1415927 / 180);
 
-MObject tiltStrokes::aStrokes;
 MObject tiltStrokes::aProjection;
 MObject tiltStrokes::aGlobalTiltTexture;
 MObject tiltStrokes::aGlobalTiltSampleDistance;
 MObject tiltStrokes::aGlobalTiltAmount;
 
-MObject tiltStrokes::aOutput;
 
 MTypeId tiltStrokes::id(k_tiltStrokes);
 
@@ -93,17 +47,12 @@ MStatus tiltStrokes::initialize()
 {
   MStatus st;
   MString method("tiltStrokes::initialize");
+	inheritAttributesFrom("strokeMutator");
+
 
   MFnNumericAttribute nAttr;
   MFnTypedAttribute tAttr;
   MFnMatrixAttribute mAttr;
-
-  aStrokes = tAttr.create("strokes", "stks", strokeData::id);
-  tAttr.setReadable(false);
-  tAttr.setStorable(false);
-  tAttr.setKeyable(true);
-  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-  addAttribute(aStrokes);
 
   MMatrix identity;
   identity.setToIdentity();
@@ -139,12 +88,6 @@ MStatus tiltStrokes::initialize()
   nAttr.setDefault(1.0);
   addAttribute(aGlobalTiltAmount);
 
-  aOutput = tAttr.create("output", "out", strokeData::id);
-  tAttr.setReadable(true);
-  tAttr.setStorable(false);
-  addAttribute(aOutput);
-
-  st = attributeAffects(aStrokes, aOutput);
   st = attributeAffects(aProjection, aOutput);
   st = attributeAffects(aGlobalTiltTexture, aOutput);
   st = attributeAffects(aGlobalTiltSampleDistance, aOutput);
@@ -153,67 +96,21 @@ MStatus tiltStrokes::initialize()
   return (MS::kSuccess);
 }
 
-MStatus tiltStrokes::compute(const MPlug &plug, MDataBlock &data)
+MStatus tiltStrokes::mutate(MDataBlock &data, std::vector<Stroke> *geom) const 
 {
-  MStatus st;
-  if (plug != aOutput)
-  {
-    return (MS::kUnknownParameter);
-  }
-
-  MDataHandle hOutput = data.outputValue(aOutput);
-  MFnPluginData fnOut;
-  MTypeId kdid(strokeData::id);
-
-  MObject dOut = fnOut.create(kdid, &st);
-  strokeData *newData = (strokeData *)fnOut.data(&st);
-  mser;
-  std::vector<Stroke> *geom = newData->fGeometry;
-  geom->clear();
-
-  copyStrokes(data, geom);
-
-  assignTargetUVs(data, geom);
-
-  // int count = countTargets(geom);
-
   MFloatArray uVals;
   MFloatArray vVals;
   uVals.clear();
   vVals.clear();
   appendTargetUVsTo(uVals, vVals, geom);
 
-  // cerr << "target count/uvCount " << count << " / " << uVals.length() << endl;
+
 
   tilt(uVals, vVals, data, geom);
-
-  hOutput.set(newData);
-  data.setClean(plug);
-
   return MS::kSuccess;
 }
 
-MStatus tiltStrokes::copyStrokes(MDataBlock &data, std::vector<Stroke> *geom)
-{
-  MStatus st;
-  MDataHandle hStrokes = data.inputValue(aStrokes, &st);
-  msert;
 
-  MObject dStrokes = hStrokes.data();
-  MFnPluginData fnStrokes(dStrokes, &st);
-  msert;
-
-  strokeData *sData = (strokeData *)fnStrokes.data();
-  const std::vector<Stroke> *strokeGeom = sData->fGeometry;
-
-  std::vector<Stroke>::const_iterator citer;
-  for (citer = strokeGeom->begin(); citer != strokeGeom->end(); citer++)
-  {
-    geom->push_back(*citer);
-  }
-
-  return MS::kSuccess;
-}
 
 void tiltStrokes::assignTargetUVs(MDataBlock &data, std::vector<Stroke> *geom)
 {

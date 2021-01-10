@@ -2,21 +2,10 @@
 #ifndef _tiltStrokes_H
 #define _tiltStrokes_H
 
-#include <maya/MVector.h>
-#include <maya/MFnDependencyNode.h>
-
-#include <maya/MFnNurbsCurve.h>
-#include <maya/MVectorArray.h>
-
-#include <maya/MPxNode.h>
-
-#include <maya/MDGMessage.h>
-#include <maya/MDGModifier.h>
-
-#include "cImgData.h"
+#include "strokeMutator.h"
 #include "stroke.h"
 
-class tiltStrokes : public MPxNode
+class tiltStrokes : public strokeMutator
 {
 public:
   tiltStrokes();
@@ -25,12 +14,11 @@ public:
   static void *creator();
   static MStatus initialize();
   virtual void postConstructor();
-  virtual MStatus compute(const MPlug &plug, MDataBlock &data);
-
+  virtual bool isAbstractClass() const { return false; }
+  virtual MStatus mutate(MDataBlock &data, std::vector<Stroke> *geom) const;
   static MTypeId id;
 
 private:
-  MStatus copyStrokes(MDataBlock &data, std::vector<Stroke> *geom);
 
   void assignTargetUVs(MDataBlock &data, std::vector<Stroke> *geom);
 
@@ -47,14 +35,12 @@ private:
 
   int countTargets(const std::vector<Stroke> *geom) const;
 
-  static MObject aStrokes;
+  
   static MObject aProjection;
-
   static MObject aGlobalTiltTexture;
   static MObject aGlobalTiltSampleDistance;
   static MObject aGlobalTiltAmount;
 
-  static MObject aOutput;
 };
 
 #endif

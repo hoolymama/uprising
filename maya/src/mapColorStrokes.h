@@ -2,10 +2,11 @@
 #ifndef _mapColorStrokes_H
 #define _mapColorStrokes_H
 
-#include <maya/MPxNode.h>
+#include "strokeMutator.h"
+// #include <maya/MPxNode.h>
 #include "stroke.h"
 
-class mapColorStrokes : public MPxNode
+class mapColorStrokes : public strokeMutator
 {
 public:
   mapColorStrokes();
@@ -14,30 +15,29 @@ public:
   static void *creator();
   static MStatus initialize();
   virtual void postConstructor();
-  virtual MStatus compute(const MPlug &plug, MDataBlock &data);
-
+  virtual bool isAbstractClass() const { return false; }
+  virtual MStatus mutate(MDataBlock &data, std::vector<Stroke> *geom) const;
   static MTypeId id;
 
 private:
-  MStatus copyStrokes(MDataBlock &data, std::vector<Stroke> *geom);
-  
-  void getPoints(MDataBlock &data, std::vector<Stroke> *geom, MFloatPointArray &points) const;
-  // void calcUVs(MDataBlock &data, std::vector<Stroke> *geom, MFloatArray &u, MFloatArray &v) const;
- 
 
-void applyColor(
+  void getPoints(MDataBlock &data, std::vector<Stroke> *geom, MFloatPointArray &points) const;
+
+  void applyColor(
     MDataBlock &data,
     std::vector<Stroke> *geom,
     MFloatPointArray &points ) const;
 
 
-  static MObject aStrokes;
+  // static MObject aStrokes;
 
   static MObject aRGB;
-
+  // static MObject aR;
+  // static MObject aG;
+  // static MObject aB;
   static MObject aWhite;
 
-  static MObject aOutput;
+  // static MObject aOutput;
 };
 
 #endif

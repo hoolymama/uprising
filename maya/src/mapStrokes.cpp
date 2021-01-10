@@ -2,11 +2,6 @@
 #include <maya/MIOStream.h>
 #include <math.h>
 
-#include <maya/MFnPluginData.h>
-#include <maya/MFloatArray.h>
-#include <maya/MPoint.h>
-#include <maya/MString.h>
-#include <maya/MFnTypedAttribute.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
 
@@ -18,13 +13,13 @@
 #include "errorMacros.h"
 #include "texUtils.h"
 
-MObject mapStrokes::aStrokes;
+// MObject mapStrokes::aStrokes;
 MObject mapStrokes::aProjection;
 
 MObject mapStrokes::aLinearSpeedTexture;
 MObject mapStrokes::aAngularSpeedTexture;
 
-MObject mapStrokes::aOutput;
+// MObject mapStrokes::aOutput;
 
 MTypeId mapStrokes::id(k_mapStrokes);
 
@@ -37,30 +32,25 @@ void *mapStrokes::creator()
   return new mapStrokes();
 }
 
-/// Post constructor
 void mapStrokes::postConstructor()
 {
   MPxNode::postConstructor();
   setExistWithoutOutConnections(true);
 }
 
-// const double epsilon = 0.0001;
-
 MStatus mapStrokes::initialize()
 {
   MStatus st;
   MString method("mapStrokes::initialize");
 
-  MFnNumericAttribute nAttr;
-  MFnTypedAttribute tAttr;
-  MFnMatrixAttribute mAttr;
+	inheritAttributesFrom("strokeMutator");
 
-  aStrokes = tAttr.create("strokes", "stks", strokeData::id);
-  tAttr.setReadable(false);
-  tAttr.setStorable(false);
-  tAttr.setKeyable(true);
-  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-  addAttribute(aStrokes);
+
+
+  MFnNumericAttribute nAttr;
+  
+  MFnMatrixAttribute mAttr;
+ 
 
   MMatrix identity;
   identity.setToIdentity();
@@ -83,12 +73,7 @@ MStatus mapStrokes::initialize()
   nAttr.setKeyable(true);
   addAttribute(aAngularSpeedTexture);
 
-  aOutput = tAttr.create("output", "out", strokeData::id);
-  tAttr.setReadable(true);
-  tAttr.setStorable(false);
-  addAttribute(aOutput);
-
-  st = attributeAffects(aStrokes, aOutput);
+ 
   st = attributeAffects(aProjection, aOutput);
 
   st = attributeAffects(aLinearSpeedTexture, aOutput);
@@ -97,26 +82,10 @@ MStatus mapStrokes::initialize()
   return (MS::kSuccess);
 }
 
-MStatus mapStrokes::compute(const MPlug &plug, MDataBlock &data)
+
+
+MStatus mapStrokes::mutate(MDataBlock &data, std::vector<Stroke> *geom) const 
 {
-  MStatus st;
-  if (plug != aOutput)
-  {
-    return (MS::kUnknownParameter);
-  }
-
-  MDataHandle hOutput = data.outputValue(aOutput);
-  MFnPluginData fnOut;
-  MTypeId kdid(strokeData::id);
-
-  MObject dOut = fnOut.create(kdid, &st);
-  strokeData *newData = (strokeData *)fnOut.data(&st);
-  mser;
-  std::vector<Stroke> *geom = newData->fGeometry;
-  geom->clear();
-
-  copyStrokes(data, geom);
-
   MFloatArray uVals;
   MFloatArray vVals;
   uVals.clear();
@@ -124,34 +93,9 @@ MStatus mapStrokes::compute(const MPlug &plug, MDataBlock &data)
   calcUVs(data, geom, uVals, vVals);
 
   speedMap(data, geom, uVals, vVals);
-
-  hOutput.set(newData);
-  data.setClean(plug);
-
   return MS::kSuccess;
 }
 
-MStatus mapStrokes::copyStrokes(MDataBlock &data, std::vector<Stroke> *geom)
-{
-  MStatus st;
-  MDataHandle hStrokes = data.inputValue(aStrokes, &st);
-  msert;
-
-  MObject dStrokes = hStrokes.data();
-  MFnPluginData fnStrokes(dStrokes, &st);
-  msert;
-
-  strokeData *sData = (strokeData *)fnStrokes.data();
-  const std::vector<Stroke> *strokeGeom = sData->fGeometry;
-
-  std::vector<Stroke>::const_iterator citer;
-  for (citer = strokeGeom->begin(); citer != strokeGeom->end(); citer++)
-  {
-    geom->push_back(*citer);
-  }
-
-  return MS::kSuccess;
-}
 
 void mapStrokes::calcUVs(MDataBlock &data, std::vector<Stroke> *geom, MFloatArray &u, MFloatArray &v) const
 {

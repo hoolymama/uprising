@@ -6,8 +6,8 @@
 #include <maya/MFloatArray.h>
 #include <maya/MPoint.h>
 #include <maya/MString.h>
-#include <maya/MFnTypedAttribute.h>
 #include <maya/MFnNumericAttribute.h>
+#include <maya/MFnTypedAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
 
 #include "strokeData.h"
@@ -18,11 +18,14 @@
 #include "errorMacros.h"
 #include "texUtils.h"
 
-MObject mapColorStrokes::aStrokes;
+ 
 MObject mapColorStrokes::aRGB;
-MObject mapColorStrokes::aWhite;
-MObject mapColorStrokes::aOutput;
+// MObject mapColorStrokes::aR;
+// MObject mapColorStrokes::aG;
+// MObject mapColorStrokes::aB;
 
+MObject mapColorStrokes::aWhite;
+ 
 MTypeId mapColorStrokes::id(k_mapColorStrokes);
 
 mapColorStrokes::mapColorStrokes() {}
@@ -40,30 +43,27 @@ void mapColorStrokes::postConstructor()
   MPxNode::postConstructor();
   setExistWithoutOutConnections(true);
 }
-
-// const double epsilon = 0.0001;
+ 
 
 MStatus mapColorStrokes::initialize()
 {
   MStatus st;
   MString method("mapColorStrokes::initialize");
 
+	inheritAttributesFrom("strokeMutator");
+
   MFnNumericAttribute nAttr;
-  MFnTypedAttribute tAttr;
-  MFnMatrixAttribute mAttr;
-
-  aStrokes = tAttr.create("strokes", "stks", strokeData::id);
-  tAttr.setReadable(false);
-  tAttr.setStorable(false);
-  tAttr.setKeyable(true);
-  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-  addAttribute(aStrokes);
-
+ 
   aRGB = nAttr.createColor("rgb", "rgb");
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   addAttribute(aRGB);
+
+  MObject  aR = nAttr.child(0);
+  MObject  aG = nAttr.child(1);
+  MObject  aB = nAttr.child(2);
+
 
   aWhite = nAttr.create("white", "wht", MFnNumericData::kFloat);
   nAttr.setStorable(true);
@@ -71,75 +71,33 @@ MStatus mapColorStrokes::initialize()
   nAttr.setKeyable(true);
   addAttribute(aWhite);
 
-  aOutput = tAttr.create("output", "out", strokeData::id);
-  tAttr.setReadable(true);
-  tAttr.setStorable(false);
-  addAttribute(aOutput);
+  
 
-  st = attributeAffects(aStrokes, aOutput);
+
+ 
   st = attributeAffects(aRGB, aOutput);
+
+  st = attributeAffects(  aR, aOutput);
+  st = attributeAffects(  aG, aOutput);
+  st = attributeAffects(  aB, aOutput);
+ 
+
+
   st = attributeAffects(aWhite, aOutput);
 
   return (MS::kSuccess);
 }
 
-MStatus mapColorStrokes::compute(const MPlug &plug, MDataBlock &data)
+MStatus mapColorStrokes::mutate(MDataBlock &data, std::vector<Stroke> *geom) const 
 {
-  MStatus st;
-  if (plug != aOutput)
-  {
-    return (MS::kUnknownParameter);
-  }
-
-  MDataHandle hOutput = data.outputValue(aOutput);
-  MFnPluginData fnOut;
-  MTypeId kdid(strokeData::id);
-
-  MObject dOut = fnOut.create(kdid, &st);
-  strokeData *newData = (strokeData *)fnOut.data(&st);
-  mser;
-  std::vector<Stroke> *geom = newData->fGeometry;
-  geom->clear();
-
-  copyStrokes(data, geom);
 
   MFloatPointArray points;
   points.clear();
-
   getPoints(data, geom, points);
-
-  applyColor(data, geom,points );
-
-
-
-  hOutput.set(newData);
-  data.setClean(plug);
+  applyColor(data, geom, points );
 
   return MS::kSuccess;
 }
-
-MStatus mapColorStrokes::copyStrokes(MDataBlock &data, std::vector<Stroke> *geom)
-{
-  MStatus st;
-  MDataHandle hStrokes = data.inputValue(aStrokes, &st);
-  msert;
-
-  MObject dStrokes = hStrokes.data();
-  MFnPluginData fnStrokes(dStrokes, &st);
-  msert;
-
-  strokeData *sData = (strokeData *)fnStrokes.data();
-  const std::vector<Stroke> *strokeGeom = sData->fGeometry;
-
-  std::vector<Stroke>::const_iterator citer;
-  for (citer = strokeGeom->begin(); citer != strokeGeom->end(); citer++)
-  {
-    geom->push_back(*citer);
-  }
-
-  return MS::kSuccess;
-}
-
  
 void mapColorStrokes::getPoints(MDataBlock &data, std::vector<Stroke> *geom, MFloatPointArray &points) const
 {
