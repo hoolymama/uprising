@@ -38,9 +38,8 @@ class PovTestSession(Session):
             "fbx_0_slot_00_fo1_roundShape").attr("outPaintBrush"))
 
         robo.new()
-        robo.show()
         robo.clean("kr8")
-
+        robo.hide()
         _id = "{}_{}_{}".format(X, Y, Z)
         mat = om.MMatrix([list(UP)+[0], list(SIDE)+[0],
                           list(FRONT)+[0], [X, Y, Z, 1]])
@@ -67,6 +66,7 @@ class PovTestSession(Session):
 
         self.save_program(self.directory, PROGRAM_NAME)
         self.save_station(self.directory, PROGRAM_NAME)
+        robo.show()
 
 
 class PovSession(Session):
@@ -83,7 +83,10 @@ class PovSession(Session):
         self.program_names = []
 
         robo.new()
-        robo.show()
+
+        robo.clean("kr8")
+        robo.hide()
+
 
         self.cluster_count = pm.paintingQuery(self.painting_node, cc=True)
         self.cluster_chunk_size = cluster_chunk_size or self.cluster_count
@@ -108,6 +111,7 @@ class PovSession(Session):
                 "focal_length": pm.PyNode("CAMShape").attr("focalLength").get()
             }
         }
+        robo.show()
 
     def build_pov_program(self):
         self.init_progress()
