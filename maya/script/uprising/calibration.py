@@ -12,6 +12,7 @@ from uprising.session.holder_calibration_session import HolderCalibrationSession
 from uprising.session.board_calibration_session import BoardCalibrationSession
 from uprising.session.rack_calibration_session import RackCalibrationSession
 from uprising.session.manual_probe_session import ManualProbeSession
+from uprising.session.kr8_track_session import Kr8TrackSession
 
 
 def _dismiss():
@@ -279,5 +280,10 @@ def generate_rack_calibration():
 
 def generate_manual_probe_calibration():
     session = ManualProbeSession()
+    session.send()
+    session.publish()
+
+def generate_kr8_object_track():
+    session = Kr8TrackSession()
     session.send()
     session.publish()

@@ -104,7 +104,7 @@ class PovSession(Session):
         )
 
         self.stats = {
-            "painting_stats": stats.stats(),
+            # "painting_stats": stats.stats(),
             "camera_stats": {
                 "camera_top": list(pm.PyNode("CAM").attr("topLocator").get()),
                 "camera_base": list(pm.PyNode("CAM").attr("baseLocator").get()),

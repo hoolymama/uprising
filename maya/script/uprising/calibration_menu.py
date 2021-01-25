@@ -79,4 +79,10 @@ def create():
         label="Generate Pick/Place exercise",
         command=pm.Callback(cal.generate_pick_place_exercise),
     )
+
+    pm.menuItem(
+        label="Generate KR8 object track",
+        command=pm.Callback(cal.generate_kr8_object_track),
+    )
+    
     return menu
