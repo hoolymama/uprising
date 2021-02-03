@@ -184,6 +184,8 @@ Stroke::Stroke(
 
 	MFnNurbsCurve curveFn(curveObject);
 	m_degree = curveFn.degree();
+	
+	// cerr << "Degree is "<< m_degree << endl;
 
 	if (m_degree == 1)
 	{
@@ -211,10 +213,15 @@ MStatus Stroke::buildCubicStroke(const MObject &curveObject,
 								 double pivotParam)
 {
 
+	// cerr << "Building cubic "<< endl;
+	// cerr << "contacts "<< contacts << endl;
 	MStatus st;
 	MFnNurbsCurve curveFn(curveObject);
 
 	double strokeRange = endDist - startDist; // can be negative
+
+	// cerr << "strokeRange "<< strokeRange << " startDist:"<< startDist << " endDist:"<< endDist<< endl;
+ 
 
 	unsigned numPoints = unsigned(density * fabs(strokeRange));
 	if (minimumPoints < 2)

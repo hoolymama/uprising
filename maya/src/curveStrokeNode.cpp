@@ -322,7 +322,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
     MRampAttribute contactRampAttr(thisMObject(), aContactRamp, &st);
     msert;
 
-    // int contactRampResolution = data.inputValue(aContactRampResolution).asInt();
+    int contactRampResolution = data.inputValue(aContactRampResolution).asInt();
 
     MDataHandle hRangeHandle = data.inputValue(aBrushTiltRange);
     rotSpec.tiltRampMin = hRangeHandle.child(aBrushTiltRangeMin).asAngle().asRadians();
@@ -361,9 +361,28 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
 
     //////////////////////////
     MDoubleArray contacts;
-    contacts.append(double(0.0));
-    contacts.append(double(0.0));
-    int contactRampResolution = 2;
+    if (contactRampResolution < 2)
+    {
+        contactRampResolution = 2;
+    }
+    float gap = 1.0f / float(contactRampResolution - 1);
+
+    for (int i = 0; i < contactRampResolution; ++i)
+    {
+        float sample = float(i) * gap;
+        float res;
+        contactRampAttr.getValueAtPosition(sample, res, &st);
+        mser;
+        // cerr <<endl sample << ", ";
+        /* We want the ramp to visually agree with the motion of the brush
+        1.0 on the ramp is high - so 0 is full contact. Therefore, reverse
+        the value.
+        */
+        contacts.append(double(1.0 - res));
+    }
+    // cerr << endl << "contacts" << contacts << endl;
+    //////////////////////////
+
 
  
     MObject thisObj = thisMObject();
