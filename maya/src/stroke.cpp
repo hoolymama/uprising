@@ -12,7 +12,6 @@
 #include <stroke.h>
 #include <enums.h>
 
-
 const double epsilon = 0.0001;
 
 unsigned Stroke::create(
@@ -72,11 +71,8 @@ unsigned Stroke::create(
 		repeatId,
 		backstroke);
 
-	
- 
 	motherStroke.setRotations(thisObj, rotSpec);
 	motherStroke.setTransitionContact();
- 
 
 	strokes->push_back(motherStroke);
 	int count = 1;
@@ -136,7 +132,8 @@ Stroke::Stroke() : m_targets(),
 				   m_departure(),
 				   m_follow(true),
 				   m_linearSpeed(1.0),
-				   m_angularSpeed(1.0)
+				   m_angularSpeed(1.0),
+				   m_degree(3)
 {
 }
 
@@ -180,12 +177,45 @@ Stroke::Stroke(
 					   m_departure(),
 					   m_follow(true),
 					   m_linearSpeed(1.0),
-					   m_angularSpeed(1.0)
+					   m_angularSpeed(1.0),
+					   m_degree(3)
 
 {
 
 	MFnNurbsCurve curveFn(curveObject);
+	m_degree = curveFn.degree();
+
+	if (m_degree == 1)
+	{
+		buildLinearStroke(curveObject, contacts, curveLength, endDist, startDist, density, minimumPoints, pivotParam);
+	}
+	else
+	{
+		buildCubicStroke(curveObject, contacts, curveLength, endDist, startDist, density, minimumPoints, pivotParam); // Assume degree 3
+	}
+
 	double strokeRange = endDist - startDist; // can be negative
+	double pivotDist = startDist + (strokeRange * pivotParam);
+	m_pivot = Target(curveFn, pivotDist, startDist, strokeRange, curveLength);
+
+	setArcLength();
+}
+
+MStatus Stroke::buildCubicStroke(const MObject &curveObject,
+								 const MDoubleArray &contacts,
+								 double curveLength,
+								 double startDist,
+								 double endDist,
+								 double density,
+								 int minimumPoints,
+								 double pivotParam)
+{
+
+	MStatus st;
+	MFnNurbsCurve curveFn(curveObject);
+
+	double strokeRange = endDist - startDist; // can be negative
+
 	unsigned numPoints = unsigned(density * fabs(strokeRange));
 	if (minimumPoints < 2)
 	{
@@ -196,7 +226,7 @@ Stroke::Stroke(
 		numPoints = minimumPoints;
 	}
 	double gap = strokeRange / (numPoints - 1); // can be negative
- 
+
 	for (unsigned i = 0; i < numPoints; i++)
 	{
 
@@ -213,15 +243,90 @@ Stroke::Stroke(
 
 		MPoint pt;
 		curveFn.getPointAtParam(uniformParam, pt, MSpace::kObject);
-	
+
 		m_targets.push_back(
 			Target(pt, tangent, strokeParam, curveParam, contact));
 	}
+	return MS::kSuccess;
+}
 
-	double pivotDist = startDist + (strokeRange * pivotParam);
-	m_pivot = Target(curveFn, pivotDist, startDist, strokeRange, curveLength);
+MStatus Stroke::buildLinearStroke(const MObject &curveObject,
+								  const MDoubleArray &contacts,
+								  double curveLength,
+								  double startDist,
+								  double endDist,
+								  double density,
+								  int minimumPoints,
+								  double pivotParam)
+{
 
-	setArcLength();
+	MStatus st;
+	MFnNurbsCurve curveFn(curveObject);
+	double startDomain;
+	double endDomain;
+	st = curveFn.getKnotDomain(startDomain, endDomain);
+
+	bool reverse = false;
+	if (startDist > endDist)
+	{
+		std::swap(startDist, endDist);
+		reverse = true;
+	}
+
+	double strokeRange = endDist - startDist;
+
+	double startParam = curveFn.findParamFromLength(startDist, &st);
+	if (st.error())
+	{
+		startParam = startDomain;
+	}
+	double endParam = curveFn.findParamFromLength(endDist, &st);
+	if (st.error())
+	{
+		endParam = endDomain;
+	}
+	double paramRange = endParam - startParam;
+
+	MDoubleArray knots;
+	st = curveFn.getKnots(knots);
+	MPointArray allCvs;
+	st = curveFn.getCVs(allCvs);
+
+	MPointArray cvs;
+	MDoubleArray params;
+	params.append(startParam);
+	MPoint ptStart;
+	curveFn.getPointAtParam(startParam, ptStart);
+	cvs.append(ptStart);
+
+	for (size_t i = 0; i < knots.length(); i++)
+	{
+		if (!((knots[i] <= startParam) || (knots[i] >= endParam)))
+		{
+			params.append(knots[i]);
+			cvs.append(allCvs[i]);
+		}
+	}
+	params.append(endParam);
+	MPoint ptEnd;
+	curveFn.getPointAtParam(endParam, ptEnd);
+	cvs.append(ptEnd);
+
+	for (size_t i = 0; i < params.length(); i++)
+	{
+		double dist = curveFn.findLengthFromParam(params[i]);
+		double strokeParam = (dist - startDist) / strokeRange;
+		double curveParam = dist / curveLength;
+		double uniformParam = (params[i] - startParam) / paramRange;
+		MVector tangent = curveFn.tangent(params[i]);
+		tangent.z = 0;
+		tangent.normalize();
+		double contact = Stroke::interpContact(contacts, uniformParam);
+
+		m_targets.push_back(
+			Target(cvs[i], tangent, strokeParam, curveParam, contact));
+	}
+	return MS::kSuccess;
 }
 
 void Stroke::offset(
@@ -886,15 +991,17 @@ void Stroke::getTriangleStrip(
 	bool displayContactWidth,
 	int maxSegments) const
 {
-	if (maxSegments == 0) {
+	if (maxSegments == 0)
+	{
 		result.setLength(0);
 		return;
 	}
 	unsigned len = m_targets.size();
-	if (maxSegments>-1)
+	if (maxSegments > -1)
 	{
-	 	if (maxSegments+1 < len) {
-			len = maxSegments+1;
+		if (maxSegments + 1 < len)
+		{
+			len = maxSegments + 1;
 		}
 	}
 
@@ -906,9 +1013,9 @@ void Stroke::getTriangleStrip(
 	bool flat = (brush.shape() == Brush::kFlat);
 	std::vector<Target>::const_iterator citer;
 	unsigned i = 0;
-	unsigned j=0;
+	unsigned j = 0;
 
-	for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len)  ; citer++, i += 2, j++)
+	for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len); citer++, i += 2, j++)
 	{
 		citer->getBorderPoints(result[i], result[i + 1], width, flat, displayContactWidth);
 		result[i] += stackOffset;
@@ -916,21 +1023,22 @@ void Stroke::getTriangleStrip(
 	}
 }
 
-
 void Stroke::getTargetBorderColors(
-	 MColorArray &result, 
-	 int maxSegments, 
-	 PaintingEnums::TargetColorsDisplay displayMode) const
+	MColorArray &result,
+	int maxSegments,
+	PaintingEnums::TargetColorsDisplay displayMode) const
 {
 	result.clear();
-	if (maxSegments == 0) {
+	if (maxSegments == 0)
+	{
 		return;
 	}
 	unsigned len = m_targets.size();
-	if (maxSegments>-1)
+	if (maxSegments > -1)
 	{
-	 	if (maxSegments+1 < len) {
-			len = maxSegments+1;
+		if (maxSegments + 1 < len)
+		{
+			len = maxSegments + 1;
 		}
 	}
 
@@ -940,23 +1048,26 @@ void Stroke::getTargetBorderColors(
 	unsigned i = 0;
 	unsigned j = 0;
 
-	for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len)  ; citer++, i += 2, j++)
+	for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len); citer++, i += 2, j++)
 	{
 
-		const MColor& tc=citer->color();
+		const MColor &tc = citer->color();
 		MColor color;
 
-		if (displayMode == PaintingEnums::kTargetColorsBlend) 
+		if (displayMode == PaintingEnums::kTargetColorsBlend)
 		{
-			color = MColor((tc.r + tc.a) , (tc.g + tc.a),(tc.b + tc.a)) *0.5f;
-		} else if (displayMode == PaintingEnums::kTargetColorsWhite)
+			color = MColor((tc.r + tc.a), (tc.g + tc.a), (tc.b + tc.a)) * 0.5f;
+		}
+		else if (displayMode == PaintingEnums::kTargetColorsWhite)
 		{
-			color = MColor(tc.a , tc.a ,tc.a );
-		} else {
-			color = MColor(tc.r , tc.g, tc.b );
+			color = MColor(tc.a, tc.a, tc.a);
+		}
+		else
+		{
+			color = MColor(tc.r, tc.g, tc.b);
 		}
 		result.set(color, i);
-		result.set(color, (i+1));
+		result.set(color, (i + 1));
 	}
 }
 ///////// ///////// /////////
@@ -1030,7 +1141,7 @@ void Stroke::tangents(const MMatrix &space, MVectorArray &result) const
 	}
 }
 
-void Stroke::colors(  MColorArray &result) const
+void Stroke::colors(MColorArray &result) const
 {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
@@ -1038,7 +1149,6 @@ void Stroke::colors(  MColorArray &result) const
 		result.append(citer->color());
 	}
 }
-
 
 void Stroke::setUV(
 	const MMatrix &inversePlaneMatrix)
@@ -1109,9 +1219,7 @@ void Stroke::applyGlobalAim(const MPoint &point)
 		iter->applyGlobalAim(point);
 	}
 	m_departure.applyGlobalAim(point);
-
 }
-
 
 void Stroke::displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap)
 {
@@ -1211,10 +1319,13 @@ void Stroke::offsetBrushContact(const Brush &brush)
 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
 	{
 		float dist = (1.0 - iter->contact());
-		if (dist > epsilon) {
+		if (dist > epsilon)
+		{
 			dist = pow(dist, power) * height;
-		} else {
-			dist=0;
+		}
+		else
+		{
+			dist = 0;
 		}
 
 		if (m_localContact)
@@ -1612,15 +1723,15 @@ void Stroke::translate(const MVector &translation, bool transformPivot)
 	}
 }
 
+void Stroke::setTargetColors(const MFloatVectorArray &colors, const MFloatArray &whites, unsigned index)
+{
 
-void Stroke::setTargetColors(const MFloatVectorArray &colors, const MFloatArray & whites, unsigned index ) {
-
-    for (std::vector<Target>::iterator targetIter = m_targets.begin(); targetIter != m_targets.end(); targetIter++)
-    {
-        MColor color(colors[index].x,colors[index].y,colors[index].z, whites[index] );
-        targetIter->setColor(color);
-        index++;
-    }
+	for (std::vector<Target>::iterator targetIter = m_targets.begin(); targetIter != m_targets.end(); targetIter++)
+	{
+		MColor color(colors[index].x, colors[index].y, colors[index].z, whites[index]);
+		targetIter->setColor(color);
+		index++;
+	}
 }
 
 ostream &operator<<(ostream &os, const Stroke &s)
@@ -1631,8 +1742,8 @@ ostream &operator<<(ostream &os, const Stroke &s)
 	std::vector<Target>::const_iterator citer;
 	for (citer = targets.begin(); citer != targets.end(); citer++)
 	{
-		os << "TTT: p" <<  citer->position() << " t:"<< citer->tangent()  <<  " contact: " << citer->contact() << endl;
+		os << "TTT: p" << citer->position() << " t:" << citer->tangent() << " contact: " << citer->contact() << endl;
 	}
-  
+
 	return os;
 }

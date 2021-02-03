@@ -135,6 +135,28 @@ public:
 
 	~Stroke();
 
+
+	MStatus  buildCubicStroke(
+		const MObject &curveObject,
+		const MDoubleArray &contacts,
+		double curveLength,
+		double startDist,
+		double endDist,
+		double density,
+		int minimumPoints,
+		double pivotParam);
+
+	MStatus  buildLinearStroke(
+		const MObject &curveObject,
+		const MDoubleArray &contacts,
+		double curveLength,
+		double startDist,
+		double endDist,
+		double density,
+		int minimumPoints,
+		double pivotParam);
+
+
 	void offset(
 		double offset,
 		bool reverse,
@@ -388,6 +410,9 @@ private:
 	bool m_follow;
 	// int m_customPaintId;
 	int m_customBrushId;
+
+
+	int m_degree;
 
 	float m_u;
 	float m_v;

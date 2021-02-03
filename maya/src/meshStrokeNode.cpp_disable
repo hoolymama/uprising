@@ -10,7 +10,7 @@
 
 #include <maya/MFnNurbsCurveData.h>
 
-#include "curveStrokeNode.h"
+#include "meshStrokeNode.h"
 #include "stroke.h"
 #include "strokeRotationSpec.h"
 #include "strokeRepeatSpec.h"
@@ -20,110 +20,42 @@
 
 const double rad_to_deg = (180 / 3.1415927);
 
-MObject curveStrokeNode::aCurve;
-MObject curveStrokeNode::aSubcurveMin;
-MObject curveStrokeNode::aSubcurveMax;
-MObject curveStrokeNode::aSubcurve;
-MObject curveStrokeNode::aSubcurveMethod;
-MObject curveStrokeNode::aStrokeLength;
-MObject curveStrokeNode::aRandomLengthFactor;
-MObject curveStrokeNode::aRandomOverlapFactor;
-MObject curveStrokeNode::aOverlap;
-MObject curveStrokeNode::aBrushRampScope;
+MObject meshStrokeNode::aMesh;
+MObject meshStrokeNode::aBrushRampScope;
 
-MObject curveStrokeNode::aContactRamp;
-MObject curveStrokeNode::aContactRampResolution;
+MTypeId meshStrokeNode::id(k_meshStrokeNode);
 
-MTypeId curveStrokeNode::id(k_curveStrokeNode);
+meshStrokeNode::meshStrokeNode() {}
 
-curveStrokeNode::curveStrokeNode() {}
+meshStrokeNode::~meshStrokeNode() {}
 
-curveStrokeNode::~curveStrokeNode() {}
-
-void *curveStrokeNode::creator()
+void *meshStrokeNode::creator()
 {
-    return new curveStrokeNode();
+    return new meshStrokeNode();
 }
 
 const double epsilon = 0.0001;
 
-MStatus curveStrokeNode::initialize()
+MStatus meshStrokeNode::initialize()
 {
     MStatus st;
 
-    MFnNumericAttribute nAttr;
+ 
     MFnTypedAttribute tAttr;
     MFnEnumAttribute eAttr;
+ 
 
     MMatrix identity;
     identity.setToIdentity();
 
     inheritAttributesFrom("strokeNode");
 
-    aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve);
+    aMesh = tAttr.create("mesh", "msh", MFnData::kMesh);
     tAttr.setReadable(false);
-    tAttr.setStorable(false);
-    tAttr.setKeyable(true);
-    st = addAttribute(aCurve);
-    mser;
-
-    aStrokeLength = nAttr.create("strokeLength", "stl", MFnNumericData::kDouble);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setMin(0.01);
-    nAttr.setDefault(10.0);
-    st = addAttribute(aStrokeLength);
-    mser;
-
-    aRandomLengthFactor = nAttr.create("randomLengthFactor", "rlfc",
-                                       MFnNumericData::kDouble);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setMin(0.00);
-    nAttr.setMax(1.0);
-    st = addAttribute(aRandomLengthFactor);
-    mser;
-
-    aOverlap = nAttr.create("overlap", "ovlp", MFnNumericData::kDouble);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    st = addAttribute(aOverlap);
-    mser;
-
-    aRandomOverlapFactor = nAttr.create("randomOverlapFactor", "rofc",
-                                        MFnNumericData::kDouble);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setMin(0.00);
-    nAttr.setMax(1.0);
-    st = addAttribute(aRandomOverlapFactor);
-    mser;
-
-    aSubcurveMin = nAttr.create("subcurveMin", "scvn", MFnNumericData::kDouble, 0.0);
-    nAttr.setDefault(0.0);
-    aSubcurveMax = nAttr.create("subcurveMax", "scvx", MFnNumericData::kDouble, 99999.0);
-    aSubcurve = nAttr.create("subcurve", "scv", aSubcurveMin, aSubcurveMax);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    st = addAttribute(aSubcurve);
-    mser;
-
-    aSubcurveMethod = eAttr.create("subcurveMethod", "scmt",
-                                   curveStrokeNode::kLength);
-    eAttr.addField("length", curveStrokeNode::kLength);
-    eAttr.addField("bookends", curveStrokeNode::kBookends);
-    eAttr.setKeyable(true);
-    eAttr.setHidden(false);
-    st = addAttribute(aSubcurveMethod);
-    mser;
-
+    addAttribute(aMesh);
+ 
     aBrushRampScope = eAttr.create("brushRampScope", "brsc",
-                                   StrokeRotationSpec::kStroke);
+        StrokeRotationSpec::kStroke);
     eAttr.addField("stroke", StrokeRotationSpec::kStroke);
     eAttr.addField("travelStroke", StrokeRotationSpec::kTravelStroke);
     eAttr.addField("curve", StrokeRotationSpec::kCurve);
@@ -132,36 +64,8 @@ MStatus curveStrokeNode::initialize()
     st = addAttribute(aBrushRampScope);
     mser;
 
-    aContactRamp = MRampAttribute::createCurveRamp("contactRamp", "crmp");
-    st = addAttribute(aContactRamp);
-    mser;
-
-    aContactRampResolution = nAttr.create("contactRampResolution", "crrs",
-                                          MFnNumericData::kInt);
-    mser;
-    nAttr.setDefault(8);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setWritable(true);
-    st = addAttribute(aContactRampResolution);
-    mser;
-
-    st = attributeAffects(aCurve, aOutput);
-    st = attributeAffects(aSubcurveMin, aOutput);
-    st = attributeAffects(aSubcurveMax, aOutput);
-    st = attributeAffects(aSubcurve, aOutput);
-
-    st = attributeAffects(aStrokeLength, aOutput);
-    st = attributeAffects(aRandomLengthFactor, aOutput);
-
-    st = attributeAffects(aRandomOverlapFactor, aOutput);
-    st = attributeAffects(aOverlap, aOutput);
-    st = attributeAffects(aSubcurveMethod, aOutput);
-
+    st = attributeAffects(aMesh, aOutput);
     st = attributeAffects(aBrushRampScope, aOutput);
-    st = attributeAffects(aContactRamp, aOutput);
-    st = attributeAffects(aContactRampResolution, aOutput);
 
     return (MS::kSuccess);
 }
@@ -198,7 +102,7 @@ double calculateStartDist(double startDist, double endDist, double overlap,
     return fmax(result, (startDist + clip));
 }
 
-unsigned int curveStrokeNode::getStrokeBoundaries(
+unsigned int meshStrokeNode::getStrokeBoundaries(
     MDataBlock &data,
     MVectorArray &result) const
 {
@@ -233,7 +137,7 @@ unsigned int curveStrokeNode::getStrokeBoundaries(
     }
     double curveLen = curveFn.length(epsilon);
 
-    if (scMethod == curveStrokeNode::kBookends)
+    if (scMethod == meshStrokeNode::kBookends)
     {
         subcurveMax = curveLen - subcurveMax;
     }
@@ -266,8 +170,10 @@ unsigned int curveStrokeNode::getStrokeBoundaries(
     return result.length();
 }
 
-MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
-                                                std::vector<Stroke> *pStrokes, double &coilRadians) const
+MStatus meshStrokeNode::generateStrokeGeometry(
+    MDataBlock &data,
+    std::vector<Stroke> *pStrokes, 
+    double &coilRadians) const
 {
 
     MStatus st;
@@ -277,18 +183,20 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
         return MS::kSuccess;
     }
 
-    MVectorArray boundaries;
-    if (!getStrokeBoundaries(data, boundaries))
-    {
-        return MS::kSuccess;
-    }
+    // MVectorArray boundaries;
+    // if (!getStrokeBoundaries(data, boundaries))
+    // {
+    //     return MS::kSuccess;
+    // }
 
-    MDataHandle hCurve = data.inputValue(aCurve, &st);
-    msert;
-    MObject dCurve = data.inputValue(aCurve).asNurbsCurveTransformed();
 
-    MFnNurbsCurve curveFn(dCurve, &st);
+    MDataHandle hMesh = data.inputValue(aMesh, &st);
     msert;
+    MObject inMesh = hMesh.asMeshTransformed();
+    MFnMesh mFnIn(inMesh, &st);
+    msert;
+
+ 
     double curveLength = curveFn.length(epsilon);
     double pointDensity = data.inputValue(aPointDensity).asDouble();
     if (pointDensity < 0.001)
@@ -296,31 +204,26 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
         pointDensity = 0.001;
     }
     int minimumPoints = data.inputValue(aMinimumPoints).asInt();
-
     double entryLength = data.inputValue(aEntryLength).asDouble();
     double exitLength = data.inputValue(aExitLength).asDouble();
     bool localContact = data.inputValue(aLocalContact).asBool();
 
     Stroke::TransitionBlendMethod transitionBlendMethod = Stroke::TransitionBlendMethod(
-        data.inputValue(
-                aTransitionBlendMethod)
-            .asShort());
+        data.inputValue(aTransitionBlendMethod).asShort());
 
-    Stroke::DirectionMethod strokeDirection = Stroke::DirectionMethod(data.inputValue(
-                                                                              aStrokeDirection)
-                                                                          .asShort());
+    Stroke::DirectionMethod strokeDirection = Stroke::DirectionMethod(data.inputValue(aStrokeDirection).asShort());
 
     double pivotParam = data.inputValue(aPivotFraction).asDouble();
 
-    double paintFlow = data.inputValue(aPaintFlowFactor).asDouble();
+    double paintFlow = 1.0 // data.inputValue(aPaintFlowFactor).asDouble();
 
     StrokeRotationSpec rotSpec;
     rotSpec.tiltRampAtt = strokeNode::aBrushTiltRamp;
     rotSpec.bankRampAtt = strokeNode::aBrushBankRamp;
     rotSpec.twistRampAtt = strokeNode::aBrushTwistRamp;
 
-    MRampAttribute contactRampAttr(thisMObject(), aContactRamp, &st);
-    msert;
+    // MRampAttribute contactRampAttr(thisMObject(), aContactRamp, &st);
+    // msert;
 
     // int contactRampResolution = data.inputValue(aContactRampResolution).asInt();
 
@@ -353,19 +256,34 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
     repeatSpec.normalOffset = data.inputValue(aRepeatRandomNormalOffset).asDouble();
     repeatSpec.tangentOffset = data.inputValue(aRepeatRandomTangentOffset).asDouble();
 
-
-
     short brushId = data.inputValue(aBrushId).asShort();
     short paintId = data.inputValue(aPaintId).asShort();
     int layerId = data.inputValue(aLayerId).asInt();
 
     //////////////////////////
     MDoubleArray contacts;
-    contacts.append(double(0.0));
-    contacts.append(double(0.0));
-    int contactRampResolution = 2;
+    if (contactRampResolution < 2)
+    {
+        contactRampResolution = 2;
+    }
+    float gap = 1.0f / float(contactRampResolution - 1);
 
- 
+    for (int i = 0; i < contactRampResolution; ++i)
+    {
+        float sample = float(i) * gap;
+        float res;
+        contactRampAttr.getValueAtPosition(sample, res, &st);
+        mser;
+        // cerr <<endl sample << ", ";
+        /* We want the ramp to visually agree with the motion of the brush
+        1.0 on the ramp is high - so 0 is full contact. Therefore, reverse
+        the value.
+        */
+        contacts.append(double(1.0 - res));
+    }
+    // cerr << endl << "contacts" << contacts << endl;
+    //////////////////////////
+
     MObject thisObj = thisMObject();
     for (int strokeId = 0; strokeId < boundaries.length(); ++strokeId)
     {
@@ -401,7 +319,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(MDataBlock &data,
     return MS::kSuccess;
 }
 
-void curveStrokeNode::postConstructor()
+void meshStrokeNode::postConstructor()
 {
     setExistWithoutInConnections(false);
     setExistWithoutOutConnections(true);
