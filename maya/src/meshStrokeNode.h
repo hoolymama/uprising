@@ -19,15 +19,14 @@ public:
 
   static MTypeId id;
 
- 
-
 protected:
-
-  MStatus generateStrokeGeometry(MDataBlock &data,
-                                 std::vector<Stroke> *geom, double &coilRadians) const;
+  MStatus generateStrokeGeometry(
+      MDataBlock &data,
+      std::vector<Stroke> *geom, double &coilRadians) const;
 
   static MObject aMesh;
-  static MObject aBrushRampScope;
+  static MObject aViewpoint;
+  static MObject aWorldMatrix;
 };
 
 #endif

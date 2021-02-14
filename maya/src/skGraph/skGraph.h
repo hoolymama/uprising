@@ -74,8 +74,12 @@ private:
     // void _setRadius(const CImg<float>  *pImage);
     skNode *_addNode(int x, int y, int z, float radius);
     skNode *_addNode(const coord &c, float radius);
+
     void _deleteNode(skNode *node);
+
     void _connect(coord from, coord to);
+
+    
     void _detatchStraightest( skNode *node, int z);
     void _splitOff( skNode *node,  skNode *first,  skNode *second, int z);
     int  _resetSeen();

@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.pyp": "python",
         "vector": "cpp",
         "iterator": "cpp",
         "__bit_reference": "cpp",
@@ -61,7 +62,14 @@
         "ratio": "cpp",
         "sstream": "cpp",
         "streambuf": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "list": "cpp",
+        "stack": "cpp",
+        "fstream": "cpp",
+        "iomanip": "cpp",
+        "iostream": "cpp",
+        "numeric": "cpp",
+        "strstream": "cpp"
     },
     "python.pythonPath": "/Users/julian/.virtualenvs/bot/bin/python",
     "python.linting.pylintEnabled": false,
