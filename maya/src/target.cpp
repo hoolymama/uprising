@@ -1,163 +1,122 @@
 #include <target.h>
 
-#include <maya/MFnNurbsCurve.h>
+// #include <maya/MFnNurbsCurve.h>
 
 const double rad_to_deg = (180 / 3.1415927);
 
 Target::Target() : m_matrix(),
 				   m_tangent(),
-				   m_param(0.0),
-				   m_curveParam(0.0),
-				   m_contact(1.0),
-				   m_tilt(0.0),
-				   m_bank(0.0),
-				   m_twist(0.0),
+				   m_param(0.0f),
+				   m_arcLength(0.0f),
+				   m_weight(1.0f),
 				   m_u(0.0f),
 				   m_v(0.0f),
-				   m_color(0.0,0.0,0.0)
+				   m_color(0.0, 0.0, 0.0)
 {
 }
 
 Target::Target(
-	const MMatrix &mat,
-	const MVector &tangent,
-	double param,
-	double curveParam) : m_matrix(mat),
-						 m_tangent(tangent),
-						 m_param(param),
-						 m_curveParam(curveParam),
-						 m_contact(1.0),
-						 m_tilt(0.0),
-						 m_bank(0.0),
-						 m_twist(0.0),
-						 m_u(0.0f),
-						 m_v(0.0f)
-
-{
-}
-
-Target::Target(
-	const MPoint &pt,
-	const MVector &tangent,
-	double strokeParam,
-	double curveParam,
-	double contact)
-	: m_tangent(tangent),
-	  m_param(strokeParam),
-	  m_curveParam(curveParam),
-	  m_contact(contact),
-	  m_matrix(),
-	  m_tilt(0.0),
-	  m_bank(0.0),
-	  m_twist(0.0),
+	const MFloatMatrix &mat,
+	const MFloatVector &tangent,
+	float param,
+	float arcLength,
+	float weight)
+	: m_matrix(mat),
+	  m_tangent(tangent),
+	  m_param(param),
+	  m_arcLength(arcLength),
+	  m_weight(1.0f),
 	  m_u(0.0f),
-	  m_v(0.0f)
+	  m_v(0.0f),
+	  m_color(0.0, 0.0, 0.0)
+
+{
+}
+
+Target::Target(
+	const MFloatPoint &pt,
+	const MFloatVector &aim,
+	const MFloatVector &up,
+	const MFloatVector &tangent,
+	float param,
+	float arcLength,
+	float weight)
+	: m_tangent(tangent),
+	  m_param(param),
+	  m_arcLength(arcLength),
+	  m_weight(1.0f),
+	  m_u(0.0f),
+	  m_v(0.0f),
+	  m_color(0.0, 0.0, 0.0)
 {
 	m_matrix[3][0] = pt.x;
 	m_matrix[3][1] = pt.y;
 	m_matrix[3][2] = pt.z;
 }
 
-Target::Target(
-	const MFnNurbsCurve &curveFn,
-	double dist,
-	double startDist,
-	double strokeRange,
-	double curveLength) : m_contact(1.0),
-						  m_u(0.0f),
-						  m_v(0.0f)
-{
-	m_param = (dist - startDist) / strokeRange;
-	m_curveParam = dist / curveLength;
-	double prm = curveFn.findParamFromLength(dist);
-
-	m_tangent = curveFn.tangent(prm);
-	m_tangent.z = 0;
-	m_tangent.normalize();
-
-	MPoint pt;
-	curveFn.getPointAtParam(prm, pt, MSpace::kObject);
-	MMatrix mat;
-	mat[3][0] = pt.x;
-	mat[3][1] = pt.y;
-	mat[3][2] = pt.z;
-
-	m_matrix = mat;
-}
 
 Target::~Target() {}
 
-void Target::setTangent(const MVector &tangent)
+void Target::setTangent(const MFloatVector &tangent)
 {
 	m_tangent = tangent;
 }
 
-void Target::setRotation(double tilt, double bank, double twist, bool follow,
-						 bool backstroke)
+void Target::applyAxisAngleRotation(const MFloatVector &axis , float angle)
 {
-	m_tilt = tilt;
-	m_bank = bank;
-	m_twist = twist;
-	setRotation(follow, backstroke);
+	MFloatMatrix rotMat = MFloatMatrix(
+		MQuaternion(angle, axis ).asMatrix().matrix);
+	MFloatMatrix centerMat;
+	centerMat[3][0] = m_matrix[3][0];
+	centerMat[3][1] = m_matrix[3][1];
+	centerMat[3][2] = m_matrix[3][2];
+
+	m_matrix = m_matrix * centerMat.inverse() * rotMat * centerMat;
+
 }
 
-void Target::setRotation(bool follow, bool backstroke)
+void Target::applyTilt(float angle)
 {
-	double tilt = m_tilt;
-	if (backstroke)
-	{
-		tilt = -tilt;
-	}
-	MVector pos(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]);
-
-	if (follow)
-	{
-		MMatrix mat = mayaMath::matFromAim(pos, m_tangent, MVector::zAxis, mayaMath::yAxis,
-										   mayaMath::zAxisNeg);
-
-		MTransformationMatrix tmat = MTransformationMatrix::identity;
-		double3 rot;
-		rot[0] = tilt;
-		rot[1] = m_bank;
-		rot[2] = m_twist;
-		tmat.setRotation(rot, MTransformationMatrix::kZYX);
-		m_matrix = tmat.asMatrix() * mat;
-	}
-	else
-	{
-
-		MMatrix mat = mayaMath::matFromAim(MVector::zero, MVector::xNegAxis, MVector::zAxis,
-										   mayaMath::yAxis,
-										   mayaMath::zAxisNeg);
-		MVector side((MVector::zAxis ^ m_tangent).normal());
-
-		MMatrix twistMat = MQuaternion(m_twist, MVector::zAxis).asMatrix();
-		MMatrix bankMat = MQuaternion(m_bank, m_tangent).asMatrix();
-		MMatrix tiltMat = MQuaternion(tilt, side).asMatrix();
-
-		mat = mat * twistMat * bankMat * tiltMat;
-		mat[3][0] = pos.x;
-		mat[3][1] = pos.y;
-		mat[3][2] = pos.z;
-		m_matrix = mat;
-	}
+	// apply a relative tilt around the axis which is the cross
+	// of the lance (localZ) and the tangent.
+	MFloatVector lance = MFloatVector::zAxis * m_matrix;
+	MFloatVector axis = (lance ^ m_tangent).normal();
+	applyAxisAngleRotation(axis, angle);
 }
 
-double Target::distanceTo(const Target &other) const
+void Target::applyBank(float angle)
 {
-	MMatrix otherMat = other.matrix();
-	return MPoint(
+	// apply a relative bank around the tangent.
+	applyAxisAngleRotation(m_tangent, angle);
+}
+
+void Target::applyTwist(float angle)
+{
+	// apply a relative twist around the lance (local Z)
+	MFloatVector lance = MFloatVector::zAxis * m_matrix;
+	applyAxisAngleRotation(lance, angle);
+}
+
+float Target::distanceTo(const Target &other) const
+{
+	MFloatMatrix otherMat = other.matrix();
+	return MFloatPoint(
 			   m_matrix[3][0], m_matrix[3][1], m_matrix[3][2])
 		.distanceTo(
-			MPoint(otherMat[3][0], otherMat[3][1], otherMat[3][2]));
+			MFloatPoint(otherMat[3][0], otherMat[3][1], otherMat[3][2]));
 }
 
-MMatrix Target::directionMatrix(bool backstroke) const
+// For Arrow Drawing
+MFloatMatrix Target::directionMatrix(bool backstroke) const
 {
-	MVector front = backstroke ? -m_tangent : m_tangent;
-	MVector side = (MVector::zAxis ^ front).normal();
+	// we will draw arrows
+	MFloatVector front = backstroke ? -m_tangent : m_tangent;
+	MFloatVector lance = MFloatVector::zAxis * m_matrix;
+	MFloatVector side = (front ^ lance).normal();
+	MFloatVector up = (side^front ).normal();
+	
 
-	MMatrix res = m_matrix;
+	MFloatMatrix res = m_matrix;
 	res[0][0] = front.x;
 	res[0][1] = front.y;
 	res[0][2] = front.z;
@@ -166,42 +125,47 @@ MMatrix Target::directionMatrix(bool backstroke) const
 	res[1][1] = side.y;
 	res[1][2] = side.z;
 	res[1][3] = 0.0;
-	res[2][0] = 0.0;
-	res[2][1] = 0.0;
-	res[2][2] = 1.0;
+	res[2][0] = up.x;
+	res[2][1] = up.y;
+	res[2][2] = up.z;
 	res[2][3] = 0.0;
 
 	return res;
 }
 
-const MMatrix &Target::matrix() const
+const MFloatMatrix &Target::matrix() const
 {
 	return m_matrix;
 }
 
-const MVector &Target::tangent() const
+const MFloatVector &Target::tangent() const
 {
 	return m_tangent;
 }
 
-MPoint Target::position(const MMatrix &space) const
+MFloatPoint Target::position(const MFloatMatrix &space) const
 {
-	return MPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]) * space;
+	return MFloatPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]) * space;
 }
 
-void Target::setPosition(const MPoint &rhs)
+MFloatPoint Target::position() const
+{
+	return MFloatPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]);
+}
+
+void Target::setPosition(const MFloatPoint &rhs)
 {
 	m_matrix[3][0] = rhs.x;
 	m_matrix[3][1] = rhs.y;
 	m_matrix[3][2] = rhs.z;
 }
 
-void Target::setMatrix(const MMatrix &rhs)
+void Target::setMatrix(const MFloatMatrix &rhs)
 {
 	m_matrix = rhs;
 }
 
-void Target::rotate(const MPoint &pivot, const MMatrix &rotation)
+void Target::rotate(const MFloatPoint &pivot, const MFloatMatrix &rotation)
 {
 	m_matrix[3][0] = m_matrix[3][0] - pivot.x;
 	m_matrix[3][1] = m_matrix[3][1] - pivot.y;
@@ -216,13 +180,13 @@ void Target::rotate(const MPoint &pivot, const MMatrix &rotation)
 	m_tangent = m_tangent * rotation;
 }
 
-MVector Target::rotation(
+MFloatVector Target::rotation(
 	MTransformationMatrix::RotationOrder order,
 	MAngle::Unit unit,
 	const MMatrix &space) const
 {
 	double rotValue[3];
-	MTransformationMatrix tMat(m_matrix * space);
+	MTransformationMatrix tMat(MMatrix(m_matrix.matrix) * space);
 	tMat.reorderRotation(order);
 
 	MTransformationMatrix::RotationOrder throwAway;
@@ -233,25 +197,25 @@ MVector Target::rotation(
 		rotValue[1] *= rad_to_deg;
 		rotValue[2] *= rad_to_deg;
 	}
-	return MVector(rotValue[0], rotValue[1], rotValue[2]);
+	return MFloatVector(rotValue[0], rotValue[1], rotValue[2]);
 }
 
-const double &Target::param() const
+const float &Target::param() const
 {
 	return m_param;
 }
 
-void Target::reverseParam()
+// void Target::reverseParam()
+// {
+// 	m_param = 1.0 - m_param;
+// }
+
+const float &Target::arcLength() const
 {
-	m_param = 1.0 - m_param;
+	return m_arcLength;
 }
 
-const double &Target::curveParam() const
-{
-	return m_curveParam;
-}
-
-void Target::offsetBy(const MVector &offset)
+void Target::offsetBy(const MFloatVector &offset)
 {
 	m_matrix[3][0] = m_matrix[3][0] + offset.x;
 	m_matrix[3][1] = m_matrix[3][1] + offset.y;
@@ -259,10 +223,11 @@ void Target::offsetBy(const MVector &offset)
 }
 
 /* This is like sliding in or out along the brush axis*/
-void Target::offsetLocalZ(double dist)
+void Target::offsetLocalZ(float dist)
 {
 
-	MVector offset = MVector(m_matrix[2][0], m_matrix[2][1],
+	MFloatVector offset = MFloatVector(
+		m_matrix[2][0], m_matrix[2][1],
 							 m_matrix[2][2])
 						 .normal() *
 					 dist;
@@ -272,67 +237,56 @@ void Target::offsetLocalZ(double dist)
 	m_matrix[3][2] = m_matrix[3][2] + offset.z;
 }
 
-MVector Target::transform(const MVector &rhs) const
+MFloatVector Target::transform(const MFloatVector &rhs) const
 {
 	return rhs * m_matrix;
 }
 
-void Target::setContact(double contact)
+void Target::setWeight(float weight)
 {
-	if (contact < 0.0)
+	if (weight < 0.0)
 	{
-		m_contact = 0.0;
+		m_weight = 0.0;
 	}
-	else if (contact > 1.0)
+	else if (weight > 1.0)
 	{
-		m_contact = 1.0;
+		m_weight = 1.0;
 	}
 	else
 	{
-		m_contact = contact;
+		m_weight = weight;
 	}
 }
 
-const double &Target::contact() const
+const float &Target::weight() const
 {
-	return m_contact;
+	return m_weight;
 }
 
 void Target::getBorderPoints(
-	MPoint &left,
-	MPoint &right,
-	double width,
-	bool flat,
-	bool displayContactWidth) const
+	MFloatPoint &left,
+	MFloatPoint &right,
+	float width,
+	bool flatBrush,
+	bool displayWeightWidth) const
 {
 
-	double contact = m_contact;
-	if (flat || (!displayContactWidth))
+	double weight = m_weight;
+
+	if (flatBrush || (!displayWeightWidth))
 	{
-		contact = 1.0;
+		weight = 1.0;
 	}
 	MPoint p = position();
-	MVector xOffset;
-	if (flat)
-	{
-		xOffset = (((MVector::xAxis * m_matrix) ^ MVector::zAxis) ^
-				   MVector::zAxis)
-					  .normal();
-	}
-	else
-	{
-		xOffset = (m_tangent ^ MVector::zAxis).normal();
-	}
-	xOffset *= (width * contact);
+	MVector xOffset = MFloatVector::yAxis * m_matrix  * (width * weight);;
 	left = p + xOffset;
 	right = p - xOffset;
 }
 
-void Target::setUV(const MMatrix &inversePlaneMatrix)
+void Target::setUV(
+	const MFloatMatrix &inversePlaneMatrix)
 {
-
-	MPoint p = ((this->position() * inversePlaneMatrix) * 0.5) + MVector(0.5, 0.5, 0.0);
-
+	MFloatPoint p = ((this->position() * inversePlaneMatrix) * 0.5) + MFloatVector(0.5f, 0.5f, 0.0f);
 	m_u = fmax(fmin(p.x, 1.0f), 0.0f);
 	m_v = fmax(fmin(p.y, 1.0f), 0.0f);
 }
@@ -343,57 +297,199 @@ void Target::appendUVsTo(MFloatArray &uVals, MFloatArray &vVals) const
 	vVals.append(m_v);
 }
 
-void Target::applyGlobalTilt(const MFloatVector &gradient)
-{
-	float mag = gradient.length();
-	if (mag < 0.000001)
-	{
-		return;
-	}
-	MFloatVector axis = (gradient ^ MFloatVector::zAxis).normal();
-
-	MMatrix rotMat = MQuaternion(mag, axis).asMatrix();
-
-	MMatrix centerMat = MMatrix::identity;
-	centerMat[3][0] = -m_matrix[3][0];
-	centerMat[3][1] = -m_matrix[3][1];
-
-	m_matrix = m_matrix * centerMat * rotMat * centerMat.inverse();
-}
-
-void Target::applyGlobalAim(const MPoint &point)
-{
-
-	MVector z1 = MVector(
-					 MPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]) - point
-
-					 )
-					 .normal();
-	// MVector z0 = MVector(m_matrix[2][0],m_matrix[2][1],m_matrix[2][2]).normal()
-
-	MMatrix rotMat = MQuaternion(MVector::zAxis, z1).asMatrix();
-	// MMatrix bankMat = MQuaternion(m_bank, m_tangent).asMatrix();
-	// MMatrix tiltMat = MQuaternion(tilt, side).asMatrix();
-
-	// MFloatVector axis = (gradient ^ MFloatVector::zAxis).normal();
-
-	// MMatrix rotMat = MQuaternion(mag, axis).asMatrix();
-
-	MMatrix centerMat = MMatrix::identity;
-	centerMat[3][0] = -m_matrix[3][0];
-	centerMat[3][1] = -m_matrix[3][1];
-	centerMat[3][2] = -m_matrix[3][2];
-
-	m_matrix = m_matrix * centerMat * rotMat * centerMat.inverse();
-}
-
-
 void Target::setColor(const MColor &color)
 {
 	m_color = color;
 }
-	
-const MColor & Target::color() const 
+
+const MColor &Target::color() const
 {
 	return m_color;
 }
+
+
+// Target::Target(
+// 	const MFnNurbsCurve &curveFn,
+// 	double dist,
+// 	double startDist,
+// 	double strokeRange,
+// 	double curveLength) : m_weight(1.0),
+// 						  m_u(0.0f),
+// 						  m_v(0.0f)
+// {
+// 	m_param = (dist - startDist) / strokeRange;
+// 	m_curveParam = dist / curveLength;
+// 	double prm = curveFn.findParamFromLength(dist);
+
+// 	m_tangent = curveFn.tangent(prm);
+// 	m_tangent.z = 0;
+// 	m_tangent.normalize();
+
+// 	MPoint pt;
+// 	curveFn.getPointAtParam(prm, pt, MSpace::kObject);
+// 	MMatrix mat;
+// 	mat[3][0] = pt.x;
+// 	mat[3][1] = pt.y;
+// 	mat[3][2] = pt.z;
+
+// 	m_matrix = mat;
+// }
+
+
+
+// void Target::applyRotation(
+// 		float tilt,
+// 		float bank,
+// 		float twist,
+// 		mayaMath::axis eFrontAxis,
+// 		mayaMath::axis eUpAxis,
+// 		bool follow,
+// 		bool backstroke)
+// {
+
+// 	// apply a relative tilt around the axis which is the cross
+// 	// of the lance (localZ) and the tangent.
+
+// 	// apply a relative bank around the tangent.
+
+// 	// apply a relative twist around the lance (local Z)
+
+	
+
+// 		//FRONT  mayaMath::yAxis, NOT EXACTLY SURE YET WHY
+// 		//UP  mayaMath::zAxisNeg); BECAUSE Z points down into the painting.
+
+// 	if (backstroke)
+// 	{
+// 		tilt = -tilt;
+// 	}
+// 	MFloatVector pos(
+// 		m_matrix[3][0], 
+// 		m_matrix[3][1], 
+// 		m_matrix[3][2]);
+ 
+// 	MFloatVector 
+
+
+// 	if (follow)
+// 	{
+// 		MFloatMatrix mat = mayaMath::matFromAim(
+// 			pos, 
+// 			m_tangent, 
+// 			MFloatVector::zAxis,
+// 			eFrontAxis,
+// 			eUpAxis);
+
+// 		MTransformationMatrix tmat = MTransformationMatrix::identity;
+// 		double3 rot;
+// 		rot[0] = tilt;
+// 		rot[1] = bank;
+// 		rot[2] = twist;
+// 		tmat.setRotation(rot, MTransformationMatrix::kZYX);
+// 		m_matrix = tmat.asMatrix() * mat;
+// 	}
+// 	else
+// 	{
+
+// 		MMatrix mat = mayaMath::matFromAim(
+// 			MVector::zero, 
+// 			MVector::xNegAxis, 
+// 			MVector::zAxis,
+// 			eFrontAxis,
+// 			eUpAxis);
+// 		MVector side((MVector::zAxis ^ m_tangent).normal());
+
+// 		MMatrix twistMat = MQuaternion(twist, MVector::zAxis).asMatrix();
+// 		MMatrix bankMat = MQuaternion(bank, m_tangent).asMatrix();
+// 		MMatrix tiltMat = MQuaternion(tilt, side).asMatrix();
+
+// 		mat = mat * twistMat * bankMat * tiltMat;
+// 		mat[3][0] = pos.x;
+// 		mat[3][1] = pos.y;
+// 		mat[3][2] = pos.z;
+// 		m_matrix = mat;
+// 	}
+// }
+
+
+
+// void Target::applyGlobalTilt(const MFloatVector &gradient)
+// {
+// 	float mag = gradient.length();
+// 	if (mag < 0.000001)
+// 	{
+// 		return;
+// 	}
+// 	MFloatVector axis = (gradient ^ MFloatVector::zAxis).normal();
+
+// 	MMatrix rotMat = MQuaternion(mag, axis).asMatrix();
+
+// 	MMatrix centerMat = MMatrix::identity;
+// 	centerMat[3][0] = -m_matrix[3][0];
+// 	centerMat[3][1] = -m_matrix[3][1];
+
+// 	m_matrix = m_matrix * centerMat * rotMat * centerMat.inverse();
+// }
+
+// void Target::applyGlobalAim(const MPoint &point)
+// {
+
+// 	MVector z1 = MVector(
+// 					 MPoint(
+// 						 m_matrix[3][0], 
+// 						 m_matrix[3][1], 
+// 						 m_matrix[3][2]) - point
+// 					 ).normal();
+	 
+// 	MVector lance(
+// 	m_matrix[2][0], 
+// 	m_matrix[2][1], 
+// 	m_matrix[2][2]) // zaxis
+
+// 	MMatrix rotMat = MQuaternion(lance, z1).asMatrix();
+
+// 	MMatrix centerMat = MMatrix::identity;
+// 	centerMat[3][0] = -m_matrix[3][0];
+// 	centerMat[3][1] = -m_matrix[3][1];
+// 	centerMat[3][2] = -m_matrix[3][2];
+
+// 	m_matrix = m_matrix * centerMat * rotMat * centerMat.inverse();
+// }
+
+
+
+// void Target::getBorderPoints(
+// 	MFloatPoint &left,
+// 	MFloatPoint &right,
+// 	float width,
+// 	bool flatBrush,
+// 	bool displayWeightWidth) const
+// {
+
+// 	double weight = m_weight;
+
+// 	if (flatBrush || (!displayWeightWidth))
+// 	{
+// 		weight = 1.0;
+// 	}
+// 	MPoint p = position();
+// 	MVector xOffset = MVector::yAxis * m_matrix  * (width * weight);;
+// 	// if (flatBrush)
+// 	// {
+// 	// 	side = MVector::yAxis * m_matrix;
+// 	// 	xOffset = (((MVector::xAxis * m_matrix) ^ MVector::zAxis) ^
+// 	// 			   MVector::zAxis)
+// 	// 				  .normal();
+// 	// }
+// 	// else
+// 	// {
+// 	// 	side = MVector::yAxis * m_matrix;
+
+// 	// 	xOffset = (m_tangent ^ MVector::zAxis).normal();
+// 	// }
+// 	// xOffset = (MVector::yAxis * m_matrix);
+
+// 	// xOffset *= (width * weight);
+// 	left = p + xOffset;
+// 	right = p - xOffset;
+// }

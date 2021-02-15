@@ -18,99 +18,116 @@ public:
 	Target();
 
 	Target(
-		const MMatrix &mat,
-		const MVector &tangent,
-		double strokeParam,
-		double curveParam);
+		const MFloatMatrix &mat,
+		const MFloatVector &tangent,
+		float param,
+		float arclength,
+		float weight = 1.0);
 
 	Target(
-		const MFnNurbsCurve &curveFn,
-		double dist,
-		double startDist,
-		double strokeRange,
-		double curveLength);
-
-	Target(const MPoint &pt, const MVector &tangent, double strokeParam, double curveParam, double contact);
+		const MFloatPoint &pt,
+		const MFloatVector &aim,
+		const MFloatVector &up,
+		const MFloatVector &tangent,
+		float param,
+		float arclength,
+		float weight = 1.0);
 
 	~Target();
 
-	void setRotation(double tilt, double bank, double twist, bool follow,
-					 bool backstroke);
+	void applyTilt(float angle);
+	void applyBank(float angle);
+	void applyTwist(float angle);
+	void applyAxisAngleRotation(
+		const MFloatVector &axis , 
+		float angle);
 
-	void setRotation(bool follow, bool backstroke);
+	// void setRotation(
+	// 	float tilt,
+	// 	float bank,
+	// 	float twist,
+	// 	mayaMath::axis frontAxis,
+	// 	mayaMath::axis upAxis,
+	// 	bool follow=false,
+	// 	bool backstroke=false);
 
-	void setTangent(const MVector &tangent);
+	// void setRotation(bool follow, bool backstroke);
 
-	const MMatrix &matrix() const;
+	void setTangent(const MFloatVector &tangent);
 
-	const MVector &tangent() const;
+	const MFloatMatrix &matrix() const;
 
-	const double &param() const;
+	const MFloatVector &tangent() const;
+ 
 
-	void reverseParam();
+	// void reverseParam();
 
-	const double &curveParam() const;
+	const float &param() const;
 
-	void offsetBy(const MVector &offset);
+	const float &arcLength() const;
+	
+	void offsetBy(const MFloatVector &offset);
 
-	void offsetLocalZ(double dist);
+	void offsetLocalZ(float dist);
 
-	double distanceTo(const Target &other) const;
+	float distanceTo(const Target &other) const;
 
-	MMatrix directionMatrix(bool backstroke) const;
+	MFloatMatrix directionMatrix(bool backstroke) const;
 
-	MPoint position(const MMatrix &space = MMatrix::identity) const;
+	MFloatPoint position(
+		const MFloatMatrix &space) const;
 
-	void setPosition(const MPoint &rhs);
 
-	void setMatrix(const MMatrix &rhs);
+	MFloatPoint position() const;
+		
+	void setPosition(const MFloatPoint &rhs);
 
-	void rotate(const MPoint &pivot, const MMatrix &rotation);
+	void setMatrix(const MFloatMatrix &rhs);
 
-	MVector rotation(
+	void rotate(const MFloatPoint &pivot, const MFloatMatrix &rotation);
+
+	MFloatVector rotation(
 		MTransformationMatrix::RotationOrder order,
 		MAngle::Unit unit,
 		const MMatrix &space = MMatrix::identity) const;
 
-	MVector transform(const MVector &rhs) const;
+	MFloatVector transform(const MFloatVector &rhs) const;
 
 	void getBorderPoints(
-		MPoint &left,
-		MPoint &right,
-		double width,
-		bool flat = false,
-		bool displayContactWidth = true) const;
+	MFloatPoint &left,
+	MFloatPoint &right,
+	float width,
+	bool flatBrush,
+	bool displayWeightWidth = true) const;
 
-	void setContact(double contact);
+	void setWeight(float contact);
 
-	const double &contact() const;
+	const float &weight() const;
 
-	void setUV(const MMatrix &inversePlaneMatrix);
+	void setUV(const MFloatMatrix &inversePlaneMatrix);
 
 	void appendUVsTo(MFloatArray &uVals, MFloatArray &vVals) const;
 
-	void applyGlobalTilt(const MFloatVector &gradient);
+	// void applyGlobalTilt(const MFloatVector &gradient);
 
-	void applyGlobalAim(const MPoint &point);
+	// void applyGlobalAim(const MPoint &point);
 
 	void setColor(const MColor &rgba);
-	
-	const MColor & color() const ;
 
-
+	const MColor &color() const;
 
 private:
-	MVector m_tangent; // tangent on the curve
-	MMatrix m_matrix;
-	double m_param;		 // normalised length in stroke
-	double m_curveParam; //normalised length in original curve
-	double m_contact;	// fraction of brush tip
-	double m_tilt;		 // store these when setting rotation, just in case we have to recalc
-	double m_bank;		 // store these when setting rotation, just in case we have to recalc
-	double m_twist;		 // store these when setting rotation, just in case we have to recalc
-	float m_u;
-	float m_v;
-	MColor m_color;
+	MFloatVector m_tangent; // tangent of curve that joins targets
+	MFloatMatrix m_matrix;
+	float m_param;	   // A parameter value for 1D  mapping purposes
+	float m_arcLength; // length from start
+	float m_weight;	   // used to indicate fraction of brush tip
+	float m_u;		   // A parameter value for 2D  mapping purposes
+	float m_v;		   // A parameter value for 2D  mapping purposes
+	MColor m_color;	   // RGBA
+					   // double m_tilt;		 // store these when setting rotation, just in case we have to recalc
+					   // double m_bank;		 // store these when setting rotation, just in case we have to recalc
+					   // double m_twist;		 // store these when setting rotation, just in case we have to recalc
 };
 
 #endif
