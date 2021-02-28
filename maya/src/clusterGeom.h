@@ -47,13 +47,10 @@ public:
 	void setApproaches(double approachStart, double approachMid,
 					   double approachEnd, double ptpThresh);
 
-	// void setPreStops(double threshold);
-	// clusterGeom &operator=( const clusterGeom &other );
-
-	void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
+	// void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
 	void offsetBrushContact(const Brush &brush);
-	void applyBiases(const Brush &brush, float mult);
+	// void applyBiases(const Brush &brush, float mult);
 
 	// friend ostream &operator<<(ostream &os, const clusterGeom &geom);
 

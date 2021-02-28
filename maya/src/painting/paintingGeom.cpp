@@ -191,14 +191,14 @@ void paintingGeom::addStroke(const Stroke &stroke, int parentIndex)
 	g.pushStroke(stroke, parentIndex);
 }
 
-void paintingGeom::displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap)
-{
-	std::vector<clusterGeom>::iterator iter;
-	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
-	{
-		iter->displace(meshFn, ap);
-	}
-}
+// void paintingGeom::displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap)
+// {
+// 	std::vector<clusterGeom>::iterator iter;
+// 	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
+// 	{
+// 		iter->displace(meshFn, ap);
+// 	}
+// }
 
 void paintingGeom::offsetBrushContact()
 {
@@ -210,15 +210,15 @@ void paintingGeom::offsetBrushContact()
 	}
 }
 
-void paintingGeom::applyBiases(float mult)
-{
-	std::vector<clusterGeom>::iterator iter;
-	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
-	{
-		const Brush &brush = brushFromId(iter->brushId());
-		iter->applyBiases(brush, mult);
-	}
-}
+// void paintingGeom::applyBiases(float mult)
+// {
+// 	std::vector<clusterGeom>::iterator iter;
+// 	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
+// 	{
+// 		const Brush &brush = brushFromId(iter->brushId());
+// 		iter->applyBiases(brush, mult);
+// 	}
+// }
 
 // void paintingGeom::addStrokes(const strokeCurveGeom &strokeCurve) {}
 

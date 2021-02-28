@@ -35,10 +35,10 @@ public:
 
 	void dipCombinations(MIntArray &result) const;
 
-	void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
+	// void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
 	void offsetBrushContact();
-	void applyBiases(float mult);
+	// void applyBiases(float mult);
 
 	// friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 

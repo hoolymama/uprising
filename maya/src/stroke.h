@@ -27,13 +27,7 @@
 class Stroke
 {
 public:
-	enum TransitionBlendMethod
-	{
-		kTransitionMin,
-		kTransitionMax,
-		kTransitionBlend
-	};
-
+ 
 	enum TranslationDirection
 	{
 		kConstant,
@@ -84,92 +78,121 @@ public:
 	static double interpContact(const MDoubleArray &contacts, const double &uniformParam);
 
 	/* factory */
-	static unsigned create(
-		const MObject &thisObj,
-		const MObject &dCurve,
-		const MDoubleArray &contacts,
-		bool localContact,
-		double curveLength,
-		double startDist,
-		double endDist,
-		double entryLength,
-		double exitLength,
-		TransitionBlendMethod transBlendMethod,
-		double pointDensity,
-		int minimumPoints,
-		const StrokeRotationSpec &rotSpec,
-		const StrokeRepeatSpec &repeatSpec,
-		DirectionMethod strokeDirection,
-		double pivotParam,
-		double paintFlow,
-		int strokeId,
-		int brushId,
-		int paintId,
-		int layerId,
-		int customBrushId,
-		std::vector<Stroke> *strokes);
+	// static unsigned create(
+	// 	const MObject &thisObj,
+	// 	const MObject &dCurve,
+	// 	const MDoubleArray &contacts,
+	// 	bool localContact,
+	// 	double curveLength,
+	// 	double startDist,
+	// 	double endDist,
+	// 	double entryLength,
+	// 	double exitLength,
+	// 	TransitionBlendMethod transBlendMethod,
+	// 	double pointDensity,
+	// 	int minimumPoints,
+	// 	const StrokeRotationSpec &rotSpec,
+	// 	const StrokeRepeatSpec &repeatSpec,
+	// 	DirectionMethod strokeDirection,
+	// 	double pivotParam,
+	// 	double paintFlow,
+	// 	int strokeId,
+	// 	int brushId,
+	// 	int paintId,
+	// 	int layerId,
+	// 	int customBrushId,
+	// 	std::vector<Stroke> *strokes);
 
 	Stroke();
 
-	Stroke(
-		const MObject &curveObject,
-		const MDoubleArray &contacts,
-		bool localContact,
-		double curveLength,
-		double startDist,
-		double endDist,
-		double entryLength,
-		double exitLength,
-		TransitionBlendMethod transBlendMethod,
-		double density,
-		int minimumPoints,
-		double pivotParam,
-		double paintFlow,
-		int strokeId,
-		int brushId,
-		int paintId,
-		int layerId,
-		int customBrushId,
-		int repeatId,
-		bool backstroke);
+	// Stroke(
+	// 	const MObject &curveObject,
+	// 	const MDoubleArray &contacts,
+	// 	bool localContact,
+	// 	double curveLength,
+	// 	double startDist,
+	// 	double endDist,
+	// 	double entryLength,
+	// 	double exitLength,
+	// 	TransitionBlendMethod transBlendMethod,
+	// 	double density,
+	// 	int minimumPoints,
+	// 	double pivotParam,
+	// 	double paintFlow,
+	// 	int strokeId,
+	// 	int brushId,
+	// 	int paintId,
+	// 	int layerId,
+	// 	int customBrushId,
+	// 	int repeatId,
+	// 	bool backstroke);
+
+
+Stroke(
+	const MObject &curveObject,
+	const MFloatVector &lanceAxis, // Z
+	const MFloatVector &majorAxis, // Y
+	const MFloatArray &weights,
+	bool localContact,
+	double startDist,
+	double endDist,
+	float entryLength,
+	float exitLength,
+	double density,
+	int minimumPoints,
+	double pivotParam,
+	float paintFlow,
+	int strokeId,
+	int brushId,
+	int paintId,
+	int layerId,
+	int customBrushId,
+	bool follow,
+	bool backstroke);
+
+
+
+
 
 	~Stroke();
 
 
-	MStatus  buildCubicStroke(
-		const MObject &curveObject,
-		const MDoubleArray &contacts,
-		double curveLength,
-		double startDist,
-		double endDist,
-		double density,
-		int minimumPoints,
-		double pivotParam);
+	// MStatus  buildCubicStroke(
+	// 	const MObject &curveObject,
+	// 	const MDoubleArray &contacts,
+	// 	double curveLength,
+	// 	double startDist,
+	// 	double endDist,
+	// 	double density,
+	// 	int minimumPoints,
+	// 	double pivotParam);
 
-	MStatus  buildLinearStroke(
-		const MObject &curveObject,
-		const MDoubleArray &contacts,
-		double curveLength,
-		double startDist,
-		double endDist,
-		double density,
-		int minimumPoints,
-		double pivotParam);
+	// MStatus  buildLinearStroke(
+	// 	const MObject &curveObject,
+	// 	const MDoubleArray &contacts,
+	// 	double curveLength,
+	// 	double startDist,
+	// 	double endDist,
+	// 	double density,
+	// 	int minimumPoints,
+	// 	double pivotParam);
 
-
-	void offset(
-		double offset,
-		bool reverse,
-		int repeatId);
 
 	void offset(
-		double tangentOffset,
-		double normalOffset,
-		bool reverse,
-		int repeatId);
+	 float offset,
+	 const MFloatVector &planeNormal,
+	 bool reverse,
+	 int repeatId);
 
-	void setRotations(const MObject &thisObj,
-					  const StrokeRotationSpec &rotSpec);
+	void offset(
+	 float tangentOffset,
+	 float normalOffset,
+	 const MFloatVector &planeNormal,
+	 bool reverse,
+	 int repeatId);
+
+	// void setRotations(const MObject &thisObj,
+	// 				  const StrokeRotationSpec &rotSpec);
 
 	// void setPivot(
 	//   const MObject &curveObject,
@@ -179,23 +202,23 @@ public:
 
 	unsigned size(bool withTraversal = false) const;
 
-	void appendTargets(MMatrixArray &result) const;
+	// void appendTargets(MMatrixArray &result) const;
 
 	void appendTangents(MVectorArray &result) const;
 
-	void getParams(MDoubleArray &result) const;
+	void getParams(MFloatArray &result) const;
 
-	void getCurveParams(MDoubleArray &result) const;
+	void getArcLengths(MFloatArray &result) const;
 
 	const std::vector<Target> &targets() const;
 
-	const double &arcLength() const;
+	const float &arcLength() const;
 
-	const double &entryLength() const;
+	// const float &entryLength() const;
 
-	const double &exitLength() const;
+	// const float &exitLength() const;
 
-	const double &paintFlow() const;
+	const float &paintFlow() const;
 
 	const Target &pivot() const;
 
@@ -260,7 +283,13 @@ public:
 	bool testMapGreenId(FilterOperator op, int value) const;
 	bool testMapBlueId(FilterOperator op, int value) const;
 
-	void getDirectionMatrices(MMatrixArray &result, double stackHeight) const;
+	void getDirectionMatrices(
+		const MFloatVector &planeNormal,
+		std::vector<MFloatMatrix> &result, 
+		float stackHeight) const;
+
+	// void getDirectionMatrices(
+	// 	MMatrixArray &result, double stackHeight) const;
 
 	void getPoints(MFloatPointArray &result, double stackHeight,
 				   bool withTraversal = false) const;
@@ -282,24 +311,27 @@ public:
 	void getZAxes(MVectorArray &result, bool withTraversal = false) const;
 
 	void getBorders(
-		MPointArray &lefts,
-		MPointArray &rights,
-		const Brush &brush,
-		double stackHeight,
-		bool displayContactWidth) const;
+	 MFloatPointArray &lefts,
+	 MFloatPointArray &rights,
+	const MFloatVector &planeNormal,
+	 const Brush &brush,
+	 float stackHeight,
+	 bool displayContactWidth) const;
 
 	void getBorderLoop(
-		const Brush &brush,
-		double stackHeight,
-		MPointArray &result,
-		bool displayContactWidth) const;
+	const MFloatVector &planeNormal,
+	 const Brush &brush,
+	 float stackHeight,
+	 MFloatPointArray &result,
+	 bool displayContactWidth) const;
 
 	void getTriangleStrip(
-		const Brush &brush,
-		double stackHeight,
-		MPointArray &result,
-		bool displayContactWidth,
-		int maxSegments =-1) const;
+	 const MFloatVector &planeNormal,
+	 const Brush &brush,
+	 float stackHeight,
+	 MFloatPointArray &result,
+	 bool displayContactWidth,
+	 int maxSegments =-1) const;
  
 	void  getTargetBorderColors( 
 		MColorArray &result, 
@@ -307,60 +339,80 @@ public:
 		PaintingEnums::TargetColorsDisplay displayMode) const;
 
 
-	void positions(const MMatrix &space, MPointArray &result) const;
-	void rotations(
-		const MMatrix &space,
-		MTransformationMatrix::RotationOrder order,
-		MAngle::Unit unit,
-		MVectorArray &result) const;
+	void positions(
+	const MFloatMatrix &space, 
+	MFloatPointArray &result
+		) const;
 
-	void tangents(const MMatrix &space, MVectorArray &result) const;
+	void rotations(
+	 const MFloatMatrix &space,
+	 MTransformationMatrix::RotationOrder order,
+	 MAngle::Unit unit,
+	 MFloatVectorArray &result) const;
+
+	void tangents(
+		const MFloatMatrix &space, 
+		MFloatVectorArray &result) const;
 
 	void  colors(  MColorArray &result) const;
 
-	MPoint getHead(double stackHeight) const;
+	MFloatPoint getHead(
+	float stackHeight,
+	const MFloatVector & planeNormal
+	) const;
 
-	MObject generateNurbsCurve(const MPointArray &points, MStatus *st = 0) const;
+	// MObject generateNurbsCurve(
+	// 	const MPointArray &points, MStatus *st = 0) const;
 
 	// void setCustomSortData(const Brush &brush,  const Paint &paint);
 
-	void setUV(const MMatrix &inversePlaneMatrix);
+	void setUV(const MFloatMatrix &inversePlaneMatrix);
 	void getUV(float &u, float &v) const;
 
-	void assignTargetUVs(const MMatrix &inversePlaneMatrix);
+	void assignTargetUVs(const MFloatMatrix &inversePlaneMatrix);
 	void appendTargetUVsTo(MFloatArray &uVals, MFloatArray &vVals) const;
 
-	int applyGlobalTilt(const MFloatVectorArray &gradients, int index);
+	// int applyGlobalTilt(const MFloatVectorArray &gradients, int index);
+	// void applyGlobalAim(const MPoint &point);
 
-	void applyGlobalAim(const MPoint &point);
-
-	void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
+	// void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
 	void offsetBrushContact(const Brush &brush);
 
-	void applyBiases(const Brush &brush, float mult);
-	void applyForwardBias(const Brush &brush, float mult);
-	void applyGravityBias(const Brush &brush, float mult);
+	// void applyBiases(const Brush &brush, float mult);
+	// void applyForwardBias(const Brush &brush, float mult);
+	// void applyGravityBias(const Brush &brush, float mult);
 
 	const Target &departure() const;
 
 	void setDeparture(double offset);
 	void setArrival(double offset);
-	void setArrival(double offset, double threshold, const Stroke &prev);
+	void setArrival(
+		double offset, 
+		double threshold, 
+		const Stroke &prev);
 
-	void arrivalPositions(const MMatrix &space, MPointArray &result) const;
+	void arrivalPositions(
+	const MFloatMatrix &space,
+	 MFloatPointArray &result) const;
+
 	void arrivalRotations(
-		const MMatrix &space,
-		MTransformationMatrix::RotationOrder order,
-		MAngle::Unit unit,
-		MVectorArray &result) const;
+	 const MFloatMatrix &space,
+	 MTransformationMatrix::RotationOrder order,
+	 MAngle::Unit unit,
+	 MFloatVectorArray &result) const;
 
-	void departurePosition(const MMatrix &space, MPoint &result) const;
+	void departurePosition(
+	const MFloatMatrix &space, 
+	MFloatPoint &result) const;
+
 	void departureRotation(
-		const MMatrix &space,
-		MTransformationMatrix::RotationOrder order,
-		MAngle::Unit unit,
-		MVector &result) const;
+	 const MFloatMatrix &space,
+	 MTransformationMatrix::RotationOrder order,
+	 MAngle::Unit unit,
+	 MFloatVector &result) const;
+
+
 
 	void setLinearSpeed(float val);
 	void setAngularSpeed(float val);
@@ -368,8 +420,8 @@ public:
 	float linearSpeed() const;
 	float angularSpeed() const;
 
-	void rotate(double rotation);
-	void translate(const MVector &translation, bool transformPivot = false);
+	// void rotate(float rotation);
+	// void translate(const MVector &translation, bool transformPivot = false);
 	
 	void setTargetColors(const MFloatVectorArray &colors, const MFloatArray & whites, unsigned index );
 
@@ -378,7 +430,10 @@ public:
 	
 private:
 	static void reverseArray(MDoubleArray &arr);
-	static void reverseArray(const MDoubleArray &arr, MDoubleArray &result);
+	static void reverseArray(
+		const MDoubleArray &arr, 
+		MDoubleArray &result
+		);
 
 	static bool shouldMakeBackstroke(MObject dCurve, double startDist, double endDist,
 									 Stroke::DirectionMethod strokeDirection);
@@ -386,76 +441,57 @@ private:
 
  
 
-	void setArcLength();
+	void calculateArcLength();
 
 	void setTransitionContact();
 
 	std::vector<Target> m_targets; // flat targets with 3d rotations
-
+	Target m_pivot;
 	bool m_localContact;
-	double m_arcLength;
-	double m_entryLength;
-	double m_exitLength;
-	double m_paintFlow;
-
-	TransitionBlendMethod m_transitionBlendMethod;
-	int m_repeatId;
-
-	// from  strokeGeom
+	float m_arcLength;
+	float m_entryLength;
+	float m_exitLength;
+	float m_paintFlow;
 	int m_strokeId;
-	int m_parentId;
 	int m_brushId;
 	int m_paintId;
 	int m_layerId;
-	bool m_follow;
-	// int m_customPaintId;
+	int m_parentId;
 	int m_customBrushId;
-
-
-	int m_degree;
-
-	float m_u;
-	float m_v;
-
+	int m_repeatId;
+	bool m_backstroke;
+	std::vector<Target> m_arrivals;
+	Target m_departure;
+	float m_linearSpeed;
+	float m_angularSpeed;
 	MFloatVector m_sortColor;
 	MFloatVector m_filterColor;
 	MIntArray m_sortStack;
+	float m_u;
+	float m_v;
 
-	bool m_backstroke;
+	// TransitionBlendMethod m_transitionBlendMethod;
 
-	std::vector<Target> m_arrivals;
 
-	Target m_departure;
+	// from  strokeGeom
+	// bool m_follow;
+	// int m_customPaintId;
+	// int m_customBrushId;
 
-	Target m_pivot;
 
-	float m_linearSpeed;
-	float m_angularSpeed;
+	// int m_degree;
+
+	// UV at the pivot
+
+
+
+	// Travel in the opposite direction
+
+	// Approach targets
 
 
 };
 
-
-
-inline double Stroke::interpContact(const MDoubleArray &contacts,
-									const double &uniformParam)
-{
-	int len = contacts.length();
-	int last = (len - 1);
-	if (uniformParam >= 1.0f)
-	{
-		return contacts[last];
-	}
-	else if (uniformParam <= 0.0f)
-
-	{
-		return contacts[0];
-	}
-	float t = uniformParam * last;
-	float r = t - floor(t);
-	int lindex = int(t);
-	return (contacts[lindex] * (1 - r)) + (contacts[(lindex + 1)] * (r));
-}
 
 
 

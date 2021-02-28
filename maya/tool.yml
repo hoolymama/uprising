@@ -34,9 +34,16 @@ templates:
 - maya_plugin
 - gl
 source_files:
-- src/**/*.cpp
+# - src/**/*.cpp
 - ../../kettle/src/maya/mayaMath.cpp
 - ../../kit/maya/src/cImgData.cpp
 - ../../kit/maya/src/cImgFloatData.cpp
 - ../../kit/maya/src/cImgUtils.cpp
- 
+- src/target.cpp
+- src/stroke.cpp
+- src/strokeData.cpp
+- src/plugin.cpp
+- src/brushData.cpp
+- src/brush.cpp
+- src/brushNode*.cpp
+- src/lightPainting/*.cpp

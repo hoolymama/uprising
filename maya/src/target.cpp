@@ -1,6 +1,7 @@
 #include <target.h>
 
-// #include <maya/MFnNurbsCurve.h>
+#include <maya/MFnNurbsCurve.h>
+
 
 const double rad_to_deg = (180 / 3.1415927);
 
@@ -25,34 +26,75 @@ Target::Target(
 	  m_tangent(tangent),
 	  m_param(param),
 	  m_arcLength(arcLength),
-	  m_weight(1.0f),
+	  m_weight(weight),
 	  m_u(0.0f),
 	  m_v(0.0f),
 	  m_color(0.0, 0.0, 0.0)
-
 {
 }
 
 Target::Target(
-	const MFloatPoint &pt,
-	const MFloatVector &aim,
-	const MFloatVector &up,
-	const MFloatVector &tangent,
-	float param,
-	float arcLength,
-	float weight)
-	: m_tangent(tangent),
+ 	const MObject &curveObject,
+	const MFloatVector & lanceAxis, // Z
+	const MFloatVector & majorAxis, // Y
+	const MFloatArray &weights,
+	double arcLength,
+	double param,
+	bool follow
+ )
+	: m_matrix(),
+	  m_tangent(),
 	  m_param(param),
 	  m_arcLength(arcLength),
-	  m_weight(1.0f),
+	  m_weight(),
 	  m_u(0.0f),
 	  m_v(0.0f),
 	  m_color(0.0, 0.0, 0.0)
 {
-	m_matrix[3][0] = pt.x;
-	m_matrix[3][1] = pt.y;
-	m_matrix[3][2] = pt.z;
+	MFnNurbsCurve curveFn(curveObject);
+	double uniformParam = curveFn.findParamFromLength(
+		arcLength);
+	MFloatVector tangent = MFloatVector(
+		curveFn.tangent(uniformParam));
+
+	m_tangent = tangent.normal();
+
+	m_weight = mayaMath::interp(weights, float(uniformParam));
+
+	MPoint pt;
+	curveFn.getPointAtParam(
+		uniformParam, pt, MSpace::kObject);
+	MFloatVector mAxis = follow ? m_tangent : majorAxis;
+
+	m_matrix =  mayaMath::matFromAim(
+		MFloatVector(pt.x, pt.y, pt.z),
+		mAxis,
+		lanceAxis,
+		mayaMath::yAxis,
+		mayaMath::zAxis
+	);
 }
+
+// Target::Target(
+// 	const MFloatPoint &pt,
+// 	const MFloatVector &aim,
+// 	const MFloatVector &up,
+// 	const MFloatVector &tangent,
+// 	float param,
+// 	float arcLength,
+// 	float weight)
+// 	: m_tangent(tangent),
+// 	  m_param(param),
+// 	  m_arcLength(arcLength),
+// 	  m_weight(1.0f),
+// 	  m_u(0.0f),
+// 	  m_v(0.0f),
+// 	  m_color(0.0, 0.0, 0.0)
+// {
+// 	m_matrix[3][0] = pt.x;
+// 	m_matrix[3][1] = pt.y;
+// 	m_matrix[3][2] = pt.z;
+// }
 
 
 Target::~Target() {}
@@ -74,6 +116,7 @@ void Target::applyAxisAngleRotation(const MFloatVector &axis , float angle)
 	m_matrix = m_matrix * centerMat.inverse() * rotMat * centerMat;
 
 }
+
 
 void Target::applyTilt(float angle)
 {
@@ -165,6 +208,15 @@ void Target::setMatrix(const MFloatMatrix &rhs)
 	m_matrix = rhs;
 }
 
+void Target::rotate(const MFloatMatrix &rotation)
+{
+	const MFloatPoint &p = this->position();
+	this->setPosition(MFloatPoint::origin);
+	m_matrix = m_matrix * rotation;
+	this->setPosition(p);
+}
+
+
 void Target::rotate(const MFloatPoint &pivot, const MFloatMatrix &rotation)
 {
 	m_matrix[3][0] = m_matrix[3][0] - pivot.x;
@@ -183,10 +235,10 @@ void Target::rotate(const MFloatPoint &pivot, const MFloatMatrix &rotation)
 MFloatVector Target::rotation(
 	MTransformationMatrix::RotationOrder order,
 	MAngle::Unit unit,
-	const MMatrix &space) const
+	const MFloatMatrix &space) const
 {
 	double rotValue[3];
-	MTransformationMatrix tMat(MMatrix(m_matrix.matrix) * space);
+	MTransformationMatrix tMat( MMatrix((m_matrix * space).matrix) );
 	tMat.reorderRotation(order);
 
 	MTransformationMatrix::RotationOrder throwAway;

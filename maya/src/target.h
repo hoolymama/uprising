@@ -24,14 +24,15 @@ public:
 		float arclength,
 		float weight = 1.0);
 
-	Target(
-		const MFloatPoint &pt,
-		const MFloatVector &aim,
-		const MFloatVector &up,
-		const MFloatVector &tangent,
-		float param,
-		float arclength,
-		float weight = 1.0);
+ 	Target(
+		const MObject &curveObject,
+		const MFloatVector & lanceAxis, // Z
+		const MFloatVector & majorAxis, // Y
+		const MFloatArray &weights,
+		double arcLength,
+		double param,
+		bool follow
+	);
 
 	~Target();
 
@@ -39,7 +40,7 @@ public:
 	void applyBank(float angle);
 	void applyTwist(float angle);
 	void applyAxisAngleRotation(
-		const MFloatVector &axis , 
+		const MFloatVector &axis, 
 		float angle);
 
 	// void setRotation(
@@ -85,11 +86,12 @@ public:
 	void setMatrix(const MFloatMatrix &rhs);
 
 	void rotate(const MFloatPoint &pivot, const MFloatMatrix &rotation);
-
+	void  rotate(const MFloatMatrix &rotation);
+	
 	MFloatVector rotation(
 		MTransformationMatrix::RotationOrder order,
 		MAngle::Unit unit,
-		const MMatrix &space = MMatrix::identity) const;
+		const MFloatMatrix &space=MFloatMatrix() ) const;
 
 	MFloatVector transform(const MFloatVector &rhs) const;
 

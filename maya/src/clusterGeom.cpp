@@ -100,14 +100,14 @@ void clusterGeom::setApproaches(double approachStart, double approachMid,
 	setArrival(approachStart, approachMid, ptpThresh);
 }
 
-void clusterGeom::displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap)
-{
-	std::vector<Stroke>::iterator iter;
-	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
-	{
-		iter->displace(meshFn, ap);
-	}
-}
+// void clusterGeom::displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap)
+// {
+// 	std::vector<Stroke>::iterator iter;
+// 	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
+// 	{
+// 		iter->displace(meshFn, ap);
+// 	}
+// }
 
 void clusterGeom::offsetBrushContact(const Brush &brush)
 {
@@ -117,11 +117,11 @@ void clusterGeom::offsetBrushContact(const Brush &brush)
 		iter->offsetBrushContact(brush);
 	}
 }
-void clusterGeom::applyBiases(const Brush &brush, float mult)
-{
-	std::vector<Stroke>::iterator iter;
-	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
-	{
-		iter->applyBiases(brush, mult);
-	}
-}
+// void clusterGeom::applyBiases(const Brush &brush, float mult)
+// {
+// 	std::vector<Stroke>::iterator iter;
+// 	for (iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
+// 	{
+// 		iter->applyBiases(brush, mult);
+// 	}
+// }

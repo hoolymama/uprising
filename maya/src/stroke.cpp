@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <vector>
 
-// #include <typeinfo>
 #include "errorMacros.h"
 #include "mayaMath.h"
 #include <stroke.h>
@@ -14,366 +13,269 @@
 
 const double epsilon = 0.0001;
 
-unsigned Stroke::create(
-	const MObject &thisObj,
-	const MObject &dCurve,
-	const MDoubleArray &contacts,
-	bool localContact,
-	double curveLength,
-	double startDist,
-	double endDist,
-	double entryLength,
-	double exitLength,
-	TransitionBlendMethod transBlendMethod,
-	double pointDensity,
-	int minimumPoints,
-	const StrokeRotationSpec &rotSpec,
-	const StrokeRepeatSpec &repeatSpec,
-	DirectionMethod strokeDirection,
-	double pivotParam,
-	double paintFlow,
-	int strokeId,
-	int brushId,
-	int paintId,
-	int layerId,
-	int customBrushId,
-	std::vector<Stroke> *strokes)
+Stroke::Stroke()
+// : m_targets(),
+//   m_pivot(),
+//   m_localContact(),
+//   m_arcLength(0),
+//   m_entryLength(),
+//   m_exitLength(),
+//   m_paintFlow(1.0),
+//   m_repeatId(),
+//   m_parentId(-1),
+//   m_arrivals(),
+//   m_departure(),
+//   m_follow(true),
+//   m_linearSpeed(1.0),
+//   m_angularSpeed(1.0)
 {
-	/* This is the motherstroke. Determine whether forward or back */
-	bool backstroke = shouldMakeBackstroke(dCurve, startDist, endDist, strokeDirection);
+}
 
+// unsigned Stroke::create(
+// 	const MObject &thisObj,
+// 	const MObject &dCurve,
+// 	const MDoubleArray &contacts,
+// 	bool localContact,
+// 	double curveLength,
+// 	double startDist,
+// 	double endDist,
+// 	double entryLength,
+// 	double exitLength,
+// 	TransitionBlendMethod transBlendMethod,
+// 	double pointDensity,
+// 	int minimumPoints,
+// 	const StrokeRotationSpec &rotSpec,
+// 	const StrokeRepeatSpec &repeatSpec,
+// 	DirectionMethod strokeDirection,
+// 	double pivotParam,
+// 	double paintFlow,
+// 	int strokeId,
+// 	int brushId,
+// 	int paintId,
+// 	int layerId,
+// 	int customBrushId,
+// 	std::vector<Stroke> *strokes)
+// {
+// 	/* This is the motherstroke. Determine whether forward or back */
+// 	bool backstroke = shouldMakeBackstroke(
+// 		dCurve, startDist, endDist, strokeDirection);
+
+// 	if (backstroke)
+// 	{
+// 		std::swap(startDist, endDist);
+// 	}
+
+// 	int repeatId = 0;
+
+// 	Stroke motherStroke(
+// 		dCurve,
+// 		contacts,
+// 		localContact,
+// 		curveLength,
+// 		startDist,
+// 		endDist,
+// 		entryLength,
+// 		exitLength,
+// 		transBlendMethod,
+// 		pointDensity,
+// 		minimumPoints,
+// 		pivotParam,
+// 		paintFlow,
+// 		strokeId,
+// 		brushId,
+// 		paintId,
+// 		layerId,
+// 		customBrushId,
+// 		repeatId,
+// 		backstroke);
+
+// 	motherStroke.setRotations(thisObj, rotSpec);
+// 	motherStroke.setTransitionContact();
+
+// 	strokes->push_back(motherStroke);
+// 	int count = 1;
+
+// 	double fan;
+// 	double tangentOffset;
+// 	double normalOffset;
+
+// 	for (int j = 0; j < repeatSpec.repeats; ++j)
+// 	{
+// 		bool reverse = (repeatSpec.oscillate && (j % 2 == 0));
+// 		repeatId = (j * 2) + 1;
+// 		if (drand48() < repeatSpec.probability)
+// 		{
+// 			fan = repeatSpec.calcFan(j);
+// 			repeatSpec.calcOffsets(j, tangentOffset, normalOffset);
+
+// 			Stroke stk(motherStroke);
+// 			stk.offset(tangentOffset, normalOffset, reverse, repeatId);
+// 			stk.setRotations(thisObj, rotSpec);
+// 			stk.setTransitionContact();
+// 			stk.rotate(fan);
+// 			strokes->push_back(stk);
+// 			count++;
+// 		}
+
+// 		// cerr << "repeatSpec.mirror" << repeatSpec.mirror << endl;
+// 		if (repeatSpec.mirror && (drand48() < repeatSpec.probability))
+// 		{
+// 			repeatId = (j * 2) + 2;
+// 			fan = repeatSpec.calcFan(j);
+// 			repeatSpec.calcOffsets(j, tangentOffset, normalOffset);
+
+// 			Stroke stk(motherStroke);
+// 			stk.offset(
+// 				tangentOffset,
+// 				-normalOffset,
+// 				reverse,
+// 				repeatId);
+// 			stk.setRotations(thisObj, rotSpec);
+// 			stk.setTransitionContact();
+// 			stk.rotate(-fan);
+// 			strokes->push_back(stk);
+// 			count++;
+// 		}
+// 	}
+
+// 	return count;
+// }
+
+Stroke::Stroke(
+	 const MObject &curveObject,
+	 const MFloatVector &lanceAxis, // Z
+	 const MFloatVector &majorAxis, // Y
+	 const MFloatArray &weights,
+	 bool localContact,
+	 double startDist,
+	 double endDist,
+	 float entryLength,
+	 float exitLength,
+	 double density,
+	 int minimumPoints,
+	 double pivotParam,
+	 float paintFlow,
+	 int strokeId,
+	 int brushId,
+	 int paintId,
+	 int layerId,
+	 int customBrushId,
+	 bool follow,
+	 bool backstroke)
+	 : m_targets(),
+		m_pivot(),
+		m_localContact(localContact),
+		m_arcLength(),
+		m_entryLength(entryLength),
+		m_exitLength(exitLength),
+		m_paintFlow(paintFlow),
+		m_strokeId(strokeId),
+		m_brushId(brushId),
+		m_paintId(paintId),
+		m_layerId(layerId),
+		m_parentId(-1),
+		m_customBrushId(customBrushId),
+		m_repeatId(0),
+		m_backstroke(backstroke),
+		m_arrivals(),
+		m_departure(),
+		m_linearSpeed(0.0),
+		m_angularSpeed(0.0),
+		m_sortColor(),
+		m_filterColor(),
+		m_sortStack(),
+		m_u(),
+		m_v()
+{
+	MFnNurbsCurve curveFn(curveObject);
+
+	// bool backstroke = shouldMakeBackstroke(
+	// 	curveObject,
+	// 	startDist,
+	// 	endDist,
+	// 	strokeDirection);
+
+	double curveLength = curveFn.length(epsilon);
 	if (backstroke)
 	{
 		std::swap(startDist, endDist);
 	}
-
-	int repeatId = 0;
-
-	Stroke motherStroke(
-		dCurve,
-		contacts,
-		localContact,
-		curveLength,
-		startDist,
-		endDist,
-		entryLength,
-		exitLength,
-		transBlendMethod,
-		pointDensity,
-		minimumPoints,
-		pivotParam,
-		paintFlow,
-		strokeId,
-		brushId,
-		paintId,
-		layerId,
-		customBrushId,
-		repeatId,
-		backstroke);
-
-	motherStroke.setRotations(thisObj, rotSpec);
-	motherStroke.setTransitionContact();
-
-	strokes->push_back(motherStroke);
-	int count = 1;
-
-	double fan;
-	double tangentOffset;
-	double normalOffset;
-
-	for (int j = 0; j < repeatSpec.repeats; ++j)
-	{
-		bool reverse = (repeatSpec.oscillate && (j % 2 == 0));
-		repeatId = (j * 2) + 1;
-		if (drand48() < repeatSpec.probability)
-		{
-			fan = repeatSpec.calcFan(j);
-			repeatSpec.calcOffsets(j, tangentOffset, normalOffset);
-
-			Stroke stk(motherStroke);
-			stk.offset(tangentOffset, normalOffset, reverse, repeatId);
-			stk.setRotations(thisObj, rotSpec);
-			stk.setTransitionContact();
-			stk.rotate(fan);
-			strokes->push_back(stk);
-			count++;
-		}
-
-		// cerr << "repeatSpec.mirror" << repeatSpec.mirror << endl;
-		if (repeatSpec.mirror && (drand48() < repeatSpec.probability))
-		{
-			repeatId = (j * 2) + 2;
-			fan = repeatSpec.calcFan(j);
-			repeatSpec.calcOffsets(j, tangentOffset, normalOffset);
-
-			Stroke stk(motherStroke);
-			stk.offset(tangentOffset, -normalOffset, reverse, repeatId);
-			stk.setRotations(thisObj, rotSpec);
-			stk.setTransitionContact();
-			stk.rotate(-fan);
-			strokes->push_back(stk);
-			count++;
-		}
-	}
-
-	return count;
-}
-
-Stroke::Stroke() : m_targets(),
-				   m_pivot(),
-				   m_localContact(),
-				   m_arcLength(0),
-				   m_entryLength(),
-				   m_exitLength(),
-				   m_paintFlow(1.0),
-				   m_repeatId(),
-				   m_parentId(-1),
-				   m_arrivals(),
-				   m_departure(),
-				   m_follow(true),
-				   m_linearSpeed(1.0),
-				   m_angularSpeed(1.0),
-				   m_degree(3)
-{
-}
-
-Stroke::Stroke(
-	const MObject &curveObject,
-	const MDoubleArray &contacts,
-	bool localContact,
-	double curveLength,
-	double startDist,
-	double endDist,
-	double entryLength,
-	double exitLength,
-	TransitionBlendMethod transBlendMethod,
-	double density,
-	int minimumPoints,
-	double pivotParam,
-	double paintFlow,
-	int strokeId,
-	int brushId,
-	int paintId,
-	int layerId,
-	int customBrushId,
-	int repeatId,
-	bool backstroke) : m_targets(),
-					   m_pivot(),
-					   m_localContact(localContact),
-					   m_arcLength(),
-					   m_entryLength(entryLength),
-					   m_exitLength(exitLength),
-					   m_transitionBlendMethod(transBlendMethod),
-					   m_paintFlow(paintFlow),
-					   m_strokeId(strokeId),
-					   m_brushId(brushId),
-					   m_paintId(paintId),
-					   m_layerId(layerId),
-					   m_parentId(-1),
-					   m_customBrushId(customBrushId),
-					   m_repeatId(repeatId),
-					   m_backstroke(backstroke),
-					   m_arrivals(),
-					   m_departure(),
-					   m_follow(true),
-					   m_linearSpeed(1.0),
-					   m_angularSpeed(1.0),
-					   m_degree(3)
-
-{
-
-	MFnNurbsCurve curveFn(curveObject);
-	m_degree = curveFn.degree();
-	
-	// cerr << "Degree is "<< m_degree << endl;
-
-	if (m_degree == 1)
-	{
-		buildLinearStroke(curveObject, contacts, curveLength, endDist, startDist, density, minimumPoints, pivotParam);
-	}
-	else
-	{
-		buildCubicStroke(curveObject, contacts, curveLength, endDist, startDist, density, minimumPoints, pivotParam); // Assume degree 3
-	}
-
-	double strokeRange = endDist - startDist; // can be negative
-	double pivotDist = startDist + (strokeRange * pivotParam);
-	m_pivot = Target(curveFn, pivotDist, startDist, strokeRange, curveLength);
-
-	setArcLength();
-}
-
-MStatus Stroke::buildCubicStroke(const MObject &curveObject,
-								 const MDoubleArray &contacts,
-								 double curveLength,
-								 double startDist,
-								 double endDist,
-								 double density,
-								 int minimumPoints,
-								 double pivotParam)
-{
-
-	// cerr << "Building cubic "<< endl;
-	// cerr << "contacts "<< contacts << endl;
-	MStatus st;
-	MFnNurbsCurve curveFn(curveObject);
-
 	double strokeRange = endDist - startDist; // can be negative
 
-	// cerr << "strokeRange "<< strokeRange << " startDist:"<< startDist << " endDist:"<< endDist<< endl;
- 
+	unsigned numPoints = std::max(
+		 int(density * fabs(strokeRange)),
+		 std::max(minimumPoints, 2));
 
-	unsigned numPoints = unsigned(density * fabs(strokeRange));
-	if (minimumPoints < 2)
-	{
-		minimumPoints = 2;
-	}
-	if (numPoints < minimumPoints)
-	{
-		numPoints = minimumPoints;
-	}
-	double gap = strokeRange / (numPoints - 1); // can be negative
+		 double gap = strokeRange / (numPoints - 1); // can be negative
+
+	float currentArcLength;
+	float param ;
 
 	for (unsigned i = 0; i < numPoints; i++)
 	{
 
-		double dist = startDist + (i * gap);
-		double strokeParam = (dist - startDist) / strokeRange;
-		double curveParam = dist / curveLength;
-		double uniformParam = curveFn.findParamFromLength(dist);
-
-		MVector tangent = curveFn.tangent(uniformParam);
-
-		tangent.z = 0;
-		tangent.normalize();
-		double contact = Stroke::interpContact(contacts, uniformParam);
-
-		MPoint pt;
-		curveFn.getPointAtParam(uniformParam, pt, MSpace::kObject);
+		currentArcLength = startDist + (i * gap);
+		param = currentArcLength / curveLength;
 
 		m_targets.push_back(
-			Target(pt, tangent, strokeParam, curveParam, contact));
+			 Target(curveObject,
+					  lanceAxis,
+					  majorAxis,
+					  weights,
+					  currentArcLength,
+					  param,
+					  follow));
 	}
-	return MS::kSuccess;
+
+	currentArcLength = startDist + (strokeRange * pivotParam);
+	param = currentArcLength / curveLength;
+	m_pivot = Target(
+		 curveObject, lanceAxis,
+		 majorAxis,
+		 weights,
+		 currentArcLength,
+		 param,
+		 follow);
+
+	calculateArcLength();
 }
 
-MStatus Stroke::buildLinearStroke(const MObject &curveObject,
-								  const MDoubleArray &contacts,
-								  double curveLength,
-								  double startDist,
-								  double endDist,
-								  double density,
-								  int minimumPoints,
-								  double pivotParam)
-{
-
-	MStatus st;
-	MFnNurbsCurve curveFn(curveObject);
-	double startDomain;
-	double endDomain;
-	st = curveFn.getKnotDomain(startDomain, endDomain);
-
-	bool reverse = false;
-	if (startDist > endDist)
-	{
-		std::swap(startDist, endDist);
-		reverse = true;
-	}
-
-	double strokeRange = endDist - startDist;
-
-	double startParam = curveFn.findParamFromLength(startDist, &st);
-	if (st.error())
-	{
-		startParam = startDomain;
-	}
-	double endParam = curveFn.findParamFromLength(endDist, &st);
-	if (st.error())
-	{
-		endParam = endDomain;
-	}
-	double paramRange = endParam - startParam;
-
-	MDoubleArray knots;
-	st = curveFn.getKnots(knots);
-	MPointArray allCvs;
-	st = curveFn.getCVs(allCvs);
-
-	MPointArray cvs;
-	MDoubleArray params;
-	params.append(startParam);
-	MPoint ptStart;
-	curveFn.getPointAtParam(startParam, ptStart);
-	cvs.append(ptStart);
-
-	for (size_t i = 0; i < knots.length(); i++)
-	{
-		if (!((knots[i] <= startParam) || (knots[i] >= endParam)))
-		{
-			params.append(knots[i]);
-			cvs.append(allCvs[i]);
-		}
-	}
-	params.append(endParam);
-	MPoint ptEnd;
-	curveFn.getPointAtParam(endParam, ptEnd);
-	cvs.append(ptEnd);
-
-	for (size_t i = 0; i < params.length(); i++)
-	{
-		double dist = curveFn.findLengthFromParam(params[i]);
-		double strokeParam = (dist - startDist) / strokeRange;
-		double curveParam = dist / curveLength;
-		double uniformParam = (params[i] - startParam) / paramRange;
-		MVector tangent = curveFn.tangent(params[i]);
-		tangent.z = 0;
-		tangent.normalize();
-		double contact = Stroke::interpContact(contacts, uniformParam);
-
-		m_targets.push_back(
-			Target(cvs[i], tangent, strokeParam, curveParam, contact));
-	}
-	return MS::kSuccess;
-}
-
+// We offset the an existing stroke and optionally make it a back stroke 
 void Stroke::offset(
-	double offset,
-	bool reverse,
-	int repeatId)
+	 float offset,
+	 const MFloatVector &planeNormal,
+	 bool reverse,
+	 int repeatId)
 {
-
 	std::vector<Target>::iterator iter;
 	m_repeatId = repeatId;
 	if (reverse)
 	{
 		m_backstroke = !m_backstroke;
 		std::reverse(m_targets.begin(), m_targets.end());
-		for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
-		{
-			iter->reverseParam();
-		}
 	}
 
-	MVector offsetVec;
+	MFloatVector offsetVec;
 	if (fabs(offset) > epsilon)
 	{
 		std::vector<Target>::iterator iter;
 		for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
 		{
-			offsetVec = (iter->tangent() ^ MVector::zAxis) * offset;
+			offsetVec = (iter->tangent() ^ planeNormal) * offset;
 			iter->offsetBy(offsetVec);
 		}
-		offsetVec = (m_pivot.tangent() ^ MVector::zAxis) * offset;
+		offsetVec = (m_pivot.tangent() ^ planeNormal) * offset;
 		m_pivot.offsetBy(offsetVec);
 	}
-	setArcLength();
+	calculateArcLength();
 }
 
 void Stroke::offset(
-	double tangentOffset,
-	double normalOffset,
-	bool reverse,
-	int repeatId)
+	 float tangentOffset,
+	 float normalOffset,
+	 const MFloatVector &planeNormal,
+	 bool reverse,
+	 int repeatId)
 {
 
 	std::vector<Target>::iterator iter;
@@ -382,10 +284,10 @@ void Stroke::offset(
 	{
 		m_backstroke = !m_backstroke;
 		std::reverse(m_targets.begin(), m_targets.end());
-		for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
-		{
-			iter->reverseParam();
-		}
+		// for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+		// {
+		// 	iter->reverseParam();
+		// }
 	}
 
 	MVector offsetVec;
@@ -394,15 +296,15 @@ void Stroke::offset(
 		std::vector<Target>::iterator iter;
 		for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
 		{
-			offsetVec = (iter->tangent() ^ MVector::zAxis) * normalOffset;
+			offsetVec = (iter->tangent() ^ planeNormal) * normalOffset;
 			offsetVec += iter->tangent() * tangentOffset;
 			iter->offsetBy(offsetVec);
 		}
-		offsetVec = (m_pivot.tangent() ^ MVector::zAxis) * normalOffset;
+		offsetVec = (m_pivot.tangent() ^ planeNormal) * normalOffset;
 		offsetVec += m_pivot.tangent() * tangentOffset;
 		m_pivot.offsetBy(offsetVec);
 	}
-	setArcLength();
+	calculateArcLength();
 }
 
 const Target &Stroke::pivot() const
@@ -412,54 +314,54 @@ const Target &Stroke::pivot() const
 
 Stroke::~Stroke() {}
 
-void Stroke::setRotations(
-	const MObject &thisObj,
-	const StrokeRotationSpec &rotSpec)
-{
-	m_follow = rotSpec.followStroke;
+// void Stroke::setRotations(
+// 	 const MObject &thisObj,
+// 	 const StrokeRotationSpec &rotSpec)
+// {
+// 	m_follow = rotSpec.followStroke;
 
-	MDoubleArray sampleVals;
-	if (rotSpec.rampScope == StrokeRotationSpec::kCurve)
-	{
-		this->getCurveParams(sampleVals);
-	}
-	else
-	{
-		this->getParams(sampleVals);
-		if (rotSpec.rampScope == StrokeRotationSpec::kTravelStroke && m_backstroke)
-		{ // reverse them
-			reverseArray(sampleVals);
-		}
-	}
+// 	MDoubleArray sampleVals;
+// 	if (rotSpec.rampScope == StrokeRotationSpec::kCurve)
+// 	{
+// 		this->getCurveParams(sampleVals);
+// 	}
+// 	else
+// 	{
+// 		this->getParams(sampleVals);
+// 		if (rotSpec.rampScope == StrokeRotationSpec::kTravelStroke && m_backstroke)
+// 		{ // reverse them
+// 			reverseArray(sampleVals);
+// 		}
+// 	}
 
-	unsigned nVals = sampleVals.length();
-	MDoubleArray outTilt(nVals);
-	MDoubleArray outBank(nVals);
-	MDoubleArray outTwist(nVals);
+// 	unsigned nVals = sampleVals.length();
+// 	MDoubleArray outTilt(nVals);
+// 	MDoubleArray outBank(nVals);
+// 	MDoubleArray outTwist(nVals);
 
-	const double &tiltMin = rotSpec.tiltRampMin;
-	const double &tiltMax = rotSpec.tiltRampMax;
-	const double &bankMin = rotSpec.bankRampMin;
-	const double &bankMax = rotSpec.bankRampMax;
-	const double &twistMin = rotSpec.twistRampMin;
-	const double &twistMax = rotSpec.twistRampMax;
+// 	const double &tiltMin = rotSpec.tiltRampMin;
+// 	const double &tiltMax = rotSpec.tiltRampMax;
+// 	const double &bankMin = rotSpec.bankRampMin;
+// 	const double &bankMax = rotSpec.bankRampMax;
+// 	const double &twistMin = rotSpec.twistRampMin;
+// 	const double &twistMax = rotSpec.twistRampMax;
 
-	doRampLookup(thisObj, rotSpec.tiltRampAtt, sampleVals, outTilt, 0.0, 1.0, tiltMin,
-				 tiltMax);
-	doRampLookup(thisObj, rotSpec.bankRampAtt, sampleVals, outBank, 0.0, 1.0, bankMin,
-				 bankMax);
-	doRampLookup(thisObj, rotSpec.twistRampAtt, sampleVals, outTwist, 0.0, 1.0, twistMin,
-				 twistMax);
+// 	doRampLookup(thisObj, rotSpec.tiltRampAtt, sampleVals, outTilt, 0.0, 1.0, tiltMin,
+// 					 tiltMax);
+// 	doRampLookup(thisObj, rotSpec.bankRampAtt, sampleVals, outBank, 0.0, 1.0, bankMin,
+// 					 bankMax);
+// 	doRampLookup(thisObj, rotSpec.twistRampAtt, sampleVals, outTwist, 0.0, 1.0, twistMin,
+// 					 twistMax);
 
-	std::vector<Target>::iterator iter = m_targets.begin();
-	unsigned i = 0;
-	for (; iter != m_targets.end(); iter++, i++)
-	{
-		iter->setRotation(outTilt[i], outBank[i], outTwist[i], m_follow, m_backstroke);
-	}
-}
+// 	std::vector<Target>::iterator iter = m_targets.begin();
+// 	unsigned i = 0;
+// 	for (; iter != m_targets.end(); iter++, i++)
+// 	{
+// 		iter->setRotation(outTilt[i], outBank[i], outTwist[i], m_follow, m_backstroke);
+// 	}
+// }
 
-void Stroke::setArcLength()
+void Stroke::calculateArcLength()
 {
 	m_arcLength = 0;
 	std::vector<Target>::const_iterator previter = m_targets.begin();
@@ -535,7 +437,7 @@ bool operator<(const Stroke &a, const Stroke &b)
 // 	curveFn.getPointAtParam(crvParam, m_pivot, MSpace::kWorld);
 // }
 
-void Stroke::getParams(MDoubleArray &result) const
+void Stroke::getParams(MFloatArray &result) const
 {
 	std::vector<Target>::const_iterator citer = m_targets.begin();
 	for (; citer != m_targets.end(); citer++)
@@ -543,25 +445,34 @@ void Stroke::getParams(MDoubleArray &result) const
 		result.append(citer->param());
 	}
 }
-
-void Stroke::getCurveParams(MDoubleArray &result) const
+void Stroke::getArcLengths(MFloatArray &result) const
 {
 	std::vector<Target>::const_iterator citer = m_targets.begin();
 	for (; citer != m_targets.end(); citer++)
 	{
-		result.append(citer->curveParam());
+		result.append(citer->arcLength());
 	}
 }
 
-void Stroke::appendTargets(MMatrixArray &result) const
-{
-	std::vector<Target>::const_iterator citer;
-	unsigned i = 0;
-	for (citer = m_targets.begin(); citer != m_targets.end(); citer++, i++)
-	{
-		result.append(citer->matrix());
-	}
-}
+
+// void Stroke::getCurveParams(MDoubleArray &result) const
+// {
+// 	std::vector<Target>::const_iterator citer = m_targets.begin();
+// 	for (; citer != m_targets.end(); citer++)
+// 	{
+// 		result.append(citer->curveParam());
+// 	}
+// }
+
+// void Stroke::appendTargets(MMatrixArray &result) const
+// {
+// 	std::vector<Target>::const_iterator citer;
+// 	unsigned i = 0;
+// 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++, i++)
+// 	{
+// 		result.append(citer->matrix());
+// 	}
+// }
 
 void Stroke::appendTangents(MVectorArray &result) const
 {
@@ -577,12 +488,12 @@ const std::vector<Target> &Stroke::targets() const
 	return m_targets;
 }
 
-const double &Stroke::arcLength() const
+const float &Stroke::arcLength() const
 {
 	return m_arcLength;
 }
 
-const double &Stroke::paintFlow() const
+const float &Stroke::paintFlow() const
 {
 	return m_paintFlow;
 }
@@ -821,20 +732,23 @@ bool Stroke::testMapBlueId(FilterOperator op, int value) const
 
 /////////////////////// FOR DRAWING ///////////////////////
 
-void Stroke::getDirectionMatrices(MMatrixArray &result, double stackHeight) const
+void Stroke::getDirectionMatrices(
+	const MFloatVector &planeNormal,
+	std::vector<MFloatMatrix> &result, 
+	float stackHeight) const
 {
-	MVector stackOffset = MVector::zAxis * stackHeight;
+	MFloatVector stackOffset = planeNormal * stackHeight;
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
 	{
-		MMatrix mat = citer->directionMatrix(m_backstroke);
+		MFloatMatrix mat = citer->directionMatrix(m_backstroke);
 		mat[3][2] += stackHeight;
-		result.append(mat);
+		result.push_back(mat);
 	}
 }
 
 void Stroke::getPoints(MFloatPointArray &result, double stackHeight,
-					   bool withTraversal) const
+							  bool withTraversal) const
 {
 
 	result.clear();
@@ -847,7 +761,7 @@ void Stroke::getPoints(MFloatPointArray &result, double stackHeight,
 }
 
 void Stroke::getPoints(MPointArray &result, double stackHeight,
-					   bool withTraversal) const
+							  bool withTraversal) const
 {
 
 	MVector stackOffset = MVector::zAxis * stackHeight;
@@ -870,7 +784,7 @@ void Stroke::getPoints(MPointArray &result, double stackHeight,
 }
 
 void Stroke::transform(const MVector &vec, MFloatVectorArray &result,
-					   bool withTraversal) const
+							  bool withTraversal) const
 {
 	result.clear();
 	MVectorArray vecs;
@@ -882,7 +796,7 @@ void Stroke::transform(const MVector &vec, MFloatVectorArray &result,
 }
 
 void Stroke::transform(const MVector &vec, MVectorArray &result,
-					   bool withTraversal) const
+							  bool withTraversal) const
 {
 	std::vector<Target>::const_iterator citer;
 	if (withTraversal)
@@ -933,24 +847,28 @@ void Stroke::getZAxes(MVectorArray &result, bool withTraversal) const
 // 	result = MFloatPoint(m_targets[0].position()) + stackOffset;
 // }
 
-MPoint Stroke::getHead(double stackHeight) const
+MFloatPoint Stroke::getHead(
+	float stackHeight,
+	const MFloatVector & planeNormal
+	) const
 {
-	MFloatVector stackOffset = MVector::zAxis * stackHeight;
+	MFloatVector stackOffset = planeNormal * stackHeight;
 	return m_targets[0].position() + stackOffset;
 }
 
 void Stroke::getBorders(
-	MPointArray &lefts,
-	MPointArray &rights,
-	const Brush &brush,
-	double stackHeight,
-	bool displayContactWidth) const
+	 MFloatPointArray &lefts,
+	 MFloatPointArray &rights,
+	const MFloatVector &planeNormal,
+	 const Brush &brush,
+	 float stackHeight,
+	 bool displayContactWidth) const
 {
 	unsigned len = m_targets.size();
 	lefts.setLength(len);
 	rights.setLength(len);
 
-	MFloatVector stackOffset = MVector::zAxis * stackHeight;
+	MFloatVector stackOffset = planeNormal * stackHeight;
 	double width = brush.width() * 0.5;
 
 	bool flat = (brush.shape() == Brush::kFlat);
@@ -958,8 +876,8 @@ void Stroke::getBorders(
 	unsigned i = 0;
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++, i++)
 	{
-		MPoint &left = lefts[i];
-		MPoint &right = rights[i];
+		MFloatPoint &left = lefts[i];
+		MFloatPoint &right = rights[i];
 		citer->getBorderPoints(left, right, width, flat, displayContactWidth);
 		left += stackOffset;
 		right += stackOffset;
@@ -967,17 +885,18 @@ void Stroke::getBorders(
 }
 
 void Stroke::getBorderLoop(
-	const Brush &brush,
-	double stackHeight,
-	MPointArray &result,
-	bool displayContactWidth) const
+	const MFloatVector &planeNormal,
+	 const Brush &brush,
+	 float stackHeight,
+	 MFloatPointArray &result,
+	 bool displayContactWidth) const
 {
 	unsigned len = m_targets.size() * 2;
 
 	result.setLength(len);
 
-	MVector stackOffset = MVector::zAxis * stackHeight;
-	double width = brush.width() * 0.5;
+	MVector stackOffset = planeNormal * stackHeight;
+	float width = brush.width() * 0.5f;
 	bool flat = (brush.shape() == Brush::kFlat);
 	std::vector<Target>::const_iterator citer;
 	unsigned i = 0;
@@ -985,18 +904,24 @@ void Stroke::getBorderLoop(
 
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++, i++, j--)
 	{
-		citer->getBorderPoints(result[i], result[j], width, flat, displayContactWidth);
+		citer->getBorderPoints(
+			result[i], 
+			result[j], 
+			width, 
+			flat, 
+			displayContactWidth);
 		result[i] += stackOffset;
 		result[j] += stackOffset;
 	}
 }
 
 void Stroke::getTriangleStrip(
-	const Brush &brush,
-	double stackHeight,
-	MPointArray &result,
-	bool displayContactWidth,
-	int maxSegments) const
+	 const MFloatVector &planeNormal,
+	 const Brush &brush,
+	 float stackHeight,
+	 MFloatPointArray &result,
+	 bool displayContactWidth,
+	 int maxSegments) const
 {
 	if (maxSegments == 0)
 	{
@@ -1014,26 +939,31 @@ void Stroke::getTriangleStrip(
 
 	result.setLength(len * 2);
 
-	MVector stackOffset = MVector::zAxis * stackHeight;
-	double width = brush.width() * 0.5;
+	MFloatVector stackOffset = planeNormal * stackHeight;
+	float width = brush.width() * 0.5f;
 
 	bool flat = (brush.shape() == Brush::kFlat);
 	std::vector<Target>::const_iterator citer;
 	unsigned i = 0;
 	unsigned j = 0;
 
-	for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len); citer++, i += 2, j++)
+	for (citer = m_targets.begin(); 
+	(citer != m_targets.end()) && (j < len); 
+	citer++, i += 2, j++)
 	{
-		citer->getBorderPoints(result[i], result[i + 1], width, flat, displayContactWidth);
+		citer->getBorderPoints(
+			result[i], 
+			result[i + 1], width, flat, displayContactWidth);
+
 		result[i] += stackOffset;
 		result[i + 1] += stackOffset;
 	}
 }
 
 void Stroke::getTargetBorderColors(
-	MColorArray &result,
-	int maxSegments,
-	PaintingEnums::TargetColorsDisplay displayMode) const
+	 MColorArray &result,
+	 int maxSegments,
+	 PaintingEnums::TargetColorsDisplay displayMode) const
 {
 	result.clear();
 	if (maxSegments == 0)
@@ -1081,7 +1011,10 @@ void Stroke::getTargetBorderColors(
 
 ///////// ///////// /////////
 
-void Stroke::positions(const MMatrix &space, MPointArray &result) const
+void Stroke::positions(
+	const MFloatMatrix &space, 
+	MFloatPointArray &result
+	) const
 {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
@@ -1091,10 +1024,10 @@ void Stroke::positions(const MMatrix &space, MPointArray &result) const
 }
 
 void Stroke::rotations(
-	const MMatrix &space,
-	MTransformationMatrix::RotationOrder order,
-	MAngle::Unit unit,
-	MVectorArray &result) const
+	 const MFloatMatrix &space,
+	 MTransformationMatrix::RotationOrder order,
+	 MAngle::Unit unit,
+	 MFloatVectorArray &result) const
 {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
@@ -1103,7 +1036,9 @@ void Stroke::rotations(
 	}
 }
 
-void Stroke::arrivalPositions(const MMatrix &space, MPointArray &result) const
+void Stroke::arrivalPositions(
+	const MFloatMatrix &space,
+	 MFloatPointArray &result) const
 {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_arrivals.begin(); citer != m_arrivals.end(); citer++)
@@ -1113,10 +1048,10 @@ void Stroke::arrivalPositions(const MMatrix &space, MPointArray &result) const
 }
 
 void Stroke::arrivalRotations(
-	const MMatrix &space,
-	MTransformationMatrix::RotationOrder order,
-	MAngle::Unit unit,
-	MVectorArray &result) const
+	 const MFloatMatrix &space,
+	 MTransformationMatrix::RotationOrder order,
+	 MAngle::Unit unit,
+	 MFloatVectorArray &result) const
 {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_arrivals.begin(); citer != m_arrivals.end(); citer++)
@@ -1125,21 +1060,25 @@ void Stroke::arrivalRotations(
 	}
 }
 
-void Stroke::departurePosition(const MMatrix &space, MPoint &result) const
+void Stroke::departurePosition(
+	const MFloatMatrix &space, 
+	MFloatPoint &result) const
 {
 	result = m_departure.position(space);
 }
 
 void Stroke::departureRotation(
-	const MMatrix &space,
-	MTransformationMatrix::RotationOrder order,
-	MAngle::Unit unit,
-	MVector &result) const
+	 const MFloatMatrix &space,
+	 MTransformationMatrix::RotationOrder order,
+	 MAngle::Unit unit,
+	 MFloatVector &result) const
 {
 	result = m_departure.rotation(order, unit, space);
 }
 
-void Stroke::tangents(const MMatrix &space, MVectorArray &result) const
+void Stroke::tangents(
+	const MFloatMatrix &space, 
+	MFloatVectorArray &result) const
 {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
@@ -1158,9 +1097,9 @@ void Stroke::colors(MColorArray &result) const
 }
 
 void Stroke::setUV(
-	const MMatrix &inversePlaneMatrix)
+	 const MFloatMatrix &inversePlaneMatrix)
 {
-	MPoint p = ((m_pivot.position() * inversePlaneMatrix) * 0.5) + MVector(0.5, 0.5, 0.0);
+	MFloatPoint p = ((m_pivot.position() * inversePlaneMatrix) * 0.5) + MFloatVector(0.5, 0.5, 0.0);
 	m_u = p.x;
 	m_v = p.y;
 }
@@ -1169,7 +1108,7 @@ void Stroke::getUV(float &u, float &v) const
 	u = m_u;
 	v = m_v;
 }
-void Stroke::assignTargetUVs(const MMatrix &inversePlaneMatrix)
+void Stroke::assignTargetUVs(const MFloatMatrix &inversePlaneMatrix)
 {
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
@@ -1197,56 +1136,61 @@ void Stroke::appendTargetUVsTo(MFloatArray &uVals, MFloatArray &vVals) const
 	m_departure.appendUVsTo(uVals, vVals);
 }
 
-int Stroke::applyGlobalTilt(const MFloatVectorArray &gradients, int index)
-{
+// int Stroke::applyGlobalTilt(
+// 	const MFloatVectorArray &gradients, 
+	
+// 	int index)
+// {
 
-	std::vector<Target>::iterator iter;
-	for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++, index++)
-	{
-		iter->applyGlobalTilt(gradients[index]);
-	}
-	for (iter = m_targets.begin(); iter != m_targets.end(); iter++, index++)
-	{
-		iter->applyGlobalTilt(gradients[index]);
-	}
-	m_departure.applyGlobalTilt(gradients[index]);
-	index++;
-	return index;
-}
+// 	std::vector<Target>::iterator iter;
+// 	for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++, index++)
+// 	{
+// 		iter->applyGlobalTilt(gradients[index]);
+// 	}
+// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++, index++)
+// 	{
+// 		iter->applyGlobalTilt(gradients[index]);
+// 	}
+// 	m_departure.applyGlobalTilt(gradients[index]);
+// 	index++;
+// 	return index;
+// }
+ 
 
-void Stroke::applyGlobalAim(const MPoint &point)
-{
-	std::vector<Target>::iterator iter;
-	for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++)
-	{
-		iter->applyGlobalAim(point);
-	}
-	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
-	{
-		iter->applyGlobalAim(point);
-	}
-	m_departure.applyGlobalAim(point);
-}
 
-void Stroke::displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap)
-{
-	std::vector<Target>::iterator iter;
-	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
-	{
-		MFloatPoint rayOrigin = MFloatPoint(iter->position());
-		rayOrigin.z = 0.0f;
-		float dist = 0;
-		MFloatPoint hitPoint;
-		bool hit = meshFn.closestIntersection(
-			rayOrigin, MFloatVector::zAxis, 0, 0, false,
-			MSpace::kWorld,
-			100.0f, true, &ap, hitPoint, &dist, 0, 0, 0, 0);
-		if (hit)
-		{
-			iter->offsetBy(MVector(0.0, 0.0, dist));
-		}
-	}
-}
+// void Stroke::applyGlobalAim(const MPoint &point)
+// {
+// 	std::vector<Target>::iterator iter;
+// 	for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++)
+// 	{
+// 		iter->applyGlobalAim(point);
+// 	}
+// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+// 	{
+// 		iter->applyGlobalAim(point);
+// 	}
+// 	m_departure.applyGlobalAim(point);
+// }
+
+// void Stroke::displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap)
+// {
+// 	std::vector<Target>::iterator iter;
+// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+// 	{
+// 		MFloatPoint rayOrigin = MFloatPoint(iter->position());
+// 		rayOrigin.z = 0.0f;
+// 		float dist = 0;
+// 		MFloatPoint hitPoint;
+// 		bool hit = meshFn.closestIntersection(
+// 			 rayOrigin, MFloatVector::zAxis, 0, 0, false,
+// 			 MSpace::kWorld,
+// 			 100.0f, true, &ap, hitPoint, &dist, 0, 0, 0, 0);
+// 		if (hit)
+// 		{
+// 			iter->offsetBy(MVector(0.0, 0.0, dist));
+// 		}
+// 	}
+// }
 
 void Stroke::setTransitionContact()
 {
@@ -1271,22 +1215,9 @@ void Stroke::setTransitionContact()
 		{
 			break;
 		}
-		// cerr << "m_entry_param" << m_entry_param << endl;
 		double contact = param / m_entry_param;
-
-		if (m_transitionBlendMethod == Stroke::kTransitionMin)
-		{
-			contact = fmin(contact, iter->contact());
-		}
-		else if (m_transitionBlendMethod == Stroke::kTransitionMax)
-		{
-			contact = fmax(contact, iter->contact());
-		}
-		else
-		{ // kTransitionBlend
-			contact = (contact + iter->contact()) * 0.5;
-		}
-		iter->setContact(contact);
+		contact = fmin(contact, iter->weight());
+		iter->setWeight(contact);
 	}
 
 	std::vector<Target>::reverse_iterator riter;
@@ -1298,24 +1229,11 @@ void Stroke::setTransitionContact()
 		{
 			break;
 		}
-		// cerr << " (1.0 - m_exit_param)" <<  (1.0 - m_exit_param) << endl;
 		double contact = (1.0 - param) / (1.0 - m_exit_param);
-		if (m_transitionBlendMethod == Stroke::kTransitionMin)
-		{
-			contact = fmin(contact, riter->contact());
-		}
-		else if (m_transitionBlendMethod == Stroke::kTransitionMax)
-		{
-			contact = fmax(contact, riter->contact());
-		}
-		else
-		{ // kTransitionBlend
-			contact = (contact + riter->contact()) * 0.5;
-		}
-		riter->setContact(contact);
+		contact = fmin(contact, riter->weight());
+		riter->setWeight(contact);
 	}
 }
-
 //
 void Stroke::offsetBrushContact(const Brush &brush)
 {
@@ -1325,7 +1243,7 @@ void Stroke::offsetBrushContact(const Brush &brush)
 	std::vector<Target>::iterator iter;
 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
 	{
-		float dist = (1.0 - iter->contact());
+		float dist = (1.0 - iter->weight());
 		if (dist > epsilon)
 		{
 			dist = pow(dist, power) * height;
@@ -1346,149 +1264,149 @@ void Stroke::offsetBrushContact(const Brush &brush)
 	}
 }
 
-void Stroke::applyBiases(const Brush &brush, float mult)
-{
-	applyForwardBias(brush, mult);
-	// applyGravityBias(brush, mult);
-}
+// void Stroke::applyBiases(const Brush &brush, float mult)
+// {
+// 	applyForwardBias(brush, mult);
+// 	// applyGravityBias(brush, mult);
+// }
 
-MObject Stroke::generateNurbsCurve(const MPointArray &points, MStatus *st) const
-{
+// MObject Stroke::generateNurbsCurve(const MPointArray &points, MStatus *st) const
+// {
 
-	int count = points.length();
-	double maxParam = count - 1;
-	MFnNurbsCurve curveFn;
-	MFnNurbsCurveData dataCreator;
-	MObject curveData = dataCreator.create(st);
+// 	int count = points.length();
+// 	double maxParam = count - 1;
+// 	MFnNurbsCurve curveFn;
+// 	MFnNurbsCurveData dataCreator;
+// 	MObject curveData = dataCreator.create(st);
 
-	MObject dCurve = curveFn.createWithEditPoints(points, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, st);
-	if (st->error())
-	{
-		return dCurve;
-	}
-	MDoubleArray knotVals;
-	curveFn.getKnots(knotVals);
-	int numKnots = knotVals.length();
-	double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
-	for (int i = 0; i < numKnots; ++i)
-	{
-		knotVals[i] = knotVals[i] * maxValRecip;
-	}
-	curveFn.setKnots(knotVals, 0, (numKnots - 1));
-	return dCurve;
-}
+// 	MObject dCurve = curveFn.createWithEditPoints(points, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, st);
+// 	if (st->error())
+// 	{
+// 		return dCurve;
+// 	}
+// 	MDoubleArray knotVals;
+// 	curveFn.getKnots(knotVals);
+// 	int numKnots = knotVals.length();
+// 	double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
+// 	for (int i = 0; i < numKnots; ++i)
+// 	{
+// 		knotVals[i] = knotVals[i] * maxValRecip;
+// 	}
+// 	curveFn.setKnots(knotVals, 0, (numKnots - 1));
+// 	return dCurve;
+// }
 
-void Stroke::applyForwardBias(const Brush &brush, float mult)
-{
-	MStatus st;
-	float forwardBias0 = brush.forwardBias0() * mult;
-	float forwardBias1 = brush.forwardBias1() * mult;
-	if ((fabs(forwardBias0) < epsilon) && (fabs(forwardBias1) < epsilon))
-	{
-		return;
-	}
+// void Stroke::applyForwardBias(const Brush &brush, float mult)
+// {
+// 	MStatus st;
+// 	float forwardBias0 = brush.forwardBias0() * mult;
+// 	float forwardBias1 = brush.forwardBias1() * mult;
+// 	if ((fabs(forwardBias0) < epsilon) && (fabs(forwardBias1) < epsilon))
+// 	{
+// 		return;
+// 	}
 
-	MPointArray editPoints;
-	this->getPoints(editPoints, 0.0);
-	int count = editPoints.length();
-	double maxParam = count - 1;
+// 	MPointArray editPoints;
+// 	this->getPoints(editPoints, 0.0);
+// 	int count = editPoints.length();
+// 	double maxParam = count - 1;
 
-	// MObject dCurve = this->generateNurbsCurve(editPoints, &st);
-	// if (st.error())
-	// {
-	// 	return;
-	// }
-	// MFnNurbsCurve curveFn(dCurve);
+// 	// MObject dCurve = this->generateNurbsCurve(editPoints, &st);
+// 	// if (st.error())
+// 	// {
+// 	// 	return;
+// 	// }
+// 	// MFnNurbsCurve curveFn(dCurve);
 
-	MFnNurbsCurve curveFn;
-	MFnNurbsCurveData dataCreator;
-	MObject curveData = dataCreator.create(&st);
+// 	MFnNurbsCurve curveFn;
+// 	MFnNurbsCurveData dataCreator;
+// 	MObject curveData = dataCreator.create(&st);
 
-	MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, &st);
-	if (st.error())
-	{
-		return;
-	}
-	MDoubleArray knotVals;
-	curveFn.getKnots(knotVals);
-	int numKnots = knotVals.length();
-	double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
-	for (int i = 0; i < numKnots; ++i)
-	{
-		knotVals[i] = knotVals[i] * maxValRecip;
-	}
-	curveFn.setKnots(knotVals, 0, (numKnots - 1));
-	////////
-	double curveLength = curveFn.length(epsilon);
-	MVector tangent0 = curveFn.tangent(0.000001).normal();
-	MVector tangent1 = curveFn.tangent(.999999).normal();
-	std::vector<Target>::iterator iter;
-	int i = 0;
-	for (iter = m_targets.begin(); iter != m_targets.end(); iter++, i++)
-	{
-		// get the dist at param.
-		double param = double(i) / maxParam;
-		double distOnCurve = curveFn.findLengthFromParam(param, &st);
-		mser;
-		// get the contact and interpolate to get the forward amount
-		float c = iter->contact();
-		float forwardBias = (forwardBias1 * c) + (forwardBias0 * (1.0f - c));
-		distOnCurve += forwardBias;
-		MPoint newPoint;
-		MVector newTangent;
-		if (distOnCurve < 0.0)
-		{
-			// handle:  before start
-			newPoint = editPoints[0] + (tangent0 * distOnCurve);
-			newTangent = tangent0;
-		}
-		else if (distOnCurve > curveLength)
-		{
-			newPoint = editPoints[(count - 1)] + (tangent1 * (distOnCurve - curveLength));
-			newTangent = tangent1;
-			// handle : after end
-		}
-		else
-		{
-			double newParam = curveFn.findParamFromLength(distOnCurve, &st);
-			mser;
+// 	MObject dCurve = curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen, true, false, true, curveData, &st);
+// 	if (st.error())
+// 	{
+// 		return;
+// 	}
+// 	MDoubleArray knotVals;
+// 	curveFn.getKnots(knotVals);
+// 	int numKnots = knotVals.length();
+// 	double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
+// 	for (int i = 0; i < numKnots; ++i)
+// 	{
+// 		knotVals[i] = knotVals[i] * maxValRecip;
+// 	}
+// 	curveFn.setKnots(knotVals, 0, (numKnots - 1));
+// 	////////
+// 	double curveLength = curveFn.length(epsilon);
+// 	MVector tangent0 = curveFn.tangent(0.000001).normal();
+// 	MVector tangent1 = curveFn.tangent(.999999).normal();
+// 	std::vector<Target>::iterator iter;
+// 	int i = 0;
+// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++, i++)
+// 	{
+// 		// get the dist at param.
+// 		double param = double(i) / maxParam;
+// 		double distOnCurve = curveFn.findLengthFromParam(param, &st);
+// 		mser;
+// 		// get the contact and interpolate to get the forward amount
+// 		float c = iter->contact();
+// 		float forwardBias = (forwardBias1 * c) + (forwardBias0 * (1.0f - c));
+// 		distOnCurve += forwardBias;
+// 		MPoint newPoint;
+// 		MVector newTangent;
+// 		if (distOnCurve < 0.0)
+// 		{
+// 			// handle:  before start
+// 			newPoint = editPoints[0] + (tangent0 * distOnCurve);
+// 			newTangent = tangent0;
+// 		}
+// 		else if (distOnCurve > curveLength)
+// 		{
+// 			newPoint = editPoints[(count - 1)] + (tangent1 * (distOnCurve - curveLength));
+// 			newTangent = tangent1;
+// 			// handle : after end
+// 		}
+// 		else
+// 		{
+// 			double newParam = curveFn.findParamFromLength(distOnCurve, &st);
+// 			mser;
 
-			st = curveFn.getPointAtParam(newParam, newPoint, MSpace::kObject);
-			newTangent = curveFn.tangent(newParam).normal();
-		}
-		if (m_backstroke)
-		{
-			newTangent = -newTangent;
-		}
+// 			st = curveFn.getPointAtParam(newParam, newPoint, MSpace::kObject);
+// 			newTangent = curveFn.tangent(newParam).normal();
+// 		}
+// 		if (m_backstroke)
+// 		{
+// 			newTangent = -newTangent;
+// 		}
 
-		// bundle these three together.
-		MVector offset = newPoint - editPoints[i];
-		iter->offsetBy(offset);
-		iter->setTangent(newTangent);
-		iter->setRotation(m_follow, m_backstroke);
-	}
-}
+// 		// bundle these three together.
+// 		MVector offset = newPoint - editPoints[i];
+// 		iter->offsetBy(offset);
+// 		iter->setTangent(newTangent);
+// 		iter->setRotation(m_follow, m_backstroke);
+// 	}
+// }
 
-void Stroke::applyGravityBias(const Brush &brush, float mult)
-{
-	MStatus st;
+// void Stroke::applyGravityBias(const Brush &brush, float mult)
+// {
+// 	MStatus st;
 
-	float gravityBias0 = brush.gravityBias0() * mult;
-	float gravityBias1 = brush.gravityBias1() * mult;
-	if ((fabs(gravityBias0) < epsilon) && (fabs(gravityBias1) < epsilon))
-	{
-		return;
-	}
+// 	float gravityBias0 = brush.gravityBias0() * mult;
+// 	float gravityBias1 = brush.gravityBias1() * mult;
+// 	if ((fabs(gravityBias0) < epsilon) && (fabs(gravityBias1) < epsilon))
+// 	{
+// 		return;
+// 	}
 
-	std::vector<Target>::iterator iter;
-	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
-	{
-		float c = iter->contact();
-		float gravityBias = (gravityBias1 * c) + (gravityBias0 * (1.0f - c));
-		MVector offset = MVector::yAxis * gravityBias;
-		iter->offsetBy(offset);
-	}
-}
+// 	std::vector<Target>::iterator iter;
+// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+// 	{
+// 		float c = iter->contact();
+// 		float gravityBias = (gravityBias1 * c) + (gravityBias0 * (1.0f - c));
+// 		MVector offset = MVector::yAxis * gravityBias;
+// 		iter->offsetBy(offset);
+// 	}
+// }
 
 void Stroke::setLinearSpeed(float val)
 {
@@ -1601,134 +1519,135 @@ void Stroke::reverseArray(MDoubleArray &arr)
 	}
 }
 
-bool Stroke::shouldMakeBackstroke(MObject dCurve, double startDist, double endDist,
-								  Stroke::DirectionMethod strokeDirection)
-{
+// bool Stroke::shouldMakeBackstroke(MObject dCurve, double startDist, double endDist,
+// 								  Stroke::DirectionMethod strokeDirection)
+// {
 
-	/* 	enum DirectionMethod { kForwards, kBackwards, kStartUppermost, kEndUppermost  };  */
-	if (strokeDirection == Stroke::kForwards)
-	{
-		return false;
-	}
-	if (strokeDirection == Stroke::kBackwards)
-	{
-		return true;
-	}
+// 	/* 	enum DirectionMethod { kForwards, kBackwards, kStartUppermost, kEndUppermost  };  */
+// 	if (strokeDirection == Stroke::kForwards)
+// 	{
+// 		return false;
+// 	}
+// 	if (strokeDirection == Stroke::kBackwards)
+// 	{
+// 		return true;
+// 	}
 
-	MFnNurbsCurve curveFn(dCurve);
-	double startParam = curveFn.findParamFromLength(startDist);
-	double endParam = curveFn.findParamFromLength(endDist);
+// 	MFnNurbsCurve curveFn(dCurve);
+// 	double startParam = curveFn.findParamFromLength(startDist);
+// 	double endParam = curveFn.findParamFromLength(endDist);
 
-	if (strokeDirection == Stroke::kStartUppermost || strokeDirection == Stroke::kEndUppermost)
-	{
+// 	if (strokeDirection == Stroke::kStartUppermost || strokeDirection == Stroke::kEndUppermost)
+// 	{
 
-		MVector comparison(MVector::yAxis);
+// 		MVector comparison(MVector::yAxis);
 
-		MVector startTangent = curveFn.tangent(startParam).normal();
-		MVector endTangent = curveFn.tangent(endParam).normal();
+// 		MVector startTangent = curveFn.tangent(startParam).normal();
+// 		MVector endTangent = curveFn.tangent(endParam).normal();
 
-		double startUpFacing = startTangent * MVector::yAxis;
-		double endUpFacing = endTangent * MVector::yAxis;
+// 		double startUpFacing = startTangent * MVector::yAxis;
+// 		double endUpFacing = endTangent * MVector::yAxis;
 
-		if (startUpFacing > endUpFacing && strokeDirection == Stroke::kEndUppermost)
-		{
-			/* its a backstroke */
-			return true;
-		}
+// 		if (startUpFacing > endUpFacing && strokeDirection == Stroke::kEndUppermost)
+// 		{
+// 			/* its a backstroke */
+// 			return true;
+// 		}
 
-		if (startUpFacing <= endUpFacing && strokeDirection == Stroke::kStartUppermost)
-		{
-			/* its a backstroke */
-			return true;
-		}
-		/* its a forwardstroke */
-		return false;
-	}
+// 		if (startUpFacing <= endUpFacing && strokeDirection == Stroke::kStartUppermost)
+// 		{
+// 			/* its a backstroke */
+// 			return true;
+// 		}
+// 		/* its a forwardstroke */
+// 		return false;
+// 	}
 
-	// We must be doing radial for sure
+// 	// We must be doing radial for sure
 
-	MPoint startPoint, endPoint;
-	curveFn.getPointAtParam(startParam, startPoint, MSpace::kObject);
-	curveFn.getPointAtParam(endParam, endPoint, MSpace::kObject);
-	// cerr << "start dist " << MVector(startPoint.x, startPoint.y, 0.0).length() << "end dist " << MVector(endPoint.x, endPoint.y, 0.0).length() << endl;
-	if (MVector(startPoint.x, startPoint.y, 0.0).length() < MVector(endPoint.x, endPoint.y, 0.0).length())
-	{
-		// cerr << "stroke is moving outwards" << endl;
-		// stroke is moving outwards
-		if (strokeDirection == Stroke::kRadialIn)
-		{
-			// cerr << "dir is Stroke::kRadialIn - need to reverse" << endl;
-			// need to reverse
-			return true;
-		}
-		// cerr << "dir is Stroke::kRadialOut - DONT reverse" << endl;
-		return false;
-	}
-	// cerr << "stroke must be moving inwards" << endl;
-	// stroke must be moving inwards
-	if (strokeDirection == Stroke::kRadialOut)
-	{
-		// cerr << "dir is Stroke::kRadialOut - need to reverse" << endl;
-		// need to reverse
-		return true;
-	}
-	// cerr << "dir is Stroke::kRadialIn - DONT reverse" << endl;
+// 	MPoint startPoint, endPoint;
+// 	curveFn.getPointAtParam(startParam, startPoint, MSpace::kObject);
+// 	curveFn.getPointAtParam(endParam, endPoint, MSpace::kObject);
+// 	// cerr << "start dist " << MVector(startPoint.x, startPoint.y, 0.0).length() << "end dist " << MVector(endPoint.x, endPoint.y, 0.0).length() << endl;
+// 	if (MVector(startPoint.x, startPoint.y, 0.0).length() < MVector(endPoint.x, endPoint.y, 0.0).length())
+// 	{
+// 		// cerr << "stroke is moving outwards" << endl;
+// 		// stroke is moving outwards
+// 		if (strokeDirection == Stroke::kRadialIn)
+// 		{
+// 			// cerr << "dir is Stroke::kRadialIn - need to reverse" << endl;
+// 			// need to reverse
+// 			return true;
+// 		}
+// 		// cerr << "dir is Stroke::kRadialOut - DONT reverse" << endl;
+// 		return false;
+// 	}
+// 	// cerr << "stroke must be moving inwards" << endl;
+// 	// stroke must be moving inwards
+// 	if (strokeDirection == Stroke::kRadialOut)
+// 	{
+// 		// cerr << "dir is Stroke::kRadialOut - need to reverse" << endl;
+// 		// need to reverse
+// 		return true;
+// 	}
+// 	// cerr << "dir is Stroke::kRadialIn - DONT reverse" << endl;
 
-	return false;
-}
+// 	return false;
+// }
 
-void Stroke::rotate(double rotation)
-{
-	MMatrix rmat;
-	double sz = sin(rotation);
-	double cz = cos(rotation);
-	rmat[0][0] = cz;
-	rmat[0][1] = sz;
-	rmat[1][0] = -sz;
-	rmat[1][1] = cz;
+// void Stroke::rotate(double rotation)
+// {
+// 	// This needs a plane normal about which to rotate
+// 	MMatrix rmat;
+// 	double sz = sin(rotation);
+// 	double cz = cos(rotation);
+// 	rmat[0][0] = cz;
+// 	rmat[0][1] = sz;
+// 	rmat[1][0] = -sz;
+// 	rmat[1][1] = cz;
 
-	const MPoint &pos = m_pivot.position();
+// 	const MPoint &pos = m_pivot.position();
 
-	std::vector<Target>::iterator iter;
-	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
-	{
-		iter->rotate(pos, rmat);
-	}
+// 	std::vector<Target>::iterator iter;
+// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+// 	{
+// 		iter->rotate(pos, rmat);
+// 	}
 
-	// if arivals and departure have already been set (unlkikely)
-	// then we better rotate them too
-	if (m_arrivals.size())
-	{
-		for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++)
-		{
-			iter->rotate(pos, rmat);
-		}
-		m_departure.rotate(pos, rmat);
-	}
-}
+// 	// if arivals and departure have already been set (unlkikely)
+// 	// then we better rotate them too
+// 	if (m_arrivals.size())
+// 	{
+// 		for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++)
+// 		{
+// 			iter->rotate(pos, rmat);
+// 		}
+// 		m_departure.rotate(pos, rmat);
+// 	}
+// }
 
-void Stroke::translate(const MVector &translation, bool transformPivot)
-{
+// void Stroke::translate(const MVector &translation, bool transformPivot)
+// {
 
-	std::vector<Target>::iterator iter;
-	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
-	{
-		iter->offsetBy(translation);
-	}
-	if (m_arrivals.size())
-	{
-		for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++)
-		{
+// 	std::vector<Target>::iterator iter;
+// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+// 	{
+// 		iter->offsetBy(translation);
+// 	}
+// 	if (m_arrivals.size())
+// 	{
+// 		for (iter = m_arrivals.begin(); iter != m_arrivals.end(); iter++)
+// 		{
 
-			iter->offsetBy(translation);
-		}
-		m_departure.offsetBy(translation);
-	}
-	if (transformPivot)
-	{
-		m_pivot.offsetBy(translation);
-	}
-}
+// 			iter->offsetBy(translation);
+// 		}
+// 		m_departure.offsetBy(translation);
+// 	}
+// 	if (transformPivot)
+// 	{
+// 		m_pivot.offsetBy(translation);
+// 	}
+// }
 
 void Stroke::setTargetColors(const MFloatVectorArray &colors, const MFloatArray &whites, unsigned index)
 {
@@ -1749,7 +1668,7 @@ ostream &operator<<(ostream &os, const Stroke &s)
 	std::vector<Target>::const_iterator citer;
 	for (citer = targets.begin(); citer != targets.end(); citer++)
 	{
-		os << "TTT: p" << citer->position() << " t:" << citer->tangent() << " contact: " << citer->contact() << endl;
+		os << "TTT: p" << citer->position() << " t:" << citer->tangent() << " contact: " << citer->weight() << endl;
 	}
 
 	return os;
