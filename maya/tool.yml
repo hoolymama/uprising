@@ -36,14 +36,16 @@ templates:
 source_files:
 # - src/**/*.cpp
 - ../../kettle/src/maya/mayaMath.cpp
+- ../../kettle/src/maya/texUtils.cpp
+
 - ../../kit/maya/src/cImgData.cpp
 - ../../kit/maya/src/cImgFloatData.cpp
 - ../../kit/maya/src/cImgUtils.cpp
-- src/target.cpp
-- src/stroke.cpp
-- src/strokeData.cpp
+
 - src/plugin.cpp
-- src/brushData.cpp
-- src/brush.cpp
-- src/brushNode*.cpp
+- src/cmdUtils.cpp
+# - src/texUtils.cpp
+- src/toonGraph/*.cpp
 - src/lightPainting/*.cpp
+- src/brush/*.cpp
+- src/stroke/*.cpp

@@ -44,10 +44,10 @@ class tNode
 public:
 	tcoord c;
 	std::map<tcoord, tNode * > neighbors;
-	tNode(const tcoord &rhs, const MPoint &p);
+	tNode(const tcoord &rhs, const MFloatPoint &p);
 	~tNode();
 
-	MPoint point;
+	MFloatPoint point;
 	bool seen;
 	bool isEnd() const;
 	int neighborCount() const;
@@ -58,12 +58,6 @@ public:
 	friend ostream &operator<<(ostream &os, const tNode &t);
 
 };
-
-
-// typedef std::vector < tNode *> TWIG;
-// typedef std::vector < TWIG  > TWIG_CLUSTER;
-// typedef std::map <   tNode *, TWIG_CLUSTER > CLUSTERS; 
-// tNode * is the junction these twigs meet at
 
 
 #endif

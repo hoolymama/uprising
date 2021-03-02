@@ -1,7 +1,7 @@
 #ifndef _lightPaintingData
 #define _lightPaintingData
 
-#include <map>
+#include <vector>
 
 #include <maya/MPxData.h>
 #include <maya/MTypeId.h>
@@ -21,14 +21,11 @@ public:
 
 	MStatus create() ;
 
-	// MStatus  create(
-	//   MDataBlock &data,
-	//   MObject &strokeCurvesAtt);
-
+ 
 	virtual void copy ( const MPxData &other );
 	lightPaintingData &operator=(const lightPaintingData &otherData ) ;
 	
-	std::vector<Stroke>	*geometry() const ;
+	std::vector<Stroke>	*strokes() const ;
 	Brush *brush() const ;
 
 	
@@ -43,7 +40,7 @@ public:
 	static const MString typeName;
 	static const MTypeId id;
 
-	std::vector<Stroke> *m_pGeometry;
+	std::vector<Stroke> *m_pStrokes;
 	Brush *m_pBrush;
 	
 };

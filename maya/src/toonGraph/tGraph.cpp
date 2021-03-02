@@ -1,5 +1,5 @@
 
-#include <maya/MPointArray.h>
+#include <maya/MFloatPointArray.h>
 #include "tGraph.h"
 
 #include "errorMacros.h"
@@ -22,14 +22,14 @@ tGraph::~tGraph()
     }
 }
 
-void tGraph::addEdge(tcoord ca, tcoord cb, const MPoint &pa, const MPoint &pb)
+void tGraph::addEdge(tcoord ca, tcoord cb, const MFloatPoint &pa, const MFloatPoint &pb)
 {
     addNode(ca, pa);
     addNode(cb, pb);
     connect(ca, cb);
 }
 
-tNode *tGraph::addNode(tcoord c, const MPoint &p)
+tNode *tGraph::addNode(tcoord c, const MFloatPoint &p)
 {
     tNode *result = 0;
     std::map<tcoord, tNode *>::iterator iter = m_nodes.find(c);
@@ -97,7 +97,7 @@ int tGraph::resetSeen()
 
 int tGraph::addStrokes(std::vector<Stroke> *strokes, int strokeIndex)
 {
-    detachBranches()
+    detachBranches();
 
     for (std::map<tcoord, tNode *>::const_iterator mapiter = m_nodes.begin();
          mapiter != m_nodes.end();
@@ -127,7 +127,7 @@ int tGraph::addStrokes(std::vector<Stroke> *strokes, int strokeIndex)
             {
                 propagate(curr, chain, false); // push front
             }
-            MPointArray pts;
+            MFloatPointArray pts;
             for (std::deque<tNode *>::const_iterator iter = chain.begin(); iter != chain.end(); iter++)
             {
                 pts.append((*iter)->point);
@@ -196,7 +196,7 @@ from the node, then reconnects them with a new node.
 
 It keeps going until the original junction has less than 3 branches
 */
-void tGraph:detachBranches()
+void tGraph::detachBranches()
 {   
     std::map<tcoord, tNode *>::iterator iter = m_nodes.begin();
     for (; iter != m_nodes.end(); iter++)

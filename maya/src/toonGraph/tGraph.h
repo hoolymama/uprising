@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include <deque>
-// #include <maya/MVectorArray.h>
+#include <maya/MFloatPoint.h>
 // #include <maya/MDoubleArray.h>
 #include "stroke.h"
 
@@ -19,7 +19,7 @@ public:
     ~tGraph();
 
 
-    void addEdge(tcoord ca, tcoord cb, const MPoint &pa, const MPoint &pb);
+    void addEdge(tcoord ca, tcoord cb, const MFloatPoint &pa, const MFloatPoint &pb);
 
 
     int  addStrokes(std::vector< Stroke > *strokes, int strokeIndex);
@@ -31,7 +31,7 @@ public:
     friend ostream &operator<<(ostream &os, const tGraph &g );
 
 private:
-    tNode * addNode(tcoord c, const MPoint&p);
+    tNode * addNode(tcoord c, const MFloatPoint&p);
     void connect(tcoord from, tcoord to);
     void connect(tNode * fromNode, tNode * toNode);
 

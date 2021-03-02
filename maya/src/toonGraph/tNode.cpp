@@ -1,7 +1,7 @@
 #include <math.h>
 #include "tNode.h"
 
-tNode::tNode(const tcoord &c, const MPoint &p)
+tNode::tNode(const tcoord &c, const MFloatPoint &p)
 	: c(c),
 	  point(p),
 	  seen(false),

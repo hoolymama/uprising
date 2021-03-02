@@ -6,18 +6,14 @@
 #include <maya/MFloatArray.h>
 #include <maya/MVector.h>
 #include <maya/MFnDependencyNode.h>
-
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MAngle.h>
 #include <maya/MVectorArray.h>
-
 #include <maya/MPxNode.h>
-
 #include <maya/MDGMessage.h>
 #include <maya/MDGModifier.h>
 
 #include "lightPaintingData.h"
-
 #include "brush.h"
 #include "stroke.h"
 
@@ -56,7 +52,9 @@ private:
 MStatus  addStrokes( MDataBlock &data, std::vector<Stroke> *outStrokeGeom );
 
   static MObject aStrokes;
+   
 
+  
   static MObject aLinearSpeed;             // cm/sec
   static MObject aAngularSpeed;            // per sec
   static MObject aApproximationDistance;   // cm
@@ -105,6 +103,8 @@ namespace lightPaintingCallback
     if (stat != MS::kSuccess)
     {
       stat.perror("lightPainting ERROR :: callback unable to make matrix connections");
+    } else {
+      cerr << "Connected lightPainting worldMatrix to inMatrix" << endl;
     }
   }
 } // namespace lightPaintingCallback

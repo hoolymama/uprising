@@ -43,7 +43,6 @@
 #include "brushData.h"
 #include "enums.h"
 
-
 const double rad_to_deg = (180 / 3.1415927);
 
 const int LEAD_COLOR = 18;
@@ -59,7 +58,7 @@ int clamp(int n, int lower, int upper)
 }
 
 MTypeId lightPainting::id(k_lightPainting);
-MString lightPainting::drawDbClassification("drawdb/geometry/painting");
+MString lightPainting::drawDbClassification("drawdb/geometry/lightPainting");
 MString lightPainting::drawRegistrantId("LightPaintingPlugin");
 
 lightPainting::lightPainting()
@@ -93,7 +92,6 @@ MObject lightPainting::aApproximationDistance; // cm
 MObject lightPainting::aBrush;
 
 MObject lightPainting::aReassignParentId;
-
 
 MObject lightPainting::aPointSize;
 MObject lightPainting::aLineLength;
@@ -163,8 +161,7 @@ MStatus lightPainting::initialize()
   nAttr.setDefault(5.0f);
   nAttr.setKeyable(true);
   addAttribute(aApproximationDistance);
- 
- 
+
   aStrokes = tAttr.create("strokes", "stks", strokeData::id);
   tAttr.setReadable(false);
   tAttr.setStorable(false);
@@ -192,7 +189,6 @@ MStatus lightPainting::initialize()
   nAttr.setReadable(true);
   nAttr.setDefault(false);
   addAttribute(aReassignParentId);
-
 
   // LOCATOR DISPLAY
   aPointSize = nAttr.create("pointSize", "psi", MFnNumericData::kFloat);
@@ -239,16 +235,15 @@ MStatus lightPainting::initialize()
   addAttribute(aDisplayTargets);
 
   aDisplayTargetColors = eAttr.create("displayTargetColors", "dtcl");
-  eAttr.addField("off", PaintingEnums::kTargetColorsOff);
+  // eAttr.addField("off", PaintingEnums::kTargetColorsOff);
   eAttr.addField("white", PaintingEnums::kTargetColorsWhite);
   eAttr.addField("rgb", PaintingEnums::kTargetColorsRGB);
   eAttr.addField("blend", PaintingEnums::kTargetColorsBlend);
   eAttr.setHidden(false);
   eAttr.setStorable(true);
   eAttr.setReadable(true);
-  eAttr.setDefault(PaintingEnums::kTargetColorsOff);
+  eAttr.setDefault(PaintingEnums::kTargetColorsRGB);
   addAttribute(aDisplayTargetColors);
-
 
   // aDisplayApproachTargets = nAttr.create("displayApproachTargets", "dapt",
   //                                        MFnNumericData::kBoolean);
@@ -306,44 +301,12 @@ MStatus lightPainting::initialize()
   nAttr.setDefault(true);
   addAttribute(aDisplayLayerIds);
 
-  // aDisplayBrushIds = nAttr.create("displayBrushIds", "dbid",
-  //                                 MFnNumericData::kBoolean);
-  // nAttr.setHidden(false);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setDefault(true);
-  // addAttribute(aDisplayBrushIds);
-
-  // aDisplayPaintIds = nAttr.create("displayPaintIds", "dptid",
-  //                                 MFnNumericData::kBoolean);
-  // nAttr.setHidden(false);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setDefault(true);
-  // addAttribute(aDisplayPaintIds);
-
-  // aDisplayRepeatIds = nAttr.create("displayRepeatIds", "drpid",
-  //                                  MFnNumericData::kBoolean);
-  // nAttr.setHidden(false);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setDefault(true);
-  // addAttribute(aDisplayRepeatIds);
-
   aIdDisplayOffset = nAttr.create("idDisplayOffset", "iddo", MFnNumericData::k3Float);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(0.0f, 0.0f, 1.0f);
   addAttribute(aIdDisplayOffset);
-
-  // aStackGap = nAttr.create("stackGap", "sgap", MFnNumericData::kDouble);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setSoftMax(1);
-  // nAttr.setDefault(0);
-  // addAttribute(aStackGap);
 
   aDrawParam = nAttr.create("drawParam", "dprm", MFnNumericData::kFloat);
   nAttr.setStorable(true);
@@ -353,59 +316,15 @@ MStatus lightPainting::initialize()
   nAttr.setDefault(1.0f);
   addAttribute(aDrawParam);
 
-  
   st = attributeAffects(aStrokes, aOutput);
   st = attributeAffects(aLinearSpeed, aOutput);
   st = attributeAffects(aAngularSpeed, aOutput);
   st = attributeAffects(aApproximationDistance, aOutput);
-  // st = attributeAffects(aBrushes, aOutput);
-  // st = attributeAffects(aPaints, aOutput);
-  // st = attributeAffects(aDisplacementMesh, aOutput);
-  // st = attributeAffects(aMaxPointToPointDistance, aOutput);
-  // st = attributeAffects(aApproachDistance, aOutput);
-  // st = attributeAffects(aApplyBiases, aOutput);
-  // st = attributeAffects(aBiasMult, aOutput);
 
   st = attributeAffects(aReassignParentId, aOutput);
 
   return (MS::kSuccess);
 }
-
-// MStatus lightPainting::collectBrushes(
-//   MDataBlock &data, std::map<int, Brush> &brushes)
-// {
-//   MStatus st;
-//   MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
-//   msert;
-
-//   brushes[-1] = Brush();
-
-//   unsigned nPlugs = ha.elementCount();
-//   for (unsigned i = 0; i < nPlugs; i++, ha.next())
-//   {
-//     int index = ha.elementIndex(&st);
-//     if (st.error())
-//     {
-//       continue;
-//     }
-//     MDataHandle h = ha.inputValue(&st);
-//     if (st.error())
-//     {
-//       continue;
-//     }
-
-//     MObject d = h.data();
-//     MFnPluginData fnP(d, &st);
-//     if (st.error())
-//     {
-//       continue;
-//     }
-//     brushData *bData = (brushData *)fnP.data();
-
-//     brushes[index] = *(bData->fGeometry);
-//   }
-//   return MS::kSuccess;
-// }
 
 MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
 {
@@ -415,53 +334,82 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
   {
     return (MS::kUnknownParameter);
   }
+  
 
+  JPMDBG;
   MDataHandle mh = data.inputValue(aInMatrix, &st);
   mser;
   MMatrix wm = mh.asMatrix();
 
-
+  // JPMDBG;
   m_pd->create();
+  // JPMDBG;
 
   MDataHandle hBrush = data.inputValue(aBrush, &st);
-  MObject dBrush = hBrush.data();
-  MFnPluginData fnBrush(dBrush, &st);mser;
-  brushData *bData = (brushData *)fnBrush.data();
-  Brush *outBrush = m_pd->brush();
+  if (!st.error())
+  {
+    MObject dBrush = hBrush.data();
+    MFnPluginData fnBrush(dBrush, &st);
+    mser;
+    if (!st.error())
+    {
+      // JPMDBG;
+      brushData *bData = (brushData *)fnBrush.data();
+      // JPMDBG;
+      Brush *outBrush = m_pd->brush();
+      // JPMDBG;
+      *outBrush = *(bData->fGeometry);
+      // JPMDBG;
+    }
+  }
 
-  *outBrush= *(bData->fGeometry);
- 
-  std::vector<Stroke> *outStrokeGeom = m_pd->geometry();
+  // MObject dBrush = hBrush.data();
+
+  // MFnPluginData fnBrush(dBrush, &st);mser;
+
+  // brushData *bData = (brushData *)fnBrush.data();
+
+  // Brush *outBrush = m_pd->brush();
+
+  // *outBrush= *(bData->fGeometry);
+
+  std::vector<Stroke> *outStrokeGeom = m_pd->strokes();
+  // lightPaintingData *m_pd;
 
 
+  JPMDBG;
   addStrokes(data, outStrokeGeom);
+  JPMDBG;
+  
 
-
+  // m_pd is now populated
 
   MFnPluginData fnOut;
   MTypeId kdid(lightPaintingData::id);
+
   MObject dOut = fnOut.create(kdid, &st);
   mser;
   lightPaintingData *outGeometryData = (lightPaintingData *)fnOut.data(&st);
   mser;
   if (m_pd)
   {
-    *outGeometryData = (*m_pd);
+    
+    *outGeometryData = (*m_pd); // assignment
   }
-
+  // JPMDBG;
   MDataHandle outputHandle = data.outputValue(aOutput, &st);
   mser;
   st = outputHandle.set(outGeometryData);
   mser;
   data.setClean(plug);
-
+  // JPMDBG;
   return MS::kSuccess;
 }
 
 MStatus lightPainting::addStrokes(
-  MDataBlock &data, 
-  std::vector<Stroke> *outStrokeGeom 
-) {
+    MDataBlock &data,
+    std::vector<Stroke> *outStrokeGeom)
+{
   MStatus st;
   MArrayDataHandle hStrokes = data.inputValue(aStrokes, &st);
   msert;
@@ -491,7 +439,8 @@ MStatus lightPainting::addStrokes(
     for (citer = strokeGeom->begin(); citer != strokeGeom->end(); citer++)
     {
       outStrokeGeom->push_back(*citer);
-      if (index > -1) {
+      if (index > -1)
+      {
         outStrokeGeom->back().setParentId(index);
       }
     }
@@ -500,9 +449,9 @@ MStatus lightPainting::addStrokes(
 }
 
 void lightPainting::draw(M3dView &view,
-                    const MDagPath &path,
-                    M3dView::DisplayStyle style,
-                    M3dView::DisplayStatus status)
+                         const MDagPath &path,
+                         M3dView::DisplayStyle style,
+                         M3dView::DisplayStatus status)
 {
   return;
 }
