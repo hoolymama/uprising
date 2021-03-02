@@ -145,7 +145,10 @@ MStatus strokeMutator::mutate(MDataBlock &data, std::vector<Stroke> *geom) const
   return MS::kUnknownParameter;
 }
 
-void strokeMutator::getPoints(MDataBlock &data, std::vector<Stroke> *geom, MFloatPointArray &points) const
+void strokeMutator::getPoints(
+  MDataBlock &data, 
+  std::vector<Stroke> *geom, 
+  MFloatPointArray &points) const
 {
   for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
   {

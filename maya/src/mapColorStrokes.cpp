@@ -156,12 +156,7 @@ void mapColorStrokes::getColors(
   if (TexUtils::hasTexture(thisObj, mapColorStrokes::aRGB))
   {
 
-    st = TexUtils::sample3dTexture(
-        thisObj,
-        mapColorStrokes::aRGB,
-        1.0,
-        points,
-        colors);
+    st = TexUtils::sampleSolidTexture( thisObj, mapColorStrokes::aRGB, 1.0, points, colors);
 
     if (!st.error())
     {
@@ -177,7 +172,7 @@ void mapColorStrokes::getColors(
   if (TexUtils::hasTexture(thisObj, mapColorStrokes::aWhite))
   {
 
-    st = TexUtils::sample3dTexture(
+    st = TexUtils::sampleSolidTexture(
         thisObj,
         mapColorStrokes::aRGB,
         1.0,

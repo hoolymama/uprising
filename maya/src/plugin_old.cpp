@@ -25,8 +25,6 @@
 #include "aimStrokes.h"
 #include "mapColorStrokes.h"
 
-
-
 #include "paintingCmd.h"
 #include "brushCmd.h"
 

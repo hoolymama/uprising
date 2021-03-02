@@ -2,16 +2,20 @@
 #include <maya/MFnPlugin.h>
 #include <maya/MGlobal.h>
 #include <errorMacros.h>
+#include <maya/MDrawRegistry.h>
 
+#include "collectStrokes.h"
+#include "meshStrokeNode.h"
 
 #include "brushData.h"
 #include "strokeData.h"
+#include "strokeNodeBase.h"
 
 #include "lightPaintingNode.h"
 #include "lightPaintingData.h"
 #include "brushNode.h"
 
-
+#include "lightPaintingDrawOverride.h"
 MStatus initializePlugin(MObject obj)
 {
 
@@ -39,15 +43,31 @@ MStatus initializePlugin(MObject obj)
 							 &lightPainting::drawDbClassification);
 	msert;
 
-	// st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
-	// 	lightPainting::drawDbClassification,
-	// 	lightPainting::drawRegistrantId,
-	// 	lightPaintingDrawOverride::Creator);
-	// mser;
+	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+		lightPainting::drawDbClassification,
+		lightPainting::drawRegistrantId,
+		lightPaintingDrawOverride::Creator);
+	mser;
 
 	st = plugin.registerNode("brushNode", brushNode::id, brushNode::creator,
 							 brushNode::initialize, MPxNode::kLocatorNode);
 	msert;
+
+	st = plugin.registerNode("strokeNodeBase", strokeNodeBase::id, strokeNodeBase::creator,
+							 strokeNodeBase::initialize);
+	msert;
+
+	st = plugin.registerNode("collectStrokes", collectStrokes::id, collectStrokes::creator,
+							 collectStrokes::initialize);
+	msert;
+
+	st = plugin.registerNode("meshStroke", meshStrokeNode::id,
+							 meshStrokeNode::creator,
+							 meshStrokeNode::initialize);
+	msert;
+
+
+
 
 	return st;
 }
@@ -60,14 +80,23 @@ MStatus uninitializePlugin(MObject obj)
 
 	MFnPlugin plugin(obj);
 
+	st = plugin.deregisterNode(meshStrokeNode::id);
+	mser;
+
+
+	st = plugin.deregisterNode(collectStrokes::id);
+	mser;
+
+	st = plugin.deregisterNode(strokeNodeBase::id);
+	mser;
 
 	st = plugin.deregisterNode(brushNode::id);
 	mser;
 
-	// st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
-	// 	lightPainting::drawDbClassification,
-	// 	lightPainting::drawRegistrantId);
-	// mser;
+	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+		lightPainting::drawDbClassification,
+		lightPainting::drawRegistrantId);
+	mser;
 
 	st = plugin.deregisterNode(lightPainting::id);
 	mser;
