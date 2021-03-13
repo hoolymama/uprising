@@ -5,8 +5,7 @@
 #include <maya/MFnPluginData.h>
 #include <maya/MEventMessage.h>
 #include "errorMacros.h"
-
-// #include "paintingNode.h"
+#include <maya/MFnMatrixData.h>
 #include "lightPaintingDrawOverride.h"
 #include "brush.h"
 #include "enums.h"
@@ -105,14 +104,22 @@ MUserData *lightPaintingDrawOverride::prepareForDraw(
 	data->strokes = ptd->strokes();
 	data->brush = ptd->brush();
 	
-	MMatrix mat = cameraPath.inclusiveMatrix(&st); mser;
+	// MMatrix mat = cameraPath.inclusiveMatrix(&st); mser;
 
-	data->drawingNormal = MFloatVector(MVector::zNegAxis * mat).normal();
+	// data->drawingNormal = MFloatVector(MVector::zNegAxis * mat).normal();
 
 
 	short colorsMode;
 	MPlug(paintingObj, lightPainting::aDisplayTargetColors).getValue(colorsMode);
 	data->targetDisplayMode = PaintingEnums::TargetColorsDisplay(colorsMode);
+
+	MObject dViewMatrix;
+	MPlug(paintingObj, lightPainting::aViewMatrix).getValue(dViewMatrix);
+	MFnMatrixData fnMatrix(dViewMatrix,&st);mser;
+	const MMatrix & mat = fnMatrix.matrix(&st) ;mser;
+
+	// vector coming into the camera
+	data->drawingNormal = MFloatVector(MVector::zAxis * mat).normal();
 
 	MPlug(paintingObj, lightPainting::aPointSize).getValue(data->pointSize);
 	MPlug(paintingObj, lightPainting::aLineLength).getValue(data->lineLength);
@@ -131,6 +138,9 @@ MUserData *lightPaintingDrawOverride::prepareForDraw(
 	offPlug.child(0).getValue(data->idDisplayOffset[0]);
 	offPlug.child(1).getValue(data->idDisplayOffset[1]);
 	offPlug.child(2).getValue(data->idDisplayOffset[2]);
+
+
+	// cerr << "data->drawingNormal" << data->drawingNormal<< endl;
 
 
 	return data;
@@ -338,13 +348,19 @@ void lightPaintingDrawOverride::drawWireframeBorders(
 {
 	drawManager.beginDrawable();
 	drawManager.setLineWidth(cdata->lineThickness);
+	
 
 	const Brush &brush = *(cdata->brush);
 	for (auto stroke : *(cdata->strokes))
 	{
  
 		MFloatPointArray lineLoop;
-		stroke.getBorderLoop(cdata->drawingNormal, brush, 0.0f, lineLoop, false);
+		stroke.getBorderLoop(
+			cdata->drawingNormal, 
+			brush, 
+			0.0f, 
+			lineLoop, 
+			false);
 		drawManager.mesh(
 			MHWRender::MUIDrawManager::kClosedLine, lineLoop);
 	}
@@ -353,7 +369,8 @@ void lightPaintingDrawOverride::drawWireframeBorders(
 
  
 void lightPaintingDrawOverride::drawWireframeArrows(
-	MHWRender::MUIDrawManager &drawManager, const LightPaintingDrawData *cdata)
+	MHWRender::MUIDrawManager &drawManager, 
+	const LightPaintingDrawData *cdata)
 {
 
 	if (cdata->arrowheadSize < 0.0001f)
@@ -369,18 +386,17 @@ void lightPaintingDrawOverride::drawWireframeArrows(
 
 	for (auto stroke : *(cdata->strokes))
 	{
-	 
-		std::vector<MFloatMatrix> mats;
-		stroke.getDirectionMatrices( cdata->drawingNormal, mats, 0.0f);
-
-		for (unsigned i = 0; i < mats.size(); ++i)
+		const std::vector<Target> & targets =  stroke.targets();
+		std::vector<Target>::const_iterator citer;
+		for (citer = targets.begin(); citer != targets.end(); citer++)
 		{
-
+			MFloatMatrix mat = citer->viewMatrix(cdata->drawingNormal,stroke.backstroke());
+ 
 			MFloatPointArray linestrip;
-			linestrip.append(MFloatPoint(mats[i][3][0], mats[i][3][1], mats[i][3][2]));
-			linestrip.append(head * mats[i]);
-			linestrip.append(left * mats[i]);
-			linestrip.append(right * mats[i]);
+			linestrip.append(MFloatPoint(mat[3][0], mat[3][1], mat[3][2]));
+			linestrip.append(head * mat);
+			linestrip.append(left * mat);
+			linestrip.append(right * mat);
 			linestrip.append(linestrip[1]); // back to the head
 			drawManager.mesh(
 				MHWRender::MUIDrawManager::kLineStrip, linestrip);

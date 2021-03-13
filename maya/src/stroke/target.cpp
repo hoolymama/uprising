@@ -27,6 +27,8 @@ Target::Target(
 	  m_weight(weight),
 	  m_color(0.0, 0.0, 0.0)
 {
+
+
 }
 
 Target::Target(
@@ -122,27 +124,27 @@ float Target::distanceTo(const Target &other) const
 }
 
 // For Arrow Drawing
-MFloatMatrix Target::directionMatrix(bool backstroke) const
+MFloatMatrix Target::viewMatrix(const MFloatVector& planeNormal, bool backstroke) const
 {
 	// we will draw arrows
-	MFloatVector front = backstroke ? -m_tangent : m_tangent;
-	MFloatVector lance = MFloatVector::zAxis * m_matrix;
-	MFloatVector side = (front ^ lance).normal();
-	MFloatVector up = (side^front ).normal();
+	MFloatVector tangent = backstroke ? -m_tangent : m_tangent;
+	// MFloatVector lance = MFloatVector::zAxis * m_matrix;
+	MFloatVector side = (planeNormal ^ tangent).normal();
+	tangent = (side^planeNormal).normal();
 	
 
 	MFloatMatrix res = m_matrix;
-	res[0][0] = front.x;
-	res[0][1] = front.y;
-	res[0][2] = front.z;
+	res[0][0] = tangent.x;
+	res[0][1] = tangent.y;
+	res[0][2] = tangent.z;
 	res[0][3] = 0.0;
 	res[1][0] = side.x;
 	res[1][1] = side.y;
 	res[1][2] = side.z;
 	res[1][3] = 0.0;
-	res[2][0] = up.x;
-	res[2][1] = up.y;
-	res[2][2] = up.z;
+	res[2][0] = planeNormal.x;
+	res[2][1] = planeNormal.y;
+	res[2][2] = planeNormal.z;
 	res[2][3] = 0.0;
 
 	return res;
@@ -268,13 +270,13 @@ MFloatVector Target::transform(const MFloatVector &rhs) const
 
 void Target::setWeight(float weight)
 {
-	if (weight < 0.0)
+	if (weight < 0.0f)
 	{
-		m_weight = 0.0;
+		m_weight = 0.0f;
 	}
-	else if (weight > 1.0)
+	else if (weight > 1.0f)
 	{
-		m_weight = 1.0;
+		m_weight = 1.0f;
 	}
 	else
 	{
@@ -288,6 +290,7 @@ const float &Target::weight() const
 }
 
 void Target::getBorderPoints(
+	const MFloatVector & planeNormal,
 	MFloatPoint &left,
 	MFloatPoint &right,
 	float width,
@@ -295,14 +298,15 @@ void Target::getBorderPoints(
 	bool displayWeightWidth) const
 {
 
-	double weight = m_weight;
+	float weight = m_weight;
 
 	if (flatBrush || (!displayWeightWidth))
 	{
-		weight = 1.0;
+		weight = 1.0f;
 	}
 	MPoint p = position();
-	MVector xOffset = MFloatVector::yAxis * m_matrix  * (width * weight);;
+
+	MVector xOffset = (planeNormal^m_tangent).normal() * m_matrix  * (width * weight);;
 	left = p + xOffset;
 	right = p - xOffset;
 }

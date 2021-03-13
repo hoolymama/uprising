@@ -34,23 +34,17 @@ public:
 	float lineThickness;
 
 	float drawParam;
-	
 	float arrowheadSize;
-
 	short displayTargets;
 
-	// short displayTargetColors;
-
-	PaintingEnums::TargetColorsDisplay targetDisplayMode;
-	
+	PaintingEnums::TargetColorsDisplay targetDisplayMode; ///< RGB, white, or blend
 
 	MFloatVector drawingNormal;
-
 
 	MFloatVector idDisplayOffset;
 
 	std::vector<Stroke> *strokes;
-	Brush *brush;
+	Brush *brush; 
 };
 
 #endif

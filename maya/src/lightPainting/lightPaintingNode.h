@@ -49,22 +49,20 @@ public:
 
 private:
 
-MStatus  addStrokes( MDataBlock &data, std::vector<Stroke> *outStrokeGeom );
+  MStatus  addStrokes( MDataBlock &data, std::vector<Stroke> *outStrokeGeom );
 
   static MObject aStrokes;
-   
-
-  
+  static MObject aBrush;
   static MObject aLinearSpeed;             // cm/sec
   static MObject aAngularSpeed;            // per sec
   static MObject aApproximationDistance;   // cm
-
-  static MObject aBrush;
 
   lightPaintingData *m_pd;
 
   // Public because it's needed by lightPaintingtDrawOverride
 public:
+
+  static MObject aViewMatrix;
   static MObject aReassignParentId;
   static MObject aPointSize;
   static MObject aLineLength;

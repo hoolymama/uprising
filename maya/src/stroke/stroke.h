@@ -284,10 +284,10 @@ Stroke(const MFloatPointArray &points, unsigned index);
 	bool testMapGreenId(FilterOperator op, int value) const;
 	bool testMapBlueId(FilterOperator op, int value) const;
 
-	void getDirectionMatrices(
-		const MFloatVector &planeNormal,
-		std::vector<MFloatMatrix> &result, 
-		float stackHeight=0.0f) const;
+	// void getDirectionMatrices(
+	// 	const MFloatVector &planeNormal,
+	// 	std::vector<MFloatMatrix> &result, 
+	// 	float stackHeight=0.0f) const;
 
 	// void getDirectionMatrices(
 	// 	MMatrixArray &result, double stackHeight) const;
@@ -312,19 +312,21 @@ Stroke(const MFloatPointArray &points, unsigned index);
 	// void getZAxes(MVectorArray &result, bool withTraversal = false) const;
 
 	void getBorders(
-	 MFloatPointArray &lefts,
-	 MFloatPointArray &rights,
 	const MFloatVector &planeNormal,
 	 const Brush &brush,
 	 float stackHeight,
-	 bool displayContactWidth) const;
+	 MFloatPointArray &lefts,
+	 MFloatPointArray &rights,
+	 bool displayContactWidth,
+	 int maxSegments =-1) const;
 
 	void getBorderLoop(
 	const MFloatVector &planeNormal,
 	 const Brush &brush,
 	 float stackHeight,
 	 MFloatPointArray &result,
-	 bool displayContactWidth) const;
+	 bool displayContactWidth,
+	 int maxSegments =-1) const;
 
 	void getTriangleStrip(
 	 const MFloatVector &planeNormal,

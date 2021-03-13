@@ -141,53 +141,98 @@ Stroke::Stroke()
 // 	return count;
 // }
 
-Stroke::Stroke(const MFloatPointArray &points, unsigned index): 
-		m_targets(),
-		m_pivot(),
-		m_localContact(0.0f),
-		m_arcLength(),
-		m_entryLength(0.0f),
-		m_exitLength(0.0f),
-		m_paintFlow(0.0f),
-		m_strokeId(index),
-		m_brushId(-1),
-		m_paintId(-1),
-		m_layerId(-1),
-		m_parentId(-1),
-		m_customBrushId(-1),
-		m_repeatId(0),
-		m_backstroke(false),
-		m_arrivals(),
-		m_departure(),
-		m_linearSpeed(0.0),
-		m_angularSpeed(0.0),
-		m_sortColor(),
-		m_filterColor(),
-		m_sortStack()
-		{
+Stroke::Stroke(
+	 const MFloatPointArray &points,
+	 unsigned index) : m_targets(),
+							 m_pivot(),
+							 m_localContact(0.0f),
+							 m_arcLength(),
+							 m_entryLength(0.0f),
+							 m_exitLength(0.0f),
+							 m_paintFlow(0.0f),
+							 m_strokeId(index),
+							 m_brushId(-1),
+							 m_paintId(-1),
+							 m_layerId(-1),
+							 m_parentId(-1),
+							 m_customBrushId(-1),
+							 m_repeatId(0),
+							 m_backstroke(false),
+							 m_arrivals(),
+							 m_departure(),
+							 m_linearSpeed(0.0),
+							 m_angularSpeed(0.0),
+							 m_sortColor(),
+							 m_filterColor(),
+							 m_sortStack()
+{
 
+	MStatus st;
 
-			int numPoints = points.length();
-			for (unsigned i = 0; i < numPoints; i++)
+	int len = points.length();
+	MFloatArray arcLengths;
+	arcLengths.append(0.0f);
+	MFloatVectorArray tangents;
+	for (size_t i = 0; i < len; i++)
 	{
+		if (i == 0)
+		{ // First
+			tangents.append((points[1] - points[0]).normal());
+		}
+		else
+		{
+			if (i == len - 1)
+			{ // last
+				tangents.append((points[i] - points[i - 1]).normal());
+			}
+			else
+			{
+				tangents.append((points[i + 1] - points[i - 1]).normal());
+			}
+			// accum
+			float &last = arcLengths[i];
+			arcLengths.append(last + points[i].distanceTo(points[i - 1]));
+		}
+	}
+	m_arcLength = arcLengths[len - 1];
 
-		currentArcLength = startDist + (i * gap);
-		param = currentArcLength / curveLength;
+	MFloatMatrix ident;
+	for (size_t i = 0; i < len; i++)
+	{
+		float param = arcLengths[i] / arcLengths[(len - 1)];
+		ident[3][0] = points[i].x;
+		ident[3][1] = points[i].y;
+		ident[3][2] = points[i].z;
 
 		m_targets.push_back(
-			 Target(curveObject,
-					  lanceAxis,
-					  majorAxis,
-					  weights,
-					  currentArcLength,
-					  param,
-					  follow));
+			 Target(ident, tangents[i], param, arcLengths[i], 1.0));
 	}
+	ident[3][0] = points[0].x;
+	ident[3][1] = points[0].y;
+	ident[3][2] = points[0].z;
+	m_pivot = Target(ident, tangents[0], 0.0, 0.0);
+}
 
+// 	currentArcLength = startDist + (i * gap);
+// 	param = currentArcLength / curveLength;
 
-			calculateArcLength();
-		}
+// 	m_targets.push_back(
+// 		 Target(curveObject,
+// 				  lanceAxis,
+// 				  majorAxis,
+// 				  weights,
+// 				  currentArcLength,
+// 				  param,
+// 				  follow));
+// }
 
+/////////////////////////////
+//////////////////////////////
+
+// simplest possible stroke with a view to using modifiers to add features.
+
+/////////////////////////////
+/////////////////////////////
 
 Stroke::Stroke(
 	 const MObject &curveObject,
@@ -252,10 +297,10 @@ Stroke::Stroke(
 		 int(density * fabs(strokeRange)),
 		 std::max(minimumPoints, 2));
 
-		 double gap = strokeRange / (numPoints - 1); // can be negative
+	double gap = strokeRange / (numPoints - 1); // can be negative
 
 	float currentArcLength;
-	float param ;
+	float param;
 
 	for (unsigned i = 0; i < numPoints; i++)
 	{
@@ -500,7 +545,6 @@ void Stroke::getArcLengths(MFloatArray &result) const
 		result.append(citer->arcLength());
 	}
 }
-
 
 // void Stroke::getCurveParams(MDoubleArray &result) const
 // {
@@ -779,26 +823,26 @@ bool Stroke::testMapBlueId(FilterOperator op, int value) const
 
 /////////////////////// FOR DRAWING ///////////////////////
 
-void Stroke::getDirectionMatrices(
-	const MFloatVector &planeNormal,
-	std::vector<MFloatMatrix> &result, 
-	float stackHeight) const
-{
-	MFloatVector stackOffset = planeNormal * stackHeight;
-	std::vector<Target>::const_iterator citer;
-	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
-	{
-		MFloatMatrix mat = citer->directionMatrix(m_backstroke);
-		// mat[3][2] += stackHeight;
-		if (fabs(stackHeight) > 0.0001f)
-		{
-		 mat[3][0] += stackOffset.x;
-		 mat[3][1] += stackOffset.y;
-		 mat[3][2] += stackOffset.z;
-		}
-		result.push_back(mat);
-	}
-}
+// void Stroke::getDirectionMatrices(
+// 	 const MFloatVector &planeNormal,
+// 	 std::vector<MFloatMatrix> &result,
+// 	 float stackHeight) const
+// {
+// 	MFloatVector stackOffset = planeNormal * stackHeight;
+// 	std::vector<Target>::const_iterator citer;
+// 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
+// 	{
+// 		MFloatMatrix mat = citer->directionMatrix(m_backstroke);
+// 		// mat[3][2] += stackHeight;
+// 		if (fabs(stackHeight) > 0.0001f)
+// 		{
+// 			mat[3][0] += stackOffset.x;
+// 			mat[3][1] += stackOffset.y;
+// 			mat[3][2] += stackOffset.z;
+// 		}
+// 		result.push_back(mat);
+// 	}
+// }
 
 // void Stroke::getPoints(MFloatPointArray &result, float stackHeight,
 // 							  bool withTraversal) const
@@ -900,85 +944,28 @@ void Stroke::getZAxes(MFloatVectorArray &result, bool withTraversal) const
 // 	result = MFloatPoint(m_targets[0].position()) + stackOffset;
 // }
 
+////////////////////////////////////////////////////
+/// FOR DRAWING
+
 MFloatPoint Stroke::getHead(
-	const MFloatVector & planeNormal,
-	float stackHeight
-	) const
+	 const MFloatVector &planeNormal,
+	 float stackHeight) const
 {
 	MFloatVector stackOffset = planeNormal * stackHeight;
 	return m_targets[0].position() + stackOffset;
 }
 
 void Stroke::getBorders(
-	 MFloatPointArray &lefts,
-	 MFloatPointArray &rights,
-	const MFloatVector &planeNormal,
-	 const Brush &brush,
-	 float stackHeight,
-	 bool displayContactWidth) const
-{
-	unsigned len = m_targets.size();
-	lefts.setLength(len);
-	rights.setLength(len);
-
-	MFloatVector stackOffset = planeNormal * stackHeight;
-	double width = brush.width() * 0.5;
-
-	bool flat = (brush.shape() == Brush::kFlat);
-	std::vector<Target>::const_iterator citer;
-	unsigned i = 0;
-	for (citer = m_targets.begin(); citer != m_targets.end(); citer++, i++)
-	{
-		MFloatPoint &left = lefts[i];
-		MFloatPoint &right = rights[i];
-		citer->getBorderPoints(left, right, width, flat, displayContactWidth);
-		left += stackOffset;
-		right += stackOffset;
-	}
-}
-
-void Stroke::getBorderLoop(
-	const MFloatVector &planeNormal,
-	 const Brush &brush,
-	 float stackHeight,
-	 MFloatPointArray &result,
-	 bool displayContactWidth) const
-{
-	unsigned len = m_targets.size() * 2;
-
-	result.setLength(len);
-
-	MVector stackOffset = planeNormal * stackHeight;
-	float width = brush.width() * 0.5f;
-	bool flat = (brush.shape() == Brush::kFlat);
-	std::vector<Target>::const_iterator citer;
-	unsigned i = 0;
-	unsigned j = len - 1;
-
-	for (citer = m_targets.begin(); citer != m_targets.end(); citer++, i++, j--)
-	{
-		citer->getBorderPoints(
-			result[i], 
-			result[j], 
-			width, 
-			flat, 
-			displayContactWidth);
-		result[i] += stackOffset;
-		result[j] += stackOffset;
-	}
-}
-
-void Stroke::getTriangleStrip(
 	 const MFloatVector &planeNormal,
 	 const Brush &brush,
 	 float stackHeight,
-	 MFloatPointArray &result,
+	 MFloatPointArray &lefts,
+	 MFloatPointArray &rights,
 	 bool displayContactWidth,
 	 int maxSegments) const
 {
 	if (maxSegments == 0)
 	{
-		result.setLength(0);
 		return;
 	}
 	unsigned len = m_targets.size();
@@ -990,28 +977,183 @@ void Stroke::getTriangleStrip(
 		}
 	}
 
-	result.setLength(len * 2);
+	lefts.setLength(len);
+	rights.setLength(len);
 
 	MFloatVector stackOffset = planeNormal * stackHeight;
 	float width = brush.width() * 0.5f;
-
 	bool flat = (brush.shape() == Brush::kFlat);
 	std::vector<Target>::const_iterator citer;
+
 	unsigned i = 0;
-	unsigned j = 0;
-
-	for (citer = m_targets.begin(); 
-	(citer != m_targets.end()) && (j < len); 
-	citer++, i += 2, j++)
+	for (citer = m_targets.begin();
+		  citer != m_targets.end() && i < len;
+		  citer++, i++)
 	{
-		citer->getBorderPoints(
-			result[i], 
-			result[i + 1], width, flat, displayContactWidth);
 
-		result[i] += stackOffset;
-		result[i + 1] += stackOffset;
+		MFloatMatrix mat = citer->viewMatrix(planeNormal);
+		float weight = citer->weight();
+		if (flat || (!displayContactWidth))
+		{
+			weight = 1.0f;
+		}
+		MFloatPoint offset = MFloatPoint(MFloatVector::yAxis * width * weight);
+		lefts[i] = (offset * mat) + stackOffset;
+		rights[i] = ((offset * -1.0) * mat) + stackOffset;
 	}
 }
+
+// void Stroke::getBorders(
+// 	 const MFloatVector &planeNormal,
+// 	 MFloatPointArray &lefts,
+// 	 MFloatPointArray &rights,
+// 	 const Brush &brush,
+// 	 float stackHeight,
+// 	 bool displayContactWidth) const
+// {
+// 	unsigned len = m_targets.size();
+// 	lefts.setLength(len);
+// 	rights.setLength(len);
+
+// 	MFloatVector stackOffset = planeNormal * stackHeight;
+// 	float width = float(brush.width()) * 0.5f;
+
+// 	bool flat = (brush.shape() == Brush::kFlat);
+// 	std::vector<Target>::const_iterator citer;
+// 	unsigned i = 0;
+// 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++, i++)
+// 	{
+
+// 		MFloatMatrix mat = citer->viewMatrix(planeNormal);
+// 		float weight = citer->weight();
+// 		if (flat || (!displayContactWidth))
+// 		{
+// 			weight = 1.0f;
+// 		}
+// 		MFloatPoint offset = MFloatPoint(MFloatVector::yAxis*width*weight) ;
+// 		lefts[i] = (offset * mat) + stackOffset;
+// 		rights[i] = ((offset *-1.0) * mat) + stackOffset;
+
+// 	}
+// }
+
+void Stroke::getBorderLoop(
+	 const MFloatVector &planeNormal,
+	 const Brush &brush,
+	 float stackHeight,
+	 MFloatPointArray &result,
+	 bool displayContactWidth,
+	 int maxSegments) const
+{
+
+	MFloatPointArray lefts;
+	MFloatPointArray rights;
+	getBorders(planeNormal, brush, stackHeight, lefts, rights, displayContactWidth, maxSegments);
+
+	cerr << "lefts" << lefts << endl;
+	cerr << "rights" << rights << endl;
+
+	// unsigned len = m_targets.size() * 2;
+	JPMDBG;
+	result.clear();
+	for (size_t i = 0; i < lefts.length(); i++)
+	{
+		result.append(lefts[i]);
+	}
+	JPMDBG;
+	for (size_t i = rights.length(); i > 0; i--)
+	{
+		result.append(rights[(i - 1)]);
+	}
+	JPMDBG;
+}
+
+void Stroke::getTriangleStrip(
+	 const MFloatVector &planeNormal,
+	 const Brush &brush,
+	 float stackHeight,
+	 MFloatPointArray &result,
+	 bool displayContactWidth,
+	 int maxSegments) const
+{
+
+	MFloatPointArray lefts, rights;
+	getBorders(planeNormal, brush, stackHeight, lefts, rights, displayContactWidth, maxSegments);
+
+	result.clear();
+	for (size_t i = 0; i < lefts.length(); i++)
+	{
+		result.append(lefts[i]);
+		result.append(rights[i]);
+	}
+
+	// MFloatVector stackOffset = planeNormal * stackHeight;
+	// float width = brush.width() * 0.5f;
+
+	// bool flat = (brush.shape() == Brush::kFlat);
+	// std::vector<Target>::const_iterator citer;
+	// unsigned i = 0;
+	// unsigned j = 0;
+
+	// for (citer = m_targets.begin();
+	// 	  (citer != m_targets.end()) && (j < len);
+	// 	  citer++, i += 2, j++)
+	// {
+	// 	citer->getBorderPoints(
+	// 		 planeNormal,
+	// 		 result[i],
+	// 		 result[i + 1], width, flat, displayContactWidth);
+
+	// 	result[i] += stackOffset;
+	// 	result[i + 1] += stackOffset;
+	// }
+}
+
+// void Stroke::getTriangleStrip(
+// 	 const MFloatVector &planeNormal,
+// 	 const Brush &brush,
+// 	 float stackHeight,
+// 	 MFloatPointArray &result,
+// 	 bool displayContactWidth,
+// 	 int maxSegments) const
+// {
+// 	if (maxSegments == 0)
+// 	{
+// 		result.setLength(0);
+// 		return;
+// 	}
+// 	unsigned len = m_targets.size();
+// 	if (maxSegments > -1)
+// 	{
+// 		if (maxSegments + 1 < len)
+// 		{
+// 			len = maxSegments + 1;
+// 		}
+// 	}
+
+// 	result.setLength(len * 2);
+
+// 	MFloatVector stackOffset = planeNormal * stackHeight;
+// 	float width = brush.width() * 0.5f;
+
+// 	bool flat = (brush.shape() == Brush::kFlat);
+// 	std::vector<Target>::const_iterator citer;
+// 	unsigned i = 0;
+// 	unsigned j = 0;
+
+// 	for (citer = m_targets.begin();
+// 		  (citer != m_targets.end()) && (j < len);
+// 		  citer++, i += 2, j++)
+// 	{
+// 		citer->getBorderPoints(
+// 			 planeNormal,
+// 			 result[i],
+// 			 result[i + 1], width, flat, displayContactWidth);
+
+// 		result[i] += stackOffset;
+// 		result[i + 1] += stackOffset;
+// 	}
+// }
 
 void Stroke::getTargetBorderColors(
 	 MColorArray &result,
@@ -1065,9 +1207,8 @@ void Stroke::getTargetBorderColors(
 ///////// ///////// /////////
 
 void Stroke::positions(
-	const MFloatMatrix &space, 
-	MFloatPointArray &result
-	) const
+	 const MFloatMatrix &space,
+	 MFloatPointArray &result) const
 {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
@@ -1090,7 +1231,7 @@ void Stroke::rotations(
 }
 
 void Stroke::arrivalPositions(
-	const MFloatMatrix &space,
+	 const MFloatMatrix &space,
 	 MFloatPointArray &result) const
 {
 	std::vector<Target>::const_iterator citer;
@@ -1114,8 +1255,8 @@ void Stroke::arrivalRotations(
 }
 
 void Stroke::departurePosition(
-	const MFloatMatrix &space, 
-	MFloatPoint &result) const
+	 const MFloatMatrix &space,
+	 MFloatPoint &result) const
 {
 	result = m_departure.position(space);
 }
@@ -1130,8 +1271,8 @@ void Stroke::departureRotation(
 }
 
 void Stroke::tangents(
-	const MFloatMatrix &space, 
-	MFloatVectorArray &result) const
+	 const MFloatMatrix &space,
+	 MFloatVectorArray &result) const
 {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
@@ -1190,8 +1331,8 @@ void Stroke::colors(MColorArray &result) const
 // }
 
 // int Stroke::applyGlobalTilt(
-// 	const MFloatVectorArray &gradients, 
-	
+// 	const MFloatVectorArray &gradients,
+
 // 	int index)
 // {
 
@@ -1208,8 +1349,6 @@ void Stroke::colors(MColorArray &result) const
 // 	index++;
 // 	return index;
 // }
- 
-
 
 // void Stroke::applyGlobalAim(const MPoint &point)
 // {

@@ -84,6 +84,7 @@ const double epsilon = 0.0001;
 
 MObject lightPainting::aInMatrix;
 
+MObject lightPainting::aViewMatrix;
 MObject lightPainting::aStrokes;
 
 MObject lightPainting::aLinearSpeed;           // cm/sec
@@ -132,6 +133,11 @@ MStatus lightPainting::initialize()
   mAttr.setHidden(true);
   mAttr.setDefault(identity);
   addAttribute(aInMatrix);
+
+  aViewMatrix= mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
+  mAttr.setStorable(false);
+  mAttr.setHidden(true);
+  addAttribute(aViewMatrix);
 
   aLinearSpeed = nAttr.create("linearSpeed", "lnsp", MFnNumericData::kFloat);
   nAttr.setStorable(true);
@@ -245,38 +251,6 @@ MStatus lightPainting::initialize()
   eAttr.setDefault(PaintingEnums::kTargetColorsRGB);
   addAttribute(aDisplayTargetColors);
 
-  // aDisplayApproachTargets = nAttr.create("displayApproachTargets", "dapt",
-  //                                        MFnNumericData::kBoolean);
-  // nAttr.setHidden(false);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setDefault(true);
-  // addAttribute(aDisplayApproachTargets);
-
-  // aDisplayContactWidth = nAttr.create("displayContactWidth", "dcwd",
-  //                                     MFnNumericData::kBoolean);
-  // nAttr.setHidden(false);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setDefault(true);
-  // addAttribute(aDisplayContactWidth);
-
-  // aDisplayClusterPath = nAttr.create("displayClusterPath", "dcpt",
-  //                                    MFnNumericData::kBoolean);
-  // nAttr.setHidden(false);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setDefault(true);
-  // addAttribute(aDisplayClusterPath);
-
-  // aDisplayPivots = nAttr.create("displayPivots", "dsp",
-  //                               MFnNumericData::kBoolean);
-  // nAttr.setHidden(false);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setDefault(true);
-  // addAttribute(aDisplayPivots);
-
   aDisplayIds = nAttr.create("displayIds", "did",
                              MFnNumericData::kBoolean);
   nAttr.setHidden(false);
@@ -316,7 +290,13 @@ MStatus lightPainting::initialize()
   nAttr.setDefault(1.0f);
   addAttribute(aDrawParam);
 
+
+
   st = attributeAffects(aStrokes, aOutput);
+  st = attributeAffects(aInMatrix, aOutput);
+  st = attributeAffects(aViewMatrix, aOutput);
+
+  st = attributeAffects(aBrush, aOutput);
   st = attributeAffects(aLinearSpeed, aOutput);
   st = attributeAffects(aAngularSpeed, aOutput);
   st = attributeAffects(aApproximationDistance, aOutput);
@@ -334,16 +314,12 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
   {
     return (MS::kUnknownParameter);
   }
-  
 
-  JPMDBG;
   MDataHandle mh = data.inputValue(aInMatrix, &st);
   mser;
   MMatrix wm = mh.asMatrix();
 
-  // JPMDBG;
   m_pd->create();
-  // JPMDBG;
 
   MDataHandle hBrush = data.inputValue(aBrush, &st);
   if (!st.error())
@@ -353,34 +329,18 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
     mser;
     if (!st.error())
     {
-      // JPMDBG;
+
       brushData *bData = (brushData *)fnBrush.data();
-      // JPMDBG;
+
       Brush *outBrush = m_pd->brush();
-      // JPMDBG;
+
       *outBrush = *(bData->fGeometry);
-      // JPMDBG;
     }
   }
 
-  // MObject dBrush = hBrush.data();
-
-  // MFnPluginData fnBrush(dBrush, &st);mser;
-
-  // brushData *bData = (brushData *)fnBrush.data();
-
-  // Brush *outBrush = m_pd->brush();
-
-  // *outBrush= *(bData->fGeometry);
-
   std::vector<Stroke> *outStrokeGeom = m_pd->strokes();
-  // lightPaintingData *m_pd;
 
-
-  JPMDBG;
   addStrokes(data, outStrokeGeom);
-  JPMDBG;
-  
 
   // m_pd is now populated
 
@@ -393,16 +353,16 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
   mser;
   if (m_pd)
   {
-    
+
     *outGeometryData = (*m_pd); // assignment
   }
-  // JPMDBG;
+
   MDataHandle outputHandle = data.outputValue(aOutput, &st);
   mser;
   st = outputHandle.set(outGeometryData);
   mser;
   data.setClean(plug);
-  // JPMDBG;
+
   return MS::kSuccess;
 }
 
