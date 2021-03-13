@@ -19,13 +19,14 @@ public:
     ~tGraph();
 
 
+
     void addEdge(tcoord ca, tcoord cb, const MFloatPoint &pa, const MFloatPoint &pb);
 
 
-    int  addStrokes(std::vector< Stroke > *strokes, int strokeIndex);
+    // int  addStrokes(std::vector< Stroke > *strokes, int strokeIndex);
+    void getChains(std::vector<MFloatPointArray> &chains);
+
     // void getStrokes( std::vector< Stroke > *strokes )  ;
-
-
  
     int numNodes() const;
     friend ostream &operator<<(ostream &os, const tGraph &g );

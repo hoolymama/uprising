@@ -24,7 +24,9 @@ const double rad_to_deg = (180 / 3.1415927);
 
 MObject meshStrokeNode::aMesh;
 MObject meshStrokeNode::aViewpoint;
-MObject meshStrokeNode::aWorldMatrix;
+MObject meshStrokeNode::aPointDensity;
+
+// MObject meshStrokeNode::aWorldMatrix;
 
 MTypeId meshStrokeNode::id(k_meshStrokeNode);
 
@@ -41,24 +43,22 @@ const double epsilon = 0.0001;
 
 MStatus meshStrokeNode::initialize()
 {
-    MStatus st;
 
+    MStatus st;
     MFnTypedAttribute tAttr;
     MFnNumericAttribute nAttr;
     MFnMatrixAttribute mAttr;
     
     inheritAttributesFrom("strokeNodeBase");
 
-    MFloatMatrix identity;
-    identity.setToIdentity();
-    aWorldMatrix = mAttr.create("worldMatrix", "wm",
-                                MFnMatrixAttribute::kFloat);
 
-    mAttr.setStorable(false);
-    mAttr.setHidden(false);
-    mAttr.setKeyable(true);
-    mAttr.setDefault(identity);
-    addAttribute(aWorldMatrix);
+    aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData::kFloat);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setStorable(true);
+    nAttr.setDefault(1.0f);
+    st = addAttribute(aPointDensity);
+    mser;
 
     aMesh = tAttr.create("mesh", "msh", MFnData::kMesh);
     tAttr.setReadable(false);
@@ -71,7 +71,7 @@ MStatus meshStrokeNode::initialize()
     addAttribute(aViewpoint);
 
     st = attributeAffects(aMesh, aOutput);
-    st = attributeAffects(aWorldMatrix, aOutput);
+    st = attributeAffects(aPointDensity, aOutput);
     st = attributeAffects(aViewpoint, aOutput);
 
     return (MS::kSuccess);
@@ -84,15 +84,13 @@ MStatus meshStrokeNode::generateStrokeGeometry(
 
     MStatus st;
 
-    MFloatMatrix dummyMat = data.inputValue(aWorldMatrix).asFloatMatrix();
-
     MDataHandle hMesh = data.inputValue(aMesh, &st);
     msert;
     MObject dInMesh = hMesh.asMesh();
     MFnMesh fnMesh(dInMesh, &st);
     msert;
 
-    // double pointDensity = data.inputValue(aPointDensity).asDouble();
+    double pointDensity = data.inputValue(aPointDensity).asDouble();
     float3 &fpoint = data.inputValue(aViewpoint).asFloat3();
     MPoint viewPoint(fpoint[0], fpoint[1], fpoint[2]);
 
@@ -103,7 +101,7 @@ MStatus meshStrokeNode::generateStrokeGeometry(
     MItMeshPolygon faceIter(dInMesh, &st);
     msert;
 
-    tGraph graph;
+    tGraph toonStrokeGraph;
 
     edgeIter.reset();
     vertexIter.reset();
@@ -130,7 +128,7 @@ MStatus meshStrokeNode::generateStrokeGeometry(
 
         if (edgeIter.onBoundary())
         {
-            graph.addEdge(tcoord(vertexIndex0), tcoord(vertexIndex1), pts[0], pts[1]);
+            toonStrokeGraph.addEdge(tcoord(vertexIndex0), tcoord(vertexIndex1), pts[0], pts[1]);
         }
         else
         {
@@ -161,15 +159,19 @@ MStatus meshStrokeNode::generateStrokeGeometry(
 
             if ((d0 < 0.0 && d1 > 0.0 && dist1 > dist0) || (d1 <= 0.0 && d0 >= 0.0 && dist0 >= dist1))
             {
-                graph.addEdge(tcoord(vertexIndex0), tcoord(vertexIndex1), pts[0], pts[1]);
+                toonStrokeGraph.addEdge(tcoord(vertexIndex0), tcoord(vertexIndex1), pts[0], pts[1]);
             }
         }
     }
-    int nextStrokeIndex = 0;
-    if (graph.numNodes())
-    {
-        nextStrokeIndex = graph.addStrokes(pStrokes, nextStrokeIndex);
+
+    std::vector<MFloatPointArray> chains;
+    toonStrokeGraph.getChains(chains);
+
+    std::vector<MFloatPointArray>::const_iterator iter = chains.begin();
+    for (; iter != chains.end(); iter++, strokeIndex++) {
+        pStrokes->push_back(Stroke((*iter), strokeIndex));
     }
+
     return (MS::kSuccess);
 }
 

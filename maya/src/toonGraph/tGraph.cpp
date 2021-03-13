@@ -95,19 +95,24 @@ int tGraph::resetSeen()
     return count;
 }
 
-int tGraph::addStrokes(std::vector<Stroke> *strokes, int strokeIndex)
+
+void tGraph::getChains(std::vector<MFloatPointArray> &chains)
 {
+    // Convert this function to an iterator
+    if (! m_nodes.size()) {
+        return;
+    }
+
     detachBranches();
 
     for (std::map<tcoord, tNode *>::const_iterator mapiter = m_nodes.begin();
          mapiter != m_nodes.end();
          mapiter++)
     {
-        // cerr << "Start addStrokes" << endl;
-        // identify the start of a chain with at least 2 nodes that has not been seen
+   
         if (!mapiter->second->seen)
         {
-            // cerr << "Found unseen seed node:" << endl;
+
             std::deque<tNode *> chain;
 
             tNode *curr = mapiter->second;
@@ -115,7 +120,7 @@ int tGraph::addStrokes(std::vector<Stroke> *strokes, int strokeIndex)
             chain.push_back(mapiter->second);
 
             int numNeighbors = curr->unseenNeighborCount();
-            // cerr << "Node has: " <<numNeighbors<< " unseen neighbors" << endl;
+
             if (numNeighbors > 0) // 1 or 2
             {
                 propagate(curr, chain, true); // push back
@@ -127,21 +132,16 @@ int tGraph::addStrokes(std::vector<Stroke> *strokes, int strokeIndex)
             {
                 propagate(curr, chain, false); // push front
             }
+
             MFloatPointArray pts;
             for (std::deque<tNode *>::const_iterator iter = chain.begin(); iter != chain.end(); iter++)
             {
                 pts.append((*iter)->point);
             }
-
-            Stroke stroke(pts, strokeIndex);
-            strokes->push_back(stroke);
-            strokeIndex++;
+            chains.push_back(pts);
         }
     }
-
-    // reset the seen flag
     resetSeen();
-    return strokeIndex;
 }
 
 void tGraph::propagate(tNode *node, std::deque<tNode *> &chain, bool back)
