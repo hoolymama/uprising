@@ -71,6 +71,7 @@
 		},
 		"python.linting.flake8Args": [
 			"--max-line-length=120"
-		]
+		],
+		"doxygen_runner.configuration_file_override": "${workspaceFolder}/Doxyfile"
 	}
 }
