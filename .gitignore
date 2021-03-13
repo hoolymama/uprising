@@ -2,6 +2,7 @@ build
 doc/.sass*
 doc/output
 doc/tmp
+doc/api
 tmp/
 .DS_Store
 *.idb
