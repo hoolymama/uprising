@@ -1050,22 +1050,17 @@ void Stroke::getBorderLoop(
 	MFloatPointArray rights;
 	getBorders(planeNormal, brush, stackHeight, lefts, rights, displayContactWidth, maxSegments);
 
-	cerr << "lefts" << lefts << endl;
-	cerr << "rights" << rights << endl;
-
-	// unsigned len = m_targets.size() * 2;
-	JPMDBG;
 	result.clear();
 	for (size_t i = 0; i < lefts.length(); i++)
 	{
 		result.append(lefts[i]);
 	}
-	JPMDBG;
+
 	for (size_t i = rights.length(); i > 0; i--)
 	{
 		result.append(rights[(i - 1)]);
 	}
-	JPMDBG;
+
 }
 
 void Stroke::getTriangleStrip(
