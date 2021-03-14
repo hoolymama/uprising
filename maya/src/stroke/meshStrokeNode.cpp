@@ -213,13 +213,17 @@ MStatus meshStrokeNode::buildGraph(
             MVector view = (edgeIter.center(MSpace::kWorld) - viewPoint).normal();
             double d0 = view * normal0;
             double d1 = view * normal1;
-            double dist0 = viewPoint.distanceTo(center0);
-            double dist1 = viewPoint.distanceTo(center1);
 
-            if ((d0 < 0.0 && d1 > 0.0 && dist1 > dist0) || (d1 <= 0.0 && d0 >= 0.0 && dist0 >= dist1))
-            {
+            MVector viewVec0 = center0 - viewPoint;
+            MVector viewVec1 = center1 - viewPoint;
+
+            
+            double sd0 = fabs(viewVec0 *  normal0);
+            double sd1 = fabs(viewVec1 *  normal1);
+            
+             if ((d0 < 0.0 && d1 > 0.0) || (d1 <= 0.0 && d0 >= 0.0))  {
                 pGraph->addEdge(tcoord(vertexIndex0), tcoord(vertexIndex1), pts[0], pts[1]);
-            }
+             } 
         }
     }
     return MS::kSuccess;
