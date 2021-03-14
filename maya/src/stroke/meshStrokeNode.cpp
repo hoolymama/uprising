@@ -16,15 +16,12 @@
 
 #include <jMayaIds.h>
 #include "errorMacros.h"
-
+#include "mayaMath.h"
 
 const double rad_to_deg = (180 / 3.1415927);
 
 MObject meshStrokeNode::aMesh;
 MObject meshStrokeNode::aViewpoint;
-MObject meshStrokeNode::aPointDensity;
-
-// MObject meshStrokeNode::aWorldMatrix;
 
 MTypeId meshStrokeNode::id(k_meshStrokeNode);
 
@@ -47,15 +44,8 @@ MStatus meshStrokeNode::initialize()
     MFnNumericAttribute nAttr;
     MFnMatrixAttribute mAttr;
 
-    inheritAttributesFrom("strokeNodeBase");
+    inheritAttributesFrom("strokeCreator");
 
-    aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData::kFloat);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setDefault(1.0f);
-    st = addAttribute(aPointDensity);
-    mser;
 
     aMesh = tAttr.create("mesh", "msh", MFnData::kMesh);
     tAttr.setReadable(false);
@@ -68,7 +58,6 @@ MStatus meshStrokeNode::initialize()
     addAttribute(aViewpoint);
 
     st = attributeAffects(aMesh, aOutput);
-    st = attributeAffects(aPointDensity, aOutput);
     st = attributeAffects(aViewpoint, aOutput);
 
     return MS::kSuccess;
@@ -80,6 +69,9 @@ MStatus meshStrokeNode::generateStrokeGeometry(
 {
 
     MStatus st;
+
+    MFloatMatrix targetRotationMatrix = data.inputValue(aTargetRotationMatrix).asFloatMatrix();
+    targetRotationMatrix = mayaMath::rotationOnly(targetRotationMatrix);
 
     MDataHandle hMesh = data.inputValue(aMesh, &st);
     msert;
@@ -107,7 +99,7 @@ MStatus meshStrokeNode::generateStrokeGeometry(
     {
         MFloatPointArray pts;
         subdivide(*iter,pointDensity, pts);
-        pStrokes->push_back(Stroke(pts, strokeIndex));
+        pStrokes->push_back(Stroke(pts, targetRotationMatrix, strokeIndex));
     }
 
     return (MS::kSuccess);

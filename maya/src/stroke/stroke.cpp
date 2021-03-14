@@ -143,6 +143,7 @@ Stroke::Stroke()
 
 Stroke::Stroke(
 	 const MFloatPointArray &points,
+	 const MFloatMatrix &rotationMat,
 	 unsigned index) : m_targets(),
 							 m_pivot(),
 							 m_localContact(0.0f),
@@ -196,21 +197,22 @@ Stroke::Stroke(
 	}
 	m_arcLength = arcLengths[len - 1];
 
-	MFloatMatrix ident;
+	// MFloatMatrix ident;
+	MFloatMatrix mat = rotationMat;
 	for (size_t i = 0; i < len; i++)
 	{
 		float param = arcLengths[i] / arcLengths[(len - 1)];
-		ident[3][0] = points[i].x;
-		ident[3][1] = points[i].y;
-		ident[3][2] = points[i].z;
+		mat[3][0] = points[i].x;
+		mat[3][1] = points[i].y;
+		mat[3][2] = points[i].z;
 
 		m_targets.push_back(
-			 Target(ident, tangents[i], param, arcLengths[i], 1.0));
+			 Target(mat, tangents[i], param, arcLengths[i], 1.0));
 	}
-	ident[3][0] = points[0].x;
-	ident[3][1] = points[0].y;
-	ident[3][2] = points[0].z;
-	m_pivot = Target(ident, tangents[0], 0.0, 0.0);
+	mat[3][0] = points[0].x;
+	mat[3][1] = points[0].y;
+	mat[3][2] = points[0].z;
+	m_pivot = Target(mat, tangents[0], 0.0, 0.0);
 }
 
 // 	currentArcLength = startDist + (i * gap);

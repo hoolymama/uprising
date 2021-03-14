@@ -151,22 +151,23 @@ Stroke(
 	bool backstroke);
 
 
-
-Stroke(const MFloatPointArray &points, unsigned index);
+/**
+ * @brief Construct a new Stroke object with an artray of points and an initial
+ * rotation matrix. All targets will have this matrix initially.
+ *
+ * @param points An array of points.
+ * @param rotationMat A matrix, which is expected to be unit scale. 
+ * @param index The stroke ID
+ */
+Stroke(const MFloatPointArray &points,	 const MFloatMatrix &rotationMat, unsigned index);
 
 
 	~Stroke();
 
 
-	// MStatus  buildCubicStroke(
-	// 	const MObject &curveObject,
-	// 	const MDoubleArray &contacts,
-	// 	double curveLength,
-	// 	double startDist,
-	// 	double endDist,
-	// 	double density,
-	// 	int minimumPoints,
-	// 	double pivotParam);
+	// MStatus  buildCubicStroke(const MObject &curveObject, const MDoubleArray
+	//    &contacts, double curveLength, double startDist, double endDist, double
+	//    density, int minimumPoints, double pivotParam);
 
 	// MStatus  buildLinearStroke(
 	// 	const MObject &curveObject,

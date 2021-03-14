@@ -18,6 +18,7 @@
 #include "mapColorStrokes.h"
 #include "strokeMutator.h"
 
+#include "strokeCreator.h"
 
 #include "lightPaintingDrawOverride.h"
 MStatus initializePlugin(MObject obj)
@@ -65,6 +66,10 @@ MStatus initializePlugin(MObject obj)
 							 collectStrokes::initialize);
 	msert;
 
+	st = plugin.registerNode("strokeCreator", strokeCreator::id, strokeCreator::creator,
+							 strokeCreator::initialize);
+	mser;
+
 	st = plugin.registerNode("meshStroke", meshStrokeNode::id,
 							 meshStrokeNode::creator,
 							 meshStrokeNode::initialize);
@@ -104,6 +109,9 @@ MStatus uninitializePlugin(MObject obj)
 
 
 	st = plugin.deregisterNode(meshStrokeNode::id);
+	mser;
+
+	st = plugin.deregisterNode(strokeCreator::id);
 	mser;
 
 

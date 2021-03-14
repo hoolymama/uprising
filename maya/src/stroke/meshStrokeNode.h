@@ -4,7 +4,7 @@
 
 #include <maya/MObject.h>
 #include <maya/MVectorArray.h>
-#include <strokeNodeBase.h>
+#include <strokeCreator.h>
 #include "stroke.h"
 
 #include "toonGraph/tNode.h"
@@ -13,7 +13,7 @@
 /**
  * @brief A node to generatestrokes from the features of a mesh.
  */
-class meshStrokeNode : public strokeNodeBase
+class meshStrokeNode : public strokeCreator
 {
 
 public: 
@@ -70,7 +70,7 @@ void   subdivide(
 
   static MObject aMesh; ///< The input mesh
   static MObject aViewpoint; ///< The location of the camera
-  static MObject aPointDensity; ///< The minimum number of targets per centimeter.
+
 
 };
 
