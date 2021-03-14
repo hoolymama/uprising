@@ -39,15 +39,13 @@ protected:
   virtual bool setFilterMapColor(std::vector<Stroke> *geom) const;
   virtual bool setSortMapColor(std::vector<Stroke> *geom) const;
 
-  bool getPivotColors(
-      std::vector<Stroke> *geom,
-      MObject &attribute,
-      MFloatVectorArray &result) const;
+  void getPivotPoints(
+    const std::vector<Stroke> *geom,
+    MFloatPointArray &result) const;
 
-  bool getTargetColors(
-      std::vector<Stroke> *geom,
-      MObject &attribute,
-      MFloatVectorArray &result) const;
+  void getTargetPoints(
+      const std::vector<Stroke> *geom,
+      MFloatPointArray &result) const;
 
   void cullStartEnd(MDataBlock &data, std::vector<Stroke> *geom) const;
 

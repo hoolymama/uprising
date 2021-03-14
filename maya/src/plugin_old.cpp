@@ -19,11 +19,11 @@
 #include "brushNode.h"
 #include "collectStrokes.h"
 
-#include "strokeMutator.h"
 #include "tiltStrokes.h"
 #include "mapStrokes.h"
 #include "aimStrokes.h"
 #include "mapColorStrokes.h"
+#include "strokeMutator.h"
 
 #include "paintingCmd.h"
 #include "brushCmd.h"
@@ -124,6 +124,10 @@ MStatus initializePlugin(MObject obj)
 							 strokeMutator::initialize);
 	mser;
 
+	st = plugin.registerNode("mapColorStrokes", mapColorStrokes::id, mapColorStrokes::creator,
+							 mapColorStrokes::initialize);
+	mser;
+
  
 	st = plugin.registerNode("tiltStrokes", tiltStrokes::id, tiltStrokes::creator,
 							 tiltStrokes::initialize);
@@ -137,10 +141,6 @@ MStatus initializePlugin(MObject obj)
 							 mapStrokes::initialize);
 	mser;
 
-
-	st = plugin.registerNode("mapColorStrokes", mapColorStrokes::id, mapColorStrokes::creator,
-							 mapColorStrokes::initialize);
-	mser;
 
 
 	st = plugin.registerNode("gateRamp", gateRamp::id, gateRamp::creator,

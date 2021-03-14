@@ -225,88 +225,51 @@ MStatus strokeNodeBase::compute(const MPlug &plug, MDataBlock &data)
   return MS::kSuccess;
 }
 
-bool strokeNodeBase::getPivotColors(
-  std::vector<Stroke> *geom, 
-  MObject &attribute,
-  MFloatVectorArray &result) const
+void strokeNodeBase::getPivotPoints(const std::vector<Stroke> *geom, MFloatPointArray &result) const
 {
-  MStatus st;
   MObject thisObj = thisMObject();
-  if (!TexUtils::hasTexture(thisObj, attribute))
-  {
-    return false;
-  }
-  MFloatPointArray points;
   for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
   {
-    points.append(iter->pivot().position() );
+    result.append(iter->pivot().position());
   }
-  float scale = 1.0f;
-
-  st = TexUtils::sampleSolidTexture( 
-    thisObj, 
-    attribute, 
-    scale, 
-    points, 
-    result);
-  TexUtils::sampleSolidTexture();
- 
-
-  if (st.error())
-  {
-    return false;
-  }
-  return true;
 }
 
-bool strokeNodeBase::getTargetColors(
-  std::vector<Stroke> *geom, 
-  MObject &attribute,
-  MFloatVectorArray &result) const
+void strokeNodeBase::getTargetPoints(
+  const std::vector<Stroke> *geom, 
+  MFloatPointArray &result) const
 {
-  MStatus st;
-  MObject thisObj = thisMObject();
-  if (!TexUtils::hasTexture(thisObj, attribute))
-  {
-    return false;
-  }
-  MFloatPointArray points;
   for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
   {
     const std::vector<Target> targets = iter->targets();
     for (std::vector<Target>::const_iterator targetIter = targets.begin(); targetIter != targets.end(); targetIter++)
     {
       const MFloatMatrix &mat = targetIter->matrix();
-      points.append(MFloatPoint(mat[3][0],mat[3][1],mat[3][2]));
+      result.append(MFloatPoint(mat[3][0],mat[3][1],mat[3][2]));
     }
   }
-  float scale = 1.0f;
-  
-  st = TexUtils::sampleSolidTexture( 
-    thisObj, 
-    attribute, 
-    scale, 
-    points, 
-    result);
-  TexUtils::sampleSolidTexture();
- 
-
-  if (st.error())
-  {
-    return false;
-  }
-  return true;
 }
+
 
 
 bool strokeNodeBase::setFilterMapColor(std::vector<Stroke> *geom) const
 {
-  MFloatVectorArray result;
-  if (!getPivotColors(geom, strokeNodeBase::aStrokeFilterTexture, result))
+  MStatus st;
+  MObject thisObj = thisMObject();
+   if (!TexUtils::hasTexture(thisObj, strokeNodeBase::aStrokeFilterTexture))
   {
     return false;
   }
-  std::vector<Stroke>::iterator iter = geom->begin();
+
+  MFloatPointArray points;
+  getPivotPoints(geom, points);
+
+  MFloatVectorArray result;
+  st = TexUtils::sampleSolidTexture( thisObj, strokeNodeBase::aStrokeFilterTexture, 1.0, points, result);
+  if (st.error()) {
+        return false;
+  }
+
+  std::vector<Stroke>::iterator iter =geom->begin();
   for (unsigned i = 0; iter != geom->end(); iter++, i++)
   {
     iter->setFilterColor(result[i]);
@@ -316,12 +279,22 @@ bool strokeNodeBase::setFilterMapColor(std::vector<Stroke> *geom) const
 
 bool strokeNodeBase::setSortMapColor(std::vector<Stroke> *geom) const
 {
-
-  MFloatVectorArray result;
-  if (!getPivotColors(geom, strokeNodeBase::aStrokeSortTexture, result))
+   MStatus st;
+  MObject thisObj = thisMObject();
+   if (!TexUtils::hasTexture(thisObj,  strokeNodeBase::aStrokeSortTexture))
   {
     return false;
   }
+
+  MFloatPointArray points;
+  getPivotPoints(geom, points);
+
+  MFloatVectorArray result;
+  st = TexUtils::sampleSolidTexture( 
+    thisObj,  strokeNodeBase::aStrokeSortTexture, 1.0, points, result);
+    if (st.error()) {
+          return false;
+    }
 
   std::vector<Stroke>::iterator iter = geom->begin();
   for (unsigned i = 0; iter != geom->end(); iter++, i++)

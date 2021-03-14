@@ -15,6 +15,10 @@
 #include "lightPaintingData.h"
 #include "brushNode.h"
 
+#include "mapColorStrokes.h"
+#include "strokeMutator.h"
+
+
 #include "lightPaintingDrawOverride.h"
 MStatus initializePlugin(MObject obj)
 {
@@ -67,6 +71,17 @@ MStatus initializePlugin(MObject obj)
 	msert;
 
 
+		
+	st = plugin.registerNode("strokeMutator", strokeMutator::id, strokeMutator::creator,
+							 strokeMutator::initialize);
+	mser;
+
+	st = plugin.registerNode("mapColorStrokes", mapColorStrokes::id, mapColorStrokes::creator,
+							 mapColorStrokes::initialize);
+	mser;
+
+
+
 
 
 	return st;
@@ -79,6 +94,14 @@ MStatus uninitializePlugin(MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin(obj);
+
+	st = plugin.deregisterNode(mapColorStrokes::id);
+	mser;
+
+	st = plugin.deregisterNode(strokeMutator::id);
+ 
+	msert;
+
 
 	st = plugin.deregisterNode(meshStrokeNode::id);
 	mser;
