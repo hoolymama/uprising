@@ -17,8 +17,6 @@
 #include <jMayaIds.h>
 #include "errorMacros.h"
 
-#include "toonGraph/tNode.h"
-#include "toonGraph/tGraph.h"
 
 const double rad_to_deg = (180 / 3.1415927);
 
@@ -48,9 +46,8 @@ MStatus meshStrokeNode::initialize()
     MFnTypedAttribute tAttr;
     MFnNumericAttribute nAttr;
     MFnMatrixAttribute mAttr;
-    
-    inheritAttributesFrom("strokeNodeBase");
 
+    inheritAttributesFrom("strokeNodeBase");
 
     aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData::kFloat);
     nAttr.setHidden(false);
@@ -74,7 +71,7 @@ MStatus meshStrokeNode::initialize()
     st = attributeAffects(aPointDensity, aOutput);
     st = attributeAffects(aViewpoint, aOutput);
 
-    return (MS::kSuccess);
+    return MS::kSuccess;
 }
 
 MStatus meshStrokeNode::generateStrokeGeometry(
@@ -87,13 +84,77 @@ MStatus meshStrokeNode::generateStrokeGeometry(
     MDataHandle hMesh = data.inputValue(aMesh, &st);
     msert;
     MObject dInMesh = hMesh.asMesh();
-    MFnMesh fnMesh(dInMesh, &st);
-    msert;
 
-    double pointDensity = data.inputValue(aPointDensity).asDouble();
+    float pointDensity = data.inputValue(aPointDensity).asFloat();
+
     float3 &fpoint = data.inputValue(aViewpoint).asFloat3();
     MPoint viewPoint(fpoint[0], fpoint[1], fpoint[2]);
 
+    tGraph *pGraph = new tGraph();
+    st = buildGraph(
+        dInMesh,
+        viewPoint,
+        pGraph);
+
+    std::vector<MFloatPointArray> chains;
+    pGraph->getChains(chains);
+
+    delete pGraph;
+
+    int strokeIndex = 0;
+    std::vector<MFloatPointArray>::const_iterator iter = chains.begin();
+    for (; iter != chains.end(); iter++, strokeIndex++)
+    {
+        MFloatPointArray pts;
+        subdivide(*iter,pointDensity, pts);
+        pStrokes->push_back(Stroke(pts, strokeIndex));
+    }
+
+    return (MS::kSuccess);
+}
+
+void  meshStrokeNode::subdivide(
+    const MFloatPointArray & inPoints, 
+    float density,
+    MFloatPointArray & outPoints ) const 
+{
+    int lastIndex = inPoints.length() -1;
+    if (density < 0.00001 || lastIndex < 1) {
+        outPoints = inPoints;
+        return;
+    }
+    // outPoints.append(inPoints[0]);
+
+    float gap = 1.0 / density;
+
+    for (size_t i = 0; i < lastIndex; i++)
+    {
+        const MFloatPoint & start =  inPoints[i];
+        const MFloatPoint & end =  inPoints[i+1];
+        
+        float dist = start.distanceTo(end);
+        int numGaps = int(ceilf(dist / gap));
+        float fgap = dist / numGaps;
+        MFloatVector diff = (end-start).normal() * fgap;
+
+        MFloatPoint curr = start;
+        for (size_t i = 0; i < numGaps; i++)
+        {
+            outPoints.append(curr);
+            curr += diff;
+        }
+    }
+    outPoints.append(inPoints[lastIndex]);
+}
+
+
+MStatus meshStrokeNode::buildGraph(
+    MObject &dInMesh,
+    const MPoint &viewPoint,
+    tGraph *pGraph) const
+{
+
+    MStatus st;
     MItMeshEdge edgeIter(dInMesh, &st);
     msert;
     MItMeshVertex vertexIter(dInMesh, &st);
@@ -101,13 +162,11 @@ MStatus meshStrokeNode::generateStrokeGeometry(
     MItMeshPolygon faceIter(dInMesh, &st);
     msert;
 
-    tGraph toonStrokeGraph;
-
     edgeIter.reset();
     vertexIter.reset();
     faceIter.reset();
 
-    int strokeIndex = 0;
+
     int prevIndex;
     for (; !edgeIter.isDone(); edgeIter.next())
     {
@@ -128,7 +187,7 @@ MStatus meshStrokeNode::generateStrokeGeometry(
 
         if (edgeIter.onBoundary())
         {
-            toonStrokeGraph.addEdge(tcoord(vertexIndex0), tcoord(vertexIndex1), pts[0], pts[1]);
+            pGraph->addEdge(tcoord(vertexIndex0), tcoord(vertexIndex1), pts[0], pts[1]);
         }
         else
         {
@@ -159,20 +218,11 @@ MStatus meshStrokeNode::generateStrokeGeometry(
 
             if ((d0 < 0.0 && d1 > 0.0 && dist1 > dist0) || (d1 <= 0.0 && d0 >= 0.0 && dist0 >= dist1))
             {
-                toonStrokeGraph.addEdge(tcoord(vertexIndex0), tcoord(vertexIndex1), pts[0], pts[1]);
+                pGraph->addEdge(tcoord(vertexIndex0), tcoord(vertexIndex1), pts[0], pts[1]);
             }
         }
     }
-
-    std::vector<MFloatPointArray> chains;
-    toonStrokeGraph.getChains(chains);
-
-    std::vector<MFloatPointArray>::const_iterator iter = chains.begin();
-    for (; iter != chains.end(); iter++, strokeIndex++) {
-        pStrokes->push_back(Stroke((*iter), strokeIndex));
-    }
-
-    return (MS::kSuccess);
+    return MS::kSuccess;
 }
 
 void meshStrokeNode::postConstructor()
