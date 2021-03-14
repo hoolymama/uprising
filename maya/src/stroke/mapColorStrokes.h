@@ -1,0 +1,61 @@
+
+#ifndef _mapColorStrokes_H
+#define _mapColorStrokes_H
+
+#include "strokeMutator.h"
+#include "stroke.h"
+
+/**
+ * @brief Map a solid texture to the color property of all targets.
+ * 
+ * An occlusion mesh can be connected, which will set any occluded targets to black.
+ * 
+ */
+class mapColorStrokes : public strokeMutator
+{
+public:
+  mapColorStrokes();
+  virtual ~mapColorStrokes();
+
+  static void *creator();
+  static MStatus initialize();
+  virtual void postConstructor();
+  virtual bool isAbstractClass() const { return false; }
+
+  virtual  MStatus mutate(
+    MDataBlock &data,
+    std::vector<Stroke> *strokes) const;
+
+  static MTypeId id;
+
+private:
+
+void getColors(
+    MDataBlock &data,
+    MFloatPointArray &points,
+    MFloatVectorArray &colors,
+    MFloatArray &whites
+     ) const;
+
+MStatus occludeColors(
+  MDataBlock &data,
+  const MFloatPointArray &points,
+  MFloatVectorArray &colors, 
+  MFloatArray &whites
+  ) const ;
+
+void applyColors(   
+    std::vector<Stroke> *geom,
+    const MFloatVectorArray &colors,
+    const MFloatArray &whites) const;
+ 
+  static MObject aRGB;  ///> The solid texture whose color will be mapped to the RGB component of targets. 
+  static MObject aWhite;  ///> The solid texture whose red channel will be mapped to the white component of targets. 
+  static MObject aMesh;  ///> The occlusion mesh
+  static MObject aPoint; ///> The point from which occlusions are calculated. 
+  static MObject aBias; ///> An offset on the occlusion ray test.
+  static MObject aDoOcclusion;
+
+};
+
+#endif
