@@ -191,11 +191,8 @@ void tGraph::propagate(tNode *node, std::deque<tNode *> &chain, bool back)
     }
 }
 
-/*detachBranches() finds all junctions, and then removes the straightest 2 branches
-from the node, then reconnects them with a new node.
 
-It keeps going until the original junction has less than 3 branches
-*/
+
 void tGraph::detachBranches()
 {   
     std::map<tcoord, tNode *>::iterator iter = m_nodes.begin();
@@ -242,6 +239,7 @@ void tGraph::detatchStraightest(tNode *node, int layer)
     splitOff(node, first, second, layer);
 }
 
+
 void tGraph::splitOff(tNode *node, tNode *a, tNode *b, int layer)
 {
     std::map<tcoord, tNode *>::iterator it;
@@ -258,7 +256,7 @@ void tGraph::splitOff(tNode *node, tNode *a, tNode *b, int layer)
     it = b->neighbors.find(node->c);
     b->neighbors.erase(it);
 
-    /* make a new node at layer  - copy over the radius */
+    /* make a new node at layer */
     tcoord newCoord(node->c.vid, layer);
     tNode *newNode = addNode(newCoord, node->point);
 
