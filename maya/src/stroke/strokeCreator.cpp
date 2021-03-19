@@ -13,7 +13,7 @@
 #include <jMayaIds.h>
 #include "errorMacros.h"
 
-MObject strokeCreator::aTargetRotationMatrix; .
+MObject strokeCreator::aTargetRotationMatrix; 
 MObject strokeCreator::aPointDensity; 
 
 

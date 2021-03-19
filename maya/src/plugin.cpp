@@ -15,6 +15,8 @@
 #include "lightPaintingData.h"
 #include "brushNode.h"
 
+#include "aimStrokes.h"
+
 #include "mapColorStrokes.h"
 #include "strokeMutator.h"
 
@@ -86,6 +88,10 @@ MStatus initializePlugin(MObject obj)
 	mser;
 
 
+	st = plugin.registerNode("aimStrokes", aimStrokes::id, aimStrokes::creator,
+							 aimStrokes::initialize);
+	mser;
+
 
 
 
@@ -100,6 +106,8 @@ MStatus uninitializePlugin(MObject obj)
 
 	MFnPlugin plugin(obj);
 
+	st = plugin.deregisterNode(aimStrokes::id);
+	mser;
 	st = plugin.deregisterNode(mapColorStrokes::id);
 	mser;
 
