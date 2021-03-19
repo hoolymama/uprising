@@ -1838,16 +1838,16 @@ void Stroke::reverseArray(MDoubleArray &arr)
 // 	}
 // }
 
-void Stroke::setTargetColors(const MFloatVectorArray &colors, const MFloatArray &whites, unsigned index)
-{
+// void Stroke::setTargetColors(const MFloatVectorArray &colors, const MFloatArray &whites, unsigned index)
+// {
 
-	for (std::vector<Target>::iterator targetIter = m_targets.begin(); targetIter != m_targets.end(); targetIter++)
-	{
-		MColor color(colors[index].x, colors[index].y, colors[index].z, whites[index]);
-		targetIter->setColor(color);
-		index++;
-	}
-}
+// 	for (std::vector<Target>::iterator targetIter = m_targets.begin(); targetIter != m_targets.end(); targetIter++)
+// 	{
+// 		MColor color(colors[index].x, colors[index].y, colors[index].z, whites[index]);
+// 		targetIter->setColor(color);
+// 		index++;
+// 	}
+// }
 
 ostream &operator<<(ostream &os, const Stroke &s)
 {
@@ -1862,3 +1862,7 @@ ostream &operator<<(ostream &os, const Stroke &s)
 
 	return os;
 }
+
+
+
+ 

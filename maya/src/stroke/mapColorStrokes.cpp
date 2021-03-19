@@ -5,7 +5,7 @@
 #include <maya/MFnPluginData.h>
 #include <maya/MFloatArray.h>
 #include <maya/MPoint.h>
-#include <maya/MFloatVectorArray.h> 
+#include <maya/MFloatVectorArray.h>
 #include <maya/MString.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
@@ -111,17 +111,16 @@ MStatus mapColorStrokes::initialize()
   return (MS::kSuccess);
 }
 
-MStatus mapColorStrokes::mutate( 
-  MDataBlock &data,
-  std::vector<Stroke> *strokes)  const
+MStatus mapColorStrokes::mutate(
+    MDataBlock &data,
+    std::vector<Stroke> *strokes) const
 {
   MStatus st;
 
-//  MObject thisObj = thisMObject();
-  
+  //  MObject thisObj = thisMObject();
+
   // MFloatPointArray points;
   // points.clear();
-
 
   // getTargetPoints(data, strokes, points);
 
@@ -166,7 +165,7 @@ void mapColorStrokes::getColors(
   if (TexUtils::hasTexture(thisObj, mapColorStrokes::aRGB))
   {
 
-    st = TexUtils::sampleSolidTexture( thisObj, mapColorStrokes::aRGB, 1.0, points, colors);
+    st = TexUtils::sampleSolidTexture(thisObj, mapColorStrokes::aRGB, 1.0, points, colors);
 
     if (!st.error())
     {
@@ -247,16 +246,43 @@ MStatus mapColorStrokes::occludeColors(
   return MS::kSuccess;
 }
 
+// void mapColorStrokes::applyColors(
+//     std::vector<Stroke> *strokes,
+//     const MFloatVectorArray &colors,
+//     const MFloatArray &whites) const
+// {
+//   std::vector<Stroke>::iterator iter = strokes->begin();
+//   unsigned index = 0;
+//   for (unsigned i = 0; iter != strokes->end(); iter++, i++)
+//   {
+
+//     std::vector<Target>::iterator targetIter = iter->targets().begin();
+//     for (; targetIter != iter->targets().end(); targetIter++)
+//     {
+//       MColor color(colors[index].x, colors[index].y, colors[index].z, whites[index]);
+//       targetIter->setColor(color);
+//       index++;
+//     }
+
+//     // iter->setTargetColors(colors, whites, index);
+//     // index += iter->size();
+//   }
+// }
 void mapColorStrokes::applyColors(
-    std::vector<Stroke> *geom,
+    std::vector<Stroke> *strokes,
     const MFloatVectorArray &colors,
     const MFloatArray &whites) const
 {
-  std::vector<Stroke>::iterator iter = geom->begin();
+  std::vector<Stroke>::iterator siter = strokes->begin();
   unsigned index = 0;
-  for (unsigned i = 0; iter != geom->end(); iter++, i++)
+  for (unsigned i = 0; siter != strokes->end(); siter++, i++)
   {
-    iter->setTargetColors(colors, whites, index);
-    index += iter->size();
+
+    Stroke::target_iterator titer = siter->targets_begin();
+    for (; titer != siter->targets_end(); titer++, index++)
+    {
+      MColor color(colors[index].x, colors[index].y, colors[index].z, whites[index]);
+      titer->setColor(color);
+    }
   }
 }
