@@ -11,9 +11,15 @@ global proc AEcollectStrokesTemplate ( string $nodeName )
 
 	AEsortFilterInclude($nodeName);
 
-	AEbrushPaintOverrideInclude($nodeName, 1);
-
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;
+	editorTemplate -suppress "strokes";
 	
 }
+
+createNode mapColorStrokes -n "helixOrnamentMapColor";
+createNode mapColorStrokes -n "kitchenTableMapColor";
+createNode mapColorStrokes -n "vaseMapColor";
+createNode mapColorStrokes -n "pictureFrameLeftMapColor";
+createNode mapColorStrokes -n "pictureFrameCenterMapColor";
+createNode mapColorStrokes -n "pictureFrameRightMapColor";
