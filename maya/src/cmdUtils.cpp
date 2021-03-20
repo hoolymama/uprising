@@ -11,6 +11,20 @@ void CmdUtils::flatten(const MFloatMatrix &mat, MDoubleArray &result) {
 	}
 }
 
+void CmdUtils::flatten(const MFloatVectorArray &arr, MDoubleArray &result) {
+
+	unsigned len = arr.length();
+	result.setLength(len * 3);
+	unsigned j = 0;
+	for (int i = 0; i < len; ++i)
+	{
+		result.set(double(arr[i].x), j++);
+		result.set(double(arr[i].y), j++);
+		result.set(double(arr[i].z), j++);
+	}
+}
+
+
 void CmdUtils::flatten(const MVectorArray &arr, MDoubleArray &result) {
 
 	unsigned len = arr.length();
@@ -66,6 +80,17 @@ void CmdUtils::flatten(const MFloatPointArray &arr, MDoubleArray &result) {
 		result.set(double(arr[i].z), j++);
 	}
 }
+
+void CmdUtils::flatten(const MFloatArray &arr, MDoubleArray &result) {
+
+	unsigned len = arr.length();
+	result.setLength(len);
+	for (int i = 0; i < len; ++i)
+	{
+		result.set(double(arr[i]) ,  i);
+	}
+}
+
 
 void CmdUtils::flatten(const MVector &v, MDoubleArray &result) {
 	result.clear();

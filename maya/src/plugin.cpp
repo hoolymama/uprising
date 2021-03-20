@@ -13,6 +13,7 @@
 
 #include "lightPaintingNode.h"
 #include "lightPaintingData.h"
+#include "lightPaintingCmd.h"
 #include "brushNode.h"
 
 #include "aimStrokes.h"
@@ -93,6 +94,9 @@ MStatus initializePlugin(MObject obj)
 	mser;
 
 
+	st = plugin.registerCommand("lightPaintingQuery", lightPaintingCmd::creator,
+								lightPaintingCmd::newSyntax);
+	mser;
 
 
 	return st;
@@ -105,6 +109,10 @@ MStatus uninitializePlugin(MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin(obj);
+
+	st = plugin.deregisterCommand("lightPaintingCmd");
+	mser;
+
 
 	st = plugin.deregisterNode(aimStrokes::id);
 	mser;
