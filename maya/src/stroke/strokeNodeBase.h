@@ -2,16 +2,7 @@
 #ifndef _strokeNodeBase_H
 #define _strokeNodeBase_H
 
-// #include <maya/MVector.h>
-// #include <maya/MFnDependencyNode.h>
-
-// #include <maya/MFnNurbsCurve.h>
-// #include <maya/MVectorArray.h>
-
 #include <maya/MPxNode.h>
-
-// #include <maya/MDGMessage.h>
-// #include <maya/MDGModifier.h>
 
 #include "stroke.h"
 

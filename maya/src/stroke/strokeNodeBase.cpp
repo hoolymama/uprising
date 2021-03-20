@@ -423,24 +423,15 @@ void strokeNodeBase::cullStartEnd(MDataBlock &data, std::vector<Stroke> *geom) c
 {
 
   int startFrom = data.inputValue(aStartFrom).asInt();
-
   int endAt = data.inputValue(aEndAt).asInt();
-  int last = geom->size() - 1;
-  if (endAt > -1 && endAt < geom->size())
-  {
-    last = endAt;
-  }
 
-  if (startFrom < 0)
+  if (endAt <= -1 )
   {
-    startFrom = 0;
+    endAt =  geom->size();
   }
-  if (startFrom > last)
-  {
-    startFrom = last;
-  }
-
-  int diff = geom->size() - (last + 1);
+  startFrom = std::max (std::min(startFrom, endAt), 0);
+ 
+  int remove = geom->size() - endAt;
 
   if (startFrom > 0)
   {
@@ -448,9 +439,9 @@ void strokeNodeBase::cullStartEnd(MDataBlock &data, std::vector<Stroke> *geom) c
     geom->erase(geom->begin(), geom->begin() + startFrom);
   }
 
-  if (diff > 0)
+  if (remove > 0)
   {
-    std::vector<Stroke>::iterator end_iter = geom->end() - diff;
+    std::vector<Stroke>::iterator end_iter = geom->end() - remove;
     geom->erase(end_iter, geom->end());
   }
 }
