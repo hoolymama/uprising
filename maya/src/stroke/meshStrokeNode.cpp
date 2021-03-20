@@ -101,7 +101,6 @@ MStatus meshStrokeNode::generateStrokeGeometry(
         subdivide(*iter,pointDensity, pts);
         pStrokes->push_back(Stroke(pts, targetRotationMatrix, strokeIndex));
     }
-
     return (MS::kSuccess);
 }
 
@@ -115,8 +114,7 @@ void  meshStrokeNode::subdivide(
         outPoints = inPoints;
         return;
     }
-    // outPoints.append(inPoints[0]);
-
+ 
     float gap = 1.0 / density;
 
     for (size_t i = 0; i < lastIndex; i++)
