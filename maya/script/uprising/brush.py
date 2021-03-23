@@ -1,6 +1,7 @@
 import pymel.core as pm
+import re
 
-import uprising_util as uutl
+import utils as uutl
 import robodk as rdk
 from uprising import robo
 
@@ -97,6 +98,8 @@ class Brush(object):
 
         return Brush(index, plug)
 
+
+
     @classmethod
     def brush_set_at_index(cls, index):
         """ Get paint, dip, and wipe brushes corresponding to index.
@@ -142,6 +145,10 @@ class Brush(object):
             bids = sorted(set(dc[::2]))
             for brush_id in bids:
                 result[brush_id] = Brush.brush_at_index(node, brush_id)
-        except RuntimeError:
-            pass
-        return result
+            return result
+        except (RuntimeError, AttributeError):
+
+            plug = pm.PyNode(node).attr("brush")
+            brush_plug = plug.connections(source=True, destination=False, plugs=True)[0]
+            return {"00": Brush(0, brush_plug)}
+ 

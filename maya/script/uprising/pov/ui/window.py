@@ -1,13 +1,13 @@
 import pymel.core.uitypes as gui
 import pymel.core as pm
 
-from uprising.ui.pov import (
+from uprising.pov.ui import (
     painting_tab,
     publish_tab,
     tools_menu
 )
 
-from uprising.ui.pov import reloader
+from uprising.pov import reloader
 reload(reloader)
 
 

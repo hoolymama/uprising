@@ -6,7 +6,7 @@ import time
 import os
 import tarfile
 import pymel.core as pm
-from uprising import uprising_util as uutl
+from uprising import utils as uutl
 from uprising import robo
 from uprising import stats
 from uprising import progress

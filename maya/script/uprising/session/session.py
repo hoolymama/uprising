@@ -5,7 +5,7 @@ from uprising import robo
 import datetime
 import json
 import pymel.core as pm
-import uprising.uprising_util as uutl
+import uprising.utils as uutl
 
 import fileinput
 
@@ -46,13 +46,16 @@ class Session(object):
         props.send(geo)
 
     @staticmethod
-    def insert_external_dependencies(subprograms, src_fn):
+    def insert_external_dependencies(subprograms, src_filename):
+        """
+        Write lines into a program to tell it to include the ghiven subprograms.
+        """
         print "Writing Externals", subprograms
-        func = os.path.splitext(os.path.basename(src_fn))[0]
+        func = os.path.splitext(os.path.basename(src_filename))[0]
         func = "DEF {}".format(func)
         ext_lines = ["EXT {}()".format(s) for s in subprograms]
         search = True
-        for line in fileinput.FileInput(src_fn, inplace=1):
+        for line in fileinput.FileInput(src_filename, inplace=1):
             print line,
             if search and line.startswith(func):
                 search = False
@@ -63,9 +66,9 @@ class Session(object):
     def save_program(directory, program_name):
         src = os.path.join(directory, "src")
         uutl.mkdir_p(src)
-        src_fn = robo.write_program(src, program_name)
+        src_filename = robo.write_program(src, program_name)
         print "Wrote src: {}".format(program_name)
-        return src_fn
+        return src_filename
 
     @staticmethod
     def save_station(directory, program_name):
@@ -91,6 +94,17 @@ class Session(object):
 
     @staticmethod
     def orchestrate(directory, programs):
+        """
+        Write a program to act as orchestrator for several othyer programs.
+
+        Writes main.src
+        which includes a header and a list of function calls: 
+        prg1()
+        prg2()
+        prg3()
+        
+
+        """
         uutl.mkdir_p(directory)
         orchestrator_file = os.path.join(directory, "src", "main.src")
         with open(orchestrator_file, 'w') as ofile:

@@ -5,33 +5,82 @@ from robolink import (
     INSTRUCTION_INSERT_CODE
 )
 
-
-from target import Target, PovTarget, DepartureTarget, ArrivalTarget
+from target import Target, DepartureTarget, ArrivalTarget
 import pymel.core as pm
+from uprising import robo
 
-import uprising_util as uutl
-from uprising_util import StrokeError
 
- 
+from uprising import utils
+
+
 class Stroke(object):
 
-    def __init__(self, cluster_id, _id, brush, node):
-        self.cluster_id = cluster_id
-        self.id = _id
-        self.node = node
-
+    def __init__(self, stroke_id, brush, node):
+        self.id = stroke_id
         self.brush = brush
-
+        self.node = node
         self.targets = []
-        self.arrivals = []
-        self.departure = None
+        self.backstroke = self.query_backstroke()
+        self.arc_length = self.query_arc_length()
+        self.parent_id = self.query_parent_id()
+        self.linear_speed = self.query_linear_speed()
+        self.angular_speed = self.query_angular_speed()
 
-        self.set_stroke_params()
         self.build_targets()
-        self.build_arrivals()
-        self.build_departure()
+        self.configure_targets()
 
-        self.configure()
+    def query_backstroke(self):
+        raise NotImplementedError
+
+    def query_arc_length(self):
+        raise NotImplementedError
+
+    def query_parent_id(self):
+        raise NotImplementedError
+
+    def query_linear_speed(self):
+        raise NotImplementedError
+
+    def query_angular_speed(self):
+        raise NotImplementedError
+
+    def configure_targets(self):
+        raise NotImplementedError
+
+    def send(self):
+        raise NotImplementedError
+
+    def name(self, prefix):
+        return "{}_p{}_s{}".format(prefix, self.parent_id, self.id)
+
+    def best_config(self):
+        if not self.targets:
+            return
+        common_configs = set([k for k in robo.ALL_CONFIGS])
+
+        for target in self.targets:
+            common_configs = common_configs.intersection(
+                target.valid_configs())
+            if not common_configs:
+                raise utils.StrokeError(
+                    "Can't find best config for stroke. No common configs")
+
+        return sorted(list(common_configs))[0]
+
+    def all_configs(self):
+        result = []
+        for target in self.targets:
+            result.append(target.valid_configs())
+        return result
+
+
+class BotStroke(Stroke):
+
+    def __init__(self, cluster_id, stroke_id, brush, node):
+
+        self.cluster_id = cluster_id
+
+        super(BotStroke, self).__init__(stroke_id, brush, node)
 
     def best_config(self):
         if not self.targets:
@@ -44,153 +93,69 @@ class Stroke(object):
             common_configs = common_configs.intersection(
                 target.valid_configs())
             if not common_configs:
-                raise StrokeError(
+                raise utils.StrokeError(
                     "Can't find best config for stroke. No common configs")
 
         return sorted(list(common_configs))[0]
 
-    def set_stroke_params(self):
-
-        self.backstroke = pm.paintingQuery(
-            self.node,
-            clusterIndex=self.cluster_id,
-            strokeIndex=self.id,
-            strokeBackstroke=True,
-        )
-
-        self.arc_length = pm.paintingQuery(
-            self.node,
-            clusterIndex=self.cluster_id,
-            strokeIndex=self.id,
-            strokeArcLength=True,
-        )
-
-        self.parent_id = pm.paintingQuery(
-            self.node,
-            clusterIndex=self.cluster_id,
-            strokeIndex=self.id,
-            strokeParentIndex=True,
-        )
-
-        self.linear_speed = pm.paintingQuery(
-            self.node,
-            clusterIndex=self.cluster_id,
-            strokeIndex=self.id,
-            strokeSpeedLinear=True,
-        )
-
-        self.angular_speed = pm.paintingQuery(
-            self.node,
-            clusterIndex=self.cluster_id,
-            strokeIndex=self.id,
-            strokeSpeedAngular=True,
-        )
-
     def build_targets(self):
+        positions = self.query_positions()
+        rotations = self.query_rotations()
+        self.targets = self._build_target_array(
+            positions, rotations, self.brush, self.id)
 
-        positions = uutl.to_point_array(
-            pm.paintingQuery(
-                self.node,
-                clusterIndex=self.cluster_id,
-                strokeIndex=self.id,
-                strokePositions=True,
-            )
-        )
+        positions = self.query_arrival_positions()
+        rotations = self.query_arrival_rotations()
+        self.arrivals = self._build_target_array(
+            positions, rotations, self.brush, self.id, ArrivalTarget)
 
-        rotations = uutl.to_vector_array(
-            pm.paintingQuery(
-                self.node,
-                clusterIndex=self.cluster_id,
-                strokeIndex=self.id,
-                strokeRotations=True,
-                rotateOrder="zyx",
-                rotateUnit="rad",
-            )
-        )
+        positions = self.query_departure_positions()
+        rotations = self.query_departure_rotations()
+        self.departure = self._build_target_array(
+            positions, rotations, self.brush, self.id, DepartureTarget)[0]
 
+    def configure_targets(self):
+        try:
+            config = self.best_config()
+        except utils.StrokeError:
+            configs = self.all_configs()
+            print("CONFIGS FOR STROKE : {}".format(self.id))
+            print(configs)
+            raise
+
+        for target in self.targets:
+            target.configure(config)
+        self.targets[0].linear = False
+
+        for target in self.arrivals:
+            target.configure(config)
+
+        self.departure.configure(config)
+
+    @classmethod
+    def _build_target_array(
+            cls,
+            positions,
+            rotations,
+            brush,
+            stroke_id,
+            target_type=Target):
+        result = []
         num_targets = len(positions)
         if not num_targets == len(rotations):
-            raise StrokeError(
+            raise utils.StrokeError(
                 "Length mismatch: positions, rotations")
 
         for i, (p, r) in enumerate(zip(positions, rotations)):
             try:
-                tg = Target(i, (p * 10), r, self.brush)
-            except StrokeError:
+                tg = target_type(i, (p * 10), r, brush)
+            except utils.StrokeError:
                 print "Target Position:", p
-                print "StrokeId:", self.id
+                print "StrokeId:", stroke_id
                 raise
 
-            self.targets.append(tg)
-
-    def build_arrivals(self):
-
-        positions = uutl.to_point_array(
-            pm.paintingQuery(
-                self.node,
-                clusterIndex=self.cluster_id,
-                strokeIndex=self.id,
-                strokeArrivalPositions=True,
-            )
-        )
-
-        rotations = uutl.to_vector_array(
-            pm.paintingQuery(
-                self.node,
-                clusterIndex=self.cluster_id,
-                strokeIndex=self.id,
-                strokeArrivalRotations=True,
-                rotateOrder="zyx",
-                rotateUnit="rad",
-            )
-        )
-
-        num = len(positions)
-        if not (num == len(rotations)):
-            raise StrokeError("Arrivals length mismatch: positions, rotations")
-
-        for i, (p, r) in enumerate(zip(positions, rotations)):
-
-            try:
-                tg = ArrivalTarget(i, (p * 10), r, self.brush)
-            except StrokeError:
-                print "ArrivalTarget Position:", p
-                print "StrokeId:", self.id
-                raise
-            self.arrivals.append(tg)
-
-    def build_departure(self):
-
-        position = uutl.to_point_array(
-            pm.paintingQuery(
-                self.node,
-                clusterIndex=self.cluster_id,
-                strokeIndex=self.id,
-                strokeDeparturePosition=True,
-            )
-        )[0]
-
-        rotation = uutl.to_vector_array(
-            pm.paintingQuery(
-                self.node,
-                clusterIndex=self.cluster_id,
-                strokeIndex=self.id,
-                strokeDepartureRotation=True,
-                rotateOrder="zyx",
-                rotateUnit="rad",
-            )
-        )[0]
-
-        try:
-            self.departure = DepartureTarget(
-                0, (position * 10), rotation, self.brush)
-        except StrokeError:
-            print "DepartureTarget Position:", position
-            print "StrokeId:", self.id
-            raise
-
-    def name(self, prefix):
-        return "%s_p%d_s%d" % (prefix, self.parent_id, self.id)
+            result.append(tg)
+        return result
 
     def send(self, prefix, program, frame, motion):
         stroke_name = self.name(prefix)
@@ -206,49 +171,58 @@ class Stroke(object):
 
         self.departure.send(stroke_name, program, frame)
 
-    def configure(self):
-        config = self.best_config()
-        if not config:  # no targets
-            return
+    def query_backstroke(self):
+        return pm.paintingQuery(
+            self.node,
+            clusterIndex=self.cluster_id,
+            strokeIndex=self.id,
+            strokeBackstroke=True,
+        )
 
-        for target in self.targets:
-            target.configure(config)
-        self.targets[0].linear = False
+    def query_arc_length(self):
+        return pm.paintingQuery(
+            self.node,
+            clusterIndex=self.cluster_id,
+            strokeIndex=self.id,
+            strokeArcLength=True,
+        )
 
-        for target in self.arrivals:
-            target.configure()
+    def query_parent_id(self):
+        return pm.paintingQuery(
+            self.node,
+            clusterIndex=self.cluster_id,
+            strokeIndex=self.id,
+            strokeParentIndex=True,
+        )
 
-        for target in self.targets:
-            target.configure()
+    def query_linear_speed(self):
+        return pm.paintingQuery(
+            self.node,
+            clusterIndex=self.cluster_id,
+            strokeIndex=self.id,
+            strokeSpeedLinear=True,
+        )
 
-        self.departure.configure()
+    def query_angular_speed(self):
+        return pm.paintingQuery(
+            self.node,
+            clusterIndex=self.cluster_id,
+            strokeIndex=self.id,
+            strokeSpeedAngular=True,
+        )
 
-
-class PovStroke(Stroke):
-
-    def __init__(self, cluster_id, _id, brush, node):
-        self.cluster_id = cluster_id
-        self.id = _id
-        self.node = node
-        self.brush = brush
-        self.targets = []
-
-        self.set_stroke_params()
-        self.build_targets()
-        self.configure()
-
-    def build_targets(self):
-
-        positions = uutl.to_point_array(
+    def query_positions(self):
+        return utils.to_point_array(
             pm.paintingQuery(
                 self.node,
                 clusterIndex=self.cluster_id,
                 strokeIndex=self.id,
-                strokePositions=True,
+                strokePositions=True
             )
         )
 
-        rotations = uutl.to_vector_array(
+    def query_rotations(self):
+        return utils.to_vector_array(
             pm.paintingQuery(
                 self.node,
                 clusterIndex=self.cluster_id,
@@ -259,75 +233,46 @@ class PovStroke(Stroke):
             )
         )
 
-        colors = uutl.to_rgba_array(
+    def query_arrival_positions(self):
+        return utils.to_point_array(
             pm.paintingQuery(
                 self.node,
                 clusterIndex=self.cluster_id,
                 strokeIndex=self.id,
-                strokeColors=True
+                strokeArrivalPositions=True
             )
         )
 
-        num_targets = len(positions)
-        if not num_targets == len(rotations) and num_targets == len(colors):
-            raise StrokeError(
-                "Length mismatch: positions, rotations, colors")
+    def query_arrival_rotations(self):
+        return utils.to_vector_array(
+            pm.paintingQuery(
+                self.node,
+                clusterIndex=self.cluster_id,
+                strokeIndex=self.id,
+                strokeArrivalRotations=True,
+                rotateOrder="zyx",
+                rotateUnit="rad",
+            )
+        )
 
-        for i, (p, r, c) in enumerate(zip(positions, rotations, colors)):
-            try:
-                tg = PovTarget(i, (p * 10), r, c, self.brush)
-            except StrokeError:
-                raise
+    def query_departure_positions(self):
+        return utils.to_point_array(
+            pm.paintingQuery(
+                self.node,
+                clusterIndex=self.cluster_id,
+                strokeIndex=self.id,
+                strokeDeparturePosition=True
+            )
+        )
 
-            self.targets.append(tg)
-
-    def best_config(self):
-        if not self.targets:
-            return
-
-        common_configs = set(self.targets[0].valid_configs())
-        for target in self.targets[1:]:
-            common_configs = common_configs.intersection(
-                target.valid_configs())
-            if not common_configs:
-                print "Impossible Stroke:"
-                for target in self.targets:
-                    print "Cluster:{} - Target:{} - configs:{}".format(
-                        self.cluster_id, target.id, target.valid_configs())
-                raise StrokeError(
-                    "Can't find best config for stroke. No common configs")
-
-        return sorted(list(common_configs))[0]
-
-    def send(self, prefix, program, frame, motion):
-        stroke_name = self.name(prefix)
-        program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
-        lin = motion["linear_speed"] * self.linear_speed
-        ang = motion["angular_speed"] * self.angular_speed
-        program.setSpeed(lin, ang)
-
-        last_color = None
-        for i, t in enumerate(self.targets):
-            t.send(stroke_name, program, frame, last_color)
-            last_color = t.color
-
-        program.RunInstruction("End stroke {}. Set to black".format(stroke_name), INSTRUCTION_COMMENT)
-        program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[1]=0.0", INSTRUCTION_INSERT_CODE)
-        program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[2]=0.0", INSTRUCTION_INSERT_CODE)
-        program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[3]=0.0", INSTRUCTION_INSERT_CODE)
-        program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)
-
-
-
-
-
-    def configure(self):
-        config = self.best_config()
-        print "Best Config for Cluster ID:{} Stroke ID:{} = {}".format(
-            self.cluster_id, self.id, config)
-        if not config:  # no targets
-            return
-
-        for target in self.targets:
-            target.configure(config)
-        self.targets[0].linear = False
+    def query_departure_rotations(self):
+        return utils.to_vector_array(
+            pm.paintingQuery(
+                self.node,
+                clusterIndex=self.cluster_id,
+                strokeIndex=self.id,
+                strokeDepartureRotation=True,
+                rotateOrder="zyx",
+                rotateUnit="rad",
+            )
+        )

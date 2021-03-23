@@ -2,7 +2,7 @@
 import logging
 import pymel.core as pm
 from uprising import robo
-import uprising.uprising_util as uutl
+import uprising.utils as uutl
 from uprising.brush import Brush
 from uprising.session.program import Program, ProgramError
 from uprising.session.pick_place_program import PickProgram, PlaceProgram

@@ -1,6 +1,6 @@
 
 from uprising.target import Target
-from uprising.uprising_util import StrokeError
+from uprising.utils import StrokeError
 import maya.api.OpenMaya as om
 import logging
 

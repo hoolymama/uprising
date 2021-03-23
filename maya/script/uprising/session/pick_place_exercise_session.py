@@ -2,7 +2,7 @@
 import logging
 import os
 import pymel.core as pm
-import uprising.uprising_util as uutl
+import uprising.utils as uutl
 import datetime
 from uprising import robo
 

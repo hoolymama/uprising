@@ -1,7 +1,7 @@
 import sys
 import json
 import pymel.core as pm
-import uprising_util as uutl
+import utils as uutl
 import curve_utils as cutl
 import pymel.core.uitypes as gui
 

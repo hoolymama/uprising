@@ -61,7 +61,7 @@ class PaintingProgram(Program):
             start-1)]
 
         if is_first_chunk:
-            self.ensure_gripper_open()
+            self.send_open_gripper()
 
         sub_programs = self._send_program_body(
             start, end, last_cluster, is_last_chunk)

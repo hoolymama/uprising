@@ -3,7 +3,7 @@ from uprising import palette_utils as putl
 
 import pymel.core as pm
 
-import uprising.uprising_util as uutl
+import uprising.utils as uutl
 
 
 from uprising.session.pick_place_exercise_session import PickPlaceExerciseSession

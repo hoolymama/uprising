@@ -5,7 +5,7 @@ import math
 
 from uprising.brush import Brush
 
-import uprising.uprising_util as uutl
+import uprising.utils as uutl
 
 
 from uprising.session.pick_place_program import PickAtHomeProgram, PlaceAtHomeProgram

@@ -9,7 +9,7 @@ import curve_utils as cutl
 import pymel.core as pm
 import setup_dip
 import stats
-import uprising_util as uutl
+import utils as uutl
 from brush import Brush
 from uprising.session.pov_session import PovTestSession
 

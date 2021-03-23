@@ -6,7 +6,7 @@ import pymel.core as pm
 import pymel.core.uitypes as gui
 
 
-import uprising_util as uutl
+import utils as uutl
 
 from uprising.session.dip_wipe_exercise_session import DipWipeExerciseSession
 

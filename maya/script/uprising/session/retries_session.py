@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import time
 import datetime
 import pymel.core as pm
-import uprising.uprising_util as uutl
+import uprising.utils as uutl
 from uprising import robo
 from uprising import progress
 from uprising.session.session import Session

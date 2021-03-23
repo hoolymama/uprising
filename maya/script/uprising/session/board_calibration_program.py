@@ -1,7 +1,7 @@
 import pymel.core as pm
 import uprising.const as k
 from uprising.session.calibration_program import CalibrationProgram
-import uprising.uprising_util as uutl
+import uprising.utils as uutl
 from robolink import (
     INSTRUCTION_COMMENT,
     INSTRUCTION_SHOW_MESSAGE

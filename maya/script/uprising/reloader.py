@@ -71,7 +71,7 @@ from uprising import (
     stroke_factory_utils,
     target,
     tools_menu,
-    uprising_util,
+    utils,
 )
 
 
@@ -172,7 +172,7 @@ reload(curve_utils)
 reload(maya_util)
 reload(palette_utils)
 reload(stroke_factory_utils)
-reload(uprising_util)
+reload(utils)
 ####################
 
 

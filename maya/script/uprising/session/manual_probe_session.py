@@ -1,7 +1,7 @@
 
 
 import pymel.core as pm
-import uprising.uprising_util as uutl
+import uprising.utils as uutl
 
 from uprising.session.calibration_session import CalibrationSession
 

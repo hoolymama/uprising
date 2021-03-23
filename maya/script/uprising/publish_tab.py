@@ -7,7 +7,7 @@ import pymel.core.uitypes as gui
 
 from uprising.session.painting_session import PaintingSession
 from uprising.session.retries_session import RetriesSession
-from uprising.session.pov_session import PovSession
+# from uprising.session.pov_session import PovSession
 
 
 @contextmanager
@@ -159,11 +159,11 @@ class PublishTab(gui.FormLayout):
             painting_session.write_stats()
             painting_session.write_maya_scene(directory, "scene")
 
-        if do_pov:
-            pov_session = PovSession(cluster_chunk_size)
-            pov_session.show_stats()
-            pov_session.write_stats()
-            pov_session.write_maya_scene(pov_session.directory, "scene")
+        # if do_pov:
+        #     pov_session = PovSession(cluster_chunk_size)
+        #     pov_session.show_stats()
+        #     pov_session.write_stats()
+        #     pov_session.write_maya_scene(pov_session.directory, "scene")
 
 
 def find_contributing_stroke_nodes():

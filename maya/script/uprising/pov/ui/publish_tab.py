@@ -3,6 +3,8 @@ from uprising import progress
 import pymel.core as pm
 import pymel.core.uitypes as gui
 
+from uprising.pov.session.pov_session import PovSession
+
 
 class PovPublishTab(gui.FormLayout):
     def __init__(self):
@@ -16,19 +18,10 @@ class PovPublishTab(gui.FormLayout):
 
         pm.setParent(self)
         self.go_but = self.create_action_buttons()
-        self.on_ops_change()
 
     def create_export_frame(self):
 
         frame = pm.frameLayout(label="Export", bv=True)
-
-        self.do_components_cb = pm.checkBoxGrp(
-            numberOfCheckBoxes=2,
-            label="",
-            valueArray2=(1, 1),
-            labelArray2=("Do Retries", "Do Painting"),
-            changeCommand=pm.Callback(self.on_ops_change)
-        )
 
         self.stroke_chunk_if = pm.intFieldGrp(
             height=30,
@@ -49,15 +42,6 @@ class PovPublishTab(gui.FormLayout):
         progress.create(col)
         return frame
 
-    def on_ops_change(self):
-
-        do_retries, do_painting = pm.checkBoxGrp(
-            self.do_components_cb, query=True, valueArray2=True
-        )
-
-        pm.intFieldGrp(self.stroke_chunk_if, edit=True, en=(do_painting))
-        pm.button(self.go_but, edit=True, en=(do_retries or do_painting))
-
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
@@ -77,14 +61,10 @@ class PovPublishTab(gui.FormLayout):
     ##############################################################
 
     def on_go(self):
-        pass
-        # do_retries, do_painting = pm.checkBoxGrp(
-        #     self.do_components_cb, query=True, valueArray2=True
-        # )
 
-        # stroke_chunk_size = pm.intFieldGrp(
-        #     self.stroke_chunk_if, query=True, value1=True
-        # )
+        stroke_chunk_size = pm.intFieldGrp(
+            self.stroke_chunk_if, query=True, value1=True
+        )
 
         # retries_session = None
         # if do_retries:
@@ -102,11 +82,10 @@ class PovPublishTab(gui.FormLayout):
         #     painting_session.write_stats()
         #     painting_session.write_maya_scene(directory, "scene")
 
-        # if do_pov:
-        #     pov_session = PovSession(cluster_chunk_size)
-        #     pov_session.show_stats()
-        #     pov_session.write_stats()
-        #     pov_session.write_maya_scene(pov_session.directory, "scene")
+        pov_session = PovSession(stroke_chunk_size)
+        # pov_session.show_stats()
+        # pov_session.write_stats()
+        # pov_session.write_maya_scene(pov_session.directory, "scene")
 
 
 def find_contributing_stroke_nodes():

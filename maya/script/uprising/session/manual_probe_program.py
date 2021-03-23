@@ -1,6 +1,6 @@
 
 from uprising.brush import Brush
-import uprising.uprising_util as uutl
+import uprising.utils as uutl
 import pymel.core as pm
 from uprising.session.calibration_program import CalibrationProgram
 from robolink import (

@@ -17,6 +17,17 @@ DIP_TARGET = "dipTarget"
 TOOL_TARGET = "toolChangeTarget"
 HOME_TARGET = "homeTarget"
 
+ALL_CONFIGS = {
+        "000": [],
+        "001": [],
+        "010": [],
+        "011": [],
+        "100": [],
+        "101": [],
+        "110": [],
+        "111": []
+    }
+
 _model = None
 _robot = None
 _link = None
@@ -145,23 +156,15 @@ def config_poses(pose):
     global _model
     global _robot
 
-    result = {
-        "000": [],
-        "001": [],
-        "010": [],
-        "011": [],
-        "100": [],
-        "101": [],
-        "110": [],
-        "111": []
-    }
+    result = ALL_CONFIGS.copy()
     ik = _robot.SolveIK_All(pose)
     siz = ik.size()
     if not (ik and siz[0] and siz[1] and (len(ik.list()) > 5)):
         return result
     joint_poses = [el[0:6] for el in ik.list2()]
     for joint_pose in joint_poses:
-        key = _config_key(_robot.JointsConfig(joint_pose))
+        jcfg = _robot.JointsConfig(joint_pose)
+        key = _config_key(jcfg)
         result[key].append(joint_pose)
     return result
 

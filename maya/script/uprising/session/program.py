@@ -28,6 +28,10 @@ class Program(object):
         self.program = robo.create_program(self.program_name)
         self.program.ShowInstructions(False)
 
+    def bump_program_name(self, suffix):
+        self.program_name = "{}_{:02d}".format(
+            self.program_name_prefix, suffix)
+
     def validate_path(self):
         if self.program:
             progress.update(minor_line="Validating path")
@@ -43,7 +47,7 @@ class Program(object):
                 "status": "SUCCESS" if (update_result[3] == 1.0) else "FAILURE",
             }
 
-    def ensure_gripper_open(self):
+    def send_open_gripper(self):
         self.program.RunInstruction(
             "Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
         self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)

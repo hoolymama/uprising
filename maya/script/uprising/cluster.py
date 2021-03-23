@@ -1,7 +1,7 @@
 from robolink import INSTRUCTION_COMMENT
 
 
-from uprising_util import ClusterError
+from utils import ClusterError
 from stroke import Stroke, PovStroke
 
 import pymel.core as pm
