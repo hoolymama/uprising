@@ -142,12 +142,80 @@ Stroke::Stroke()
 // }
 
 Stroke::Stroke(
+	const Stroke &instroke,
+	unsigned start,
+	unsigned count,
+	unsigned index) : m_targets(),
+							 m_pivot(),
+							 m_localContact(0.0f),
+							//  m_arcLength(),
+							 m_entryLength(0.0f),
+							 m_exitLength(0.0f),
+							 m_paintFlow(0.0f),
+							 m_strokeId(index),
+							 m_brushId(-1),
+							 m_paintId(-1),
+							 m_layerId(-1),
+							 m_parentId(-1),
+							 m_customBrushId(-1),
+							 m_repeatId(0),
+							 m_backstroke(false),
+							 m_arrivals(),
+							 m_departure(),
+							 m_linearSpeed(0.0),
+							 m_angularSpeed(0.0),
+							 m_sortColor(),
+							 m_filterColor(),
+							 m_sortStack()
+{
+
+
+	if ((start + count) > instroke.targets().size() || count < 2) {
+		return;
+	}
+	MStatus st;
+
+	std::vector<Target>::const_iterator iter = instroke.targets().begin()+start;
+	std::vector<Target>::const_iterator enditer = iter+count;
+
+	m_pivot = Target(*iter);
+
+	for (; iter != enditer; iter++) {
+
+		m_targets.push_back(
+			Target(*iter ));
+	}
+ 
+	// m_arcLength = arcLengths[len - 1];
+
+	// // MFloatMatrix ident;
+	// MFloatMatrix mat = rotationMat;
+	// for (size_t i = 0; i < len; i++)
+	// {
+	// 	float param = arcLengths[i] / arcLengths[(len - 1)];
+	// 	mat[3][0] = points[i].x;
+	// 	mat[3][1] = points[i].y;
+	// 	mat[3][2] = points[i].z;
+
+	// 	m_targets.push_back(
+	// 		 Target(mat, tangents[i], param, arcLengths[i], 1.0));
+	// }
+	// mat[3][0] = points[0].x;
+	// mat[3][1] = points[0].y;
+	// mat[3][2] = points[0].z;
+
+}
+
+
+
+
+Stroke::Stroke(
 	 const MFloatPointArray &points,
 	 const MFloatMatrix &rotationMat,
 	 unsigned index) : m_targets(),
 							 m_pivot(),
 							 m_localContact(0.0f),
-							 m_arcLength(),
+							//  m_arcLength(),
 							 m_entryLength(0.0f),
 							 m_exitLength(0.0f),
 							 m_paintFlow(0.0f),
@@ -171,8 +239,8 @@ Stroke::Stroke(
 	MStatus st;
 
 	int len = points.length();
-	MFloatArray arcLengths;
-	arcLengths.append(0.0f);
+	// MFloatArray arcLengths;
+	// arcLengths.append(0.0f);
 	MFloatVectorArray tangents;
 	for (size_t i = 0; i < len; i++)
 	{
@@ -191,28 +259,63 @@ Stroke::Stroke(
 				tangents.append((points[i + 1] - points[i - 1]).normal());
 			}
 			// accum
-			float &last = arcLengths[i];
-			arcLengths.append(last + points[i].distanceTo(points[i - 1]));
+			// float &last = arcLengths[i];
+			// arcLengths.append(last + points[i].distanceTo(points[i - 1]));
 		}
 	}
-	m_arcLength = arcLengths[len - 1];
+	// m_arcLength = arcLengths[len - 1];
 
 	// MFloatMatrix ident;
 	MFloatMatrix mat = rotationMat;
 	for (size_t i = 0; i < len; i++)
 	{
-		float param = arcLengths[i] / arcLengths[(len - 1)];
+		// float param = arcLengths[i] / arcLengths[(len - 1)];
 		mat[3][0] = points[i].x;
 		mat[3][1] = points[i].y;
 		mat[3][2] = points[i].z;
 
 		m_targets.push_back(
-			 Target(mat, tangents[i], param, arcLengths[i], 1.0));
+			 Target(mat, tangents[i], 1.0));
 	}
 	mat[3][0] = points[0].x;
 	mat[3][1] = points[0].y;
 	mat[3][2] = points[0].z;
-	m_pivot = Target(mat, tangents[0], 0.0, 0.0);
+	m_pivot = Target(m_targets[0]);
+}
+
+float Stroke::calculateArcLength() const {
+	float result = 0.0f;
+	
+	std::vector<Target>::const_iterator previter = m_targets.begin();
+	std::vector<Target>::const_iterator iter = std::next(previter);
+	std::vector<Target>::const_iterator enditer = m_targets.end();
+
+	for (; iter != enditer; iter++, previter++)
+	{
+		result += iter->distanceTo(*previter);
+	}
+	return result;
+}
+
+void Stroke::calculateParams(MFloatArray & result) const {
+
+	float param = 0.0f;
+	result.append(param);
+	std::vector<Target>::const_iterator previter = m_targets.begin();
+	std::vector<Target>::const_iterator iter = std::next(previter);
+	std::vector<Target>::const_iterator enditer = m_targets.end();
+
+	for (; iter != enditer; iter++, previter++)
+	{
+		param += iter->distanceTo(*previter);
+		result.append(param);
+	}
+
+	float paramRecip = 1.0 / param; 
+	for (size_t i = 1; i < result.length(); i++)
+	{
+		result[i] *= paramRecip;
+	}
 }
 
 // 	currentArcLength = startDist + (i * gap);
@@ -236,102 +339,102 @@ Stroke::Stroke(
 /////////////////////////////
 /////////////////////////////
 
-Stroke::Stroke(
-	 const MObject &curveObject,
-	 const MFloatVector &lanceAxis, // Z
-	 const MFloatVector &majorAxis, // Y
-	 const MFloatArray &weights,
-	 bool localContact,
-	 double startDist,
-	 double endDist,
-	 float entryLength,
-	 float exitLength,
-	 double density,
-	 int minimumPoints,
-	 double pivotParam,
-	 float paintFlow,
-	 int strokeId,
-	 int brushId,
-	 int paintId,
-	 int layerId,
-	 int customBrushId,
-	 bool follow,
-	 bool backstroke)
-	 : m_targets(),
-		m_pivot(),
-		m_localContact(localContact),
-		m_arcLength(),
-		m_entryLength(entryLength),
-		m_exitLength(exitLength),
-		m_paintFlow(paintFlow),
-		m_strokeId(strokeId),
-		m_brushId(brushId),
-		m_paintId(paintId),
-		m_layerId(layerId),
-		m_parentId(-1),
-		m_customBrushId(customBrushId),
-		m_repeatId(0),
-		m_backstroke(backstroke),
-		m_arrivals(),
-		m_departure(),
-		m_linearSpeed(0.0),
-		m_angularSpeed(0.0),
-		m_sortColor(),
-		m_filterColor(),
-		m_sortStack()
-{
-	MFnNurbsCurve curveFn(curveObject);
+// Stroke::Stroke(
+// 	 const MObject &curveObject,
+// 	 const MFloatVector &lanceAxis, // Z
+// 	 const MFloatVector &majorAxis, // Y
+// 	 const MFloatArray &weights,
+// 	 bool localContact,
+// 	 double startDist,
+// 	 double endDist,
+// 	 float entryLength,
+// 	 float exitLength,
+// 	 double density,
+// 	 int minimumPoints,
+// 	 double pivotParam,
+// 	 float paintFlow,
+// 	 int strokeId,
+// 	 int brushId,
+// 	 int paintId,
+// 	 int layerId,
+// 	 int customBrushId,
+// 	 bool follow,
+// 	 bool backstroke)
+// 	 : m_targets(),
+// 		m_pivot(),
+// 		m_localContact(localContact),
+// 		// m_arcLength(),
+// 		m_entryLength(entryLength),
+// 		m_exitLength(exitLength),
+// 		m_paintFlow(paintFlow),
+// 		m_strokeId(strokeId),
+// 		m_brushId(brushId),
+// 		m_paintId(paintId),
+// 		m_layerId(layerId),
+// 		m_parentId(-1),
+// 		m_customBrushId(customBrushId),
+// 		m_repeatId(0),
+// 		m_backstroke(backstroke),
+// 		m_arrivals(),
+// 		m_departure(),
+// 		m_linearSpeed(0.0),
+// 		m_angularSpeed(0.0),
+// 		m_sortColor(),
+// 		m_filterColor(),
+// 		m_sortStack()
+// {
+// 	MFnNurbsCurve curveFn(curveObject);
 
-	// bool backstroke = shouldMakeBackstroke(
-	// 	curveObject,
-	// 	startDist,
-	// 	endDist,
-	// 	strokeDirection);
+// 	// bool backstroke = shouldMakeBackstroke(
+// 	// 	curveObject,
+// 	// 	startDist,
+// 	// 	endDist,
+// 	// 	strokeDirection);
 
-	double curveLength = curveFn.length(epsilon);
-	if (backstroke)
-	{
-		std::swap(startDist, endDist);
-	}
-	double strokeRange = endDist - startDist; // can be negative
+// 	double curveLength = curveFn.length(epsilon);
+// 	if (backstroke)
+// 	{
+// 		std::swap(startDist, endDist);
+// 	}
+// 	double strokeRange = endDist - startDist; // can be negative
 
-	unsigned numPoints = std::max(
-		 int(density * fabs(strokeRange)),
-		 std::max(minimumPoints, 2));
+// 	unsigned numPoints = std::max(
+// 		 int(density * fabs(strokeRange)),
+// 		 std::max(minimumPoints, 2));
 
-	double gap = strokeRange / (numPoints - 1); // can be negative
+// 	double gap = strokeRange / (numPoints - 1); // can be negative
 
-	float currentArcLength;
-	float param;
+// 	float currentArcLength;
+// 	float param;
 
-	for (unsigned i = 0; i < numPoints; i++)
-	{
+// 	for (unsigned i = 0; i < numPoints; i++)
+// 	{
 
-		currentArcLength = startDist + (i * gap);
-		param = currentArcLength / curveLength;
+// 		currentArcLength = startDist + (i * gap);
+// 		param = currentArcLength / curveLength;
 
-		m_targets.push_back(
-			 Target(curveObject,
-					  lanceAxis,
-					  majorAxis,
-					  weights,
-					  currentArcLength,
-					  param,
-					  follow));
-	}
+// 		m_targets.push_back(
+// 			 Target(curveObject,
+// 					  lanceAxis,
+// 					  majorAxis,
+// 					  weights,
+// 					  currentArcLength,
+// 					  param,
+// 					  follow));
+// 	}
 
-	currentArcLength = startDist + (strokeRange * pivotParam);
-	param = currentArcLength / curveLength;
-	m_pivot = Target(
-		 curveObject, lanceAxis,
-		 majorAxis,
-		 weights,
-		 currentArcLength,
-		 param,
-		 follow);
+// 	currentArcLength = startDist + (strokeRange * pivotParam);
+// 	param = currentArcLength / curveLength;
+// 	m_pivot = Target(
+// 		 curveObject, lanceAxis,
+// 		 majorAxis,
+// 		 weights,
+// 		 currentArcLength,
+// 		 param,
+// 		 follow);
 
-	calculateArcLength();
-}
+// 	calculateArcLength();
+// }
 
 // Offset the an existing stroke and optionally make it a back stroke
 // Each target is offset ortrhogonal to its own tangent.
@@ -361,7 +464,7 @@ void Stroke::offset(
 		offsetVec = (m_pivot.tangent() ^ planeNormal) * offset;
 		m_pivot.offsetBy(offsetVec);
 	}
-	calculateArcLength();
+	// calculateArcLength();
 }
 
 void Stroke::offset(
@@ -398,7 +501,7 @@ void Stroke::offset(
 		offsetVec += m_pivot.tangent() * tangentOffset;
 		m_pivot.offsetBy(offsetVec);
 	}
-	calculateArcLength();
+	// calculateArcLength();
 }
 
 const Target &Stroke::pivot() const
@@ -455,18 +558,19 @@ Stroke::~Stroke() {}
 // 	}
 // }
 
-void Stroke::calculateArcLength()
-{
-	m_arcLength = 0;
-	std::vector<Target>::const_iterator previter = m_targets.begin();
-	std::vector<Target>::const_iterator iter = std::next(previter);
-	std::vector<Target>::const_iterator enditer = m_targets.end();
-	unsigned i = 0;
-	for (; iter != enditer; iter++, previter++, i++)
-	{
-		m_arcLength += iter->distanceTo(*previter);
-	}
-}
+// void Stroke::setArcLengths()
+// {
+// 	m_arcLength = 0;
+// 	std::vector<Target>::const_iterator previter = m_targets.begin();
+// 	std::vector<Target>::const_iterator iter = std::next(previter);
+// 	std::vector<Target>::const_iterator enditer = m_targets.end();
+// 	unsigned i = 0;
+// 	previter->setA
+// 	for (; iter != enditer; iter++, previter++, i++)
+// 	{
+// 		m_arcLength += iter->distanceTo(*previter);
+// 	}
+// }
 
 bool Stroke::backstroke() const
 {
@@ -531,22 +635,22 @@ bool operator<(const Stroke &a, const Stroke &b)
 // 	curveFn.getPointAtParam(crvParam, m_pivot, MSpace::kWorld);
 // }
 
-void Stroke::getParams(MFloatArray &result) const
-{
-	std::vector<Target>::const_iterator citer = m_targets.begin();
-	for (; citer != m_targets.end(); citer++)
-	{
-		result.append(citer->param());
-	}
-}
-void Stroke::getArcLengths(MFloatArray &result) const
-{
-	std::vector<Target>::const_iterator citer = m_targets.begin();
-	for (; citer != m_targets.end(); citer++)
-	{
-		result.append(citer->arcLength());
-	}
-}
+// void Stroke::getParams(MFloatArray &result) const
+// {
+// 	std::vector<Target>::const_iterator citer = m_targets.begin();
+// 	for (; citer != m_targets.end(); citer++)
+// 	{
+// 		result.append(citer->param());
+// 	}
+// }
+// void Stroke::getArcLengths(MFloatArray &result) const
+// {
+// 	std::vector<Target>::const_iterator citer = m_targets.begin();
+// 	for (; citer != m_targets.end(); citer++)
+// 	{
+// 		result.append(citer->arcLength());
+// 	}
+// }
 
 // void Stroke::getCurveParams(MDoubleArray &result) const
 // {
@@ -581,10 +685,10 @@ const std::vector<Target> &Stroke::targets() const
 	return m_targets;
 }
 
-const float &Stroke::arcLength() const
-{
-	return m_arcLength;
-}
+// const float &Stroke::arcLength() const
+// {
+// 	return m_arcLength;
+// }
 
 const float &Stroke::paintFlow() const
 {
@@ -1383,10 +1487,14 @@ void Stroke::colors(MColorArray &result) const
 
 void Stroke::setTransitionContact()
 {
-	double m_entry_param = m_entryLength / m_arcLength;
-	double m_exit_param = m_exitLength / m_arcLength;
+	float arcLength = calculateArcLength();
+	MFloatArray params;
+	calculateParams(params);
 
-	double total_param = m_entry_param + m_exit_param;
+	float m_entry_param = m_entryLength / arcLength;
+	float m_exit_param = m_exitLength / arcLength;
+
+	float total_param = m_entry_param + m_exit_param;
 
 	if (total_param > 1.0)
 	{
@@ -1397,28 +1505,29 @@ void Stroke::setTransitionContact()
 
 	// now have entry and exit params for the transitions
 	std::vector<Target>::iterator iter;
-	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+	unsigned i = 0;
+	for (iter = m_targets.begin(); iter != m_targets.end(); iter++, i++)
 	{
-		const double &param = iter->param();
+		const float &param = params[i];
 		if (param >= m_entry_param)
 		{
 			break;
 		}
-		double contact = param / m_entry_param;
+		float contact = param / m_entry_param;
 		contact = fmin(contact, iter->weight());
 		iter->setWeight(contact);
 	}
 
 	std::vector<Target>::reverse_iterator riter;
-
-	for (riter = m_targets.rbegin(); riter != m_targets.rend(); riter++)
+	i = params.length()-1;
+	for (riter = m_targets.rbegin(); riter != m_targets.rend(); riter++, i--)
 	{
-		const double &param = riter->param();
+		const float &param = params[i];
 		if (param <= m_exit_param)
 		{
 			break;
 		}
-		double contact = (1.0 - param) / (1.0 - m_exit_param);
+		float contact = (1.0 - param) / (1.0 - m_exit_param);
 		contact = fmin(contact, riter->weight());
 		riter->setWeight(contact);
 	}

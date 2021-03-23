@@ -7,7 +7,9 @@
 #include "collectStrokes.h"
 #include "meshStrokeNode.h"
 
+#include "brushCmd.h"
 #include "brushData.h"
+
 #include "strokeData.h"
 #include "strokeNodeBase.h"
 
@@ -98,6 +100,10 @@ MStatus initializePlugin(MObject obj)
 								lightPaintingCmd::newSyntax);
 	mser;
 
+	st = plugin.registerCommand("brushQuery", brushCmd::creator,
+								brushCmd::newSyntax);
+	mser;
+
 
 	return st;
 }
@@ -109,6 +115,10 @@ MStatus uninitializePlugin(MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin(obj);
+
+	st = plugin.deregisterCommand("brushCmd");
+	mser;
+
 
 	st = plugin.deregisterCommand("lightPaintingCmd");
 	mser;

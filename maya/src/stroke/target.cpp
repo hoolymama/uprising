@@ -7,8 +7,8 @@ const double rad_to_deg = (180 / 3.1415927);
 
 Target::Target() : m_matrix(),
 				   m_tangent(),
-				   m_param(0.0f),
-				   m_arcLength(0.0f),
+				//    m_param(0.0f),
+				//    m_arcLength(0.0f),
 				   m_weight(1.0f),
 				   m_color(0.0, 0.0, 0.0)
 {
@@ -17,59 +17,68 @@ Target::Target() : m_matrix(),
 Target::Target(
 	const MFloatMatrix &mat,
 	const MFloatVector &tangent,
-	float param,
-	float arcLength,
+	// float param,
+	// float arcLength,
 	float weight)
 	: m_matrix(mat),
 	  m_tangent(tangent),
-	  m_param(param),
-	  m_arcLength(arcLength),
+	//   m_param(param),
+	//   m_arcLength(arcLength),
 	  m_weight(weight),
 	  m_color(0.0, 0.0, 0.0)
 {
 
-
 }
+
 
 Target::Target(
- 	const MObject &curveObject,
-	const MFloatVector & lanceAxis, // Z
-	const MFloatVector & majorAxis, // Y
-	const MFloatArray &weights,
-	double arcLength,
-	double param,
-	bool follow
- )
-	: m_matrix(),
-	  m_tangent(),
-	  m_param(param),
-	  m_arcLength(arcLength),
-	  m_weight(),
-	  m_color(0.0, 0.0, 0.0)
-{
-	MFnNurbsCurve curveFn(curveObject);
-	double uniformParam = curveFn.findParamFromLength(
-		arcLength);
-	MFloatVector tangent = MFloatVector(
-		curveFn.tangent(uniformParam));
+	const MFloatMatrix &mat,
+	const MFloatVector &tangent,
+	float weight,
+	const MColor & color)
+	: m_matrix(mat),
+	  m_tangent(tangent),
+	  m_weight(weight),
+	  m_color(color)
+{}
+// Target::Target(
+//  	const MObject &curveObject,
+// 	const MFloatVector & lanceAxis, // Z
+// 	const MFloatVector & majorAxis, // Y
+// 	const MFloatArray &weights,
+// 	// double arcLength,
+// 	double param,
+// 	bool follow
+//  )
+// 	: m_matrix(),
+// 	  m_tangent(),
+// 	//   m_param(param),
+// 	//   m_arcLength(arcLength),
+// 	  m_weight(),
+// 	  m_color(0.0, 0.0, 0.0)
+// {
+// 	MFnNurbsCurve curveFn(curveObject);
+// 	double uniformParam = curveFn.findParamFromLength(arcLength);
+// 	MFloatVector tangent = MFloatVector(
+// 		curveFn.tangent(uniformParam));
 
-	m_tangent = tangent.normal();
+// 	m_tangent = tangent.normal();
 
-	m_weight = mayaMath::interp(weights, float(uniformParam));
+// 	m_weight = mayaMath::interp(weights, float(uniformParam));
 
-	MPoint pt;
-	curveFn.getPointAtParam(
-		uniformParam, pt, MSpace::kObject);
-	MFloatVector mAxis = follow ? m_tangent : majorAxis;
+// 	MPoint pt;
+// 	curveFn.getPointAtParam(
+// 		uniformParam, pt, MSpace::kObject);
+// 	MFloatVector mAxis = follow ? m_tangent : majorAxis;
 
-	m_matrix =  mayaMath::matFromAim(
-		MFloatVector(pt.x, pt.y, pt.z),
-		mAxis,
-		lanceAxis,
-		mayaMath::yAxis,
-		mayaMath::zAxis
-	);
-}
+// 	m_matrix =  mayaMath::matFromAim(
+// 		MFloatVector(pt.x, pt.y, pt.z),
+// 		mAxis,
+// 		lanceAxis,
+// 		mayaMath::yAxis,
+// 		mayaMath::zAxis
+// 	);
+// }
  
 Target::~Target() {}
 
@@ -226,20 +235,21 @@ MFloatVector Target::rotation(
 	return MFloatVector(rotValue[0], rotValue[1], rotValue[2]);
 }
 
-const float &Target::param() const
-{
-	return m_param;
-}
+// const float &Target::param() const
+// {
+// 	return m_param;
+// }
 
 // void Target::reverseParam()
 // {
 // 	m_param = 1.0 - m_param;
 // }
 
-const float &Target::arcLength() const
-{
-	return m_arcLength;
-}
+// const float &Target::arcLength() const
+// {
+// 	return m_arcLength;
+// }
+
 
 void Target::offsetBy(const MFloatVector &offset)
 {
@@ -335,6 +345,10 @@ const MColor &Target::color() const
 	return m_color;
 }
 
+float Target::luminance() const
+{
+	return (m_color[0] + m_color[1]+ m_color[2]+ m_color[3]) *0.25;
+}
 
 // Target::Target(
 // 	const MFnNurbsCurve &curveFn,

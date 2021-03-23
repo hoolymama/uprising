@@ -31,6 +31,8 @@ MObject mapColorStrokes::aMesh;
 MObject mapColorStrokes::aPoint;
 MObject mapColorStrokes::aBias;
 MObject mapColorStrokes::aDoOcclusion;
+MObject mapColorStrokes::aRemoveBlackSpans;
+MObject mapColorStrokes::aBlackSpanThreshold;
 
 MTypeId mapColorStrokes::id(k_mapColorStrokes);
 
@@ -98,10 +100,25 @@ MStatus mapColorStrokes::initialize()
   nAttr.setKeyable(true);
   addAttribute(aDoOcclusion);
 
+  aRemoveBlackSpans = nAttr.create("removeBlackSpans", "rbs", MFnNumericData::kBoolean);
+  nAttr.setReadable(false);
+  nAttr.setDefault(false);
+  nAttr.setKeyable(true);
+  addAttribute(aRemoveBlackSpans);
+
+  aBlackSpanThreshold = nAttr.create("blackSpanThreshold", "bst", MFnNumericData::kFloat);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setDefault(0.001f);
+  addAttribute(aBlackSpanThreshold);
+
   attributeAffects(aPoint, aOutput);
   attributeAffects(aMesh, aOutput);
   attributeAffects(aBias, aOutput);
   attributeAffects(aDoOcclusion, aOutput);
+  attributeAffects(aRemoveBlackSpans, aOutput);
+  attributeAffects(aBlackSpanThreshold, aOutput);
+
   attributeAffects(aRGB, aOutput);
   attributeAffects(aR, aOutput);
   attributeAffects(aG, aOutput);
@@ -116,13 +133,6 @@ MStatus mapColorStrokes::mutate(
     std::vector<Stroke> *strokes) const
 {
   MStatus st;
-
-  //  MObject thisObj = thisMObject();
-
-  // MFloatPointArray points;
-  // points.clear();
-
-  // getTargetPoints(data, strokes, points);
 
   MFloatVectorArray colors;
   MFloatArray whites;
@@ -144,6 +154,13 @@ MStatus mapColorStrokes::mutate(
   }
 
   applyColors(strokes, colors, whites);
+
+  if (data.inputValue(aRemoveBlackSpans).asBool())
+  {
+    float thresh = data.inputValue(aBlackSpanThreshold).asFloat();
+
+    removeBlackSpans(strokes, thresh);
+  }
 
   return MS::kSuccess;
 }
@@ -246,28 +263,6 @@ MStatus mapColorStrokes::occludeColors(
   return MS::kSuccess;
 }
 
-// void mapColorStrokes::applyColors(
-//     std::vector<Stroke> *strokes,
-//     const MFloatVectorArray &colors,
-//     const MFloatArray &whites) const
-// {
-//   std::vector<Stroke>::iterator iter = strokes->begin();
-//   unsigned index = 0;
-//   for (unsigned i = 0; iter != strokes->end(); iter++, i++)
-//   {
-
-//     std::vector<Target>::iterator targetIter = iter->targets().begin();
-//     for (; targetIter != iter->targets().end(); targetIter++)
-//     {
-//       MColor color(colors[index].x, colors[index].y, colors[index].z, whites[index]);
-//       targetIter->setColor(color);
-//       index++;
-//     }
-
-//     // iter->setTargetColors(colors, whites, index);
-//     // index += iter->size();
-//   }
-// }
 void mapColorStrokes::applyColors(
     std::vector<Stroke> *strokes,
     const MFloatVectorArray &colors,
@@ -283,6 +278,76 @@ void mapColorStrokes::applyColors(
     {
       MColor color(colors[index].x, colors[index].y, colors[index].z, whites[index]);
       titer->setColor(color);
+    }
+  }
+}
+
+void mapColorStrokes::removeBlackSpans(
+    std::vector<Stroke> *strokes,
+    float thresh) const
+{
+
+  thresh = fmax(fmin(thresh, 1.0f), 0.0f);
+  std::vector<Stroke> sourceStrokes(*strokes);
+
+  strokes->clear();
+
+  cerr << "sourceStrokes.size()" << sourceStrokes.size() << endl;
+  std::vector<Stroke>::iterator iter = sourceStrokes.begin();
+  std::vector<Stroke>::iterator enditer = sourceStrokes.end();
+  
+  unsigned newStrokeIndex = 0;
+  for (; iter != enditer; iter++)
+  {
+    
+    // get the ids of targets that are bright enough
+    MIntArray brightIds;
+    std::vector<Target>::const_iterator titer = iter->targets().begin();
+    std::vector<Target>::const_iterator tenditer = iter->targets().end();
+    for (unsigned j=0; titer != tenditer; titer++, j++)
+    {
+      if (titer->luminance() > thresh)
+      {
+        brightIds.append(j);
+      }
+    }
+
+    unsigned origLength = iter->targets().size();
+    unsigned startPeg = 0;
+    unsigned endPeg = 0;
+    unsigned leng = brightIds.length();
+    bool gap = true;
+
+    // loop through the bright IDs and calculate a begin and end for each
+    // contiguous chain of targets. A contiguous chain is defined as targets
+    // above a bightness threshold with no more than 3 non-bright targets
+    // separating them from another chain. 
+    for (unsigned i = 0; i < leng; i++)
+    {
+      unsigned this_id = brightIds[i];
+
+      if (gap)
+      {
+        startPeg = (this_id > 0) ? this_id - 1 :  this_id;
+        gap = false;
+      }
+      endPeg = this_id + 1;
+      
+      if (i < (leng - 1) && (brightIds[i + 1] - brightIds[i]) > 3)
+      {
+        gap = true;
+      }
+
+      if (gap || i == leng - 1)
+      {
+        if (this_id < origLength - 1)
+        {
+          endPeg += 1;
+        }
+        unsigned count = endPeg-startPeg ;
+        strokes->push_back(Stroke(*iter, startPeg, count, newStrokeIndex ));
+        newStrokeIndex ++;
+      }
     }
   }
 }

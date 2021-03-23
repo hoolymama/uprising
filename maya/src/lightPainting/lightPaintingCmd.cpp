@@ -408,7 +408,7 @@ MStatus lightPaintingCmd::handleStrokeArcLengthFlag(const std::vector<Stroke> &s
 		return MS::kUnknownParameter;
 	}
 
-	setResult(double(strokes[strokeId].arcLength()));
+	setResult(double(strokes[strokeId].calculateArcLength()));
 	return MS::kSuccess;
 }
 

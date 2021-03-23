@@ -39,16 +39,18 @@ public:
  *
  * @param mat
  * @param tangent
- * @param param
- * @param arclength
  * @param weight
  */
 	Target(
 		 const MFloatMatrix &mat,
 		 const MFloatVector &tangent,
-		 float param,
-		 float arclength,
 		 float weight = 1.0);
+
+	Target(
+		 const MFloatMatrix &mat,
+		 const MFloatVector &tangent,
+		 float weight,
+		 const MColor & color);
 
 /**
  * @brief Construct a new Target object from a Nurbs curve.
@@ -61,8 +63,6 @@ public:
  * if the stroke is in follow mode.
  * @param weights All the weights. for the stroke. We use the param to
  * interpolate the correct weight.
- * @param arcLength The arc length of this target along the stroke.
- * @param param A parameter value to associate with the target.
  * @param follow This target's major axis should face the stroke direction and
  * turn with it.
  */
@@ -71,8 +71,6 @@ public:
 		 const MFloatVector &lanceAxis, // Z
 		 const MFloatVector &majorAxis, // Y
 		 const MFloatArray &weights,
-		 double arcLength,
-		 double param,
 		 bool follow);
 
 	~Target();
@@ -108,9 +106,9 @@ public:
 
 	// void reverseParam();
 
-	const float &param() const;
+	// const float &param() const;
 
-	const float &arcLength() const;
+	// const float &arcLength() const;
 
 	void offsetBy(const MFloatVector &offset);
 
@@ -165,11 +163,14 @@ public:
 
 	const MColor &color() const;
 
+ 	float luminance() const;
+
+
 private:
 	MFloatVector m_tangent; // tangent of curve that joins targets
 	MFloatMatrix m_matrix;
-	float m_param;		 // A parameter value for 1D  mapping purposes
-	float m_arcLength; // length from start
+	// float m_param;		 // A parameter value for 1D  mapping purposes
+	// float m_arcLength; // length from start
 	float m_weight;	 // used to indicate fraction of brush tip
 	MColor m_color;	 // RGBA
 							 // double m_tilt;		 // store these when setting rotation, just in case we have to recalc

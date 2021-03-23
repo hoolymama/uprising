@@ -49,13 +49,17 @@ void applyColors(
     const MFloatVectorArray &colors,
     const MFloatArray &whites) const;
  
+
+void removeBlackSpans(std::vector<Stroke> *strokes, float thresh) const;
+
   static MObject aRGB;  ///> The solid texture whose color will be mapped to the RGB component of targets. 
   static MObject aWhite;  ///> The solid texture whose red channel will be mapped to the white component of targets. 
   static MObject aMesh;  ///> The occlusion mesh
   static MObject aPoint; ///> The point from which occlusions are calculated. 
   static MObject aBias; ///> An offset on the occlusion ray test.
   static MObject aDoOcclusion;
-
+  static MObject aRemoveBlackSpans;
+  static MObject aBlackSpanThreshold;
 };
 
 #endif

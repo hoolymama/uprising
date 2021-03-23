@@ -170,6 +170,22 @@ public:
  */
 	Stroke(const MFloatPointArray &points, const MFloatMatrix &rotationMat, unsigned index);
 
+	/**
+	 * @brief Construct a new Stroke from a subsection of the input stroke.
+	 * 
+	 * @param instroke The stroke to create a new stroke from.
+	 * @param start The target index to start at
+	 * @param count The number of targets.
+	 * @param index The stroke id of the new stroke.
+	 */
+	Stroke(
+	const Stroke &instroke,
+	unsigned start,
+	unsigned count,
+	unsigned index) ;
+
+
+ 
 	~Stroke();
 
 	// MStatus  buildCubicStroke(const MObject &curveObject, const MDoubleArray
@@ -216,12 +232,14 @@ public:
 
 	void getParams(MFloatArray &result) const;
 
-	void getArcLengths(MFloatArray &result) const;
+	// void getArcLengths(MFloatArray &result) const;
 
 	const std::vector<Target> &targets() const;
 
-	const float &arcLength() const;
+	// const float calculateArcLength() const;
+	float calculateArcLength() const ;
 
+	void  calculateParams(MFloatArray & result) const;
 	// const float &entryLength() const;
 
 	// const float &exitLength() const;
@@ -442,7 +460,7 @@ private:
 	static bool shouldMakeBackstroke(MObject dCurve, double startDist, double endDist,
 												Stroke::DirectionMethod strokeDirection);
 
-	void calculateArcLength();
+	// void setArcLengths();
 
 	void setTransitionContact();
 
@@ -452,7 +470,7 @@ private:
 	Target m_departure;
 
 	bool m_localContact;
-	float m_arcLength;
+	// float m_arcLength;
 	float m_entryLength;
 	float m_exitLength;
 	float m_paintFlow;
