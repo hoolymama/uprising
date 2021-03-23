@@ -1,0 +1,20 @@
+source "AEsortFilterInclude";
+source "AEstrokeCreatorInclude";
+
+
+global proc AEmeshStrokeTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+	AEstrokeCreatorInclude($nodeName);
+
+	editorTemplate -cl 0  -beginLayout "Toon Attributes";		
+	editorTemplate -addControl "mesh" ;
+	editorTemplate -endLayout;
+
+	AEsortFilterInclude($nodeName);
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
