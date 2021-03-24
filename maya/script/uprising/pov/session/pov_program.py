@@ -23,6 +23,7 @@ class PovProgram(Program):
 
         self.bump_program_name(chunk_id)
         super(PovProgram, self).send()
+
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
         num_strokes = len(self.painting.strokes)
@@ -40,6 +41,14 @@ class PovProgram(Program):
             self.send_shutter()
 
         self.painting.send_brushes()
+
+        self.program.setRounding(self.painting.motion["rounding"])
+       
+        self.program.setSpeed(
+            self.painting.motion["linear_speed"], 
+            self.painting.motion["angular_speed"]
+            )
+
 
         for stroke in self.painting.strokes[start:end]:
             prefix = "stk"

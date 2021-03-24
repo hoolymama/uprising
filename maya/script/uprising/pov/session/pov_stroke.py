@@ -57,11 +57,7 @@ class PovStroke(Stroke):
 
     def send(self, prefix, program, frame, motion):
         stroke_name = self.name(prefix)
-        program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
-        lin = motion["linear_speed"] * self.linear_speed
-        ang = motion["angular_speed"] * self.angular_speed
-        program.setSpeed(lin, ang)
-
+        program.RunInstruction("Stroke {}".format(stroke_name), INSTRUCTION_COMMENT)
         last_color = None
         for i, t in enumerate(self.targets):
             t.send(stroke_name, program, frame, last_color)
