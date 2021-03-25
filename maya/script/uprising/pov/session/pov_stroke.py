@@ -17,6 +17,7 @@ class PovStroke(Stroke):
         super(PovStroke, self).__init__(stroke_id, brush, node)
 
     def build_targets(self):
+
         positions = self.query_positions()
         rotations = self.query_rotations()
         colors = self.query_colors()
@@ -43,6 +44,7 @@ class PovStroke(Stroke):
         return result
 
     def configure_targets(self):
+
         try:
             config = self.best_config()
         except utils.StrokeError:
@@ -75,7 +77,7 @@ class PovStroke(Stroke):
             "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)
 
     def query_backstroke(self):
-        print "SELF.NODE: ==------------------", self.node, "----------=="
+        # print "SELF.NODE: ==------------------", self.node, "----------=="
         return pm.lightPaintingQuery(
             self.node,
             strokeIndex=self.id,

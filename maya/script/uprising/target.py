@@ -11,9 +11,10 @@ class Target(object):
         self.tool_pose = rdk.TxyzRxyz_2_Pose(list(position) + list(rotation))
 
         self.joint_pose = None
-        flange_pose = self.tool_pose * brush.matrix.invH()
-        print "target_id:" , target_id
-        self.joint_poses = robo.config_poses(flange_pose)
+        # self.flange_pose = self.tool_pose * brush.matrix.invH()
+        # print "target_id:", target_id
+ 
+        self.joint_poses = robo.config_poses(self.tool_pose)
         self.linear = True
 
     def valid_configs(self):
