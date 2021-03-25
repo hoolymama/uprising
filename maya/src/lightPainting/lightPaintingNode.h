@@ -44,7 +44,6 @@ public:
   static MTypeId id;
   static MString drawDbClassification;
   static MString drawRegistrantId;
-
   static MObject aInMatrix;
 
 private:
@@ -59,7 +58,6 @@ private:
 
   lightPaintingData *m_pd;
 
-  // Public because it's needed by lightPaintingtDrawOverride
 public:
 
   static MObject aViewMatrix;

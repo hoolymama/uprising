@@ -49,7 +49,6 @@ public:
   static MTypeId id;
   static MString drawDbClassification;
   static MString drawRegistrantId;
-
   static MObject aInMatrix;
 
 private:
@@ -57,39 +56,9 @@ private:
 
   MStatus addStrokes(MDataBlock &data, paintingGeom *pGeom);
 
-  void setWireDrawColor(M3dView &view, M3dView::DisplayStatus status);
-
-  void drawWireframeTargets(const paintingGeom &geom, M3dView &view,
-                            const MDagPath &path, M3dView::DisplayStatus status);
-
-  void drawWireframeBorders(const paintingGeom &geom, M3dView &view,
-                            const MDagPath &path, M3dView::DisplayStatus status);
-
-  void drawWireframe(const paintingGeom &geom, M3dView &view, const MDagPath &path,
-                     M3dView::DisplayStatus status);
-
-  void drawWireframeArrows(
-      const paintingGeom &geom, M3dView &view,
-      const MDagPath &path,
-      M3dView::DisplayStatus status);
-
-  void drawWireframeClusterPath(
-      const paintingGeom &geom, M3dView &view,
-      const MDagPath &path, M3dView::DisplayStatus status);
-
-  void drawWireframePivots(
-      const paintingGeom &geom, M3dView &view,
-      const MDagPath &path,
-      M3dView::DisplayStatus status);
-
-  void drawIds(const paintingGeom &geom, M3dView &view,
-               const MDagPath &path,
-               M3dView::DisplayStatus status);
-
-  void drawShaded(const paintingGeom &geom, M3dView &view, const MDagPath &path,
-                  M3dView::DisplayStatus status);
 
   static MObject aStrokes;
+  static MObject aBrushes;
 
   static MObject aApproachDistanceStart;
   static MObject aApproachDistanceMid;
@@ -110,7 +79,6 @@ private:
   static MObject aApplyBiases;
   static MObject aBiasMult;
 
-  static MObject aBrushes;
 
   static MObject aPaintColorR;
   static MObject aPaintColorG;
@@ -125,6 +93,8 @@ private:
 
   // Public because it's needed by PaintingtDrawOverride
 public:
+
+  static MObject aViewMatrix;
   static MObject aReassignParentId;
   static MObject aPointSize;
   static MObject aLineLength;
@@ -145,9 +115,7 @@ public:
 
   static MObject aIdDisplayOffset;
   static MObject aDisplayContactWidth;
-
   static MObject aArrowheadSize;
-
   static MObject aStackGap;
   static MObject aDrawParam;
 
