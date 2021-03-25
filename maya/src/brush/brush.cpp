@@ -62,15 +62,7 @@ MFloatMatrix Brush::tcp() const
 	MFloatMatrix result;
 	result.setToIdentity();
 
-	// MFloatVector p = m_tip;
-	// cerr << "m_tip = " << m_tip << endl;
-
 	MFloatVector p = m_tip - MFloatVector(0.0, 0.0, (m_bristleHeight * m_tcpParam));
-
-	// MFloatVector p(m_tip - MFloatVector( 0.0,  0.0, (m_bristleHeight * m_tcpParam)));
-	// cerr << "PPP VECTOR = " << p << endl;
-	// cerr << "TIP VECTOR = " << m_tip << endl;
-	// cerr << "TCP VECTOR = " << p << endl;
 
 	result[3][0] = p.x;
 	result[3][1] = p.y;
