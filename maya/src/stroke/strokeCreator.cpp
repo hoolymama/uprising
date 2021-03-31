@@ -69,7 +69,7 @@ MStatus strokeCreator::initialize()
 
 MStatus strokeCreator::generateStrokeGeometry(
     MDataBlock &data,
-    std::vector<Stroke> *pOutStrokes) const
+    std::vector<Stroke> *pOutStrokes) 
 {
   return (MS::kUnknownParameter);
 }

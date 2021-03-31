@@ -188,7 +188,7 @@ MStatus strokeNodeBase::initialize()
 }
 
 MStatus strokeNodeBase::generateStrokeGeometry(MDataBlock &data,
-                                           std::vector<Stroke> *geom ) const
+                                           std::vector<Stroke> *geom ) 
 {
   return MS::kSuccess;
 }

@@ -22,7 +22,7 @@ public:
 
 	Paint( int id,
 	       MColor color,
-	       double travel);
+	       float travel);
 
 	~Paint();
 
@@ -30,7 +30,7 @@ public:
 
 	short id;
 	MColor color;
-	double travel;
+	float travel;
 };
 
 #endif

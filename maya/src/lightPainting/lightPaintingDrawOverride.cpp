@@ -390,7 +390,7 @@ void lightPaintingDrawOverride::drawWireframeArrows(
 		std::vector<Target>::const_iterator citer;
 		for (citer = targets.begin(); citer != targets.end(); citer++)
 		{
-			MFloatMatrix mat = citer->viewMatrix(cdata->drawingNormal,stroke.backstroke());
+			MFloatMatrix mat = citer->viewMatrix(cdata->drawingNormal);
  
 			MFloatPointArray linestrip;
 			linestrip.append(MFloatPoint(mat[3][0], mat[3][1], mat[3][2]));

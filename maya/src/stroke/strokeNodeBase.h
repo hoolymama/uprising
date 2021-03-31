@@ -23,7 +23,7 @@ public:
 protected:
   virtual MStatus generateStrokeGeometry(
       MDataBlock &data,
-      std::vector<Stroke> *geom) const;
+      std::vector<Stroke> *geom) ;
 
   virtual void filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;
   virtual void sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;

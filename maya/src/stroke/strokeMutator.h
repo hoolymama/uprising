@@ -26,7 +26,7 @@ public:
 
   virtual MStatus generateStrokeGeometry(
       MDataBlock &data,
-      std::vector<Stroke> *pStrokes) const;
+      std::vector<Stroke> *pStrokes) ;
 
   static MTypeId id;
 

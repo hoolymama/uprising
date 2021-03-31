@@ -106,7 +106,7 @@ MObject brushNode::aOutPaintBrush;
 MObject brushNode::aOutDipBrush;
 MObject brushNode::aOutWipeBrush;
 
-MObject brushNode::aCustomId;
+// MObject brushNode::aCustomId;
 
 MObject brushNode::aModel;
 
@@ -259,11 +259,11 @@ MStatus brushNode::initialize()
   tAttr.setStorable(false);
   addAttribute(aOutWipeBrush);
 
-  aCustomId = nAttr.create("customId", "cid", MFnNumericData::kInt);
-  nAttr.setHidden(false);
-  nAttr.setKeyable(true);
-  nAttr.setDefault(0);
-  addAttribute(aCustomId);
+  // aCustomId = nAttr.create("customId", "cid", MFnNumericData::kInt);
+  // nAttr.setHidden(false);
+  // nAttr.setKeyable(true);
+  // nAttr.setDefault(0);
+  // addAttribute(aCustomId);
 
   aForwardBias = nAttr.create("forwardBias", "fbs", MFnNumericData::k2Float);
   nAttr.setStorable(true);
@@ -302,7 +302,7 @@ MStatus brushNode::initialize()
   attributeAffects(aShape, aOutPaintBrush);
   attributeAffects(aTransHeightParam, aOutPaintBrush);
   attributeAffects(aContactPower, aOutPaintBrush);
-  attributeAffects(aCustomId, aOutPaintBrush);
+  // attributeAffects(aCustomId, aOutPaintBrush);
   attributeAffects(aForwardBias, aOutPaintBrush);
   attributeAffects(aGravityBias, aOutPaintBrush);
 
@@ -318,7 +318,7 @@ MStatus brushNode::initialize()
   attributeAffects(aShape, aOutDipBrush);
   attributeAffects(aTransHeightParam, aOutDipBrush);
   attributeAffects(aContactPower, aOutDipBrush);
-  attributeAffects(aCustomId, aOutDipBrush);
+  // attributeAffects(aCustomId, aOutDipBrush);
 
   // attributeAffects(aWipeBarPosition, aOutWipeBrush);
   attributeAffects(aPhysicalId, aOutWipeBrush);
@@ -332,7 +332,7 @@ MStatus brushNode::initialize()
   attributeAffects(aShape, aOutWipeBrush);
   attributeAffects(aTransHeightParam, aOutWipeBrush);
   attributeAffects(aContactPower, aOutWipeBrush);
-  attributeAffects(aCustomId, aOutWipeBrush);
+  // attributeAffects(aCustomId, aOutWipeBrush);
 
   return (MS::kSuccess);
 }
@@ -392,10 +392,10 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
   float gravityBias0 = gravityBias[0];
   float gravityBias1 = gravityBias[1];
 
-  int customId = data.inputValue(aCustomId).asInt();
+  // int customId = data.inputValue(aCustomId).asInt();
 
   Brush paintingBrush(physicalId,
-                      customId,
+                      // customId,
                       tip,
                       bristleHeight,
                       paintingParam,
@@ -407,7 +407,7 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
                       forwardBias0, forwardBias1, gravityBias0, gravityBias1);
 
   Brush dipBrush(physicalId,
-                 customId,
+                //  customId,
                  tip,
                  bristleHeight,
                  dipParam,
@@ -420,7 +420,7 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
                  0.0, 0.0);
 
   Brush wipeBrush(physicalId,
-                  customId,
+                  // customId,
                   tip,
                   bristleHeight,
                   wipeParam,

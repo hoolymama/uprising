@@ -27,15 +27,14 @@ public:
  
   virtual MStatus generateStrokeGeometry(
       MDataBlock &data,
-      std::vector<Stroke> *pStrokes) const;
+      std::vector<Stroke> *pStrokes) ;
 
 
   static  MTypeId id;
 
 private:
 
-  // MStatus  collect(MDataBlock &data, std::vector<Stroke> *geom);
-  // MStatus  generateStrokeGeometry(MDataBlock &data, std::vector<Stroke> *pStrokes);
+
   static MObject  aStrokes;
 
 };

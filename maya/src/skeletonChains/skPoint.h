@@ -4,8 +4,14 @@
 #include <map>
 #include <vector>
 
+/**
+ * @brief A point in an image.
 
-// #include <maya/MVector.h>
+The XY coordinates of the point are in world scale floating point units.
+
+
+ * 
+ */
 const float  epsilon = .0001;
 class skPoint
 {

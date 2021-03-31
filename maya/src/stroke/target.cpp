@@ -2,13 +2,10 @@
 
 #include <maya/MFnNurbsCurve.h>
 
-
 const double rad_to_deg = (180 / 3.1415927);
 
 Target::Target() : m_matrix(),
-				   m_tangent(),
-				//    m_param(0.0f),
-				//    m_arcLength(0.0f),
+				   m_drawTangent(),
 				   m_weight(1.0f),
 				   m_color(0.0, 0.0, 0.0)
 {
@@ -17,30 +14,265 @@ Target::Target() : m_matrix(),
 Target::Target(
 	const MFloatMatrix &mat,
 	const MFloatVector &tangent,
-	// float param,
-	// float arcLength,
 	float weight)
 	: m_matrix(mat),
-	  m_tangent(tangent),
-	//   m_param(param),
-	//   m_arcLength(arcLength),
+	  m_drawTangent(tangent),
 	  m_weight(weight),
 	  m_color(0.0, 0.0, 0.0)
 {
-
 }
-
 
 Target::Target(
 	const MFloatMatrix &mat,
 	const MFloatVector &tangent,
 	float weight,
-	const MColor & color)
+	const MColor &color)
 	: m_matrix(mat),
-	  m_tangent(tangent),
+	  m_drawTangent(tangent),
 	  m_weight(weight),
 	  m_color(color)
-{}
+{
+}
+
+Target::Target(
+	const MFloatMatrix &mat,
+	float weight)	
+	: m_matrix(mat),
+	  m_weight(weight),
+	  m_drawTangent(),
+	  m_color()
+{
+}
+
+Target::~Target() {}
+
+void Target::setTangent(const MFloatVector &tangent)
+{
+	m_drawTangent = tangent;
+}
+
+MFloatVector Target::xAxis() const{
+	return 	MFloatVector(m_matrix[0][0],m_matrix[0][1],m_matrix[0][2]);
+}
+
+MFloatVector Target::yAxis() const{
+	return 	MFloatVector(m_matrix[1][0],m_matrix[1][1],m_matrix[1][2]);
+}
+
+MFloatVector Target::zAxis() const{
+	return 	MFloatVector(m_matrix[2][0],m_matrix[2][1],m_matrix[2][2]);
+}
+
+void Target::applyAxisAngleRotation(const MFloatVector &axis, float angle)
+{
+	MFloatMatrix rotMat = MFloatMatrix(
+		MQuaternion(angle, axis).asMatrix().matrix);
+	MFloatMatrix centerMat;
+	centerMat[3][0] = m_matrix[3][0];
+	centerMat[3][1] = m_matrix[3][1];
+	centerMat[3][2] = m_matrix[3][2];
+	m_matrix = m_matrix * centerMat.inverse() * rotMat * centerMat;
+}
+
+void Target::applyTilt(float angle)
+{
+	MFloatVector axis = MFloatVector::xAxis * m_matrix;
+	applyAxisAngleRotation(axis, angle);
+}
+
+void Target::applyBank(float angle)
+{
+	MFloatVector axis = MFloatVector::yAxis * m_matrix;
+	applyAxisAngleRotation(axis, angle);
+}
+
+void Target::applyTwist(float angle)
+{
+	MFloatVector axis = MFloatVector::zAxis * m_matrix;
+	applyAxisAngleRotation(axis, angle);
+}
+
+float Target::distanceTo(const Target &other) const
+{
+	MFloatMatrix otherMat = other.matrix();
+	return MFloatPoint(
+			   m_matrix[3][0], m_matrix[3][1], m_matrix[3][2])
+		.distanceTo(
+			MFloatPoint(otherMat[3][0], otherMat[3][1], otherMat[3][2]));
+}
+
+// For Arrow Drawing
+MFloatMatrix Target::viewMatrix(const MFloatVector &planeNormal ) const
+{
+	// we will draw arrows
+	MFloatVector side = (planeNormal ^ m_drawTangent).normal();
+	MFloatVector tangent = (side ^ planeNormal).normal();
+
+	MFloatMatrix res = m_matrix;
+	res[0][0] = tangent.x;
+	res[0][1] = tangent.y;
+	res[0][2] = tangent.z;
+	res[0][3] = 0.0;
+	res[1][0] = side.x;
+	res[1][1] = side.y;
+	res[1][2] = side.z;
+	res[1][3] = 0.0;
+	res[2][0] = planeNormal.x;
+	res[2][1] = planeNormal.y;
+	res[2][2] = planeNormal.z;
+	res[2][3] = 0.0;
+
+	return res;
+}
+
+void Target::getBorderPoints(
+	const MFloatVector &planeNormal,
+	MFloatPoint &left,
+	MFloatPoint &right,
+	float width,
+	bool flatBrush,
+	bool displayWeightWidth) const
+{
+	float weight = m_weight;
+
+	if (flatBrush || (!displayWeightWidth))
+	{
+		weight = 1.0f;
+	}
+	MPoint p = position();
+
+	MFloatVector side = (planeNormal ^ m_drawTangent).normal();
+	MVector xOffset = side * width * weight;
+	left = p + xOffset;
+	right = p - xOffset;
+}
+
+const MFloatMatrix &Target::matrix() const
+{
+	return m_matrix;
+}
+
+const MFloatVector &Target::tangent() const
+{
+	return m_drawTangent;
+}
+
+MFloatPoint Target::position(const MFloatMatrix &space) const
+{
+	return MFloatPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]) * space;
+}
+
+MFloatPoint Target::position() const
+{
+	return MFloatPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]);
+}
+
+void Target::setPosition(const MFloatPoint &rhs)
+{
+	m_matrix[3][0] = rhs.x;
+	m_matrix[3][1] = rhs.y;
+	m_matrix[3][2] = rhs.z;
+}
+
+void Target::setMatrix(const MFloatMatrix &rhs)
+{
+	m_matrix = rhs;
+}
+
+void Target::rotate(const MFloatMatrix &rotation)
+{
+	const MFloatPoint &p = this->position();
+	this->setPosition(MFloatPoint::origin);
+	m_matrix = m_matrix * rotation;
+	this->setPosition(p);
+}
+
+MFloatVector Target::rotation(
+	MTransformationMatrix::RotationOrder order,
+	MAngle::Unit unit,
+	const MFloatMatrix &space) const
+{
+	double rotValue[3];
+	MTransformationMatrix tMat(MMatrix((m_matrix * space).matrix));
+	tMat.reorderRotation(order);
+
+	MTransformationMatrix::RotationOrder throwAway;
+	tMat.getRotation(rotValue, throwAway);
+	if (unit == MAngle::kDegrees)
+	{
+		rotValue[0] *= rad_to_deg;
+		rotValue[1] *= rad_to_deg;
+		rotValue[2] *= rad_to_deg;
+	}
+	return MFloatVector(rotValue[0], rotValue[1], rotValue[2]);
+}
+
+
+void Target::offsetBy(const MFloatVector &offset)
+{
+	m_matrix[3][0] = m_matrix[3][0] + offset.x;
+	m_matrix[3][1] = m_matrix[3][1] + offset.y;
+	m_matrix[3][2] = m_matrix[3][2] + offset.z;
+}
+
+/* This is like sliding in or out along the brush axis*/
+void Target::offsetLocalZ(float dist)
+{
+
+	MFloatVector offset = MFloatVector(
+							  m_matrix[2][0],
+							  m_matrix[2][1],
+							  m_matrix[2][2])
+							  .normal() *
+						  dist;
+
+	m_matrix[3][0] = m_matrix[3][0] + offset.x;
+	m_matrix[3][1] = m_matrix[3][1] + offset.y;
+	m_matrix[3][2] = m_matrix[3][2] + offset.z;
+}
+
+MFloatVector Target::transform(const MFloatVector &rhs) const
+{
+	return rhs * m_matrix;
+}
+
+void Target::setWeight(float weight)
+{
+	if (weight < 0.0f)
+	{
+		m_weight = 0.0f;
+	}
+	else if (weight > 1.0f)
+	{
+		m_weight = 1.0f;
+	}
+	else
+	{
+		m_weight = weight;
+	}
+}
+
+const float &Target::weight() const
+{
+	return m_weight;
+}
+
+
+void Target::setColor(const MColor &color)
+{
+	m_color = color;
+}
+
+const MColor &Target::color() const
+{
+	return m_color;
+}
+
+float Target::luminance() const
+{
+	return (m_color[0] + m_color[1] + m_color[2] + m_color[3]) * 0.25;
+}
+
 // Target::Target(
 //  	const MObject &curveObject,
 // 	const MFloatVector & lanceAxis, // Z
@@ -77,163 +309,25 @@ Target::Target(
 // 		lanceAxis,
 // 		mayaMath::yAxis,
 // 		mayaMath::zAxis
-// 	);
+// 	);å
 // }
- 
-Target::~Target() {}
 
-void Target::setTangent(const MFloatVector &tangent)
-{
-	m_tangent = tangent;
-}
+// void Target::rotate(const MFloatPoint &pivot, const MFloatMatrix &rotation)
+// {
+// 	m_matrix[3][0] = m_matrix[3][0] - pivot.x;
+// 	m_matrix[3][1] = m_matrix[3][1] - pivot.y;
+// 	m_matrix[3][2] = m_matrix[3][2] - pivot.z;
 
-void Target::applyAxisAngleRotation(const MFloatVector &axis , float angle)
-{
-	MFloatMatrix rotMat = MFloatMatrix(
-		MQuaternion(angle, axis ).asMatrix().matrix);
-	MFloatMatrix centerMat;
-	centerMat[3][0] = m_matrix[3][0];
-	centerMat[3][1] = m_matrix[3][1];
-	centerMat[3][2] = m_matrix[3][2];
+// 	m_matrix = m_matrix * rotation;
 
-	m_matrix = m_matrix * centerMat.inverse() * rotMat * centerMat;
+// 	m_matrix[3][0] = m_matrix[3][0] + pivot.x;
+// 	m_matrix[3][1] = m_matrix[3][1] + pivot.y;
+// 	m_matrix[3][2] = m_matrix[3][2] + pivot.z;
 
-}
+// 	// m_tangent = m_tangent * rotation;
+// }
 
 
-void Target::applyTilt(float angle)
-{
-	// apply a relative tilt around the axis which is the cross
-	// of the lance (localZ) and the tangent.
-	MFloatVector lance = MFloatVector::zAxis * m_matrix;
-	MFloatVector axis = (lance ^ m_tangent).normal();
-	applyAxisAngleRotation(axis, angle);
-}
-
-void Target::applyBank(float angle)
-{
-	// apply a relative bank around the tangent.
-	applyAxisAngleRotation(m_tangent, angle);
-}
-
-void Target::applyTwist(float angle)
-{
-	// apply a relative twist around the lance (local Z)
-	MFloatVector lance = MFloatVector::zAxis * m_matrix;
-	applyAxisAngleRotation(lance, angle);
-}
-
-float Target::distanceTo(const Target &other) const
-{
-	MFloatMatrix otherMat = other.matrix();
-	return MFloatPoint(
-			   m_matrix[3][0], m_matrix[3][1], m_matrix[3][2])
-		.distanceTo(
-			MFloatPoint(otherMat[3][0], otherMat[3][1], otherMat[3][2]));
-}
-
-// For Arrow Drawing
-MFloatMatrix Target::viewMatrix(const MFloatVector& planeNormal, bool backstroke) const
-{
-	// we will draw arrows
-	MFloatVector tangent = backstroke ? -m_tangent : m_tangent;
-	// MFloatVector lance = MFloatVector::zAxis * m_matrix;
-	MFloatVector side = (planeNormal ^ tangent).normal();
-	tangent = (side^planeNormal).normal();
-	
-
-	MFloatMatrix res = m_matrix;
-	res[0][0] = tangent.x;
-	res[0][1] = tangent.y;
-	res[0][2] = tangent.z;
-	res[0][3] = 0.0;
-	res[1][0] = side.x;
-	res[1][1] = side.y;
-	res[1][2] = side.z;
-	res[1][3] = 0.0;
-	res[2][0] = planeNormal.x;
-	res[2][1] = planeNormal.y;
-	res[2][2] = planeNormal.z;
-	res[2][3] = 0.0;
-
-	return res;
-}
-
-const MFloatMatrix &Target::matrix() const
-{
-	return m_matrix;
-}
-
-const MFloatVector &Target::tangent() const
-{
-	return m_tangent;
-}
-
-MFloatPoint Target::position(const MFloatMatrix &space) const
-{
-	return MFloatPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]) * space;
-}
-
-MFloatPoint Target::position() const
-{
-	return MFloatPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]);
-}
-
-void Target::setPosition(const MFloatPoint &rhs)
-{
-	m_matrix[3][0] = rhs.x;
-	m_matrix[3][1] = rhs.y;
-	m_matrix[3][2] = rhs.z;
-}
-
-void Target::setMatrix(const MFloatMatrix &rhs)
-{
-	m_matrix = rhs;
-}
-
-void Target::rotate(const MFloatMatrix &rotation)
-{
-	const MFloatPoint &p = this->position();
-	this->setPosition(MFloatPoint::origin);
-	m_matrix = m_matrix * rotation;
-	this->setPosition(p);
-}
-
-
-void Target::rotate(const MFloatPoint &pivot, const MFloatMatrix &rotation)
-{
-	m_matrix[3][0] = m_matrix[3][0] - pivot.x;
-	m_matrix[3][1] = m_matrix[3][1] - pivot.y;
-	m_matrix[3][2] = m_matrix[3][2] - pivot.z;
-
-	m_matrix = m_matrix * rotation;
-
-	m_matrix[3][0] = m_matrix[3][0] + pivot.x;
-	m_matrix[3][1] = m_matrix[3][1] + pivot.y;
-	m_matrix[3][2] = m_matrix[3][2] + pivot.z;
-
-	m_tangent = m_tangent * rotation;
-}
-
-MFloatVector Target::rotation(
-	MTransformationMatrix::RotationOrder order,
-	MAngle::Unit unit,
-	const MFloatMatrix &space) const
-{
-	double rotValue[3];
-	MTransformationMatrix tMat( MMatrix((m_matrix * space).matrix) );
-	tMat.reorderRotation(order);
-
-	MTransformationMatrix::RotationOrder throwAway;
-	tMat.getRotation(rotValue, throwAway);
-	if (unit == MAngle::kDegrees)
-	{
-		rotValue[0] *= rad_to_deg;
-		rotValue[1] *= rad_to_deg;
-		rotValue[2] *= rad_to_deg;
-	}
-	return MFloatVector(rotValue[0], rotValue[1], rotValue[2]);
-}
 
 // const float &Target::param() const
 // {
@@ -251,76 +345,6 @@ MFloatVector Target::rotation(
 // }
 
 
-void Target::offsetBy(const MFloatVector &offset)
-{
-	m_matrix[3][0] = m_matrix[3][0] + offset.x;
-	m_matrix[3][1] = m_matrix[3][1] + offset.y;
-	m_matrix[3][2] = m_matrix[3][2] + offset.z;
-}
-
-/* This is like sliding in or out along the brush axis*/
-void Target::offsetLocalZ(float dist)
-{
-
-	MFloatVector offset = MFloatVector(
-		m_matrix[2][0], m_matrix[2][1],
-							 m_matrix[2][2])
-						 .normal() *
-					 dist;
-
-	m_matrix[3][0] = m_matrix[3][0] + offset.x;
-	m_matrix[3][1] = m_matrix[3][1] + offset.y;
-	m_matrix[3][2] = m_matrix[3][2] + offset.z;
-}
-
-MFloatVector Target::transform(const MFloatVector &rhs) const
-{
-	return rhs * m_matrix;
-}
-
-void Target::setWeight(float weight)
-{
-	if (weight < 0.0f)
-	{
-		m_weight = 0.0f;
-	}
-	else if (weight > 1.0f)
-	{
-		m_weight = 1.0f;
-	}
-	else
-	{
-		m_weight = weight;
-	}
-}
-
-const float &Target::weight() const
-{
-	return m_weight;
-}
-
-void Target::getBorderPoints(
-	const MFloatVector & planeNormal,
-	MFloatPoint &left,
-	MFloatPoint &right,
-	float width,
-	bool flatBrush,
-	bool displayWeightWidth) const
-{
-
-	float weight = m_weight;
-
-	if (flatBrush || (!displayWeightWidth))
-	{
-		weight = 1.0f;
-	}
-	MPoint p = position();
-
-	MVector xOffset = (planeNormal^m_tangent).normal() * m_matrix  * (width * weight);;
-	left = p + xOffset;
-	right = p - xOffset;
-}
-
 // void Target::setUV(
 // 	const MFloatMatrix &inversePlaneMatrix)
 // {
@@ -334,21 +358,6 @@ void Target::getBorderPoints(
 // 	uVals.append(m_u);
 // 	vVals.append(m_v);
 // }
-
-void Target::setColor(const MColor &color)
-{
-	m_color = color;
-}
-
-const MColor &Target::color() const
-{
-	return m_color;
-}
-
-float Target::luminance() const
-{
-	return (m_color[0] + m_color[1]+ m_color[2]+ m_color[3]) *0.25;
-}
 
 // Target::Target(
 // 	const MFnNurbsCurve &curveFn,
@@ -377,8 +386,6 @@ float Target::luminance() const
 // 	m_matrix = mat;
 // }
 
-
-
 // void Target::applyRotation(
 // 		float tilt,
 // 		float bank,
@@ -396,8 +403,6 @@ float Target::luminance() const
 
 // 	// apply a relative twist around the lance (local Z)
 
-	
-
 // 		//FRONT  mayaMath::yAxis, NOT EXACTLY SURE YET WHY
 // 		//UP  mayaMath::zAxisNeg); BECAUSE Z points down into the painting.
 
@@ -406,18 +411,17 @@ float Target::luminance() const
 // 		tilt = -tilt;
 // 	}
 // 	MFloatVector pos(
-// 		m_matrix[3][0], 
-// 		m_matrix[3][1], 
+// 		m_matrix[3][0],
+// 		m_matrix[3][1],
 // 		m_matrix[3][2]);
- 
-// 	MFloatVector 
 
+// 	MFloatVector
 
 // 	if (follow)
 // 	{
 // 		MFloatMatrix mat = mayaMath::matFromAim(
-// 			pos, 
-// 			m_tangent, 
+// 			pos,
+// 			m_tangent,
 // 			MFloatVector::zAxis,
 // 			eFrontAxis,
 // 			eUpAxis);
@@ -434,8 +438,8 @@ float Target::luminance() const
 // 	{
 
 // 		MMatrix mat = mayaMath::matFromAim(
-// 			MVector::zero, 
-// 			MVector::xNegAxis, 
+// 			MVector::zero,
+// 			MVector::xNegAxis,
 // 			MVector::zAxis,
 // 			eFrontAxis,
 // 			eUpAxis);
@@ -452,8 +456,6 @@ float Target::luminance() const
 // 		m_matrix = mat;
 // 	}
 // }
-
-
 
 // void Target::applyGlobalTilt(const MFloatVector &gradient)
 // {
@@ -478,14 +480,14 @@ float Target::luminance() const
 
 // 	MVector z1 = MVector(
 // 					 MPoint(
-// 						 m_matrix[3][0], 
-// 						 m_matrix[3][1], 
+// 						 m_matrix[3][0],
+// 						 m_matrix[3][1],
 // 						 m_matrix[3][2]) - point
 // 					 ).normal();
-	 
+
 // 	MVector lance(
-// 	m_matrix[2][0], 
-// 	m_matrix[2][1], 
+// 	m_matrix[2][0],
+// 	m_matrix[2][1],
 // 	m_matrix[2][2]) // zaxis
 
 // 	MMatrix rotMat = MQuaternion(lance, z1).asMatrix();
@@ -497,8 +499,6 @@ float Target::luminance() const
 
 // 	m_matrix = m_matrix * centerMat * rotMat * centerMat.inverse();
 // }
-
-
 
 // void Target::getBorderPoints(
 // 	MFloatPoint &left,

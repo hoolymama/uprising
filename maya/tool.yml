@@ -46,6 +46,10 @@ source_files:
 - src/cmdUtils.cpp
 # - src/texUtils.cpp
 - src/toonGraph/*.cpp
+- src/skeletonChains/*.cpp
+
 - src/lightPainting/*.cpp
+- src/painting/*.cpp
+
 - src/brush/*.cpp
 - src/stroke/*.cpp

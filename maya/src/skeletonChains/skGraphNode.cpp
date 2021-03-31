@@ -131,22 +131,22 @@ MStatus skGraphNode::initialize()
 	st = addAttribute(aColor2);
 	mser;
 
-	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st);
+	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	st = addAttribute(aOutPoints);
 
-	aOutRadius = tAttr.create("outRadius", "orad", MFnData::kDoubleArray, &st);
+	aOutRadius = tAttr.create("outRadius", "orad", MFnData::kDoubleArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	st = addAttribute(aOutRadius);
 
-	aOutParams = tAttr.create("outParams", "opm", MFnData::kDoubleArray, &st);
+	aOutParams = tAttr.create("outParams", "opm", MFnData::kDoubleArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	st = addAttribute(aOutParams);
 
-	aOutCounts = tAttr.create("outCounts", "ocnt", MFnData::kIntArray, &st);
+	aOutCounts = tAttr.create("outCounts", "ocnt", MFnData::kIntArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	st = addAttribute(aOutCounts);
@@ -252,192 +252,6 @@ void skGraphNode::draw(M3dView &view,
 					   M3dView::DisplayStyle style,
 					   M3dView::DisplayStatus status)
 {
-
-	MStatus st;
-
-	MObject thisObj = thisMObject();
-
-	float pointSize;
-	MPlug(thisObj, aPointSize).getValue(pointSize);
-
-	float radiusMult;
-	MPlug(thisObj, aRadiusMult).getValue(radiusMult);
-
-	bool drawPoints, drawEdges, drawCircles, randomChainColor;
-
-	MPlug(thisObj, aDrawPoints).getValue(drawPoints);
-	MPlug(thisObj, aDrawEdges).getValue(drawEdges);
-	MPlug(thisObj, aDrawCircles).getValue(drawCircles);
-	MPlug(thisObj, aRandomChainColor).getValue(randomChainColor);
-
-	MPlug pointsPlug(thisObj, aOutPoints);
-	MObject dPoints;
-	st = pointsPlug.getValue(dPoints);
-	mser;
-	MFnVectorArrayData fnPoints(dPoints);
-	MVectorArray points = fnPoints.array();
-
-	// MPlug edgesPlug( thisObj, aOutEdges );
-	// MObject dEdges;
-	// st = edgesPlug.getValue(dEdges); mser;
-	// MFnVectorArrayData fnEdges(dEdges);
-	// MVectorArray edges = fnEdges.array();
-
-	MPlug radiusPlug(thisObj, aOutRadius);
-	MObject dRadius;
-	st = radiusPlug.getValue(dRadius);
-	mser;
-	MFnDoubleArrayData fnRadius(dRadius);
-	MDoubleArray radius = fnRadius.array();
-
-	MPlug paramsPlug(thisObj, aOutParams);
-	MObject dParams;
-	st = paramsPlug.getValue(dParams);
-	mser;
-	MFnDoubleArrayData fnParams(dParams);
-	MDoubleArray params = fnParams.array();
-
-	MPlug countsPlug(thisObj, aOutCounts);
-	MObject dCounts;
-	st = countsPlug.getValue(dCounts);
-	mser;
-	MFnIntArrayData fnCounts(dCounts);
-	MIntArray counts = fnCounts.array();
-
-	MPlug colorPlug1(thisObj, aColor1);
-
-	float color1r, color1g, color1b;
-	colorPlug1.child(0).getValue(color1r);
-	colorPlug1.child(1).getValue(color1g);
-	colorPlug1.child(2).getValue(color1b);
-
-	MPlug colorPlug2(thisObj, aColor2);
-
-	float color2r, color2g, color2b;
-	colorPlug2.child(0).getValue(color2r);
-	colorPlug2.child(1).getValue(color2g);
-	colorPlug2.child(2).getValue(color2b);
-
-	view.beginGL();
-
-	glPushAttrib(GL_CURRENT_BIT);
-	glPointSize(float(pointSize));
-
-	srand48(0);
-
-	unsigned nChains = counts.length();
-	int pIndex = 0;
-	int eIndex = 0;
-	int cIndex = 0;
-
-	// cerr << "points.length():" << points.length() << endl;
-	// cerr << "radius.length():" << radius.length() << endl;
-
-	// cerr << "counts.length():" << counts.length() << endl;
-	float r, g, b;
-
-	for (int c = 0; c < counts.length(); ++c)
-	{
-		int len = counts[c];
-		if (randomChainColor)
-		{
-			r = drand48();
-			g = drand48();
-			b = drand48();
-			glColor3f(r, g, b);
-		}
-		// int elen = len - 1;
-
-		// glColor4f(colorr , colorg , colorb, 1.0f);
-
-		if (drawPoints)
-		{
-			glBegin(GL_POINTS);
-			for (int i = 0; i < len; ++i)
-			{
-				if (!randomChainColor)
-				{
-					float p = params[pIndex];
-					r = ((color1r * (1.0 - p)) + (color2r * p));
-					g = ((color1g * (1.0 - p)) + (color2g * p));
-					b = ((color1b * (1.0 - p)) + (color2b * p));
-					glColor3f(r, g, b);
-				}
-				MFloatPoint p = MFloatPoint(points[pIndex]);
-				glVertex3f(p.x, p.y, p.z);
-				pIndex++;
-			}
-			glEnd();
-		}
-
-		if (drawEdges)
-		{
-			glPushAttrib(GL_LINE_BIT);
-			glBegin(GL_LINE_STRIP);
-			for (int i = 0; i < len; i++)
-			{
-				if (!randomChainColor)
-				{
-					float p = params[eIndex];
-					r = ((color1r * (1.0 - p)) + (color2r * p));
-					g = ((color1g * (1.0 - p)) + (color2g * p));
-					b = ((color1b * (1.0 - p)) + (color2b * p));
-					glColor3f(r, g, b);
-				}
-				// int j = i + 1;
-				MFloatPoint p = MFloatPoint(points[eIndex]);
-				// MFloatPoint end = MFloatPoint(points[pIndex + 1]);
-				glVertex3f(p.x, p.y, p.z);
-				eIndex++;
-				// glVertex3f( end.x, end.y, end.z);
-			}
-			glEnd();
-			glPopAttrib();
-		}
-
-		if (drawCircles)
-		{
-			// len = points.length();
-			MFloatPointArray cScaled(circleVertexCount);
-			for (int j = 0; j < circleVertexCount; ++j)
-			{
-				cScaled[j] = MPoint(circle[j]) * radiusMult;
-			}
-
-			glPushAttrib(GL_LINE_BIT);
-
-			for (int i = 0; i < len; ++i)
-			{
-				if (!randomChainColor)
-				{
-					float p = params[cIndex];
-					r = ((color1r * (1.0 - p)) + (color2r * p));
-					g = ((color1g * (1.0 - p)) + (color2g * p));
-					b = ((color1b * (1.0 - p)) + (color2b * p));
-					glColor3f(r, g, b);
-				}
-
-				MFloatPointArray c(circleVertexCount);
-				for (int j = 0; j < circleVertexCount; ++j)
-				{
-					c[j] = ((cScaled[j] * radius[cIndex]) + MFloatPoint(points[cIndex])) /** imat*/;
-				}
-				glBegin(GL_LINE_STRIP);
-				for (int j = 0; j < circleVertexCount; ++j)
-				{
-					// int next = (j + 1) % circleVertexCount;
-					glVertex3f(float(c[j].x), float(c[j].y), float(c[j].z));
-					// glVertex3f( float(c[next].x) , float(c[next].y) , float(c[next].z) );
-				}
-				glVertex3f(float(c[0].x), float(c[0].y), float(c[0].z));
-				cIndex++;
-				glEnd();
-			}
-
-			glPopAttrib();
-		}
-	}
-	glPopAttrib();
 }
 
 bool skGraphNode::isBounded() const

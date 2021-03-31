@@ -6,7 +6,7 @@
 
 #include "stroke.h"
 
-#include "clusterGeom.h"
+#include "cluster.h"
 
 class paintingGeom
 {
@@ -15,7 +15,7 @@ public:
 
 	~paintingGeom();
 
-	const std::vector<clusterGeom> &clusters() const;
+	const std::vector<Cluster> &clusters() const;
 	const std::map<int, Paint> &paints() const;
 	const std::map<int, Brush> &brushes() const;
 
@@ -26,12 +26,12 @@ public:
 	const Brush &brushFromId(int id) const;
 	const Paint &paintFromId(int id) const;
 
-	double travelCutoff(int brushId, int paintId) const;
+	float travelCutoff(int brushId, int paintId) const;
 
 	void addStroke(const Stroke &stroke, int parentIndex);
 
-	void setApproaches(double approachStart, double approachMid,
-					   double approachEnd, double ptpThresh);
+	void setApproaches(float approachStart, float approachMid,
+					   float approachEnd, float ptpThresh);
 
 	void dipCombinations(MIntArray &result) const;
 
@@ -43,12 +43,12 @@ public:
 	// friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 
 private:
-	clusterGeom &prepCluster(
+	Cluster &prepCluster(
 		int brushId,
 		int phisicalId,
 		int paintId);
 
-	std::vector<clusterGeom> m_clusters;
+	std::vector<Cluster> m_clusters;
 	std::map<int, Paint> m_paints;
 	std::map<int, Brush> m_brushes;
 };

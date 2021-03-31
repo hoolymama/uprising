@@ -52,6 +52,10 @@ public:
 		 float weight,
 		 const MColor & color);
 
+	Target(
+		 const MFloatMatrix &mat,
+		 float weight = 1.0);
+
 /**
  * @brief Construct a new Target object from a Nurbs curve.
  *
@@ -77,7 +81,9 @@ public:
 
  
 
-
+	MFloatVector xAxis() const;
+	MFloatVector yAxis() const;
+	MFloatVector zAxis() const;
 
 
 	void applyTilt(float angle);
@@ -87,28 +93,12 @@ public:
 		 const MFloatVector &axis,
 		 float angle);
 
-	// void setRotation(
-	// 	float tilt,
-	// 	float bank,
-	// 	float twist,
-	// 	mayaMath::axis frontAxis,
-	// 	mayaMath::axis upAxis,
-	// 	bool follow=false,
-	// 	bool backstroke=false);
-
-	// void setRotation(bool follow, bool backstroke);
-
 	void setTangent(const MFloatVector &tangent);
 
 	const MFloatMatrix &matrix() const;
 
 	const MFloatVector &tangent() const;
 
-	// void reverseParam();
-
-	// const float &param() const;
-
-	// const float &arcLength() const;
 
 	void offsetBy(const MFloatVector &offset);
 
@@ -116,7 +106,7 @@ public:
 
 	float distanceTo(const Target &other) const;
 
-	MFloatMatrix viewMatrix(const MFloatVector &planeNormal, bool backstroke = false) const;
+	MFloatMatrix viewMatrix(const MFloatVector &planeNormal) const;
 
 	MFloatPoint position(
 		 const MFloatMatrix &space) const;
@@ -151,13 +141,6 @@ public:
 
 	const float &weight() const;
 
-	// void setUV(const MFloatMatrix &inversePlaneMatrix);
-
-	// void appendUVsTo(MFloatArray &uVals, MFloatArray &vVals) const;
-
-	// void applyGlobalTilt(const MFloatVector &gradient);
-
-	// void applyGlobalAim(const MPoint &point);
 
 	void setColor(const MColor &rgba);
 
@@ -167,7 +150,7 @@ public:
 
 
 private:
-	MFloatVector m_tangent; // tangent of curve that joins targets
+	MFloatVector m_drawTangent; // tangent to use for drawing.
 	MFloatMatrix m_matrix;
 	// float m_param;		 // A parameter value for 1D  mapping purposes
 	// float m_arcLength; // length from start
@@ -179,3 +162,30 @@ private:
 };
 
 #endif
+
+
+
+	// void setRotation(
+	// 	float tilt,
+	// 	float bank,
+	// 	float twist,
+	// 	mayaMath::axis frontAxis,
+	// 	mayaMath::axis upAxis,
+	// 	bool follow=false,
+	// 	bool backstroke=false);
+
+	// void setRotation(bool follow, bool backstroke);
+
+	// void reverseParam();
+
+	// const float &param() const;
+
+	// const float &arcLength() const;
+
+	// void setUV(const MFloatMatrix &inversePlaneMatrix);
+
+	// void appendUVsTo(MFloatArray &uVals, MFloatArray &vVals) const;
+
+	// void applyGlobalTilt(const MFloatVector &gradient);
+
+	// void applyGlobalAim(const MPoint &point);

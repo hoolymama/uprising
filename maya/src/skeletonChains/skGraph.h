@@ -19,9 +19,6 @@
 using namespace cimg_library;
 
 
-
-// typedef std::tuple <int, int, int> coord;
-
 class skGraph
 {
 public:

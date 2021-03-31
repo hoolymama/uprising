@@ -19,31 +19,9 @@
 #define kTcpFlag	 "-tcp"
 #define kTcpFlagL "-toolCenterPoint"
 
-// #define kWidthFlag	 "-w"
-// #define kWidthFlagL "-width"
-
-// #define kBristleHeightFlag	 "-w"
-// #define kBristleHeightFlagL "-width"
-
-// #define kRetentionFlag	 "-w"
-// #define kRetentionFlagL "-width"
-
-// #define kPaintingFlag	 "-p"
-// #define kPaintingFlagL "-paintingBrush"
-
-// #define kDipFlag	 "-d"
-// #define kDipFlagL "-dipBrush"
-
-// #define kWipeFlag	 "-w"
-// #define kWipeFlagL "-wipeBrush"
-
-
 
 /////////////////////////////////////////
-//
-//	brushCmd
-//		: MPxCommand
-//
+
 class brushCmd : public MPxCommand
 /** @dia:pos -52.2,6.6 */
 {

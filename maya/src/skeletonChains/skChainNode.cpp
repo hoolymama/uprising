@@ -12,7 +12,7 @@
 #include "cImgUtils.h"
 #include <jMayaIds.h>
 #include "errorMacros.h"
-#include "skGraph/skGraph.h"
+#include "skGraph.h"
 #include "skChainNode.h"
 
 #include <maya/MArrayDataBuilder.h>
@@ -34,7 +34,7 @@ MObject skChainNode::aMaxChainsPerOutput;
 MObject skChainNode::aOutputs;
 MObject skChainNode::aOutputCount;
 
- 
+
 
 MTypeId skChainNode::id(k_skChainNode);
 
@@ -164,23 +164,6 @@ MStatus skChainNode::initialize()
   nAttr.setWritable(false);
   st = addAttribute(aOutputCount);
 
-  // aOutput = tAttr.create("output", "out", skChainData::id);
-  // tAttr.setReadable(true);
-  // tAttr.setStorable(false);
-  // addAttribute(aOutput);
-
-  // attributeAffects(aImage, aOutput);
-  // attributeAffects(aMaxIterations, aOutput);
-  // attributeAffects(aMinBranchTwigLength, aOutput);
-  // attributeAffects(aMinLooseTwigLength, aOutput);
-  // attributeAffects(aSpan, aOutput);
-  // attributeAffects(aMaxWidth, aOutput);
-  // attributeAffects(aProjectionMatrix, aOutput);
-  // attributeAffects(aRadiusMult, aOutput);
-  // attributeAffects(aRadiusOffset, aOutput);
-  // attributeAffects(aMaxStampWidth, aOutput);
-  // attributeAffects(aMaxChainsPerOutput, aOutput);
-
   attributeAffects(aImage, aOutputs);
   attributeAffects(aMaxIterations, aOutputs);
   attributeAffects(aMinBranchTwigLength, aOutputs);
@@ -223,28 +206,22 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
   mser;
   MArrayDataBuilder bOutputs = hOutputs.builder();
   int nextPlugIndex = 0;
-  // cerr << "maxChains: " << maxChains << endl;
+
   if (maxChains < 1)
   {
-
     MDataHandle hOutput = bOutputs.addElement(0);
-    // cerr << "Here 1:" << endl;
     MObject dOut = fnOut.create(kdid, &st);
-    // cerr << "Here 2:" << endl;
     skChainData *newData = (skChainData *)fnOut.data(&st);
     mser;
-    // cerr << "Here 3:" << endl;
+
     std::vector<skChain> *geom = newData->fGeometry;
     geom->clear();
-    // cerr << "Here 4:" << endl;
     st = generate(data, geom);
-    // cerr << "Here 5:" << endl;
     if (st.error())
     {
       return (MS::kUnknownParameter);
     }
     hOutput.set(newData);
-    // cerr << "Here 6:" << endl;
     nextPlugIndex++;
   }
   else
@@ -256,7 +233,6 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
     for (size_t i = 0; i < allGeom->size(); i += maxChains, nextPlugIndex++)
     {
       auto last = std::min(allGeom->size(), i + maxChains);
-
       auto start_itr = allGeom->begin() + i;
       auto end_itr = allGeom->begin() + last;
 
@@ -272,13 +248,13 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
       hOutput.set(newData);
     }
   }
-  // cerr << "nextPlugIndex: " << nextPlugIndex << endl;
+
   MDataHandle hOutputCount = data.outputValue(aOutputCount);
   hOutputCount.set(nextPlugIndex);
-  // cerr << "Here 7:" << endl;
+
   hOutputs.setAllClean();
   hOutputCount.setClean();
-  // cerr << "Here 8:" << endl;
+
   return MS::kSuccess;
 }
 

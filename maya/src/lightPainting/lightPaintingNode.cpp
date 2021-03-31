@@ -43,20 +43,6 @@
 #include "brushData.h"
 #include "enums.h"
 
-const double rad_to_deg = (180 / 3.1415927);
-
-const int LEAD_COLOR = 18;
-const int ACTIVE_COLOR = 15;
-const int ACTIVE_AFFECTED_COLOR = 8;
-const int DORMANT_COLOR = 4;
-const int HILITE_COLOR = 17;
-const int RED_COLOR = 12;
-
-int clamp(int n, int lower, int upper)
-{
-  return std::max(lower, std::min(n, upper));
-}
-
 MTypeId lightPainting::id(k_lightPainting);
 MString lightPainting::drawDbClassification("drawdb/geometry/lightPainting");
 MString lightPainting::drawRegistrantId("LightPaintingPlugin");
@@ -79,9 +65,7 @@ void *lightPainting::creator()
 {
   return new lightPainting();
 }
-
-const double epsilon = 0.0001;
-
+ 
 MObject lightPainting::aInMatrix;
 
 MObject lightPainting::aViewMatrix;

@@ -21,7 +21,7 @@ public:
 
 	Brush(
 		int physicalId,
-		int customId,
+		// int customId,
 		const MFloatVector &tip,
 		float bristleHeight,
 		float tcpParam,
@@ -45,7 +45,15 @@ public:
 	void getTriangles(MFloatPointArray &triangles) const;
 
 	const float &retention() const;
-	float transHeight() const;
+
+	/**
+	 * @brief Return a value representing how far away the brush should start from the ground.
+
+	 It is the product of the bristle height, the TCP param, and a multiplier (transHeightParam)
+	 * 
+	 * @return float 
+	 */
+	float transitionHeight() const;
 	float contactPower() const;
 
 	float forwardBias0() const;
@@ -69,7 +77,7 @@ public:
 
 private:
 	int m_physicalId;
-	int m_customId;
+	// int m_customId;
 	MFloatVector m_tip;
 	float m_width;
 	float m_bristleHeight;
@@ -78,8 +86,8 @@ private:
 	Shape m_shape;
 	float m_transHeightParam;
 	float m_contactPower;
-	float m_forwardBias0;
-	float m_forwardBias1;
+	float m_forwardBias0; //> The distance to move along the stroke to compensate for brush bend at weight=0
+	float m_forwardBias1; //> The distance to move along the stroke to compensate for brush bend at weight=1
 	float m_gravityBias0;
 	float m_gravityBias1;
 };

@@ -71,7 +71,7 @@ MStatus aimStrokes::mutate(MDataBlock &data, std::vector<Stroke> *strokes) const
 
       	MVector z1 = (MVector(point) - MVector(mat[3][0], mat[3][1], mat[3][2])).normal();
 
-        MVector lance( mat[2][0],  mat[2][1],  mat[2][2]); // zaxis
+        MVector lance( mat[2][0],  mat[2][1],  mat[2][2]); // local zaxis
         
         MFloatMatrix rotMat = MFloatMatrix(MQuaternion(lance, z1).asMatrix().matrix);
       

@@ -83,7 +83,7 @@ private:
   static MObject aOutDipBrush;
   static MObject aOutWipeBrush;
 
-  static MObject aCustomId;
+  // static MObject aCustomId;
 
   static MObject aModel;
 };

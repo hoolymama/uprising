@@ -70,7 +70,7 @@ MStatus strokeMutator::initialize()
 
 MStatus strokeMutator::generateStrokeGeometry(
     MDataBlock &data,
-    std::vector<Stroke> *pOutStrokes) const
+    std::vector<Stroke> *pOutStrokes) 
 {
 
   MStatus st;

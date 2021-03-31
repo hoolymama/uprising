@@ -52,7 +52,7 @@ MStatus collectStrokes::initialize()
   return (MS::kSuccess);
 }
 
-MStatus collectStrokes::generateStrokeGeometry(MDataBlock &data, std::vector<Stroke> *pStrokes) const
+MStatus collectStrokes::generateStrokeGeometry(MDataBlock &data, std::vector<Stroke> *pStrokes) 
 {
   MStatus st;
   MArrayDataHandle hStrokes = data.inputValue(aStrokes, &st);

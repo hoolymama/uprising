@@ -12,7 +12,7 @@
 
 /*
 Command will return data from the brush output plug.
-	std::vector<clusterGeom> m_clusters;
+	std::vector<cluster> m_clusters;
 	std::map<int, Paint> m_paints;
 	std::map<int, Brush> m_brushes;
 */

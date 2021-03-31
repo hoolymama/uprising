@@ -34,11 +34,11 @@
 #define kStrokeColorsFlag "-tcl"
 #define kStrokeColorsFlagL "-strokeColors"
 
-#define kStrokeTangentsFlag "-st"
-#define kStrokeTangentsFlagL "-strokeTangents"
+// #define kStrokeTangentsFlag "-st"
+// #define kStrokeTangentsFlagL "-strokeTangents"
 
-#define kStrokeBackstrokeFlag "-sb"
-#define kStrokeBackstrokeFlagL "-strokeBackstroke"
+// #define kStrokeBackstrokeFlag "-sb"
+// #define kStrokeBackstrokeFlagL "-strokeBackstroke"
 
 #define kStrokeArcLengthFlag "-sal"
 #define kStrokeArcLengthFlagL "-strokeArcLength"
@@ -77,8 +77,8 @@ private:
 	MStatus handleStrokeRotationsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData,
 									  const MFloatMatrix &worldMatrix);
 
-	MStatus handleStrokeTangentsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData,
-									 const MFloatMatrix &worldMatrix);
+	// MStatus handleStrokeTangentsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData,
+	// 								 const MFloatMatrix &worldMatrix);
 
 	MStatus handleStrokeColorsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
 

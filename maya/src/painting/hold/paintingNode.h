@@ -68,8 +68,8 @@ private:
   static MObject aRotateOrder;
   static MObject aOutputUnit;
 
-  static MObject aPlaneMatrix;
-  static MObject aDisplacementMesh; // cm
+  // static MObject aPlaneMatrix;
+  // static MObject aDisplacementMesh; // cm
 
   static MObject aLinearSpeed;             // cm/sec
   static MObject aAngularSpeed;            // per sec

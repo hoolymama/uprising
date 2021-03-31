@@ -40,11 +40,11 @@ MSyntax lightPaintingCmd::newSyntax()
 
 	syn.addFlag(kStrokeRotationsFlag, kStrokeRotationsFlagL);
 
-	syn.addFlag(kStrokeTangentsFlag, kStrokeTangentsFlagL);
+	// syn.addFlag(kStrokeTangentsFlag, kStrokeTangentsFlagL);
 
 	syn.addFlag(kStrokeColorsFlag, kStrokeColorsFlagL);
 
-	syn.addFlag(kStrokeBackstrokeFlag, kStrokeBackstrokeFlagL);
+	// syn.addFlag(kStrokeBackstrokeFlag, kStrokeBackstrokeFlagL);
 
 	syn.addFlag(kStrokeArcLengthFlag, kStrokeArcLengthFlagL);
 
@@ -134,22 +134,22 @@ MStatus lightPaintingCmd::doIt(const MArgList &args)
 		return handleStrokeRotationsFlag(*pStrokes, argData, wm);
 	}
 
-	if (argData.isFlagSet(kStrokeTangentsFlag))
-	{
-		MFloatMatrix wm = getWorldMatrix(paintingObject, &st);
-		msert;
-		return handleStrokeTangentsFlag(*pStrokes, argData, wm);
-	}
+	// if (argData.isFlagSet(kStrokeTangentsFlag))
+	// {
+	// 	MFloatMatrix wm = getWorldMatrix(paintingObject, &st);
+	// 	msert;
+	// 	return handleStrokeTangentsFlag(*pStrokes, argData, wm);
+	// }
 
 	if (argData.isFlagSet(kStrokeColorsFlag))
 	{
 		return handleStrokeColorsFlag(*pStrokes, argData);
 	}
 
-	if (argData.isFlagSet(kStrokeBackstrokeFlag))
-	{
-		return handleStrokeBackstrokeFlag(*pStrokes, argData);
-	}
+	// if (argData.isFlagSet(kStrokeBackstrokeFlag))
+	// {
+	// 	return handleStrokeBackstrokeFlag(*pStrokes, argData);
+	// }
 
 	if (argData.isFlagSet(kStrokeArcLengthFlag))
 	{
@@ -350,23 +350,24 @@ MStatus lightPaintingCmd::handleStrokeRotationsFlag(const std::vector<Stroke> &s
   
  
 
-MStatus lightPaintingCmd::handleStrokeTangentsFlag(const std::vector<Stroke> &strokes,
-											  MArgDatabase &argData, const MFloatMatrix &worldMatrix)
-{
-	MStatus st;
-	int strokeId = getStrokeId(strokes, argData, &st);
-	if (st.error())
-	{
-		return MS::kUnknownParameter;
-	}
+// MStatus lightPaintingCmd::handleStrokeTangentsFlag(const std::vector<Stroke> &strokes,
+// 											  MArgDatabase &argData, const MFloatMatrix &worldMatrix)
+// {
+// 	MStatus st;
+// 	int strokeId = getStrokeId(strokes, argData, &st);
+// 	if (st.error())
+// 	{
+// 		return MS::kUnknownParameter;
+// 	}
 
-	MFloatVectorArray tangents;
-	strokes[strokeId].tangents(worldMatrix, tangents);
-	MDoubleArray result;
-	CmdUtils::flatten(tangents, result);
-	setResult(result);
-	return MS::kSuccess;
-}
+// 	MFloatVectorArray tangents;
+// 	strokes[strokeId].tangents(worldMatrix, tangents);
+// 	MDoubleArray result;
+// 	CmdUtils::flatten(tangents, result);
+// 	setResult(result);
+// 	return MS::kSuccess;
+// }
+
 MStatus lightPaintingCmd::handleStrokeColorsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData)
 {
 	MStatus st;
@@ -385,18 +386,18 @@ MStatus lightPaintingCmd::handleStrokeColorsFlag(const std::vector<Stroke> &stro
 
 
 
-MStatus lightPaintingCmd::handleStrokeBackstrokeFlag(const std::vector<Stroke> &strokes,
-												MArgDatabase &argData)
-{
-	MStatus st;
-	int strokeId = getStrokeId(strokes, argData, &st);
-	if (st.error())
-	{
-		return MS::kUnknownParameter;
-	}
-	setResult(strokes[strokeId].backstroke());
-	return MS::kSuccess;
-}
+// MStatus lightPaintingCmd::handleStrokeBackstrokeFlag(const std::vector<Stroke> &strokes,
+// 												MArgDatabase &argData)
+// {
+// 	MStatus st;
+// 	int strokeId = getStrokeId(strokes, argData, &st);
+// 	if (st.error())
+// 	{
+// 		return MS::kUnknownParameter;
+// 	}
+// 	setResult(strokes[strokeId].backstroke());
+// 	return MS::kSuccess;
+// }
 
 MStatus lightPaintingCmd::handleStrokeArcLengthFlag(const std::vector<Stroke> &strokes,
 											   MArgDatabase &argData)

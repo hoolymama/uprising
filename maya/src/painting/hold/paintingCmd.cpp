@@ -6,13 +6,13 @@
 #include "paintingCmd.h"
 #include "paintingData.h"
 #include "paintingGeom.h"
-#include "clusterGeom.h"
+#include "cluster.h"
 #include "cmdUtils.h"
 //	static
 
 /*
 Command will return data from the painting output plug.
-	std::vector<clusterGeom> m_clusters;
+	std::vector<cluster> m_clusters;
 	std::map<int, Paint> m_paints;
 	std::map<int, Brush> m_brushes;
 */
@@ -435,19 +435,19 @@ MStatus paintingCmd::handleClusterReasonFlag(const paintingGeom &geom,
 	{
 		return MS::kUnknownParameter;
 	}
-	clusterGeom::Reason reason = geom.clusters()[clusterId].reason();
+	cluster::Reason reason = geom.clusters()[clusterId].reason();
 
 	switch (reason)
 	{
-	case clusterGeom::kTool:
+	case cluster::kBrush:
 		setResult(MString("tool"));
 		break;
-	case clusterGeom::kDip:
+	case cluster::kPaint:
 		setResult(MString("dip"));
 		break;
-	case clusterGeom::kTcp:
-		setResult(MString("tcp"));
-		break;
+	// case cluster::kTcp:
+	// 	setResult(MString("tcp"));
+	// 	break;
 	default:
 		setResult(MString("none"));
 		break;
@@ -742,7 +742,7 @@ MStatus paintingCmd::handleStrokeParentIndexFlag(const paintingGeom &geom,
 MStatus paintingCmd::handleJsonFlag(const paintingGeom &geom)
 {
 
-	std::vector<clusterGeom>::const_iterator citer;
+	std::vector<cluster>::const_iterator citer;
 	for (citer = geom.clusters().begin(); citer != geom.clusters().end(); citer++)
 	{
 		int brushId = citer->brushId();

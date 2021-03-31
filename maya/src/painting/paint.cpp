@@ -2,8 +2,6 @@
 #include <maya/MDataHandle.h>
 #include "paint.h"
 
-
-
 std::map<int, Paint> Paint::factory(
   MArrayDataHandle &ha,
   MObject &colorAttribute,
@@ -27,22 +25,18 @@ std::map<int, Paint> Paint::factory(
 			continue;
 		}
 
-		MFloatVector vc =  hComp.child(colorAttribute).asFloatVector() ;
+		MFloatVector vc =  hComp.child(colorAttribute).asFloatVector();
 
-		double opacity = hComp.child(opacityAttribute).asDouble() ;
+		float opacity = hComp.child(opacityAttribute).asFloat();
 
 		MColor color(vc.x, vc.y, vc.z, opacity);
 
-
-		double travel = hComp.child(travelAttribute).asDouble() ;
+		float travel = hComp.child(travelAttribute).asFloat();
 
 		result[index] = Paint(index, color, travel);
-
-
 	}
 	return result;
 }
-
 
 Paint::Paint() :
 	id(-1),
@@ -53,12 +47,11 @@ Paint::Paint() :
 Paint::Paint(
   int id,
   MColor color,
-  double travel) :
+  float travel) :
 	id(id),
 	color(color) ,
 	travel(travel)
-{
-}
+{}
 
 Paint::~Paint() {}
 
@@ -67,7 +60,5 @@ ostream &operator<<(ostream &os, const Paint &p)
 	os << " id:" << p.id << ",";
 	os << " color:" << p.color << ",";
 	os << " travel:" << p.travel;
-
 	return os;
 }
-
