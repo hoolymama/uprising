@@ -6,6 +6,7 @@
 
 #include "collectStrokes.h"
 #include "meshStrokeNode.h"
+#include "skeletonStrokeNode.h"
 
 #include "brushCmd.h"
 #include "brushData.h"
@@ -25,7 +26,13 @@
 
 #include "strokeCreator.h"
 
+#include "skChainData.h"
+#include "skChainNode.h"
+#include "skGraphNode.h"
+
 #include "lightPaintingDrawOverride.h"
+#include "skGraphNodeDrawOverride.h"
+
 MStatus initializePlugin(MObject obj)
 {
 
@@ -34,6 +41,12 @@ MStatus initializePlugin(MObject obj)
 	MString method("initializePlugin");
 
 	MFnPlugin plugin(obj, PLUGIN_VENDOR, PLUGIN_VERSION, MAYA_VERSION);
+
+	MGlobal::executePythonCommand("import pymel.core as pm;pm.loadPlugin('Kit')");
+
+	st = plugin.registerData("skChainData", skChainData::id,
+							 skChainData::creator);
+	mser;
 
 	st = plugin.registerData("brushData", brushData::id,
 							 brushData::creator);
@@ -59,6 +72,23 @@ MStatus initializePlugin(MObject obj)
 		lightPaintingDrawOverride::Creator);
 	mser;
 
+
+	st = plugin.registerNode("skGraph", skGraphNode::id, skGraphNode::creator,
+							 skGraphNode::initialize, MPxNode::kLocatorNode,
+							 &skGraphNode::drawDbClassification);
+	msert;
+
+	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+		skGraphNode::drawDbClassification,
+		skGraphNode::drawRegistrantId,
+		skGraphNodeDrawOverride::Creator);
+	mser;
+
+	st = plugin.registerNode("skChainNode", skChainNode::id, skChainNode::creator,
+							 skChainNode::initialize);
+	msert;
+
+
 	st = plugin.registerNode("brushNode", brushNode::id, brushNode::creator,
 							 brushNode::initialize, MPxNode::kLocatorNode);
 	msert;
@@ -80,6 +110,10 @@ MStatus initializePlugin(MObject obj)
 							 meshStrokeNode::initialize);
 	msert;
 
+	st = plugin.registerNode("skeletonStroke", skeletonStrokeNode::id,
+							 skeletonStrokeNode::creator,
+							 skeletonStrokeNode::initialize);
+	msert;
 
 		
 	st = plugin.registerNode("strokeMutator", strokeMutator::id, strokeMutator::creator,
@@ -132,7 +166,9 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(strokeMutator::id);
  
 	msert;
-
+	
+	st = plugin.deregisterNode(skeletonStrokeNode::id);
+	mser;
 
 	st = plugin.deregisterNode(meshStrokeNode::id);
 	mser;
@@ -150,6 +186,20 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(brushNode::id);
 	mser;
 
+
+	st = plugin.deregisterNode(skChainNode::id);
+	mser;
+
+
+	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+		skGraphNode::drawDbClassification,
+		skGraphNode::drawRegistrantId);
+	mser;
+
+	st = plugin.deregisterNode(skGraphNode::id);
+	mser;
+
+
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
 		lightPainting::drawDbClassification,
 		lightPainting::drawRegistrantId);
@@ -165,6 +215,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterData(brushData::id);
+	mser;
+
+	st = plugin.deregisterData(skChainData::id);
 	mser;
 
 	return st;

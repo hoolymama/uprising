@@ -120,7 +120,9 @@ MStatus lightPainting::initialize()
 
   aViewMatrix= mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
   mAttr.setStorable(false);
-  mAttr.setHidden(true);
+  mAttr.setHidden(false);
+  mAttr.setKeyable(true);
+  
   addAttribute(aViewMatrix);
 
   aLinearSpeed = nAttr.create("linearSpeed", "lnsp", MFnNumericData::kFloat);
@@ -162,9 +164,9 @@ MStatus lightPainting::initialize()
   addAttribute(aStrokes);
 
   aBrush = tAttr.create("brush", "bsh", brushData::id);
-  tAttr.setReadable(false);
+  tAttr.setHidden(false);
   tAttr.setStorable(false);
-  tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
+  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   addAttribute(aBrush);
 
   aOutput = tAttr.create("output", "out", lightPaintingData::id);
@@ -305,22 +307,19 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
 
   m_pd->create();
 
-  MDataHandle hBrush = data.inputValue(aBrush, &st);
-  if (!st.error())
-  {
-    MObject dBrush = hBrush.data();
-    MFnPluginData fnBrush(dBrush, &st);
-    mser;
-    if (!st.error())
-    {
+  MDataHandle hBrush = data.inputValue(aBrush, &st); msert;
 
-      brushData *bData = (brushData *)fnBrush.data();
 
-      Brush *outBrush = m_pd->brush();
+  MObject dBrush = hBrush.data();
+  MFnPluginData fnBrush(dBrush, &st); msert;
 
-      *outBrush = *(bData->fGeometry);
-    }
-  }
+
+  brushData *bData = (brushData *)fnBrush.data();
+
+  Brush *outBrush = m_pd->brush();
+
+  *outBrush = *(bData->fGeometry);
+   
 
   std::vector<Stroke> *outStrokeGeom = m_pd->strokes();
 
@@ -332,19 +331,18 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
   MTypeId kdid(lightPaintingData::id);
 
   MObject dOut = fnOut.create(kdid, &st);
-  mser;
+  msert;
   lightPaintingData *outGeometryData = (lightPaintingData *)fnOut.data(&st);
-  mser;
+  msert;
   if (m_pd)
   {
-
     *outGeometryData = (*m_pd); // assignment
   }
 
   MDataHandle outputHandle = data.outputValue(aOutput, &st);
-  mser;
+  msert;
   st = outputHandle.set(outGeometryData);
-  mser;
+  msert;
   data.setClean(plug);
 
   return MS::kSuccess;

@@ -27,10 +27,6 @@ private:
         MDataBlock &data,
         std::vector<std::pair<int, Brush> > &brushes) const;
 
-    MStatus createCurve(
-        const MPointArray &editPoints,
-        MObject &dCurve) const;
-
     unsigned createStrokesForChain(
         const skChain &current_chain,
         const std::vector<std::pair<int, Brush> > &brushes,
@@ -50,7 +46,7 @@ private:
         float splitTestInterval,
         std::vector<Stroke> *pOutStrokes);
 
-    unsigned  createStrokeData(
+    unsigned createStrokeData(
         const MObject &dCurve,
         // const Brush &brush,
         const MFloatArray &radii,
@@ -69,7 +65,7 @@ private:
         const MFloatArray &strokeRadii,
         const MFloatMatrix &targetRotationMatrix,
         float entryTransitionLength,
-        float exitTransitionLength ) const;
+        float exitTransitionLength) const;
 
     void getPointsAndRadii(
         const skChain &chain,
@@ -90,19 +86,18 @@ private:
     // const std::pair<int, Brush> selectBrush(
     //     const skChain &chain,
     //     const std::vector<std::pair<int, Brush> > &brushes) const;
-const std::pair<int, Brush>  selectBrush(
-    float radius,
-    const std::vector<std::pair<int, Brush> > &brushes) const;
+    const std::pair<int, Brush> selectBrush(
+        float radius,
+        const std::vector<std::pair<int, Brush> > &brushes) const;
 
+    float findEndDist(
+        const MObject &dCurve,
+        const MFloatVector &canvasNormal,
+        float startDist,
+        float endDist,
+        double splitAngle,
+        float splitTestInterval);
 
-float findEndDist(
-    const MObject &dCurve,
-    const MFloatVector &canvasNormal,
-    float startDist,
-    float endDist,
-    double splitAngle,
-    float splitTestInterval) ;
-    
     unsigned int getStrokeBoundaries(
         const MObject &dCurve,
         const MFloatVector &canvasNormal,
@@ -112,8 +107,20 @@ float findEndDist(
         float extendExit,
         double splitAngle,
         float splitTestInterval,
-        MFloatVectorArray &result) ;
+        MFloatVectorArray &result);
 
+    bool getBoundary(
+        const MObject &dCurve,
+        double curveLength,
+        const MFloatVector &canvasNormal,
+        float lastEndDist,
+        float strokeLength,
+        float overlap,
+        float extendEntry,
+        float extendExit,
+        double splitAngle,
+        float splitTestInterval,
+        MFloatVector &result) ;
     // unsigned int getStrokeBoundaries(
     //     const MObject &dCurve,
     //     float strokeLength,

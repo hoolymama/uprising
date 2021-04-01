@@ -200,7 +200,7 @@ void Stroke::resetTangents()
 	std::vector<Target>::const_iterator piter;
 	std::vector<Target>::const_iterator niter;
 
-	for (; citer != m_targets.end(); citer++)
+	for (citer =  m_targets.begin(); citer != m_targets.end(); citer++)
 	{
 		piter = citer == m_targets.begin() ? citer : std::prev(citer);
 		niter = std::next(citer) == m_targets.end() ? citer : std::next(citer);

@@ -32,6 +32,7 @@
 
 const double rad_to_deg = (180 / 3.1415927);
 
+
 MObject skeletonStrokeNode::aCanvasMatrix;
 MObject skeletonStrokeNode::aChains;
 MObject skeletonStrokeNode::aStrokeLength;
@@ -222,13 +223,12 @@ MStatus skeletonStrokeNode::initialize()
     attributeAffects(aLayerId, aOutput);
     attributeAffects(aMinimumPoints, aOutput);
 
-
     return (MS::kSuccess);
 }
 
 MStatus skeletonStrokeNode::generateStrokeGeometry(
     MDataBlock &data,
-    std::vector<Stroke> *pOutStrokes) 
+    std::vector<Stroke> *pOutStrokes)
 {
 
     MStatus st;
@@ -304,7 +304,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         int strokeIndex = 0;
         for (current_chain = geom->begin(); current_chain != geom->end(); current_chain++)
         {
- 
+
             unsigned count = createStrokesForChain(
                 *current_chain,
                 brushes,
@@ -324,7 +324,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 splitTestInterval,
                 pOutStrokes);
 
-            strokeIndex+=    count;
+            strokeIndex += count;
         }
     }
 
@@ -353,20 +353,30 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     MStatus st;
     MPointArray editPoints;
     MFloatArray radii;
-    getPointsAndRadii(
-        current_chain, 
-        extendEntry, 
-        extendExit, 
-        editPoints, 
-        radii);
+    getPointsAndRadii(current_chain, extendEntry, extendExit, editPoints, radii);
 
     // Curve for the whole chain.
-    MObject dChainCurve;
-    st = createCurve(editPoints, dChainCurve);
-    if (st.error()) {
-         return 0;
+    ////////////////////////////
+    MFnNurbsCurve curveFn;
+    MFnNurbsCurveData dataCreator;
+    MObject curveData = dataCreator.create(&st);
+    MObject dChainCurve = curveFn.createWithEditPoints(
+        editPoints, 3, MFnNurbsCurve::kOpen, true, false, false, curveData, &st);
+    if (st.error())
+        return 0;
+    MDoubleArray knotVals;
+    st = curveFn.getKnots(knotVals);
+    int numKnots = knotVals.length();
+    double recip = 1.0 / knotVals[(numKnots - 1)];
+    for (int i = 0; i < numKnots; ++i)
+    {
+        knotVals[i] = knotVals[i] * recip;
     }
+    curveFn.setKnots(knotVals, 0, (numKnots - 1));
+    ////////////////////////////
 
+    // cerr << " MFnNurbsCurve(dChainCurve).numCVs()" << MFnNurbsCurve(dChainCurve).numCVs() << endl;
+    JPMDBG;
     MFloatVectorArray boundaries;
     unsigned num = getStrokeBoundaries(
         dChainCurve,
@@ -378,12 +388,12 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         splitAngle,
         splitTestInterval,
         boundaries);
-
+    JPMDBG;
     if (!num)
     {
         return 0;
     }
-
+    cerr << "boundaries" << boundaries << endl;
     for (int i = 0; i < num; ++i)
     {
         const float &startDist = boundaries[i].x;
@@ -417,15 +427,14 @@ unsigned skeletonStrokeNode::createStrokesForChain(
             targetRotationMatrix,
             entryTransitionLength,
             exitTransitionLength);
-        
-        if (s.size()) {
+
+        if (s.size())
+        {
             pOutStrokes->push_back(s);
             strokeIndex++;
         }
- 
     }
     return num;
-
 }
 
 unsigned skeletonStrokeNode::createStrokeData(
@@ -467,17 +476,24 @@ Stroke skeletonStrokeNode::createStroke(
     const MFloatArray &strokeRadii,
     const MFloatMatrix &targetRotationMatrix,
     float entryTransitionLength,
-    float exitTransitionLength ) const
+    float exitTransitionLength) const
 {
     MStatus st;
+    const double epsilon = 0.0001;
     unsigned len = curveParams.length();
     if (len != strokeRadii.length())
     {
+        cerr << "len != strokeRadii.length(): " << len << " != " << strokeRadii.length() << endl;
         return Stroke();
     }
+
     MFnNurbsCurve curveFn(dCurve);
+    JPMDBG
     double curveLength = curveFn.length(epsilon);
+    JPMDBG
     float brushWidth = fmax(brush.width(), 0.01);
+    cerr << "brushWidth: " << brushWidth <<   endl;
+
     float brushRadiusRecip = 2.0 / brushWidth;
 
     float forwardBias0 = fmax(0.0, brush.forwardBias0());
@@ -485,7 +501,7 @@ Stroke skeletonStrokeNode::createStroke(
 
     MFloatPointArray points;
     MFloatArray weights;
-    
+
     for (unsigned i = 0; i < len; i++)
     {
         const double &cparam = curveParams[i];
@@ -509,39 +525,10 @@ Stroke skeletonStrokeNode::createStroke(
         points.append(point);
         weights.append(weight);
     }
-    
-    return Stroke(points, weights,  targetRotationMatrix);
+    cerr << "points: " << points <<   endl;
+    cerr << "weights: " << weights <<   endl;
 
-}
-
-MStatus skeletonStrokeNode::createCurve(
-    const MPointArray &editPoints,
-    MObject &dCurve) const
-{
-    MStatus st;
-    MFnNurbsCurve curveFn;
-    MFnNurbsCurveData dataCreator;
-    MObject curveData = dataCreator.create(&st);
-    msert;
-
-    dCurve = curveFn.createWithEditPoints(
-        editPoints, 3,
-        MFnNurbsCurve::kOpen, true, false, false, curveData, &st);
-    msert;
-
-    // Normalize the knot vals
-    MDoubleArray knotVals;
-    st = curveFn.getKnots(knotVals);
-    int numKnots = knotVals.length();
-
-    double maxValRecip = 1.0 / knotVals[(numKnots - 1)];
-
-    for (int i = 0; i < numKnots; ++i)
-    {
-        knotVals[i] = knotVals[i] * maxValRecip;
-    }
-    curveFn.setKnots(knotVals, 0, (numKnots - 1));
-    return MS::kSuccess;
+    return Stroke(points, weights, targetRotationMatrix);
 }
 
 unsigned int skeletonStrokeNode::getStrokeBoundaries(
@@ -553,66 +540,157 @@ unsigned int skeletonStrokeNode::getStrokeBoundaries(
     float extendExit,
     double splitAngle,
     float splitTestInterval,
-    MFloatVectorArray &result) 
+    MFloatVectorArray &result)
 {
+    // cerr << "" << endl;
+    // cerr << "canvasNormal" << canvasNormal << endl;
+    // cerr << "strokeLength" << strokeLength << endl;
+    // cerr << "overlap" << overlap << endl;
+    // cerr << "extendEntry" << extendEntry << endl;
+    // cerr << "extendExit" << extendExit << endl;
+    // cerr << "splitAngle" << splitAngle << endl;
+    // cerr << "splitTestInterval" << splitTestInterval << endl;
+
     const double epsilon = 0.0001;
 
     MStatus st = MS::kSuccess;
-
+ 
     MFnNurbsCurve curveFn(dCurve, &st);
+    mser;
     if (st.error())
     {
         return 0;
     }
-    bool doSplitTest = (splitAngle > epsilon && splitTestInterval > 0.01);
-    double curveLen = curveFn.length(epsilon);
-    float startDist = 0;
-    float endDist;
 
+    // cerr << "curveFn.numCVs()" << curveFn.numCVs() << << endl;
+    // cerr << "curveFn.numSpans()" << curveFn.numSpans() << endl;
+    // MDoubleArray knotVals;
+    // st = curveFn.getKnots(knotVals);
+    // int numKnots = knotVals.length();
+    // cerr << "curveFn.getKnots().length()" << numKnots << endl;
+
+    // bool doSplitTest = (splitAngle > epsilon && splitTestInterval > 0.01);
+    double curveLength = curveFn.length(epsilon);
+    // cerr << "curveLen" << curveLen << endl;
+   
+    float lastEndDist = 0;
+
+    // float endDist;
+ 
     float totalStrokeLength = strokeLength + extendEntry + extendExit;
-
+  
     strokeLength = std::max(strokeLength, 0.1f);
     if (overlap >= strokeLength)
     {
         overlap = 0.0f;
     }
-
+ 
     do
     {
-        endDist = fmin((startDist + totalStrokeLength), curveLen);
 
-        // bring end dist down if we breach splitAngle
-        if (doSplitTest)
-        {
-            endDist = findEndDist(
-                dCurve, canvasNormal, startDist, endDist, splitAngle, splitTestInterval);
-        }
-
-        result.append(MFloatVector(startDist, endDist));
-        // result.append(MFloatVector(startDist - extendEntry, endDist + extendExit));
-        /* last time around hit the end */
-        if (endDist >= curveLen)
-        {
+        MFloatVector boundary;
+        bool done = getBoundary(
+            dCurve,
+            curveLength,
+            canvasNormal,
+            lastEndDist,  
+            strokeLength , 
+            overlap,
+            extendEntry, 
+            extendExit,
+            splitAngle, 
+            splitTestInterval,
+            boundary
+            );
+        if (done) {
             break;
         }
+        result.append(boundary);
+        lastEndDist =  boundary[1];
 
-        double halfLastLength = (endDist - startDist) / 2;
-        if (overlap > halfLastLength)
-        {
-            startDist = endDist - halfLastLength;
-        }
-        else
-        {
-            startDist = endDist - (overlap + extendEntry);
-        }
-        if (startDist >= curveLen)
-        {
-            break;
-        }
+        // endDist = fmin((startDist + totalStrokeLength), float(curveLen));
+
+        // // bring end dist down if we breach splitAngle
+   
+        // if (doSplitTest)
+        // {
+        //     endDist = findEndDist(
+        //         dCurve, canvasNormal, startDist, endDist, splitAngle, splitTestInterval);
+        // }
+     
+        // cerr << "Appending startDist, endDist " << startDist << " " << endDist << endl;
+        // result.append(MFloatVector(startDist, endDist));
+    
+        // // result.append(MFloatVector(startDist - extendEntry, endDist + extendExit));
+        // /* last time around hit the end */
+        // if (endDist >= curveLen)
+        // {
+        //     break;
+        // }
+    
+        // double halfLastLength = (endDist - startDist) / 2;
+        // if (overlap > halfLastLength)
+        // {
+        //     startDist = endDist - halfLastLength;
+        // }
+        // else
+        // {
+        //     startDist = endDist - (overlap + extendEntry);
+        // }
+    
+        // if (startDist >= curveLen)
+        // {
+        //     break;
+        // }
+   
     } while (true);
-
+  
     return result.length();
 }
+
+
+bool skeletonStrokeNode::getBoundary(
+    const MObject &dCurve, 
+    double curveLength,
+    const MFloatVector &canvasNormal,
+    float lastEndDist,  
+    float strokeLength , 
+    float overlap,
+    float extendEntry, 
+    float extendExit, 
+    double splitAngle,
+    float splitTestInterval,
+    MFloatVector &result
+    ) 
+{
+    bool done = true;
+    const float epsilon = 0.0001f;
+    if (lastEndDist+epsilon >=curveLength )
+    {
+        return done;
+    }
+ 
+    float startDist = lastEndDist-extendExit-extendEntry-overlap;
+    startDist = fmax(startDist, 0.0f);
+    if (startDist > curveLength) {
+        return done;
+    }
+ 
+    float endDist = startDist+extendEntry+ strokeLength ;
+
+    bool doSplitTest = (splitAngle > epsilon && splitTestInterval > 0.01);
+    if (doSplitTest)
+    {
+        endDist = findEndDist(dCurve, canvasNormal, startDist, endDist, splitAngle, splitTestInterval);
+    }
+    endDist += extendExit;
+    if (endDist >= curveLength ) {
+        endDist = curveLength;
+    }
+    result = MFloatVector(startDist, endDist);
+    return false;
+}
+
 
 float skeletonStrokeNode::findEndDist(
     const MObject &dCurve,
@@ -620,7 +698,7 @@ float skeletonStrokeNode::findEndDist(
     float startDist,
     float endDist,
     double splitAngle,
-    float splitTestInterval) 
+    float splitTestInterval)
 {
 
     float leftExtent = 0;
@@ -743,10 +821,11 @@ const std::pair<int, Brush> skeletonStrokeNode::selectBrush(
     If there are no brushes (should never happen!!),
     then we return a pair with key -1.
     */
-    if (! brushes.size()) {
+    if (!brushes.size())
+    {
         return std::pair<int, Brush>();
     }
-    std::pair<int, Brush> result ;
+    std::pair<int, Brush> result;
     // = std::map(-1, Brush());
 
     std::vector<std::pair<int, Brush> >::const_iterator brushIter;
@@ -773,13 +852,13 @@ void skeletonStrokeNode::getPointsAndRadii(
     MPointArray &points,
     MFloatArray &radii) const
 {
-    const float epsilon = 0.0001;
+    const float fepsilon = 0.0001;
 
     radii.clear();
     points.clear();
 
-    const int hasExtendedEntry = (extendEntry > epsilon) ? 1 : 0;
-    const int hasExtendedExit = (extendExit > epsilon) ? 1 : 0;
+    const int hasExtendedEntry = (extendEntry > fepsilon) ? 1 : 0;
+    const int hasExtendedExit = (extendExit > fepsilon) ? 1 : 0;
 
     std::vector<skPoint>::const_iterator p0, p1;
     skPoint extendedEntryPoint, extendedExitPoint;
@@ -816,14 +895,12 @@ void skeletonStrokeNode::getPointsAndRadii(
         radii.append(extendedExitPoint.radius);
     }
 }
- 
+
 void skeletonStrokeNode::postConstructor()
 {
     setExistWithoutInConnections(false);
     setExistWithoutOutConnections(true);
 }
-
-
 
 // void skeletonStrokeNode::getPointsAndWeights(
 //     const skChain &chain,
@@ -892,8 +969,6 @@ void skeletonStrokeNode::postConstructor()
 //         weights.append(fmin((extendedExitPoint.radius * brushRadiusRecip), 1.0));
 //     }
 // }
-
-
 
 // MPointArray editPoints;
 // MDoubleArray contacts;
@@ -974,7 +1049,6 @@ void skeletonStrokeNode::postConstructor()
 //         pStrokes);
 // }
 
-
 // MStatus skeletonStrokeNode::createStroke(
 //     const MObject &dCurve,
 //     const MFloatMatrix &targetRotationMatrix,
@@ -1023,7 +1097,6 @@ void skeletonStrokeNode::postConstructor()
 //     }
 
 //     Stroke(pts, targetRotationMatrix, strokeIndex
-
 
 //     double pivotDist = startDist + (strokeRange * pivotParam);
 //     m_pivot = Target(curveFn, pivotDist, startDist, strokeRange, curveLength);
