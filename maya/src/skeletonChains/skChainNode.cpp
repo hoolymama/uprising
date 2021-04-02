@@ -294,31 +294,20 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
   {
     stepPixels = 1;
   }
-  int maxWidthPixels = int(data.inputValue(aMaxWidth).asFloat() * cmToPixels);
-  if (maxWidthPixels < 1)
-  {
-    maxWidthPixels = 1;
-  }
+  float maxRadiusPixels = data.inputValue(aMaxWidth).asFloat() * cmToPixels *0.5f;
+  maxRadiusPixels = std::max(maxRadiusPixels, 1.0f);
 
-  int maxStampWidthPixels = int(data.inputValue(aMaxStampWidth).asFloat() * cmToPixels);
-  if (maxStampWidthPixels < 1)
-  {
-    maxStampWidthPixels = 1;
-  }
+
+  float maxStampRadiusPixels =  data.inputValue(aMaxStampWidth).asFloat() * cmToPixels *0.5f;
+  maxStampRadiusPixels = std::max(maxStampRadiusPixels,  1.0f);
 
   float radiusOffsetPixels = int(data.inputValue(aRadiusOffset).asFloat() * cmToPixels);
   float radiusMult = data.inputValue(aRadiusMult).asFloat();
   int maxIterations = data.inputValue(aMaxIterations).asInt();
 
-  if (maxWidthPixels < 1)
-  {
-    maxWidthPixels = 1;
-  }
-
   CImg<unsigned char> image = pImage->get_norm().normalize(0, 1);
 
-  // if (median) { image.blur_median(median); }
-
+ 
   for (int i = 0; i < maxIterations; ++i)
   {
     // make a skeleton image from the BW image
@@ -347,9 +336,9 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
       break;
     }
     // limit brush size
-    g.clampRadius(maxWidthPixels);
+    g.clampRadius(maxRadiusPixels);
 
-    g.draw(image, maxStampWidthPixels);
+    g.draw(image, maxStampRadiusPixels);
 
     g.adjustRadius(radiusMult, radiusOffsetPixels);
 

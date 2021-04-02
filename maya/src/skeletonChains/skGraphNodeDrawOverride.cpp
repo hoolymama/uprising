@@ -93,8 +93,7 @@ MUserData *skGraphNodeDrawOverride::prepareForDraw(
 	if (st.error()) {return NULL;}
 
 	MPlug(skGraphNodeObj, skGraphNode::aPointSize).getValue(data->pointSize);
-	MPlug(skGraphNodeObj, skGraphNode::aRadiusMult).getValue(data->radiusMult);
-
+ 
 	MColor c1, c2;
 	MPlug(skGraphNodeObj, skGraphNode::aColor1).child(0).getValue(c1[0]);
 	MPlug(skGraphNodeObj, skGraphNode::aColor1).child(1).getValue(c1[1]);
@@ -103,8 +102,6 @@ MUserData *skGraphNodeDrawOverride::prepareForDraw(
 	MPlug(skGraphNodeObj, skGraphNode::aColor2).child(0).getValue(c2[0]);
 	MPlug(skGraphNodeObj, skGraphNode::aColor2).child(1).getValue(c2[1]);
 	MPlug(skGraphNodeObj, skGraphNode::aColor2).child(2).getValue(c2[2]);
-
-
 
 	// Need points for the UIDrawable
 	MObject d;
@@ -163,11 +160,6 @@ MUserData *skGraphNodeDrawOverride::prepareForDraw(
 			}
 		}
 	}
-
-
-
-
-
 	return data;
 }
 
@@ -183,20 +175,14 @@ void skGraphNodeDrawOverride::addUIDrawables(
 
 	if (cdata->drawPoints)
 	{
-		// cerr << "drawPoints(drawManager, cdata)"  << endl;
-
 		drawPoints(drawManager, cdata);
 	}
 	if (cdata->drawEdges)
 	{
-		// cerr << "drawEdges(drawManager, cdata)"  << endl;
-
 		drawEdges(drawManager, cdata);
 	}
 	if (cdata->drawCircles)
 	{
-		// cerr << "drawCircles(drawManager, cdata)"  << endl;
-
 		drawCircles(drawManager, cdata);
 	}
 }

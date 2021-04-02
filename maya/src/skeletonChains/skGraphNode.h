@@ -49,7 +49,6 @@ public:
   static MObject aOutParams;
   static MObject aOutCounts;
 
-  static MObject aRadiusMult;
   static MObject aDrawEdges;
   static MObject aDrawPoints;
   static MObject aDrawCircles;

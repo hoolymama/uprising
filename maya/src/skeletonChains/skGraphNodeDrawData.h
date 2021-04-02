@@ -22,7 +22,6 @@ public:
 	virtual ~skGraphNodeDrawData();
 
 	float pointSize       ;
-	float radiusMult      ;
 	MColorArray colors     ;
 	MPointArray points;
 	MDoubleArray radius;
@@ -30,7 +29,6 @@ public:
 	bool drawEdges        ;
 	bool drawPoints       ;
 	bool drawCircles      ;
-	// bool randomChainColor ;
 
 };
 

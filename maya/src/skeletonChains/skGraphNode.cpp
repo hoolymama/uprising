@@ -70,7 +70,6 @@ MObject skGraphNode::aPointSize;
 MObject skGraphNode::aColor1;
 MObject skGraphNode::aColor2;
 
-MObject skGraphNode::aRadiusMult;
 MObject skGraphNode::aDrawEdges;
 MObject skGraphNode::aDrawPoints;
 MObject skGraphNode::aDrawCircles;
@@ -112,13 +111,7 @@ MStatus skGraphNode::initialize()
 	nAttr.setKeyable(true);
 	st = addAttribute(aPointSize);
 	mser;
-
-	aRadiusMult = nAttr.create("radiusMult", "radiusMult", MFnNumericData::kFloat);
-	nAttr.setDefault(2.0f);
-	nAttr.setKeyable(true);
-	st = addAttribute(aRadiusMult);
-	mser;
-
+ 
 	aColor1 = nAttr.createColor("drawColor1", "dc1");
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);

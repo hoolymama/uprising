@@ -44,9 +44,9 @@ public:
 
     void  draw(
         CImg<unsigned char>  &image,
-        int maxStampWidthPixels) const;
+        float maxStampRadiusPixels) const;
 
-    void clampRadius(int maxWidth);
+    void clampRadius(float maxRadius);
 
 
     void adjustRadius(float mult, float offset);
