@@ -25,10 +25,6 @@ protected:
       MDataBlock &data,
       std::vector<Stroke> *geom) ;
 
-  virtual void filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;
-  virtual void sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;
-  virtual bool setFilterMapColor(std::vector<Stroke> *geom) const;
-  virtual bool setSortMapColor(std::vector<Stroke> *geom) const;
 
   void getPivotPoints(
     const std::vector<Stroke> *geom,
@@ -57,6 +53,16 @@ protected:
   static MObject aEndAt;
 
   static MObject aOutput;
+
+private:
+  void setStrokeIds( std::vector<Stroke> *geom) const;
+  void filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;
+  void sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;
+  bool setFilterMapColor(std::vector<Stroke> *geom) const;
+  bool setSortMapColor(std::vector<Stroke> *geom) const;
+
+
+
 };
 
 #endif

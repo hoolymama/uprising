@@ -7,7 +7,7 @@ const double rad_to_deg = (180 / 3.1415927);
 Target::Target() : m_matrix(),
 				   m_drawTangent(),
 				   m_weight(1.0f),
-				   m_color(0.0, 0.0, 0.0)
+				   m_color(0.0, 0.0, 0.0, 0.0)
 {
 }
 
@@ -17,8 +17,15 @@ Target::Target(
 	float weight)
 	: m_matrix(mat),
 	  m_drawTangent(tangent),
-	  m_weight(weight),
-	  m_color(0.0, 0.0, 0.0)
+	  m_weight(weight)
+{
+}
+
+Target::Target(
+	const MFloatMatrix &mat,
+	float weight)
+	: m_matrix(mat),
+	  m_weight(weight)
 {
 }
 
@@ -27,20 +34,9 @@ Target::Target(
 	const MFloatVector &tangent,
 	float weight,
 	const MColor &color)
-	: m_matrix(mat),
-	  m_drawTangent(tangent),
+	: m_drawTangent(tangent),
 	  m_weight(weight),
 	  m_color(color)
-{
-}
-
-Target::Target(
-	const MFloatMatrix &mat,
-	float weight)	
-	: m_matrix(mat),
-	  m_weight(weight),
-	  m_drawTangent(),
-	  m_color()
 {
 }
 
@@ -51,16 +47,19 @@ void Target::setTangent(const MFloatVector &tangent)
 	m_drawTangent = tangent;
 }
 
-MFloatVector Target::xAxis() const{
-	return 	MFloatVector(m_matrix[0][0],m_matrix[0][1],m_matrix[0][2]);
+MFloatVector Target::xAxis() const
+{
+	return MFloatVector(m_matrix[0][0], m_matrix[0][1], m_matrix[0][2]);
 }
 
-MFloatVector Target::yAxis() const{
-	return 	MFloatVector(m_matrix[1][0],m_matrix[1][1],m_matrix[1][2]);
+MFloatVector Target::yAxis() const
+{
+	return MFloatVector(m_matrix[1][0], m_matrix[1][1], m_matrix[1][2]);
 }
 
-MFloatVector Target::zAxis() const{
-	return 	MFloatVector(m_matrix[2][0],m_matrix[2][1],m_matrix[2][2]);
+MFloatVector Target::zAxis() const
+{
+	return MFloatVector(m_matrix[2][0], m_matrix[2][1], m_matrix[2][2]);
 }
 
 void Target::applyAxisAngleRotation(const MFloatVector &axis, float angle)
@@ -102,7 +101,7 @@ float Target::distanceTo(const Target &other) const
 }
 
 // For Arrow Drawing
-MFloatMatrix Target::viewMatrix(const MFloatVector &planeNormal ) const
+MFloatMatrix Target::viewMatrix(const MFloatVector &planeNormal) const
 {
 	// we will draw arrows
 	MFloatVector side = (planeNormal ^ m_drawTangent).normal();
@@ -207,7 +206,6 @@ MFloatVector Target::rotation(
 	return MFloatVector(rotValue[0], rotValue[1], rotValue[2]);
 }
 
-
 void Target::offsetBy(const MFloatVector &offset)
 {
 	m_matrix[3][0] = m_matrix[3][0] + offset.x;
@@ -256,7 +254,6 @@ const float &Target::weight() const
 {
 	return m_weight;
 }
-
 
 void Target::setColor(const MColor &color)
 {
@@ -327,8 +324,6 @@ float Target::luminance() const
 // 	// m_tangent = m_tangent * rotation;
 // }
 
-
-
 // const float &Target::param() const
 // {
 // 	return m_param;
@@ -343,7 +338,6 @@ float Target::luminance() const
 // {
 // 	return m_arcLength;
 // }
-
 
 // void Target::setUV(
 // 	const MFloatMatrix &inversePlaneMatrix)

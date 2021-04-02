@@ -100,17 +100,14 @@ public:
  *
  * @param points An array of points.
  * @param rotationMat A matrix, which is expected to be unit scale. 
- * @param index The stroke ID
  */
 	Stroke(
 		const MFloatPointArray &points,
-		const MFloatMatrix &rotationMat,
-		unsigned index);
+		const MFloatMatrix &rotationMat);
 
 
 	Stroke(
-		const std::vector<MFloatMatrix> &matrices,
-		unsigned index);
+		const std::vector<MFloatMatrix> &matrices);
 
 
 
@@ -122,8 +119,7 @@ public:
 
 	Stroke(
 		const std::vector<MFloatMatrix> &matrices,
-		const MFloatArray & weights,
-		unsigned index);
+		const MFloatArray & weights);
 
 	/**
 	 * @brief Construct a new Stroke from a subsection of the input stroke.
@@ -131,16 +127,16 @@ public:
 	 * @param instroke The stroke to create a new stroke from.
 	 * @param start The target index to start at
 	 * @param count The number of targets.
-	 * @param index The stroke id of the new stroke.
 	 */
 	Stroke(
 		const Stroke &instroke,
 		unsigned start,
-		unsigned count,
-		unsigned index);
+		unsigned count);
 
 
 	~Stroke();
+
+	void  setStrokeId(unsigned rhs);
 
 	void resetTangents();
 
@@ -151,6 +147,8 @@ public:
 	void calculateTangents(
 		const std::vector<MFloatMatrix> &matrices,
 		MFloatVectorArray &tangents) const;
+
+	unsigned valid() const;
 
 	unsigned size(bool withTraversal = false) const;
 

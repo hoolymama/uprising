@@ -301,7 +301,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         const std::vector<skChain> *geom = scData->fGeometry;
         std::vector<skChain>::const_iterator current_chain;
 
-        int strokeIndex = 0;
+        // int strokeIndex = 0;
         for (current_chain = geom->begin(); current_chain != geom->end(); current_chain++)
         {
 
@@ -310,7 +310,6 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 brushes,
                 targetRotationMatrix,
                 canvasNormal,
-                strokeIndex,
                 parentIndex,
                 minimumPoints,
                 pointDensity,
@@ -324,7 +323,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 splitTestInterval,
                 pOutStrokes);
 
-            strokeIndex += count;
+ 
         }
     }
 
@@ -336,7 +335,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     const std::vector<std::pair<int, Brush> > &brushes,
     const MFloatMatrix &targetRotationMatrix,
     const MFloatVector &canvasNormal,
-    unsigned strokeIndex,
+    // unsigned strokeIndex,
     unsigned parentIndex,
     int minimumPoints,
     float pointDensity,
@@ -376,7 +375,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     ////////////////////////////
 
     // cerr << " MFnNurbsCurve(dChainCurve).numCVs()" << MFnNurbsCurve(dChainCurve).numCVs() << endl;
-    JPMDBG;
+    ;
     MFloatVectorArray boundaries;
     unsigned num = getStrokeBoundaries(
         dChainCurve,
@@ -388,7 +387,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         splitAngle,
         splitTestInterval,
         boundaries);
-    JPMDBG;
+    ;
     if (!num)
     {
         return 0;
@@ -419,7 +418,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
 
         const Brush &brush = selectedBrushPair.second;
 
-        Stroke s = createStroke(
+        Stroke stroke = createStroke(
             dChainCurve,
             brush,
             curveParams,
@@ -428,10 +427,9 @@ unsigned skeletonStrokeNode::createStrokesForChain(
             entryTransitionLength,
             exitTransitionLength);
 
-        if (s.size())
+        if (stroke.valid())
         {
-            pOutStrokes->push_back(s);
-            strokeIndex++;
+            pOutStrokes->push_back(stroke);
         }
     }
     return num;
@@ -488,9 +486,9 @@ Stroke skeletonStrokeNode::createStroke(
     }
 
     MFnNurbsCurve curveFn(dCurve);
-    JPMDBG
+    
     double curveLength = curveFn.length(epsilon);
-    JPMDBG
+    
     float brushWidth = fmax(brush.width(), 0.01);
     cerr << "brushWidth: " << brushWidth <<   endl;
 
@@ -527,6 +525,7 @@ Stroke skeletonStrokeNode::createStroke(
     }
     cerr << "points: " << points <<   endl;
     cerr << "weights: " << weights <<   endl;
+
 
     return Stroke(points, weights, targetRotationMatrix);
 }

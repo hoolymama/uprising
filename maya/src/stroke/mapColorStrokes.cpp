@@ -295,16 +295,15 @@ void mapColorStrokes::removeBlackSpans(
   cerr << "sourceStrokes.size()" << sourceStrokes.size() << endl;
   std::vector<Stroke>::iterator iter = sourceStrokes.begin();
   std::vector<Stroke>::iterator enditer = sourceStrokes.end();
-  
-  unsigned newStrokeIndex = 0;
+
   for (; iter != enditer; iter++)
   {
-    
+
     // get the ids of targets that are bright enough
     MIntArray brightIds;
     std::vector<Target>::const_iterator titer = iter->targets().begin();
     std::vector<Target>::const_iterator tenditer = iter->targets().end();
-    for (unsigned j=0; titer != tenditer; titer++, j++)
+    for (unsigned j = 0; titer != tenditer; titer++, j++)
     {
       if (titer->luminance() > thresh)
       {
@@ -321,18 +320,18 @@ void mapColorStrokes::removeBlackSpans(
     // loop through the bright IDs and calculate a begin and end for each
     // contiguous chain of targets. A contiguous chain is defined as targets
     // above a bightness threshold with no more than 3 non-bright targets
-    // separating them from another chain. 
+    // separating them from another chain.
     for (unsigned i = 0; i < leng; i++)
     {
       unsigned this_id = brightIds[i];
 
       if (gap)
       {
-        startPeg = (this_id > 0) ? this_id - 1 :  this_id;
+        startPeg = (this_id > 0) ? this_id - 1 : this_id;
         gap = false;
       }
       endPeg = this_id + 1;
-      
+
       if (i < (leng - 1) && (brightIds[i + 1] - brightIds[i]) > 3)
       {
         gap = true;
@@ -344,9 +343,8 @@ void mapColorStrokes::removeBlackSpans(
         {
           endPeg += 1;
         }
-        unsigned count = endPeg-startPeg ;
-        strokes->push_back(Stroke(*iter, startPeg, count, newStrokeIndex ));
-        newStrokeIndex ++;
+        unsigned count = endPeg - startPeg;
+        strokes->push_back(Stroke(*iter, startPeg, count));
       }
     }
   }

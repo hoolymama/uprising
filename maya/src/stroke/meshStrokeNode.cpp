@@ -93,13 +93,13 @@ MStatus meshStrokeNode::generateStrokeGeometry(
 
     delete pGraph;
 
-    int strokeIndex = 0;
+
     std::vector<MFloatPointArray>::const_iterator iter = chains.begin();
-    for (; iter != chains.end(); iter++, strokeIndex++)
+    for (; iter != chains.end(); iter++)
     {
         MFloatPointArray pts;
         subdivide(*iter,pointDensity, pts);
-        pStrokes->push_back(Stroke(pts, targetRotationMatrix, strokeIndex));
+        pStrokes->push_back(Stroke(pts, targetRotationMatrix));
     }
     return (MS::kSuccess);
 }

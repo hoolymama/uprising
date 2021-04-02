@@ -64,13 +64,13 @@ MStatus strokeNodeBase::initialize()
  
 
   aStrokeSortKey = eAttr.create("strokeSortKey", "stsk", Stroke::kBrushId);
-  eAttr.addField("Id", Stroke::kStrokeId);
+
   eAttr.addField("Brush Id", Stroke::kBrushId);
   eAttr.addField("Paint Id", Stroke::kPaintId);
   eAttr.addField("Repeat Id", Stroke::kRepeatId);
   eAttr.addField("Layer Id", Stroke::kLayerId);
   eAttr.addField("Target Count", Stroke::kTargetCount);
-  eAttr.addField("Custom Brush Id", Stroke::kCustomBrushId);
+
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
@@ -102,13 +102,13 @@ MStatus strokeNodeBase::initialize()
   addAttribute(aApplySort);
 
   aStrokeFilterKey = eAttr.create("strokeFilterKey", "stfk", Stroke::kBrushId);
-  eAttr.addField("Id", Stroke::kStrokeId);
+
   eAttr.addField("Brush Id", Stroke::kBrushId);
   eAttr.addField("Paint Id", Stroke::kPaintId);
   eAttr.addField("Repeat Id", Stroke::kRepeatId);
   eAttr.addField("Layer Id", Stroke::kLayerId);
   eAttr.addField("Target Count", Stroke::kTargetCount);
-  eAttr.addField("Custom Brush Id", Stroke::kCustomBrushId);
+
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
@@ -215,6 +215,7 @@ MStatus strokeNodeBase::compute(const MPlug &plug, MDataBlock &data)
 	short int nodeState = data.inputValue( state).asShort();
 	if (nodeState == 0)  {
     st = generateStrokeGeometry(data, geom);
+    setStrokeIds(geom);
     filterStrokes(data, geom);
     sortStrokes(data, geom);
     cullStartEnd(data, geom);
@@ -223,6 +224,16 @@ MStatus strokeNodeBase::compute(const MPlug &plug, MDataBlock &data)
   hOutput.set(newData);
   hOutput.setClean();
   return MS::kSuccess;
+}
+
+void strokeNodeBase::setStrokeIds( std::vector<Stroke> *geom)  const
+{
+  unsigned i = 0;
+  std::vector<Stroke>::iterator iter = geom->begin();
+  for (; iter != geom->end(); iter++, i++)
+  {
+     iter->setStrokeId(i);
+  }
 }
 
 void strokeNodeBase::getPivotPoints(const std::vector<Stroke> *geom, MFloatPointArray &result) const
@@ -356,10 +367,6 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
 
     switch (key)
     {
-    case Stroke::kStrokeId:
-      new_end = std::remove_if(geom->begin(), geom->end(),
-                               [op, value](const Stroke &stroke) { return stroke.testStrokeId(op, value) == false; });
-      break;
 
     case Stroke::kBrushId:
       new_end = std::remove_if(geom->begin(), geom->end(),
@@ -380,11 +387,6 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
     case Stroke::kTargetCount:
       new_end = std::remove_if(geom->begin(), geom->end(),
                                [op, value](const Stroke &stroke) { return stroke.testTargetCount(op, value) == false; });
-      break;
-
-    case Stroke::kCustomBrushId:
-      new_end = std::remove_if(geom->begin(), geom->end(),
-                               [op, value](const Stroke &stroke) { return stroke.testCustomBrushId(op, value) == false; });
       break;
 
     case Stroke::kMapRed:
@@ -492,12 +494,7 @@ void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) co
     bool ascending = (sortiter->second == Stroke::kSortAscending);
     switch (sortiter->first)
     {
-    case Stroke::kStrokeId:
-      for (iter = geom->begin(); iter != geom->end(); iter++)
-      {
-        iter->appendStrokeIdToSortStack(ascending);
-      }
-      break;
+   
     case Stroke::kBrushId:
       for (iter = geom->begin(); iter != geom->end(); iter++)
       {
@@ -526,12 +523,6 @@ void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) co
       for (iter = geom->begin(); iter != geom->end(); iter++)
       {
         iter->appendTargetCountToSortStack(ascending);
-      }
-      break;
-    case Stroke::kCustomBrushId:
-      for (iter = geom->begin(); iter != geom->end(); iter++)
-      {
-        iter->appendCustomBrushIdToSortStack(ascending);
       }
       break;
 

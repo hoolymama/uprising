@@ -32,7 +32,6 @@ private:
         const std::vector<std::pair<int, Brush> > &brushes,
         const MFloatMatrix &targetRotationMatrix,
         const MFloatVector &canvasNormal,
-        unsigned strokeIndex,
         unsigned parentIndex,
         int minimumPoints,
         float pointDensity,
@@ -74,18 +73,6 @@ private:
         MPointArray &points,
         MFloatArray &radii) const;
 
-    // void getPointsAndContacts(const skChain &chain,
-    //                           const std::pair<int, Brush> &indexedBrush,
-    //                           float entryLength,
-    //                           float exitLength,
-    //                           float extendEntry,
-    //                           float extendExit,
-    //                           MDoubleArray &contacts,
-    //                           MPointArray &points) const;
-
-    // const std::pair<int, Brush> selectBrush(
-    //     const skChain &chain,
-    //     const std::vector<std::pair<int, Brush> > &brushes) const;
     const std::pair<int, Brush> selectBrush(
         float radius,
         const std::vector<std::pair<int, Brush> > &brushes) const;
@@ -121,13 +108,7 @@ private:
         double splitAngle,
         float splitTestInterval,
         MFloatVector &result) ;
-    // unsigned int getStrokeBoundaries(
-    //     const MObject &dCurve,
-    //     float strokeLength,
-    //     float overlap,
-    //     MVectorArray &result) const;
-
-    // CImg<float> *getImage(MDataBlock &data, MObject &attribute )const;
+    
 
     void setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
                      double approachStart, double approachMid, double approachEnd) const;
@@ -154,7 +135,7 @@ private:
     static MObject aExtendExit;
     static MObject aMinimumPoints;
     static MObject aStrokeDirectionMap;
-    // static MObject aOutCoil;
+ 
 
     float m_maxCoil; //> The maximum value of coils
 };

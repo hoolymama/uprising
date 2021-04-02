@@ -13,25 +13,26 @@
 
 const double epsilon = 0.0001;
 
-Stroke::Stroke(){}
-
-
-Stroke::Stroke(
-	const MFloatPointArray &points,
-	const MFloatMatrix &rotationMat,
-	unsigned index)
+Stroke::Stroke()
 	: m_targets(),
 	  m_pivot(),
-	  m_strokeId(index),
-
+	  m_parentId(0),
+	  m_repeatId(0),
+	  m_layerId(0),
 	  m_sortColor(),
 	  m_filterColor(),
 	  m_sortStack(),
-
 	  m_arrivals(),
 	  m_departure(),
 	  m_linearSpeed(0.0),
-	  m_angularSpeed(0.0) 
+	  m_angularSpeed(0.0)
+{
+}
+
+Stroke::Stroke(
+	const MFloatPointArray &points,
+	const MFloatMatrix &rotationMat)
+	: Stroke()
 {
 	MStatus st;
 	int len = points.length();
@@ -47,28 +48,12 @@ Stroke::Stroke(
 	resetTangents();
 }
 
-
 Stroke::Stroke(
-	const std::vector<MFloatMatrix> &matrices,
-	unsigned index)
-	: m_targets(),
-	  m_pivot(),
-
-	  m_strokeId(index),
- 
-	  m_sortColor(),
-	  m_filterColor(),
-	  m_sortStack(),
- 
-	  m_arrivals(),
-	  m_departure(),
-	  m_linearSpeed(0.0),
-	  m_angularSpeed(0.0)
+	const std::vector<MFloatMatrix> &matrices)
+	: Stroke()
 {
 
 	MStatus st;
-
- 
 	unsigned i = 0;
 	std::vector<MFloatMatrix>::const_iterator current_matrix = matrices.begin();
 	for (; current_matrix != matrices.end(); current_matrix++, i++)
@@ -81,27 +66,16 @@ Stroke::Stroke(
 	resetTangents();
 }
 
-
 Stroke::Stroke(
 	const MFloatPointArray &points,
 	const MFloatArray &weights,
 	const MFloatMatrix &rotationMat)
-	: m_targets(),
-	  m_pivot(),
-
-	  m_sortColor(),
-	  m_filterColor(),
-	  m_sortStack(),
-
-	  m_arrivals(),
-	  m_departure(),
-	  m_linearSpeed(0.0),
-	  m_angularSpeed(0.0) 
+	: Stroke()
 {
 
 	MStatus st;
 	int len = points.length();
-	
+
 	MFloatMatrix mat = rotationMat;
 	for (size_t i = 0; i < len; i++)
 	{
@@ -111,32 +85,18 @@ Stroke::Stroke(
 
 		m_targets.push_back(Target(mat, weights[i]));
 	}
- 
+
 	m_pivot = Target(m_targets[0]);
 	resetTangents();
 }
 
-
 Stroke::Stroke(
 	const std::vector<MFloatMatrix> &matrices,
-	const MFloatArray & weights,
-	unsigned index)
-	: m_targets(),
-	  m_pivot(),
-	  m_strokeId(index),
-
-	  m_sortColor(),
-	  m_filterColor(),
-	  m_sortStack(),
-
-	  m_arrivals(),
-	  m_departure(),
-	  m_linearSpeed(1.0),
-	  m_angularSpeed(1.0)
+	const MFloatArray &weights)
+	: Stroke()
 {
 	MStatus st;
 
- 
 	unsigned i = 0;
 	std::vector<MFloatMatrix>::const_iterator current_matrix = matrices.begin();
 	for (; current_matrix != matrices.end(); current_matrix++, i++)
@@ -149,27 +109,11 @@ Stroke::Stroke(
 	resetTangents();
 }
 
-
-
 Stroke::Stroke(
 	const Stroke &instroke,
 	unsigned start,
-	unsigned count,
-	unsigned index)
-	: m_targets(),
-	  m_pivot(),
-
-	  m_strokeId(index),
- 
-	  m_sortColor(),
-	  m_filterColor(),
-
-	  m_arrivals(),
-	  m_departure(),
-	  m_linearSpeed(0.0),
-	  m_angularSpeed(0.0),
-
-	  m_sortStack()
+	unsigned count)
+	: Stroke()
 {
 
 	if ((start + count) > instroke.targets().size() || count < 2)
@@ -189,10 +133,6 @@ Stroke::Stroke(
 	resetTangents(); // because the end tangents will change.
 }
 
-
-
-
-
 void Stroke::resetTangents()
 {
 
@@ -200,7 +140,7 @@ void Stroke::resetTangents()
 	std::vector<Target>::const_iterator piter;
 	std::vector<Target>::const_iterator niter;
 
-	for (citer =  m_targets.begin(); citer != m_targets.end(); citer++)
+	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
 	{
 		piter = citer == m_targets.begin() ? citer : std::prev(citer);
 		niter = std::next(citer) == m_targets.end() ? citer : std::next(citer);
@@ -208,46 +148,10 @@ void Stroke::resetTangents()
 	}
 }
 
-// void Stroke::calculateTangents(
-// 	const MFloatPointArray &points, 
-// 	MFloatVectorArray &tangents) const
-// {
-// 	tangents.clear();
-// 	unsigned len = points.length();
-// 	const MFloatPoint *prev;
-// 	const MFloatPoint *next;
-// 	for (size_t i = 0; i < len; i++)
-// 	{
-// 		prev = (i == 0) ? &points[0] : &points[i - 1];
-// 		next = (i == len - 1) ? &points[i] : &points[i + 1];
-
-// 		tangents.append((*next - *prev).normal());
-// 	}
-// }
-
-// void Stroke::calculateTangents(
-// 	const std::vector<MFloatMatrix> &matrices,
-// 	MFloatVectorArray &tangents) const
-// {
-// 	tangents.clear();
-// 	unsigned len = matrices.size();
-// 	if (matrices.size() < 2)
-// 	{
-// 		return;
-// 	}
-// 	std::vector<MFloatMatrix>::const_iterator citer, piter, niter;
-
-// 	for (; citer != matrices.end(); citer++)
-// 	{
-
-// 		piter = citer == matrices.begin() ? citer : std::prev(citer);
-// 		niter = std::next(citer) == matrices.end() ? citer : std::next(citer);
-
-// 		MFloatPoint next((*niter)[3][0], (*niter)[3][1], (*niter)[3][2]);
-// 		MFloatPoint prev((*piter)[3][0], (*piter)[3][1], (*piter)[3][2]);
-// 		tangents.append((next - prev).normal());
-// 	}
-// }
+void Stroke::setStrokeId(unsigned rhs)
+{
+	m_strokeId = rhs;
+}
 
 float Stroke::calculateArcLength() const
 {
@@ -411,6 +315,10 @@ const std::vector<Target> &Stroke::targets() const
 	return m_targets;
 }
 
+unsigned Stroke::valid() const
+{
+	return m_targets.size() > 1;
+}
 unsigned Stroke::size(bool withTraversal) const
 {
 	if (withTraversal)
@@ -491,11 +399,11 @@ void Stroke::setFilterColor(const MFloatVector &color)
 	m_filterColor = color;
 }
 
-void Stroke::appendStrokeIdToSortStack(bool ascending)
-{
-	int val = ascending ? m_strokeId : -m_strokeId;
-	m_sortStack.append(val);
-}
+// void Stroke::appendStrokeIdToSortStack(bool ascending)
+// {
+// 	int val = ascending ? m_strokeId : -m_strokeId;
+// 	m_sortStack.append(val);
+// }
 
 void Stroke::appendParentIdToSortStack(bool ascending)
 {
@@ -509,11 +417,11 @@ void Stroke::appendBrushIdToSortStack(bool ascending)
 	m_sortStack.append(val);
 }
 
-void Stroke::appendCustomBrushIdToSortStack(bool ascending)
-{
-	int val = ascending ? int(m_customBrushId) : -int(m_customBrushId);
-	m_sortStack.append(val);
-}
+// void Stroke::appendCustomBrushIdToSortStack(bool ascending)
+// {
+// 	int val = ascending ? int(m_customBrushId) : -int(m_customBrushId);
+// 	m_sortStack.append(val);
+// }
 
 void Stroke::appendPaintIdToSortStack(bool ascending)
 {
@@ -573,10 +481,10 @@ bool Stroke::testAgainstValue(int lhs, FilterOperator op, int rhs) const
 	}
 }
 
-bool Stroke::testStrokeId(FilterOperator op, int value) const
-{
-	return testAgainstValue(m_strokeId, op, value);
-}
+// bool Stroke::testStrokeId(FilterOperator op, int value) const
+// {
+// 	return testAgainstValue(m_strokeId, op, value);
+// }
 bool Stroke::testParentId(FilterOperator op, int value) const
 {
 	return testAgainstValue(m_parentId, op, value);
@@ -586,10 +494,10 @@ bool Stroke::testBrushId(FilterOperator op, int value) const
 	return testAgainstValue(m_brushId, op, value);
 }
 
-bool Stroke::testCustomBrushId(FilterOperator op, int value) const
-{
-	return testAgainstValue(m_customBrushId, op, value);
-}
+// bool Stroke::testCustomBrushId(FilterOperator op, int value) const
+// {
+// 	return testAgainstValue(m_customBrushId, op, value);
+// }
 
 bool Stroke::testPaintId(FilterOperator op, int value) const
 {
@@ -969,7 +877,6 @@ void Stroke::colors(MColorArray &result) const
 // 		riter->setWeight(contact);
 // 	}
 // }
-
 
 //
 // void Stroke::offsetBrushContact(const Brush &brush)
