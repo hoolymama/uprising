@@ -23,12 +23,11 @@ public:
 protected:
   virtual MStatus generateStrokeGeometry(
       MDataBlock &data,
-      std::vector<Stroke> *geom) ;
-
+      std::vector<Stroke> *geom);
 
   void getPivotPoints(
-    const std::vector<Stroke> *geom,
-    MFloatPointArray &result) const;
+      const std::vector<Stroke> *geom,
+      MFloatPointArray &result) const;
 
   void getTargetPoints(
       const std::vector<Stroke> *geom,
@@ -55,14 +54,11 @@ protected:
   static MObject aOutput;
 
 private:
-  void setStrokeIds( std::vector<Stroke> *geom) const;
+  void setStrokeIds(std::vector<Stroke> *geom) const;
   void filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;
   void sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) const;
   bool setFilterMapColor(std::vector<Stroke> *geom) const;
   bool setSortMapColor(std::vector<Stroke> *geom) const;
-
-
-
 };
 
 #endif
