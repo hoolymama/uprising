@@ -76,6 +76,7 @@ void *brushNode::creator()
 }
 
 const double epsilon = 0.0001;
+MObject brushNode::aInMatrix;
 
 MObject brushNode::aPhysicalId;
 MObject brushNode::aWidth;
@@ -125,6 +126,12 @@ MStatus brushNode::initialize()
 
   MFloatMatrix identity;
   identity.setToIdentity();
+
+  aInMatrix = mAttr.create("inMatrix", "imat", MFnMatrixAttribute::kDouble);
+  mAttr.setStorable(false);
+  mAttr.setHidden(false);
+  mAttr.setDefault(identity);
+  addAttribute(aInMatrix);
 
   aPhysicalId = nAttr.create("physicalId", "pid", MFnNumericData::kInt);
   nAttr.setHidden(false);
@@ -259,12 +266,6 @@ MStatus brushNode::initialize()
   tAttr.setStorable(false);
   addAttribute(aOutWipeBrush);
 
-  // aCustomId = nAttr.create("customId", "cid", MFnNumericData::kInt);
-  // nAttr.setHidden(false);
-  // nAttr.setKeyable(true);
-  // nAttr.setDefault(0);
-  // addAttribute(aCustomId);
-
   aForwardBias = nAttr.create("forwardBias", "fbs", MFnNumericData::k2Float);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -290,7 +291,6 @@ MStatus brushNode::initialize()
 
   ////////////
 
-  // attributeAffects(aWipeBarPosition, aOutPaintBrush);
   attributeAffects(aPhysicalId, aOutPaintBrush);
   attributeAffects(aWidth, aOutPaintBrush);
   attributeAffects(aTip, aOutPaintBrush);
@@ -306,7 +306,11 @@ MStatus brushNode::initialize()
   attributeAffects(aForwardBias, aOutPaintBrush);
   attributeAffects(aGravityBias, aOutPaintBrush);
 
-  // attributeAffects(aWipeBarPosition, aOutDipBrush);
+  attributeAffects(aInMatrix, aOutPaintBrush);
+
+  
+
+
   attributeAffects(aPhysicalId, aOutDipBrush);
   attributeAffects(aWidth, aOutDipBrush);
   attributeAffects(aTip, aOutDipBrush);
@@ -318,9 +322,10 @@ MStatus brushNode::initialize()
   attributeAffects(aShape, aOutDipBrush);
   attributeAffects(aTransHeightParam, aOutDipBrush);
   attributeAffects(aContactPower, aOutDipBrush);
-  // attributeAffects(aCustomId, aOutDipBrush);
 
-  // attributeAffects(aWipeBarPosition, aOutWipeBrush);
+  attributeAffects(aInMatrix, aOutDipBrush);
+
+
   attributeAffects(aPhysicalId, aOutWipeBrush);
   attributeAffects(aWidth, aOutWipeBrush);
   attributeAffects(aTip, aOutWipeBrush);
@@ -333,6 +338,7 @@ MStatus brushNode::initialize()
   attributeAffects(aTransHeightParam, aOutWipeBrush);
   attributeAffects(aContactPower, aOutWipeBrush);
   // attributeAffects(aCustomId, aOutWipeBrush);
+  attributeAffects(aInMatrix, aOutWipeBrush);
 
   return (MS::kSuccess);
 }
@@ -374,7 +380,7 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
 
   float width = data.inputValue(aWidth).asFloat();
   float bristleHeight = data.inputValue(aBristleHeight).asFloat();
-  // cerr << "compute bristleHeight " <<  bristleHeight << endl;
+
   float paintingParam = data.inputValue(aPaintingParam).asFloat();
   float dipParam = data.inputValue(aDipParam).asFloat();
   float wipeParam = data.inputValue(aWipeParam).asFloat();
@@ -392,10 +398,10 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
   float gravityBias0 = gravityBias[0];
   float gravityBias1 = gravityBias[1];
 
-  // int customId = data.inputValue(aCustomId).asInt();
+  MFloatMatrix fmat =  MFloatMatrix(data.inputValue(aInMatrix).asMatrix().matrix);
 
-  Brush paintingBrush(physicalId,
-                      // customId,
+  Brush paintingBrush(fmat,
+                      physicalId,
                       tip,
                       bristleHeight,
                       paintingParam,
@@ -404,10 +410,12 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
                       retention,
                       transHeightParam,
                       contactPower,
-                      forwardBias0, forwardBias1, gravityBias0, gravityBias1);
+                      forwardBias0,
+                      forwardBias1,
+                      gravityBias0,
+                      gravityBias1);
 
-  Brush dipBrush(physicalId,
-                //  customId,
+  Brush dipBrush(fmat, physicalId,
                  tip,
                  bristleHeight,
                  dipParam,
@@ -419,8 +427,7 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
                  0.0, 0.0,
                  0.0, 0.0);
 
-  Brush wipeBrush(physicalId,
-                  // customId,
+  Brush wipeBrush(fmat, physicalId,
                   tip,
                   bristleHeight,
                   wipeParam,
@@ -461,55 +468,6 @@ void brushNode::draw(M3dView &view,
                      M3dView::DisplayStyle style,
                      M3dView::DisplayStatus status)
 {
-
-  MStatus st;
-  MObject thisObj = thisMObject();
-  float lineThickness;
-  MPlug(thisObj, aLineThickness).getValue(lineThickness);
-  float lineLength;
-  MPlug(thisObj, aLineLength).getValue(lineLength);
-
-  std::map<std::string, Brush> brushes;
-  Brush p, d, w;
-  st = getBrush(brushNode::aOutPaintBrush, p);
-  mser;
-  st = getBrush(brushNode::aOutDipBrush, d);
-  mser;
-  st = getBrush(brushNode::aOutWipeBrush, w);
-  mser;
-  brushes["paint"] = p;
-  brushes["dip"] = d;
-  brushes["wipe"] = w;
-
-  glPushAttrib(GL_CURRENT_BIT);
-  glPushAttrib(GL_LINE_BIT);
-  glLineWidth(GLfloat(lineThickness));
-  glBegin(GL_LINES);
-  for (std::map<std::string, Brush>::const_iterator iter = brushes.begin();
-       iter != brushes.end(); iter++)
-  {
-    MFloatMatrix tcp = iter->second.tcp();
-
-    MFloatPoint start = MFloatPoint::origin * tcp;
-    MFloatPoint x = MFloatPoint(1.0, 0.0, 0.0) * tcp;
-    MFloatPoint y = MFloatPoint(0.0, 1.0, 0.0) * tcp;
-    MFloatPoint z = MFloatPoint(0.0, 0.0, 1.0) * tcp;
-
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glVertex3f(start.x, start.y, start.z);
-    glVertex3f(x.x, x.y, x.z);
-
-    glColor3f(0.0f, 1.0f, 0.0f);
-    glVertex3f(start.x, start.y, start.z);
-    glVertex3f(y.x, y.y, y.z);
-
-    glColor3f(0.0f, 0.0f, 1.0f);
-    glVertex3f(start.x, start.y, start.z);
-    glVertex3f(z.x, z.y, z.z);
-  }
-  glEnd();
-  glPopAttrib();
-  glPopAttrib();
 }
 
 bool brushNode::isBounded() const
@@ -529,3 +487,52 @@ void brushNode::postConstructor()
   setExistWithoutInConnections(true);
   setExistWithoutOutConnections(true);
 }
+
+  // MStatus st;
+  // MObject thisObj = thisMObject();
+  // float lineThickness;
+  // MPlug(thisObj, aLineThickness).getValue(lineThickness);
+  // float lineLength;
+  // MPlug(thisObj, aLineLength).getValue(lineLength);
+
+  // std::map<std::string, Brush> brushes;
+  // Brush p, d, w;
+  // st = getBrush(brushNode::aOutPaintBrush, p);
+  // mser;
+  // st = getBrush(brushNode::aOutDipBrush, d);
+  // mser;
+  // st = getBrush(brushNode::aOutWipeBrush, w);
+  // mser;
+  // brushes["paint"] = p;
+  // brushes["dip"] = d;
+  // brushes["wipe"] = w;
+
+  // glPushAttrib(GL_CURRENT_BIT);
+  // glPushAttrib(GL_LINE_BIT);
+  // glLineWidth(GLfloat(lineThickness));
+  // glBegin(GL_LINES);
+  // for (std::map<std::string, Brush>::const_iterator iter = brushes.begin();
+  //      iter != brushes.end(); iter++)
+  // {
+  //   MFloatMatrix tcp = iter->second.tcp();
+
+  //   MFloatPoint start = MFloatPoint::origin * tcp;
+  //   MFloatPoint x = MFloatPoint(1.0, 0.0, 0.0) * tcp;
+  //   MFloatPoint y = MFloatPoint(0.0, 1.0, 0.0) * tcp;
+  //   MFloatPoint z = MFloatPoint(0.0, 0.0, 1.0) * tcp;
+
+  //   glColor3f(1.0f, 0.0f, 0.0f);
+  //   glVertex3f(start.x, start.y, start.z);
+  //   glVertex3f(x.x, x.y, x.z);
+
+  //   glColor3f(0.0f, 1.0f, 0.0f);
+  //   glVertex3f(start.x, start.y, start.z);
+  //   glVertex3f(y.x, y.y, y.z);
+
+  //   glColor3f(0.0f, 0.0f, 1.0f);
+  //   glVertex3f(start.x, start.y, start.z);
+  //   glVertex3f(z.x, z.y, z.z);
+  // }
+  // glEnd();
+  // glPopAttrib();
+  // glPopAttrib();

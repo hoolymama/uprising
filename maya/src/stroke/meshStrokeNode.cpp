@@ -22,6 +22,7 @@ const double rad_to_deg = (180 / 3.1415927);
 
 MObject meshStrokeNode::aMesh;
 MObject meshStrokeNode::aViewpoint;
+MObject meshStrokeNode::aTargetRotationMatrix; 
 
 MTypeId meshStrokeNode::id(k_meshStrokeNode);
 
@@ -57,9 +58,17 @@ MStatus meshStrokeNode::initialize()
     nAttr.setKeyable(true);
     addAttribute(aViewpoint);
 
+
+    aTargetRotationMatrix= mAttr.create("targetRotationMatrix", "tmat", MFnMatrixAttribute::kFloat);
+    mAttr.setStorable(false);
+    mAttr.setHidden(false);
+    mAttr.setKeyable(true);
+    addAttribute(aTargetRotationMatrix);
+
+
     st = attributeAffects(aMesh, aOutput);
     st = attributeAffects(aViewpoint, aOutput);
-
+    st = attributeAffects(aTargetRotationMatrix, aOutput);
     return MS::kSuccess;
 }
 

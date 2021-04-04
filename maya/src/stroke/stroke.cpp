@@ -102,7 +102,7 @@ Stroke::Stroke(
 	for (; current_matrix != matrices.end(); current_matrix++, i++)
 	{
 		m_targets.push_back(
-			Target(*current_matrix, 1.0));
+			Target(*current_matrix, weights[i]));
 	}
 
 	m_pivot = Target(m_targets[0]);

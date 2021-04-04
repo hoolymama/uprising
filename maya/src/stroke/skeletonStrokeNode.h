@@ -30,10 +30,10 @@ private:
     unsigned createStrokesForChain(
         const skChain &current_chain,
         const std::vector<std::pair<int, Brush> > &brushes,
-        const MFloatMatrix &targetRotationMatrix,
-        const MFloatVector &canvasNormal,
+        const MFloatMatrix &canvasMatrix,
         unsigned parentIndex,
         int minimumPoints,
+        bool followStroke,
         float pointDensity,
         float entryTransitionLength,
         float exitTransitionLength,
@@ -47,7 +47,6 @@ private:
 
     unsigned createStrokeData(
         const MObject &dCurve,
-        // const Brush &brush,
         const MFloatArray &radii,
         float startDist,
         float endDist,
@@ -60,9 +59,10 @@ private:
     Stroke createStroke(
         const MObject &dCurve,
         const Brush &brush,
+        const MFloatMatrix &canvasMatrix,
         const MDoubleArray &curveParams,
         const MFloatArray &strokeRadii,
-        const MFloatMatrix &targetRotationMatrix,
+        bool followStroke,
         float entryTransitionLength,
         float exitTransitionLength) const;
 
@@ -107,8 +107,7 @@ private:
         float extendExit,
         double splitAngle,
         float splitTestInterval,
-        MFloatVector &result) ;
-    
+        MFloatVector &result);
 
     void setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
                      double approachStart, double approachMid, double approachEnd) const;
@@ -118,6 +117,21 @@ private:
 
     std::vector<std::pair<int, float> > getBrushRadii(
         MDataBlock &data) const;
+
+    static float calculateTargetWeight(
+        const double &distanceOnCurve,
+        const double &entryDistance,
+        const double &exitDistance,
+        const double &entryTransitionDistance,
+        const double &exitTransitionDistance,
+        const float &entryTransitionLength,
+        const float &exitTransitionLength,
+        const float &radius,
+        const float &brushWidth);
+
+
+
+
 
     static MObject aCanvasMatrix;
     static MObject aChains;
@@ -135,9 +149,34 @@ private:
     static MObject aExtendExit;
     static MObject aMinimumPoints;
     static MObject aStrokeDirectionMap;
- 
 
     float m_maxCoil; //> The maximum value of coils
 };
+
+inline float skeletonStrokeNode::calculateTargetWeight(
+    const double &distanceOnCurve,
+    const double &entryDistance,
+    const double &exitDistance,
+    const double &entryTransitionDistance,
+    const double &exitTransitionDistance,
+    const float &entryTransitionLength,
+    const float &exitTransitionLength,
+    const float &radius,
+    const float &brushWidth
+
+)
+{
+    float transitionWeight = 1.0;
+    if (distanceOnCurve < entryTransitionDistance)
+    {
+        transitionWeight = (distanceOnCurve - entryDistance) / entryTransitionLength;
+    }
+    else if (distanceOnCurve > exitTransitionDistance)
+    {
+        transitionWeight = (exitDistance - distanceOnCurve) / exitTransitionLength;
+    }
+
+    return 2.0 * radius * transitionWeight / brushWidth;
+}
 
 #endif

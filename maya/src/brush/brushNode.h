@@ -3,26 +3,16 @@
 #define _brushNODE_H
 
 #include <maya/MPxLocatorNode.h>
-// #include <maya/MFloatArray.h>
-// #include <maya/MVector.h>
-#include <maya/MFnDependencyNode.h>
 
-// #include <maya/MFnNurbsCurve.h>
-// #include <maya/MAngle.h>
-// #include <maya/MVectorArray.h>
+#include <maya/MFnDependencyNode.h>
+#include <maya/MDGMessage.h>
+#include <maya/MDGModifier.h>
 
 #include <maya/MPxNode.h>
-
-// #include <maya/MDGMessage.h>
-// #include <maya/MDGModifier.h>
 
 #include "brushData.h"
 
 #include "brush.h"
-// #include "paint.h"
-// #include "stroke.h"
-// #include <openGL/glu.h>
-
 class brushNode : public MPxLocatorNode
 {
 public:
@@ -49,6 +39,7 @@ public:
 
   static MTypeId id;
 
+  static MObject aInMatrix;
 private:
   MStatus getBrush(MObject &attribute, Brush &brush);
 
@@ -83,9 +74,31 @@ private:
   static MObject aOutDipBrush;
   static MObject aOutWipeBrush;
 
-  // static MObject aCustomId;
-
   static MObject aModel;
 };
+
+namespace brushNodeCallback
+{
+  static MCallbackId id;
+
+  static void makeDefaultConnections(MObject &node, void *clientData)
+  {
+
+    MPlug wmPlugmulti(node, brushNode::worldMatrix);
+    MPlug wm(wmPlugmulti.elementByLogicalIndex(0));
+    MPlug mt(node, brushNode::aInMatrix);
+
+    MDGModifier mod;
+    mod.connect(wm, mt);
+    MStatus stat = mod.doIt();
+    if (stat != MS::kSuccess)
+    {
+      stat.perror("brushNode ERROR :: callback unable to make matrix connections");
+    } else {
+      cerr << "Connected brushNode worldMatrix to inMatrix" << endl;
+    }
+  }
+} // namespace brushNodeCallback
+
 
 #endif

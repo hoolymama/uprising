@@ -2,9 +2,7 @@
 #ifndef _brush_
 #define _brush_
 
-#include <map>
-#include <maya/MDataBlock.h>
-#include <maya/MVector.h>
+#include <maya/MFloatMatrix.h>
 #include "mayaMath.h"
 
 class Brush
@@ -20,8 +18,9 @@ public:
 	Brush();
 
 	Brush(
+		const MFloatMatrix &matrix,
 		int physicalId,
-		// int customId,
+	
 		const MFloatVector &tip,
 		float bristleHeight,
 		float tcpParam,
@@ -35,9 +34,6 @@ public:
 		float gravityBias0,
 		float gravityBias1);
 
-	// Brush &operator=(const Brush &rhs);
-	// Brush(const Brush &rhs);
-
 	~Brush();
 
 	MFloatMatrix tcp() const;
@@ -45,6 +41,7 @@ public:
 	void getTriangles(MFloatPointArray &triangles) const;
 
 	const float &retention() const;
+	const MFloatMatrix &matrix() const;
 
 	/**
 	 * @brief Return a value representing how far away the brush should start from the ground.
@@ -76,8 +73,8 @@ public:
 	friend ostream &operator<<(ostream &os, const Brush &b);
 
 private:
+	MFloatMatrix m_matrix;
 	int m_physicalId;
-	// int m_customId;
 	MFloatVector m_tip;
 	float m_width;
 	float m_bristleHeight;
@@ -91,4 +88,7 @@ private:
 	float m_gravityBias0;
 	float m_gravityBias1;
 };
+
+
+
 #endif

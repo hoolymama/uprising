@@ -14,6 +14,16 @@
 class strokeCreator : public strokeNodeBase
 {
 public:
+  enum BrushRotateOrder
+  {
+    kTwistTiltBank,
+    kTiltBankTwist,
+    kBankTwistTilt,
+    kTiltTwistBank,
+    kTwistBankTilt,
+    kBankTiltTwist,
+  };
+
   strokeCreator();
   virtual ~strokeCreator();
   virtual bool isAbstractClass() const { return true; }
@@ -24,14 +34,24 @@ public:
 
   virtual MStatus generateStrokeGeometry(
       MDataBlock &data,
-      std::vector<Stroke> *pStrokes) ;
+      std::vector<Stroke> *pStrokes);
 
   static MTypeId id;
 
 protected:
+  void applyRotations(MDataBlock &data, std::vector<Stroke> *pOutStrokes) const;
 
-  static MObject aTargetRotationMatrix; ///> Initial matrix for generated targets.
   static MObject aPointDensity; ///< The minimum number of targets per centimeter.
+  static MObject aBrushTiltStart;
+  static MObject aBrushTiltEnd;
+  static MObject aBrushTilt;
+  static MObject aBrushTwistStart;
+  static MObject aBrushTwistEnd;
+  static MObject aBrushTwist;
+  static MObject aBrushBankStart;
+  static MObject aBrushBankEnd;
+  static MObject aBrushBank;
+  static MObject aBrushRotateOrder;
 };
 
 #endif

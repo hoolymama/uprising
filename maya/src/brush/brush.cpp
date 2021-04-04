@@ -4,7 +4,8 @@
 #include "brush.h"
 
 
-Brush::Brush() : m_physicalId(-1),
+Brush::Brush() :  m_matrix(),
+m_physicalId(-1),
 				//  m_customId(-1),
 				 m_width(1.0f),
 				 m_bristleHeight(0.0f),
@@ -22,8 +23,8 @@ Brush::Brush() : m_physicalId(-1),
 }
 
 Brush::Brush(
+	const MFloatMatrix &matrix,
 	int physicalId,
-	// int customId,
 	const MFloatVector &tip,
 	float bristleHeight,
 	float tcpParam,
@@ -36,8 +37,8 @@ Brush::Brush(
 	float forwardBias1,
 	float gravityBias0,
 	float gravityBias1)
-	: m_physicalId(physicalId),
-	//   m_customId(customId),
+	:m_matrix(matrix),
+	 m_physicalId(physicalId),
 	  m_tip(tip),
 	  m_bristleHeight(bristleHeight),
 	  m_tcpParam(tcpParam),
@@ -55,6 +56,11 @@ Brush::Brush(
 }
 
 Brush::~Brush() {}
+
+const MFloatMatrix &Brush::matrix() const
+{
+	return m_matrix;
+}
 
 MFloatMatrix Brush::tcp() const
 {

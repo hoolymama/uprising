@@ -233,7 +233,8 @@ void skGraphNodeDrawOverride::drawCircles(
 	for (int i = 0; i < len; ++i)
 	{
 		drawManager.setColor(cdata->colors[i]);
-		drawManager.circle(cdata->points[i], MVector::zAxis, cdata->radius[i]);
+		drawManager.circle(cdata->points[i], 
+		MVector::zAxis, cdata->radius[i]);
 	}
 	drawManager.endDrawable();
 }

@@ -70,7 +70,7 @@ void   subdivide(
 
   static MObject aMesh; ///< The input mesh
   static MObject aViewpoint; ///< The location of the camera
-
+  static MObject aTargetRotationMatrix; ///> Initial matrix for generated targets.
 
 };
 
