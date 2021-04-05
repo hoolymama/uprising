@@ -58,7 +58,7 @@ private:
 
     Stroke createStroke(
         const MObject &dCurve,
-        const Brush &brush,
+        const std::pair<int, Brush> &brushPair,
         const MFloatMatrix &canvasMatrix,
         const MDoubleArray &curveParams,
         const MFloatArray &strokeRadii,
@@ -139,7 +139,7 @@ private:
     static MObject aOverlap;
     static MObject aBrushes;
     static MObject aPaintId;
-    static MObject aLayerId;
+    // static MObject aLayerId;
     static MObject aBrushFollowStroke;
     static MObject aSplitAngle;
     static MObject aSplitTestInterval;
@@ -166,17 +166,19 @@ inline float skeletonStrokeNode::calculateTargetWeight(
 
 )
 {
+    const float epsilon = 0.0001;
+
     float transitionWeight = 1.0;
-    if (distanceOnCurve < entryTransitionDistance)
+    if ((distanceOnCurve+epsilon) < entryTransitionDistance)
     {
-        transitionWeight = (distanceOnCurve - entryDistance) / entryTransitionLength;
+        transitionWeight = float((distanceOnCurve - entryDistance) / entryTransitionLength);
     }
-    else if (distanceOnCurve > exitTransitionDistance)
+    else if (distanceOnCurve > (exitTransitionDistance+epsilon))
     {
-        transitionWeight = (exitDistance - distanceOnCurve) / exitTransitionLength;
+        transitionWeight = float((exitDistance - distanceOnCurve) / exitTransitionLength);
     }
 
-    return 2.0 * radius * transitionWeight / brushWidth;
+    return fmin(transitionWeight, ((2.0f * radius) / brushWidth));
 }
 
 #endif

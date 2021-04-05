@@ -20,6 +20,7 @@
 #include "brushNode.h"
 
 #include "aimStrokes.h"
+#include "brushLifter.h"
 
 #include "mapColorStrokes.h"
 #include "strokeMutator.h"
@@ -129,6 +130,11 @@ MStatus initializePlugin(MObject obj)
 							 aimStrokes::initialize);
 	mser;
 
+	st = plugin.registerNode("brushLifter", brushLifter::id, brushLifter::creator,
+							 brushLifter::initialize);
+	mser;
+
+
 	st = plugin.registerCommand("lightPaintingQuery", lightPaintingCmd::creator,
 								lightPaintingCmd::newSyntax);
 	mser;
@@ -153,7 +159,8 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterCommand("lightPaintingCmd");
 	mser;
-
+	st = plugin.deregisterNode(brushLifter::id);
+	mser;
 	st = plugin.deregisterNode(aimStrokes::id);
 	mser;
 	st = plugin.deregisterNode(mapColorStrokes::id);

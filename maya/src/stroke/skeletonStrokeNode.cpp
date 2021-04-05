@@ -38,7 +38,7 @@ MObject skeletonStrokeNode::aStrokeLength;
 MObject skeletonStrokeNode::aOverlap;
 MObject skeletonStrokeNode::aBrushes;
 MObject skeletonStrokeNode::aPaintId;
-MObject skeletonStrokeNode::aLayerId;
+// MObject skeletonStrokeNode::aLayerId;
 MObject skeletonStrokeNode::aBrushFollowStroke;
 MObject skeletonStrokeNode::aSplitAngle;
 MObject skeletonStrokeNode::aSplitTestInterval;
@@ -111,7 +111,9 @@ MStatus skeletonStrokeNode::initialize()
     aBrushes = tAttr.create("brushes", "bsh", brushData::id);
     tAttr.setReadable(false);
     tAttr.setStorable(false);
+    tAttr.setConnectable(true);
     tAttr.setArray(true);
+    tAttr.setIndexMatters(true);
     tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
     addAttribute(aBrushes);
 
@@ -124,14 +126,14 @@ MStatus skeletonStrokeNode::initialize()
     st = addAttribute(aPaintId);
     mser;
 
-    aLayerId = nAttr.create("layerId", "lid", MFnNumericData::kInt);
-    mser;
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setWritable(true);
-    st = addAttribute(aLayerId);
-    mser;
+    // aLayerId = nAttr.create("layerId", "lid", MFnNumericData::kInt);
+    // mser;
+    // nAttr.setHidden(false);
+    // nAttr.setKeyable(true);
+    // nAttr.setStorable(true);
+    // nAttr.setWritable(true);
+    // st = addAttribute(aLayerId);
+    // mser;
 
     aMinimumPoints = nAttr.create("aMinimumPoints", "mnpts", MFnNumericData::kInt);
     mser;
@@ -168,7 +170,7 @@ MStatus skeletonStrokeNode::initialize()
 
     // Transitions
     //////////////
-    aEntryTransitionLength = nAttr.create("entryTransitionLength", "enl", MFnNumericData::kDouble);
+    aEntryTransitionLength = nAttr.create("entryTransitionLength", "enl", MFnNumericData::kFloat);
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
     nAttr.setStorable(true);
@@ -176,7 +178,7 @@ MStatus skeletonStrokeNode::initialize()
     st = addAttribute(aEntryTransitionLength);
     mser;
 
-    aExitTransitionLength = nAttr.create("exitTransitionLength", "exl", MFnNumericData::kDouble);
+    aExitTransitionLength = nAttr.create("exitTransitionLength", "exl", MFnNumericData::kFloat);
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
     nAttr.setStorable(true);
@@ -210,6 +212,7 @@ MStatus skeletonStrokeNode::initialize()
     attributeAffects(aOverlap, aOutput);
     attributeAffects(aBrushes, aOutput);
     attributeAffects(aPaintId, aOutput);
+    // attributeAffects(aLayerId, aOutput);
     attributeAffects(aBrushFollowStroke, aOutput);
     attributeAffects(aSplitAngle, aOutput);
     attributeAffects(aSplitTestInterval, aOutput);
@@ -219,7 +222,6 @@ MStatus skeletonStrokeNode::initialize()
     attributeAffects(aExtendExit, aOutput);
     attributeAffects(aStrokeDirectionMap, aOutput);
     attributeAffects(aCanvasMatrix, aOutput);
-    attributeAffects(aLayerId, aOutput);
     attributeAffects(aMinimumPoints, aOutput);
 
     return (MS::kSuccess);
@@ -249,8 +251,8 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
 
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
 
-    short paintId = data.inputValue(aPaintId).asShort();
-    int layerId = data.inputValue(aLayerId).asInt();
+    int paintId = data.inputValue(aPaintId).asInt();
+    // int layerId = data.inputValue(aLayerId).asInt();
 
     double splitAngle = data.inputValue(aSplitAngle).asAngle().asRadians();
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
@@ -274,9 +276,14 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
 
     m_maxCoil = 0.0;
 
+
+    cerr << "MAIN: " <<  "entryTransitionLength: " << entryTransitionLength << endl;
+    cerr << "MAIN: " <<  "exitTransitionLength: " << exitTransitionLength << endl;
+
+
     for (unsigned i = 0; i < nInputs; i++, hChains.next())
     {
-        int parentIndex = hChains.elementIndex(&st);
+        int parentId = hChains.elementIndex(&st);
         MDataHandle hChainsInput = hChains.inputValue(&st);
         if (st.error())
         {
@@ -302,7 +309,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 *current_chain,
                 brushes,
                 canvasMatrix,
-                parentIndex,
+                parentId,
                 minimumPoints,
                 followStroke,
                 pointDensity,
@@ -316,10 +323,14 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 splitTestInterval,
                 pOutStrokes);
         }
-
-        // Now we have primary strokes. Lets apply rotations.
     }
-    skeletonStrokeNode::applyRotations(data, pOutStrokes);
+    strokeCreator::applyRotations(data, pOutStrokes);
+
+    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+    {
+      curr_stroke->setPaintId(paintId);
+    //   curr_stroke->setLayerId(layerId);
+    }
 
     return MS::kSuccess;
 }
@@ -327,9 +338,8 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
 unsigned skeletonStrokeNode::createStrokesForChain(
     const skChain &current_chain,
     const std::vector<std::pair<int, Brush> > &brushes,
-    // const MFloatMatrix &targetRotationMatrix,
     const MFloatMatrix &canvasMatrix,
-    unsigned parentIndex,
+    unsigned parentId,
     int minimumPoints,
     bool followStroke,
     float pointDensity,
@@ -408,11 +418,9 @@ unsigned skeletonStrokeNode::createStrokesForChain(
 
         const std::pair<int, Brush> selectedBrushPair = selectBrush(maxRadius, brushes);
 
-        const Brush &brush = selectedBrushPair.second;
-
         Stroke stroke = createStroke(
             dChainCurve,
-            brush,
+            selectedBrushPair,
             canvasMatrix,
             curveParams,
             strokeRadii,
@@ -422,7 +430,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
 
         if (stroke.valid())
         {
-            stroke.setParentId(parentIndex);
+            stroke.setParentId(parentId);
             pOutStrokes->push_back(stroke);
         }
     }
@@ -462,7 +470,7 @@ unsigned skeletonStrokeNode::createStrokeData(
 
 Stroke skeletonStrokeNode::createStroke(
     const MObject &dCurve,
-    const Brush &brush,
+    const std::pair<int, Brush> &brushPair,
     const MFloatMatrix &canvasMatrix,
     const MDoubleArray &curveParams,
     const MFloatArray &strokeRadii,
@@ -477,6 +485,8 @@ Stroke skeletonStrokeNode::createStroke(
     {
         return Stroke();
     }
+    const int &brushId = brushPair.first;
+    const Brush &brush = brushPair.second;
 
     MFnNurbsCurve curveFn(dCurve);
     double curveLength = curveFn.length(epsilon);
@@ -493,15 +503,22 @@ Stroke skeletonStrokeNode::createStroke(
     MFloatArray weights;
     std::vector<MFloatMatrix> brushTransforms;
 
-    entryTransitionLength = fmax(entryTransitionLength, 0.0);
-    exitTransitionLength = fmax(exitTransitionLength, 0.0);
-
     double entryDistance = curveFn.findLengthFromParam(curveParams[0]);
     double exitDistance = curveFn.findLengthFromParam(curveParams[(len - 1)]);
-    double totalDist = exitDistance - entryDistance;
+    double totalLength = exitDistance - entryDistance;
+
+    entryTransitionLength = fmax(entryTransitionLength, 0.0);
+    exitTransitionLength = fmax(exitTransitionLength, 0.0);
+    float totalTransitionLength = exitTransitionLength + entryTransitionLength;
+    if (totalTransitionLength > totalLength) {
+        float mult = totalLength / totalTransitionLength;
+        exitTransitionLength *= mult;
+        entryTransitionLength *= mult;
+    }
+
     double entryTransitionDistance = entryDistance + entryTransitionLength;
     double exitTransitionDistance = exitDistance - exitTransitionLength;
-    exitTransitionDistance = fmax(exitTransitionDistance, entryTransitionDistance + epsilon);
+
 
     for (unsigned i = 0; i < len; i++)
     {
@@ -509,11 +526,13 @@ Stroke skeletonStrokeNode::createStroke(
         const float &radius = strokeRadii[i];
         double distanceOnCurve = curveFn.findLengthFromParam(curveParam, &st);
 
+
         float weight = calculateTargetWeight(
             distanceOnCurve, entryDistance, exitDistance,
             entryTransitionDistance, exitTransitionDistance,
             entryTransitionLength, exitTransitionLength,
             radius, brushWidth);
+
 
         /////////////////////////////////// calcuate biased point
         float forwardBias = (forwardBias1 * weight) + (forwardBias0 * (1.0f - weight));
@@ -525,9 +544,12 @@ Stroke skeletonStrokeNode::createStroke(
         curveFn.getPointAtParam(biasedCurveParam, point, MSpace::kObject);
         // tangent will possibly be used for followStroke
         MVector tangent = curveFn.tangent(biasedCurveParam);
-        if (st == MS::kInvalidParameter) // If we are past the end of the curve, push along the tangent
+        cerr << "biasedCurveParam: "<< biasedCurveParam<<" tangent: " << tangent << endl;
+
+        if (biasedCurveParam >=1.0) // If we are past the end of the curve, push along the tangent
         {
             float extraDist = biasedDist - curveLength;
+            cerr << "past the end, extraDist: " << extraDist << endl;
             point += tangent.normal() * extraDist;
         }
         ///////////////////////////////////
@@ -548,8 +570,9 @@ Stroke skeletonStrokeNode::createStroke(
         brushTransforms.push_back(mat);
         weights.append(weight);
     }
-
-    return Stroke(brushTransforms, weights);
+    Stroke stroke(brushTransforms, weights);
+    stroke.setBrushId(brushId);
+    return stroke;
 }
 
 unsigned int skeletonStrokeNode::getStrokeBoundaries(
@@ -791,7 +814,6 @@ const std::pair<int, Brush> skeletonStrokeNode::selectBrush(
         return std::pair<int, Brush>();
     }
     std::pair<int, Brush> result;
-    // = std::map(-1, Brush());
 
     std::vector<std::pair<int, Brush> >::const_iterator brushIter;
     for (brushIter = brushes.begin(); brushIter != brushes.end(); brushIter++)
@@ -800,7 +822,7 @@ const std::pair<int, Brush> skeletonStrokeNode::selectBrush(
         if (brushRad <= radius)
         {
             if (brushIter == brushes.begin())
-            { // use this
+            { 
                 result = *brushIter;
             }
             break;

@@ -311,9 +311,10 @@ ostream &operator<<(ostream &os, const Brush &b)
 	os << " retention:" << b.m_retention;
 	os << " tip:" << b.m_tip;
 	os << " physicalId:" << b.m_physicalId;
-	// os << " customId:" << b.m_customId;
 	os << " transHeightParam:" << b.m_transHeightParam;
 	os << " contactPower:" << b.m_contactPower;
+	os << " param:" << b.m_tcpParam;
+	
 
 	os << " shape:" << shapeStr;
 	return os;

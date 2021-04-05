@@ -217,20 +217,6 @@ MStatus painting::initialize()
   nAttr.setReadable(true);
   addAttribute(aApproachDistance);
 
-  // aApplyBiases = nAttr.create("applyBrushBiases", "abbs",
-  //                             MFnNumericData::kBoolean);
-  // nAttr.setHidden(false);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setDefault(false);
-  // addAttribute(aApplyBiases);
-
-  // aBiasMult = nAttr.create("brushBiasMult", "bbml", MFnNumericData::kFloat);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setDefault(1.0f);
-  // addAttribute(aBiasMult);
-
   aStrokes = tAttr.create("strokes", "stks", strokeData::id);
   tAttr.setReadable(false);
   tAttr.setStorable(false);
@@ -244,6 +230,7 @@ MStatus painting::initialize()
   tAttr.setReadable(false);
   tAttr.setStorable(false);
   tAttr.setArray(true);
+    tAttr.setIndexMatters(true);
   tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   addAttribute(aBrushes);
 
