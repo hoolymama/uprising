@@ -42,6 +42,9 @@ public:
 	short displayTargets;
 	short displayTargetColors;
 
+	MFloatVector drawingNormal;
+
+
 	MFloatVector idDisplayOffset;
 
 	paintingGeom *geom;

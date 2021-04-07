@@ -104,7 +104,6 @@ Cluster &paintingGeom::prepCluster(
 	// We got here, so there's at least one Cluster and
 	// therefore safe to call back()
 	const Cluster &back = m_clusters.back();
-
 	int lastBrushId = back.brushId();
 	int lastPaintId = back.paintId();
 
@@ -114,7 +113,8 @@ Cluster &paintingGeom::prepCluster(
 		float cutoff = travelCutoff(brushId, paintId);
 		Cluster::Reason reason = Cluster::kBrush;
 		if (lastPaintId == paintId)
-		{ // brush Id changed - but is it the same physical brush?
+		{ 
+			// brush Id changed - but is it the same physical brush?
 			int lastPhysicalId = brushFromId(lastBrushId).physicalId();
 			if (lastPhysicalId == physicalId)
 			{
@@ -142,8 +142,12 @@ Cluster &paintingGeom::prepCluster(
 			back.paintId(),
 			back.travelCutoff(),
 			Cluster::kPaint));
+
+		return m_clusters.back();
 	}
 
+	// nothing happened. No reason to add a new cluster.
+	// We simply return the last cluster.
 	return m_clusters.back();
 }
 
@@ -175,31 +179,32 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 	}
 }
 
-void paintingGeom::offsetBrushContact()
-{
-	std::vector<Cluster>::iterator curr_cluster = m_clusters.begin();
-	MFloatVector offset;
-	for (; curr_cluster != m_clusters.end(); curr_cluster++)
-	{
-		const Brush &brush = brushFromId(curr_cluster->brushId());
-		float height = brush.transitionHeight();
-		float power = brush.contactPower();
-		Cluster::stroke_iterator curr_stroke= curr_cluster->strokes_begin();
-		for (;curr_stroke != curr_cluster->strokes_end(); curr_stroke++)
-		{
-			Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-			for (;curr_target != curr_stroke->targets_end(); curr_target++)
-			{
-				float dist_from_ground = (1.0 - curr_target->weight());
-				dist_from_ground = (dist_from_ground > epsilon) ? pow(dist_from_ground, power) * height : 0;
-				
-				offset = curr_target->zAxis() * -dist_from_ground;
-				curr_target->offsetBy(offset);
-			}
-		}
 
-	}
-}
+// void paintingGeom::offsetBrushContact()
+// {
+// 	std::vector<Cluster>::iterator curr_cluster = m_clusters.begin();
+// 	MFloatVector offset;
+// 	for (; curr_cluster != m_clusters.end(); curr_cluster++)
+// 	{
+// 		const Brush &brush = brushFromId(curr_cluster->brushId());
+// 		float height = brush.transitionHeight();
+// 		float power = brush.contactPower();
+// 		Cluster::stroke_iterator curr_stroke= curr_cluster->strokes_begin();
+// 		for (;curr_stroke != curr_cluster->strokes_end(); curr_stroke++)
+// 		{
+// 			Stroke::target_iterator curr_target = curr_stroke->targets_begin();
+// 			for (;curr_target != curr_stroke->targets_end(); curr_target++)
+// 			{
+// 				float dist_from_ground = (1.0 - curr_target->weight());
+// 				dist_from_ground = (dist_from_ground > epsilon) ? pow(dist_from_ground, power) * height : 0;
+				
+// 				offset = curr_target->zAxis() * -dist_from_ground;
+// 				curr_target->offsetBy(offset);
+// 			}
+// 		}
+
+// 	}
+// }
 
 
 // void paintingGeom::addStrokeCurve(const strokeCurveGeom &strokeCurve) {

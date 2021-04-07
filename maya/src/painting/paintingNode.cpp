@@ -150,11 +150,11 @@ MStatus painting::initialize()
   mAttr.setDefault(identity);
   addAttribute(aInMatrix);
 
-  aViewMatrix = mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
+  aViewMatrix= mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
   mAttr.setStorable(false);
-  mAttr.setHidden(true);
+  mAttr.setHidden(false);
+  mAttr.setKeyable(true);
   addAttribute(aViewMatrix);
-
   // aDisplacementMesh = tAttr.create("displacementMesh", "dmsh", MFnData::kMesh, &st);
   // mser
   //     tAttr.setReadable(false);
@@ -230,7 +230,8 @@ MStatus painting::initialize()
   tAttr.setReadable(false);
   tAttr.setStorable(false);
   tAttr.setArray(true);
-    tAttr.setIndexMatters(true);
+  tAttr.setKeyable(true);
+  tAttr.setIndexMatters(true);
   tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   addAttribute(aBrushes);
 
@@ -444,15 +445,21 @@ MStatus painting::initialize()
   nAttr.setDefault(1.0f);
   addAttribute(aDrawParam);
 
+
   st = attributeAffects(aStrokes, aOutput);
-  // st = attributeAffects(aLinearSpeed, aOutput);
-  // st = attributeAffects(aAngularSpeed, aOutput);
-  // st = attributeAffects(aApproximationDistance, aOutput);
+  st = attributeAffects(aInMatrix, aOutput);
+  st = attributeAffects(aViewMatrix, aOutput);
+
+
+  st = attributeAffects(aLinearSpeed, aOutput);
+  st = attributeAffects(aAngularSpeed, aOutput);
+  st = attributeAffects(aApproximationDistance, aOutput);
   st = attributeAffects(aBrushes, aOutput);
   st = attributeAffects(aPaints, aOutput);
-  // st = attributeAffects(aDisplacementMesh, aOutput);
   st = attributeAffects(aMaxPointToPointDistance, aOutput);
   st = attributeAffects(aApproachDistance, aOutput);
+
+  // st = attributeAffects(aDisplacementMesh, aOutput);
   // st = attributeAffects(aApplyBiases, aOutput);
   // st = attributeAffects(aBiasMult, aOutput);
 
@@ -538,17 +545,6 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
 
   if (pGeom->clusters().size())
   {
-
-    // bool applyBiases = data.inputValue(aApplyBiases).asBool();
-    // float biasMult = data.inputValue(aBiasMult).asFloat();
-
-    // if (applyBiases)
-    // {
-    //   // Important that this goes BEFORE offsetBrushContact().
-    //   pGeom->applyBiases(biasMult);
-    // }
-
-    pGeom->offsetBrushContact();
 
     MDataHandle hApproachDistance = data.inputValue(aApproachDistance);
     float approachStart = hApproachDistance.child(aApproachDistanceStart).asFloat();

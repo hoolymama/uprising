@@ -70,9 +70,11 @@ public:
 	void drawShaded(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const LightPaintingDrawData *cdata);
+	  
 	void drawWireframe(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const LightPaintingDrawData *cdata);
+
 	void drawWireframeTargets(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const LightPaintingDrawData *cdata);
@@ -80,9 +82,11 @@ public:
 	void drawWireframeTargetsPoint(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const LightPaintingDrawData *cdata);
+
 	void drawWireframeTargetsLine(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const LightPaintingDrawData *cdata);
+
 	void drawWireframeTargetsMatrix(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const LightPaintingDrawData *cdata);
@@ -90,15 +94,11 @@ public:
 	void drawWireframeBorders(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const LightPaintingDrawData *cdata );
-	// void drawWireframeClusterPath(
-	//   MHWRender::MUIDrawManager &drawManager,
-	//   const LightPaintingDrawData *cdata  );
+
 	void drawWireframeArrows(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const LightPaintingDrawData *cdata );
-	// void drawWireframePivots(
-	//   MHWRender::MUIDrawManager &drawManager,
-	//   const LightPaintingDrawData *cdata );
+
 	void drawIds(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const LightPaintingDrawData *cdata );

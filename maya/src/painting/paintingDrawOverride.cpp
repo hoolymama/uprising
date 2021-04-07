@@ -5,7 +5,7 @@
 #include <maya/MFnPluginData.h>
 #include <maya/MEventMessage.h>
 #include "errorMacros.h"
-
+#include <maya/MFnMatrixData.h>
 #include "paintingNode.h"
 #include "paintingDrawOverride.h"
 #include "brush.h"
@@ -84,10 +84,6 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	if (!data)
 	{
 		data = new PaintingDrawData();
-		// if (data == NULL) {
-		// 	MGlobal::displayError("Fail to allocate draw data");
-		// 	return NULL;
-		// }
 	}
 
 	MObject paintingObj = objPath.node(&st);
@@ -96,10 +92,19 @@ MUserData *paintingDrawOverride::prepareForDraw(
 		return NULL;
 	}
 
+
+	MObject dViewMatrix;
+	MPlug(paintingObj, painting::aViewMatrix).getValue(dViewMatrix);
+	MFnMatrixData fnMatrix(dViewMatrix,&st);mser;
+	const MMatrix & mat = fnMatrix.matrix(&st) ;mser;
+
+	// Use neg Z because for a painting, we are looking down onto the table.
+	data->drawingNormal = MFloatVector(MVector::zNegAxis * mat).normal();
+
 	MPlug(paintingObj, painting::aPointSize).getValue(data->pointSize);
 	MPlug(paintingObj, painting::aLineLength).getValue(data->lineLength);
 	MPlug(paintingObj, painting::aLineThickness).getValue(data->lineThickness);
-	// MPlug(paintingObj, painting::aStackGap).getValue(data->stackGap);
+
 	MPlug(paintingObj, painting::aDisplayTargets).getValue(data->displayTargets);
 	MPlug(paintingObj, painting::aDisplayTargetColors).getValue(data->displayTargetColors);
 
@@ -158,7 +163,10 @@ void paintingDrawOverride::addUIDrawables(
 
 	const unsigned int displayStyle = context.getDisplayStyle();
 
-	if ((displayStyle & MHWRender::MFrameContext::kGouraudShaded) || (displayStyle & MHWRender::MFrameContext::kFlatShaded))
+	if (
+		(displayStyle & MHWRender::MFrameContext::kGouraudShaded) ||
+		 (displayStyle & MHWRender::MFrameContext::kFlatShaded)
+	)
 	{
 		drawShaded(drawManager, cdata);
 		;
@@ -176,7 +184,7 @@ void paintingDrawOverride::drawShaded(
 	)
 {
 
-	PaintingEnums::TargetColorsDisplay targetDisplayMode = PaintingEnums::TargetColorsDisplay(cdata->displayTargetColors);
+	// PaintingEnums::TargetColorsDisplay targetDisplayMode = PaintingEnums::TargetColorsDisplay(cdata->displayTargetColors);
 
 
 	// TODO: Split function based on draw param.
@@ -194,14 +202,14 @@ void paintingDrawOverride::drawShaded(
 	float drawParam =  cdata->drawParam;
 
 	drawManager.beginDrawable();
-	double stackHeight = 0.0;
+	float stackHeight = 0.0f;
 	bool done = false;
 	for (auto cluster : cdata->geom->clusters())
 	{
 		const Brush &brush = cdata->geom->brushFromId(cluster.brushId());
-		if (targetDisplayMode == PaintingEnums::kTargetColorsOff) {
-			drawManager.setColor(cdata->geom->paintFromId(cluster.paintId()).color);
-		}
+
+		drawManager.setColor(cdata->geom->paintFromId(cluster.paintId()).color);
+
 		drawManager.setDepthPriority(5);
 
 		for (auto stroke : cluster.strokes())
@@ -220,17 +228,9 @@ void paintingDrawOverride::drawShaded(
 			}
 
 			stackHeight += cdata->stackGap;
-			MPointArray triangles;
-			stroke.getTriangleStrip(brush, stackHeight, triangles, cdata->displayContactWidth, segments);
-			if (targetDisplayMode != PaintingEnums::kTargetColorsOff) {
-				MColorArray colors;
-				stroke.getTargetBorderColors(colors, segments, targetDisplayMode);
-
-				drawManager.mesh(MHWRender::MUIDrawManager::kTriStrip, triangles, 0, &colors);
-			} else {
-				drawManager.mesh(MHWRender::MUIDrawManager::kTriStrip, triangles);
-			}
-
+			MFloatPointArray triangles;
+			stroke.getTriangleStrip(cdata->drawingNormal,brush, stackHeight, triangles, cdata->displayContactWidth, segments);
+			drawManager.mesh(MHWRender::MUIDrawManager::kTriStrip, triangles);
 			num_visited_segments = next_accum_segments;
 			if (done){
 				break;
@@ -284,13 +284,13 @@ void paintingDrawOverride::drawWireframeTargetsPoint(
 
 	drawManager.beginDrawable();
 	drawManager.setPointSize(cdata->pointSize);
-	double stackHeight = 0.0;
+	float stackHeight = 0.0f;
 	for (auto cluster : cdata->geom->clusters())
 	{
 		for (auto stroke : cluster.strokes())
 		{
 			stackHeight += cdata->stackGap;
-			MPointArray points;
+			MFloatPointArray points;
 			stroke.getPoints(points, stackHeight, withTraversal);
 			drawManager.mesh(
 				MHWRender::MUIDrawManager::kPoints, points);
@@ -309,15 +309,15 @@ void paintingDrawOverride::drawWireframeTargetsLine(
 	drawManager.setColor(MColor(0.0, 0.0, 1.0));
 
 	drawManager.setLineWidth(cdata->lineThickness);
-	double stackHeight = 0.0;
+	float stackHeight = 0.0f;
 	for (auto cluster : cdata->geom->clusters())
 	{
 		for (auto stroke : cluster.strokes())
 		{
 			stackHeight += cdata->stackGap;
-			MPointArray starts;
+			MFloatPointArray starts;
 			stroke.getPoints(starts, stackHeight, withTraversal);
-			MVectorArray ends;
+			MFloatVectorArray ends;
 			stroke.getZAxes(ends, withTraversal);
 			drawLines(drawManager, starts, ends, cdata->lineLength);
 		}
@@ -334,15 +334,15 @@ void paintingDrawOverride::drawWireframeTargetsMatrix(
 	drawManager.beginDrawable();
 
 	drawManager.setLineWidth(cdata->lineThickness);
-	double stackHeight = 0.0;
+	float stackHeight = 0.0f;
 	for (auto cluster : cdata->geom->clusters())
 	{
 		for (auto stroke : cluster.strokes())
 		{
 			stackHeight += cdata->stackGap;
-			MPointArray starts;
+			MFloatPointArray starts;
 			stroke.getPoints(starts, stackHeight, withTraversal);
-			MVectorArray xends, yends, zends;
+			MFloatVectorArray xends, yends, zends;
 
 			stroke.getXAxes(xends, withTraversal);
 			stroke.getYAxes(yends, withTraversal);
@@ -363,7 +363,7 @@ void paintingDrawOverride::drawWireframeBorders(
 	drawManager.beginDrawable();
 	drawManager.setLineWidth(cdata->lineThickness);
 
-	double stackHeight = 0.0;
+	float stackHeight = 0.0f;
 	for (auto cluster : cdata->geom->clusters())
 	{
 		const Brush &brush = cdata->geom->brushFromId(cluster.brushId());
@@ -371,8 +371,8 @@ void paintingDrawOverride::drawWireframeBorders(
 		{
 			stackHeight += cdata->stackGap;
 
-			MPointArray lineLoop;
-			stroke.getBorderLoop(brush, stackHeight, lineLoop, cdata->displayContactWidth);
+			MFloatPointArray lineLoop;
+			stroke.getBorderLoop(cdata->drawingNormal, brush, stackHeight, lineLoop, cdata->displayContactWidth);
 			drawManager.mesh(
 				MHWRender::MUIDrawManager::kClosedLine, lineLoop);
 		}
@@ -393,7 +393,7 @@ void paintingDrawOverride::drawWireframeClusterPath(
 	drawManager.beginDrawable();
 	drawManager.setLineWidth(cdata->lineThickness);
 
-	double stackHeight = 0.0;
+	float stackHeight = 0.0f;
 	for (auto cluster : cdata->geom->clusters())
 	{
 		drawManager.setColor(cdata->geom->paintFromId(cluster.paintId()).color);
@@ -401,7 +401,7 @@ void paintingDrawOverride::drawWireframeClusterPath(
 		for (auto stroke : cluster.strokes())
 		{
 			stackHeight += cdata->stackGap;
-			MPointArray lines;
+			MFloatPointArray lines;
 			stroke.getPoints(lines, stackHeight, true);
 			drawManager.mesh(
 				MHWRender::MUIDrawManager::kLineStrip, lines);
@@ -414,16 +414,16 @@ void paintingDrawOverride::drawWireframeArrows(
 	MHWRender::MUIDrawManager &drawManager, const PaintingDrawData *cdata)
 {
 
-	if (cdata->arrowheadSize < 0.000001)
+	if (cdata->arrowheadSize < 0.0001f)
 	{
 		return;
 	}
 	drawManager.beginDrawable();
-	MPoint head(MVector::xAxis * cdata->arrowheadSize);
-	MPoint right(MVector(0.5, 0.3, 0.0) * cdata->arrowheadSize);
-	MPoint left(MVector(0.5, -0.3, 0.0) * cdata->arrowheadSize);
+	MFloatPoint head(MFloatVector::xAxis * cdata->arrowheadSize);
+	MFloatPoint right(MFloatVector(0.5f, 0.3f, 0.0f) * cdata->arrowheadSize);
+	MFloatPoint left(MFloatVector(0.5f, -0.3f, 0.0f) * cdata->arrowheadSize);
 
-	double stackHeight = 0.0;
+	float stackHeight = 0.0f;
 	drawManager.setLineWidth(cdata->lineThickness);
 
 	for (auto cluster : cdata->geom->clusters())
@@ -431,18 +431,21 @@ void paintingDrawOverride::drawWireframeArrows(
 		for (auto stroke : cluster.strokes())
 		{
 			stackHeight += cdata->stackGap;
-			MMatrixArray mats;
-			stroke.getDirectionMatrices(mats, stackHeight);
+			const std::vector<Target> & targets =  stroke.targets();
+			std::vector<Target>::const_iterator citer;
 
-			for (unsigned i = 0; i < mats.length(); ++i)
+			// MMatrixArray mats;
+			// stroke.getDirectionMatrices(mats, stackHeight);
+			for (citer = targets.begin(); citer != targets.end(); citer++)
 			{
-
-				MPointArray linestrip;
-				linestrip.append(MPoint(mats[i][3][0], mats[i][3][1], mats[i][3][2]));
-				linestrip.append(head * mats[i]);
-				linestrip.append(left * mats[i]);
-				linestrip.append(right * mats[i]);
-				linestrip.append(linestrip[1]); // back to the heead
+				MFloatMatrix mat = citer->viewMatrix(cdata->drawingNormal);
+	
+				MFloatPointArray linestrip;
+				linestrip.append(MFloatPoint(mat[3][0], mat[3][1], mat[3][2]));
+				linestrip.append(head * mat);
+				linestrip.append(left * mat);
+				linestrip.append(right * mat);
+				linestrip.append(linestrip[1]); // back to the head
 				drawManager.mesh(
 					MHWRender::MUIDrawManager::kLineStrip, linestrip);
 			}
@@ -459,8 +462,8 @@ void paintingDrawOverride::drawWireframePivots(
 		return;
 	}
 	drawManager.beginDrawable();
-	MPointArray pivots;
-	double stackHeight = 0.0;
+	MFloatPointArray pivots;
+	float stackHeight = 0.0f;
 	for (auto cluster : cdata->geom->clusters())
 	{
 		for (auto stroke : cluster.strokes())
@@ -490,7 +493,7 @@ void paintingDrawOverride::drawIds(
 	}
 
 	drawManager.beginDrawable();
-	double stackHeight = 0.0;
+	float stackHeight = 0.0f;
 	MColor textColor(0.1f, 0.8f, 0.8f, 1.0f); // Text color
 	drawManager.setColor(textColor);
 	drawManager.setFontSize(MHWRender::MUIDrawManager::kSmallFontSize);
@@ -529,7 +532,7 @@ void paintingDrawOverride::drawIds(
 				text = text + "Rep:" + stroke.repeatId() + "\n";
 			}
 
-			MPoint textPos = stroke.getHead(stackHeight) + MVector(cdata->idDisplayOffset);
+			MPoint textPos = stroke.getHead(cdata->drawingNormal, stackHeight) + MVector(cdata->idDisplayOffset);
 			drawManager.text(textPos, text, MHWRender::MUIDrawManager::kLeft);
 		}
 	}
@@ -537,11 +540,11 @@ void paintingDrawOverride::drawIds(
 }
 
 void paintingDrawOverride::drawLines(MHWRender::MUIDrawManager &drawManager,
-									 const MPointArray &starts,
-									 const MVectorArray &directions,
-									 double length)
+									 const MFloatPointArray &starts,
+									 const MFloatVectorArray &directions,
+									 float length)
 {
-	MPointArray lines;
+	MFloatPointArray lines;
 	for (int i = 0; i < starts.length(); ++i)
 	{
 		lines.append(starts[i]);
@@ -552,11 +555,12 @@ void paintingDrawOverride::drawLines(MHWRender::MUIDrawManager &drawManager,
 }
 
 void paintingDrawOverride::drawLines(MHWRender::MUIDrawManager &drawManager,
-									 const MPointArray &starts,
-									 const MVectorArray &directions, double length,
+									 const MFloatPointArray &starts,
+									 const MFloatVectorArray &directions, 
+									 float length,
 									 const MColor &color)
 {
-	MPointArray lines;
+	MFloatPointArray lines;
 	for (int i = 0; i < starts.length(); ++i)
 	{
 		lines.append(starts[i]);

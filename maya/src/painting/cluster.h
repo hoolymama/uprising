@@ -78,8 +78,6 @@ public:
 					   float approachEnd, float ptpThresh);
 
 
-	// void offsetBrushContact(const Brush &brush);
-
 private:
 	void setDeparture(float approachMid, float approachEnd);
 	void setArrival(float approachStart, float approachMid, float ptpThresh);
@@ -94,20 +92,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-	// enum Reason
-	// {
-	// 	kNone,
-	// 	kTool,
-	// 	kDip,
-	// 	kTcp
-	// };
-
-	// void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
-	// void applyBiases(const Brush &brush, float mult);
-
-	// friend ostream &operator<<(ostream &os, const Cluster &geom);

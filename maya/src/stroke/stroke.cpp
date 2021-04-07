@@ -608,7 +608,7 @@ void Stroke::getBorders(
 	float stackHeight,
 	MFloatPointArray &lefts,
 	MFloatPointArray &rights,
-	bool displayContactWidth,
+	bool scaleWidthByWeight,
 	int maxSegments) const
 {
 	if (maxSegments == 0)
@@ -640,7 +640,7 @@ void Stroke::getBorders(
 
 		MFloatMatrix mat = citer->viewMatrix(planeNormal);
 		float weight = citer->weight();
-		if (flat || (!displayContactWidth))
+		if (flat || (!scaleWidthByWeight))
 		{
 			weight = 1.0f;
 		}
@@ -655,13 +655,13 @@ void Stroke::getBorderLoop(
 	const Brush &brush,
 	float stackHeight,
 	MFloatPointArray &result,
-	bool displayContactWidth,
+	bool scaleWidthByWeight,
 	int maxSegments) const
 {
 
 	MFloatPointArray lefts;
 	MFloatPointArray rights;
-	getBorders(planeNormal, brush, stackHeight, lefts, rights, displayContactWidth, maxSegments);
+	getBorders(planeNormal, brush, stackHeight, lefts, rights, scaleWidthByWeight, maxSegments);
 
 	result.clear();
 	for (size_t i = 0; i < lefts.length(); i++)
@@ -680,12 +680,12 @@ void Stroke::getTriangleStrip(
 	const Brush &brush,
 	float stackHeight,
 	MFloatPointArray &result,
-	bool displayContactWidth,
+	bool scaleWidthByWeight,
 	int maxSegments) const
 {
 
 	MFloatPointArray lefts, rights;
-	getBorders(planeNormal, brush, stackHeight, lefts, rights, displayContactWidth, maxSegments);
+	getBorders(planeNormal, brush, stackHeight, lefts, rights, scaleWidthByWeight, maxSegments);
 
 	result.clear();
 	for (size_t i = 0; i < lefts.length(); i++)
@@ -1557,7 +1557,7 @@ void Target::setPosition(const MPoint &rhs)
 // 	citer->getBorderPoints(
 // 		 planeNormal,
 // 		 result[i],
-// 		 result[i + 1], width, flat, displayContactWidth);
+// 		 result[i + 1], width, flat, scaleWidthByWeight);
 
 // 	result[i] += stackOffset;
 // 	result[i + 1] += stackOffset;
@@ -1569,7 +1569,7 @@ void Target::setPosition(const MPoint &rhs)
 // 	 const Brush &brush,
 // 	 float stackHeight,
 // 	 MFloatPointArray &result,
-// 	 bool displayContactWidth,
+// 	 bool scaleWidthByWeight,
 // 	 int maxSegments) const
 // {
 // 	if (maxSegments == 0)
@@ -1603,7 +1603,7 @@ void Target::setPosition(const MPoint &rhs)
 // 		citer->getBorderPoints(
 // 			 planeNormal,
 // 			 result[i],
-// 			 result[i + 1], width, flat, displayContactWidth);
+// 			 result[i + 1], width, flat, scaleWidthByWeight);
 
 // 		result[i] += stackOffset;
 // 		result[i + 1] += stackOffset;
@@ -1616,7 +1616,7 @@ void Target::setPosition(const MPoint &rhs)
 // 	 MFloatPointArray &rights,
 // 	 const Brush &brush,
 // 	 float stackHeight,
-// 	 bool displayContactWidth) const
+// 	 bool scaleWidthByWeight) const
 // {
 // 	unsigned len = m_targets.size();
 // 	lefts.setLength(len);
@@ -1633,7 +1633,7 @@ void Target::setPosition(const MPoint &rhs)
 
 // 		MFloatMatrix mat = citer->viewMatrix(planeNormal);
 // 		float weight = citer->weight();
-// 		if (flat || (!displayContactWidth))
+// 		if (flat || (!scaleWidthByWeight))
 // 		{
 // 			weight = 1.0f;
 // 		}

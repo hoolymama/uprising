@@ -240,7 +240,7 @@ public:
 		float stackHeight,
 		MFloatPointArray &lefts,
 		MFloatPointArray &rights,
-		bool displayContactWidth,
+		bool scaleWidthByWeight,
 		int maxSegments = -1) const;
 
 	void getBorderLoop(
@@ -248,7 +248,7 @@ public:
 		const Brush &brush,
 		float stackHeight,
 		MFloatPointArray &result,
-		bool displayContactWidth,
+		bool scaleWidthByWeight,
 		int maxSegments = -1) const;
 
 	void getTriangleStrip(
@@ -256,7 +256,7 @@ public:
 		const Brush &brush,
 		float stackHeight,
 		MFloatPointArray &result,
-		bool displayContactWidth,
+		bool scaleWidthByWeight,
 		int maxSegments = -1) const;
 
 	void getTargetBorderColors(

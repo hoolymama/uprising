@@ -71,15 +71,16 @@ public:
 	{
 		MGlobal::displayInfo("paintingDrawOverride: " + message);
 		cerr <<  "paintingDrawOverride: " << message.asChar() << endl;
-
 	}
 
 	void drawShaded(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata);
+
 	void drawWireframe(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata);
+
 	void drawWireframeTargets(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata);
@@ -87,29 +88,32 @@ public:
 	void drawWireframeTargetsPoint(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata);
+
 	void drawWireframeTargetsLine(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata);
+
 	void drawWireframeTargetsMatrix(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata);
 
 
-
-
-
 	void drawWireframeBorders(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata );
+
 	void drawWireframeClusterPath(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata  );
+
 	void drawWireframeArrows(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata );
+
 	void drawWireframePivots(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata );
+
 	void drawIds(
 	  MHWRender::MUIDrawManager &drawManager,
 	  const PaintingDrawData *cdata );
@@ -117,13 +121,16 @@ public:
 private:
 
 
-	void drawLines(
-	  MHWRender::MUIDrawManager &drawManager, const MPointArray &starts,
-	  const MVectorArray &directions, double length );
+	void drawLines(MHWRender::MUIDrawManager &drawManager,
+									 const MFloatPointArray &starts,
+									 const MFloatVectorArray &directions,
+									 float length);
 
-	void drawLines(
-	  MHWRender::MUIDrawManager &drawManager, const MPointArray &starts,
-	  const MVectorArray &directions, double length,  const MColor &color );
+	void drawLines(MHWRender::MUIDrawManager &drawManager,
+									 const MFloatPointArray &starts,
+									 const MFloatVectorArray &directions, 
+									 float length,
+									 const MColor &color);
 
 	paintingDrawOverride(const MObject &obj);
 

@@ -277,10 +277,6 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     m_maxCoil = 0.0;
 
 
-    cerr << "MAIN: " <<  "entryTransitionLength: " << entryTransitionLength << endl;
-    cerr << "MAIN: " <<  "exitTransitionLength: " << exitTransitionLength << endl;
-
-
     for (unsigned i = 0; i < nInputs; i++, hChains.next())
     {
         int parentId = hChains.elementIndex(&st);
@@ -544,12 +540,10 @@ Stroke skeletonStrokeNode::createStroke(
         curveFn.getPointAtParam(biasedCurveParam, point, MSpace::kObject);
         // tangent will possibly be used for followStroke
         MVector tangent = curveFn.tangent(biasedCurveParam);
-        cerr << "biasedCurveParam: "<< biasedCurveParam<<" tangent: " << tangent << endl;
-
+   
         if (biasedCurveParam >=1.0) // If we are past the end of the curve, push along the tangent
         {
             float extraDist = biasedDist - curveLength;
-            cerr << "past the end, extraDist: " << extraDist << endl;
             point += tangent.normal() * extraDist;
         }
         ///////////////////////////////////

@@ -11,6 +11,9 @@
 #include "brushCmd.h"
 #include "brushData.h"
 
+#include "paintingNode.h"
+#include "paintingData.h"
+
 #include "strokeData.h"
 #include "strokeNodeBase.h"
 
@@ -30,7 +33,7 @@
 #include "skChainData.h"
 #include "skChainNode.h"
 #include "skGraphNode.h"
-
+#include "paintingDrawOverride.h"
 #include "lightPaintingDrawOverride.h"
 #include "skGraphNodeDrawOverride.h"
 
@@ -56,6 +59,25 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerData("strokeData", strokeData::id,
 							 strokeData::creator);
 	mser;
+	
+	st = plugin.registerData("paintingData", paintingData::id,
+							 paintingData::creator);
+
+
+	st = plugin.registerNode("painting", painting::id, painting::creator,
+							 painting::initialize, MPxNode::kLocatorNode,
+							 &painting::drawDbClassification);
+	msert;
+
+	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+		painting::drawDbClassification,
+		painting::drawRegistrantId,
+		paintingDrawOverride::Creator);
+	mser;
+
+	paintingCallback::id = MDGMessage::addNodeAddedCallback(
+		paintingCallback::makeDefaultConnections, "painting", NULL, &st);mser;
+
 
 	st = plugin.registerData("lightPaintingData", lightPaintingData::id,
 							 lightPaintingData::creator);
@@ -208,6 +230,17 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterData(lightPaintingData::id);
+	mser;
+	
+	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+		painting::drawDbClassification,
+		painting::drawRegistrantId);
+	mser;
+
+	st = plugin.deregisterNode(painting::id);
+	mser;
+
+	st = plugin.deregisterData(paintingData::id);
 	mser;
 
 	st = plugin.deregisterData(strokeData::id);

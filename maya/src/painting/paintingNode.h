@@ -65,8 +65,8 @@ private:
   static MObject aApproachDistanceEnd;
   static MObject aApproachDistance;
 
-  static MObject aRotateOrder;
-  static MObject aOutputUnit;
+  // static MObject aRotateOrder;
+  // static MObject aOutputUnit;
 
   // static MObject aPlaneMatrix;
   // static MObject aDisplacementMesh; // cm

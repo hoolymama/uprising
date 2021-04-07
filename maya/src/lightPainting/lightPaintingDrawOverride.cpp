@@ -54,7 +54,6 @@ void lightPaintingDrawOverride::markDirty(void *clientData)
 
 MHWRender::DrawAPI lightPaintingDrawOverride::supportedDrawAPIs() const
 {
-	// this plugin supports both GL and DX
 	return (MHWRender::kOpenGL | MHWRender::kDirectX11 | MHWRender::kOpenGLCoreProfile);
 }
 
@@ -103,11 +102,6 @@ MUserData *lightPaintingDrawOverride::prepareForDraw(
 
 	data->strokes = ptd->strokes();
 	data->brush = ptd->brush();
-	
-	// MMatrix mat = cameraPath.inclusiveMatrix(&st); mser;
-
-	// data->drawingNormal = MFloatVector(MVector::zNegAxis * mat).normal();
-
 
 	short colorsMode;
 	MPlug(paintingObj, lightPainting::aDisplayTargetColors).getValue(colorsMode);
@@ -140,8 +134,7 @@ MUserData *lightPaintingDrawOverride::prepareForDraw(
 	offPlug.child(2).getValue(data->idDisplayOffset[2]);
 
 
-	// cerr << "data->drawingNormal" << data->drawingNormal<< endl;
-
+ 
 
 	return data;
 }
@@ -201,7 +194,7 @@ void lightPaintingDrawOverride::drawShaded(
 	float drawParam =  cdata->drawParam;
 
 	drawManager.beginDrawable();
-	// double stackHeight = 0.0;
+	// float stackHeight = 0.0f;
 	bool done = false;
 	const Brush &brush = *(cdata->brush);
 
@@ -248,7 +241,6 @@ void lightPaintingDrawOverride::drawWireframe(
 	drawWireframeTargets(drawManager, cdata);
 	drawWireframeBorders(drawManager, cdata);
 	drawWireframeArrows(drawManager, cdata);
-	// drawWireframePivots(drawManager, cdata);
 }
 
 void lightPaintingDrawOverride::drawWireframeTargets(
@@ -405,26 +397,6 @@ void lightPaintingDrawOverride::drawWireframeArrows(
 	drawManager.endDrawable();
 }
 
-// void lightPaintingDrawOverride::drawWireframePivots(
-// 	MHWRender::MUIDrawManager &drawManager, const LightPaintingDrawData *cdata)
-// {
-// 	if (!cdata->displayPivots)
-// 	{
-// 		return;
-// 	}
-// 	drawManager.beginDrawable();
-// 	MFloatPointArray pivots;
- 
- 
-// 	for (auto stroke : *(cdata->strokes))
-// 	{
-// 		pivots.append(stroke.pivot().position());
-// 	}
- 
-// 	drawManager.mesh(
-// 		MHWRender::MUIDrawManager::kPoints, pivots);
-// 	drawManager.endDrawable();
-// }
 
 void lightPaintingDrawOverride::drawIds(
 	MHWRender::MUIDrawManager &drawManager, const LightPaintingDrawData *cdata)

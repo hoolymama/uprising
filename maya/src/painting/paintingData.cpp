@@ -24,7 +24,8 @@ paintingGeom	*paintingData::geometry() const {
 // clean up
 void	paintingData::clear() {
 	if (m_pGeometry) {
-		delete m_pGeometry; m_pGeometry = 0;
+		delete m_pGeometry; 
+		m_pGeometry = 0;
 	}
 }
 

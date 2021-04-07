@@ -54,7 +54,7 @@ MStatus brushLifter::initialize()
 
 MStatus brushLifter::mutate(MDataBlock &data, std::vector<Stroke> *strokes) const
 {
-   cerr  << "MUTATE:" << endl;
+
   MStatus st;
   std::map<int, Brush> brushes;
   st = collectBrushes(data, brushes);

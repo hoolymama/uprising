@@ -11,6 +11,16 @@
 class paintingGeom
 {
 public:
+
+	using cluster_iterator = typename std::vector<Cluster>::iterator;
+	using const_cluster_iterator = typename std::vector<Cluster>::const_iterator;
+
+	cluster_iterator clusters_begin() { return m_clusters.begin(); }
+	cluster_iterator clusters_end() { return m_clusters.end(); }
+	const_cluster_iterator clusters_begin() const { return m_clusters.begin(); }
+	const_cluster_iterator clusters_end() const { return m_clusters.end(); }
+
+
 	paintingGeom();
 
 	~paintingGeom();
@@ -37,9 +47,8 @@ public:
 
 	// void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
-	void offsetBrushContact();
-	// void applyBiases(float mult);
-
+	// void offsetBrushContact();
+ 
 	// friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 
 private:
