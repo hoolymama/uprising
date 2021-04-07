@@ -2,31 +2,15 @@
 #ifndef _paintingNODE_H
 #define _paintingNODE_H
 
-#include <maya/MPxLocatorNode.h>
-#include <maya/MFloatArray.h>
-#include <maya/MVector.h>
-#include <maya/MFnDependencyNode.h>
-
-#include <maya/MFnNurbsCurve.h>
-#include <maya/MAngle.h>
-#include <maya/MVectorArray.h>
-
-#include <maya/MPxNode.h>
-
-#include <maya/MDGMessage.h>
-#include <maya/MDGModifier.h>
-
 #include "paintingData.h"
+#include "paintingNodeBase.h"
 
-#include "brush.h"
-#include "paint.h"
-#include "stroke.h"
 
-class painting : public MPxLocatorNode
+class painting : public paintingBase
 {
 public:
   painting();
-
+  virtual bool isAbstractClass() const { return false; }
   virtual ~painting();
 
   static void *creator();
@@ -35,29 +19,29 @@ public:
 
   virtual void postConstructor();
 
-  virtual bool isBounded() const;
-
-  virtual MBoundingBox boundingBox() const;
-
-  virtual void draw(M3dView &view,
-                    const MDagPath &path,
-                    M3dView::DisplayStyle style,
-                    M3dView::DisplayStatus status);
-
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
   static MTypeId id;
   static MString drawDbClassification;
   static MString drawRegistrantId;
-  static MObject aInMatrix;
 
+  static MObject aDisplayApproachTargets;
+  static MObject aDisplayClusterPath;
+  static MObject aDisplayPivots;
+
+  static MObject aDisplayBrushIds;
+  static MObject aDisplayPaintIds;
+  static MObject aDisplayRepeatIds;
+
+  static MObject aDisplayContactWidth;
+  static MObject aStackGap;
+
+  static MObject aOutput;
 private:
   MStatus collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes);
 
   MStatus addStrokes(MDataBlock &data, paintingGeom *pGeom);
 
-
-  static MObject aStrokes;
   static MObject aBrushes;
 
   static MObject aApproachDistanceStart;
@@ -65,20 +49,7 @@ private:
   static MObject aApproachDistanceEnd;
   static MObject aApproachDistance;
 
-  // static MObject aRotateOrder;
-  // static MObject aOutputUnit;
-
-  // static MObject aPlaneMatrix;
-  // static MObject aDisplacementMesh; // cm
-
-  static MObject aLinearSpeed;             // cm/sec
-  static MObject aAngularSpeed;            // per sec
-  static MObject aApproximationDistance;   // cm
   static MObject aMaxPointToPointDistance; // cm
-
-  static MObject aApplyBiases;
-  static MObject aBiasMult;
-
 
   static MObject aPaintColorR;
   static MObject aPaintColorG;
@@ -91,56 +62,6 @@ private:
 
   paintingData *m_pd;
 
-  // Public because it's needed by PaintingtDrawOverride
-public:
-
-  static MObject aViewMatrix;
-  static MObject aReassignParentId;
-  static MObject aPointSize;
-  static MObject aLineLength;
-  static MObject aLineThickness;
-  static MObject aDisplayTargets;
-  static MObject aDisplayApproachTargets;
-  static MObject aDisplayTargetColors;
-
-  static MObject aDisplayClusterPath;
-  static MObject aDisplayPivots;
-
-  static MObject aDisplayIds;
-  static MObject aDisplayParentIds;
-  static MObject aDisplayLayerIds;
-  static MObject aDisplayBrushIds;
-  static MObject aDisplayPaintIds;
-  static MObject aDisplayRepeatIds;
-
-  static MObject aIdDisplayOffset;
-  static MObject aDisplayContactWidth;
-  static MObject aArrowheadSize;
-  static MObject aStackGap;
-  static MObject aDrawParam;
-
-  static MObject aOutput;
 };
-
-namespace paintingCallback
-{
-  static MCallbackId id;
-
-  static void makeDefaultConnections(MObject &node, void *clientData)
-  {
-
-    MPlug wmPlugmulti(node, painting::worldMatrix);
-    MPlug wm(wmPlugmulti.elementByLogicalIndex(0));
-    MPlug mt(node, painting::aInMatrix);
-
-    MDGModifier mod;
-    mod.connect(wm, mt);
-    MStatus stat = mod.doIt();
-    if (stat != MS::kSuccess)
-    {
-      stat.perror("painting ERROR :: callback unable to make matrix connections");
-    }
-  }
-} // namespace paintingCallback
-
+ 
 #endif

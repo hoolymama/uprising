@@ -1,47 +1,17 @@
-#include <maya/MIOStream.h>
 
-#include <math.h>
-#include <algorithm>
-#include <map>
-#include <utility>
-#include <tuple>
-
-#include <maya/MDoubleArray.h>
-#include <maya/MFloatVectorArray.h>
-#include <maya/MFloatArray.h>
-#include <maya/MFloatPointArray.h>
-#include <maya/MPoint.h>
 #include <maya/MFnPluginData.h>
-#include <maya/MRenderUtil.h>
-#include <maya/MString.h>
-#include <maya/MFloatMatrix.h>
 #include <maya/MFnTypedAttribute.h>
-#include <maya/MFnMessageAttribute.h>
-#include <maya/MArrayDataHandle.h>
-#include <maya/MAngle.h>
-#include <maya/MPlugArray.h>
-#include <maya/MFnUnitAttribute.h>
 #include <maya/MFnNumericAttribute.h>
-#include <maya/MFnMatrixArrayData.h>
-#include <maya/MFnVectorArrayData.h>
-#include <maya/MFnDoubleArrayData.h>
-#include <maya/MFnIntArrayData.h>
-#include <maya/MFnMatrixData.h>
-#include <maya/MTransformationMatrix.h>
 #include <maya/MFnCompoundAttribute.h>
-#include <maya/MFnMatrixAttribute.h>
 #include <maya/MFnEnumAttribute.h>
 
 #include "paintingGeom.h"
 #include "strokeData.h"
 #include "paintingNode.h"
-
 #include <jMayaIds.h>
-#include "mayaMath.h"
 #include "errorMacros.h"
-
 #include "brushData.h"
-#include "enums.h"
+
 
 MTypeId painting::id(k_painting);
 MString painting::drawDbClassification("drawdb/geometry/painting");
@@ -66,25 +36,12 @@ void *painting::creator()
   return new painting();
 }
 
-MObject painting::aInMatrix;
-
-MObject painting::aViewMatrix;
-MObject painting::aStrokes;
-
-// MObject painting::aDisplacementMesh;
-
-MObject painting::aLinearSpeed;           // cm/sec
-MObject painting::aAngularSpeed;          // per sec
-MObject painting::aApproximationDistance; // cm
 MObject painting::aMaxPointToPointDistance;
 
 MObject painting::aApproachDistanceStart;
 MObject painting::aApproachDistanceMid;
 MObject painting::aApproachDistanceEnd;
 MObject painting::aApproachDistance;
-
-// MObject painting::aApplyBiases;
-// MObject painting::aBiasMult;
 
 MObject painting::aBrushes;
 
@@ -97,14 +54,6 @@ MObject painting::aPaintTravel;
 MObject painting::aPaintCustomId;
 MObject painting::aPaints;
 
-MObject painting::aReassignParentId;
-
-MObject painting::aPointSize;
-MObject painting::aLineLength;
-MObject painting::aLineThickness;
-
-MObject painting::aDisplayTargets;
-MObject painting::aDisplayTargetColors;
 MObject painting::aDisplayApproachTargets;
 MObject painting::aDisplayClusterPath;
 
@@ -112,19 +61,12 @@ MObject painting::aDisplayPivots;
 
 MObject painting::aDisplayContactWidth;
 
-MObject painting::aDisplayIds;
-MObject painting::aDisplayParentIds;
-MObject painting::aDisplayLayerIds;
 MObject painting::aDisplayBrushIds;
 MObject painting::aDisplayPaintIds;
 MObject painting::aDisplayRepeatIds;
 
-MObject painting::aIdDisplayOffset;
-
-MObject painting::aArrowheadSize;
 
 MObject painting::aStackGap;
-MObject painting::aDrawParam;
 
 MObject painting::aOutput;
 
@@ -132,63 +74,14 @@ MStatus painting::initialize()
 {
   MStatus st;
   MString method("painting::initialize");
+  
+  inheritAttributesFrom("paintingBase");
+
 
   MFnNumericAttribute nAttr;
   MFnTypedAttribute tAttr;
-  MFnUnitAttribute uAttr;
   MFnCompoundAttribute cAttr;
-  MFnMatrixAttribute mAttr;
   MFnEnumAttribute eAttr;
-  MFnMessageAttribute msgAttr;
-
-  MMatrix identity;
-  identity.setToIdentity();
-
-  aInMatrix = mAttr.create("inMatrix", "imat", MFnMatrixAttribute::kDouble);
-  mAttr.setStorable(false);
-  mAttr.setHidden(true);
-  mAttr.setDefault(identity);
-  addAttribute(aInMatrix);
-
-  aViewMatrix= mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
-  mAttr.setStorable(false);
-  mAttr.setHidden(false);
-  mAttr.setKeyable(true);
-  addAttribute(aViewMatrix);
-  // aDisplacementMesh = tAttr.create("displacementMesh", "dmsh", MFnData::kMesh, &st);
-  // mser
-  //     tAttr.setReadable(false);
-  // tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-  // st = addAttribute(aDisplacementMesh);
-  // mser;
-
-  // aLinearSpeed = nAttr.create("linearSpeed", "lnsp", MFnNumericData::kDouble);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setSoftMax(200);
-  // nAttr.setDefault(100.00);
-  // nAttr.setKeyable(true);
-  // addAttribute(aLinearSpeed);
-
-  // const double minAngSpeed = mayaMath::single_pi / 900.00;
-  // const double defaultAngSpeed = mayaMath::single_pi / 9.00;
-  // aAngularSpeed = uAttr.create("angularSpeed", "agsp", MFnUnitAttribute::kAngle);
-  // uAttr.setStorable(true);
-  // uAttr.setReadable(true);
-  // uAttr.setMin(minAngSpeed);
-  // uAttr.setMax((mayaMath::single_pi));
-  // addAttribute(aAngularSpeed);
-
-  // aApproximationDistance = nAttr.create("approximationDistance", "apxd",
-  //                                       MFnNumericData::kDouble);
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setMin(0.00);
-  // nAttr.setSoftMax(20);
-  // nAttr.setDefault(5.0);
-  // nAttr.setKeyable(true);
-  // addAttribute(aApproximationDistance);
 
   aMaxPointToPointDistance = nAttr.create("maxPointToPointDistance", "mxptp",
                                           MFnNumericData::kDouble);
@@ -216,15 +109,6 @@ MStatus painting::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   addAttribute(aApproachDistance);
-
-  aStrokes = tAttr.create("strokes", "stks", strokeData::id);
-  tAttr.setReadable(false);
-  tAttr.setStorable(false);
-  tAttr.setArray(true);
-  tAttr.setIndexMatters(true);
-  tAttr.setKeyable(true);
-  tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-  addAttribute(aStrokes);
 
   aBrushes = tAttr.create("brushes", "bsh", brushData::id);
   tAttr.setReadable(false);
@@ -280,68 +164,6 @@ MStatus painting::initialize()
   tAttr.setStorable(false);
   addAttribute(aOutput);
 
-  aReassignParentId = nAttr.create("reassignParentId", "rpi",
-                                   MFnNumericData::kBoolean);
-  nAttr.setHidden(false);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setDefault(false);
-  addAttribute(aReassignParentId);
-
-  aPointSize = nAttr.create("pointSize", "psi", MFnNumericData::kFloat);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setMin(0.00f);
-  nAttr.setSoftMax(20.0f);
-  nAttr.setDefault(5.0f);
-  addAttribute(aPointSize);
-
-  aLineLength = nAttr.create("lineLength", "lln", MFnNumericData::kFloat);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setMin(0.00f);
-  nAttr.setSoftMax(20.0f);
-  nAttr.setDefault(5.0f);
-  addAttribute(aLineLength);
-
-  aLineThickness = nAttr.create("lineThickness", "ltk", MFnNumericData::kFloat);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setMin(0.00f);
-  nAttr.setSoftMax(20.0f);
-  nAttr.setDefault(5.0f);
-  addAttribute(aLineThickness);
-
-  aArrowheadSize = nAttr.create("arrowheadSize", "arsz", MFnNumericData::kFloat);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setMin(0.00f);
-  nAttr.setSoftMax(20.0f);
-  nAttr.setDefault(5.0f);
-  addAttribute(aArrowheadSize);
-
-  aDisplayTargets = eAttr.create("displayTargets", "dtg");
-  eAttr.addField("none", PaintingEnums::kTargetsNone);
-  eAttr.addField("point", PaintingEnums::kTargetsPoint);
-  eAttr.addField("line", PaintingEnums::kTargetsLine);
-  eAttr.addField("matrix", PaintingEnums::kTargetsMatrix);
-  eAttr.setHidden(false);
-  eAttr.setStorable(true);
-  eAttr.setReadable(true);
-  eAttr.setDefault(PaintingEnums::kTargetsNone);
-  addAttribute(aDisplayTargets);
-
-  aDisplayTargetColors = eAttr.create("displayTargetColors", "dtcl");
-  eAttr.addField("off", PaintingEnums::kTargetColorsOff);
-  eAttr.addField("white", PaintingEnums::kTargetColorsWhite);
-  eAttr.addField("rgb", PaintingEnums::kTargetColorsRGB);
-  eAttr.addField("blend", PaintingEnums::kTargetColorsBlend);
-  eAttr.setHidden(false);
-  eAttr.setStorable(true);
-  eAttr.setReadable(true);
-  eAttr.setDefault(PaintingEnums::kTargetColorsOff);
-  addAttribute(aDisplayTargetColors);
-
   aDisplayApproachTargets = nAttr.create("displayApproachTargets", "dapt",
                                          MFnNumericData::kBoolean);
   nAttr.setHidden(false);
@@ -374,30 +196,6 @@ MStatus painting::initialize()
   nAttr.setDefault(true);
   addAttribute(aDisplayPivots);
 
-  aDisplayIds = nAttr.create("displayIds", "did",
-                             MFnNumericData::kBoolean);
-  nAttr.setHidden(false);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setDefault(true);
-  addAttribute(aDisplayIds);
-
-  aDisplayParentIds = nAttr.create("displayParentIds", "dprid",
-                                   MFnNumericData::kBoolean);
-  nAttr.setHidden(false);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setDefault(true);
-  addAttribute(aDisplayParentIds);
-
-  aDisplayLayerIds = nAttr.create("displayLayerIds", "dlyid",
-                                  MFnNumericData::kBoolean);
-  nAttr.setHidden(false);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setDefault(true);
-  addAttribute(aDisplayLayerIds);
-
   aDisplayBrushIds = nAttr.create("displayBrushIds", "dbid",
                                   MFnNumericData::kBoolean);
   nAttr.setHidden(false);
@@ -422,12 +220,6 @@ MStatus painting::initialize()
   nAttr.setDefault(true);
   addAttribute(aDisplayRepeatIds);
 
-  aIdDisplayOffset = nAttr.create("idDisplayOffset", "iddo", MFnNumericData::k3Float);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setKeyable(true);
-  nAttr.setDefault(0.0f, 0.0f, 1.0f);
-  addAttribute(aIdDisplayOffset);
 
   aStackGap = nAttr.create("stackGap", "sgap", MFnNumericData::kFloat);
   nAttr.setStorable(true);
@@ -437,32 +229,17 @@ MStatus painting::initialize()
   nAttr.setDefault(0);
   addAttribute(aStackGap);
 
-  aDrawParam = nAttr.create("drawParam", "dprm", MFnNumericData::kFloat);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setMin(0.0f);
-  nAttr.setSoftMax(1.0f);
-  nAttr.setDefault(1.0f);
-  addAttribute(aDrawParam);
-
 
   st = attributeAffects(aStrokes, aOutput);
   st = attributeAffects(aInMatrix, aOutput);
   st = attributeAffects(aViewMatrix, aOutput);
-
-
   st = attributeAffects(aLinearSpeed, aOutput);
   st = attributeAffects(aAngularSpeed, aOutput);
   st = attributeAffects(aApproximationDistance, aOutput);
-  st = attributeAffects(aBrushes, aOutput);
-  st = attributeAffects(aPaints, aOutput);
   st = attributeAffects(aMaxPointToPointDistance, aOutput);
   st = attributeAffects(aApproachDistance, aOutput);
-
-  // st = attributeAffects(aDisplacementMesh, aOutput);
-  // st = attributeAffects(aApplyBiases, aOutput);
-  // st = attributeAffects(aBiasMult, aOutput);
-
+  st = attributeAffects(aBrushes, aOutput);
+  st = attributeAffects(aPaints, aOutput);
   st = attributeAffects(aReassignParentId, aOutput);
 
   return (MS::kSuccess);
@@ -552,16 +329,7 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
     float approachEnd = hApproachDistance.child(aApproachDistanceEnd).asFloat();
     pGeom->setApproaches(approachStart, approachMid, approachEnd, ptpThresh);
 
-    //   MObject dMesh = data.inputValue(aDisplacementMesh).asMeshTransformed();
-    //   MFnMesh meshFn(dMesh, &st);
-    //   if (!st.error())
-    //   {
-    //     MMeshIsectAccelParams ap = meshFn.autoUniformGridParams();
-    //     pGeom->displace(meshFn, ap);
-    //   }
 
-    //   // lift up the start and end of each stroke according to
-    //   // brush tip
   }
 
   MFnPluginData fnOut;
@@ -590,7 +358,7 @@ MStatus painting::addStrokes(MDataBlock &data, paintingGeom *pGeom)
   MArrayDataHandle hStrokes = data.inputValue(aStrokes, &st);
   msert;
   unsigned nInputs = hStrokes.elementCount();
-  // int gid = 0;
+
   for (unsigned i = 0; i < nInputs; i++, hStrokes.next())
   {
 
@@ -608,10 +376,9 @@ MStatus painting::addStrokes(MDataBlock &data, paintingGeom *pGeom)
       continue;
     }
     strokeData *sData = (strokeData *)fnStrokeInput.data();
-    // strokeCurveGeom *strokeGeom = strokeData->fGeometry;
     const std::vector<Stroke> *strokeGeom = sData->fGeometry;
 
-    // const std::vector<Stroke> &strokes = strokeGeom->strokes();
+
     std::vector<Stroke>::const_iterator citer;
     for (citer = strokeGeom->begin(); citer != strokeGeom->end(); citer++)
     {
@@ -622,24 +389,6 @@ MStatus painting::addStrokes(MDataBlock &data, paintingGeom *pGeom)
   return MS::kSuccess;
 }
 
-void painting::draw(M3dView &view,
-                    const MDagPath &path,
-                    M3dView::DisplayStyle style,
-                    M3dView::DisplayStatus status)
-{
-  return;
-}
-
-bool painting::isBounded() const
-{
-  return false;
-}
-
-MBoundingBox painting::boundingBox() const
-{
-  return MBoundingBox();
-}
-
 void painting::postConstructor()
 {
   MFnDependencyNode nodeFn(thisMObject());
@@ -647,3 +396,11 @@ void painting::postConstructor()
   setExistWithoutInConnections(true);
   setExistWithoutOutConnections(true);
 }
+
+    //   MObject dMesh = data.inputValue(aDisplacementMesh).asMeshTransformed();
+    //   MFnMesh meshFn(dMesh, &st);
+    //   if (!st.error())
+    //   {
+    //     MMeshIsectAccelParams ap = meshFn.autoUniformGridParams();
+    //     pGeom->displace(meshFn, ap);
+    //   }

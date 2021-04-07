@@ -106,7 +106,7 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	MPlug(paintingObj, painting::aLineThickness).getValue(data->lineThickness);
 
 	MPlug(paintingObj, painting::aDisplayTargets).getValue(data->displayTargets);
-	MPlug(paintingObj, painting::aDisplayTargetColors).getValue(data->displayTargetColors);
+	// MPlug(paintingObj, painting::aDisplayTargetColors).getValue(data->displayTargetColors);
 
 	MPlug(paintingObj, painting::aDisplayApproachTargets).getValue(data->displayApproachTargets);
 
