@@ -101,11 +101,12 @@ float Target::distanceTo(const Target &other) const
 }
 
 // For Arrow Drawing
-MFloatMatrix Target::viewMatrix(const MFloatVector &planeNormal) const
+MFloatMatrix Target::viewMatrix(
+	const MFloatVector &viewNormal) const
 {
-	// we will draw arrows
-	MFloatVector side = (planeNormal ^ m_drawTangent).normal();
-	MFloatVector tangent = (side ^ planeNormal).normal();
+
+	MFloatVector side = (viewNormal ^ m_drawTangent).normal();
+	MFloatVector tangent = (side ^ viewNormal).normal();
 
 	MFloatMatrix res = m_matrix;
 	res[0][0] = tangent.x;
@@ -116,9 +117,9 @@ MFloatMatrix Target::viewMatrix(const MFloatVector &planeNormal) const
 	res[1][1] = side.y;
 	res[1][2] = side.z;
 	res[1][3] = 0.0;
-	res[2][0] = planeNormal.x;
-	res[2][1] = planeNormal.y;
-	res[2][2] = planeNormal.z;
+	res[2][0] = viewNormal.x;
+	res[2][1] = viewNormal.y;
+	res[2][2] = viewNormal.z;
 	res[2][3] = 0.0;
 
 	return res;

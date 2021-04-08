@@ -106,7 +106,7 @@ public:
 
 	float distanceTo(const Target &other) const;
 
-	MFloatMatrix viewMatrix(const MFloatVector &planeNormal) const;
+	MFloatMatrix viewMatrix(const MFloatVector &viewNormal) const;
 
 	MFloatPoint position(
 		 const MFloatMatrix &space) const;
