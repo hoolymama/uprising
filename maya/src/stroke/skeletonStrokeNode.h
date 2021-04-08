@@ -4,13 +4,13 @@
 
 #include <maya/MObject.h>
 #include <maya/MVectorArray.h>
-#include <strokeCreator.h>
+#include <paintStrokeCreator.h>
 #include "stroke.h"
-#include "skGraph.h"
+// #include "skGraph.h"
 #include "skChain.h"
 #include "brush.h"
 
-class skeletonStrokeNode : public strokeCreator
+class skeletonStrokeNode : public paintStrokeCreator
 {
 public:
     skeletonStrokeNode();
@@ -19,6 +19,10 @@ public:
     static MStatus initialize();
     virtual void postConstructor();
     virtual bool isAbstractClass() const { return false; }
+
+    virtual MStatus generateStrokeGeometry(
+      MDataBlock &data,
+      std::vector<Stroke> *pStrokes);
 
     static MTypeId id;
 
@@ -45,6 +49,18 @@ private:
         float splitTestInterval,
         std::vector<Stroke> *pOutStrokes);
 
+    void getChainPointsAndRadii(
+        const skChain &chain,
+        float extendEntry,
+        float extendExit,
+        MPointArray &points,
+        MFloatArray &radii) const;
+
+    const std::pair<int, Brush> selectBrush(
+        float radius,
+        const std::vector<std::pair<int, Brush> > &brushes) const;
+
+
     unsigned createStrokeData(
         const MObject &dCurve,
         const MFloatArray &radii,
@@ -66,119 +82,59 @@ private:
         float entryTransitionLength,
         float exitTransitionLength) const;
 
-    void getPointsAndRadii(
-        const skChain &chain,
-        float extendEntry,
-        float extendExit,
-        MPointArray &points,
-        MFloatArray &radii) const;
-
-    const std::pair<int, Brush> selectBrush(
-        float radius,
-        const std::vector<std::pair<int, Brush> > &brushes) const;
-
-    float findEndDist(
-        const MObject &dCurve,
-        const MFloatVector &canvasNormal,
-        float startDist,
-        float endDist,
-        double splitAngle,
-        float splitTestInterval);
-
-    unsigned int getStrokeBoundaries(
-        const MObject &dCurve,
-        const MFloatVector &canvasNormal,
-        float strokeLength,
-        float overlap,
-        float extendEntry,
-        float extendExit,
-        double splitAngle,
-        float splitTestInterval,
-        MFloatVectorArray &result);
-
-    bool getBoundary(
-        const MObject &dCurve,
-        double curveLength,
-        const MFloatVector &canvasNormal,
-        float lastEndDist,
-        float strokeLength,
-        float overlap,
-        float extendEntry,
-        float extendExit,
-        double splitAngle,
-        float splitTestInterval,
-        MFloatVector &result);
-
-    void setApproach(std::vector<std::unique_ptr<Stroke> > &strokes,
-                     double approachStart, double approachMid, double approachEnd) const;
-
-    MStatus generateStrokeGeometry(MDataBlock &data,
-                                   std::vector<Stroke> *geoms);
-
-    std::vector<std::pair<int, float> > getBrushRadii(
-        MDataBlock &data) const;
-
-    static float calculateTargetWeight(
-        const double &distanceOnCurve,
-        const double &entryDistance,
-        const double &exitDistance,
-        const double &entryTransitionDistance,
-        const double &exitTransitionDistance,
-        const float &entryTransitionLength,
-        const float &exitTransitionLength,
-        const float &radius,
-        const float &brushWidth);
 
 
 
 
 
-    static MObject aCanvasMatrix;
+    // float findEndDist(
+    //     const MObject &dCurve,
+    //     const MFloatVector &canvasNormal,
+    //     float startDist,
+    //     float endDist,
+    //     double splitAngle,
+    //     float splitTestInterval);
+
+    // unsigned int getStrokeBoundaries(
+    //     const MObject &dCurve,
+    //     const MFloatVector &canvasNormal,
+    //     float strokeLength,
+    //     float overlap,
+    //     float extendEntry,
+    //     float extendExit,
+    //     double splitAngle,
+    //     float splitTestInterval,
+    //     MFloatVectorArray &result);
+
+    // bool getBoundary(
+    //     const MObject &dCurve,
+    //     double curveLength,
+    //     const MFloatVector &canvasNormal,
+    //     float lastEndDist,
+    //     float strokeLength,
+    //     float overlap,
+    //     float extendEntry,
+    //     float extendExit,
+    //     double splitAngle,
+    //     float splitTestInterval,
+    //     MFloatVector &result);
+
+
+    // static float calculateTargetWeight(
+    //     const double &distanceOnCurve,
+    //     const double &entryDistance,
+    //     const double &exitDistance,
+    //     const double &entryTransitionDistance,
+    //     const double &exitTransitionDistance,
+    //     const float &entryTransitionLength,
+    //     const float &exitTransitionLength,
+    //     const float &radius,
+    //     const float &brushWidth);
+
     static MObject aChains;
-    static MObject aStrokeLength;
-    static MObject aOverlap;
     static MObject aBrushes;
-    static MObject aPaintId;
-    // static MObject aLayerId;
-    static MObject aBrushFollowStroke;
-    static MObject aSplitAngle;
-    static MObject aSplitTestInterval;
-    static MObject aEntryTransitionLength;
-    static MObject aExitTransitionLength;
-    static MObject aExtendEntry;
-    static MObject aExtendExit;
-    static MObject aMinimumPoints;
-    static MObject aStrokeDirectionMap;
 
-    float m_maxCoil; //> The maximum value of coils
 };
 
-inline float skeletonStrokeNode::calculateTargetWeight(
-    const double &distanceOnCurve,
-    const double &entryDistance,
-    const double &exitDistance,
-    const double &entryTransitionDistance,
-    const double &exitTransitionDistance,
-    const float &entryTransitionLength,
-    const float &exitTransitionLength,
-    const float &radius,
-    const float &brushWidth
-
-)
-{
-    const float epsilon = 0.0001;
-
-    float transitionWeight = 1.0;
-    if ((distanceOnCurve+epsilon) < entryTransitionDistance)
-    {
-        transitionWeight = float((distanceOnCurve - entryDistance) / entryTransitionLength);
-    }
-    else if (distanceOnCurve > (exitTransitionDistance+epsilon))
-    {
-        transitionWeight = float((exitDistance - distanceOnCurve) / exitTransitionLength);
-    }
-
-    return fmin(transitionWeight, ((2.0f * radius) / brushWidth));
-}
 
 #endif

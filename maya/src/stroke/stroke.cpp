@@ -190,63 +190,6 @@ void Stroke::calculateParams(MFloatArray &result) const
 	}
 }
 
-// Offset the existing stroke
-// Each target is offset ortrhogonal to its own tangent.
-// void Stroke::offset(
-// 	float offset,
-// 	const MFloatVector &planeNormal,
-// 	int repeatId)
-// {
-// 	std::vector<Target>::iterator iter;
-// 	m_repeatId = repeatId;
-// 	MFloatVector offsetVec;
-// 	if (fabs(offset) > epsilon)
-// 	{
-// 		std::vector<Target>::iterator iter;
-// 		for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
-// 		{
-// 			offsetVec = (iter->tangent() ^ planeNormal) * offset;
-// 			iter->offsetBy(offsetVec);
-// 		}
-// 		offsetVec = (m_pivot.tangent() ^ planeNormal) * offset;
-// 		m_pivot.offsetBy(offsetVec);
-// 	}
-// 	// calculateArcLength();
-// }
-
-// void Stroke::offset(
-// 	float tangentOffset,
-// 	float normalOffset,
-// 	const MFloatVector &planeNormal,
-// 	bool reverse,
-// 	int repeatId)
-// {
-
-// 	std::vector<Target>::iterator iter;
-// 	m_repeatId = repeatId;
-// 	if (reverse)
-// 	{
-// 		m_backstroke = !m_backstroke;
-// 		std::reverse(m_targets.begin(), m_targets.end());
-// 	}
-
-// 	MVector offsetVec;
-// 	if ((fabs(tangentOffset) > epsilon) || (fabs(normalOffset) > epsilon))
-// 	{
-// 		std::vector<Target>::iterator iter;
-// 		for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
-// 		{
-// 			offsetVec = (iter->tangent() ^ planeNormal) * normalOffset;
-// 			offsetVec += iter->tangent() * tangentOffset;
-// 			iter->offsetBy(offsetVec);
-// 		}
-// 		offsetVec = (m_pivot.tangent() ^ planeNormal) * normalOffset;
-// 		offsetVec += m_pivot.tangent() * tangentOffset;
-// 		m_pivot.offsetBy(offsetVec);
-// 	}
-// 	// calculateArcLength();
-// }
-
 const Target &Stroke::pivot() const
 {
 	return m_pivot;
@@ -537,28 +480,33 @@ bool Stroke::testMapBlueId(FilterOperator op, int value) const
 	return testAgainstValue(int(m_filterColor.z * 256), op, value);
 }
 
-void Stroke::getPoints(MFloatPointArray &result, float stackHeight,
-					   bool withTraversal) const
+void Stroke::getPoints(
+	MFloatPointArray &result, 
+	// float stackHeight,
+	bool withTraversal) const
 {
 
-	MFloatVector stackOffset = MFloatVector::zAxis * stackHeight;
+	// MFloatVector stackOffset = MFloatVector::zAxis * stackHeight;
 	std::vector<Target>::const_iterator citer;
 	if (withTraversal)
 	{
 		for (citer = m_arrivals.begin(); citer != m_arrivals.end(); citer++)
 		{
-			result.append(citer->position() + stackOffset);
+			result.append(citer->position() /* + stackOffset */);
 		}
 	}
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
 	{
-		result.append(citer->position() + stackOffset);
+		result.append(citer->position() /* + stackOffset */);
 	}
 	if (withTraversal)
 	{
-		result.append(m_departure.position() + stackOffset);
+		result.append(m_departure.position() /* + stackOffset */);
 	}
 }
+
+
+ 
 
 void Stroke::transform(const MFloatVector &vec, MFloatVectorArray &result,
 					   bool withTraversal) const
@@ -595,17 +543,16 @@ void Stroke::getZAxes(MFloatVectorArray &result, bool withTraversal) const
 }
 
 MFloatPoint Stroke::getHead(
-	const MFloatVector &planeNormal,
-	float stackHeight) const
+	const MFloatVector &planeNormal/* ,float stackHeight */) const
 {
-	MFloatVector stackOffset = planeNormal * stackHeight;
-	return m_targets[0].position() + stackOffset;
+	// MFloatVector stackOffset = planeNormal * stackHeight;
+	return m_targets[0].position()/*  + stackOffset */;
 }
 
 void Stroke::getBorders(
 	const MFloatVector &planeNormal,
 	const Brush &brush,
-	float stackHeight,
+	// float stackHeight,
 	MFloatPointArray &lefts,
 	MFloatPointArray &rights,
 	bool scaleWidthByWeight,
@@ -627,7 +574,7 @@ void Stroke::getBorders(
 	lefts.setLength(len);
 	rights.setLength(len);
 
-	MFloatVector stackOffset = planeNormal * stackHeight;
+	// MFloatVector stackOffset = planeNormal * stackHeight;
 	float width = brush.width() * 0.5f;
 	bool flat = (brush.shape() == Brush::kFlat);
 	std::vector<Target>::const_iterator citer;
@@ -645,15 +592,15 @@ void Stroke::getBorders(
 			weight = 1.0f;
 		}
 		MFloatPoint offset = MFloatPoint(MFloatVector::yAxis * width * weight);
-		lefts[i] = (offset * mat) + stackOffset;
-		rights[i] = ((offset * -1.0) * mat) + stackOffset;
+		lefts[i] = (offset * mat) /* + stackOffset */;
+		rights[i] = ((offset * -1.0) * mat) /* + stackOffset */;
 	}
 }
 
 void Stroke::getBorderLoop(
 	const MFloatVector &planeNormal,
 	const Brush &brush,
-	float stackHeight,
+	// float stackHeight,
 	MFloatPointArray &result,
 	bool scaleWidthByWeight,
 	int maxSegments) const
@@ -661,7 +608,7 @@ void Stroke::getBorderLoop(
 
 	MFloatPointArray lefts;
 	MFloatPointArray rights;
-	getBorders(planeNormal, brush, stackHeight, lefts, rights, scaleWidthByWeight, maxSegments);
+	getBorders(planeNormal, brush/* , stackHeight */, lefts, rights, scaleWidthByWeight, maxSegments);
 
 	result.clear();
 	for (size_t i = 0; i < lefts.length(); i++)
@@ -678,14 +625,14 @@ void Stroke::getBorderLoop(
 void Stroke::getTriangleStrip(
 	const MFloatVector &planeNormal,
 	const Brush &brush,
-	float stackHeight,
+	// float stackHeight,
 	MFloatPointArray &result,
 	bool scaleWidthByWeight,
 	int maxSegments) const
 {
 
 	MFloatPointArray lefts, rights;
-	getBorders(planeNormal, brush, stackHeight, lefts, rights, scaleWidthByWeight, maxSegments);
+	getBorders(planeNormal, brush/* , stackHeight */, lefts, rights, scaleWidthByWeight, maxSegments);
 
 	result.clear();
 	for (size_t i = 0; i < lefts.length(); i++)
@@ -830,84 +777,6 @@ void Stroke::colors(MColorArray &result) const
 	}
 }
 
-// void Stroke::setTransitionContact()
-// {
-// 	float arcLength = calculateArcLength();
-// 	MFloatArray params;
-// 	calculateParams(params);
-
-// 	float m_entry_param = m_entryLength / arcLength;
-// 	float m_exit_param = m_exitLength / arcLength;
-
-// 	float total_param = m_entry_param + m_exit_param;
-
-// 	if (total_param > 1.0)
-// 	{
-// 		m_entry_param = m_entry_param / total_param;
-// 		m_exit_param = m_exit_param / total_param;
-// 	}
-// 	m_exit_param = 1.0 - m_exit_param;
-
-// 	// now have entry and exit params for the transitions
-// 	std::vector<Target>::iterator iter;
-// 	unsigned i = 0;
-// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++, i++)
-// 	{
-// 		const float &param = params[i];
-// 		if (param >= m_entry_param)
-// 		{
-// 			break;
-// 		}
-// 		float contact = param / m_entry_param;
-// 		contact = fmin(contact, iter->weight());
-// 		iter->setWeight(contact);
-// 	}
-
-// 	std::vector<Target>::reverse_iterator riter;
-// 	i = params.length() - 1;
-// 	for (riter = m_targets.rbegin(); riter != m_targets.rend(); riter++, i--)
-// 	{
-// 		const float &param = params[i];
-// 		if (param <= m_exit_param)
-// 		{
-// 			break;
-// 		}
-// 		float contact = (1.0 - param) / (1.0 - m_exit_param);
-// 		contact = fmin(contact, riter->weight());
-// 		riter->setWeight(contact);
-// 	}
-// }
-
-//
-// void Stroke::offsetBrushContact(const Brush &brush)
-// {
-// 	float height = brush.transitionHeight();
-// 	float power = brush.contactPower();
-
-// 	std::vector<Target>::iterator iter;
-// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
-// 	{
-// 		float dist = (1.0 - iter->weight());
-// 		if (dist > epsilon)
-// 		{
-// 			dist = pow(dist, power) * height;
-// 		}
-// 		else
-// 		{
-// 			dist = 0;
-// 		}
-
-// 		if (m_localContact)
-// 		{
-// 			iter->offsetLocalZ(-dist);
-// 		}
-// 		else
-// 		{
-// 			iter->offsetBy(MVector::zAxis * dist);
-// 		}
-// 	}
-// }
-
 void Stroke::setLinearSpeed(float val)
 {
 	m_linearSpeed = val;
@@ -1024,6 +893,147 @@ ostream &operator<<(ostream &os, const Stroke &s)
 
 	return os;
 }
+
+
+
+// void Stroke::setTransitionContact()
+// {
+// 	float arcLength = calculateArcLength();
+// 	MFloatArray params;
+// 	calculateParams(params);
+
+// 	float m_entry_param = m_entryLength / arcLength;
+// 	float m_exit_param = m_exitLength / arcLength;
+
+// 	float total_param = m_entry_param + m_exit_param;
+
+// 	if (total_param > 1.0)
+// 	{
+// 		m_entry_param = m_entry_param / total_param;
+// 		m_exit_param = m_exit_param / total_param;
+// 	}
+// 	m_exit_param = 1.0 - m_exit_param;
+
+// 	// now have entry and exit params for the transitions
+// 	std::vector<Target>::iterator iter;
+// 	unsigned i = 0;
+// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++, i++)
+// 	{
+// 		const float &param = params[i];
+// 		if (param >= m_entry_param)
+// 		{
+// 			break;
+// 		}
+// 		float contact = param / m_entry_param;
+// 		contact = fmin(contact, iter->weight());
+// 		iter->setWeight(contact);
+// 	}
+
+// 	std::vector<Target>::reverse_iterator riter;
+// 	i = params.length() - 1;
+// 	for (riter = m_targets.rbegin(); riter != m_targets.rend(); riter++, i--)
+// 	{
+// 		const float &param = params[i];
+// 		if (param <= m_exit_param)
+// 		{
+// 			break;
+// 		}
+// 		float contact = (1.0 - param) / (1.0 - m_exit_param);
+// 		contact = fmin(contact, riter->weight());
+// 		riter->setWeight(contact);
+// 	}
+// }
+
+//
+// void Stroke::offsetBrushContact(const Brush &brush)
+// {
+// 	float height = brush.transitionHeight();
+// 	float power = brush.contactPower();
+
+// 	std::vector<Target>::iterator iter;
+// 	for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+// 	{
+// 		float dist = (1.0 - iter->weight());
+// 		if (dist > epsilon)
+// 		{
+// 			dist = pow(dist, power) * height;
+// 		}
+// 		else
+// 		{
+// 			dist = 0;
+// 		}
+
+// 		if (m_localContact)
+// 		{
+// 			iter->offsetLocalZ(-dist);
+// 		}
+// 		else
+// 		{
+// 			iter->offsetBy(MVector::zAxis * dist);
+// 		}
+// 	}
+// }
+
+
+
+// Offset the existing stroke
+// Each target is offset ortrhogonal to its own tangent.
+// void Stroke::offset(
+// 	float offset,
+// 	const MFloatVector &planeNormal,
+// 	int repeatId)
+// {
+// 	std::vector<Target>::iterator iter;
+// 	m_repeatId = repeatId;
+// 	MFloatVector offsetVec;
+// 	if (fabs(offset) > epsilon)
+// 	{
+// 		std::vector<Target>::iterator iter;
+// 		for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+// 		{
+// 			offsetVec = (iter->tangent() ^ planeNormal) * offset;
+// 			iter->offsetBy(offsetVec);
+// 		}
+// 		offsetVec = (m_pivot.tangent() ^ planeNormal) * offset;
+// 		m_pivot.offsetBy(offsetVec);
+// 	}
+// 	// calculateArcLength();
+// }
+
+// void Stroke::offset(
+// 	float tangentOffset,
+// 	float normalOffset,
+// 	const MFloatVector &planeNormal,
+// 	bool reverse,
+// 	int repeatId)
+// {
+
+// 	std::vector<Target>::iterator iter;
+// 	m_repeatId = repeatId;
+// 	if (reverse)
+// 	{
+// 		m_backstroke = !m_backstroke;
+// 		std::reverse(m_targets.begin(), m_targets.end());
+// 	}
+
+// 	MVector offsetVec;
+// 	if ((fabs(tangentOffset) > epsilon) || (fabs(normalOffset) > epsilon))
+// 	{
+// 		std::vector<Target>::iterator iter;
+// 		for (iter = m_targets.begin(); iter != m_targets.end(); iter++)
+// 		{
+// 			offsetVec = (iter->tangent() ^ planeNormal) * normalOffset;
+// 			offsetVec += iter->tangent() * tangentOffset;
+// 			iter->offsetBy(offsetVec);
+// 		}
+// 		offsetVec = (m_pivot.tangent() ^ planeNormal) * normalOffset;
+// 		offsetVec += m_pivot.tangent() * tangentOffset;
+// 		m_pivot.offsetBy(offsetVec);
+// 	}
+// 	// calculateArcLength();
+// }
+
+
 
 /*
 

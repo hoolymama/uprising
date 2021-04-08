@@ -224,9 +224,9 @@ public:
 	bool testMapGreenId(FilterOperator op, int value) const;
 	bool testMapBlueId(FilterOperator op, int value) const;
 
-	void getPoints(MFloatPointArray &result, float stackHeight = 0.0f,
+	void getPoints(MFloatPointArray &result/*, float stackHeight = 0.0f*/,
 				   bool withTraversal = false) const;
-
+ 
 	void transform(const MFloatVector &vec, MFloatVectorArray &result,
 				   bool withTraversal = false) const;
 
@@ -237,7 +237,7 @@ public:
 	void getBorders(
 		const MFloatVector &planeNormal,
 		const Brush &brush,
-		float stackHeight,
+		// float stackHeight,
 		MFloatPointArray &lefts,
 		MFloatPointArray &rights,
 		bool scaleWidthByWeight,
@@ -246,7 +246,7 @@ public:
 	void getBorderLoop(
 		const MFloatVector &planeNormal,
 		const Brush &brush,
-		float stackHeight,
+		// float stackHeight,
 		MFloatPointArray &result,
 		bool scaleWidthByWeight,
 		int maxSegments = -1) const;
@@ -254,7 +254,7 @@ public:
 	void getTriangleStrip(
 		const MFloatVector &planeNormal,
 		const Brush &brush,
-		float stackHeight,
+		// float stackHeight,
 		MFloatPointArray &result,
 		bool scaleWidthByWeight,
 		int maxSegments = -1) const;
@@ -281,8 +281,7 @@ public:
 	void colors(MColorArray &result) const;
 
 	MFloatPoint getHead(
-		const MFloatVector &planeNormal,
-		float stackHeight = 0.0f) const;
+		const MFloatVector &planeNormal/*, float stackHeight = 0.0f*/) const;
 
 	const Target &departure() const;
 

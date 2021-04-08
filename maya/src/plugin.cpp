@@ -7,6 +7,7 @@
 #include "collectStrokes.h"
 #include "meshStrokeNode.h"
 #include "skeletonStrokeNode.h"
+#include "curveStrokeNode.h"
 
 #include "brushCmd.h"
 #include "brushData.h"
@@ -31,7 +32,7 @@
 #include "strokeMutator.h"
 
 #include "strokeCreator.h"
-
+#include "paintStrokeCreator.h"
 #include "skChainData.h"
 #include "skChainNode.h"
 #include "skGraphNode.h"
@@ -137,6 +138,11 @@ MStatus initializePlugin(MObject obj)
 							 strokeCreator::initialize);
 	mser;
 
+	st = plugin.registerNode("paintStrokeCreator", paintStrokeCreator::id, paintStrokeCreator::creator,
+							 paintStrokeCreator::initialize);
+	mser;
+
+
 	st = plugin.registerNode("meshStroke", meshStrokeNode::id,
 							 meshStrokeNode::creator,
 							 meshStrokeNode::initialize);
@@ -146,6 +152,11 @@ MStatus initializePlugin(MObject obj)
 							 skeletonStrokeNode::creator,
 							 skeletonStrokeNode::initialize);
 	msert;
+
+	st = plugin.registerNode("curveStroke", curveStrokeNode::id, curveStrokeNode::creator,
+							 curveStrokeNode::initialize);
+	msert;
+
 
 	st = plugin.registerNode("strokeMutator", strokeMutator::id, strokeMutator::creator,
 							 strokeMutator::initialize);
@@ -198,12 +209,19 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(strokeMutator::id);
 
 	msert;
+	
+	st = plugin.deregisterNode(curveStrokeNode::id);
+	mser;
 
 	st = plugin.deregisterNode(skeletonStrokeNode::id);
 	mser;
 
 	st = plugin.deregisterNode(meshStrokeNode::id);
 	mser;
+
+	st = plugin.deregisterNode(paintStrokeCreator::id);
+	mser;
+
 
 	st = plugin.deregisterNode(strokeCreator::id);
 	mser;

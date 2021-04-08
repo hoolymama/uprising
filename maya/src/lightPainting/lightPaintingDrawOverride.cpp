@@ -219,7 +219,7 @@ void lightPaintingDrawOverride::drawShaded(
 
 		// stackHeight += cdata->stackGap;
 		MFloatPointArray triangles;
-		stroke.getTriangleStrip(cdata->drawingNormal, brush, 0.0f, triangles, false, segments);
+		stroke.getTriangleStrip(cdata->drawingNormal, brush,  triangles, false, segments);
 
 		MColorArray colors;
 		stroke.getTargetBorderColors(colors, segments, cdata->targetDisplayMode);
@@ -350,7 +350,6 @@ void lightPaintingDrawOverride::drawWireframeBorders(
 		stroke.getBorderLoop(
 			cdata->drawingNormal, 
 			brush, 
-			0.0f, 
 			lineLoop, 
 			false);
 		drawManager.mesh(

@@ -44,10 +44,12 @@ public:
 
 	MFloatVector drawingNormal;
 
-
 	MFloatVector idDisplayOffset;
+
+	MFloatVectorArray stackOffsets;
 
 	paintingGeom *geom;
 };
 
 #endif
+ 

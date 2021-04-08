@@ -140,7 +140,20 @@ private:
 
 	MCallbackId fModelEditorChangedCbId;
 	MCallbackId fTimeChangedCbId;
+
+
+	static void offsetPoints(const MFloatVector &offset, MFloatPointArray & points) ;
 };
 
+inline void paintingDrawOverride::offsetPoints(
+	const MFloatVector &offset,
+	MFloatPointArray &points) 
+{	
+	unsigned len = points.length();
+	for (size_t i = 0; i < len; i++)
+	{
+		points[i] = points[i]+offset;
+	}
+}
 
 #endif

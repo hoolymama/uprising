@@ -98,8 +98,7 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	MFnMatrixData fnMatrix(dViewMatrix,&st);mser;
 	const MMatrix & mat = fnMatrix.matrix(&st) ;mser;
 
-	// Use neg Z because for a painting, we are looking down onto the table.
-	data->drawingNormal = MFloatVector(MVector::zNegAxis * mat).normal();
+	data->drawingNormal = MFloatVector(MVector::zAxis * mat).normal();
 
 	MPlug(paintingObj, painting::aPointSize).getValue(data->pointSize);
 	MPlug(paintingObj, painting::aLineLength).getValue(data->lineLength);
@@ -138,8 +137,24 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	{
 		return NULL;
 	}
-
 	data->geom = ptd->geometry();
+
+	/////////////// Precalc stackGap offsets.
+	const float epsilon = 0.00001;
+	data->stackOffsets.clear();
+	if ( data->stackGap > epsilon) {
+		float offset = 0.0f;
+		const MFloatVector &n = data->drawingNormal;
+		for (auto cluster : data->geom->clusters())
+		{
+			for (auto stroke : cluster.strokes())
+			{
+				data->stackOffsets.append(n*offset);
+				offset+=data->stackGap;
+			}
+		}
+	}
+	///////////////
 
 	return data;
 }
@@ -150,7 +165,7 @@ void paintingDrawOverride::addUIDrawables(
 	const MHWRender::MFrameContext &context,
 	const MUserData *data)
 {
-
+ 
 	PaintingDrawData *cdata = (PaintingDrawData *)data;
 	if (!cdata)
 	{
@@ -160,6 +175,7 @@ void paintingDrawOverride::addUIDrawables(
 	{
 		return;
 	}
+
 
 	const unsigned int displayStyle = context.getDisplayStyle();
 
@@ -177,6 +193,10 @@ void paintingDrawOverride::addUIDrawables(
 	}
 	drawIds(drawManager, cdata);
 }
+
+
+
+
 
 void paintingDrawOverride::drawShaded(
 	MHWRender::MUIDrawManager &drawManager,
@@ -202,7 +222,10 @@ void paintingDrawOverride::drawShaded(
 	float drawParam =  cdata->drawParam;
 
 	drawManager.beginDrawable();
-	float stackHeight = 0.0f;
+
+	unsigned strokeIndex = 0;
+	bool doStackOffset = cdata->stackOffsets.length() > 0;
+
 	bool done = false;
 	for (auto cluster : cdata->geom->clusters())
 	{
@@ -227,10 +250,15 @@ void paintingDrawOverride::drawShaded(
 				done = true;
 			}
 
-			stackHeight += cdata->stackGap;
-			MFloatPointArray triangles;
-			stroke.getTriangleStrip(cdata->drawingNormal,brush, stackHeight, triangles, cdata->displayContactWidth, segments);
-			drawManager.mesh(MHWRender::MUIDrawManager::kTriStrip, triangles);
+			MFloatPointArray points;
+			stroke.getTriangleStrip(cdata->drawingNormal,brush, points, cdata->displayContactWidth, segments);
+			if (doStackOffset) {
+				offsetPoints(cdata->stackOffsets[strokeIndex], points);
+				strokeIndex++;
+			}
+
+
+			drawManager.mesh(MHWRender::MUIDrawManager::kTriStrip, points);
 			num_visited_segments = next_accum_segments;
 			if (done){
 				break;
@@ -280,18 +308,29 @@ void paintingDrawOverride::drawWireframeTargetsPoint(
 	MHWRender::MUIDrawManager &drawManager,
 	const PaintingDrawData *cdata)
 {
+	float stackHeight = 0.0f;
+	MFloatVector stackOffset ;
+
 	bool withTraversal = cdata->displayApproachTargets;
 
 	drawManager.beginDrawable();
 	drawManager.setPointSize(cdata->pointSize);
-	float stackHeight = 0.0f;
+
+	unsigned strokeIndex = 0;
+	bool doStackOffset = cdata->stackOffsets.length() > 0;
+	
 	for (auto cluster : cdata->geom->clusters())
 	{
 		for (auto stroke : cluster.strokes())
 		{
 			stackHeight += cdata->stackGap;
+			stackOffset = cdata->drawingNormal *stackHeight;
 			MFloatPointArray points;
-			stroke.getPoints(points, stackHeight, withTraversal);
+			stroke.getPoints(points, withTraversal);
+			if (doStackOffset) {
+				offsetPoints(cdata->stackOffsets[strokeIndex], points);
+				strokeIndex++;
+			}
 			drawManager.mesh(
 				MHWRender::MUIDrawManager::kPoints, points);
 		}
@@ -302,24 +341,30 @@ void paintingDrawOverride::drawWireframeTargetsPoint(
 void paintingDrawOverride::drawWireframeTargetsLine(
 	MHWRender::MUIDrawManager &drawManager,
 	const PaintingDrawData *cdata)
-{
+{	
+
 	bool withTraversal = cdata->displayApproachTargets;
 
 	drawManager.beginDrawable();
 	drawManager.setColor(MColor(0.0, 0.0, 1.0));
-
 	drawManager.setLineWidth(cdata->lineThickness);
-	float stackHeight = 0.0f;
+	unsigned strokeIndex = 0;
+	bool doStackOffset = cdata->stackOffsets.length() > 0;
+
 	for (auto cluster : cdata->geom->clusters())
 	{
 		for (auto stroke : cluster.strokes())
 		{
-			stackHeight += cdata->stackGap;
-			MFloatPointArray starts;
-			stroke.getPoints(starts, stackHeight, withTraversal);
+			MFloatPointArray points;
+			stroke.getPoints(points, withTraversal);
+			if (doStackOffset) {
+				offsetPoints(cdata->stackOffsets[strokeIndex], points);
+				strokeIndex++;
+			}
+
 			MFloatVectorArray ends;
 			stroke.getZAxes(ends, withTraversal);
-			drawLines(drawManager, starts, ends, cdata->lineLength);
+			drawLines(drawManager, points, ends, cdata->lineLength);
 		}
 	}
 	drawManager.endDrawable();
@@ -334,23 +379,31 @@ void paintingDrawOverride::drawWireframeTargetsMatrix(
 	drawManager.beginDrawable();
 
 	drawManager.setLineWidth(cdata->lineThickness);
-	float stackHeight = 0.0f;
+
+	unsigned strokeIndex = 0;
+	bool doStackOffset = cdata->stackOffsets.length() > 0;
+
 	for (auto cluster : cdata->geom->clusters())
 	{
 		for (auto stroke : cluster.strokes())
 		{
-			stackHeight += cdata->stackGap;
-			MFloatPointArray starts;
-			stroke.getPoints(starts, stackHeight, withTraversal);
+
+			MFloatPointArray points;
+			stroke.getPoints(points, withTraversal);
+			if (doStackOffset) {
+				offsetPoints(cdata->stackOffsets[strokeIndex], points);
+				strokeIndex++;
+			}
+
 			MFloatVectorArray xends, yends, zends;
 
 			stroke.getXAxes(xends, withTraversal);
 			stroke.getYAxes(yends, withTraversal);
 			stroke.getZAxes(zends, withTraversal);
 
-			drawLines(drawManager, starts, xends, cdata->lineLength, MColor(1.0, 0.0, 0.0));
-			drawLines(drawManager, starts, yends, cdata->lineLength, MColor(0.0, 1.0, 0.0));
-			drawLines(drawManager, starts, zends, cdata->lineLength, MColor(0.0, 0.0, 1.0));
+			drawLines(drawManager, points, xends, cdata->lineLength, MColor(1.0, 0.0, 0.0));
+			drawLines(drawManager, points, yends, cdata->lineLength, MColor(0.0, 1.0, 0.0));
+			drawLines(drawManager, points, zends, cdata->lineLength, MColor(0.0, 0.0, 1.0));
 		}
 	}
 	drawManager.endDrawable();
@@ -360,21 +413,28 @@ void paintingDrawOverride::drawWireframeBorders(
 	MHWRender::MUIDrawManager &drawManager,
 	const PaintingDrawData *cdata)
 {
+ 
+	MFloatVector stackOffset ;
 	drawManager.beginDrawable();
 	drawManager.setLineWidth(cdata->lineThickness);
+	unsigned strokeIndex = 0;
+	bool doStackOffset = cdata->stackOffsets.length() > 0;
 
-	float stackHeight = 0.0f;
+
 	for (auto cluster : cdata->geom->clusters())
 	{
 		const Brush &brush = cdata->geom->brushFromId(cluster.brushId());
 		for (auto stroke : cluster.strokes())
 		{
-			stackHeight += cdata->stackGap;
+			MFloatPointArray points;
+			stroke.getBorderLoop(cdata->drawingNormal, brush, points, cdata->displayContactWidth);
+			if (doStackOffset) {
+				offsetPoints(cdata->stackOffsets[strokeIndex], points);
+				strokeIndex++;
+			}
 
-			MFloatPointArray lineLoop;
-			stroke.getBorderLoop(cdata->drawingNormal, brush, stackHeight, lineLoop, cdata->displayContactWidth);
 			drawManager.mesh(
-				MHWRender::MUIDrawManager::kClosedLine, lineLoop);
+				MHWRender::MUIDrawManager::kClosedLine, points);
 		}
 	}
 	drawManager.endDrawable();
@@ -392,19 +452,25 @@ void paintingDrawOverride::drawWireframeClusterPath(
 
 	drawManager.beginDrawable();
 	drawManager.setLineWidth(cdata->lineThickness);
+	unsigned strokeIndex = 0;
+	bool doStackOffset = cdata->stackOffsets.length() > 0;
 
-	float stackHeight = 0.0f;
+ 
 	for (auto cluster : cdata->geom->clusters())
 	{
 		drawManager.setColor(cdata->geom->paintFromId(cluster.paintId()).color);
 
 		for (auto stroke : cluster.strokes())
 		{
-			stackHeight += cdata->stackGap;
-			MFloatPointArray lines;
-			stroke.getPoints(lines, stackHeight, true);
+			MFloatPointArray points;
+			stroke.getPoints(points, true);
+			if (doStackOffset) {
+				offsetPoints(cdata->stackOffsets[strokeIndex], points);
+				strokeIndex++;
+			}
+
 			drawManager.mesh(
-				MHWRender::MUIDrawManager::kLineStrip, lines);
+				MHWRender::MUIDrawManager::kLineStrip, points);
 		}
 	}
 	drawManager.endDrawable();
@@ -423,32 +489,35 @@ void paintingDrawOverride::drawWireframeArrows(
 	MFloatPoint right(MFloatVector(0.5f, 0.3f, 0.0f) * cdata->arrowheadSize);
 	MFloatPoint left(MFloatVector(0.5f, -0.3f, 0.0f) * cdata->arrowheadSize);
 
-	float stackHeight = 0.0f;
 	drawManager.setLineWidth(cdata->lineThickness);
+	unsigned strokeIndex = 0;
+	bool doStackOffset = cdata->stackOffsets.length() > 0;
 
 	for (auto cluster : cdata->geom->clusters())
 	{
 		for (auto stroke : cluster.strokes())
 		{
-			stackHeight += cdata->stackGap;
+ 
 			const std::vector<Target> & targets =  stroke.targets();
 			std::vector<Target>::const_iterator citer;
 
-			// MMatrixArray mats;
-			// stroke.getDirectionMatrices(mats, stackHeight);
 			for (citer = targets.begin(); citer != targets.end(); citer++)
 			{
 				MFloatMatrix mat = citer->viewMatrix(cdata->drawingNormal);
 	
-				MFloatPointArray linestrip;
-				linestrip.append(MFloatPoint(mat[3][0], mat[3][1], mat[3][2]));
-				linestrip.append(head * mat);
-				linestrip.append(left * mat);
-				linestrip.append(right * mat);
-				linestrip.append(linestrip[1]); // back to the head
+				MFloatPointArray points;
+				points.append(MFloatPoint(mat[3][0], mat[3][1], mat[3][2]));
+				points.append(head * mat);
+				points.append(left * mat);
+				points.append(right * mat);
+				points.append(points[1]); // back to the head
+				if (doStackOffset) {
+					offsetPoints(cdata->stackOffsets[strokeIndex], points);
+				}
 				drawManager.mesh(
-					MHWRender::MUIDrawManager::kLineStrip, linestrip);
+					MHWRender::MUIDrawManager::kLineStrip, points);
 			}
+			strokeIndex++;
 		}
 	}
 	drawManager.endDrawable();
@@ -462,18 +531,23 @@ void paintingDrawOverride::drawWireframePivots(
 		return;
 	}
 	drawManager.beginDrawable();
-	MFloatPointArray pivots;
-	float stackHeight = 0.0f;
+	MFloatPointArray points;
+ 	unsigned strokeIndex = 0;
+	bool doStackOffset = cdata->stackOffsets.length() > 0;
+
 	for (auto cluster : cdata->geom->clusters())
 	{
 		for (auto stroke : cluster.strokes())
 		{
-			stackHeight += cdata->stackGap;
-			pivots.append(stroke.pivot().position() + MVector(0.0f, 0.0f, stackHeight));
+			points.append(stroke.pivot().position());
+			if (doStackOffset) {
+				offsetPoints(cdata->stackOffsets[strokeIndex], points);
+				strokeIndex++;
+			}
 		}
 	}
 	drawManager.mesh(
-		MHWRender::MUIDrawManager::kPoints, pivots);
+		MHWRender::MUIDrawManager::kPoints, points);
 	drawManager.endDrawable();
 }
 
@@ -493,18 +567,20 @@ void paintingDrawOverride::drawIds(
 	}
 
 	drawManager.beginDrawable();
-	float stackHeight = 0.0f;
+ 
 	MColor textColor(0.1f, 0.8f, 0.8f, 1.0f); // Text color
 	drawManager.setColor(textColor);
 	drawManager.setFontSize(MHWRender::MUIDrawManager::kSmallFontSize);
+		unsigned strokeIndex = 0;
+	bool doStackOffset = cdata->stackOffsets.length() > 0;
+
 
 	for (auto cluster : cdata->geom->clusters())
 	{
 		// const Brush &brush = geom.brushFromId(cluster.brushId());
 		for (auto stroke : cluster.strokes())
 		{
-			stackHeight += cdata->stackGap;
-
+ 
 			MString text("");
 
 			if (cdata->displayIds)
@@ -532,7 +608,11 @@ void paintingDrawOverride::drawIds(
 				text = text + "Rep:" + stroke.repeatId() + "\n";
 			}
 
-			MPoint textPos = stroke.getHead(cdata->drawingNormal, stackHeight) + MVector(cdata->idDisplayOffset);
+			MPoint textPos = stroke.getHead(cdata->drawingNormal) + MVector(cdata->idDisplayOffset);
+			if (doStackOffset) {
+				textPos += cdata->stackOffsets[strokeIndex] ;
+				strokeIndex++;
+			}
 			drawManager.text(textPos, text, MHWRender::MUIDrawManager::kLeft);
 		}
 	}
