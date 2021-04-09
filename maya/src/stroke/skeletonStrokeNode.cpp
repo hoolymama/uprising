@@ -341,8 +341,6 @@ Stroke skeletonStrokeNode::createStroke(
     float brushWidth = fmax(brush.width(), 0.01);
     MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
 
-    // float brushRadiusRecip = 2.0 / brushWidth;
-
     float forwardBias0 = fmax(0.0, brush.forwardBias0());
     float forwardBias1 = fmax(0.0, brush.forwardBias1());
 

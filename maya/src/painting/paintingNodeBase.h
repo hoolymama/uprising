@@ -46,6 +46,8 @@ public:
   static MObject aDisplayParentIds;
   static MObject aDisplayLayerIds;
 
+  static MObject aWireColor; 
+
   static MObject aIdDisplayOffset;
   static MObject aArrowheadSize;
   static MObject aDrawParam;

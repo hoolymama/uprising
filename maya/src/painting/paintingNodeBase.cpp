@@ -41,6 +41,7 @@ MObject paintingBase::aPointSize;
 MObject paintingBase::aLineLength;
 MObject paintingBase::aLineThickness;
 MObject paintingBase::aDisplayTargets;
+MObject paintingBase::aWireColor; 
 
 MObject paintingBase::aDisplayIds;
 MObject paintingBase::aDisplayParentIds;
@@ -201,6 +202,12 @@ MStatus paintingBase::initialize()
   nAttr.setSoftMax(1.0f);
   nAttr.setDefault(1.0f);
   addAttribute(aDrawParam);
+
+	aWireColor = nAttr.createColor("wireframeColor", "wfcol");
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aWireColor);
+	mser;
 
   return (MS::kSuccess);
 }

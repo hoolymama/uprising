@@ -128,6 +128,11 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	offPlug.child(1).getValue(data->idDisplayOffset[1]);
 	offPlug.child(2).getValue(data->idDisplayOffset[2]);
 
+
+	MPlug(paintingObj, painting::aWireColor).child(0).getValue(data->wireColor[0]);
+	MPlug(paintingObj, painting::aWireColor).child(1).getValue(data->wireColor[1]);
+	MPlug(paintingObj, painting::aWireColor).child(2).getValue(data->wireColor[2]);
+
 	MPlug plugPaintingData(paintingObj, painting::aOutput);
 	MObject dPaintingData;
 	st = plugPaintingData.getValue(dPaintingData);
@@ -417,6 +422,7 @@ void paintingDrawOverride::drawWireframeBorders(
 	MFloatVector stackOffset ;
 	drawManager.beginDrawable();
 	drawManager.setLineWidth(cdata->lineThickness);
+	drawManager.setColor(cdata->wireColor);
 	unsigned strokeIndex = 0;
 	bool doStackOffset = cdata->stackOffsets.length() > 0;
 
@@ -452,6 +458,7 @@ void paintingDrawOverride::drawWireframeClusterPath(
 
 	drawManager.beginDrawable();
 	drawManager.setLineWidth(cdata->lineThickness);
+	drawManager.setColor(cdata->wireColor);
 	unsigned strokeIndex = 0;
 	bool doStackOffset = cdata->stackOffsets.length() > 0;
 
@@ -490,6 +497,7 @@ void paintingDrawOverride::drawWireframeArrows(
 	MFloatPoint left(MFloatVector(0.5f, -0.3f, 0.0f) * cdata->arrowheadSize);
 
 	drawManager.setLineWidth(cdata->lineThickness);
+	drawManager.setColor(cdata->wireColor);
 	unsigned strokeIndex = 0;
 	bool doStackOffset = cdata->stackOffsets.length() > 0;
 

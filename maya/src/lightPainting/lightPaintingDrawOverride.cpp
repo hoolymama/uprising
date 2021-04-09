@@ -162,7 +162,6 @@ void lightPaintingDrawOverride::addUIDrawables(
 		 (displayStyle & MHWRender::MFrameContext::kFlatShaded))
 	{
 		drawShaded(drawManager, cdata);
-		;
 	}
 	if (displayStyle & MHWRender::MFrameContext::kWireFrame)
 	{

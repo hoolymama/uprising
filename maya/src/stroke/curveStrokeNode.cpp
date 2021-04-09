@@ -179,6 +179,13 @@ MStatus curveStrokeNode::generateStrokeGeometry(
         }
     }
 
+    strokeCreator::applyRotations(data, pOutStrokes);
+    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+    {
+      curr_stroke->setPaintId(paintId);
+    }
+
+
     return MS::kSuccess;
 }
 

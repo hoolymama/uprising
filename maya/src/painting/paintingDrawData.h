@@ -36,6 +36,7 @@ public:
 	float lineThickness;
 	float stackGap;
 	float drawParam;
+	MColor wireColor;
 	
 	float arrowheadSize;
 
