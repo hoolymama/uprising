@@ -1,10 +1,10 @@
 global proc AEstrokeCreatorInclude (string $nodeName)
 {
-
-	editorTemplate -cl 0 -beginLayout "General attributes";
+	editorTemplate -cl 0 -beginLayout "Stroke creator attributes";
 	editorTemplate -addControl "pointDensity";
-	editorTemplate -addControl "targetRotationMatrix";
+	editorTemplate -addControl "brushTilt";
+	editorTemplate -addControl "brushTwist";
+	editorTemplate -addControl "brushBank";
+	editorTemplate -addControl "brushRotateOrder";
  	editorTemplate -endLayout;
-
-
 }

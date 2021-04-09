@@ -4,7 +4,7 @@ global proc string nodeFromNodeAttr(string $nodeAttr){
 	return $buff[0];
 }
 
-global proc string   attrFromNodeAttr(string $nodeAttr){
+global proc string attrFromNodeAttr(string $nodeAttr){
 	string $buff[];
 	int $n = `tokenize $nodeAttr "." $buff`;
 	string $result = "";
@@ -15,7 +15,6 @@ global proc string   attrFromNodeAttr(string $nodeAttr){
 				$result += ("."+$buff[$i]);	
 			}
 		}
-
 	}
 	return  $result ;
 }

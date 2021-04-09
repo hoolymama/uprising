@@ -23,34 +23,22 @@ source "AEpaintingStrokes";
 	editorTemplate -addControl "reassignParentId";
 	editorTemplate -endLayout;
 
-	editorTemplate -cl 0 -beginLayout "Brush Biases";
-	editorTemplate -addControl "applyBrushBiases";
-	editorTemplate -addControl "brushBiasMult";
-	
-	editorTemplate -endLayout;
-
 
 	editorTemplate -cl 0 -beginLayout "Display Attributes";
 	editorTemplate -addControl "pointSize"; 
 	editorTemplate -addControl "lineLength";
 	editorTemplate -addControl "lineThickness";
 	editorTemplate -addControl "arrowheadSize";
-	
+	editorTemplate -addControl "wireframeColor";
 	editorTemplate -beginNoOptimize;
-
 
 	editorTemplate -addControl "displayTargets";
 	editorTemplate -addControl "displayTargetColors";
-	
 	editorTemplate -addControl "displayApproachTargets";
-	
 	editorTemplate -addControl "displayPivots";
 	editorTemplate -addControl "displayArrows";
 	editorTemplate -addControl "displayClusterPath";
 	editorTemplate -addControl "displayContactWidth";
-	
-	editorTemplate -addSeparator;
-
 	editorTemplate -addControl "displayIds";
 	editorTemplate -addControl "displayParentIds";
 	editorTemplate -addControl "displayLayerIds";
@@ -61,7 +49,7 @@ source "AEpaintingStrokes";
 	
 	editorTemplate -endNoOptimize;
 	editorTemplate -addControl "stackGap"; 
-  editorTemplate -endLayout;
+  	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Paints";
  	editorTemplate -callCustom "AEpaintingPaintsNew" "AEpaintingPaintsReplace" "paints";
@@ -73,6 +61,10 @@ source "AEpaintingStrokes";
 
 	editorTemplate -cl 0 -beginLayout "Strokes";
  	editorTemplate -callCustom "AEpaintingStrokesNew" "AEpaintingStrokesReplace" "strokes";
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Matrix";
+ 	editorTemplate -addControl "viewMatrix"; 
  	editorTemplate -endLayout;
 
 

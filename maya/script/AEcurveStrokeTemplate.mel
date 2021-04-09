@@ -1,38 +1,23 @@
 source "AEpaintingUtilFuncs";
-source "AEstrokeNodeInclude";
-
+source "AEstrokeCreatorInclude";
+source "AEpaintStrokeCreatorInclude";
+source "AEsortFilterInclude";
 
 global proc AEcurveStrokeTemplate ( string $nodeName )
 {
-
 	editorTemplate -beginScrollLayout;
 
-
-	editorTemplate -cl 0  -beginLayout "Distribution Attributes";		
-	editorTemplate -addControl "strokeLength" ;
-	editorTemplate -addControl "randomLengthFactor" ;
-	editorTemplate -addControl "overlap" ;
-	editorTemplate -addControl "randomOverlapFactor" ;
-	editorTemplate -endLayout;
-
-	editorTemplate -cl 0  -beginLayout "Subcurve Attributes";		
-	editorTemplate -addControl "subcurve" ;
-	editorTemplate -addControl "subcurveMethod" ;
-	editorTemplate -endLayout;
-
-	editorTemplate -cl 0  -beginLayout "Contact Attributes";		
-	AEaddRampControl("contactRamp");
-	editorTemplate -addControl "contactRampResolution" ;
-	editorTemplate -endLayout;
-
-	editorTemplate -cl 0  -beginLayout "Brush Rotation Ramp Attributes";		
-	editorTemplate -addControl "brushRampScope" ;
-	editorTemplate -endLayout;
-
-
-	AEstrokeNodeInclude( $nodeName);
-
+	AEstrokeCreatorInclude($nodeName);
+	AEpaintStrokeCreatorInclude($nodeName);
+	
+	editorTemplate -cl 0 -beginLayout "Brush attributes";
+	editorTemplate -addControl "brushId";
+ 	editorTemplate -endLayout;
+	 
+ 	AEsortFilterInclude($nodeName);
+ 
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;
+	
 	
 }

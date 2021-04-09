@@ -1,16 +1,11 @@
 source "AEpaintingUtilFuncs";
-source "AEstrokeCreatorInclude";
-source "AEpaintStrokeCreatorInclude";
 source "AEpaintingBrushes";
 source "AEsortFilterInclude";
 
-global proc AEskeletonStrokeTemplate ( string $nodeName )
+global proc AEbrushLifterTemplate ( string $nodeName )
 {
 	editorTemplate -beginScrollLayout;
 
-	AEstrokeCreatorInclude($nodeName);
-	AEpaintStrokeCreatorInclude($nodeName);
-	
 	editorTemplate -cl 0 -beginLayout "Brushes";
  	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
  	editorTemplate -endLayout;

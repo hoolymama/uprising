@@ -33,7 +33,7 @@ global proc AEstrokeNodeInclude ( string $nodeName )
  	editorTemplate -addControl "repeatMirror" ;
  	editorTemplate -addControl "repeatOscillate" ;
 
- 	editorTemplate -addControl "repeatSeed";\
+ 	editorTemplate -addControl "repeatSeed";
  	editorTemplate -addControl "repeatProbability";
  	editorTemplate -addControl "repeatRandomAngleOffset";
  	editorTemplate -addControl "repeatRandomTangentOffset";

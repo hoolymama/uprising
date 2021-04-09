@@ -19,5 +19,4 @@ global proc AEsortFilterInclude (string $nodeName)
 	editorTemplate -addControl "strokeSortTexture"; 
  	editorTemplate -endLayout;
 
-
 }
