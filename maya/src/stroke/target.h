@@ -93,11 +93,11 @@ public:
 		 const MFloatVector &axis,
 		 float angle);
 
-	void setTangent(const MFloatVector &tangent);
+	void setDrawTangent(const MFloatVector &tangent);
 
 	const MFloatMatrix &matrix() const;
 
-	const MFloatVector &tangent() const;
+	const MFloatVector &drawTangent() const;
 
 
 	void offsetBy(const MFloatVector &offset);

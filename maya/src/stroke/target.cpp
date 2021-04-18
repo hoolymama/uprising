@@ -42,7 +42,7 @@ Target::Target(
 
 Target::~Target() {}
 
-void Target::setTangent(const MFloatVector &tangent)
+void Target::setDrawTangent(const MFloatVector &tangent)
 {
 	m_drawTangent = tangent;
 }
@@ -152,7 +152,7 @@ const MFloatMatrix &Target::matrix() const
 	return m_matrix;
 }
 
-const MFloatVector &Target::tangent() const
+const MFloatVector &Target::drawTangent() const
 {
 	return m_drawTangent;
 }
