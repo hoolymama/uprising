@@ -21,11 +21,13 @@ public:
     virtual bool isAbstractClass() const { return true; }
 
   virtual MStatus generateStrokeGeometry(
+      const MPlug &plug,
       MDataBlock &data,
       std::vector<Stroke> *pStrokes);
 
     static MTypeId id;
 
+    float maxCoil() const;
 protected:
 
 
@@ -35,7 +37,7 @@ protected:
         const MFloatVector &canvasNormal,
         float startDist,
         float endDist,
-        double splitAngle,
+        float splitAngle,
         float splitTestInterval);
 
     unsigned int getStrokeBoundaries(
@@ -45,7 +47,7 @@ protected:
         float overlap,
         float extendEntry,
         float extendExit,
-        double splitAngle,
+        float splitAngle,
         float splitTestInterval,
         MFloatVectorArray &result);
 
@@ -58,7 +60,7 @@ protected:
         float overlap,
         float extendEntry,
         float extendExit,
-        double splitAngle,
+        float splitAngle,
         float splitTestInterval,
         MFloatVector &result);
 
@@ -102,6 +104,9 @@ protected:
     static MObject aExtendEntry;
     static MObject aExtendExit;
     static MObject aMinimumPoints;
+    static MObject aApplyBrushBias;
+    // static MObject aOutCoil;
+    
 
     float m_maxCoil; //> The maximum value of coils
 };

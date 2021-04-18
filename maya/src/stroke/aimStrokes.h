@@ -19,7 +19,7 @@ public:
   static MStatus initialize();
   virtual void postConstructor();
   virtual bool isAbstractClass() const { return false; }
-  virtual MStatus mutate(MDataBlock &data, std::vector<Stroke> *strokes) const;
+  virtual MStatus mutate(const MPlug &plug, MDataBlock &data, std::vector<Stroke> *strokes) const;
 
   static MTypeId id;
 

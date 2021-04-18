@@ -129,6 +129,7 @@ MStatus mapColorStrokes::initialize()
 }
 
 MStatus mapColorStrokes::mutate(
+ const MPlug &plug, 
     MDataBlock &data,
     std::vector<Stroke> *strokes) const
 {

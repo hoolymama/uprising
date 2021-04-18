@@ -17,7 +17,7 @@ public:
   static MStatus initialize();
   virtual void postConstructor();
   virtual bool isAbstractClass() const { return false; }
-  MStatus generateStrokeGeometry(MDataBlock &data, std::vector<Stroke> *pOutStrokes);
+  MStatus generateStrokeGeometry(const MPlug &plug,MDataBlock &data, std::vector<Stroke> *pOutStrokes);
  
   static MTypeId id;
 
@@ -40,6 +40,7 @@ private:
       const MFloatMatrix &canvasMatrix,
       const MDoubleArray &curveParams,
       bool followStroke,
+      bool applyBrushBias,
       float entryTransitionLength,
       float exitTransitionLength) const;
 };

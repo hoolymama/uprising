@@ -85,6 +85,7 @@ MStatus skeletonStrokeNode::initialize()
 }
 
 MStatus skeletonStrokeNode::generateStrokeGeometry(
+    const MPlug &plug,
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes)
 {
@@ -105,8 +106,10 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     float extendEntry = data.inputValue(aExtendEntry).asFloat();
     float extendExit = data.inputValue(aExtendExit).asFloat();
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
+        bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
+
     int paintId = data.inputValue(aPaintId).asInt();
-    double splitAngle = data.inputValue(aSplitAngle).asAngle().asRadians();
+    float splitAngle = data.inputValue(aSplitAngle).asAngle().asRadians();
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
@@ -157,6 +160,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 parentId,
                 minimumPoints,
                 followStroke,
+                applyBrushBias ,
                 pointDensity,
                 entryTransitionLength,
                 exitTransitionLength,
@@ -187,6 +191,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     unsigned parentId,
     int minimumPoints,
     bool followStroke,
+    bool applyBrushBias,
     float pointDensity,
     float entryTransitionLength,
     float exitTransitionLength,
@@ -270,6 +275,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
             curveParams,
             strokeRadii,
             followStroke,
+            applyBrushBias,
             entryTransitionLength,
             exitTransitionLength);
 
@@ -322,6 +328,7 @@ Stroke skeletonStrokeNode::createStroke(
     const MDoubleArray &curveParams,
     const MFloatArray &strokeRadii,
     bool followStroke,
+    bool applyBrushBias,
     float entryTransitionLength,
     float exitTransitionLength) const
 {
@@ -341,8 +348,13 @@ Stroke skeletonStrokeNode::createStroke(
     float brushWidth = fmax(brush.width(), 0.01);
     MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
 
-    float forwardBias0 = fmax(0.0, brush.forwardBias0());
-    float forwardBias1 = fmax(0.0, brush.forwardBias1());
+    float forwardBias0 = 0.0;
+    float forwardBias1 = 0.0;
+
+    if (applyBrushBias) {
+        forwardBias0 = fmax(0.0, brush.forwardBias0());
+        forwardBias1 = fmax(0.0, brush.forwardBias1());
+    }
 
     MFloatPointArray points;
     MFloatArray weights;

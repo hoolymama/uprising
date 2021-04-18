@@ -68,7 +68,11 @@ MStatus strokeMutator::initialize()
   return (MS::kSuccess);
 }
 
+
+
+
 MStatus strokeMutator::generateStrokeGeometry(
+  const MPlug &plug,
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes) 
 {
@@ -103,13 +107,18 @@ MStatus strokeMutator::generateStrokeGeometry(
     pOutStrokes->push_back(*citer);
   }
 
-  st = mutate(data, pOutStrokes);
-  mser;
+	short int nodeState = data.inputValue( state).asShort();
+	if (nodeState == 0)  {
+    st = mutate(plug, data, pOutStrokes);
+    mser;
+	}
+
 
   return (MS::kSuccess);
 }
 
 MStatus strokeMutator::mutate(
+  const MPlug &plug, 
     MDataBlock &data,
     std::vector<Stroke> *strokes) const
 {

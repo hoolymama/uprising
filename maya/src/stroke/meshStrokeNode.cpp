@@ -73,6 +73,7 @@ MStatus meshStrokeNode::initialize()
 }
 
 MStatus meshStrokeNode::generateStrokeGeometry(
+    const MPlug &plug,
     MDataBlock &data,
     std::vector<Stroke> *pStrokes) 
 {

@@ -23,6 +23,7 @@ public:
   virtual bool isAbstractClass() const { return false; }
 
   virtual  MStatus mutate(
+     const MPlug &plug, 
     MDataBlock &data,
     std::vector<Stroke> *strokes) const;
 

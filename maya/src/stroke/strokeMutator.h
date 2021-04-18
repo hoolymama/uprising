@@ -25,6 +25,7 @@ public:
   virtual void postConstructor();
 
   virtual MStatus generateStrokeGeometry(
+    const MPlug &plug,
       MDataBlock &data,
       std::vector<Stroke> *pStrokes) ;
 
@@ -39,6 +40,7 @@ protected:
    * @return MStatus 
    */
   virtual MStatus mutate(
+    const   MPlug &plug, 
     MDataBlock &data,
     std::vector<Stroke> *strokes) const;
 

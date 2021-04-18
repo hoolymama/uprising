@@ -22,6 +22,7 @@ public:
 
 protected:
   virtual MStatus generateStrokeGeometry(
+    const MPlug &plug,
       MDataBlock &data,
       std::vector<Stroke> *geom);
 

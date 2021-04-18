@@ -130,6 +130,7 @@ MStatus strokeCreator::initialize()
 }
 
 MStatus strokeCreator::generateStrokeGeometry(
+  const MPlug &plug,
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes)
 {

@@ -54,7 +54,7 @@ MStatus aimStrokes::initialize()
 }
 
 
-MStatus aimStrokes::mutate(MDataBlock &data, std::vector<Stroke> *strokes) const 
+MStatus aimStrokes::mutate(const MPlug &plug, MDataBlock &data, std::vector<Stroke> *strokes) const 
 {
   float3 & fpoint = data.inputValue(aPoint).asFloat3();
   MFloatPoint point(fpoint[0], fpoint[1], fpoint[2]);

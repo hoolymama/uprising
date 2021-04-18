@@ -26,6 +26,7 @@ public:
   virtual bool isAbstractClass() const { return false; }
  
   virtual MStatus generateStrokeGeometry(
+    const MPlug &plug,
       MDataBlock &data,
       std::vector<Stroke> *pStrokes) ;
 

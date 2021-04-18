@@ -44,6 +44,9 @@ MObject paintStrokeCreator::aExitTransitionLength;
 MObject paintStrokeCreator::aExtendEntry;
 MObject paintStrokeCreator::aExtendExit;
 MObject paintStrokeCreator::aMinimumPoints;
+MObject paintStrokeCreator::aApplyBrushBias;
+
+// MObject paintStrokeCreator::aOutCoil;
 
 MTypeId paintStrokeCreator::id(k_paintStrokeCreator);
 
@@ -103,7 +106,7 @@ MStatus paintStrokeCreator::initialize()
     st = addAttribute(aPaintId);
     mser;
 
-    aMinimumPoints = nAttr.create("aMinimumPoints", "mnpts", MFnNumericData::kInt);
+    aMinimumPoints = nAttr.create("minimumPoints", "mnpts", MFnNumericData::kInt);
     mser;
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
@@ -121,6 +124,17 @@ MStatus paintStrokeCreator::initialize()
     nAttr.setDefault(true);
     st = addAttribute(aBrushFollowStroke);
     mser;
+
+    aApplyBrushBias = nAttr.create("applyBrushBias", "abb", MFnNumericData::kBoolean);
+    nAttr.setHidden(false);
+    nAttr.setStorable(true);
+    nAttr.setReadable(true);
+    nAttr.setKeyable(true);
+    nAttr.setDefault(true);
+    st = addAttribute(aApplyBrushBias);
+    mser;
+
+    
 
     aSplitAngle = uAttr.create("splitAngle", "span",
                                MFnUnitAttribute::kAngle);
@@ -169,6 +183,15 @@ MStatus paintStrokeCreator::initialize()
     mser;
     //////////////
 
+
+    // aOutCoil = uAttr.create("outCoil", "ocl", MFnUnitAttribute::kAngle);
+    // uAttr.setReadable(true);
+    // uAttr.setWritable(false);
+    // uAttr.setStorable(false);
+    // st = addAttribute(aOutCoil);
+
+
+
     attributeAffects(aStrokeLength, aOutput);
     attributeAffects(aOverlap, aOutput);
     attributeAffects(aPaintId, aOutput);
@@ -181,11 +204,28 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aExtendExit, aOutput);
     attributeAffects(aCanvasMatrix, aOutput);
     attributeAffects(aMinimumPoints, aOutput);
+    attributeAffects(aApplyBrushBias, aOutput);
+
+    // attributeAffects(aStrokeLength, aOutCoil);
+    // attributeAffects(aOverlap, aOutCoil);
+    // attributeAffects(aBrushFollowStroke, aOutCoil);
+    // attributeAffects(aSplitAngle, aOutCoil);
+    // attributeAffects(aSplitTestInterval, aOutCoil);
+    // attributeAffects(aEntryTransitionLength, aOutCoil);
+    // attributeAffects(aExitTransitionLength, aOutCoil);
+    // attributeAffects(aExtendEntry, aOutCoil);
+    // attributeAffects(aExtendExit, aOutCoil);
+    // attributeAffects(aCanvasMatrix, aOutCoil);
+    // attributeAffects(aMinimumPoints, aOutCoil);
+    // attributeAffects(aApplyBrushBias, aOutCoil);
+
+    
 
     return (MS::kSuccess);
 }
 
 MStatus paintStrokeCreator::generateStrokeGeometry(
+    const MPlug &plug,
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes)
 {
@@ -199,7 +239,7 @@ unsigned int paintStrokeCreator::getStrokeBoundaries(
     float overlap,
     float extendEntry,
     float extendExit,
-    double splitAngle,
+    float splitAngle,
     float splitTestInterval,
     MFloatVectorArray &result)
 {
@@ -260,7 +300,7 @@ bool paintStrokeCreator::getBoundary(
     float overlap,
     float extendEntry,
     float extendExit,
-    double splitAngle,
+    float splitAngle,
     float splitTestInterval,
     MFloatVector &result)
 {
@@ -294,12 +334,15 @@ bool paintStrokeCreator::getBoundary(
     return false;
 }
 
+
+
+
 float paintStrokeCreator::findEndDist(
     const MObject &dCurve,
     const MFloatVector &canvasNormal,
     float startDist,
     float endDist,
-    double splitAngle,
+    float splitAngle,
     float splitTestInterval)
 {
 
@@ -351,12 +394,17 @@ float paintStrokeCreator::findEndDist(
         if (coil > this->m_maxCoil)
         {
             this->m_maxCoil = coil;
-        }
+        } 
     } while (!foundEnd);
 
     return currDist;
 }
 
+
+float paintStrokeCreator::maxCoil() const
+{
+    return this->m_maxCoil;
+}
 void paintStrokeCreator::postConstructor()
 {
     setExistWithoutInConnections(false);

@@ -78,6 +78,7 @@ MStatus curveStrokeNode::initialize()
 
 
 MStatus curveStrokeNode::generateStrokeGeometry(
+    const MPlug &plug,
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes )
 {
@@ -97,8 +98,11 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     float extendEntry = data.inputValue(aExtendEntry).asFloat();
     float extendExit = data.inputValue(aExtendExit).asFloat();
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
+    bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
+
+    
     int paintId = data.inputValue(aPaintId).asInt();
-    double splitAngle = data.inputValue(aSplitAngle).asAngle().asRadians();
+    float splitAngle = float(data.inputValue(aSplitAngle).asAngle().asRadians());
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
@@ -169,6 +173,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             canvasMatrix,
             curveParams,
             followStroke,
+            applyBrushBias,
             entryTransitionLength,
             exitTransitionLength);
 
@@ -219,6 +224,7 @@ Stroke curveStrokeNode::createStroke(
     const MFloatMatrix &canvasMatrix,
     const MDoubleArray &curveParams,
     bool followStroke,
+    bool applyBrushBias,
     float entryTransitionLength,
     float exitTransitionLength) const
 {
@@ -234,8 +240,14 @@ Stroke curveStrokeNode::createStroke(
 
     MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
 
-    float forwardBias0 = fmax(0.0, brush.forwardBias0());
-    float forwardBias1 = fmax(0.0, brush.forwardBias1());
+    float forwardBias0 = 0.0;
+    float forwardBias1 = 0.0;
+
+    if (applyBrushBias) {
+        forwardBias0 = fmax(0.0, brush.forwardBias0());
+        forwardBias1 = fmax(0.0, brush.forwardBias1());
+    }
+
 
     MFloatPointArray points;
     MFloatArray weights;

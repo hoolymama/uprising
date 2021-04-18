@@ -21,6 +21,7 @@ public:
     virtual bool isAbstractClass() const { return false; }
 
     virtual MStatus generateStrokeGeometry(
+        const MPlug &plug,
       MDataBlock &data,
       std::vector<Stroke> *pStrokes);
 
@@ -38,6 +39,7 @@ private:
         unsigned parentIndex,
         int minimumPoints,
         bool followStroke,
+        bool applyBrushBias,
         float pointDensity,
         float entryTransitionLength,
         float exitTransitionLength,
@@ -79,6 +81,7 @@ private:
         const MDoubleArray &curveParams,
         const MFloatArray &strokeRadii,
         bool followStroke,
+        bool applyBrushBias,
         float entryTransitionLength,
         float exitTransitionLength) const;
 
@@ -92,7 +95,7 @@ private:
     //     const MFloatVector &canvasNormal,
     //     float startDist,
     //     float endDist,
-    //     double splitAngle,
+    //     float splitAngle,
     //     float splitTestInterval);
 
     // unsigned int getStrokeBoundaries(
@@ -102,7 +105,7 @@ private:
     //     float overlap,
     //     float extendEntry,
     //     float extendExit,
-    //     double splitAngle,
+    //     float splitAngle,
     //     float splitTestInterval,
     //     MFloatVectorArray &result);
 
@@ -115,7 +118,7 @@ private:
     //     float overlap,
     //     float extendEntry,
     //     float extendExit,
-    //     double splitAngle,
+    //     float splitAngle,
     //     float splitTestInterval,
     //     MFloatVector &result);
 
