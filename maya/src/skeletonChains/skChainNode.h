@@ -2,22 +2,10 @@
 #ifndef _skChainNode_H
 #define _skChainNode_H
 
-// #include <maya/MVector.h>
-// #include <maya/MFnDependencyNode.h>
-
-// #include <maya/MFnNurbsCurve.h>
-// #include <maya/MVectorArray.h>
-
 #include <maya/MPxNode.h>
 
-// #include <maya/MDGMessage.h>
-// #include <maya/MDGModifier.h>
-
-// #include "cImgData.h"
 #include "skChainData.h"
 #include "skChain.h"
-
-// #include "skGraph.h"
 
 class skChainNode : public MPxNode
 {

@@ -7,7 +7,6 @@
 #include <maya/MVectorArray.h>
 #include <maya/MDoubleArray.h>
 
-
 #define cimg_display 0
 #include "CImg.h"
 
@@ -18,12 +17,12 @@
 
 using namespace cimg_library;
 
-
 class skGraph
 {
 public:
     skGraph();
-    skGraph(const CImg<float>   &inImage);
+    // skGraph(const CImg<float>   &inImage, int x, int y, int resx , int res);
+    skGraph(const CImg<float> &inImage);
 
     ~skGraph();
 
@@ -32,9 +31,9 @@ public:
     void getRadius(MDoubleArray &result) const;
     bool hasJunctions() const;
 
-    void getChains(     const  MFloatMatrix &projection ,
-                        std::vector< skChain > &chains,
-                        int step/*,  int minPixels*/)  ;
+    void getChains(const MFloatMatrix &projection,
+                   std::vector<skChain> &chains,
+                   int step);
 
     // void  draw(
     //     CImg<unsigned char>  &image,
@@ -42,29 +41,27 @@ public:
     //     float offset = 0.0,
     //     bool adjustStampAtMaxOnly = true) const;
 
-    void  draw(
-        CImg<unsigned char>  &image,
+    void draw(
+        CImg<unsigned char> &image,
         float maxStampRadiusPixels) const;
 
     void clampRadius(float maxRadius);
 
-
     void adjustRadius(float mult, float offset);
-
 
     void prune(int minBranchLength);
     void detachBranches();
 
     void verify() const;
     void betterPrune(int minBranchLength);
-    void  removeLooseTwigs(int minTwigLength);
+    void removeLooseTwigs(int minTwigLength);
 
     int numNodes() const;
-private:
 
+private:
     void _pruneTwig(TWIG &twig, skNode *junction = 0);
 
-    void _getTwigClusters(int maxNodes, CLUSTERS &result) ;
+    void _getTwigClusters(int maxNodes, CLUSTERS &result);
 
     void _verifyDegrees() const;
     void _verifyNeighborsExist() const;
@@ -76,16 +73,14 @@ private:
 
     void _connect(coord from, coord to);
 
-    
-    void _detatchStraightest( skNode *node, int z);
-    void _splitOff( skNode *node,  skNode *first,  skNode *second, int z);
-    int  _resetSeen();
-    void _disconnect( skNode *a, skNode *b);
-    std::map<coord, skNode * > m_nodes;
+    void _detatchStraightest(skNode *node, int z);
+    void _splitOff(skNode *node, skNode *first, skNode *second, int z);
+    int _resetSeen();
+    void _disconnect(skNode *a, skNode *b);
+    std::map<coord, skNode *> m_nodes;
 
     int m_width;
     int m_height;
-
 };
 
 #endif

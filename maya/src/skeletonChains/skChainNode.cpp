@@ -34,8 +34,6 @@ MObject skChainNode::aMaxChainsPerOutput;
 MObject skChainNode::aOutputs;
 MObject skChainNode::aOutputCount;
 
-
-
 MTypeId skChainNode::id(k_skChainNode);
 
 skChainNode::skChainNode() {}
@@ -64,8 +62,8 @@ MStatus skChainNode::initialize()
 
   aImage = tAttr.create("image", "img", cImgData::id);
   tAttr.setStorable(false);
-  tAttr.setKeyable(false);
-
+  tAttr.setKeyable(true);
+  tAttr.setReadable(false);
   tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   st = addAttribute(aImage);
   mser;
@@ -215,13 +213,13 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
     mser;
 
     std::vector<skChain> *geom = newData->fGeometry;
+
     geom->clear();
-    st = generate(data, geom);
-    if (st.error())
-    {
-      return (MS::kUnknownParameter);
-    }
+
+    st = generate(data, geom);mser;
+
     hOutput.set(newData);
+
     nextPlugIndex++;
   }
   else
@@ -246,6 +244,7 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
       std::copy(start_itr, end_itr, geom->begin());
 
       hOutput.set(newData);
+      hOutput.setClean();
     }
   }
 
@@ -263,10 +262,12 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
   MStatus st;
 
   CImg<unsigned char> *pImage = cImgUtils::getImage(data, aImage);
+
   if (!pImage)
   {
     return MS::kUnknownParameter;
   }
+
   int w = pImage->width();
   int h = pImage->height();
   if (!(w && h))
@@ -294,12 +295,11 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
   {
     stepPixels = 1;
   }
-  float maxRadiusPixels = data.inputValue(aMaxWidth).asFloat() * cmToPixels *0.5f;
+  float maxRadiusPixels = data.inputValue(aMaxWidth).asFloat() * cmToPixels * 0.5f;
   maxRadiusPixels = std::max(maxRadiusPixels, 1.0f);
 
-
-  float maxStampRadiusPixels =  data.inputValue(aMaxStampWidth).asFloat() * cmToPixels *0.5f;
-  maxStampRadiusPixels = std::max(maxStampRadiusPixels,  1.0f);
+  float maxStampRadiusPixels = data.inputValue(aMaxStampWidth).asFloat() * cmToPixels * 0.5f;
+  maxStampRadiusPixels = std::max(maxStampRadiusPixels, 1.0f);
 
   float radiusOffsetPixels = int(data.inputValue(aRadiusOffset).asFloat() * cmToPixels);
   float radiusMult = data.inputValue(aRadiusMult).asFloat();
@@ -307,7 +307,6 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
 
   CImg<unsigned char> image = pImage->get_norm().normalize(0, 1);
 
- 
   for (int i = 0; i < maxIterations; ++i)
   {
     // make a skeleton image from the BW image
@@ -315,16 +314,16 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
     const CImgList<float> grad = mat.get_gradient("xyz");
     CImg<float> flux = image.get_flux(grad, 1, 1);
     CImg<bool> skel = image.get_skeleton(flux, mat, true, 0);
-    for (int y = 0; y < h; ++y)
+
+    cimg_forXY(skel, x, y)
     {
-      for (int x = 0; x < w; ++x)
+      if (!skel(x, y))
       {
-        if (!skel(x, y))
-        {
-          mat(x, y) = 0.0;
-        }
+        mat(x, y) = 0.0;
       }
     }
+
+    //////////////////
     skGraph g(mat); // build
     // now we have the Medial Axis Transform (mat) and (image)
 
@@ -343,6 +342,8 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom)
     g.adjustRadius(radiusMult, radiusOffsetPixels);
 
     g.detachBranches();
+
+    //////////////////
     g.getChains(projection, *geom, stepPixels);
 
     // then paint black over the image
