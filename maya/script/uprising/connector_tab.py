@@ -1,0 +1,298 @@
+import pymel.core as pm
+import pymel.core.uitypes as gui
+import re
+
+class ConnectorTab(gui.FormLayout):
+    def __init__(self):
+        self.setNumberOfDivisions(100)
+        pm.setParent(self)
+        # self.main_tf = pm.textFieldGrp(
+        #     label="Main Painting", text="--", en=False, cw2=(140, 300)
+        # )
+    # optionMenu -label "Colors" -changeCommand "print #1";
+    #         menuItem -label "Yellow";
+    #         menuItem -label "Purple";
+    #         menuItem -label "Orange";
+
+        self.src_att_field = pm.textField(text="--")
+        self.src_offset_field = pm.intField(value=0)
+
+        self.dest_att_field = pm.textField(text="--")
+        self.dest_offset_field = pm.intField(value=0)
+
+        self.src_load_but = pm.button(
+            label="Load Src", command=pm.Callback(self.load_src))
+        self.dest_load_but = pm.button(
+            label="Load Dest", command=pm.Callback(self.load_dest))
+
+        self.src_column = pm.columnLayout(adj=True)
+        pm.setParent("..")
+        self.dest_column = pm.columnLayout(adj=True)
+
+        self.create_action_buttons_and_layout()
+
+        self.src_att_popup = pm.popupMenu(parent=self.src_att_field)
+        self.dest_att_popup = pm.popupMenu(parent=self.dest_att_field)
+
+    def create_action_buttons_and_layout(self):
+        pm.setParent(self)  # form
+
+        dry_but = pm.button(label="Dry run", command=pm.Callback(self.on_dry))
+        go_but = pm.button(label="Connect", command=pm.Callback(self.on_go))
+
+        self.attachForm(self.src_att_field, "left", 2)
+        self.attachPosition(self.src_att_field, "right", 2, 40)
+        self.attachForm(self.src_att_field, "top", 2)
+        self.attachNone(self.src_att_field, "bottom")
+
+        self.attachControl(self.src_offset_field,
+                           "left", 2, self.src_att_field)
+        self.attachPosition(self.src_offset_field, "right", 2, 50)
+        self.attachForm(self.src_offset_field, "top", 2)
+        self.attachNone(self.src_offset_field, "bottom")
+
+        self.attachPosition(self.dest_att_field, "left", 2, 50)
+        self.attachPosition(self.dest_att_field, "right", 2, 90)
+        self.attachForm(self.dest_att_field, "top", 2)
+        self.attachNone(self.dest_att_field, "bottom")
+
+        self.attachControl(self.dest_offset_field,
+                           "left", 2, self.dest_att_field)
+        self.attachForm(self.dest_offset_field, "right", 2)
+        self.attachForm(self.dest_offset_field, "top", 2)
+        self.attachNone(self.dest_offset_field, "bottom")
+
+        self.attachForm(self.src_load_but, "left", 2)
+        self.attachPosition(self.src_load_but, "right", 2, 50)
+        self.attachControl(self.src_load_but, "top", 2, self.src_att_field)
+        self.attachNone(self.src_load_but, "bottom")
+
+        self.attachPosition(self.dest_load_but, "left", 2, 50)
+        self.attachForm(self.dest_load_but, "right", 2)
+        self.attachControl(self.dest_load_but, "top", 2, self.dest_att_field)
+        self.attachNone(self.dest_load_but, "bottom")
+
+        # /////////////
+        self.attachNone(dry_but, "top")
+        self.attachForm(dry_but, "left", 2)
+        self.attachPosition(dry_but, "right", 2, 50)
+        self.attachForm(dry_but, "bottom", 2)
+
+        self.attachNone(go_but, "top")
+        self.attachForm(go_but, "right", 2)
+        self.attachPosition(go_but, "left", 2, 50)
+        self.attachForm(go_but, "bottom", 2)
+        # /////////////
+
+        self.attachForm(self.src_column, "left", 2)
+        self.attachPosition(self.src_column, "right", 2, 50)
+        self.attachControl(self.src_column, "top", 2, self.src_load_but)
+        self.attachControl(self.src_column, "bottom", 2, go_but)
+
+        self.attachPosition(self.dest_column, "left", 2, 50)
+        self.attachForm(self.dest_column, "right", 2)
+        self.attachControl(self.dest_column, "top", 2, self.dest_load_but)
+        self.attachControl(self.dest_column, "bottom", 2, go_but)
+
+    def _clear_entries(self, which):
+        col = self.src_column if which == "src" else self.dest_column
+        children = pm.columnLayout(col, q=True, ca=True)
+        if children:
+            pm.deleteUI(children)
+
+    def load_col(self, which):
+        self._clear_entries(which)
+
+        col = self.src_column if which == "src" else self.dest_column
+        pm.setParent(col)
+        objects = sorted(pm.ls(sl=True))
+        for o in objects:
+            pm.nameField(o=o)
+
+        atts = self.get_attribute_templates(o)
+
+        popup = self.src_att_popup if which == "src" else self.dest_att_popup
+        pm.popupMenu(popup, edit=True, deleteAllItems=True)
+        pm.setParent(popup, menu=True)
+        for att in atts:
+            pm.menuItem(label=att,  command=pm.Callback(self.set_attr_template, att, which))
+
+    def set_attr_template(self, att, which):
+        field = self.src_att_field if which == "src" else self.dest_att_field
+        pm.textField(field, edit=True, text=att)
+
+    def load_src(self):
+        self.load_col("src")
+
+    def load_dest(self):
+        self.load_col("dest")
+
+    def get_nodes(self, which):
+        col = self.src_column if which == "src" else self.dest_column
+        return [pm.nameField(c, q=True, o=True) for c in pm.columnLayout(col, q=True, ca=True)]
+
+    def get_connection_pairs(self):
+        result = []
+        src_template = pm.textField(self.src_att_field, q=True, text=True)
+        dest_template = pm.textField(
+            self.dest_att_field, q=True, text=True)
+
+        src_offset = pm.intField(self.src_offset_field, q=True, value=True)
+        dest_offset = pm.intField(self.dest_offset_field, q=True, value=True)
+
+        src_nodes = self.get_nodes("src")
+        dest_nodes = self.get_nodes("dest")
+        slen = len(src_nodes)
+        dlen = len(dest_nodes)
+        if (not (dlen == slen or dlen == 1 or slen == 1)):
+            raise ValueError(
+                "Wrong number of nodes selected. Must be the same, or one column must have 1 node.")
+
+        maxlen = max(dlen, slen)
+
+        for i in range(maxlen):
+            result.append((
+                pm.PyNode(src_nodes[i % slen]).attr(
+                    src_template.format(i+src_offset)),
+                pm.PyNode(dest_nodes[i % dlen]).attr(
+                    dest_template.format(i+dest_offset)))
+            )
+        return result
+
+    def on_go(self):
+        for p in self.get_connection_pairs():
+            print p[0], ">>", p[1]
+            p[0] >> p[1]
+
+    def on_dry(self):
+        for p in self.get_connection_pairs():
+            print p[0], ">>", p[1]
+
+    @staticmethod
+    def get_attribute_templates(node):
+        result = []
+        attrs = pm.listAttr(node)
+        print attrs
+        print "-"*20
+        for attr in attrs:
+            try:
+                attname = node.attr(attr).name()
+                if node.attr(attr).isArray():
+                    attname = "{}[0]".format(attname)
+                attname = attname.partition(".")[2]
+
+                if "[-1]" in attname:
+                    attname = attname.replace("[-1]", "[{}]")
+
+                result.append(attname)
+                template = re.sub(r"\[.*?]", r"[{}]", attname)
+                result.append(template)
+                # result.append(attname.replace("[-1]", "[{}]"))
+
+            except (RuntimeError, pm.MayaAttributeError):
+                pass
+        return sorted(list(set(result)))
+        # return result
+# pm.PyNode("cImgFileSplit1").attr("outputCropFactor").get()
+
+# for i in range(9):
+#     pm.PyNode("cImgFileSplit1").attr("output[{}].outputImage".format(i)).get()
+
+
+# def connectify(mode, src_att_template, dest_att_template,  *nodes, **kw):
+#     dry = kw.get("dry", False)
+#     num = len(nodes)
+#     if num < 2:
+#         raise ValueError("Need at least 2 nodes.")
+#     if mode == "o2m": #one to many
+#         dest= sorted(nodes[1:])
+#         src = nodes[0]
+#         for i, destnode in enumerate(dest):
+#             if dry:
+#                 print src.attr(src_att_template.format(i)), ">>",   destnode.attr(dest_att_template.format(i))
+#                 continue
+#             src.attr(src_att_template.format(i)) >>  destnode.attr(dest_att_template.format(i))
+
+#     elif mode == "m2o":
+#         dest = nodes[-1]
+#         src = sorted(nodes[:-1])
+#         for i, srcnode in enumerate(src):
+#             if dry:
+#                 print srcnode.attr(src_att_template.format(i)), ">>",  dest.attr(dest_att_template.format(i))
+#                 continue
+
+        # self.attachForm(self.scroll, "left", 2)
+        # self.attachForm(self.scroll, "right", 2)
+        # self.attachControl(self.scroll, "top", 2, self.main_tf)
+        # self.attachControl(self.scroll, "bottom", 2, reload_but)
+
+    # def _connected_brush_indices(self, node):
+    #     conns = node.attr("brushes").connections(s=True, c=True)
+    #     indices = [str(a[0].logicalIndex()) for a in conns]
+    #     return ",".join(indices)
+
+    # def _create_entry(self, node):
+    #     connected_indices = self._connected_brush_indices(node)
+    #     tf = pm.textFieldGrp(
+    #         label=node, text=connected_indices, cw2=(140, 300))
+    #     return tf
+
+    # def _clear_entries(self):
+    #     children = pm.columnLayout(self.skels_column, q=True, ca=True)
+    #     if children:
+    #         pm.deleteUI(children)
+
+    # def reload(self):
+    #     try:
+    #         painting = pm.PyNode("mainPaintingShape")
+    #     except pm.MayaNodeError:
+    #         return
+    #     connected_indices = self._connected_brush_indices(painting)
+    #     pm.textFieldGrp(self.main_tf, edit=True, text=connected_indices)
+
+    #     self._clear_entries()
+    #     skels = pm.ls(type="skeletonStroke")
+    #     for skel in skels:
+    #         pm.setParent(self.skels_column)
+    #         self._create_entry(skel)
+
+        # all_brushes = {}
+        # painting = pm.PyNode("mainPaintingShape")
+        # conns = painting.attr("brushes").connections(s=True, c=True)
+        # for conn in painting.attr("brushes").connections(s=True, c=True):
+        #     all_brushes[conn[0].logicalIndex()] = conn[1]
+
+        # tfs = pm.columnLayout(self.skels_column, q=True, ca=True)
+        # for tf in tfs:
+        #     node_name = pm.textFieldGrp(tf, q=True, label=True)
+        #     node = pm.PyNode(node_name)
+        #     val = pm.textFieldGrp(tf, q=True, text=True)
+        #     indices = [int(i) for i in val.split(
+        #         ",") if i is not None and i.isdigit()]
+        #     self._replug(node, indices, all_brushes)
+
+        # self.reload()
+
+    # def _replug(self, node, indices, all_brushes):
+    #     pass
+        # get existing connected indices and compare against the new ones.
+        # existing = self._connected_brush_indices(node)
+        # proposed = ",".join(str(i) for i in indices)
+        # if existing == proposed:
+        #     return
+
+        # # disconnect and delete all plugs
+        # to_remove = node.attr("brushes").getArrayIndices()
+        # for i in to_remove:
+        #     pm.removeMultiInstance(
+        #         node.attr("brushes[{:d}]".format(i)), b=True)
+
+        # # connect the new ones:
+        # for i in indices:
+        #     if i not in all_brushes:
+        #         pm.displayWarning(
+        #             "Illegal index {}. All indices must be connections on the main painting"
+        #         )
+        #         continue
+        #     all_brushes[i].attr("outPaintBrush") >> node.attr(
+        #         "brushes[{:d}]".format(i))
