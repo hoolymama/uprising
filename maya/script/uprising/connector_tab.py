@@ -6,13 +6,6 @@ class ConnectorTab(gui.FormLayout):
     def __init__(self):
         self.setNumberOfDivisions(100)
         pm.setParent(self)
-        # self.main_tf = pm.textFieldGrp(
-        #     label="Main Painting", text="--", en=False, cw2=(140, 300)
-        # )
-    # optionMenu -label "Colors" -changeCommand "print #1";
-    #         menuItem -label "Yellow";
-    #         menuItem -label "Purple";
-    #         menuItem -label "Orange";
 
         self.src_att_field = pm.textField(text="--")
         self.src_offset_field = pm.intField(value=0)
@@ -187,112 +180,8 @@ class ConnectorTab(gui.FormLayout):
                 result.append(attname)
                 template = re.sub(r"\[.*?]", r"[{}]", attname)
                 result.append(template)
-                # result.append(attname.replace("[-1]", "[{}]"))
 
             except (RuntimeError, pm.MayaAttributeError):
                 pass
         return sorted(list(set(result)))
-        # return result
-# pm.PyNode("cImgFileSplit1").attr("outputCropFactor").get()
-
-# for i in range(9):
-#     pm.PyNode("cImgFileSplit1").attr("output[{}].outputImage".format(i)).get()
-
-
-# def connectify(mode, src_att_template, dest_att_template,  *nodes, **kw):
-#     dry = kw.get("dry", False)
-#     num = len(nodes)
-#     if num < 2:
-#         raise ValueError("Need at least 2 nodes.")
-#     if mode == "o2m": #one to many
-#         dest= sorted(nodes[1:])
-#         src = nodes[0]
-#         for i, destnode in enumerate(dest):
-#             if dry:
-#                 print src.attr(src_att_template.format(i)), ">>",   destnode.attr(dest_att_template.format(i))
-#                 continue
-#             src.attr(src_att_template.format(i)) >>  destnode.attr(dest_att_template.format(i))
-
-#     elif mode == "m2o":
-#         dest = nodes[-1]
-#         src = sorted(nodes[:-1])
-#         for i, srcnode in enumerate(src):
-#             if dry:
-#                 print srcnode.attr(src_att_template.format(i)), ">>",  dest.attr(dest_att_template.format(i))
-#                 continue
-
-        # self.attachForm(self.scroll, "left", 2)
-        # self.attachForm(self.scroll, "right", 2)
-        # self.attachControl(self.scroll, "top", 2, self.main_tf)
-        # self.attachControl(self.scroll, "bottom", 2, reload_but)
-
-    # def _connected_brush_indices(self, node):
-    #     conns = node.attr("brushes").connections(s=True, c=True)
-    #     indices = [str(a[0].logicalIndex()) for a in conns]
-    #     return ",".join(indices)
-
-    # def _create_entry(self, node):
-    #     connected_indices = self._connected_brush_indices(node)
-    #     tf = pm.textFieldGrp(
-    #         label=node, text=connected_indices, cw2=(140, 300))
-    #     return tf
-
-    # def _clear_entries(self):
-    #     children = pm.columnLayout(self.skels_column, q=True, ca=True)
-    #     if children:
-    #         pm.deleteUI(children)
-
-    # def reload(self):
-    #     try:
-    #         painting = pm.PyNode("mainPaintingShape")
-    #     except pm.MayaNodeError:
-    #         return
-    #     connected_indices = self._connected_brush_indices(painting)
-    #     pm.textFieldGrp(self.main_tf, edit=True, text=connected_indices)
-
-    #     self._clear_entries()
-    #     skels = pm.ls(type="skeletonStroke")
-    #     for skel in skels:
-    #         pm.setParent(self.skels_column)
-    #         self._create_entry(skel)
-
-        # all_brushes = {}
-        # painting = pm.PyNode("mainPaintingShape")
-        # conns = painting.attr("brushes").connections(s=True, c=True)
-        # for conn in painting.attr("brushes").connections(s=True, c=True):
-        #     all_brushes[conn[0].logicalIndex()] = conn[1]
-
-        # tfs = pm.columnLayout(self.skels_column, q=True, ca=True)
-        # for tf in tfs:
-        #     node_name = pm.textFieldGrp(tf, q=True, label=True)
-        #     node = pm.PyNode(node_name)
-        #     val = pm.textFieldGrp(tf, q=True, text=True)
-        #     indices = [int(i) for i in val.split(
-        #         ",") if i is not None and i.isdigit()]
-        #     self._replug(node, indices, all_brushes)
-
-        # self.reload()
-
-    # def _replug(self, node, indices, all_brushes):
-    #     pass
-        # get existing connected indices and compare against the new ones.
-        # existing = self._connected_brush_indices(node)
-        # proposed = ",".join(str(i) for i in indices)
-        # if existing == proposed:
-        #     return
-
-        # # disconnect and delete all plugs
-        # to_remove = node.attr("brushes").getArrayIndices()
-        # for i in to_remove:
-        #     pm.removeMultiInstance(
-        #         node.attr("brushes[{:d}]".format(i)), b=True)
-
-        # # connect the new ones:
-        # for i in indices:
-        #     if i not in all_brushes:
-        #         pm.displayWarning(
-        #             "Illegal index {}. All indices must be connections on the main painting"
-        #         )
-        #         continue
-        #     all_brushes[i].attr("outPaintBrush") >> node.attr(
-        #         "brushes[{:d}]".format(i))
+  

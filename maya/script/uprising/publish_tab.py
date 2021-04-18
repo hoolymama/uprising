@@ -7,7 +7,7 @@ import pymel.core.uitypes as gui
 
 from uprising.session.painting_session import PaintingSession
 from uprising.session.retries_session import RetriesSession
-# from uprising.session.pov_session import PovSession
+# from uprising.pov.session.pov_session import PovSession
 
 
 @contextmanager

@@ -68,21 +68,25 @@ def show_image_in_monitor():
     swatches = []
     for o in objects:
         for attName in pm.listAttr(o, r=True):
+            atts = [o.attr(attName)]
             try:
-                att = o.attr(attName)
-                if att.type() == "cImgData":
-                    pack = {
-                        "attr": att,
-                        "shader": None
-                    }
-                    shaders = pm.listConnections(
-                        att, d=True, s=False, type="cImgShader")
-                    if shaders:
-                        pack["shader"] = shaders[0]
-                    else:
-                        pack["shader"] = _make_and_connect_shader(att)
-                    swatches.append(pack)
+                atts += att.iterDescendants(None, True)
             except BaseException:
                 pass
 
+            for d in atts:
+                if d.type() == "cImgData":    
+                    pack = {
+                        "attr": d,
+                        "shader": None
+                    }
+                    shaders = pm.listConnections(
+                        d, d=True, s=False, type="cImgShader")
+                    if shaders:
+                        pack["shader"] = shaders[0]
+                    else:
+                        pack["shader"] = _make_and_connect_shader(d)
+                    swatches.append(pack)
+
+    print swatches
     _make_swatch_ui(swatches)
