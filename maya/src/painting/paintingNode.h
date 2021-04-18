@@ -25,6 +25,9 @@ public:
   static MString drawDbClassification;
   static MString drawRegistrantId;
 
+
+  static MObject aCanvasMatrix;
+
   static MObject aDisplayApproachTargets;
   static MObject aDisplayClusterPath;
   static MObject aDisplayPivots;

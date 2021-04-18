@@ -4,6 +4,8 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnEnumAttribute.h>
+#include <maya/MFnMatrixAttribute.h>
+
 
 #include "paintingGeom.h"
 #include "strokeData.h"
@@ -43,6 +45,7 @@ MObject painting::aApproachDistanceMid;
 MObject painting::aApproachDistanceEnd;
 MObject painting::aApproachDistance;
 
+MObject painting::aCanvasMatrix;
 MObject painting::aBrushes;
 
 MObject painting::aPaintColorR;
@@ -82,6 +85,14 @@ MStatus painting::initialize()
   MFnTypedAttribute tAttr;
   MFnCompoundAttribute cAttr;
   MFnEnumAttribute eAttr;
+  MFnMatrixAttribute mAttr;
+
+  aCanvasMatrix= mAttr.create("canvasMatrix", "cmat", MFnMatrixAttribute::kFloat);
+  mAttr.setStorable(false);
+  mAttr.setHidden(false);
+  mAttr.setKeyable(true);
+  addAttribute(aCanvasMatrix);
+
 
   aMaxPointToPointDistance = nAttr.create("maxPointToPointDistance", "mxptp",
                                           MFnNumericData::kDouble);
@@ -232,7 +243,7 @@ MStatus painting::initialize()
 
   st = attributeAffects(aStrokes, aOutput);
   st = attributeAffects(aInMatrix, aOutput);
-  st = attributeAffects(aViewMatrix, aOutput);
+  st = attributeAffects(aCanvasMatrix, aOutput);
   st = attributeAffects(aLinearSpeed, aOutput);
   st = attributeAffects(aAngularSpeed, aOutput);
   st = attributeAffects(aApproximationDistance, aOutput);

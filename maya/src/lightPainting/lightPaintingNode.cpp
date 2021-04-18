@@ -2,6 +2,7 @@
 #include <maya/MFnPluginData.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnEnumAttribute.h>
+#include <maya/MFnMatrixAttribute.h>
 #include "strokeData.h"
 #include "lightPaintingNode.h"
 #include <jMayaIds.h>
@@ -33,6 +34,7 @@ void *lightPainting::creator()
  
 MObject lightPainting::aBrush;
 MObject lightPainting::aDisplayTargetColors;
+MObject lightPainting::aViewMatrix;
 MObject lightPainting::aOutput;
 
 MStatus lightPainting::initialize()
@@ -44,6 +46,13 @@ MStatus lightPainting::initialize()
 
   MFnTypedAttribute tAttr;
   MFnEnumAttribute eAttr;
+  MFnMatrixAttribute mAttr;
+
+  aViewMatrix= mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
+  mAttr.setStorable(false);
+  mAttr.setHidden(false);
+  mAttr.setKeyable(true);
+  addAttribute(aViewMatrix);
 
   aBrush = tAttr.create("brush", "bsh", brushData::id);
   tAttr.setHidden(false);

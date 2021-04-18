@@ -33,7 +33,7 @@ MObject paintingBase::aLinearSpeed;           // cm/sec
 MObject paintingBase::aAngularSpeed;          // per sec
 MObject paintingBase::aApproximationDistance; // cm
 
-MObject paintingBase::aViewMatrix;
+// MObject paintingBase::aViewMatrix;
 
 MObject paintingBase::aReassignParentId;
 
@@ -71,11 +71,11 @@ MStatus paintingBase::initialize()
   mAttr.setDefault(identity);
   addAttribute(aInMatrix);
 
-  aViewMatrix= mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
-  mAttr.setStorable(false);
-  mAttr.setHidden(false);
-  mAttr.setKeyable(true);
-  addAttribute(aViewMatrix);
+  // aViewMatrix= mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
+  // mAttr.setStorable(false);
+  // mAttr.setHidden(false);
+  // mAttr.setKeyable(true);
+  // addAttribute(aViewMatrix);
  
   aLinearSpeed = nAttr.create("linearSpeed", "lnsp", MFnNumericData::kFloat);
   nAttr.setStorable(true);

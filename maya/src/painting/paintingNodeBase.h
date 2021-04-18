@@ -35,7 +35,7 @@ public:
 
   static MTypeId id;
   static MObject aInMatrix;
-  static MObject aViewMatrix;
+  // static MObject aViewMatrix;
   static MObject aReassignParentId;
   static MObject aPointSize;
   static MObject aLineLength;

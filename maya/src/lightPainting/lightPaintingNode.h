@@ -28,6 +28,7 @@ public:
   static MString drawDbClassification;
   static MString drawRegistrantId;
  
+  static MObject aViewMatrix;
   static MObject aDisplayTargetColors;
   static MObject aOutput;
 

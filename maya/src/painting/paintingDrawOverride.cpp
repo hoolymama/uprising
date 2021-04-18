@@ -93,9 +93,9 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	}
 
 
-	MObject dViewMatrix;
-	MPlug(paintingObj, painting::aViewMatrix).getValue(dViewMatrix);
-	MFnMatrixData fnMatrix(dViewMatrix,&st);mser;
+	MObject dCanvasMatrix;
+	MPlug(paintingObj, painting::aCanvasMatrix).getValue(dCanvasMatrix);
+	MFnMatrixData fnMatrix(dCanvasMatrix,&st);mser;
 	const MMatrix & mat = fnMatrix.matrix(&st) ;mser;
 
 	data->drawingNormal = MFloatVector(MVector::zAxis * mat).normal();
