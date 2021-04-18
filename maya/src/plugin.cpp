@@ -23,9 +23,14 @@
 #include "lightPaintingNode.h"
 #include "lightPaintingData.h"
 #include "lightPaintingCmd.h"
+
+#include "paintingCmd.h"
+#include "strokeCmd.h"
+
 #include "brushNode.h"
 
 #include "aimStrokes.h"
+#include "displaceStrokes.h"
 #include "brushLifter.h"
 
 #include "mapColorStrokes.h"
@@ -170,6 +175,11 @@ MStatus initializePlugin(MObject obj)
 							 aimStrokes::initialize);
 	mser;
 
+	st = plugin.registerNode("displaceStrokes", displaceStrokes::id, displaceStrokes::creator,
+							 displaceStrokes::initialize);
+	mser;
+
+
 	st = plugin.registerNode("brushLifter", brushLifter::id, brushLifter::creator,
 							 brushLifter::initialize);
 	mser;
@@ -178,6 +188,15 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerCommand("lightPaintingQuery", lightPaintingCmd::creator,
 								lightPaintingCmd::newSyntax);
 	mser;
+
+	st = plugin.registerCommand("paintingQuery", paintingCmd::creator,
+								paintingCmd::newSyntax);
+	mser;
+
+	st = plugin.registerCommand("strokeQuery", strokeCmd::creator,
+								strokeCmd::newSyntax);
+	mser;
+
 
 	st = plugin.registerCommand("brushQuery", brushCmd::creator,
 								brushCmd::newSyntax);
@@ -197,10 +216,20 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterCommand("brushCmd");
 	mser;
 
+		st = plugin.deregisterCommand("strokeCmd");
+	mser;
+
+	st = plugin.deregisterCommand("paintingCmd");
+	mser;
+
 	st = plugin.deregisterCommand("lightPaintingCmd");
 	mser;
 	st = plugin.deregisterNode(brushLifter::id);
 	mser;
+	
+	st = plugin.deregisterNode(displaceStrokes::id);
+	mser;
+
 	st = plugin.deregisterNode(aimStrokes::id);
 	mser;
 	st = plugin.deregisterNode(mapColorStrokes::id);

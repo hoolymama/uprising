@@ -69,7 +69,8 @@
         "iomanip": "cpp",
         "iostream": "cpp",
         "numeric": "cpp",
-        "strstream": "cpp"
+        "strstream": "cpp",
+        "__functional_03": "cpp"
     },
     "python.pythonPath": "/Users/julian/.virtualenvs/bot/bin/python",
     "python.linting.pylintEnabled": false,
