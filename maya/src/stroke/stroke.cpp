@@ -144,7 +144,7 @@ void Stroke::resetTangents()
 	{
 		piter = citer == m_targets.begin() ? citer : std::prev(citer);
 		niter = std::next(citer) == m_targets.end() ? citer : std::next(citer);
-		citer->setTangent((niter->position() - piter->position()).normal());
+		citer->setDrawTangent((niter->position() - piter->position()).normal());
 	}
 }
 
@@ -244,14 +244,14 @@ bool operator<(const Stroke &a, const Stroke &b)
 	return false;
 }
 
-void Stroke::appendTangents(MVectorArray &result) const
-{
-	std::vector<Target>::const_iterator citer;
-	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
-	{
-		result.append(citer->tangent());
-	}
-}
+// void Stroke::appendTangents(MVectorArray &result) const
+// {
+// 	std::vector<Target>::const_iterator citer;
+// 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
+// 	{
+// 		result.append(citer->tangent());
+// 	}
+// }
 
 const std::vector<Target> &Stroke::targets() const
 {
@@ -757,14 +757,14 @@ void Stroke::departureRotation(
 	result = m_departure.rotation(order, unit, space);
 }
 
-void Stroke::tangents(
+void Stroke::drawTangents(
 	const MFloatMatrix &space,
 	MFloatVectorArray &result) const
 {
 	std::vector<Target>::const_iterator citer;
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
 	{
-		result.append(citer->tangent() * space);
+		result.append(citer->drawTangent() * space);
 	}
 }
 
@@ -888,7 +888,7 @@ ostream &operator<<(ostream &os, const Stroke &s)
 	std::vector<Target>::const_iterator citer;
 	for (citer = targets.begin(); citer != targets.end(); citer++)
 	{
-		os << "TTT: p" << citer->position() << " t:" << citer->tangent() << " contact: " << citer->weight() << endl;
+		os << "TTT: p" << citer->position() << " t:" << citer->drawTangent() << " contact: " << citer->weight() << endl;
 	}
 
 	return os;

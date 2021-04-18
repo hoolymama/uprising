@@ -152,7 +152,7 @@ public:
 
 	unsigned size(bool withTraversal = false) const;
 
-	void appendTangents(MVectorArray &result) const;
+	// void appendTangents(MVectorArray &result) const;
 
 	void getParams(MFloatArray &result) const;
 
@@ -274,7 +274,7 @@ public:
 		MAngle::Unit unit,
 		MFloatVectorArray &result) const;
 
-	void tangents(
+	void drawTangents(
 		const MFloatMatrix &space,
 		MFloatVectorArray &result) const;
 
