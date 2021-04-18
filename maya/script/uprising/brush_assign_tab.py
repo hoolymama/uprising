@@ -39,7 +39,9 @@ class BrushAssignTab(gui.FormLayout):
         pm.textFieldGrp(self.main_tf, edit=True, text=connected_indices)
 
         self._clear_entries()
-        skels = pm.ls(type="skeletonStroke")
+        skels = pm.ls(sl=True, type="skeletonStroke")
+        if not skels:
+            skels = pm.ls(type="skeletonStroke")
         for skel in skels:
             pm.setParent(self.skels_column)
             self._create_entry(skel)
