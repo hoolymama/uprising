@@ -11,7 +11,7 @@ import setup_dip
 import stats
 import utils as uutl
 from brush import Brush
-from uprising.session.pov_session import PovTestSession
+from uprising.pov.session.pov_session import PovTestSession
 
 
 def create():

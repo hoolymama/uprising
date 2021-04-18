@@ -2,7 +2,8 @@ from robolink import INSTRUCTION_COMMENT
 
 
 from utils import ClusterError
-from stroke import Stroke, PovStroke
+from stroke import Stroke
+
 
 import pymel.core as pm
 import robo
@@ -61,12 +62,12 @@ class Cluster(object):
         return (did_change_tool, did_change_brush, did_end_last_brush)
 
 
-class PovCluster(Cluster):
+# class PovCluster(Cluster):
 
-    def build_strokes(self, node):
-        self.strokes = []
-        num_strokes = pm.paintingQuery(
-            node, clusterIndex=self.id, strokeCount=True)
-        for i in range(num_strokes):
-            stroke = PovStroke(self.id, i, self.brush, node)
-            self.strokes.append(stroke)
+#     def build_strokes(self, node):
+#         self.strokes = []
+#         num_strokes = pm.paintingQuery(
+#             node, clusterIndex=self.id, strokeCount=True)
+#         for i in range(num_strokes):
+#             stroke = PovStroke(self.id, i, self.brush, node)
+#             self.strokes.append(stroke)
