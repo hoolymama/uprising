@@ -1,0 +1,14 @@
+source "AEpaintingUtilFuncs";
+source "AEpaintingBrushes";
+source "AEsortFilterInclude";
+
+global proc AEdisplaceStrokesTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+ 	AEsortFilterInclude($nodeName);
+ 
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
