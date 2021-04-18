@@ -72,11 +72,11 @@
 #define kStrokeDepartureRotationFlag "sdr"
 #define kStrokeDepartureRotationFlagL "strokeDepartureRotation"
 
-#define kStrokeTangentsFlag "-st"
-#define kStrokeTangentsFlagL "-strokeTangents"
+// #define kStrokeTangentsFlag "-st"
+// #define kStrokeTangentsFlagL "-strokeTangents"
 
-#define kStrokeBackstrokeFlag "-sb"
-#define kStrokeBackstrokeFlagL "-strokeBackstroke"
+// #define kStrokeBackstrokeFlag "-sb"
+// #define kStrokeBackstrokeFlagL "-strokeBackstroke"
 
 #define kStrokeArcLengthFlag "-sal"
 #define kStrokeArcLengthFlagL "-strokeArcLength"
@@ -137,26 +137,26 @@ private:
 	MStatus handleStrokeSpeedAngularFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleStrokePositionsFlag(const paintingGeom &geom, MArgDatabase &argData,
-									  const MMatrix &worldMatrix);
+									  const MFloatMatrix &worldMatrix);
 
 	MStatus handleStrokeRotationsFlag(const paintingGeom &geom, MArgDatabase &argData,
-									  const MMatrix &worldMatrix);
+									  const MFloatMatrix &worldMatrix);
 
 	MStatus handleStrokeArrivalPositionsFlag(const paintingGeom &geom, MArgDatabase &argData,
-											 const MMatrix &worldMatrix);
+											 const MFloatMatrix &worldMatrix);
 	MStatus handleStrokeArrivalRotationsFlag(const paintingGeom &geom, MArgDatabase &argData,
-											 const MMatrix &worldMatrix);
+											 const MFloatMatrix &worldMatrix);
 	MStatus handleStrokeDeparturePositionFlag(const paintingGeom &geom, MArgDatabase &argData,
-											  const MMatrix &worldMatrix);
+											  const MFloatMatrix &worldMatrix);
 	MStatus handleStrokeDepartureRotationFlag(const paintingGeom &geom, MArgDatabase &argData,
-											  const MMatrix &worldMatrix);
+											  const MFloatMatrix &worldMatrix);
 
 	MStatus handleStrokeTangentsFlag(const paintingGeom &geom, MArgDatabase &argData,
-									 const MMatrix &worldMatrix);
+									 const MFloatMatrix &worldMatrix);
 
 	MStatus handleStrokeColorsFlag(const paintingGeom &geom, MArgDatabase &argData);
 
-	MStatus handleStrokeBackstrokeFlag(const paintingGeom &geom, MArgDatabase &argData);
+	// MStatus handleStrokeBackstrokeFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleStrokeArcLengthFlag(const paintingGeom &geom, MArgDatabase &argData);
 
@@ -166,7 +166,7 @@ private:
 
 	MStatus handleJsonFlag(const paintingGeom &geom);
 
-	MMatrix getWorldMatrix(MObject &paintingObject, MStatus *st);
+	MFloatMatrix getWorldMatrix(MObject &paintingObject, MStatus *st);
 
 	MTransformationMatrix::RotationOrder getRotationOrder(MArgDatabase &argData);
 
