@@ -22,7 +22,6 @@ global proc AEstrokeNodeInclude ( string $nodeName )
 	editorTemplate -cl 0  -beginLayout "Flow";		
  	editorTemplate -addControl "paintFlowFactor" ;
 	editorTemplate -endLayout;
-	
 
 	AEbrushPaintOverrideInclude($nodeName, 1);
 

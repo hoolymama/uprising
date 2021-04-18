@@ -25,8 +25,6 @@ global proc AEskChainNodeTemplate ( string $nodeName )
  	editorTemplate -addControl "radiusOffset";
  	editorTemplate -endLayout;
 
- 
-
 
 	editorTemplate -cl 0  -beginLayout "Chain Attributes";		
 	editorTemplate -addControl "maxIterations";
@@ -34,6 +32,13 @@ global proc AEskChainNodeTemplate ( string $nodeName )
 	editorTemplate -addControl "minLooseTwigLength";
 	editorTemplate -addControl "span";
 	editorTemplate -endLayout;
+
+	// editorTemplate -cl 0  -beginLayout "Crop Attributes";		
+	// editorTemplate -addControl "applyCrop";
+	// editorTemplate -addControl "cropCorner";
+	// editorTemplate -addControl "cropResolution";
+	// editorTemplate -endLayout;
+
 
 	editorTemplate -cl 0  -beginLayout "Image Attributes";		
 	editorTemplate -callCustom "AEskChainNodeNew" "AEskChainNodeReplace" "image";
