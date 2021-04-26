@@ -30,6 +30,8 @@ source "AEpaintingStrokes";
 	editorTemplate -addControl "lineThickness";
 	editorTemplate -addControl "arrowheadSize";
 	editorTemplate -addControl "wireframeColor";
+	editorTemplate -addControl "clusterPathColor";
+	
 	editorTemplate -beginNoOptimize;
 
 	editorTemplate -addControl "displayTargets";

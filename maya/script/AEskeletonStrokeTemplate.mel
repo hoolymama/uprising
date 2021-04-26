@@ -11,13 +11,24 @@ global proc AEskeletonStrokeTemplate ( string $nodeName )
 	AEstrokeCreatorInclude($nodeName);
 	AEpaintStrokeCreatorInclude($nodeName);
 	
+	editorTemplate -cl 0 -beginLayout "Coil attributes";
+	editorTemplate -addControl "splitTestInterval";
+	editorTemplate -endLayout;
+
+
 	editorTemplate -cl 0 -beginLayout "Brushes";
  	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
  	editorTemplate -endLayout;
 
  	AEsortFilterInclude($nodeName);
  
+ 	editorTemplate -cl 0 -beginLayout "Chain inputs";
+	editorTemplate -addControl "selector"; 
+	editorTemplate -addControl "inputData";
+	editorTemplate -endLayout;
+
 	editorTemplate -addExtraControls;
+
 	editorTemplate -endScrollLayout;
 	
 }

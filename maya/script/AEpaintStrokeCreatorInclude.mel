@@ -1,32 +1,27 @@
 global proc AEpaintStrokeCreatorInclude (string $nodeName)
 {
+
 	editorTemplate -cl 0 -beginLayout "Stroke length attributes";
- 
-	editorTemplate -addControl "strokeLength";
-	editorTemplate -addControl "overlap";
-	editorTemplate -addControl "minimumPoints";
-	editorTemplate -addControl "entryTransitionLength";
-	editorTemplate -addControl "exitTransitionLength";
-	editorTemplate -addControl "extendEntry";
-	editorTemplate -addControl "extendExit";
+		editorTemplate -addControl "strokeLength";
+		editorTemplate -addControl "overlap";
+		editorTemplate -addControl "minimumPoints";
+		editorTemplate -addControl "entryTransitionLength";
+		editorTemplate -addControl "exitTransitionLength";
+		editorTemplate -addControl "extendEntry";
+		editorTemplate -addControl "extendExit";
 	editorTemplate -endLayout;
 
-	editorTemplate -cl 0 -beginLayout "Coil attributes";
-	editorTemplate -addControl "splitAngle";
-	editorTemplate -addControl "splitTestInterval";
-	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Id attributes";
-	editorTemplate -addControl "paintId";
+		editorTemplate -addControl "paintId";	
 	editorTemplate -endLayout;
  
  	editorTemplate -cl 0 -beginLayout "Brush attributes";
-	editorTemplate -addControl "followStroke";
-	editorTemplate -addControl "applyBrushBias";
-	
+		editorTemplate -addControl "followStroke";
+		editorTemplate -addControl "applyBrushBias";
 	editorTemplate -endLayout;
  
 	editorTemplate -cl 0 -beginLayout "Matrix attributes";
-	editorTemplate -addControl "canvasMatrix";
+		editorTemplate -addControl "canvasMatrix";
  	editorTemplate -endLayout;
 }

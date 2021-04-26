@@ -10,6 +10,12 @@ global proc AEcurveStrokeTemplate ( string $nodeName )
 	AEstrokeCreatorInclude($nodeName);
 	AEpaintStrokeCreatorInclude($nodeName);
 	
+	editorTemplate -cl 0 -beginLayout "Coil attributes";
+	editorTemplate -addControl "splitAngle";
+	editorTemplate -addControl "splitTestInterval";
+	editorTemplate -endLayout;
+
+
 	editorTemplate -cl 0 -beginLayout "Brush attributes";
 	editorTemplate -addControl "brushId";
  	editorTemplate -endLayout;
