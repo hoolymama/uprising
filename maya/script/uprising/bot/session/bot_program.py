@@ -1,8 +1,8 @@
 
-from uprising import painting
+from uprising.bot.session.bot_painting import BotPainting
 import pymel.core as pm
 from uprising import robo
-from uprising.session.program import Program
+from uprising.common.session.program import Program
 from uprising.session.pick_place_program import PickProgram, PlaceProgram
 from uprising.session.dip_wipe_program import DipWipeProgram, WaterProgram, RetardantProgram
 
@@ -13,21 +13,14 @@ from robolink import (
     INSTRUCTION_CALL_PROGRAM,
     INSTRUCTION_INSERT_CODE
 )
-
-import logging
-
-logger = logging.getLogger("uprising")
+PAINTING_NAME = "mainPaintingShape"
 
 
-class PaintingProgram(Program):
+class BotProgram(Program):
     def __init__(self, name, **kw):
-        super(PaintingProgram, self).__init__(name)
-
-        self.painting = painting.Painting(pm.PyNode("mainPaintingShape"))
-
-    def bump_program_name(self, suffix):
-        self.program_name = "{}_{:02d}".format(
-            self.program_name_prefix, suffix)
+        super(BotProgram, self).__init__(name)
+        print "INITIALIZE BotProgram "
+        self.painting = BotPainting(pm.PyNode(PAINTING_NAME))
 
     def send(self, **kw):
         if not self.painting.clusters:
@@ -51,7 +44,7 @@ class PaintingProgram(Program):
                 self.program_name, start, end)
         )
 
-        super(PaintingProgram, self).send()
+        super(BotProgram, self).send()
 
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
@@ -164,3 +157,33 @@ class PaintingProgram(Program):
             cluster.send(self.program, self.frame, self.painting.motion)
             self.program.addMoveJ(robo.dip_approach)
         return result
+
+
+class BotRetryProgram(Program):
+    def __init__(self, name):
+        super(BotRetryProgram, self).__init__(name)
+        self.painting = BotPainting(pm.PyNode(PAINTING_NAME))
+
+    def configure(self):
+        for cluster in self.painting.clusters:
+            cluster.configure()
+
+    def send(self, **kw):
+        if not self.painting.clusters:
+            return
+        num_clusters = len(self.painting.clusters)
+
+        progress.update(
+            minor_line="Sending {} clusters for {}".format(
+                num_clusters, self.program_name)
+        )
+
+        super(BotRetryProgram, self).send()
+        self.frame = robo.create_frame("{}_frame".format(self.program_name))
+        self.painting.send_brushes()
+
+
+
+        for cluster in self.painting.clusters:
+            # cluster.brush.send()
+            cluster.send(self.program, self.frame, self.painting.motion)

@@ -1,7 +1,7 @@
 
 import pymel.core as pm
 import uprising.const as k
-from uprising.session.program import Program, ProgramError
+from uprising.common.session.program import Program, ProgramError
 from uprising import robo
 
 import uprising.maya_util as mutil

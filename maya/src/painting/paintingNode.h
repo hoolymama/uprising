@@ -37,6 +37,8 @@ public:
   static MObject aDisplayRepeatIds;
 
   static MObject aDisplayContactWidth;
+  static MObject aClusterPathColor;
+
   static MObject aStackGap;
 
   static MObject aOutput;
@@ -62,6 +64,9 @@ private:
   static MObject aPaintTravel;
   static MObject aPaintCustomId;
   static MObject aPaints;
+
+
+
 
   paintingData *m_pd;
 

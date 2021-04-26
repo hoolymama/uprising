@@ -27,7 +27,7 @@ public:
 
     static MTypeId id;
 
-    float maxCoil() const;
+
 protected:
 
 
@@ -38,8 +38,23 @@ protected:
         float startDist,
         float endDist,
         float splitAngle,
-        float splitTestInterval);
+        float splitTestInterval,
+        float &outMaxCoil);
 
+/**
+ * @brief 
+ * 
+ * @param dCurve 
+ * @param canvasNormal 
+ * @param strokeLength 
+ * @param overlap 
+ * @param extendEntry 
+ * @param extendExit 
+ * @param splitAngle 
+ * @param splitTestInterval 
+ * @param result [(startDist, endDist, maxCoil), ..]
+ * @return unsigned int 
+ */
     unsigned int getStrokeBoundaries(
         const MObject &dCurve,
         const MFloatVector &canvasNormal,
@@ -108,7 +123,6 @@ protected:
     // static MObject aOutCoil;
     
 
-    float m_maxCoil; //> The maximum value of coils
 };
 
 inline float paintStrokeCreator::calculateTargetWeight(

@@ -1,12 +1,12 @@
 
-from uprising.target import Target
+from uprising.common.session.target import Target
 from uprising.utils import StrokeError
 import maya.api.OpenMaya as om
 import logging
 
 import pymel.core as pm
 from uprising import robo
-from uprising.session.session import Session
+from uprising.common.session.session import Session
 from uprising.brush import Brush
 logger = logging.getLogger("uprising")
 

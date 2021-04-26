@@ -19,7 +19,8 @@ public:
     static MStatus initialize();
     virtual void postConstructor();
     virtual bool isAbstractClass() const { return false; }
-
+	// virtual MStatus	connectionBroken ( const MPlug & plug, const MPlug & otherPlug, bool asSrc );
+	
     virtual MStatus generateStrokeGeometry(
         const MPlug &plug,
       MDataBlock &data,
@@ -86,56 +87,11 @@ private:
         float exitTransitionLength) const;
 
 
-
-
-
-
-    // float findEndDist(
-    //     const MObject &dCurve,
-    //     const MFloatVector &canvasNormal,
-    //     float startDist,
-    //     float endDist,
-    //     float splitAngle,
-    //     float splitTestInterval);
-
-    // unsigned int getStrokeBoundaries(
-    //     const MObject &dCurve,
-    //     const MFloatVector &canvasNormal,
-    //     float strokeLength,
-    //     float overlap,
-    //     float extendEntry,
-    //     float extendExit,
-    //     float splitAngle,
-    //     float splitTestInterval,
-    //     MFloatVectorArray &result);
-
-    // bool getBoundary(
-    //     const MObject &dCurve,
-    //     double curveLength,
-    //     const MFloatVector &canvasNormal,
-    //     float lastEndDist,
-    //     float strokeLength,
-    //     float overlap,
-    //     float extendEntry,
-    //     float extendExit,
-    //     float splitAngle,
-    //     float splitTestInterval,
-    //     MFloatVector &result);
-
-
-    // static float calculateTargetWeight(
-    //     const double &distanceOnCurve,
-    //     const double &entryDistance,
-    //     const double &exitDistance,
-    //     const double &entryTransitionDistance,
-    //     const double &exitTransitionDistance,
-    //     const float &entryTransitionLength,
-    //     const float &exitTransitionLength,
-    //     const float &radius,
-    //     const float &brushWidth);
-
     static MObject aChains;
     static MObject aBrushes;
+    static MObject aInputData;
+    static MObject aSplitAngle;
+    static MObject aSelector;
 
 };
 

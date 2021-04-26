@@ -347,26 +347,6 @@ MStatus lightPaintingCmd::handleStrokeRotationsFlag(const std::vector<Stroke> &s
 	setResult(result);
 	return MS::kSuccess;
 }
-  
- 
-
-// MStatus lightPaintingCmd::handleStrokeTangentsFlag(const std::vector<Stroke> &strokes,
-// 											  MArgDatabase &argData, const MFloatMatrix &worldMatrix)
-// {
-// 	MStatus st;
-// 	int strokeId = getStrokeId(strokes, argData, &st);
-// 	if (st.error())
-// 	{
-// 		return MS::kUnknownParameter;
-// 	}
-
-// 	MFloatVectorArray tangents;
-// 	strokes[strokeId].tangents(worldMatrix, tangents);
-// 	MDoubleArray result;
-// 	CmdUtils::flatten(tangents, result);
-// 	setResult(result);
-// 	return MS::kSuccess;
-// }
 
 MStatus lightPaintingCmd::handleStrokeColorsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData)
 {
@@ -383,21 +363,6 @@ MStatus lightPaintingCmd::handleStrokeColorsFlag(const std::vector<Stroke> &stro
 	setResult(result);
 	return MS::kSuccess;
 }
-
-
-
-// MStatus lightPaintingCmd::handleStrokeBackstrokeFlag(const std::vector<Stroke> &strokes,
-// 												MArgDatabase &argData)
-// {
-// 	MStatus st;
-// 	int strokeId = getStrokeId(strokes, argData, &st);
-// 	if (st.error())
-// 	{
-// 		return MS::kUnknownParameter;
-// 	}
-// 	setResult(strokes[strokeId].backstroke());
-// 	return MS::kSuccess;
-// }
 
 MStatus lightPaintingCmd::handleStrokeArcLengthFlag(const std::vector<Stroke> &strokes,
 											   MArgDatabase &argData)

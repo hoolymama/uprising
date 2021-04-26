@@ -1,12 +1,12 @@
 
 from robolink import INSTRUCTION_INSERT_CODE
-from uprising.target import Target
+from uprising.common.session.target import Target
 from uprising import robo
 
 
 class PovTarget(Target):
-    def __init__(self, target_id, position, rotation, color, brush):
-        super(PovTarget, self).__init__(target_id, position, rotation, brush)
+    def __init__(self, target_id, position, rotation, color):
+        super(PovTarget, self).__init__(target_id, position, rotation)
         self.color = color*10
 
     def send(self, prefix, program, frame, last_color):

@@ -79,6 +79,11 @@ MStatus strokeMutator::generateStrokeGeometry(
 
   MStatus st;
 
+  short int nodeState = data.inputValue( state).asShort();
+  if (nodeState == 2) { // blocking
+      return MS::kUnknownParameter;
+  }
+
   // Pull on the trigger plug
   //////////////////////////////////////////////////
   MArrayDataHandle hTrigger = data.inputArrayValue(aTrigger);
@@ -100,19 +105,17 @@ MStatus strokeMutator::generateStrokeGeometry(
 
   strokeData *sData = (strokeData *)fnInStrokes.data();
   const std::vector<Stroke> *pInStrokes = sData->fGeometry;
-
+ 
   std::vector<Stroke>::const_iterator citer;
   for (citer = pInStrokes->begin(); citer != pInStrokes->end(); citer++)
   {
     pOutStrokes->push_back(*citer);
   }
-
-	short int nodeState = data.inputValue( state).asShort();
+ 
 	if (nodeState == 0)  {
     st = mutate(plug, data, pOutStrokes);
     mser;
 	}
-
 
   return (MS::kSuccess);
 }

@@ -9,6 +9,8 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MArrayDataHandle.h>
+#include <maya/MArrayDataBuilder.h>
+
 #include <maya/MFnMatrixAttribute.h>
 
 #include <maya/MFnUnitAttribute.h>
@@ -32,8 +34,11 @@
 
 const double rad_to_deg = (180 / 3.1415927);
 
-MObject skeletonStrokeNode::aChains;
 MObject skeletonStrokeNode::aBrushes;
+MObject skeletonStrokeNode::aSplitAngle;
+MObject skeletonStrokeNode::aChains;
+MObject skeletonStrokeNode::aInputData;
+MObject skeletonStrokeNode::aSelector;
 
 MTypeId skeletonStrokeNode::id(k_skeletonStrokeNode);
 
@@ -61,12 +66,25 @@ MStatus skeletonStrokeNode::initialize()
 
     /// skeleton generation
     //////////////////
+    MAngle fullCircle(360.0, MAngle::kDegrees);
+
+    aSplitAngle = uAttr.create("splitAngle", "span", MFnUnitAttribute::kAngle);
+    uAttr.setHidden(false);
+    uAttr.setKeyable(true);
+    uAttr.setStorable(true);
+    uAttr.setDefault(fullCircle);
+
     aChains = tAttr.create("chains", "chn", skChainData::id);
     tAttr.setStorable(false);
     tAttr.setKeyable(true);
-    tAttr.setArray(true);
-    tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-    st = addAttribute(aChains);
+    mser;
+
+    aInputData = cAttr.create("inputData", "inp");
+    cAttr.setArray(true);
+    cAttr.addChild(aSplitAngle);
+    cAttr.addChild(aChains);
+    cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
+    st = addAttribute(aInputData);
     mser;
 
     aBrushes = tAttr.create("brushes", "bsh", brushData::id);
@@ -76,11 +94,21 @@ MStatus skeletonStrokeNode::initialize()
     tAttr.setArray(true);
     tAttr.setIndexMatters(true);
     tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-    addAttribute(aBrushes);
+    st = addAttribute(aBrushes);
 
+    aSelector = nAttr.create("selector", "slc", MFnNumericData::kInt);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setStorable(true);
+    nAttr.setDefault(-1);
+    st = addAttribute(aSelector);
+
+    attributeAffects(aSplitAngle, aOutput);
     attributeAffects(aChains, aOutput);
     attributeAffects(aBrushes, aOutput);
-   
+    attributeAffects(aInputData, aOutput);
+    attributeAffects(aSelector, aOutput);
+
     return (MS::kSuccess);
 }
 
@@ -92,6 +120,12 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
 
     MStatus st;
 
+    short int nodeState = data.inputValue(state).asShort();
+    if (nodeState != 0)
+    {
+        return MS::kUnknownParameter;
+    }
+
     MObject thisObj = thisMObject();
     MFnDependencyNode fnNode(thisObj);
     MString nodeName = fnNode.name();
@@ -99,23 +133,22 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     //////////////////////////////////////////////////////////////
     float pointDensity = data.inputValue(aPointDensity).asFloat();
     pointDensity = fmax(pointDensity, 0.001);
-
+    int selector = data.inputValue(aSelector).asInt();
     int minimumPoints = data.inputValue(aMinimumPoints).asInt();
     float entryTransitionLength = data.inputValue(aEntryTransitionLength).asFloat();
     float exitTransitionLength = data.inputValue(aExitTransitionLength).asFloat();
     float extendEntry = data.inputValue(aExtendEntry).asFloat();
     float extendExit = data.inputValue(aExtendExit).asFloat();
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
-        bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
-
+    bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
+    int layerId = data.inputValue(aLayerId).asInt();
     int paintId = data.inputValue(aPaintId).asInt();
-    float splitAngle = data.inputValue(aSplitAngle).asAngle().asRadians();
+
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
     MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
-    m_maxCoil = 0.0;
-
+;
 
     std::vector<std::pair<int, Brush> > brushes;
     st = collectBrushes(data, brushes);
@@ -125,20 +158,26 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         return MS::kUnknownParameter;
     }
 
-    MArrayDataHandle hChains = data.inputValue(aChains, &st);
-    msert;
-    unsigned nInputs = hChains.elementCount();
+    MArrayDataHandle hInputData = data.inputArrayValue(aInputData, &st);
+    unsigned nInputs = hInputData.elementCount();
 
-    for (unsigned i = 0; i < nInputs; i++, hChains.next())
+    for (unsigned i = 0; i < nInputs; i++, hInputData.next())
     {
-        int parentId = hChains.elementIndex(&st);
-        MDataHandle hChainsInput = hChains.inputValue(&st);
+        int elIndex = hInputData.elementIndex();
+        if (selector > -1 && selector != elIndex)
+        {
+            continue;
+        }
+
+        MDataHandle hComp = hInputData.inputValue(&st);
+        MDataHandle hChains = hComp.child(aChains);
         if (st.error())
         {
             continue;
         }
-        MObject dChainsInput = hChainsInput.data();
-        MFnPluginData fnChains(dChainsInput, &st);
+
+        MObject dChains = hChains.data();
+        MFnPluginData fnChains(dChains, &st);
         if (st.error())
         {
             continue;
@@ -148,7 +187,11 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         {
             continue;
         }
+
+        float splitAngle = hComp.child(aSplitAngle).asAngle().asRadians();
+
         const std::vector<skChain> *geom = scData->fGeometry;
+
         std::vector<skChain>::const_iterator current_chain;
 
         for (current_chain = geom->begin(); current_chain != geom->end(); current_chain++)
@@ -157,10 +200,10 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 *current_chain,
                 brushes,
                 canvasMatrix,
-                parentId,
+                elIndex,
                 minimumPoints,
                 followStroke,
-                applyBrushBias ,
+                applyBrushBias,
                 pointDensity,
                 entryTransitionLength,
                 exitTransitionLength,
@@ -173,12 +216,13 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 pOutStrokes);
         }
     }
+
     strokeCreator::applyRotations(data, pOutStrokes);
 
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
-      curr_stroke->setPaintId(paintId);
-    //   curr_stroke->setLayerId(layerId);
+        curr_stroke->setPaintId(paintId);
+        curr_stroke->setLayerId(layerId);
     }
 
     return MS::kSuccess;
@@ -250,6 +294,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     {
         const float &startDist = boundaries[i].x;
         const float &endDist = boundaries[i].y;
+        const float &coil = boundaries[i].z;
 
         MFloatArray strokeRadii;
         MDoubleArray curveParams;
@@ -282,13 +327,12 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         if (stroke.valid())
         {
             stroke.setParentId(parentId);
+            stroke.setCoil(coil);
             pOutStrokes->push_back(stroke);
         }
     }
     return num;
 }
-
-
 
 unsigned skeletonStrokeNode::createStrokeData(
     const MObject &dCurve,
@@ -351,7 +395,8 @@ Stroke skeletonStrokeNode::createStroke(
     float forwardBias0 = 0.0;
     float forwardBias1 = 0.0;
 
-    if (applyBrushBias) {
+    if (applyBrushBias)
+    {
         forwardBias0 = fmax(0.0, brush.forwardBias0());
         forwardBias1 = fmax(0.0, brush.forwardBias1());
     }
@@ -367,7 +412,8 @@ Stroke skeletonStrokeNode::createStroke(
     entryTransitionLength = fmax(entryTransitionLength, 0.0);
     exitTransitionLength = fmax(exitTransitionLength, 0.0);
     float totalTransitionLength = exitTransitionLength + entryTransitionLength;
-    if (totalTransitionLength > totalLength) {
+    if (totalTransitionLength > totalLength)
+    {
         float mult = totalLength / totalTransitionLength;
         exitTransitionLength *= mult;
         entryTransitionLength *= mult;
@@ -376,20 +422,17 @@ Stroke skeletonStrokeNode::createStroke(
     double entryTransitionDistance = entryDistance + entryTransitionLength;
     double exitTransitionDistance = exitDistance - exitTransitionLength;
 
-
     for (unsigned i = 0; i < len; i++)
     {
         const double &curveParam = curveParams[i];
         const float &radius = strokeRadii[i];
         double distanceOnCurve = curveFn.findLengthFromParam(curveParam, &st);
 
-
         float weight = calculateTargetWeight(
             distanceOnCurve, entryDistance, exitDistance,
             entryTransitionDistance, exitTransitionDistance,
             entryTransitionLength, exitTransitionLength,
             radius, brushWidth);
-
 
         /////////////////////////////////// calcuate biased point
         float forwardBias = (forwardBias1 * weight) + (forwardBias0 * (1.0f - weight));
@@ -398,17 +441,14 @@ Stroke skeletonStrokeNode::createStroke(
         double biasedCurveParam = curveFn.findParamFromLength(biasedDist, &st);
 
         MPoint point;
-        curveFn.getPointAtParam(biasedCurveParam, point, MSpace::kObject);
+        st = curveFn.getPointAtParam(biasedCurveParam, point, MSpace::kObject); mser;
         // tangent will possibly be used for followStroke
         MVector tangent = curveFn.tangent(biasedCurveParam);
-   
-        if (biasedCurveParam >=1.0) // If we are past the end of the curve, push along the tangent
-        {
-            float extraDist = biasedDist - curveLength;
+
+        float extraDist = biasedDist - curveLength;
+        if (extraDist> 0.0) {
             point += tangent.normal() * extraDist;
         }
-        ///////////////////////////////////
-
         /////////////////////////////////// calcuate matrix
         MFloatMatrix mat(brushMatrix);
         if (followStroke)
@@ -429,7 +469,6 @@ Stroke skeletonStrokeNode::createStroke(
     stroke.setBrushId(brushId);
     return stroke;
 }
-
 
 MStatus skeletonStrokeNode::collectBrushes(
     MDataBlock &data,
@@ -513,7 +552,7 @@ const std::pair<int, Brush> skeletonStrokeNode::selectBrush(
         if (brushRad <= radius)
         {
             if (brushIter == brushes.begin())
-            { 
+            {
                 result = *brushIter;
             }
             break;
@@ -579,3 +618,28 @@ void skeletonStrokeNode::postConstructor()
     setExistWithoutInConnections(false);
     setExistWithoutOutConnections(true);
 }
+
+// MStatus skeletonStrokeNode::connectionBroken(
+//     const MPlug &plug,
+//     const MPlug &otherPlug,
+//     bool asSrc)
+// {
+
+//     MStatus st;
+
+//     MString method("skeletonStrokeNode::connectionBroken");
+//     unsigned int el;
+
+//     if (plug == aChains)
+//     {
+//         MDataBlock data = forceCache();
+//         MArrayDataHandle hInData = data.inputArrayValue(aInputData, &st);
+//         msert;
+//         MArrayDataBuilder bInData = hInData.builder(&st);
+//         msert;
+//         el = plug.parent().logicalIndex();
+//         st = bInData.removeElement(el);
+//         msert;
+//     }
+//     return MS::kSuccess;
+// }

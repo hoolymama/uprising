@@ -1,5 +1,5 @@
 from uprising import robo
-from uprising.session.program import Program, ProgramError
+from uprising.common.session.program import Program, ProgramError
 import pymel.core as pm
 import math
 

@@ -6,7 +6,7 @@ import uprising.utils as uutl
 import datetime
 from uprising import robo
 
-from uprising.session.session import Session
+from uprising.common.session.session import Session
 
 from uprising.session.pick_place_program import PickPlaceCollection
 from uprising.session.dip_wipe_program import DipWipeExerciseCollection

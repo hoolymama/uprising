@@ -1,5 +1,5 @@
 import pymel.core as pm
-from uprising.painting import Painting
+from uprising.common.session.painting import Painting
 from uprising.pov.session.pov_stroke import PovStroke
 from uprising import progress
 

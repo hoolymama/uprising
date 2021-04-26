@@ -11,7 +11,7 @@ import pymel.core as pm
 from uprising import utils
 from uprising import robo
 from uprising import progress
-from uprising.session.session import Session
+from uprising.common.session.session import Session
 from uprising.pov.session.pov_program import PovProgram
 from uprising.pov.session.pov_target import PovTarget
 

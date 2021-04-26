@@ -4,7 +4,7 @@ from uprising import props
 import robodk as rdk
 from uprising import robo
 from uprising.brush import Brush
-from uprising.session.program import Program, ProgramError
+from uprising.common.session.program import Program, ProgramError
 import uprising.utils as uutl
 
 from robolink import (

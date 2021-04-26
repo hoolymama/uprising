@@ -90,7 +90,6 @@ public:
 
 	Stroke();
 
-
 	/**
  * @brief Construct a new Stroke object with an artray of points and an initial
  * rotation matrix. 
@@ -105,21 +104,17 @@ public:
 		const MFloatPointArray &points,
 		const MFloatMatrix &rotationMat);
 
-
 	Stroke(
 		const std::vector<MFloatMatrix> &matrices);
-
-
 
 	Stroke(
 		const MFloatPointArray &points,
 		const MFloatArray &weights,
-		const MFloatMatrix &rotationMat );
-
+		const MFloatMatrix &rotationMat);
 
 	Stroke(
 		const std::vector<MFloatMatrix> &matrices,
-		const MFloatArray & weights);
+		const MFloatArray &weights);
 
 	/**
 	 * @brief Construct a new Stroke from a subsection of the input stroke.
@@ -133,10 +128,9 @@ public:
 		unsigned start,
 		unsigned count);
 
-
 	~Stroke();
 
-	void  setStrokeId(unsigned rhs);
+	void setStrokeId(unsigned rhs);
 
 	void resetTangents();
 
@@ -147,6 +141,10 @@ public:
 	void calculateTangents(
 		const std::vector<MFloatMatrix> &matrices,
 		MFloatVectorArray &tangents) const;
+
+	void setCoil(float rhs);
+
+	float coil() const;
 
 	unsigned valid() const;
 
@@ -166,8 +164,6 @@ public:
 
 	const Target &pivot() const;
 
-
-
 	int strokeId() const;
 	int parentId() const;
 	int repeatId() const;
@@ -178,6 +174,7 @@ public:
 
 	void clearSortStack();
 
+	void setLayerId(int rhs);
 	int layerId() const;
 	int customBrushId() const;
 
@@ -224,9 +221,9 @@ public:
 	bool testMapGreenId(FilterOperator op, int value) const;
 	bool testMapBlueId(FilterOperator op, int value) const;
 
-	void getPoints(MFloatPointArray &result/*, float stackHeight = 0.0f*/,
+	void getPoints(MFloatPointArray &result /*, float stackHeight = 0.0f*/,
 				   bool withTraversal = false) const;
- 
+
 	void transform(const MFloatVector &vec, MFloatVectorArray &result,
 				   bool withTraversal = false) const;
 
@@ -281,15 +278,15 @@ public:
 	void colors(MColorArray &result) const;
 
 	MFloatPoint getHead(
-		const MFloatVector &planeNormal/*, float stackHeight = 0.0f*/) const;
+		const MFloatVector &planeNormal /*, float stackHeight = 0.0f*/) const;
 
 	const Target &departure() const;
 
-	void setDeparture(double offset);
-	void setArrival(double offset);
+	void setDeparture(float offset);
+	void setArrival(float offset);
 	void setArrival(
-		double offset,
-		double threshold,
+		float offset,
+		float threshold,
 		const Stroke &prev);
 
 	void arrivalPositions(
@@ -347,10 +344,10 @@ private:
 	MFloatVector m_sortColor;
 	MFloatVector m_filterColor;
 	MIntArray m_sortStack;
-
- 
 	float m_linearSpeed;
 	float m_angularSpeed;
+
+	float m_coil;
 };
 
 inline float Stroke::interpFloat(const MFloatArray &values, float param)
@@ -374,54 +371,48 @@ inline float Stroke::interpFloat(const MFloatArray &values, float param)
 
 #endif
 
+// bool backstroke() const;
 
-	// bool backstroke() const;
+// Stroke(
+// 	 const MObject &curveObject,
+// 	 const MFloatVector &lanceAxis, // Z
+// 	 const MFloatVector &majorAxis, // Y
+// 	 const MFloatArray &weights,
+// 	 bool localContact,
+// 	 double startDist,
+// 	 double endDist,
+// 	 float entryLength,
+// 	 float exitLength,
+// 	 double density,
+// 	 int minimumPoints,
+// 	 double pivotParam,
+// 	 float paintFlow,
+// 	 int strokeId,
+// 	 int brushId,
+// 	 int paintId,
+// 	 int layerId,
+// 	 int customBrushId,
+// 	 bool follow,
+// 	 bool backstroke);
 
-	// Stroke(
-	// 	 const MObject &curveObject,
-	// 	 const MFloatVector &lanceAxis, // Z
-	// 	 const MFloatVector &majorAxis, // Y
-	// 	 const MFloatArray &weights,
-	// 	 bool localContact,
-	// 	 double startDist,
-	// 	 double endDist,
-	// 	 float entryLength,
-	// 	 float exitLength,
-	// 	 double density,
-	// 	 int minimumPoints,
-	// 	 double pivotParam,
-	// 	 float paintFlow,
-	// 	 int strokeId,
-	// 	 int brushId,
-	// 	 int paintId,
-	// 	 int layerId,
-	// 	 int customBrushId,
-	// 	 bool follow,
-	// 	 bool backstroke);
+// Stroke(
+// 	const MFloatPointArray &points,
+// 	const MFloatMatrix &rotationMat,
+// 	const MFloatVectorArray &tangents,
+// 	unsigned index);
 
+// void offset(
+// 	 float offset,
+// 	 const MFloatVector &planeNormal,
+// 	 bool reverse,
+// 	 int repeatId);
 
-	// Stroke(
-	// 	const MFloatPointArray &points,
-	// 	const MFloatMatrix &rotationMat,
-	// 	const MFloatVectorArray &tangents,
-	// 	unsigned index);
-
-
-	// void offset(
-	// 	 float offset,
-	// 	 const MFloatVector &planeNormal,
-	// 	 bool reverse,
-	// 	 int repeatId);
-
-	// void offset(
-	// 	 float tangentOffset,
-	// 	 float normalOffset,
-	// 	 const MFloatVector &planeNormal,
-	// 	 bool reverse,
-	// 	 int repeatId);
-
-
-
+// void offset(
+// 	 float tangentOffset,
+// 	 float normalOffset,
+// 	 const MFloatVector &planeNormal,
+// 	 bool reverse,
+// 	 int repeatId);
 
 // void rotate(float rotation);
 // void translate(const MVector &translation, bool transformPivot = false);

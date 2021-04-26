@@ -132,12 +132,13 @@ def on_bake_paint_ids():
 
 def zero_disp_mesh():
     painting_node = pm.PyNode("mainPaintingShape")
-    disp_mesh = pm.listConnections(painting_node.attr(
-        "displacementMesh"), s=True, d=False)[0]
-    for v in disp_mesh.vtx:
-        pos = v.getPosition(space="world")
+    displace = painting_node.listHistory(type="displaceStrokes")[0]
+    
+    mesh = pm.listConnections(displace.attr("mesh"), s=True, d=False)[0]
+    for v in mesh.vtx:
+        pos = v.getPosition(space="object")
         pos.z = 0
-        v.setPosition(pos, space="world")
+        v.setPosition(pos, space="object")
 
 
 def on_connect_texture(attribute):

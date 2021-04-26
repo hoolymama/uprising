@@ -1,7 +1,7 @@
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MTransformationMatrix.h>
 #include <maya/MFnNurbsCurveData.h>
-
+#include <maya/MAngle.h>
 #include <maya/MQuaternion.h>
 #include <algorithm>
 #include <vector>
@@ -24,8 +24,9 @@ Stroke::Stroke()
 	  m_sortStack(),
 	  m_arrivals(),
 	  m_departure(),
-	  m_linearSpeed(0.0),
-	  m_angularSpeed(0.0)
+	  m_linearSpeed(1.0),
+	  m_angularSpeed(1.0),
+	  m_coil(0.0f)
 {
 }
 
@@ -190,6 +191,16 @@ void Stroke::calculateParams(MFloatArray &result) const
 	}
 }
 
+void Stroke::setCoil(float rhs)
+{
+	m_coil = rhs;
+}
+
+float Stroke::coil() const
+{
+	return m_coil;
+}
+
 const Target &Stroke::pivot() const
 {
 	return m_pivot;
@@ -290,6 +301,10 @@ void Stroke::setParentId(int parentId)
 	m_parentId = parentId;
 }
 
+void Stroke::setLayerId(int rhs)
+{
+	m_layerId = rhs;
+}
 int Stroke::layerId() const
 {
 	return m_layerId;
@@ -481,32 +496,27 @@ bool Stroke::testMapBlueId(FilterOperator op, int value) const
 }
 
 void Stroke::getPoints(
-	MFloatPointArray &result, 
-	// float stackHeight,
+	MFloatPointArray &result,
 	bool withTraversal) const
 {
 
-	// MFloatVector stackOffset = MFloatVector::zAxis * stackHeight;
 	std::vector<Target>::const_iterator citer;
 	if (withTraversal)
 	{
 		for (citer = m_arrivals.begin(); citer != m_arrivals.end(); citer++)
 		{
-			result.append(citer->position() /* + stackOffset */);
+			result.append(citer->position());
 		}
 	}
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
 	{
-		result.append(citer->position() /* + stackOffset */);
+		result.append(citer->position());
 	}
 	if (withTraversal)
 	{
-		result.append(m_departure.position() /* + stackOffset */);
+		result.append(m_departure.position());
 	}
 }
-
-
- 
 
 void Stroke::transform(const MFloatVector &vec, MFloatVectorArray &result,
 					   bool withTraversal) const
@@ -543,10 +553,10 @@ void Stroke::getZAxes(MFloatVectorArray &result, bool withTraversal) const
 }
 
 MFloatPoint Stroke::getHead(
-	const MFloatVector &planeNormal/* ,float stackHeight */) const
+	const MFloatVector &planeNormal /* ,float stackHeight */) const
 {
 	// MFloatVector stackOffset = planeNormal * stackHeight;
-	return m_targets[0].position()/*  + stackOffset */;
+	return m_targets[0].position() /*  + stackOffset */;
 }
 
 void Stroke::getBorders(
@@ -608,7 +618,7 @@ void Stroke::getBorderLoop(
 
 	MFloatPointArray lefts;
 	MFloatPointArray rights;
-	getBorders(planeNormal, brush/* , stackHeight */, lefts, rights, scaleWidthByWeight, maxSegments);
+	getBorders(planeNormal, brush /* , stackHeight */, lefts, rights, scaleWidthByWeight, maxSegments);
 
 	result.clear();
 	for (size_t i = 0; i < lefts.length(); i++)
@@ -632,7 +642,7 @@ void Stroke::getTriangleStrip(
 {
 
 	MFloatPointArray lefts, rights;
-	getBorders(planeNormal, brush/* , stackHeight */, lefts, rights, scaleWidthByWeight, maxSegments);
+	getBorders(planeNormal, brush /* , stackHeight */, lefts, rights, scaleWidthByWeight, maxSegments);
 
 	result.clear();
 	for (size_t i = 0; i < lefts.length(); i++)
@@ -801,46 +811,47 @@ const Target &Stroke::departure() const
 	return m_departure;
 }
 
-void Stroke::setDeparture(double offset)
+void Stroke::setDeparture(float offset)
 {
 	m_departure = Target(m_targets.back());
-	MPoint p = m_departure.position();
+	MFloatPoint p = m_departure.position();
 	p.z = offset;
 	m_departure.setPosition(p);
 }
 
-void Stroke::setArrival(double offset)
+void Stroke::setArrival(float offset)
 {
 	Target arrival(m_targets.front());
-	MPoint p = arrival.position();
+	MFloatPoint p = arrival.position();
 	p.z = offset;
 	arrival.setPosition(p);
 	m_arrivals.push_back(arrival);
 }
 
 void Stroke::setArrival(
-	double offset,
-	double threshold,
+	float offset,
+	float threshold,
 	const Stroke &prev)
 {
 	const Target &departure = prev.departure();
 	// MVector offsetVector(0.0, 0.0, offset);
 	Target arrival(m_targets.front());
-	MPoint p = arrival.position();
+	MFloatPoint p = arrival.position();
 	p.z = offset;
 	arrival.setPosition(p);
 
-	double dist = departure.distanceTo(arrival);
-	MPoint departurePos = departure.position();
-	MPoint arrivalPos = arrival.position();
-
+	float dist = departure.distanceTo(arrival);
+	MFloatPoint departurePos = departure.position();
+	MFloatPoint arrivalPos = arrival.position();
+	// cerr << "Stroke::setArrival dist <> threshold: " << dist << " <> " <<  threshold << endl;
 	if (dist > threshold)
 	{
 		int num_inbetweens = int(dist / threshold);
+		// cerr << "Stroke::setArrival num_inbetweens: " << num_inbetweens << endl;
 		for (int i = 0; i < num_inbetweens; ++i)
 		{
-			double fraction = (i + 1) / double(num_inbetweens + 1);
-			MPoint newPoint((departurePos * (1.0 - fraction)) + (arrivalPos * fraction));
+			float fraction = (i + 1) / double(num_inbetweens + 1);
+			MFloatPoint newPoint((departurePos * (1.0 - fraction)) + (arrivalPos * fraction));
 
 			Target stop;
 			if (fraction < 0.5)
@@ -893,8 +904,6 @@ ostream &operator<<(ostream &os, const Stroke &s)
 
 	return os;
 }
-
-
 
 // void Stroke::setTransitionContact()
 // {
@@ -974,8 +983,6 @@ ostream &operator<<(ostream &os, const Stroke &s)
 // 	}
 // }
 
-
-
 // Offset the existing stroke
 // Each target is offset ortrhogonal to its own tangent.
 // void Stroke::offset(
@@ -1032,8 +1039,6 @@ ostream &operator<<(ostream &os, const Stroke &s)
 // 	}
 // 	// calculateArcLength();
 // }
-
-
 
 /*
 

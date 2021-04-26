@@ -16,6 +16,7 @@
 #include <jMayaIds.h>
 #include "errorMacros.h"
 
+MObject strokeCreator::aLayerId;
 MObject strokeCreator::aPointDensity;
 MObject strokeCreator::aBrushTiltStart;
 MObject strokeCreator::aBrushTiltEnd;
@@ -57,6 +58,17 @@ MStatus strokeCreator::initialize()
   MFnNumericAttribute nAttr;
   MFnUnitAttribute uAttr;
   MFnEnumAttribute eAttr;
+
+  aLayerId = nAttr.create("layerId", "lid", MFnNumericData::kInt);
+  mser;
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setWritable(true);
+  st = addAttribute(aLayerId);
+  mser;
+
+
 
   aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData::kFloat);
   nAttr.setHidden(false);
@@ -113,6 +125,7 @@ MStatus strokeCreator::initialize()
   eAttr.setKeyable(true);
   st = addAttribute(aBrushRotateOrder);
 
+  st = attributeAffects(aLayerId, aOutput);
   st = attributeAffects(aPointDensity, aOutput);
   st = attributeAffects(aBrushRotateOrder, aOutput);
 

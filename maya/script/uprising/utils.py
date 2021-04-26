@@ -12,8 +12,10 @@ PI = 3.14159265359
 def at_value(attr, value):
     old = attr.get()
     attr.set(value)
-    yield
-    attr.set(old)
+    try:
+        yield
+    finally:
+        attr.set(old)
 
 
 def conform_activatable_checkbox(ctl):
@@ -41,16 +43,20 @@ def minimize_robodk():
 def at_height(node, h):
     old = node.attr("tz").get()
     node.attr("tz").set(h)
-    yield
-    node.attr("tz").set(old)
+    try:
+        yield
+    finally:
+        node.attr("tz").set(old)
 
 
 @contextmanager
 def at_position(node, x, y, z):
     old = node.attr("t").get()
     node.attr("t").set(x, y, z)
-    yield
-    node.attr("t").set(old)
+    try:
+        yield
+    finally:
+        node.attr("t").set(old)
 
 
 @contextmanager
@@ -60,9 +66,11 @@ def final_position(*nodes):
         asy = assembly(node)
         remember.append([asy, asy.attr("zeroPosition").get()])
         asy.attr("zeroPosition").set(False)
-    yield
-    for asy, rem in remember:
-        asy.attr("zeroPosition").set(rem)
+    try:
+        yield
+    finally:
+        for asy, rem in remember:
+            asy.attr("zeroPosition").set(rem)
 
 
 @contextmanager
@@ -70,8 +78,10 @@ def zero_position(node):
     asy = assembly(node)
     zpos = asy.attr("zeroPosition").get()
     asy.attr("zeroPosition").set(True)
-    yield
-    asy.attr("zeroPosition").set(zpos)
+    try:
+        yield
+    finally:
+        asy.attr("zeroPosition").set(zpos)
 
 
 @contextmanager
@@ -79,9 +89,11 @@ def filters_off(*nodes):
     curr_vals = [node.attr("applyFilters").get() for node in nodes]
     for node in nodes:
         node.attr("applyFilters").set(False)
-    yield
-    for node, val in zip(nodes, curr_vals):
-        node.attr("applyFilters").set(val)
+    try:
+        yield
+    finally:
+        for node, val in zip(nodes, curr_vals):
+            node.attr("applyFilters").set(val)
 
 
 def _on_active_cb_change(ctrl, cb_ctrl):
@@ -94,28 +106,29 @@ def activatable(**kw):
     label = kw.get("label", "Active")
     state = kw.get("state", True)
     form = pm.formLayout(nd=100)
-    yield
-    cb = pm.checkBox(label=label, value=state)
+    check_box = pm.checkBox(label=label, value=state)
 
+    yield check_box
+ 
     children = pm.formLayout(form, query=True, childArray=True)
 
-    ctrl = children[0]
+    ctrl = children[1]
     pm.checkBox(
-        cb, edit=True, changeCommand=pm.Callback(
-            _on_active_cb_change, ctrl, cb)
+        check_box, edit=True, changeCommand=pm.Callback(
+            _on_active_cb_change, ctrl, check_box)
     )
 
-    form.attachForm(cb, "top", 2)
-    form.attachForm(cb, "bottom", 2)
-    form.attachForm(cb, "right", 2)
-    form.attachNone(cb, "left")
+    form.attachForm(check_box, "top", 2)
+    form.attachForm(check_box, "bottom", 2)
+    form.attachForm(check_box, "right", 2)
+    form.attachNone(check_box, "left")
 
     form.attachForm(ctrl, "left", 2)
     form.attachForm(ctrl, "top", 2)
     form.attachForm(ctrl, "bottom", 2)
-    form.attachControl(ctrl, "right", 2, cb)
+    form.attachControl(ctrl, "right", 2, check_box)
 
-    _on_active_cb_change(ctrl, cb)
+    _on_active_cb_change(ctrl, check_box)
 
     pm.setParent("..")
 
@@ -194,10 +207,6 @@ class PaintingError(Exception):
     pass
 
 
-class ClusterError(Exception):
-    pass
-
-
 class StrokeError(Exception):
     pass
 
@@ -209,3 +218,4 @@ def show_in_window(data, **kw):
     pm.frameLayout(cll=False, lv=False)
     pm.scrollField(text=result_json, editable=False, wordWrap=False)
     pm.showWindow()
+

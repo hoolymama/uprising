@@ -42,6 +42,8 @@ public:
 protected:
   void applyRotations(MDataBlock &data, std::vector<Stroke> *pOutStrokes) const;
 
+
+  static MObject aLayerId;
   static MObject aPointDensity; ///< The minimum number of targets per centimeter.
   static MObject aBrushTiltStart;
   static MObject aBrushTiltEnd;

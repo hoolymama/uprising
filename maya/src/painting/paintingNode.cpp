@@ -68,7 +68,7 @@ MObject painting::aDisplayBrushIds;
 MObject painting::aDisplayPaintIds;
 MObject painting::aDisplayRepeatIds;
 
-
+MObject painting::aClusterPathColor;
 MObject painting::aStackGap;
 
 MObject painting::aOutput;
@@ -95,12 +95,12 @@ MStatus painting::initialize()
 
 
   aMaxPointToPointDistance = nAttr.create("maxPointToPointDistance", "mxptp",
-                                          MFnNumericData::kDouble);
+                                          MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  nAttr.setMin(3.0);
-  nAttr.setSoftMax(100.00);
-  nAttr.setDefault(25.00);
+  nAttr.setMin(3.0f);
+  nAttr.setSoftMax(100.00f);
+  nAttr.setDefault(25.00f);
   nAttr.setKeyable(true);
   addAttribute(aMaxPointToPointDistance);
 
@@ -232,6 +232,12 @@ MStatus painting::initialize()
   addAttribute(aDisplayRepeatIds);
 
 
+	aClusterPathColor = nAttr.createColor("clusterPathColor", "cpcol");
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	addAttribute(aClusterPathColor);
+
+
   aStackGap = nAttr.create("stackGap", "sgap", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -305,11 +311,12 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
   MMatrix wm = mh.asMatrix();
 
   float ptpThresh = data.inputValue(aMaxPointToPointDistance).asFloat();
+
   if (ptpThresh < 3.0)
   {
     ptpThresh = 3.0;
   }
-
+  // cerr << "painting::compute ptpThresh: "<< ptpThresh << endl; 
   std::map<int, Brush> brushes;
   collectBrushes(data, brushes);
 
@@ -407,11 +414,4 @@ void painting::postConstructor()
   setExistWithoutInConnections(true);
   setExistWithoutOutConnections(true);
 }
-
-    //   MObject dMesh = data.inputValue(aDisplacementMesh).asMeshTransformed();
-    //   MFnMesh meshFn(dMesh, &st);
-    //   if (!st.error())
-    //   {
-    //     MMeshIsectAccelParams ap = meshFn.autoUniformGridParams();
-    //     pGeom->displace(meshFn, ap);
-    //   }
+ 

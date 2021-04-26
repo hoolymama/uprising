@@ -1,5 +1,5 @@
 from uprising import robo
-from uprising.session.program import Program
+from uprising.common.session.program import Program
 
 from uprising.session.pick_place_program import PickProgram, PlaceProgram
 

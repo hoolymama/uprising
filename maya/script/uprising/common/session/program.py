@@ -8,12 +8,7 @@ from robolink import (
     INSTRUCTION_SHOW_MESSAGE,
     INSTRUCTION_INSERT_CODE
 )
-
-import logging
-
-logger = logging.getLogger("uprising")
-
-
+ 
 class ProgramError(Exception):
     pass
 

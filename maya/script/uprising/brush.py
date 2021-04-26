@@ -52,7 +52,11 @@ class Brush(object):
         old_brush = link.Item(self.name)
         if old_brush.Valid():
             return
-        tool_item = robot.AddTool(self.matrix, self.name)
+        try:
+            tool_item = robot.AddTool(self.matrix, self.name)
+        except AttributeError:
+            pm.warning("No Robot. Use robo.clean() to load a RoboDK scene with a robot.")
+            raise
         if with_geo:
             triangles = uutl.to_vector_array(
                 pm.brushQuery(self.plug, tri=True))
@@ -80,14 +84,16 @@ class Brush(object):
             brushes[brush].send()
 
     @classmethod
-    def send_selected_brushes(cls):
+    def send_selected_brushes(cls, brush_atts=None):
         brushNodes = pm.ls(selection=True, dag=True,
                            leaf=True, type="brushNode")
-        brush_atts = ["outPaintBrush", "outDipBrush", "outWipeBrush"]
+
+        if not brush_atts:
+            brush_atts = ["outPaintBrush", "outDipBrush", "outWipeBrush"]
         for brush_node in brushNodes:
             for brush_att in brush_atts:
                 plug = brush_node.attr(brush_att)
-                Brush(0, plug).send()
+                Brush(0, plug).send( with_geo=True)
 
     @classmethod
     def brush_at_index(cls, node, index):

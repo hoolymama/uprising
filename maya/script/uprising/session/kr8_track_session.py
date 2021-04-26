@@ -1,5 +1,5 @@
 
-from uprising.session.session import Session
+from uprising.common.session.session import Session
 from uprising import robo
 import datetime
 from uprising.session.kr8_track_program import Kr8TrackProgram

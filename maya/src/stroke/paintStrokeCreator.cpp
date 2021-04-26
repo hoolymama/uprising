@@ -37,7 +37,7 @@ MObject paintStrokeCreator::aStrokeLength;
 MObject paintStrokeCreator::aOverlap;
 MObject paintStrokeCreator::aPaintId;
 MObject paintStrokeCreator::aBrushFollowStroke;
-MObject paintStrokeCreator::aSplitAngle;
+// MObject paintStrokeCreator::aSplitAngle;
 MObject paintStrokeCreator::aSplitTestInterval;
 MObject paintStrokeCreator::aEntryTransitionLength;
 MObject paintStrokeCreator::aExitTransitionLength;
@@ -136,13 +136,6 @@ MStatus paintStrokeCreator::initialize()
 
     
 
-    aSplitAngle = uAttr.create("splitAngle", "span",
-                               MFnUnitAttribute::kAngle);
-    uAttr.setHidden(false);
-    uAttr.setKeyable(true);
-    uAttr.setStorable(true);
-    st = addAttribute(aSplitAngle);
-    mser;
 
     aSplitTestInterval = nAttr.create("splitTestInterval", "spti", MFnNumericData::kFloat);
     nAttr.setHidden(false);
@@ -183,20 +176,13 @@ MStatus paintStrokeCreator::initialize()
     mser;
     //////////////
 
-
-    // aOutCoil = uAttr.create("outCoil", "ocl", MFnUnitAttribute::kAngle);
-    // uAttr.setReadable(true);
-    // uAttr.setWritable(false);
-    // uAttr.setStorable(false);
-    // st = addAttribute(aOutCoil);
-
-
+ 
 
     attributeAffects(aStrokeLength, aOutput);
     attributeAffects(aOverlap, aOutput);
     attributeAffects(aPaintId, aOutput);
     attributeAffects(aBrushFollowStroke, aOutput);
-    attributeAffects(aSplitAngle, aOutput);
+
     attributeAffects(aSplitTestInterval, aOutput);
     attributeAffects(aEntryTransitionLength, aOutput);
     attributeAffects(aExitTransitionLength, aOutput);
@@ -206,19 +192,7 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aMinimumPoints, aOutput);
     attributeAffects(aApplyBrushBias, aOutput);
 
-    // attributeAffects(aStrokeLength, aOutCoil);
-    // attributeAffects(aOverlap, aOutCoil);
-    // attributeAffects(aBrushFollowStroke, aOutCoil);
-    // attributeAffects(aSplitAngle, aOutCoil);
-    // attributeAffects(aSplitTestInterval, aOutCoil);
-    // attributeAffects(aEntryTransitionLength, aOutCoil);
-    // attributeAffects(aExitTransitionLength, aOutCoil);
-    // attributeAffects(aExtendEntry, aOutCoil);
-    // attributeAffects(aExtendExit, aOutCoil);
-    // attributeAffects(aCanvasMatrix, aOutCoil);
-    // attributeAffects(aMinimumPoints, aOutCoil);
-    // attributeAffects(aApplyBrushBias, aOutCoil);
-
+ 
     
 
     return (MS::kSuccess);
@@ -231,6 +205,8 @@ MStatus paintStrokeCreator::generateStrokeGeometry(
 {
     return MS::kUnknownParameter;
 }
+
+
 
 unsigned int paintStrokeCreator::getStrokeBoundaries(
     const MObject &dCurve,
@@ -321,16 +297,20 @@ bool paintStrokeCreator::getBoundary(
     float endDist = startDist + extendEntry + strokeLength;
 
     bool doSplitTest = (splitAngle > epsilon && splitTestInterval > 0.01);
+    float outMaxCoil=0.0f;
     if (doSplitTest)
     {
-        endDist = findEndDist(dCurve, canvasNormal, startDist, endDist, splitAngle, splitTestInterval);
+        endDist = findEndDist(
+            dCurve, canvasNormal, 
+            startDist, endDist, 
+            splitAngle, splitTestInterval,outMaxCoil);
     }
     endDist += extendExit;
     if (endDist >= curveLength)
     {
         endDist = curveLength;
     }
-    result = MFloatVector(startDist, endDist);
+    result = MFloatVector(startDist, endDist, outMaxCoil);
     return false;
 }
 
@@ -343,7 +323,8 @@ float paintStrokeCreator::findEndDist(
     float startDist,
     float endDist,
     float splitAngle,
-    float splitTestInterval)
+    float splitTestInterval,
+    float &outMaxCoil)
 {
 
     float leftExtent = 0;
@@ -356,7 +337,6 @@ float paintStrokeCreator::findEndDist(
 
     double angle;
     MVector axis;
-
     bool foundEnd = false;
     do
     {
@@ -391,20 +371,15 @@ float paintStrokeCreator::findEndDist(
         float coil = rightExtent - leftExtent;
         foundEnd = (coil > splitAngle);
 
-        if (coil > this->m_maxCoil)
+        if (coil > outMaxCoil)
         {
-            this->m_maxCoil = coil;
+            outMaxCoil = coil;
         } 
     } while (!foundEnd);
 
     return currDist;
 }
 
-
-float paintStrokeCreator::maxCoil() const
-{
-    return this->m_maxCoil;
-}
 void paintStrokeCreator::postConstructor()
 {
     setExistWithoutInConnections(false);

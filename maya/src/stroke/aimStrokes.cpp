@@ -54,7 +54,8 @@ MStatus aimStrokes::initialize()
 }
 
 
-MStatus aimStrokes::mutate(const MPlug &plug, MDataBlock &data, std::vector<Stroke> *strokes) const 
+MStatus aimStrokes::mutate(
+  const MPlug &plug, MDataBlock &data, std::vector<Stroke> *strokes) const 
 {
   float3 & fpoint = data.inputValue(aPoint).asFloat3();
   MFloatPoint point(fpoint[0], fpoint[1], fpoint[2]);
@@ -67,7 +68,7 @@ MStatus aimStrokes::mutate(const MPlug &plug, MDataBlock &data, std::vector<Stro
     Stroke::target_iterator titer = siter->targets_begin();
     for (; titer != siter->targets_end(); titer++)
     {
-      const MFloatMatrix mat =  titer->matrix();
+      const MFloatMatrix & mat =  titer->matrix();
 
       	MVector z1 = (MVector(point) - MVector(mat[3][0], mat[3][1], mat[3][2])).normal();
 

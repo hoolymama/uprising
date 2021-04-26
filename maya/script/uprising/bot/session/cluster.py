@@ -1,12 +1,12 @@
+import pymel.core as pm
 from robolink import INSTRUCTION_COMMENT
 
+ 
+from uprising.bot.session.bot_stroke import BotStroke
+from uprising import robo
 
-from utils import ClusterError
-from stroke import Stroke
-
-
-import pymel.core as pm
-import robo
+class ClusterError(Exception):
+    pass
 
 
 class Cluster(object):
@@ -25,8 +25,13 @@ class Cluster(object):
         num_strokes = pm.paintingQuery(
             node, clusterIndex=self.id, strokeCount=True)
         for i in range(num_strokes):
-            stroke = Stroke(self.id, i, self.brush, node)
+            stroke = BotStroke(self.id, i, node)
             self.strokes.append(stroke)
+
+    def configure(self):
+        # self.brush.send()
+        for stroke in self.strokes:
+            stroke.configure(self.brush)
 
     def change_tool_message(self):
         return "Change to: Brs({:d}) - Pnt({:d}) {}".format(
@@ -58,7 +63,7 @@ class Cluster(object):
         this_brush_id = self.brush.id
         did_change_tool = self.reason == "tool"
         did_change_brush = did_change_tool and (last_brush_id != this_brush_id)
-        did_end_last_brush = did_change_brush and (last_brush_id != None)
+        did_end_last_brush = did_change_brush and (last_brush_id is not None)
         return (did_change_tool, did_change_brush, did_end_last_brush)
 
 

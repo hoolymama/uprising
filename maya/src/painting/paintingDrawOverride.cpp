@@ -133,6 +133,10 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	MPlug(paintingObj, painting::aWireColor).child(1).getValue(data->wireColor[1]);
 	MPlug(paintingObj, painting::aWireColor).child(2).getValue(data->wireColor[2]);
 
+	MPlug(paintingObj, painting::aClusterPathColor).child(0).getValue(data->clusterPathColor[0]);
+	MPlug(paintingObj, painting::aClusterPathColor).child(1).getValue(data->clusterPathColor[1]);
+	MPlug(paintingObj, painting::aClusterPathColor).child(2).getValue(data->clusterPathColor[2]);
+
 	MPlug plugPaintingData(paintingObj, painting::aOutput);
 	MObject dPaintingData;
 	st = plugPaintingData.getValue(dPaintingData);
@@ -458,14 +462,15 @@ void paintingDrawOverride::drawWireframeClusterPath(
 
 	drawManager.beginDrawable();
 	drawManager.setLineWidth(cdata->lineThickness);
-	drawManager.setColor(cdata->wireColor);
+	drawManager.setColor(cdata->clusterPathColor);
 	unsigned strokeIndex = 0;
 	bool doStackOffset = cdata->stackOffsets.length() > 0;
 
  
 	for (auto cluster : cdata->geom->clusters())
 	{
-		drawManager.setColor(cdata->geom->paintFromId(cluster.paintId()).color);
+		// drawManager.setColor(cdata->geom->paintFromId(cluster.paintId()).color);
+		MFloatPointArray clusterPoints;
 
 		for (auto stroke : cluster.strokes())
 		{
@@ -475,10 +480,15 @@ void paintingDrawOverride::drawWireframeClusterPath(
 				offsetPoints(cdata->stackOffsets[strokeIndex], points);
 				strokeIndex++;
 			}
-
-			drawManager.mesh(
-				MHWRender::MUIDrawManager::kLineStrip, points);
+			int num =  points.length();
+			for (size_t i = 0; i < num; i++)
+			{
+				clusterPoints.append(points[i]);
+			}
 		}
+
+		drawManager.mesh(
+			MHWRender::MUIDrawManager::kLineStrip, clusterPoints);
 	}
 	drawManager.endDrawable();
 }

@@ -6,9 +6,9 @@ from robolink import (
 
 from uprising.pov.session.pov_target import PovTarget
 import pymel.core as pm
-
+from uprising import robo
 from uprising import utils
-from uprising.stroke import Stroke
+from uprising.common.session.stroke import Stroke
 
 
 class PovStroke(Stroke):
@@ -16,16 +16,16 @@ class PovStroke(Stroke):
     def __init__(self,  stroke_id, brush, node):
         super(PovStroke, self).__init__(stroke_id, brush, node)
 
-    def build_targets(self):
+    def _build_targets(self):
 
         positions = self.query_positions()
         rotations = self.query_rotations()
         colors = self.query_colors()
-        self.targets = self._build_target_array(
-            positions, rotations, colors, self.brush, self.id)
+        self.targets = self._target_factory(
+            positions, rotations, colors, self.id)
 
     @classmethod
-    def _build_target_array(cls, positions, rotations, colors, brush, stroke_id):
+    def _target_factory(cls, positions, rotations, colors, stroke_id):
         result = []
         num_targets = len(positions)
         if not (num_targets == len(rotations) and num_targets == len(colors)):
@@ -34,16 +34,16 @@ class PovStroke(Stroke):
 
         for i, (p, r, c) in enumerate(zip(positions, rotations, colors)):
             try:
-                tg = PovTarget(i, (p * 10), r, c, brush)
+                target = PovTarget(i, (p * 10), r, c)
             except utils.StrokeError:
                 print "Target Position:", p
                 print "StrokeId:", stroke_id
                 raise
 
-            result.append(tg)
+            result.append(target)
         return result
 
-    def configure_targets(self):
+    def configure(self):
 
         try:
             config = self.best_config()
@@ -56,6 +56,37 @@ class PovStroke(Stroke):
         for target in self.targets:
             target.configure(config)
         self.targets[0].linear = False
+
+
+    def best_config(self):
+        name = self.name("-")
+        if not self.targets:
+            print "Stroke has no targets {}".format(name)
+            return
+        common_configs = set([k for k in robo.ALL_KR8_CONFIGS])
+
+        for target in self.targets:
+            common_configs = common_configs.intersection(
+                target.valid_configs())
+            if not common_configs:
+                raise utils.StrokeError(
+                    "Common Config failure, can't find best config for stroke. No common configs {}".format(name))
+
+        common_configs = sorted(list(common_configs))
+
+        print "Stroke {} has common_configs {} -- Testing linear moves".format(name, common_configs)
+        config = self.test_linear_moves(common_configs)
+        if not config:
+            raise utils.StrokeError(
+                    "Linear move failure, can't find config where all linear moves are possible {}".format(name))
+
+        return config
+
+    def all_configs(self):
+        result = []
+        for target in self.targets:
+            result.append(target.valid_configs())
+        return result
 
     def send(self, prefix, program, frame, motion):
         stroke_name = self.name(prefix)
@@ -75,14 +106,6 @@ class PovStroke(Stroke):
             "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[3]=0.0", INSTRUCTION_INSERT_CODE)
         program.RunInstruction(
             "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)
-
-    def query_backstroke(self):
-        # print "SELF.NODE: ==------------------", self.node, "----------=="
-        return pm.lightPaintingQuery(
-            self.node,
-            strokeIndex=self.id,
-            strokeBackstroke=True,
-        )
 
     def query_arc_length(self):
         return pm.lightPaintingQuery(

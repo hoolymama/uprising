@@ -1,9 +1,9 @@
 
-import logging
+ 
 import pymel.core as pm
 from uprising import robo
-from uprising.session.program import Program
-from uprising import painting
+from uprising.common.session.program import Program
+from uprising.common.session import painting
 from uprising import progress
 from robolink import (
     INSTRUCTION_COMMENT
@@ -12,10 +12,7 @@ WATER_POT_ID = 9
 WATER_REPEATS = 2
 
 RETARDANT_POT_ID = 19
-
-
-logger = logging.getLogger("uprising")
-
+ 
 
 class DipWipeProgram(Program):
     @staticmethod

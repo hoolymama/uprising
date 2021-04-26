@@ -37,6 +37,8 @@ public:
 	float stackGap;
 	float drawParam;
 	MColor wireColor;
+	MColor clusterPathColor;
+	
 	
 	float arrowheadSize;
 

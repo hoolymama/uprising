@@ -216,8 +216,8 @@ MStatus strokeNodeBase::compute(const MPlug &plug, MDataBlock &data)
 
 	short int nodeState = data.inputValue( state).asShort();
   
+  st = generateStrokeGeometry(plug, data, geom);
   if (nodeState == 0)  {
-    st = generateStrokeGeometry(plug, data, geom);
     setStrokeIds(geom);
     filterStrokes(data, geom);
     sortStrokes(data, geom);

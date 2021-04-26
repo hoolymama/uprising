@@ -1,6 +1,7 @@
 
 from uprising.session import (
-    program,
+
+
     board_calibration_program,
     brush_hang_program,
     calibration_program,
@@ -9,12 +10,11 @@ from uprising.session import (
     holder_calibration_program,
     kr8_track_program,
     manual_probe_program,
-    painting_program,
     pick_place_exercise_program,
     pick_place_program,
     pot_calibration_program,
     rack_calibration_program,
-    session,
+
     board_calibration_session,
     brush_hang_session,
     calibration_session,
@@ -27,9 +27,24 @@ from uprising.session import (
     pick_place_exercise_session,
     pot_calibration_session,
     rack_calibration_session,
-    retries_session
 )
 
+
+from uprising.bot.session import (
+    cluster,
+    bot_painting,
+    bot_program,
+    bot_stroke,
+    bot_target,
+    retries_session
+)
+from uprising.common.session import (
+    painting,
+    program,
+    session,
+    stroke,
+    target
+)
 
 from uprising import (
     brush,
@@ -40,8 +55,8 @@ from uprising import (
     brush_utils,
     calibration,
     calibration_menu,
+    chains,
     chain_menu,
-    cluster,
     const,
     curve_utils,
     curves_menu,
@@ -50,7 +65,6 @@ from uprising import (
     images_menu,
     maya_util,
     paint,
-    painting,
     painting_tab,
     palette_menu,
     palette_utils,
@@ -67,9 +81,7 @@ from uprising import (
     sequence,
     setup_dip,
     stats,
-    stroke,
     stroke_factory_utils,
-    target,
     tools_menu,
     utils,
 )
@@ -79,14 +91,19 @@ from uprising import (
 reload(brush)
 reload(paint)
 reload(target)
+reload(bot_target)
 reload(stroke)
+reload(bot_stroke)
 reload(cluster)
 reload(painting)
+reload(bot_painting)
+
+reload(chains)
 ####################
 
 ####################
 reload(program)
-reload(painting_program)
+reload(bot_program)
 
 reload(calibration_program)
 reload(board_calibration_program)
@@ -118,7 +135,7 @@ reload(rack_calibration_session)
 reload(kr8_track_session)
 
 reload(painting_session)
- 
+
 reload(brush_hang_session)
 reload(dip_wipe_exercise_session)
 reload(gamut_session)
@@ -173,5 +190,3 @@ reload(palette_utils)
 reload(stroke_factory_utils)
 reload(utils)
 ####################
-
-

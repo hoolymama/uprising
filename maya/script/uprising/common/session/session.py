@@ -1,4 +1,6 @@
-import logging
+
+import fileinput
+import os
 
 from uprising import props
 from uprising import robo
@@ -6,12 +8,6 @@ import datetime
 import json
 import pymel.core as pm
 import uprising.utils as uutl
-
-import fileinput
-
-import os
-
-logger = logging.getLogger("uprising")
 
 
 class SessionError(Exception):
@@ -102,7 +98,7 @@ class Session(object):
         prg1()
         prg2()
         prg3()
-        
+
 
         """
         uutl.mkdir_p(directory)
@@ -126,11 +122,10 @@ class Session(object):
         json_file = os.path.join(directory, "{}.json".format(name))
         with open(json_file, 'w') as outfile:
             json.dump(data, outfile, indent=4)
-            
+
     @staticmethod
     def write_maya_scene(directory, name):
-        new_name = os.path.join(directory, "{}.ma".format(name) )
+        new_name = os.path.join(directory, "{}.ma".format(name))
         orig_sn = pm.sceneName()
         pm.saveAs(new_name)
         pm.renameFile(orig_sn)
-

@@ -52,7 +52,9 @@ MStatus brushLifter::initialize()
   return (MS::kSuccess);
 }
 
-MStatus brushLifter::mutate(const MPlug&plug, MDataBlock &data, std::vector<Stroke> *strokes) const
+MStatus brushLifter::mutate(
+  const MPlug&plug, MDataBlock &data, 
+  std::vector<Stroke> *strokes) const
 {
 
   MStatus st;

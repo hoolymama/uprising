@@ -1,5 +1,5 @@
 
-import logging
+ 
 import math
 import datetime
 import time
@@ -10,14 +10,12 @@ from uprising import utils as uutl
 from uprising import robo
 from uprising import stats
 from uprising import progress
-from uprising.session.session import Session
-from uprising.session.painting_program import PaintingProgram
+from uprising.common.session.session import Session
+from uprising.bot.session.bot_program import BotProgram
 from uprising.session.pick_place_program import PickPlaceCollection
 from uprising.session.dip_wipe_program import DipWipeCollection, WaterCollection, RetardantCollection
 
-logger = logging.getLogger("uprising")
-
-
+ 
 class PaintingSession(Session):
 
     PROGRAM_NAME = "px"
@@ -39,8 +37,8 @@ class PaintingSession(Session):
 
         timer_start = time.time()
         # PAINTING
-        self.painting_program = self.build_painting_program()
-        self.send_and_publish_painting_program()
+        self.bot_program = self.build_bot_program()
+        self.send_and_publish_bot_program()
 
         # PICK PLACE
         self.pick_place_collection = PickPlaceCollection("used")
@@ -69,17 +67,17 @@ class PaintingSession(Session):
             "per_brush_stats": stats.stats_per_brush()
         }
 
-    def build_painting_program(self):
+    def build_bot_program(self):
         self.init_progress()
 
         robo.clean()
         with uutl.final_position(pm.PyNode("mainPaintingShape")):
             with uutl.at_value(pm.PyNode("mainPaintingShape").attr("applyBrushBiases"), True):
-                result = PaintingProgram(self.PROGRAM_NAME)
+                result = BotProgram(self.PROGRAM_NAME)
         return result
 
-    def send_and_publish_painting_program(self):
-        cluster_count = len(self.painting_program.painting.clusters)
+    def send_and_publish_bot_program(self):
+        cluster_count = len(self.bot_program.painting.clusters)
         num_chunks = int(
             math.ceil(cluster_count / float(self.cluster_chunk_size)))
 
@@ -93,16 +91,16 @@ class PaintingSession(Session):
             progress.update(
                 major_progress=i, major_line="Writing {:d} of {:d} chunks".format(i+1, num_chunks))
 
-            subprograms = self.painting_program.send(
+            subprograms = self.bot_program.send(
                 chunk_id=i, chunk_length=self.cluster_chunk_size)
 
             src_fn = self.save_program(
-                self.directory, self.painting_program.program_name)
+                self.directory, self.bot_program.program_name)
             self.insert_external_dependencies(subprograms, src_fn)
             self.save_station(
-                self.directory, self.painting_program.program_name)
+                self.directory, self.bot_program.program_name)
 
-            self.program_names.append(self.painting_program.program_name)
+            self.program_names.append(self.bot_program.program_name)
 
             progress.update(major_progress=num_chunks, major_line="Done")
 

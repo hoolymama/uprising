@@ -10,23 +10,28 @@ from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT,
 
 import pymel.core as pm
 import robodk as rdk
-
+import copy
 
 ROBODK_PATH = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/MacOS/RoboDK")
 DIP_TARGET = "dipTarget"
 TOOL_TARGET = "toolChangeTarget"
 HOME_TARGET = "homeTarget"
 
-ALL_CONFIGS = {
-        "000": [],
-        "001": [],
-        "010": [],
-        "011": [],
-        "100": [],
-        "101": [],
-        "110": [],
-        "111": []
-    }
+ALL_KR8_CONFIGS = {
+    "000": [],
+    "001": [],
+    "010": [],
+    "011": [],
+    "100": [],
+    "101": [],
+    "110": [],
+    "111": []
+}
+
+ALL_KR30_CONFIGS = {
+    "000": [],
+    "001": []
+}
 
 _model = None
 _robot = None
@@ -104,7 +109,7 @@ def hide():
     link().HideRoboDK()
 
 
-def clean(model="kr30"):
+def clean(model="kr30", infrastructure=True):
     global _model
     global _link
     global _robot
@@ -115,7 +120,9 @@ def clean(model="kr30"):
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _model = model
     # _robot.setParam("PostProcessor", "KUKA KRC4 RN")
-    _create_infrastructure()
+
+    if infrastructure:
+        _create_infrastructure()
 
 
 def create_program(name):
@@ -137,12 +144,7 @@ def create_frame(name, force=True):
             frame.Delete()
         else:
             return frame
-    print "ADDING FRAME ", name
     frame = _link.AddFrame(name)
-    print "ADDED FRAME ", name
-
-    print "VALID:", _link.Item(name).Valid()
-
     frame.setPose(rdk.eye())
     return frame
 
@@ -152,20 +154,27 @@ def _config_key(config):
         return "%d%d%d" % tuple(config.list2()[0][0:3])
 
 
-def config_poses(pose):
+def solve_joint_poses(pose):
+
     global _model
     global _robot
 
-    result = ALL_CONFIGS.copy()
+    if _model == "kr30":
+        result = copy.deepcopy(ALL_KR30_CONFIGS)
+    else:
+        result = copy.deepcopy(ALL_KR8_CONFIGS)
+
     ik = _robot.SolveIK_All(pose)
     siz = ik.size()
+
     if not (ik and siz[0] and siz[1] and (len(ik.list()) > 5)):
         return result
     joint_poses = [el[0:6] for el in ik.list2()]
     for joint_pose in joint_poses:
         jcfg = _robot.JointsConfig(joint_pose)
         key = _config_key(jcfg)
-        result[key].append(joint_pose)
+        if key in result:
+            result[key].append(joint_pose)
     return result
 
 
@@ -186,12 +195,12 @@ def create_joint_target(obj, name, frame):
     wm = obj.attr("worldMatrix[0]").get()
     mat = maya_to_robodk_mat(wm)
 
-    joint_poses = config_poses(mat)
+    joint_poses = solve_joint_poses(mat)
     joints = find_best_pose(joint_poses, ["000", "001"])
 
-    old_approach = _link.Item(name)
-    if old_approach.Valid():
-        old_approach.Delete()
+    old_item = _link.Item(name)
+    if old_item.Valid():
+        old_item.Delete()
     target = _link.AddTarget(name, frame, _robot)
     target.setAsJointTarget()
     target.setJoints(joints)

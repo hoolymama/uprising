@@ -6,27 +6,9 @@ import pymel.core as pm
 import pymel.core.uitypes as gui
 
 from uprising.session.painting_session import PaintingSession
-from uprising.session.retries_session import RetriesSession
-# from uprising.pov.session.pov_session import PovSession
-
-
-@contextmanager
-def isolate_nodes(show_nodes, all_nodes):
-    all_vals = [n.attr("active").get() for n in all_nodes]
-    vals = [n.attr("active").get() for n in show_nodes]
-
-    for n in all_nodes:
-        n.attr("active").set(False)
-
-    for n in show_nodes:
-        n.attr("active").set(True)
-    yield
-
-    for i, n in enumerate(show_nodes):
-        n.attr("active").set(vals[i])
-
-    for i, n in enumerate(all_nodes):
-        n.attr("active").set(all_vals[i])
+from uprising.bot.session.retries_session import RetriesSession
+from uprising import utils
+from uprising import chains
 
 
 class PublishTab(gui.FormLayout):
@@ -47,25 +29,58 @@ class PublishTab(gui.FormLayout):
 
         frame = pm.frameLayout(label="Export", bv=True)
 
-        self.painting_type_rb = pm.radioButtonGrp(
-            label='Painting type', sl=2,
-            labelArray2=[
-                'Paint robot',
-                'Light robot'],
-            numberOfRadioButtons=2,
-            changeCommand=pm.Callback(self.on_ops_change))
-
         self.do_components_cb = pm.checkBoxGrp(
-            numberOfCheckBoxes=2,
+            numberOfCheckBoxes=3,
             label="",
-            valueArray2=(1, 1),
-            labelArray2=("Do Retries", "Do Painting"),
+            valueArray3=(1, 0, 1),
+            labelArray3=("Do Retries", "Do Painting", "Dry run"),
             changeCommand=pm.Callback(self.on_ops_change)
         )
 
         self.coil_delta_ff = pm.floatFieldGrp(
-            numberOfFields=1, label="Retries delta", value1=20
+            numberOfFields=1, label="Coil retries delta", value1=20
         )
+
+        self.chains_per_retry = pm.intFieldGrp(
+            height=30,
+            label="Chains per retry",
+            annotation="Max number of chains for each retry resolution.",
+            numberOfFields=1,
+            value1=10,
+        )
+
+        with utils.activatable(state=False) as self.single_active_checkbox:
+
+            self.do_single_row = pm.rowLayout(
+                numberOfColumns=3,
+                columnWidth3=(300, 280, 100),
+                adjustableColumn=1,
+                columnAlign=(1, "right"),
+                columnAttach=[(1, "both", 2), (2, "both", 2), (3, "both", 2)],
+            )
+
+            all_skels = pm.PyNode("mainPaintingShape").listHistory(
+                type="skeletonStroke")
+            self.single_skel_menu = pm.optionMenuGrp(
+                label="Single plug",
+                changeCommand=pm.Callback(self.configure_single_selector)
+            )
+            for node in all_skels:
+                pm.menuItem(label=node)
+
+            self.single_plug_index_if = pm.intSliderGrp(
+                label="Selector",
+                cw3=(60, 60, 160),
+                field=True,
+                minValue=-1, fieldMinValue=-1,
+                maxValue=0, fieldMaxValue=0,
+                value=0
+            )
+
+            pm.button(label="Split now",
+                      command=pm.Callback(self.on_split_single))
+
+            pm.setParent("..")
 
         self.cluster_chunk_if = pm.intFieldGrp(
             height=30,
@@ -76,6 +91,8 @@ class PublishTab(gui.FormLayout):
         )
 
         pm.setParent("..")
+
+        self.configure_single_selector()
         return frame
 
     def create_progress_frame(self):
@@ -88,21 +105,20 @@ class PublishTab(gui.FormLayout):
 
     def on_ops_change(self):
 
-        if pm.radioButtonGrp(self.painting_type_rb, query=True, sl=True) == 2:
-            # POV
-            pm.intFieldGrp(self.cluster_chunk_if, edit=True, en=True)
-            pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=False)
-            pm.checkBoxGrp(self.do_components_cb, edit=True, en=False)
-            pm.button(self.go_but, edit=True, en=True)
-            return
-
-        pm.checkBoxGrp(self.do_components_cb, edit=True, en=True)
-        # PAINT
-        do_retries, do_painting = pm.checkBoxGrp(
-            self.do_components_cb, query=True, valueArray2=True
+        do_retries, do_painting, dry_run = pm.checkBoxGrp(
+            self.do_components_cb, query=True, valueArray3=True
         )
 
+        # TMP ##################
+        pm.checkBoxGrp(self.do_components_cb, edit=True,
+                       valueArray3=(do_retries, 0, dry_run))
+        do_painting = False
+        # TMP ##################
+
         pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=(do_retries))
+        pm.intFieldGrp(self.chains_per_retry, edit=True, en=(do_retries))
+        # pm.checkBoxGrp(self.do_lin_check_cb, edit=True, en=(do_retries))
+
         pm.intFieldGrp(self.cluster_chunk_if, edit=True, en=(do_painting))
         pm.button(self.go_but, edit=True, en=(do_retries or do_painting))
 
@@ -124,33 +140,76 @@ class PublishTab(gui.FormLayout):
 
     ##############################################################
 
+    def on_split_single(self):
+
+        node = pm.PyNode(pm.optionMenuGrp(
+            self.single_skel_menu, query=True, value=True))
+
+        chains_per_retry = pm.intFieldGrp(
+            self.chains_per_retry, query=True, value1=True)
+
+        chain_skel_pairs = chains.get_chain_skel_pairs(node)
+
+        chains.chunkify_skels(
+            chain_skel_pairs,
+            chains_per_retry
+        )
+        self.configure_single_selector()
+
+    def configure_single_selector(self):
+
+        node = pm.PyNode(pm.optionMenuGrp(
+            self.single_skel_menu, query=True, value=True))
+
+        chain_skel_pairs = chains.get_chain_skel_pairs(node)
+        numPlugs = chain_skel_pairs[0][0].attr("outputCount").get()
+
+        pm.connectControl(self.single_plug_index_if, node.attr("selector"))
+
+        pm.intSliderGrp(
+            self.single_plug_index_if, edit=True,
+            maxValue=(numPlugs-1), minValue=-1,
+            fieldMaxValue=(numPlugs-1), fieldMinValue=-1)
+
     def on_go(self):
 
-        do_retries, do_painting = pm.checkBoxGrp(
-            self.do_components_cb, query=True, valueArray2=True
+        do_retries, do_painting, dry_run = pm.checkBoxGrp(
+            self.do_components_cb, query=True, valueArray3=True
         )
 
         coil_delta = pm.floatFieldGrp(
             self.coil_delta_ff, query=True, value1=True)
 
+        chains_per_retry = pm.intFieldGrp(
+            self.chains_per_retry, query=True, value1=True)
+
         cluster_chunk_size = pm.intFieldGrp(
             self.cluster_chunk_if, query=True, value1=True
         )
 
-        do_pov = pm.radioButtonGrp(
-            self.painting_type_rb, query=True, sl=True) == 2
-        if do_pov:
-            do_retries = None
-            do_painting = None
+        do_single = pm.checkBox(self.single_active_checkbox, q=True, v=True)
+
+        plug = None
+        if do_single:
+            node = pm.PyNode(pm.optionMenuGrp(
+                self.single_skel_menu, query=True, value=True))
+
+            plug = node.attr("selector")
+            # print "PUB node.attr(selector)",  node.attr("selector"),  node.attr("selector")
 
         retries_session = None
         if do_retries:
-            stroke_nodes = find_contributing_stroke_nodes() if do_retries else []
-            retries_session = RetriesSession(coil_delta, stroke_nodes)
-            print retries_session.plugs
-            retries_session.run()
+
+            retries_session = RetriesSession(
+                coil_delta,
+                chains_per_retry,
+                plug)
+            # print retries_session.plugs
+
+            retries_session.run(dry_run)
+
             retries_session.show_results()
-            retries_session.write_results()
+            # retries_session.write_results()
 
         if do_painting:
             directory = retries_session and retries_session.directory
@@ -165,23 +224,51 @@ class PublishTab(gui.FormLayout):
         #     pov_session.write_stats()
         #     pov_session.write_maya_scene(pov_session.directory, "scene")
 
+        # self.painting_type_rb = pm.radioButtonGrp(
+        #     label='Painting type', sl=2,
+        #     labelArray2=[
+        #         'Paint robot',
+        #         'Light robot'],
+        #     numberOfRadioButtons=2,
+        #     changeCommand=pm.Callback(self.on_ops_change))
+# def find_contributing_stroke_nodes(skels):
 
-def find_contributing_stroke_nodes():
+#     for
+#     # painting_node = pm.PyNode("mainPaintingShape")
+#     all_skels = pm.ls(type="skeletonStroke")
 
-    painting_node = pm.PyNode("mainPaintingShape")
-    all_skels = pm.ls(type="skeletonStroke")
+#     result = [n for n in pm.ls(sl=True) if n.type() == "skeletonStroke"]
+#     if result:
+#         return result
 
-    result = [n for n in pm.ls(sl=True) if n.type() == "skeletonStroke"]
-    if result:
-        return result
+#     for node in all_skels:
+#         with isolate_nodes([node], all_skels):
+#             try:
+#                 pm.paintingQuery(painting_node, cc=True)
+#             except RuntimeError:
+#                 continue
+#         result.append(node)
+#     print "{} of {} skeleton nodes contributing".format(
+#         len(result), len(all_skels))
+#     return result
 
-    for node in all_skels:
-        with isolate_nodes([node], all_skels):
-            try:
-                pm.paintingQuery(painting_node, cc=True)
-            except RuntimeError:
-                continue
-        result.append(node)
-    print "{} of {} skeleton nodes contributing".format(
-        len(result), len(all_skels))
-    return result
+
+# from uprising.pov.session.pov_session import PovSession
+
+# @contextmanager
+# def isolate_nodes(show_nodes, all_nodes):
+#     all_vals = [n.attr("active").get() for n in all_nodes]
+#     vals = [n.attr("active").get() for n in show_nodes]
+
+#     for n in all_nodes:
+#         n.attr("active").set(False)
+
+#     for n in show_nodes:
+#         n.attr("active").set(True)
+#     yield
+
+#     for i, n in enumerate(show_nodes):
+#         n.attr("active").set(vals[i])
+
+#     for i, n in enumerate(all_nodes):
+#         n.attr("active").set(all_vals[i])

@@ -72,12 +72,6 @@
 #define kStrokeDepartureRotationFlag "sdr"
 #define kStrokeDepartureRotationFlagL "strokeDepartureRotation"
 
-// #define kStrokeTangentsFlag "-st"
-// #define kStrokeTangentsFlagL "-strokeTangents"
-
-// #define kStrokeBackstrokeFlag "-sb"
-// #define kStrokeBackstrokeFlagL "-strokeBackstroke"
-
 #define kStrokeArcLengthFlag "-sal"
 #define kStrokeArcLengthFlagL "-strokeArcLength"
 
@@ -155,8 +149,6 @@ private:
 									 const MFloatMatrix &worldMatrix);
 
 	MStatus handleStrokeColorsFlag(const paintingGeom &geom, MArgDatabase &argData);
-
-	// MStatus handleStrokeBackstrokeFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleStrokeArcLengthFlag(const paintingGeom &geom, MArgDatabase &argData);
 

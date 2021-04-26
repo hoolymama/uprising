@@ -25,6 +25,7 @@ private:
   static MObject aCurve;
   static MObject aBrushId;
   static MObject aBrush;
+  static MObject aSplitAngle;
 
   unsigned createStrokeData(
       const MObject &dCurve,

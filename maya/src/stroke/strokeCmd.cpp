@@ -4,10 +4,13 @@
 #include <maya/MTypeId.h>
 #include <maya/MFnPluginData.h>
 #include "strokeCmd.h"
-#include "paintingData.h"
-#include "skeletonStrokeNode.h"
-#include "curveStrokeNode.h"
-#include "paintStrokeCreator.h"
+// #include "paintingData.h"
+// #include "skeletonStrokeNode.h"
+// #include "curveStrokeNode.h"
+#include "strokeNodeBase.h"
+#include "strokeData.h"
+#include "cmdUtils.h"
+const MString strokeIdRangeMsg("Stroke Id not in range");
 
 void *strokeCmd::creator()
 {
@@ -18,7 +21,11 @@ MSyntax strokeCmd::newSyntax()
 {
 	MSyntax syn;
 
+	syn.addFlag(kStrokeCountFlag, kStrokeCountFlagL);
+	syn.addFlag(kStrokeIndexFlag, kStrokeIndexFlagL, MSyntax::kLong);
+
 	syn.addFlag(kCoilFlag, kCoilFlagL);
+	syn.addFlag(kMaxCoilFlag, kMaxCoilFlagL);
 
 	syn.setObjectType(MSyntax::kSelectionList, 1, 1);
 
@@ -35,16 +42,10 @@ MStatus strokeCmd::doIt(const MArgList &args)
 	MArgDatabase argData(syntax(), args);
 	argData.getObjects(list);
 
-	if (!argData.isFlagSet(kCoilFlag))
-	{
-		displayError("Coil flag not set");
-		return MS::kUnknownParameter;
-	}
-
 	MItSelectionList strokeNodeIter(list, MFn::kPluginDependNode);
 	if (strokeNodeIter.isDone())
 	{
-		displayError("Must pick at least one stroke node");
+		displayError("Must pick at least one node that outputs strokes");
 		return MS::kUnknownParameter;
 	}
 
@@ -52,14 +53,127 @@ MStatus strokeCmd::doIt(const MArgList &args)
 	strokeNodeIter.getDependNode(strokeNodeObject);
 	MFnDependencyNode strokeNodeFn(strokeNodeObject);
 
-	if (strokeNodeFn.typeId() != skeletonStrokeNode::id && strokeNodeFn.typeId() != curveStrokeNode::id)
+
+
+	MPlug plugStrokeData = strokeNodeFn.findPlug("output", true, &st);
+	MObject dStrokeData;
+	st = plugStrokeData.getValue(dStrokeData);
+	if (st.error())
 	{
-		displayError("Must supply one stroke node");
+		displayError("Can't get output attribute");
 		return MS::kUnknownParameter;
 	}
 
-	paintStrokeCreator *paintStrokeCreatorNode = (paintStrokeCreator *)strokeNodeFn.userNode();
+	MFnPluginData fnStrokeData(dStrokeData);
+	strokeData *pStrokeData = (strokeData *)fnStrokeData.data();
+	if (!pStrokeData)
+	{
+		displayError("Not valid stroke data");
+		return MS::kUnknownParameter;
+	}
 
-	setResult(paintStrokeCreatorNode->maxCoil());
+	std::vector<Stroke> *pStrokes = pStrokeData->fGeometry;
+
+	if (!pStrokes)
+	{
+		displayError("No valid painting strokes.");
+		return MS::kUnknownParameter;
+	}
+
+	int strokeId  = getStrokeId(*pStrokes, argData, &st);msert;
+
+	if (argData.isFlagSet(kStrokeCountFlag))
+	{
+		return handleStrokeCountFlag(*pStrokes);
+	}
+	if (argData.isFlagSet(kCoilFlag))
+	{
+		return handleCoilFlag(*pStrokes, strokeId);
+	}
+	if (argData.isFlagSet(kMaxCoilFlag))
+	{
+		return handleMaxCoilFlag(*pStrokes);
+	}
+
+	// setResult(paintStrokeCreatorNode->maxCoil());
 	return MS::kSuccess;
+}
+MStatus strokeCmd::handleStrokeCountFlag(const std::vector<Stroke> &strokes)
+{
+	setResult(int(strokes.size()));
+	return MS::kSuccess;
+}
+
+MStatus strokeCmd::handleCoilFlag(const std::vector<Stroke> &strokes, int strokeId)
+{
+	MStatus st;
+
+
+	MAngle::uiUnit();	
+
+
+	if (strokeId == -1)
+	{
+		MFloatArray coils;
+		for (std::vector<Stroke>::const_iterator curr_stroke = strokes.begin(); 
+			curr_stroke != strokes.end(); 
+			curr_stroke++)
+		{
+			coils.append(MAngle(curr_stroke->coil(), MAngle::kRadians).as(MAngle::uiUnit()) );
+		}
+
+		MDoubleArray result;
+		CmdUtils::flatten(coils, result);
+		setResult(result);
+		return MS::kSuccess;
+	}
+
+	setResult(MAngle(strokes[strokeId].coil(), MAngle::kRadians).as(MAngle::uiUnit()));
+	return MS::kSuccess;
+}
+
+MStatus strokeCmd::handleMaxCoilFlag(const std::vector<Stroke> &strokes)
+{
+	MStatus st;
+
+	float maxCoil = 0.0f;
+	for (std::vector<Stroke>::const_iterator curr_stroke = strokes.begin(); 
+		curr_stroke != strokes.end(); 
+		curr_stroke++)
+	{
+		const float & coil = curr_stroke->coil();
+		if (coil > maxCoil) {
+			maxCoil = coil;
+		}
+	}
+	setResult(MAngle(maxCoil, MAngle::kRadians).as(MAngle::uiUnit()));
+	return MS::kSuccess;
+}
+
+
+int strokeCmd::getStrokeId(const std::vector<Stroke> &strokes, MArgDatabase &argData,
+							 MStatus *status)
+{
+	if (! argData.isFlagSet(kStrokeIndexFlag)) {
+		*status = MS::kSuccess;
+		return -1;
+	}
+
+	int strokeId;
+	MStatus st = argData.getFlagArgument(kStrokeIndexFlag, 0, strokeId);
+	if (st.error())
+	{
+		*status = MS::kFailure;
+		return -1;
+	}
+
+	int numStrokes = strokes.size();
+	if (strokeId < 0 || strokeId >= numStrokes)
+	{
+		displayError(strokeIdRangeMsg);
+		*status = MS::kUnknownParameter;
+		return -1;
+	}
+	*status = MS::kSuccess;
+	return strokeId;
 }

@@ -6,6 +6,7 @@
 
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnNumericAttribute.h>
+#include <maya/MFnUnitAttribute.h>
 
 #include <maya/MFnPluginData.h>
 #include <maya/MFnNurbsCurveData.h>
@@ -22,6 +23,7 @@
 MObject curveStrokeNode::aCurve;
 MObject curveStrokeNode::aBrushId;
 MObject curveStrokeNode::aBrush;
+MObject curveStrokeNode::aSplitAngle;
 
 MTypeId curveStrokeNode::id(k_curveStrokeNode);
 
@@ -42,7 +44,7 @@ MStatus curveStrokeNode::initialize()
 
     MFnNumericAttribute nAttr;
     MFnTypedAttribute tAttr;
- 
+    MFnUnitAttribute uAttr;
     inheritAttributesFrom("paintStrokeCreator");
 
     aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve);
@@ -68,9 +70,19 @@ MStatus curveStrokeNode::initialize()
     tAttr.setDisconnectBehavior(MFnAttribute::kReset);
     addAttribute(aBrush);
 
-    st = attributeAffects(aCurve, aOutput);
-    st = attributeAffects(aBrushId, aOutput);
-    st = attributeAffects(aBrush, aOutput);
+
+    aSplitAngle = uAttr.create("splitAngle", "span",
+                               MFnUnitAttribute::kAngle);
+    uAttr.setHidden(false);
+    uAttr.setKeyable(true);
+    uAttr.setStorable(true);
+    st = addAttribute(aSplitAngle);
+    mser;
+
+    attributeAffects(aSplitAngle, aOutput);
+    attributeAffects(aCurve, aOutput);
+    attributeAffects(aBrushId, aOutput);
+    attributeAffects(aBrush, aOutput);
      
     return (MS::kSuccess);
 }
@@ -84,7 +96,10 @@ MStatus curveStrokeNode::generateStrokeGeometry(
 {
 
     MStatus st;
- 
+    short int nodeState = data.inputValue( state).asShort();
+    if (nodeState != 0) {
+        return MS::kUnknownParameter;
+    }
     MObject thisObj = thisMObject();
     MFnDependencyNode fnNode(thisObj);
     MString nodeName = fnNode.name();
@@ -100,14 +115,14 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
     bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
 
-    
+    int layerId = data.inputValue(aLayerId).asInt();
     int paintId = data.inputValue(aPaintId).asInt();
     float splitAngle = float(data.inputValue(aSplitAngle).asAngle().asRadians());
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
     MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
-    m_maxCoil = 0.0;
+    // m_maxCoil = 0.0;
     //////////////////////////////////////////////////////////////
 
     int brushId = data.inputValue(aBrushId).asInt();
@@ -157,6 +172,8 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     {
         const float &startDist = boundaries[i].x;
         const float &endDist = boundaries[i].y;
+        const float &coil = boundaries[i].z;
+        
         MDoubleArray curveParams;
 
         unsigned numPoints = createStrokeData(
@@ -180,6 +197,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
         if (stroke.valid())
         {
             stroke.setParentId(0);
+            stroke.setCoil(coil);
             pOutStrokes->push_back(stroke);
         }
     }
@@ -188,6 +206,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
       curr_stroke->setPaintId(paintId);
+      curr_stroke->setLayerId(layerId);
     }
 
 
