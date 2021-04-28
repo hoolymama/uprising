@@ -446,7 +446,7 @@ Stroke skeletonStrokeNode::createStroke(
         MVector tangent = curveFn.tangent(biasedCurveParam);
 
         float extraDist = biasedDist - curveLength;
-        if (extraDist> 0.0) {
+        if (extraDist > 0.0) {
             point += tangent.normal() * extraDist;
         }
         /////////////////////////////////// calcuate matrix

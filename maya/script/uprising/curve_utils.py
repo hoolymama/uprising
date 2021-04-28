@@ -420,7 +420,7 @@ def do_random_existing(
             attr.set(resource_id)
             if set_key:
                 attr.setKey(value=resource_id)
- 
+
         except RuntimeError:
             pm.warning("Skipping locked attribute %s" % attr)
 
@@ -828,3 +828,104 @@ def show_objects(obs):
             xf.attr("visibility").set(1)
         except RuntimeError:
             pm.warning("Can't change visibility for %s" % xf)
+
+
+
+# brushes = pm.listRelatives("brushNodes", c=True)
+
+# def create_stroke_curves(brush, grp, suffix):
+#     attr = "outDipBrush" if suffix == "dip" else "outWipeBrush"
+#     result = []
+#     parts = brush.name().split("_")
+#     curves = pm.ls(grp, dag=True, leaf=True, type="nurbsCurve")
+#     print curves
+#     stroke_curves = pm.listConnections(curves, d=True, s=False, type="curveStroke")
+#     print stroke_curves
+
+#     dups = pm.duplicate(stroke_curves)
+#     for i,dup in enumerate(dups):
+#         dup.rename("cs_bpx_{}_{}_{:02d}_{}".format(parts[1], parts[4], i, suffix))
+#     for   pair in zip(curves, dups):
+#         result.append(
+#             [pair[0].attr("ws"), pair[1].attr("curves[0]")]
+#         )
+#         result.append(
+#             [brush.attr(attr), pair[1].attr("brush")]
+#         )
+
+#     return result
+
+
+# connection_pairs = [
+
+# ]
+
+# for brush in brushes:
+#     print "-" * 30
+
+#     brush_shape = pm.listRelatives(brush, shapes=True)[0]
+#     print brush_shape
+#     parts = brush.name().split("_")
+#     model = parts[4]
+
+#     dip_grp = pm.PyNode("grpDW_dip_{}".format(model))
+#     connection_pairs +=  create_stroke_curves(brush, dip_grp, "dip")
+
+
+#     wipe_grp = pm.PyNode("grpDW_wipe_{}".format(model))
+#     connection_pairs +=   create_stroke_curves(brush, wipe_grp, "wipe")
+
+#     water_wipe_grp = pm.PyNode("grpWater_wipe")
+#     connection_pairs +=  create_stroke_curves(brush, water_wipe_grp, "waterWipe")
+
+# print connection_pairs
+
+
+# for p in connection_pairs:
+#     print p[0], " ---> ",p[1]
+
+
+
+# brushes = pm.listRelatives("brushNodes", c=True)
+# for brush in brushes:
+#     print "-" * 30
+#     parts = brush.name().split("_")
+#     for which in ["waterWipe", "wipe"]:
+#         wildcard = "cs_bpx_{}_{}_*_{}".format(parts[1], parts[4], which)
+#         nodes = sorted(pm.ls(wildcard))
+#         collector = pm.createNode("collectStrokes")
+#         collector.rename("collect_bpx_{}_{}_{}".format(parts[1], parts[4], which))
+#         for i, node in enumerate(nodes):
+#             node.attr("output") >> collector.attr("strokes")[i]
+
+
+
+
+
+
+# for hole in range(20):
+ 
+#     paintings = pm.ls("rack|holes|holeRot_{:02d}|holeTrans|wipe_loc".format(hole), dag=True, leaf=True, type="painting")
+#     print "-" * 10
+#     for painting in paintings:
+#         brush_number = painting.split("|")[3][1:3]
+                
+#         if hole != 9:
+#             wipe_node = pm.ls("collect_bpx_{}_*_wipe".format(brush_number))[0]
+#         else:
+#             wipe_node = pm.ls("collect_bpx_{}_*_waterWipe".format(brush_number))[0]          
+#         print painting.name(), brush_number, wipe_node
+#         wipe_node.attr("output") >> painting.attr("strokes")[0]
+
+
+
+# for hole in range(20):
+ 
+#     paintings = pm.ls("rack|holes|holeRot_{:02d}|holeTrans|wipe_loc".format(hole), dag=True, leaf=True, type="painting")
+#     for painting in paintings:
+#         pm.PyNode("DWTransform").attr("worldMatrix[0]") >> painting.attr("canvasMatrix")
+        
+        
+# select pm.ls("rack|holes|holeRot_|holeTrans|wipe_loc".format(hole), dag=True, leaf=True, type="painting")
+
+# pm.PyNode("cs_bpx_13_davinci30_00_dip").connections(d=True, type="painting")

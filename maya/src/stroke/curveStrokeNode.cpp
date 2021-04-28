@@ -13,14 +13,13 @@
 
 #include "curveStrokeNode.h"
 #include "stroke.h"
- 
- #include "brushData.h"
+
+#include "brushData.h"
 
 #include <jMayaIds.h>
 #include "errorMacros.h"
 
- 
-MObject curveStrokeNode::aCurve;
+MObject curveStrokeNode::aCurves;
 MObject curveStrokeNode::aBrushId;
 MObject curveStrokeNode::aBrush;
 MObject curveStrokeNode::aSplitAngle;
@@ -36,8 +35,6 @@ void *curveStrokeNode::creator()
     return new curveStrokeNode();
 }
 
- 
-
 MStatus curveStrokeNode::initialize()
 {
     MStatus st;
@@ -47,11 +44,13 @@ MStatus curveStrokeNode::initialize()
     MFnUnitAttribute uAttr;
     inheritAttributesFrom("paintStrokeCreator");
 
-    aCurve = tAttr.create("curve", "crv", MFnNurbsCurveData::kNurbsCurve);
+    aCurves = tAttr.create("curves", "crvs", MFnNurbsCurveData::kNurbsCurve);
     tAttr.setReadable(false);
     tAttr.setStorable(false);
     tAttr.setKeyable(true);
-    st = addAttribute(aCurve);
+    tAttr.setArray(true);
+    tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
+    st = addAttribute(aCurves);
     mser;
 
     aBrushId = nAttr.create("brushId", "brid", MFnNumericData::kInt);
@@ -62,14 +61,13 @@ MStatus curveStrokeNode::initialize()
     nAttr.setWritable(true);
     st = addAttribute(aBrushId);
     mser;
-    
+
     aBrush = tAttr.create("brush", "bsh", brushData::id);
     tAttr.setReadable(false);
     tAttr.setStorable(false);
     tAttr.setConnectable(true);
     tAttr.setDisconnectBehavior(MFnAttribute::kReset);
     addAttribute(aBrush);
-
 
     aSplitAngle = uAttr.create("splitAngle", "span",
                                MFnUnitAttribute::kAngle);
@@ -80,24 +78,23 @@ MStatus curveStrokeNode::initialize()
     mser;
 
     attributeAffects(aSplitAngle, aOutput);
-    attributeAffects(aCurve, aOutput);
+    attributeAffects(aCurves, aOutput);
     attributeAffects(aBrushId, aOutput);
     attributeAffects(aBrush, aOutput);
-     
+
     return (MS::kSuccess);
 }
-
-
 
 MStatus curveStrokeNode::generateStrokeGeometry(
     const MPlug &plug,
     MDataBlock &data,
-    std::vector<Stroke> *pOutStrokes )
+    std::vector<Stroke> *pOutStrokes)
 {
 
     MStatus st;
-    short int nodeState = data.inputValue( state).asShort();
-    if (nodeState != 0) {
+    short int nodeState = data.inputValue(state).asShort();
+    if (nodeState != 0)
+    {
         return MS::kUnknownParameter;
     }
     MObject thisObj = thisMObject();
@@ -127,88 +124,92 @@ MStatus curveStrokeNode::generateStrokeGeometry(
 
     int brushId = data.inputValue(aBrushId).asInt();
 
-    MDataHandle hBrush = data.inputValue(aBrush, &st); msert;
+    MDataHandle hBrush = data.inputValue(aBrush, &st);
+    msert;
     MObject dBrush = hBrush.data();
 
-    MFnPluginData fnBrush(dBrush, &st);msert;
- 
-    brushData *bData = (brushData *)fnBrush.data();
+    MFnPluginData fnBrush(dBrush, &st);
+    msert;
 
+    brushData *bData = (brushData *)fnBrush.data();
     std::pair<int, Brush> brushPair = std::make_pair(brushId, *(bData->fGeometry));
 
-    MDataHandle hCurve = data.inputValue(aCurve, &st);
-    msert;
-    MObject dCurve = data.inputValue(aCurve).asNurbsCurveTransformed();
-    MFnNurbsCurve curveFn(dCurve, &st);
-    msert;
-
-    MDoubleArray knotVals;
-    st = curveFn.getKnots(knotVals);
-    int numKnots = knotVals.length();
-    double recip = 1.0 / knotVals[(numKnots - 1)];
-    for (int i = 0; i < numKnots; ++i)
-    {
-        knotVals[i] = knotVals[i] * recip;
-    }
-    curveFn.setKnots(knotVals, 0, (numKnots - 1));
-
     MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
-    MFloatVectorArray boundaries;
-    unsigned num = getStrokeBoundaries(
-        dCurve,
-        canvasNormal,
-        strokeLength,
-        overlap,
-        extendEntry,
-        extendExit,
-        splitAngle,
-        splitTestInterval,
-        boundaries);
-    if (!num)
+    MArrayDataHandle hCurves = data.inputArrayValue(aCurves, &st);
+    unsigned nInputs = hCurves.elementCount();
+    for (unsigned i = 0; i < nInputs; i++, hCurves.next())
     {
-        return MS::kUnknownParameter;
-    }
-    for (int i = 0; i < num; ++i)
-    {
-        const float &startDist = boundaries[i].x;
-        const float &endDist = boundaries[i].y;
-        const float &coil = boundaries[i].z;
-        
-        MDoubleArray curveParams;
+        int elIndex = hCurves.elementIndex();
+        MDataHandle hCurve = hCurves.inputValue(&st);
+        MObject dCurve = hCurve.asNurbsCurveTransformed();
+        MFnNurbsCurve curveFn(dCurve, &st);
 
-        unsigned numPoints = createStrokeData(
-            dCurve,
-            startDist,
-            endDist,
-            pointDensity,
-            minimumPoints,
-            curveParams);
-
-        Stroke stroke = createStroke(
-            dCurve,
-            brushPair,
-            canvasMatrix,
-            curveParams,
-            followStroke,
-            applyBrushBias,
-            entryTransitionLength,
-            exitTransitionLength);
-
-        if (stroke.valid())
+        MDoubleArray knotVals;
+        st = curveFn.getKnots(knotVals);
+        int numKnots = knotVals.length();
+        double recip = 1.0 / knotVals[(numKnots - 1)];
+        for (int i = 0; i < numKnots; ++i)
         {
-            stroke.setParentId(0);
-            stroke.setCoil(coil);
-            pOutStrokes->push_back(stroke);
+            knotVals[i] = knotVals[i] * recip;
+        }
+        curveFn.setKnots(knotVals, 0, (numKnots - 1));
+
+        MFloatVectorArray boundaries;
+        unsigned num = getStrokeBoundaries(
+            dCurve,
+            canvasNormal,
+            strokeLength,
+            overlap,
+            extendEntry,
+            extendExit,
+            splitAngle,
+            splitTestInterval,
+            boundaries);
+        if (!num)
+        {
+            return MS::kUnknownParameter;
+        }
+        for (int i = 0; i < num; ++i)
+        {
+            const float &startDist = boundaries[i].x;
+            const float &endDist = boundaries[i].y;
+            const float &coil = boundaries[i].z;
+
+            MDoubleArray curveParams;
+
+            unsigned numPoints = createStrokeData(
+                dCurve,
+                startDist,
+                endDist,
+                pointDensity,
+                minimumPoints,
+                curveParams);
+
+            Stroke stroke = createStroke(
+                dCurve,
+                brushPair,
+                canvasMatrix,
+                curveParams,
+                followStroke,
+                applyBrushBias,
+                entryTransitionLength,
+                exitTransitionLength);
+
+            if (stroke.valid())
+            {
+                stroke.setParentId(0);
+                stroke.setCoil(coil);
+                pOutStrokes->push_back(stroke);
+            }
         }
     }
 
     strokeCreator::applyRotations(data, pOutStrokes);
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
-      curr_stroke->setPaintId(paintId);
-      curr_stroke->setLayerId(layerId);
+        curr_stroke->setPaintId(paintId);
+        curr_stroke->setLayerId(layerId);
     }
-
 
     return MS::kSuccess;
 }
@@ -232,7 +233,8 @@ unsigned curveStrokeNode::createStrokeData(
     {
         float curveDist = startDist + (i * gap);
         double uniformParam = curveFn.findParamFromLength(curveDist);
-        curveParams.append(uniformParam);;
+        curveParams.append(uniformParam);
+        ;
     }
     return numPoints;
 }
@@ -262,11 +264,11 @@ Stroke curveStrokeNode::createStroke(
     float forwardBias0 = 0.0;
     float forwardBias1 = 0.0;
 
-    if (applyBrushBias) {
+    if (applyBrushBias)
+    {
         forwardBias0 = fmax(0.0, brush.forwardBias0());
         forwardBias1 = fmax(0.0, brush.forwardBias1());
     }
-
 
     MFloatPointArray points;
     MFloatArray weights;
@@ -279,7 +281,8 @@ Stroke curveStrokeNode::createStroke(
     entryTransitionLength = fmax(entryTransitionLength, 0.0);
     exitTransitionLength = fmax(exitTransitionLength, 0.0);
     float totalTransitionLength = exitTransitionLength + entryTransitionLength;
-    if (totalTransitionLength > totalLength) {
+    if (totalTransitionLength > totalLength)
+    {
         float mult = totalLength / totalTransitionLength;
         exitTransitionLength *= mult;
         entryTransitionLength *= mult;
@@ -287,7 +290,6 @@ Stroke curveStrokeNode::createStroke(
 
     double entryTransitionDistance = entryDistance + entryTransitionLength;
     double exitTransitionDistance = exitDistance - exitTransitionLength;
-
 
     for (unsigned i = 0; i < len; i++)
     {
@@ -309,10 +311,9 @@ Stroke curveStrokeNode::createStroke(
         curveFn.getPointAtParam(biasedCurveParam, point, MSpace::kObject);
         // tangent will possibly be used for followStroke
         MVector tangent = curveFn.tangent(biasedCurveParam);
-   
-        if (biasedCurveParam >=1.0) // If we are past the end of the curve, push along the tangent
-        {
-            float extraDist = biasedDist - curveLength;
+
+        float extraDist = biasedDist - curveLength;
+        if (extraDist > 0.0) {
             point += tangent.normal() * extraDist;
         }
         ///////////////////////////////////
@@ -337,8 +338,6 @@ Stroke curveStrokeNode::createStroke(
     stroke.setBrushId(brushId);
     return stroke;
 }
-
-
 
 void curveStrokeNode::postConstructor()
 {

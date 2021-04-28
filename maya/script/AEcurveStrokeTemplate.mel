@@ -19,9 +19,11 @@ global proc AEcurveStrokeTemplate ( string $nodeName )
 	editorTemplate -cl 0 -beginLayout "Brush attributes";
 	editorTemplate -addControl "brushId";
  	editorTemplate -endLayout;
-	 
+	
  	AEsortFilterInclude($nodeName);
- 
+
+	editorTemplate -addControl "curves";
+
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;
 	

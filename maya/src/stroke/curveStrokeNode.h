@@ -22,7 +22,7 @@ public:
   static MTypeId id;
 
 private:
-  static MObject aCurve;
+  static MObject aCurves;
   static MObject aBrushId;
   static MObject aBrush;
   static MObject aSplitAngle;

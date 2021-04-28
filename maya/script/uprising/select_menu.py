@@ -43,3 +43,23 @@ def select_wipe_paintings():
             type="painting",
         )
     )
+
+# def select_dip_stroke_nodes():
+#     dip_paintings = pm.ls(
+#         "rack|holes|holeRot*|holeTrans|dip_loc|*",
+#         dag=True,
+#         leaf=True,
+#         type="painting",
+#     )
+#     stroke_nodes = pm.listHistory(dip_paintings, type="curveStroke")
+#     pm.select(stroke_nodes)
+
+# def select_wipe_stroke_nodes():
+#     dip_paintings = pm.ls(
+#         "rack|holes|holeRot*|holeTrans|dip_loc|*",
+#         dag=True,
+#         leaf=True,
+#         type="painting",
+#     )
+#     stroke_nodes = pm.listHistory(dip_paintings, type="curveStroke")
+#     pm.select(stroke_nodes)
