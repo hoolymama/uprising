@@ -165,6 +165,7 @@ class RetriesSession(Session):
             major_progress=0,
             minor_progress=0,
         )
+        robo.show()
 
     # def calc_num_runs(self):
 

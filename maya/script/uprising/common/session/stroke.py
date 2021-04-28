@@ -27,29 +27,6 @@ class Stroke(object):
     def name(self, prefix):
         return "{}_p{}_s{}".format(prefix, self.parent_id, self.id)
 
-    # def best_config(self):
-    #     name = self.name("-")
-    #     if not self.targets:
-    #         print "Stroke has no targets {}".format(name)
-    #         return
-    #     common_configs = set([k for k in robo.ALL_CONFIGS])
-
-    #     for target in self.targets:
-    #         common_configs = common_configs.intersection(
-    #             target.valid_configs())
-    #         if not common_configs:
-    #             raise utils.StrokeError(
-    #                 "Common Config failure, can't find best config for stroke. No common configs {}".format(name))
-
-    #     common_configs = sorted(list(common_configs))
-
-    #     print "Stroke {} has common_configs {} -- Testing linear moves".format(name, common_configs)
-    #     config = self.test_linear_moves(common_configs)
-    #     if not config:
-    #         raise utils.StrokeError(
-    #                 "Linear move failure, can't find config where all linear moves are possible {}".format(name))
-
-    #     return config
 
     def _build_targets(self):
         raise NotImplementedError
@@ -99,6 +76,32 @@ class Stroke(object):
                 return config
             else:
                 print "Config {} NOT okay! Continuing".format(config)
+
+
+    # def best_config(self):
+    #     name = self.name("-")
+    #     if not self.targets:
+    #         print "Stroke has no targets {}".format(name)
+    #         return
+    #     common_configs = set([k for k in robo.ALL_CONFIGS])
+
+    #     for target in self.targets:
+    #         common_configs = common_configs.intersection(
+    #             target.valid_configs())
+    #         if not common_configs:
+    #             raise utils.StrokeError(
+    #                 "Common Config failure, can't find best config for stroke. No common configs {}".format(name))
+
+    #     common_configs = sorted(list(common_configs))
+
+    #     print "Stroke {} has common_configs {} -- Testing linear moves".format(name, common_configs)
+    #     config = self.test_linear_moves(common_configs)
+    #     if not config:
+    #         raise utils.StrokeError(
+    #                 "Linear move failure, can't find config where all linear moves are possible {}".format(name))
+
+    #     return config
+
 
     # def send(self, with_geo=False):
     #     link = robo.link()

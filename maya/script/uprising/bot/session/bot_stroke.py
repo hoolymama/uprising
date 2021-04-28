@@ -12,6 +12,8 @@ from uprising import utils
 
 from uprising.common.session.stroke import Stroke
 
+from uprising import const as k
+
 
 class BotStroke(Stroke):
 
@@ -66,19 +68,30 @@ class BotStroke(Stroke):
     def configure(self, brush):
 
         # self.brush.send()
+        solved = False
+        prev_target = None
         for target in (self.arrivals + self.targets + [self.departure]):
-            target.solve_joint_poses(brush)
-
+            target.solve_single_joint_poses(brush, prev_target)
+            prev_target = target
         try:
             self.config = self.best_config()
+            solved = True
+            print self.name("ST"), "Best Config", self.config
         except utils.StrokeError:
-            configs = self.all_configs()
-            print("FAILED:!! CONFIGS FOR STROKE : {}".format(self.id))
-            print(configs)
-            for target in self.targets + [self.departure]:
-                print target.name("T"), target.valid_configs()
-            
-            raise
+            pass
+        if not solved:
+            for target in (self.arrivals + self.targets + [self.departure]):
+                target.solve_all_joint_poses(brush)
+            try:
+                self.config = self.best_config()
+                print self.name("ST"), "Best Config", self.config
+            except utils.StrokeError:
+                configs = self.all_configs()
+                print("FAILED:!! CONFIGS FOR STROKE : {}".format(self.id))
+                print(configs)
+                for target in self.targets + [self.departure]:
+                    print target.name("T"), target.valid_configs()
+                raise
 
         for target in self.arrivals:
             target.configure(self.config)

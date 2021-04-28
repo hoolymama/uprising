@@ -8,6 +8,8 @@ import os
 from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT,
                       ITEM_TYPE_STATION, Robolink)
 
+
+
 import pymel.core as pm
 import robodk as rdk
 import copy
@@ -176,6 +178,27 @@ def solve_joint_poses(pose):
         if key in result:
             result[key].append(joint_pose)
     return result
+
+
+def solve_single_joint_pose(flange_pose, last_joints_pose):
+    global _model
+    global _robot
+    if _model == "kr30":
+        result = copy.deepcopy(ALL_KR30_CONFIGS)
+    else:
+        result = copy.deepcopy(ALL_KR8_CONFIGS)
+
+    joints_pose = _robot.SolveIK(flange_pose, last_joints_pose)
+    joints_pose = joints_pose.list()
+    if len(joints_pose) < 6:
+        return result
+    jcfg = _robot.JointsConfig(joints_pose)
+    key = _config_key(jcfg)
+    if key in result:
+        result[key].append(joints_pose)
+    return result
+
+    # self.joint_poses = robo.solve_joint_poses(flange_pose)
 
 
 def maya_to_robodk_mat(rhs):
