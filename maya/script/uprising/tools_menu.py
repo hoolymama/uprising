@@ -4,13 +4,13 @@ import json
 import sys
 from random import random
 
-import brush_utils as butl
-import curve_utils as cutl
+from uprising import brush_utils as butl
+from uprising import curve_utils as cutl
 import pymel.core as pm
-import setup_dip
-import stats
-import utils as uutl
-from brush import Brush
+from uprising import setup_dip
+from uprising import stats
+from uprising import utils
+from uprising.brush import Brush
 from uprising.pov.session.pov_session import PovTestSession
 
 
@@ -34,14 +34,15 @@ def create():
         command=pm.Callback(zero_disp_mesh))
 
     pm.menuItem(label="Print stats", command=pm.Callback(on_print_stats))
+    
     pm.menuItem(label="Print stats per brush",
                 command=pm.Callback(on_print_stats_per_brush))
 
-    pm.menuItem(
-        label="Print paint and brush json",
-        command=pm.Callback(
-            on_print_paint_and_brush_stats,
-            "json"))
+    # pm.menuItem(
+    #     label="Print paint and brush json",
+    #     command=pm.Callback(
+    #         on_print_paint_and_brush_stats,
+    #         "json"))
     pm.menuItem(
         label="Print paint and brush csv",
         command=pm.Callback(
@@ -157,28 +158,19 @@ def on_connect_texture(attribute):
 
 
 def on_print_stats():
-    uutl.show_in_window(stats.stats(), title="Painting stats")
+    utils.show_in_window(stats.stats(), title="Painting stats")
 
 
 def on_print_stats_per_brush():
-    uutl.show_in_window(stats.stats_per_brush(), title="Per-brush stats")
+    utils.show_in_window(stats.stats_per_brush(), title="Per-brush stats")
 
 
-def on_print_stats_range():
-    min_frame = int(pm.playbackOptions(min=True, query=True))
-    max_frame = int(pm.playbackOptions(max=True, query=True))
-    painting_node = pm.PyNode("mainPaintingShape")
-
-    for f in range(int(min_frame), int(max_frame + 1)):
-        pm.currentTime(f)
-        p_stats = stats.painting_stats(painting_node)
-        print "%d, %d, %f, %d, %d, %f, %d, %d, %f" % tuple(
-            [f] + p_stats.values())
 
 
 def on_print_paint_and_brush_stats(fmt="json"):
     painting_node = pm.PyNode("mainPaintingShape")
-    paints, brushes = stats.used_paints_and_brushes(painting_node)
+    brushes, paints = zip(*(stats.used_paints_and_brushes(painting_node)))
+
     result = {"brushes": [], "paints": []}
     for brush in brushes:
         result["brushes"].append({
@@ -201,16 +193,26 @@ def on_print_paint_and_brush_stats(fmt="json"):
             "name": paint.name
         })
 
-    j = json.dumps(result)
-    if fmt == "json":
-        print j
-    else:
-        for key in result:
-            data = result[key]
-            output = csv.writer(sys.stdout)
-            output.writerow(data[0].keys())
-            for row in data:
-                output.writerow(row.values())
+    utils.show_in_window(result, title="Stats")
+    # if fmt == "json":
+    # else:
+    #     for key in result:
+    #         data = result[key]
+    #         output = csv.writer(sys.stdout)
+    #         output.writerow(data[0].keys())
+    #         for row in data:
+    #             output.writerow(row.values())
+    
+def on_print_stats_range():
+    min_frame = int(pm.playbackOptions(min=True, query=True))
+    max_frame = int(pm.playbackOptions(max=True, query=True))
+    painting_node = pm.PyNode("mainPaintingShape")
+
+    for f in range(int(min_frame), int(max_frame + 1)):
+        pm.currentTime(f)
+        p_stats = stats.painting_stats(painting_node)
+        print "%d, %d, %f, %d, %d, %f, %d, %d, %f" % tuple(
+            [f] + p_stats.values())
 
 
 def randomize_dips():

@@ -42,8 +42,8 @@ def get_chain_skel_pairs(*skels):
     if not skels:
         skels = [n for n in pm.ls(sl=True) if n.type() == "skeletonStroke"]
     if not skels:
-        skels = pm.PyNode("mainPaintingShape").listHistory(
-            type="skeletonStroke")
+        skels = [n for n in pm.PyNode("mainPaintingShape").listHistory(
+            type="skeletonStroke") if n.attr("nodeState") == 0]
     for skel in skels:
         chain = skel.attr("inputData[0].chains").connections(
             s=True, d=False)[0]

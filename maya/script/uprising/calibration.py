@@ -124,12 +124,12 @@ def _read_board_triangulation(content):
 
     _read_any_triangulation(content)
 
-    height = (pm.PyNode("board_TL").attr("translate").get() -
-              pm.PyNode("board_BL").attr("translate").get()).length()
-    width = (pm.PyNode("board_TR").attr("translate").get() -
-             pm.PyNode("board_TL").attr("translate").get()).length()
-    pm.PyNode("canvas").attr("width").set(width)
-    pm.PyNode("canvas").attr("height").set(height)
+    # height = (pm.PyNode("board_TL").attr("translate").get() -
+    #           pm.PyNode("board_BL").attr("translate").get()).length()
+    # width = (pm.PyNode("board_TR").attr("translate").get() -
+    #          pm.PyNode("board_TL").attr("translate").get()).length()
+    # pm.PyNode("canvas").attr("width").set(width)
+    # pm.PyNode("canvas").attr("height").set(height)
 
 
 def _read_rack_triangulation(content):

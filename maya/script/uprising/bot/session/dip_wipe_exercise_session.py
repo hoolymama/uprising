@@ -8,9 +8,9 @@ from uprising import robo
 
 from uprising.common.session.session import Session
 
-from uprising.session.pick_place_program import PickPlaceCollection
-from uprising.session.dip_wipe_program import DipWipeExerciseCollection
-from uprising.session.dip_wipe_exercise_program import DipWipeExerciseProgram
+from uprising.bot.session.pick_place_program import PickPlaceCollection
+from uprising.bot.session.dip_wipe_program import DipWipeExerciseCollection
+from uprising.bot.session.dip_wipe_exercise_program import DipWipeExerciseProgram
 
 logger = logging.getLogger("uprising")
 

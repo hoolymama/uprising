@@ -55,8 +55,7 @@ def painting_stats(node):
         "total_stroke_travel": total_travel,
         "avg_stroke_travel_per_cluster": avg_travel_per_cluster,
         "linear_speed": pm.PyNode("mainPaintingShape").attr("linearSpeed").get(),
-        "angular_speed": pm.PyNode("mainPaintingShape").attr("angularSpeed").get()
-
+        "angular_speed": pm.PyNode("mainPaintingShape").attr("angularSpeed").get(),
     }
     return result
 
@@ -74,20 +73,48 @@ def stats():
             )
         )
 
-    result["brushes_in_use"] = []
+    result["summary"] = {"brushes_in_use": [], "paints_in_use": []}
+
     for brush in _used_brushes(painting_node):
-        result["brushes_in_use"].append(
-            "brush:{}({:02d})-P({})".format(
-                brush.node_name, brush.id, brush.physical_id
-            )
+        result["summary"]["brushes_in_use"].append(
+            "brush:{}({:02d})-P({})".format(brush.node_name, brush.id, brush.physical_id)
         )
 
-    result["paints_in_use"] = []
     for paint in _used_paints(painting_node):
-        result["paints_in_use"].append(
-            "paint:{}({:02d})".format(paint.name, paint.id))
+        result["summary"]["paints_in_use"].append("paint:{}({:02d})".format(paint.name, paint.id))
 
     result["painting_node"] = painting_stats(painting_node)
+
+    brushes, paints = zip(*brush_paint_pairs)
+
+    result["brushes"] = []
+    result["paints"] = []
+
+    for brush in brushes:
+        result["brushes"].append(
+            {
+                "id": brush.id,
+                "physical_id": brush.physical_id,
+                "width(mm)": brush.width,
+                "shape": brush.shape,
+                "retention": brush.retention,
+                "tip": brush.tip,
+                "name": brush.name,
+            }
+        )
+
+    for paint in paints:
+        result["paints"].append(
+            {
+                "id": paint.id,
+                "color_r": paint.color[0],
+                "color_g": paint.color[1],
+                "color_b": paint.color[2],
+                "travel(cm)": paint.travel,
+                "name": paint.name,
+            }
+        )
+
     return result
 
 
@@ -97,10 +124,8 @@ def stats_per_brush():
     painting_node = pm.PyNode("mainPaintingShape")
     collector_node = pm.PyNode("collectStrokesMain")
 
-    brush_operator = collector_node.attr(
-        "strokeFilterList[3].strokeFilterOperator").get()
-    brush_operand = collector_node.attr(
-        "strokeFilterList[3].strokeFilterOperand").get()
+    brush_operator = collector_node.attr("strokeFilterList[3].strokeFilterOperator").get()
+    brush_operand = collector_node.attr("strokeFilterList[3].strokeFilterOperand").get()
 
     collector_node.attr("strokeFilterList[3].strokeFilterOperator").set(2)
 
@@ -111,9 +136,7 @@ def stats_per_brush():
         if brush_stats:
             result[str(brush)] = brush_stats
 
-    collector_node.attr(
-        "strokeFilterList[3].strokeFilterOperator").set(brush_operator)
-    collector_node.attr(
-        "strokeFilterList[3].strokeFilterOperand").set(brush_operand)
+    collector_node.attr("strokeFilterList[3].strokeFilterOperator").set(brush_operator)
+    collector_node.attr("strokeFilterList[3].strokeFilterOperand").set(brush_operand)
 
     return result

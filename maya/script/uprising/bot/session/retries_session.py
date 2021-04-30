@@ -44,8 +44,9 @@ class RetriesSession(Session):
     def __init__(self,
                  coil_delta,
                  chains_per_retry,
-                 selector_plug=None):
+                 selector_plug, directory=None):
 
+        self.directory = directory
         self.delta = coil_delta
         self.chains_per_retry = chains_per_retry
         self.painting_node = pm.PyNode("mainPaintingShape")
@@ -55,10 +56,11 @@ class RetriesSession(Session):
 
         self.plug_index = None
         if selector_plug:
-            # print "selector_plug.type()", selector_plug 
+            # print "selector_plug.type()", selector_plug
             # print "selector_plug.node().type()", selector_plug.node().type()
 
-            self.chain_skel_pairs = chains.get_chain_skel_pairs(selector_plug.node())
+            self.chain_skel_pairs = chains.get_chain_skel_pairs(
+                selector_plug.node())
 
             plug_index = selector_plug.get()
             if plug_index > -1:
@@ -74,39 +76,6 @@ class RetriesSession(Session):
             "success": False,
             "timer": 0
         }
-
-    # def dry_run(self):
-
-    #     chains.chunkify_skels(
-    #         self.chain_skel_pairs,
-    #         self.chains_per_retry
-    #     )
-
-    #     if self.plug_index is None:
-    #         self.total_num_runs = chains.count_outputs(self.chain_skel_pairs)
-    #     else:
-    #         self.total_num_runs = 1
-
-    #     with disable_all_skels():
-    #         results = []
-    #         run_id = 0
-    #         with utils.final_position(pm.PyNode("mainPaintingShape")):
-    #             with utils.at_value(pm.PyNode("canvasTransform").attr("applyBrushBias"), True):
-    #                 for chain, skel in self.chain_skel_pairs:
-    #                     with activate_node(skel):
-    #                         plug_ids = [self.plug_index] if self.plug_index is not None else range(
-    #                             chain.attr("outputCount").get())
-    #                         for plug_index in plug_ids:
-    #                             skel.attr("selector").set(plug_index)
-    #                             result = self.initialize_plug_result(
-    #                                 skel,  plug_index, run_id)
-    #                             results.append(result)
-    #                             run_id += 1
-    #                         skel.attr("selector").set(-1)
-
-    #     self.result_data = {
-    #         "plug_runs": results
-    #     }
 
     def run(self, dry_run=False):
 
@@ -190,7 +159,7 @@ class RetriesSession(Session):
 
         initial_angle = pm.strokeQuery(skel, maxCoil=True) + self.delta
         split_angle_plug.set(initial_angle)
-        print "run_for_plug - Skel: ", skel.name(),"Plug:", plug_index
+        print "run_for_plug - Skel: ", skel.name(), "Plug:", plug_index
         while True:
             attempt += 1
             print "attempt", attempt
@@ -253,7 +222,7 @@ class RetriesSession(Session):
             )
         )
 
-    def initialize_plug_result(self, skel,  plug_index, run_id, dry_run=False):
+    def initialize_plug_result(self, skel,  plug_index, run_id, dry_run):
         result = {
             "skel_strokes_count": pm.strokeQuery(skel, sc=True),
             "plug": skel.attr("inputData")[plug_index].name(),
@@ -279,6 +248,10 @@ class RetriesSession(Session):
 
     def show_results(self):
         utils.show_in_window(self.result_data, title="Retries results")
+
+    def write_results(self):
+        if self.directory:
+            self.json_report(self.directory, "retries", self.result_data)
 
     @staticmethod
     def validate_retries_params(nodes):

@@ -5,7 +5,8 @@ import progress
 import pymel.core as pm
 import pymel.core.uitypes as gui
 
-from uprising.session.painting_session import PaintingSession
+from uprising.common.session.session import Session
+from uprising.bot.session.bot_painting_session import BotPaintingSession
 from uprising.bot.session.retries_session import RetriesSession
 from uprising import utils
 from uprising import chains
@@ -18,6 +19,8 @@ class PublishTab(gui.FormLayout):
         self.column = pm.columnLayout()
         self.column.adjustableColumn(True)
 
+        self.header = self.create_header()
+        self.retries_frame = self.create_retries_frame()
         self.export_frame = self.create_export_frame()
         self.progress_frame = self.create_progress_frame()
 
@@ -25,17 +28,19 @@ class PublishTab(gui.FormLayout):
         self.go_but = self.create_action_buttons()
         self.on_ops_change()
 
-    def create_export_frame(self):
-
-        frame = pm.frameLayout(label="Export", bv=True)
+    def create_header(self):
 
         self.do_components_cb = pm.checkBoxGrp(
-            numberOfCheckBoxes=3,
+            numberOfCheckBoxes=4,
             label="",
-            valueArray3=(1, 0, 1),
-            labelArray3=("Do Retries", "Do Painting", "Dry run"),
+            valueArray4=(1, 0, 1, 0),
+            labelArray4=("Do Retries", "Do Painting", "Dry run", "Save"),
             changeCommand=pm.Callback(self.on_ops_change)
         )
+
+    def create_retries_frame(self):
+
+        frame = pm.frameLayout(label="Retries", bv=True)
 
         self.coil_delta_ff = pm.floatFieldGrp(
             numberOfFields=1, label="Coil retries delta", value1=20
@@ -80,7 +85,22 @@ class PublishTab(gui.FormLayout):
             pm.button(label="Split now",
                       command=pm.Callback(self.on_split_single))
 
-            pm.setParent("..")
+            pm.setParent("..")  # out of row
+
+        pm.setParent("..")  # out of frame
+
+        self.configure_single_selector()
+        return frame
+
+    def create_export_frame(self):
+
+        frame = pm.frameLayout(label="Export", bv=True)
+
+        self.do_separate_subprograms_cb = pm.checkBoxGrp(
+            numberOfCheckBoxes=1,
+            label="Separate subprograms",
+            value1=1
+        )
 
         self.cluster_chunk_if = pm.intFieldGrp(
             height=30,
@@ -92,7 +112,6 @@ class PublishTab(gui.FormLayout):
 
         pm.setParent("..")
 
-        self.configure_single_selector()
         return frame
 
     def create_progress_frame(self):
@@ -105,22 +124,23 @@ class PublishTab(gui.FormLayout):
 
     def on_ops_change(self):
 
-        do_retries, do_painting, dry_run = pm.checkBoxGrp(
-            self.do_components_cb, query=True, valueArray3=True
+        do_retries, do_painting, dry_run, do_save = pm.checkBoxGrp(
+            self.do_components_cb, query=True, valueArray4=True
         )
 
-        # TMP ##################
-        pm.checkBoxGrp(self.do_components_cb, edit=True,
-                       valueArray3=(do_retries, 0, dry_run))
-        do_painting = False
-        # TMP ##################
+        pm.frameLayout(self.retries_frame, edit=True, en=(do_retries))
 
-        pm.floatFieldGrp(self.coil_delta_ff, edit=True, en=(do_retries))
-        pm.intFieldGrp(self.chains_per_retry, edit=True, en=(do_retries))
-        # pm.checkBoxGrp(self.do_lin_check_cb, edit=True, en=(do_retries))
+        pm.frameLayout(self.export_frame, edit=True, en=(do_painting))
 
-        pm.intFieldGrp(self.cluster_chunk_if, edit=True, en=(do_painting))
+        if do_painting:
+            do_save = True
+            pm.checkBoxGrp(
+                self.do_components_cb, edit=True, valueArray4=(do_retries, do_painting, dry_run, do_save)
+            )
+
         pm.button(self.go_but, edit=True, en=(do_retries or do_painting))
+
+
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
@@ -173,8 +193,8 @@ class PublishTab(gui.FormLayout):
 
     def on_go(self):
 
-        do_retries, do_painting, dry_run = pm.checkBoxGrp(
-            self.do_components_cb, query=True, valueArray3=True
+        do_retries, do_painting, dry_run, do_save = pm.checkBoxGrp(
+            self.do_components_cb, query=True, valueArray4=True
         )
 
         coil_delta = pm.floatFieldGrp(
@@ -189,31 +209,41 @@ class PublishTab(gui.FormLayout):
 
         do_single = pm.checkBox(self.single_active_checkbox, q=True, v=True)
 
+        do_separate_subprograms = pm.checkBoxGrp(self.do_separate_subprograms_cb, q=True, value1=True)
+
+        directory = None
+        if do_save:
+            directory = Session.choose_session_dir()
+            if not directory:
+                print "Aborted"
+                return
+
         plug = None
         if do_single:
             node = pm.PyNode(pm.optionMenuGrp(
                 self.single_skel_menu, query=True, value=True))
-
             plug = node.attr("selector")
-            # print "PUB node.attr(selector)",  node.attr("selector"),  node.attr("selector")
 
         retries_session = None
         if do_retries:
-
             retries_session = RetriesSession(
                 coil_delta,
                 chains_per_retry,
-                plug)
-            # print retries_session.plugs
+                plug,
+                directory)
 
             retries_session.run(dry_run)
-
             retries_session.show_results()
-            # retries_session.write_results()
+            retries_session.write_results()
+
+            # don't do painting in the below cases
+            if dry_run or do_single:
+                print "Not doing painting because you activated a single retry"
+                return
 
         if do_painting:
-            directory = retries_session and retries_session.directory
-            painting_session = PaintingSession(cluster_chunk_size, directory)
+            painting_session = BotPaintingSession(
+                cluster_chunk_size, directory)
             painting_session.show_stats()
             painting_session.write_stats()
             painting_session.write_maya_scene(directory, "scene")

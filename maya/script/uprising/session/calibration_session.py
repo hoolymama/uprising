@@ -24,8 +24,8 @@ class CalibrationSession(Session):
 
     def send(self):
         robo.new()
-        robo.hide()
-        robo.clean()
+        # robo.hide()
+        robo.clean("kr30")
         self.program.send()
         self.probe_grab_drop.send()
         self.send_props()

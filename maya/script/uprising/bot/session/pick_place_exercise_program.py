@@ -1,7 +1,7 @@
 from uprising import robo
 from uprising.common.session.program import Program
 
-from uprising.session.pick_place_program import PickProgram, PlaceProgram
+from uprising.bot.session.pick_place_program import PickProgram, PlaceProgram
 
 
 from robolink import (

@@ -5,30 +5,22 @@ from uprising.session import (
     board_calibration_program,
     brush_hang_program,
     calibration_program,
-    dip_wipe_exercise_program,
-    dip_wipe_program,
     holder_calibration_program,
     kr8_track_program,
     manual_probe_program,
-    pick_place_exercise_program,
-    pick_place_program,
     pot_calibration_program,
     rack_calibration_program,
 
     board_calibration_session,
     brush_hang_session,
     calibration_session,
-    dip_wipe_exercise_session,
     gamut_session,
     holder_calibration_session,
     kr8_track_session,
     manual_probe_session,
-    painting_session,
-    pick_place_exercise_session,
     pot_calibration_session,
     rack_calibration_session,
 )
-
 
 from uprising.bot.session import (
     cluster,
@@ -36,8 +28,16 @@ from uprising.bot.session import (
     bot_program,
     bot_stroke,
     bot_target,
-    retries_session
+    retries_session,
+    dip_wipe_exercise_program,
+    dip_wipe_exercise_session,
+    dip_wipe_program,
+    pick_place_exercise_program,
+    pick_place_exercise_session,
+    pick_place_program,
+    bot_painting_session
 )
+
 from uprising.common.session import (
     painting,
     program,
@@ -101,6 +101,8 @@ reload(bot_painting)
 reload(chains)
 ####################
 
+
+
 ####################
 reload(program)
 reload(bot_program)
@@ -134,7 +136,9 @@ reload(rack_calibration_session)
 
 reload(kr8_track_session)
 
-reload(painting_session)
+reload(bot_painting_session)
+reload(dip_wipe_exercise_session)
+reload(pick_place_exercise_session)
 
 reload(brush_hang_session)
 reload(dip_wipe_exercise_session)

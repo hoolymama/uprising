@@ -19,8 +19,12 @@ PAINTING_NAME = "mainPaintingShape"
 class BotProgram(Program):
     def __init__(self, name, **kw):
         super(BotProgram, self).__init__(name)
-        print "INITIALIZE BotProgram "
         self.painting = BotPainting(pm.PyNode(PAINTING_NAME))
+
+    def configure(self):
+        for cluster in self.painting.clusters:
+            cluster.configure()
+
 
     def send(self, **kw):
         if not self.painting.clusters:

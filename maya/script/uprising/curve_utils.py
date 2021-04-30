@@ -929,3 +929,27 @@ def show_objects(obs):
 # select pm.ls("rack|holes|holeRot_|holeTrans|wipe_loc".format(hole), dag=True, leaf=True, type="painting")
 
 # pm.PyNode("cs_bpx_13_davinci30_00_dip").connections(d=True, type="painting")
+
+
+
+# import pymel.core as pm
+
+# for hole in range(20):
+#     paintings = pm.ls("rack|holes|holeRot_{:02d}|holeTrans|dip_loc".format(hole), dag=True, leaf=True, type="painting")
+#     for painting in paintings:
+#         brush_number = painting.split("|")[3][1:3]
+        
+#         dip_node = pm.ls("cs_bpx_{}_*_*_dip".format(brush_number))[0]    
+ 
+#         dip_node.attr("output") >> painting.attr("strokes")[0]
+# pm.select(pm.ls(type="curveStroke"))
+
+
+
+
+
+
+
+pm.PyNode("board_BL").attr("t").set(1783.31 / 10, 7.36 / 10, 461.64 / 10)
+pm.PyNode("board_TL").attr("t").set(1787.15 / 10, 13.89 / 10, 1382.69 / 10)
+pm.PyNode("board_TR").attr("t").set(1778.98 / 10, -900.69 / 10, 1391.56 / 10)
