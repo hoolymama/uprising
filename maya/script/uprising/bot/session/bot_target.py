@@ -12,6 +12,7 @@ class BotTarget(Target):
         super(BotTarget, self).__init__(target_id, position, rotation)
 
     def send(self, prefix, program, frame):
+
         link = robo.link()
         robot = robo.robot()
         target_name = self.name(prefix)
@@ -66,8 +67,7 @@ class ArrivalTarget(BotTarget):
             self.joint_pose = self.joint_poses[config][0]
         except IndexError:
             config = self._find_first_config()
-        self.joint_pose = self.joint_poses[config][0]
-
+            self.joint_pose = self.joint_poses[config][0]
 
 class DepartureTarget(BotTarget):
     def name(self, prefix):

@@ -39,7 +39,9 @@ class Target(object):
         return result
 
     def configure(self, config):
+        # print "Target configure self.joint_pose = self.joint_poses[config][0]", config
         self.joint_pose = self.joint_poses[config][0]
+        # print "SET", self.joint_pose, "TO" , self.joint_poses[config][0]
         self.linear = True
 
     def name(self, prefix):

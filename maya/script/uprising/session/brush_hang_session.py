@@ -8,9 +8,9 @@ from uprising import robo
 
 from uprising.common.session.session import Session
 
-from uprising.session.pick_place_program import PickPlaceCollection
-from uprising.session.dip_wipe_program import DipWipeExerciseCollection
+from uprising.bot.session.pick_place_program import PickPlaceCollection
 from uprising.session.brush_hang_program import BrushHangProgram
+
 
 logger = logging.getLogger("uprising")
 
@@ -24,7 +24,7 @@ class BrushHangSession(Session):
         brush_ids = [b["id"] for b in data]
 
         robo.new()
-        robo.clean()
+        robo.clean("kr30")
         with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
             self.pick_place_collection = PickPlaceCollection(brush_ids)
             self.program = BrushHangProgram(self.PROGRAM_NAME, data)

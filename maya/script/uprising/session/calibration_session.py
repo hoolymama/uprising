@@ -8,7 +8,7 @@ from uprising import robo
 from uprising.common.session.session import Session
 
 
-from uprising.session.pick_place_program import PickPlaceCollection
+from uprising.bot.session.pick_place_program import PickPlaceCollection
 
 logger = logging.getLogger("uprising")
 

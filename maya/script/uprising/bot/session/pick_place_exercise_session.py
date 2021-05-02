@@ -25,7 +25,7 @@ class PickPlaceExerciseSession(Session):
 
     def send(self):
         robo.new()
-        robo.clean()
+        robo.clean("kr30")
         with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
             self.exercise_program.send()
             self.pick_place_collection.send()

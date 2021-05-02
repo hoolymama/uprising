@@ -3,7 +3,7 @@ import pymel.core as pm
 import uprising.const as k
 from uprising.session.calibration_program import CalibrationProgram
 import uprising.utils as uutl
-from uprising.session.pick_place_program import PickPlaceCollection
+from uprising.bot.session.pick_place_program import PickPlaceCollection
 from robolink import (
     INSTRUCTION_COMMENT,
     INSTRUCTION_SHOW_MESSAGE

@@ -5,7 +5,7 @@ from uprising import robo
 import uprising.utils as uutl
 from uprising.brush import Brush
 from uprising.common.session.program import Program, ProgramError
-from uprising.session.pick_place_program import PickProgram, PlaceProgram
+from uprising.bot.session.pick_place_program import PickProgram, PlaceProgram
 from robolink import (
     INSTRUCTION_SHOW_MESSAGE,
     INSTRUCTION_CALL_PROGRAM,

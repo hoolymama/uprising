@@ -1,9 +1,4 @@
-
-from robolink import (
-    INSTRUCTION_COMMENT,
-    INSTRUCTION_SHOW_MESSAGE,
-    INSTRUCTION_INSERT_CODE
-)
+from robolink import INSTRUCTION_COMMENT, INSTRUCTION_SHOW_MESSAGE, INSTRUCTION_INSERT_CODE
 
 from uprising.bot.session.bot_target import BotTarget, DepartureTarget, ArrivalTarget
 import pymel.core as pm
@@ -16,7 +11,6 @@ from uprising import const as k
 
 
 class BotStroke(Stroke):
-
     def __init__(self, cluster_id, stroke_id, node):
         self.cluster_id = cluster_id
         super(BotStroke, self).__init__(stroke_id, node)
@@ -25,31 +19,22 @@ class BotStroke(Stroke):
 
         positions = self.query_positions()
         rotations = self.query_rotations()
-        self.targets = self._target_factory(
-            positions, rotations, self.id, BotTarget)
+        self.targets = self._target_factory(positions, rotations, self.id, BotTarget)
 
         positions = self.query_arrival_positions()
         rotations = self.query_arrival_rotations()
-        self.arrivals = self._target_factory(
-            positions, rotations, self.id, ArrivalTarget)
+        self.arrivals = self._target_factory(positions, rotations, self.id, ArrivalTarget)
 
         positions = self.query_departure_positions()
         rotations = self.query_departure_rotations()
-        self.departure = self._target_factory(
-            positions, rotations, self.id, DepartureTarget)[0]
+        self.departure = self._target_factory(positions, rotations, self.id, DepartureTarget)[0]
 
     @classmethod
-    def _target_factory(
-            cls,
-            positions,
-            rotations,
-            stroke_id,
-            target_type=BotTarget):
+    def _target_factory(cls, positions, rotations, stroke_id, target_type=BotTarget):
         result = []
         num_targets = len(positions)
         if not num_targets == len(rotations):
-            raise utils.StrokeError(
-                "Length mismatch: positions, rotations")
+            raise utils.StrokeError("Length mismatch: positions, rotations")
 
         for i, (p, r) in enumerate(zip(positions, rotations)):
             try:
@@ -66,40 +51,43 @@ class BotStroke(Stroke):
     ###################################
 
     def configure(self, brush):
-
+   
         # self.brush.send()
         solved = False
         prev_target = None
-        for target in (self.arrivals + self.targets + [self.departure]):
+        for target in self.arrivals + self.targets + [self.departure]:
             target.solve_single_joint_poses(brush, prev_target)
             prev_target = target
         try:
             self.config = self.best_config()
             solved = True
-            print self.name("ST"), "Best Config", self.config
+     
         except utils.StrokeError:
             pass
         if not solved:
-            for target in (self.arrivals + self.targets + [self.departure]):
+            for target in self.arrivals + self.targets + [self.departure]:
                 target.solve_all_joint_poses(brush)
             try:
                 self.config = self.best_config()
-                print self.name("ST"), "Best Config", self.config
+      
             except utils.StrokeError:
                 configs = self.all_configs()
-                print("FAILED:!! CONFIGS FOR STROKE : {}".format(self.id))
-                print(configs)
+                print ("FAILED:!! CONFIGS FOR STROKE : {}".format(self.id))
+                print (configs)
                 for target in self.targets + [self.departure]:
                     print target.name("T"), target.valid_configs()
                 raise
 
         for target in self.arrivals:
             target.configure(self.config)
+            # print "STK Configured", target.name("-"), self.config, target.joint_pose
 
         for target in self.targets:
             target.configure(self.config)
+            # print "STK Configured", target.name("-"), self.config,self.joint_pose
 
         self.departure.configure(self.config)
+        # print "STK Configured", self.departure.name("-"), self.config,self.joint_pose
 
     def best_config(self):
         if not self.targets:
@@ -112,11 +100,13 @@ class BotStroke(Stroke):
 
         common_configs = set([k for k in robo.ALL_KR30_CONFIGS])
         for target in targets:
-            common_configs = common_configs.intersection(
-                target.valid_configs())
+            common_configs = common_configs.intersection(target.valid_configs())
             if not common_configs:
                 raise utils.StrokeError(
-                    "Common Config failure, can't find best config for stroke. No common configs {}".format(self.name("-")))
+                    "Common Config failure, can't find best config for stroke. No common configs {}".format(
+                        self.name("-")
+                    )
+                )
 
         return sorted(list(common_configs))[0]
         # common_configs = sorted(list(common_configs))
@@ -185,10 +175,7 @@ class BotStroke(Stroke):
     def query_positions(self):
         return utils.to_point_array(
             pm.paintingQuery(
-                self.node,
-                clusterIndex=self.cluster_id,
-                strokeIndex=self.id,
-                strokePositions=True
+                self.node, clusterIndex=self.cluster_id, strokeIndex=self.id, strokePositions=True
             )
         )
 
@@ -210,7 +197,7 @@ class BotStroke(Stroke):
                 self.node,
                 clusterIndex=self.cluster_id,
                 strokeIndex=self.id,
-                strokeArrivalPositions=True
+                strokeArrivalPositions=True,
             )
         )
 
@@ -232,7 +219,7 @@ class BotStroke(Stroke):
                 self.node,
                 clusterIndex=self.cluster_id,
                 strokeIndex=self.id,
-                strokeDeparturePosition=True
+                strokeDeparturePosition=True,
             )
         )
 

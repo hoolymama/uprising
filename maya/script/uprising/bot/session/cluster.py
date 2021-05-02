@@ -14,29 +14,20 @@ class Cluster(object):
         self.id = _id
         self.brush = brush
         self.paint = paint
+        self.strokes = []
+
         self.travel = pm.paintingQuery(
             node, clusterIndex=_id, clusterTravel=True)
+
         self.reason = pm.paintingQuery(
             node, clusterIndex=_id, clusterReason=True)
-        self.build_strokes(node)
 
-    def build_strokes(self, node):
-        self.strokes = []
         num_strokes = pm.paintingQuery(
             node, clusterIndex=self.id, strokeCount=True)
+
         for i in range(num_strokes):
             stroke = BotStroke(self.id, i, node)
             self.strokes.append(stroke)
-
-    def configure(self):
-        # self.brush.send()
-        for stroke in self.strokes:
-            stroke.configure(self.brush)
-
-    def change_tool_message(self):
-        return "Change to: Brs({:d}) - Pnt({:d}) {}".format(
-            self.brush.physical_id, self.paint.id, self.brush.name
-        )
 
     def name(self, program):
         return "{}_c{}".format(program.Name(), self.id)

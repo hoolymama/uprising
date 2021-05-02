@@ -8,7 +8,7 @@ from uprising.brush import Brush
 import uprising.utils as uutl
 
 
-from uprising.session.pick_place_program import PickAtHomeProgram, PlaceAtHomeProgram
+from uprising.bot.session.pick_place_program import PickAtHomeProgram, PlaceAtHomeProgram
 
 from robolink import (
     INSTRUCTION_COMMENT,
