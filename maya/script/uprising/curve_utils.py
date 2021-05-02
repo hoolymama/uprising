@@ -904,19 +904,16 @@ def show_objects(obs):
 
 
 # for hole in range(20):
- 
-#     paintings = pm.ls("rack|holes|holeRot_{:02d}|holeTrans|wipe_loc".format(hole), dag=True, leaf=True, type="painting")
-#     print "-" * 10
-#     for painting in paintings:
-#         brush_number = painting.split("|")[3][1:3]
-                
-#         if hole != 9:
-#             wipe_node = pm.ls("collect_bpx_{}_*_wipe".format(brush_number))[0]
-#         else:
-#             wipe_node = pm.ls("collect_bpx_{}_*_waterWipe".format(brush_number))[0]          
-#         print painting.name(), brush_number, wipe_node
-#         wipe_node.attr("output") >> painting.attr("strokes")[0]
-
+#     for which in ["dip", "wipe"]:
+#         paintings = pm.ls("rack|holes|holeRot_{:02d}|holeTrans|{}_loc".format(hole, which), dag=True, leaf=True, type="painting")
+    
+#         print "-" * 10
+#         for painting in paintings:
+#             brush_number = painting.split("|")[3][1:3]
+            
+#             newname = "ptg_{}_b{:02d}_p{:02d}".format(which, brush_number, hole)
+#             print "Rename: {} --> {}".format(painting, newname)
+            
 
 
 # for hole in range(20):
@@ -950,6 +947,6 @@ def show_objects(obs):
 
 
 
-pm.PyNode("board_BL").attr("t").set(1783.31 / 10, 7.36 / 10, 461.64 / 10)
-pm.PyNode("board_TL").attr("t").set(1787.15 / 10, 13.89 / 10, 1382.69 / 10)
-pm.PyNode("board_TR").attr("t").set(1778.98 / 10, -900.69 / 10, 1391.56 / 10)
+# pm.PyNode("board_BL").attr("t").set(1783.31 / 10, 7.36 / 10, 461.64 / 10)
+# pm.PyNode("board_TL").attr("t").set(1787.15 / 10, 13.89 / 10, 1382.69 / 10)
+# pm.PyNode("board_TR").attr("t").set(1778.98 / 10, -900.69 / 10, 1391.56 / 10)

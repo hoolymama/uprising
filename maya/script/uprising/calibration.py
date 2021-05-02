@@ -6,7 +6,7 @@ import pymel.core as pm
 import uprising.utils as uutl
 
 
-from uprising.session.pick_place_exercise_session import PickPlaceExerciseSession
+from uprising.bot.session.pick_place_exercise_session import PickPlaceExerciseSession
 from uprising.session.pot_calibration_session import PotCalibrationSession
 from uprising.session.holder_calibration_session import HolderCalibrationSession
 from uprising.session.board_calibration_session import BoardCalibrationSession
@@ -24,10 +24,9 @@ def _okay(scroll, which):
     content = pm.scrollField(scroll, query=True, text=True)
     try:
         if which == "board_triangulation":
-            _read_board_triangulation(content)
+            _read_any_triangulation(content)
         elif which == "rack_triangulation":
-            _read_rack_triangulation(content)
-
+            _read_any_triangulation(content)
         elif which == "board_calibration":
             _read_board_calibration(content)
         elif which == "pot_calibration":
@@ -119,23 +118,6 @@ def verify(data, nrows=-1, ncolumns=-1):
                 raise ValueError(
                     "Wrong number of columns. Should be {}".format(ncolumns))
 
-
-def _read_board_triangulation(content):
-
-    _read_any_triangulation(content)
-
-    # height = (pm.PyNode("board_TL").attr("translate").get() -
-    #           pm.PyNode("board_BL").attr("translate").get()).length()
-    # width = (pm.PyNode("board_TR").attr("translate").get() -
-    #          pm.PyNode("board_TL").attr("translate").get()).length()
-    # pm.PyNode("canvas").attr("width").set(width)
-    # pm.PyNode("canvas").attr("height").set(height)
-
-
-def _read_rack_triangulation(content):
-    _read_any_triangulation(content)
-
-
 def _read_any_triangulation(content):
     data = data_matrix(content)
     verify(data, 3, 4)
@@ -162,10 +144,31 @@ def _read_board_calibration(content):
     verify(data, len(verts), 1)
 
     for val, vtx in zip(zip(*data)[0], verts):
-        pos = vtx.getPosition(space="world")
+        pos = vtx.getPosition(space="object")
         pos.z = (uutl.numeric(val) * 0.1) - 1.0
-        vtx.setPosition(pos, space="world")
+        vtx.setPosition(pos, space="object")
 
+    borders_map = {
+        6:[5,0,1],
+        7:[2],
+        8:[3,4,9],
+        13:[14],
+        18:[19],
+        23:[24,29,28],
+        22:[27],
+        21:[26,25,20],
+        16:[15],
+        11:[10]
+        }
+
+    node = verts[0].node()
+    for vert_id in borders_map:
+        pos = node.vtx[vert_id].getPosition(space="object")
+        z = pos.z
+        for border_id in borders_map[vert_id]:
+            pos = node.vtx[border_id].getPosition(space="object")
+            pos.z = z 
+            node.vtx[border_id].setPosition(pos, space="object")
 
 def _read_pot_calibration(content):
 

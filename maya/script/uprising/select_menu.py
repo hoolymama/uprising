@@ -14,52 +14,40 @@ def create():
     pm.menuItem(label="Used handles", command=pm.Callback(
         putl.select_used_handles))
 
-    pm.menuItem(label="All dip paintings",
-                command=pm.Callback(select_dip_paintings))
+    pm.menuItem(label="Dip paintings",
+                command=pm.Callback(select_paintings,"dip"))
 
-    pm.menuItem(label="All wipe paintings",
-                command=pm.Callback(select_wipe_paintings))
+    pm.menuItem(label="Wipe paintings",
+                command=pm.Callback(select_paintings,"wipe"))
+
 
     return menu
 
 
-def select_dip_paintings():
-    pm.select(
-        pm.ls(
-            "rack|holes|holeRot*|holeTrans|dip_loc|*",
-            dag=True,
-            leaf=True,
-            type="painting",
+def select_paintings(which):
+
+    sel = "sel" if pm.ls(sl=True) else "all"
+
+    locname = "{}_loc".format(which)
+    if sel == "all":
+        template =  "rack|holes|holeRot*|holeTrans|{}|*".format(locname)
+        pm.select(
+            pm.ls(
+               template,
+                dag=True,
+                leaf=True,
+                type="painting",
+            )
         )
-    )
-
-
-def select_wipe_paintings():
+        return
+    selected =  pm.ls(sl=True,  dag=True , type="transform")
+    locs = [ n for n in selected if n.nodeName() == locname]
     pm.select(
-        pm.ls(
-            "rack|holes|holeRot*|holeTrans|wipe_loc|*",
-            dag=True,
-            leaf=True,
-            type="painting",
+            pm.ls(
+               locs,
+                dag=True,
+                leaf=True,
+                type="painting",
+            )
         )
-    )
-
-# def select_dip_stroke_nodes():
-#     dip_paintings = pm.ls(
-#         "rack|holes|holeRot*|holeTrans|dip_loc|*",
-#         dag=True,
-#         leaf=True,
-#         type="painting",
-#     )
-#     stroke_nodes = pm.listHistory(dip_paintings, type="curveStroke")
-#     pm.select(stroke_nodes)
-
-# def select_wipe_stroke_nodes():
-#     dip_paintings = pm.ls(
-#         "rack|holes|holeRot*|holeTrans|dip_loc|*",
-#         dag=True,
-#         leaf=True,
-#         type="painting",
-#     )
-#     stroke_nodes = pm.listHistory(dip_paintings, type="curveStroke")
-#     pm.select(stroke_nodes)
+ 

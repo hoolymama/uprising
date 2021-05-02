@@ -1,14 +1,12 @@
-
-
 import palette_utils as putl
 
 import pymel.core as pm
 import pymel.core.uitypes as gui
-
+from uprising import robo
 
 import utils as uutl
 
-from uprising.session.dip_wipe_exercise_session import DipWipeExerciseSession
+from uprising.bot.session.dip_wipe_exercise_session import DipWipeExerciseSession
 
 
 class phexTab(gui.FormLayout):
@@ -41,12 +39,9 @@ class phexTab(gui.FormLayout):
             columnAlign=(1, "right"),
             columnAttach=[(1, "both", 2), (2, "both", 2), (2, "both", 2)],
         )
-        pm.button(
-            label="Load selected brushes", command=pm.Callback(self.on_load_selected_brushes)
-        )
+        pm.button(label="Load selected brushes", command=pm.Callback(self.on_load_selected_brushes))
 
-        pm.button(label="Load all brushes",
-                  command=pm.Callback(self.on_load_all_brushes))
+        pm.button(label="Load all brushes", command=pm.Callback(self.on_load_all_brushes))
 
         pm.button(label="Clear", command=pm.Callback(self.on_clear_brushes))
 
@@ -62,23 +57,54 @@ class phexTab(gui.FormLayout):
         pm.setParent(self)  # form
 
         go_but = pm.button(label="Export", command=pm.Callback(self.on_go))
-        print_but = pm.button(label="Show stats",
-                              command=pm.Callback(self.on_show))
+        print_but = pm.button(label="Show stats", command=pm.Callback(self.on_show))
+
+        isolate_but = pm.button(label="Isolate", command=pm.Callback(self.on_isolate))
 
         self.attachForm(self.frame, "left", 2)
         self.attachForm(self.frame, "right", 2)
         self.attachForm(self.frame, "top", 2)
         self.attachControl(self.frame, "bottom", 2, go_but)
 
-        self.attachNone(go_but, "top")
-        self.attachForm(go_but, "right", 2)
-        self.attachPosition(go_but, "left", 2, 50)
-        self.attachForm(go_but, "bottom", 2)
-
         self.attachNone(print_but, "top")
-        self.attachControl(print_but, "right", 2, go_but)
+        self.attachPosition(print_but, "right", 2, 33)
         self.attachForm(print_but, "left", 2)
         self.attachForm(print_but, "bottom", 2)
+
+        self.attachNone(isolate_but, "top")
+        self.attachPosition(isolate_but, "left", 2, 33)
+        self.attachPosition(isolate_but, "right", 2, 66)
+        self.attachForm(isolate_but, "bottom", 2)
+
+        self.attachNone(go_but, "top")
+        self.attachForm(go_but, "right", 2)
+        self.attachPosition(go_but, "left", 2, 66)
+        self.attachForm(go_but, "bottom", 2)
+
+    def on_isolate(self):
+        print "ISOLATE"
+        data = self.get_pot_handle_exercise_data()
+        combinations = data["combinations"]
+        print "combinations", combinations
+        if not combinations:
+            pm.displayWarning("No combinations")
+            return
+
+        for p in pm.ls(
+            "rack|holes|holeRot*|holeTrans|*_loc|*",
+            dag=True,
+            leaf=True,
+            type="painting",
+        ):
+            p.getParent().attr("visibility").set(False)
+
+        for combo in combinations:
+            for painting in pm.ls("ptg_*_b{:02d}_p{:02d}".format( combo["brush"], combo["paint"])):
+                print "painting", painting
+                painting.attr("visibility").set(True)
+
+                
+
 
     def on_show(self):
         data = self.get_pot_handle_exercise_data()
@@ -86,17 +112,20 @@ class phexTab(gui.FormLayout):
 
     def on_go(self):
         data = self.get_pot_handle_exercise_data()
+        robo.new()
+        robo.hide()
         session = DipWipeExerciseSession(data["combinations"])
+        session.configure()
         session.send()
         session.publish()
+        robo.show()
 
     def on_load_selected_brushes(self):
         brushes = pm.ls(selection=True, dag=True, leaf=True, type="brushNode")
         self._load_brush_nodes(brushes)
 
     def on_load_all_brushes(self):
-        brushes = pm.PyNode("mainPaintingShape").attr(
-            "brushes").connections(s=True)
+        brushes = pm.PyNode("mainPaintingShape").attr("brushes").connections(s=True)
         self._load_brush_nodes(brushes)
 
     def on_clear_brushes(self):
@@ -129,9 +158,7 @@ class phexTab(gui.FormLayout):
 
     def _create_entry(self, brush, paint_ids, frame):
         text = ",".join(str(p) for p in paint_ids)
-        tf = pm.textFieldGrp(
-            columnWidth2=(300, 200), label=brush, text=text, cw2=(140, 300)
-        )
+        tf = pm.textFieldGrp(columnWidth2=(300, 200), label=brush, text=text, cw2=(140, 300))
         return tf
 
     def get_pot_handle_exercise_data(self):
@@ -146,11 +173,8 @@ class phexTab(gui.FormLayout):
 
             val = pm.textFieldGrp(tf, q=True, text=True)
 
-            for paint_id in [
-                int(i) for i in val.split(",") if i is not None and i.isdigit()
-            ]:
-                data["combinations"].append(
-                    {"brush": brush_id, "paint": paint_id})
+            for paint_id in [int(i) for i in val.split(",") if i is not None and i.isdigit()]:
+                data["combinations"].append({"brush": brush_id, "paint": paint_id})
                 data["brushes"].append(brush_name)
 
         data["paints"] = list(set([c["paint"] for c in data["combinations"]]))

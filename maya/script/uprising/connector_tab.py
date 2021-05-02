@@ -18,6 +18,9 @@ class ConnectorTab(gui.FormLayout):
         self.dest_load_but = pm.button(
             label="Load Dest", command=pm.Callback(self.load_dest))
 
+        self.scroll = pm.scrollLayout(childResizable=True)
+        self.scroll_form = pm.formLayout(nd=100)
+
         self.src_column = pm.columnLayout(adj=True)
         pm.setParent("..")
         self.dest_column = pm.columnLayout(adj=True)
@@ -77,15 +80,22 @@ class ConnectorTab(gui.FormLayout):
         self.attachForm(go_but, "bottom", 2)
         # /////////////
 
-        self.attachForm(self.src_column, "left", 2)
-        self.attachPosition(self.src_column, "right", 2, 50)
-        self.attachControl(self.src_column, "top", 2, self.src_load_but)
-        self.attachControl(self.src_column, "bottom", 2, go_but)
+        self.attachForm(self.scroll, "left", 2)
+        self.attachForm(self.scroll, "right", 2)
+        self.attachControl(self.scroll, "top", 2, self.src_load_but)
+        self.attachControl(self.scroll, "bottom", 2, go_but)
 
-        self.attachPosition(self.dest_column, "left", 2, 50)
-        self.attachForm(self.dest_column, "right", 2)
-        self.attachControl(self.dest_column, "top", 2, self.dest_load_but)
-        self.attachControl(self.dest_column, "bottom", 2, go_but)
+        self.scroll_form.attachForm(self.src_column, "left", 2)
+        self.scroll_form.attachPosition(self.src_column, "right", 2, 50)
+        self.scroll_form.attachForm(self.src_column, "top", 2 )
+        self.scroll_form.attachForm(self.src_column, "bottom", 2)
+
+        self.scroll_form.attachPosition(self.dest_column, "left", 2, 50)
+        self.scroll_form.attachForm(self.dest_column, "right", 2)
+        self.scroll_form.attachForm(self.dest_column, "top", 2)
+        self.scroll_form.attachForm(self.dest_column, "bottom", 2)
+ 
+
 
     def _clear_entries(self, which):
         col = self.src_column if which == "src" else self.dest_column
