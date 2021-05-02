@@ -11,7 +11,6 @@
 class paintingGeom
 {
 public:
-
 	using cluster_iterator = typename std::vector<Cluster>::iterator;
 	using const_cluster_iterator = typename std::vector<Cluster>::const_iterator;
 
@@ -19,7 +18,6 @@ public:
 	cluster_iterator clusters_end() { return m_clusters.end(); }
 	const_cluster_iterator clusters_begin() const { return m_clusters.begin(); }
 	const_cluster_iterator clusters_end() const { return m_clusters.end(); }
-
 
 	paintingGeom();
 
@@ -40,15 +38,18 @@ public:
 
 	void addStroke(const Stroke &stroke, int parentIndex);
 
-	void setApproaches(float approachStart, float approachMid,
-					   float approachEnd, float ptpThresh);
+	void setApproaches(
+		const MFloatVector &approachStart, 
+		const MFloatVector &approachMid,
+		const MFloatVector &approachEnd, 
+		float ptpThresh);
 
 	void dipCombinations(MIntArray &result) const;
 
 	// void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 
 	// void offsetBrushContact();
- 
+
 	// friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 
 private:

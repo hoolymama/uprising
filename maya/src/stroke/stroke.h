@@ -282,10 +282,10 @@ public:
 
 	const Target &departure() const;
 
-	void setDeparture(float offset);
-	void setArrival(float offset);
+	void setDeparture(const MFloatVector & offset);
+	void setArrival(const MFloatVector & offset);
 	void setArrival(
-		float offset,
+		const MFloatVector & offset,
 		float threshold,
 		const Stroke &prev);
 

@@ -148,7 +148,8 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
     MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
-;
+    MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
+
 
     std::vector<std::pair<int, Brush> > brushes;
     st = collectBrushes(data, brushes);
@@ -199,7 +200,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
             unsigned count = createStrokesForChain(
                 *current_chain,
                 brushes,
-                canvasMatrix,
+                canvasNormal,
                 elIndex,
                 minimumPoints,
                 followStroke,
@@ -231,7 +232,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
 unsigned skeletonStrokeNode::createStrokesForChain(
     const skChain &current_chain,
     const std::vector<std::pair<int, Brush> > &brushes,
-    const MFloatMatrix &canvasMatrix,
+    const MFloatVector &canvasNormal,
     unsigned parentId,
     int minimumPoints,
     bool followStroke,
@@ -272,7 +273,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     curveFn.setKnots(knotVals, 0, (numKnots - 1));
     ////////////////////////////
 
-    MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
+    // MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
 
     MFloatVectorArray boundaries;
     unsigned num = getStrokeBoundaries(
@@ -316,7 +317,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         Stroke stroke = createStroke(
             dChainCurve,
             selectedBrushPair,
-            canvasMatrix,
+            // canvasMatrix,
             curveParams,
             strokeRadii,
             followStroke,
@@ -368,7 +369,7 @@ unsigned skeletonStrokeNode::createStrokeData(
 Stroke skeletonStrokeNode::createStroke(
     const MObject &dCurve,
     const std::pair<int, Brush> &brushPair,
-    const MFloatMatrix &canvasMatrix,
+    // const MFloatMatrix &canvasMatrix,
     const MDoubleArray &curveParams,
     const MFloatArray &strokeRadii,
     bool followStroke,
@@ -390,7 +391,9 @@ Stroke skeletonStrokeNode::createStroke(
     double curveLength = curveFn.length(epsilon);
 
     float brushWidth = fmax(brush.width(), 0.01);
-    MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
+
+    // MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
+    const MFloatMatrix & brushMatrix = brush.matrix();
 
     float forwardBias0 = 0.0;
     float forwardBias1 = 0.0;

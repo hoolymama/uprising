@@ -74,13 +74,13 @@ public:
 	 */
 	void pushStroke(const Stroke &stroke, int parentIndex);
 
-	void setApproaches(float approachStart, float approachMid,
-					   float approachEnd, float ptpThresh);
+	// void setApproaches(float approachStart, float approachMid,
+	// 				   float approachEnd, float ptpThresh);
 
 
 private:
-	void setDeparture(float approachMid, float approachEnd);
-	void setArrival(float approachStart, float approachMid, float ptpThresh);
+	// void setDeparture(float approachMid, float approachEnd);
+	// void setArrival(float approachStart, float approachMid, float ptpThresh);
 
 	std::vector<Stroke> m_strokes;
 	Reason m_reason;

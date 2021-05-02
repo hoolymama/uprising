@@ -811,39 +811,42 @@ const Target &Stroke::departure() const
 	return m_departure;
 }
 
-void Stroke::setDeparture(float offset)
+// void Stroke::setDeparture(float offset)
+// {
+// 	m_departure = Target(m_targets.back());
+// 	MFloatPoint p = m_departure.position();
+// 	p.z = offset;
+// 	m_departure.setPosition(p);
+// }
+
+void Stroke::setDeparture(const MFloatVector & offset)
 {
 	m_departure = Target(m_targets.back());
-	MFloatPoint p = m_departure.position();
-	p.z = offset;
-	m_departure.setPosition(p);
+	m_departure.offsetBy(offset);
 }
 
-void Stroke::setArrival(float offset)
+
+void Stroke::setArrival(const MFloatVector & offset)
 {
 	Target arrival(m_targets.front());
-	MFloatPoint p = arrival.position();
-	p.z = offset;
-	arrival.setPosition(p);
+	arrival.offsetBy(offset);
 	m_arrivals.push_back(arrival);
 }
 
 void Stroke::setArrival(
-	float offset,
+	const MFloatVector & offset,
 	float threshold,
 	const Stroke &prev)
 {
 	const Target &departure = prev.departure();
 	// MVector offsetVector(0.0, 0.0, offset);
 	Target arrival(m_targets.front());
-	MFloatPoint p = arrival.position();
-	p.z = offset;
-	arrival.setPosition(p);
+	arrival.offsetBy(offset);
 
 	float dist = departure.distanceTo(arrival);
 	MFloatPoint departurePos = departure.position();
 	MFloatPoint arrivalPos = arrival.position();
-	// cerr << "Stroke::setArrival dist <> threshold: " << dist << " <> " <<  threshold << endl;
+
 	if (dist > threshold)
 	{
 		int num_inbetweens = int(dist / threshold);
@@ -853,17 +856,19 @@ void Stroke::setArrival(
 			float fraction = (i + 1) / double(num_inbetweens + 1);
 			MFloatPoint newPoint((departurePos * (1.0 - fraction)) + (arrivalPos * fraction));
 
-			Target stop;
-			if (fraction < 0.5)
-			{
-				stop = Target(departure);
-			}
-			else
-			{
-				stop = Target(arrival);
-			}
+			Target stop(arrival);
 			stop.setPosition(newPoint);
 			m_arrivals.push_back(stop);
+			// if (fraction < 0.5)
+			// {
+			// 	stop = Target(departure);
+			// }
+			// else
+			// {
+			// 	stop = Target(arrival);
+			// }
+			// stop.setPosition(newPoint);
+			// m_arrivals.push_back(stop);
 		}
 	}
 	m_arrivals.push_back(arrival);

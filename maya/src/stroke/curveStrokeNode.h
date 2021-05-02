@@ -38,7 +38,7 @@ private:
   Stroke createStroke(
       const MObject &dCurve,
       const std::pair<int, Brush> &brushPair,
-      const MFloatMatrix &canvasMatrix,
+      // const MFloatMatrix &canvasMatrix,
       const MDoubleArray &curveParams,
       bool followStroke,
       bool applyBrushBias,

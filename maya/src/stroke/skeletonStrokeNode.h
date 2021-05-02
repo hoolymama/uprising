@@ -36,7 +36,7 @@ private:
     unsigned createStrokesForChain(
         const skChain &current_chain,
         const std::vector<std::pair<int, Brush> > &brushes,
-        const MFloatMatrix &canvasMatrix,
+        const MFloatVector &canvasNormal,
         unsigned parentIndex,
         int minimumPoints,
         bool followStroke,
@@ -78,7 +78,7 @@ private:
     Stroke createStroke(
         const MObject &dCurve,
         const std::pair<int, Brush> &brushPair,
-        const MFloatMatrix &canvasMatrix,
+        // const MFloatMatrix &canvasMatrix,
         const MDoubleArray &curveParams,
         const MFloatArray &strokeRadii,
         bool followStroke,

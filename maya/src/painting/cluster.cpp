@@ -63,46 +63,46 @@ const std::vector<Stroke> &Cluster::strokes() const
 	return m_strokes;
 }
 
-void Cluster::setDeparture(float approachMid, float approachEnd)
-{
-	for (auto iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
-	{
-		if (std::next(iter) == m_strokes.end())
-		{ 
-			iter->setDeparture(approachEnd);
-		}
-		else
-		{
-			iter->setDeparture(approachMid);
-		}
-	}
-}
+// void Cluster::setDeparture(float approachMid, float approachEnd)
+// {
+// 	for (auto iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
+// 	{
+// 		if (std::next(iter) == m_strokes.end())
+// 		{ 
+// 			iter->setDeparture(approachEnd);
+// 		}
+// 		else
+// 		{
+// 			iter->setDeparture(approachMid);
+// 		}
+// 	}
+// }
 
-void Cluster::setArrival(float approachStart, float approachMid,
-						 float ptpThresh)
-{
-	for (auto iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
-	{
-		if (iter == m_strokes.begin())
-		{
-			iter->setArrival(approachStart);
-		}
-		else
-		{
-			iter->setArrival(approachMid, ptpThresh, *(std::prev(iter)));
-		}
-	}
-}
+// void Cluster::setArrival(float approachStart, float approachMid,
+// 						 float ptpThresh)
+// {
+// 	for (auto iter = m_strokes.begin(); iter != m_strokes.end(); iter++)
+// 	{
+// 		if (iter == m_strokes.begin())
+// 		{
+// 			iter->setArrival(approachStart);
+// 		}
+// 		else
+// 		{
+// 			iter->setArrival(approachMid, ptpThresh, *(std::prev(iter)));
+// 		}
+// 	}
+// }
 
-void Cluster::setApproaches(
-	float approachStart, 
-	float approachMid,
-	float approachEnd, 
-	float ptpThresh)
-{
-	setDeparture(approachMid, approachEnd);
-	setArrival(approachStart, approachMid, ptpThresh);
-}
+// void Cluster::setApproaches(
+// 	float approachStart, 
+// 	float approachMid,
+// 	float approachEnd, 
+// 	float ptpThresh)
+// {
+// 	setDeparture(approachMid, approachEnd);
+// 	setArrival(approachStart, approachMid, ptpThresh);
+// }
 
 // void Cluster::offsetBrushContact(const Brush &brush)
 // {

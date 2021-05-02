@@ -188,7 +188,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             Stroke stroke = createStroke(
                 dCurve,
                 brushPair,
-                canvasMatrix,
+                // canvasMatrix,
                 curveParams,
                 followStroke,
                 applyBrushBias,
@@ -242,7 +242,7 @@ unsigned curveStrokeNode::createStrokeData(
 Stroke curveStrokeNode::createStroke(
     const MObject &dCurve,
     const std::pair<int, Brush> &brushPair,
-    const MFloatMatrix &canvasMatrix,
+    // const MFloatMatrix &canvasMatrix,
     const MDoubleArray &curveParams,
     bool followStroke,
     bool applyBrushBias,
@@ -259,7 +259,8 @@ Stroke curveStrokeNode::createStroke(
     MFnNurbsCurve curveFn(dCurve);
     double curveLength = curveFn.length(epsilon);
 
-    MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
+    // MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
+    const MFloatMatrix & brushMatrix = brush.matrix();
 
     float forwardBias0 = 0.0;
     float forwardBias1 = 0.0;

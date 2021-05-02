@@ -340,14 +340,15 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
 
   if (pGeom->clusters().size())
   {
+    MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
+    MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
 
     MDataHandle hApproachDistance = data.inputValue(aApproachDistance);
-    float approachStart = hApproachDistance.child(aApproachDistanceStart).asFloat();
-    float approachMid = hApproachDistance.child(aApproachDistanceMid).asFloat();
-    float approachEnd = hApproachDistance.child(aApproachDistanceEnd).asFloat();
+    MFloatVector approachStart = canvasNormal * hApproachDistance.child(aApproachDistanceStart).asFloat();
+    MFloatVector approachMid = canvasNormal * hApproachDistance.child(aApproachDistanceMid).asFloat();
+    MFloatVector approachEnd = canvasNormal * hApproachDistance.child(aApproachDistanceEnd).asFloat();
+
     pGeom->setApproaches(approachStart, approachMid, approachEnd, ptpThresh);
-
-
   }
 
   MFnPluginData fnOut;

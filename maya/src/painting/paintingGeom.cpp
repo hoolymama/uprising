@@ -74,17 +74,15 @@ float paintingGeom::travelCutoff(int brushId, int paintId) const
 	return cutoff;
 }
 
-
 void paintingGeom::addStroke(const Stroke &stroke, int parentIndex)
 {
 	int brushId = stroke.brushId();
 	int paintId = stroke.paintId();
-	
+
 	const Brush &b = brushFromId(brushId);
 	Cluster &g = prepCluster(brushId, b.physicalId(), paintId);
 	g.pushStroke(stroke, parentIndex);
 }
-
 
 Cluster &paintingGeom::prepCluster(
 	int brushId,
@@ -113,7 +111,7 @@ Cluster &paintingGeom::prepCluster(
 		float cutoff = travelCutoff(brushId, paintId);
 		Cluster::Reason reason = Cluster::kBrush;
 		if (lastPaintId == paintId)
-		{ 
+		{
 			// brush Id changed - but is it the same physical brush?
 			int lastPhysicalId = brushFromId(lastBrushId).physicalId();
 			if (lastPhysicalId == physicalId)
@@ -150,20 +148,51 @@ Cluster &paintingGeom::prepCluster(
 	// We simply return the last cluster.
 	return m_clusters.back();
 }
+ 
 
-void paintingGeom::setApproaches(float approachStart, float approachMid,
-								 float approachEnd, float ptpThresh)
+void paintingGeom::setApproaches(
+	const MFloatVector &approachStart,
+	const MFloatVector &approachMid,
+	const MFloatVector &approachEnd,
+	float ptpThresh)
 {
-	std::vector<Cluster>::iterator iter;
-	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
+
+	paintingGeom::cluster_iterator curr_cluster = clusters_begin();
+	for (; curr_cluster != clusters_end(); curr_cluster++)
 	{
-		iter->setApproaches(approachStart, approachMid, approachEnd, ptpThresh);
+		Cluster::stroke_iterator curr_stroke = curr_cluster->strokes_begin();
+		// departure
+
+		for (; curr_stroke != curr_cluster->strokes_end(); curr_stroke++)
+		{
+			if (std::next(curr_stroke) == curr_cluster->strokes_end())
+			{
+				curr_stroke->setDeparture(approachEnd);
+			}
+			else
+			{
+				curr_stroke->setDeparture(approachMid);
+			}
+		}
+		// arrivals
+		curr_stroke = curr_cluster->strokes_begin();
+		for (; curr_stroke != curr_cluster->strokes_end(); curr_stroke++)
+		{
+			if (curr_stroke == curr_cluster->strokes_begin())
+			{
+				curr_stroke->setArrival(approachStart);
+			}
+			else
+			{
+				curr_stroke->setArrival(approachMid, ptpThresh, *(std::prev(curr_stroke)));
+			}
+		}
 	}
 }
 
 void paintingGeom::dipCombinations(MIntArray &result) const
 {
-	std::set<std::pair<int, int>> combos;
+	std::set<std::pair<int, int> > combos;
 	std::vector<Cluster>::const_iterator iter;
 	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
 	{
@@ -171,14 +200,13 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 		;
 		combos.insert(combo);
 	}
-	for (std::set<std::pair<int, int>>::const_iterator citer = combos.begin();
+	for (std::set<std::pair<int, int> >::const_iterator citer = combos.begin();
 		 citer != combos.end(); citer++)
 	{
 		result.append(citer->first);
 		result.append(citer->second);
 	}
 }
-
 
 // void paintingGeom::offsetBrushContact()
 // {
@@ -197,7 +225,7 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 // 			{
 // 				float dist_from_ground = (1.0 - curr_target->weight());
 // 				dist_from_ground = (dist_from_ground > epsilon) ? pow(dist_from_ground, power) * height : 0;
-				
+
 // 				offset = curr_target->zAxis() * -dist_from_ground;
 // 				curr_target->offsetBy(offset);
 // 			}
@@ -205,7 +233,6 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 
 // 	}
 // }
-
 
 // void paintingGeom::addStrokeCurve(const strokeCurveGeom &strokeCurve) {
 
@@ -223,9 +250,9 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 // 	}
 // }
 
-	// short paintId = stroke.paintId();
-	// short physicalId = b.physicalId;
-	// bool force = stroke.forceDip();
+// short paintId = stroke.paintId();
+// short physicalId = b.physicalId;
+// bool force = stroke.forceDip();
 
 // void paintingGeom::displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap)
 // {
@@ -235,7 +262,6 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 // 		iter->displace(meshFn, ap);
 // 	}
 // }
-
 
 // void paintingGeom::applyBiases(float mult)
 // {
