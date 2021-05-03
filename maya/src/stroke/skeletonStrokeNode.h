@@ -37,6 +37,7 @@ private:
         const skChain &current_chain,
         const std::vector<std::pair<int, Brush> > &brushes,
         const MFloatVector &canvasNormal,
+        const MFloatPoint &goalPoint,
         unsigned parentIndex,
         int minimumPoints,
         bool followStroke,
@@ -78,7 +79,16 @@ private:
     Stroke createStroke(
         const MObject &dCurve,
         const std::pair<int, Brush> &brushPair,
-        // const MFloatMatrix &canvasMatrix,
+        const MDoubleArray &curveParams,
+        const MFloatArray &strokeRadii,
+        bool followStroke,
+        bool applyBrushBias,
+        float entryTransitionLength,
+        float exitTransitionLength) const;
+
+    Stroke createReverseStroke(
+        const MObject &dCurve,
+        const std::pair<int, Brush> &brushPair,
         const MDoubleArray &curveParams,
         const MFloatArray &strokeRadii,
         bool followStroke,
@@ -92,6 +102,7 @@ private:
     static MObject aInputData;
     static MObject aSplitAngle;
     static MObject aSelector;
+    static MObject aGoalPoint;
 
 };
 

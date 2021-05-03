@@ -25,14 +25,9 @@ class DipWipeProgram(Program):
         self.wipe_painting = BotPainting(pack["wipe"])
 
     def configure(self):
-        print "DipWipeProgram CONFIGURING dip_painting.clusters and wipe_painting.clusters"
-        for cluster in self.dip_painting.clusters:
+        for cluster in self.dip_painting.clusters + self.wipe_painting.clusters:
             for stroke in cluster.strokes:
                 stroke.configure(cluster.brush)
-
-            for cluster in self.wipe_painting.clusters:
-                for stroke in cluster.strokes:
-                    stroke.configure(cluster.brush)
 
     def send(self):
 
@@ -72,6 +67,12 @@ class WashProgram(Program):
             cluster.configure()
         for cluster in self.wipe_painting.clusters:
             cluster.configure()
+
+    def configure(self):
+        for cluster in self.dip_painting.clusters + self.wipe_painting.clusters:
+            for stroke in cluster.strokes:
+                stroke.configure(cluster.brush)
+
 
     def _valid(self):
         return self.dip_painting.clusters and self.wipe_painting.clusters

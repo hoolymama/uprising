@@ -154,7 +154,8 @@ class BotRetryProgram(Program):
 
     def configure(self):
         for cluster in self.painting.clusters:
-            cluster.configure()
+            for stroke in cluster.strokes:
+                stroke.configure(cluster.brush)
 
     def send(self, **kw):
         if not self.painting.clusters:

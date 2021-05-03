@@ -20,7 +20,8 @@ class PickPlaceExerciseSession(Session):
 
     def __init__(self):
         with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-            self.pick_place_collection = PickPlaceCollection("all")
+            brush_ids = [int(n[-2:]) for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
+            self.pick_place_collection = PickPlaceCollection(brush_ids)
             self.exercise_program = PickPlaceExerciseProgram(self.PROGRAM_NAME)
 
     def send(self):

@@ -115,9 +115,7 @@ class phexTab(gui.FormLayout):
         robo.new()
         robo.hide()
         session = DipWipeExerciseSession(data["combinations"])
-        session.configure()
-        session.send()
-        session.publish()
+        session.run()
         robo.show()
 
     def on_load_selected_brushes(self):
@@ -142,7 +140,6 @@ class phexTab(gui.FormLayout):
         frame = 0
         # painting_node = pm.PyNode("mainPaintingShape")
         combos = putl.dip_combination_ids()
-        print "COMBOS", combos
         for brush in brushes:
             conns = pm.PyNode(brush).attr("outPaintBrush").connections(p=True)
             brush_id = self._get_main_painting_connection_id(brush)

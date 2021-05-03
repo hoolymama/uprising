@@ -17,7 +17,8 @@ CAL_SHEET_FIRST_ROW = 6
 class HolderCalibrationProgram(CalibrationProgram):
     def __init__(self, name):
         super(HolderCalibrationProgram, self).__init__(name)
-        self.packs = PickPlaceCollection("all").packs
+        brush_ids = [int(n[-2:]) for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
+        self.packs = PickPlaceCollection(brush_ids).packs
 
     def send_locator_packs(self):
         bids = sorted(self.packs.keys())

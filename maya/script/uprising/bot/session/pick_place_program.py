@@ -227,23 +227,9 @@ class PickPlaceCollection(object):
 
     def __init__(self, brush_ids):
         self.is_caibration = brush_ids == "calibration"
-        self.brush_ids = self._resolve_brush_ids(brush_ids)
+        self.brush_ids = [0] if self.is_caibration else brush_ids
         self.packs = self.get_packs()
         self.programs = self._build()
-
-    @staticmethod
-    def _resolve_brush_ids(brush_ids):
-        if brush_ids == "all":
-            return [int(n[-2:]) for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
-        if brush_ids == "used":
-            painting = pm.PyNode("mainPaintingShape")
-            dc = pm.paintingQuery(painting, dc=True)
-            return set(dc[::2])
-
-        if brush_ids == "calibration":
-            return [0]
-
-        return list(brush_ids)
 
     def get_packs(self):
         result = {}

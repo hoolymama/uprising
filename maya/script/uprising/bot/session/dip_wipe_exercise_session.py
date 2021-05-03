@@ -23,43 +23,62 @@ class DipWipeExerciseSession(Session):
 
     def __init__(self, combinations):
 
+        timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
+        self.directory = os.path.join(pm.workspace.getPath(
+        ), 'export', 'calibrations', self.PROGRAM_NAME, timestamp)
+
+
         brush_ids = list(set([c["brush"] for c in combinations]))
         robo.clean("kr30")
         with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+            pm.displayInfo("Creating pick_place_collection")
             self.pick_place_collection = PickPlaceCollection(brush_ids)
+            pm.displayInfo("Creating dip_wipe_ex_collection")
             self.dip_wipe_ex_collection = DipWipeExerciseCollection(combinations)
+            pm.displayInfo("Creating exercise_program")
             self.exercise_program = DipWipeExerciseProgram(self.PROGRAM_NAME, combinations)
 
-    def configure(self):
-        print self.dip_wipe_ex_collection.programs
+
+    def run(self):
+        # configure dw collection programs
         for program in self.dip_wipe_ex_collection.programs:
             program.configure()
 
-    def send(self):
         with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+            # send programs
+            pm.displayInfo("Sending dip_wipe_ex_collection")
             self.dip_wipe_ex_collection.send()
+            pm.displayInfo("Sending exercise_program")
             self.exercise_program.send()
+            pm.displayInfo("Sending pick_place_collection")
             self.pick_place_collection.send()
 
+            # send geo
+            pm.displayInfo("Sending rack_geo")
             self.send_rack_geo()
+            pm.displayInfo("Sending holder_geo")
             self.send_holder_geo()
+            pm.displayInfo("Sending pot_geo")
             self.send_pot_geo()
+            pm.displayInfo("Sending handle_geo")
             self.send_handle_geo()
 
-    def publish(self):
-        program_name = self.exercise_program.program_name
-        timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-        directory = os.path.join(pm.workspace.getPath(
-        ), 'export', 'calibrations', program_name, timestamp)
+        self._publish()
 
-        src_fn = self.save_program(directory, program_name)
+    def _publish(self):
+        # save the exercise program
+        pm.displayInfo("Publish main_file")
+        main_file = self.save_program(self.directory, self.PROGRAM_NAME)
 
+        # save the sub programs
         program_names = self.pick_place_collection.program_names() + self.dip_wipe_ex_collection.program_names()
         for program_name in program_names:
-            self.save_program(directory, program_name)
+            pm.displayInfo("Publish {}".format(program_name))
+            self.save_program(self.directory, program_name)
 
-        self.insert_external_dependencies(program_names, src_fn)
-        self.save_station(directory, program_name)
+        self.insert_external_dependencies(program_names, main_file)
+        pm.displayInfo("Save_station {}".format(self.PROGRAM_NAME))
+        self.save_station(self.directory, self.PROGRAM_NAME)
 
 
  

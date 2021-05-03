@@ -86,23 +86,23 @@ protected:
 
     static float calculateTargetWeight(
         const double &distanceOnCurve,
-        const double &entryDistance,
-        const double &exitDistance,
-        const double &entryTransitionDistance,
-        const double &exitTransitionDistance,
-        const float &entryTransitionLength,
-        const float &exitTransitionLength,
+        const double &lowDistance,
+        const double &highDistance,
+        const double &lowTransitionDistance,
+        const double &highTransitionDistance,
+        const float &lowTransitionLength,
+        const float &highTransitionLength,
         const float &radius,
         const float &brushWidth);
 
     static float  calculateTargetWeight(
         const double &distanceOnCurve,
-        const double &entryDistance,
-        const double &exitDistance,
-        const double &entryTransitionDistance,
-        const double &exitTransitionDistance,
-        const float &entryTransitionLength,
-        const float &exitTransitionLength
+        const double &lowDistance,
+        const double &highDistance,
+        const double &lowTransitionDistance,
+        const double &highTransitionDistance,
+        const float &lowTransitionLength,
+        const float &highTransitionLength
         );
 
 
@@ -127,12 +127,12 @@ protected:
 
 inline float paintStrokeCreator::calculateTargetWeight(
     const double &distanceOnCurve,
-    const double &entryDistance,
-    const double &exitDistance,
-    const double &entryTransitionDistance,
-    const double &exitTransitionDistance,
-    const float &entryTransitionLength,
-    const float &exitTransitionLength,
+    const double &lowDistance,
+    const double &highDistance,
+    const double &lowTransitionDistance,
+    const double &highTransitionDistance,
+    const float &lowTransitionLength,
+    const float &highTransitionLength,
     const float &radius,
     const float &brushWidth
 
@@ -140,12 +140,12 @@ inline float paintStrokeCreator::calculateTargetWeight(
 {
     float transitionWeight = calculateTargetWeight(
         distanceOnCurve,
-        entryDistance,
-        exitDistance,
-        entryTransitionDistance,
-        exitTransitionDistance,
-        entryTransitionLength,
-        exitTransitionLength
+        lowDistance,
+        highDistance,
+        lowTransitionDistance,
+        highTransitionDistance,
+        lowTransitionLength,
+        highTransitionLength
     ); 
    
     return fmin(transitionWeight, ((2.0f * radius) / brushWidth));
@@ -153,24 +153,24 @@ inline float paintStrokeCreator::calculateTargetWeight(
 
 inline float paintStrokeCreator::calculateTargetWeight(
     const double &distanceOnCurve,
-    const double &entryDistance,
-    const double &exitDistance,
-    const double &entryTransitionDistance,
-    const double &exitTransitionDistance,
-    const float &entryTransitionLength,
-    const float &exitTransitionLength
+    const double &lowDistance,
+    const double &highDistance,
+    const double &lowTransitionDistance,
+    const double &highTransitionDistance,
+    const float &lowTransitionLength,
+    const float &highTransitionLength
 )
 {
     const float epsilon = 0.0001;
 
     float transitionWeight = 1.0;
-    if ((distanceOnCurve+epsilon) < entryTransitionDistance)
+    if ((distanceOnCurve+epsilon) < lowTransitionDistance)
     {
-        transitionWeight = float((distanceOnCurve - entryDistance) / entryTransitionLength);
+        transitionWeight = float((distanceOnCurve - lowDistance) / lowTransitionLength);
     }
-    else if (distanceOnCurve > (exitTransitionDistance+epsilon))
+    else if (distanceOnCurve > (highTransitionDistance+epsilon))
     {
-        transitionWeight = float((exitDistance - distanceOnCurve) / exitTransitionLength);
+        transitionWeight = float((highDistance - distanceOnCurve) / highTransitionLength);
     }
 
     return  transitionWeight;

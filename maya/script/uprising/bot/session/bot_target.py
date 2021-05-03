@@ -34,7 +34,8 @@ class BotTarget(Target):
         """
         prev_pose = const.PAINTING_START_JOINTS
         if prev_target:
-            # print prev_target.joint_poses
+
+            # print "prev:", prev_target.name("<-") , "self:", self.name("-"), "Prev JP:",  prev_target.joint_poses
             key = prev_target._find_first_config()
             prev_pose = prev_target.joint_poses[key][0]
 

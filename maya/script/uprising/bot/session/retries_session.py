@@ -66,6 +66,7 @@ class RetriesSession(Session):
             if plug_index > -1:
                 self.plug_index = plug_index
         else:
+            # Get all skel pairs where the skel has normal nodestate
             self.chain_skel_pairs = chains.get_chain_skel_pairs()
 
         if not len(self.chain_skel_pairs):
@@ -92,9 +93,6 @@ class RetriesSession(Session):
         with disable_all_skels():
 
             results = []
-            if not dry_run:
-                robo.new()
-                robo.hide()
 
             progress.update(
                 major_max=self.total_num_runs,
@@ -134,7 +132,7 @@ class RetriesSession(Session):
             major_progress=0,
             minor_progress=0,
         )
-        robo.show()
+        
 
     # def calc_num_runs(self):
 

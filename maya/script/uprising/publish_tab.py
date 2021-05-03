@@ -8,8 +8,7 @@ import pymel.core.uitypes as gui
 from uprising.common.session.session import Session
 from uprising.bot.session.bot_painting_session import BotPaintingSession
 from uprising.bot.session.retries_session import RetriesSession
-from uprising import utils
-from uprising import chains
+from uprising import (chains,robo, utils)
 
 
 class PublishTab(gui.FormLayout):
@@ -224,6 +223,11 @@ class PublishTab(gui.FormLayout):
                 self.single_skel_menu, query=True, value=True))
             plug = node.attr("selector")
 
+
+        if not dry_run:
+            robo.new()
+            robo.hide()
+        
         retries_session = None
         if do_retries:
             retries_session = RetriesSession(
@@ -242,63 +246,11 @@ class PublishTab(gui.FormLayout):
                 return
 
         if do_painting:
-            painting_session = BotPaintingSession(
-                cluster_chunk_size, directory)
+            painting_session = BotPaintingSession(cluster_chunk_size, directory)
+            painting_session.run()
+
             painting_session.show_stats()
             painting_session.write_stats()
             painting_session.write_maya_scene(directory, "scene")
 
-        # if do_pov:
-        #     pov_session = PovSession(cluster_chunk_size)
-        #     pov_session.show_stats()
-        #     pov_session.write_stats()
-        #     pov_session.write_maya_scene(pov_session.directory, "scene")
-
-        # self.painting_type_rb = pm.radioButtonGrp(
-        #     label='Painting type', sl=2,
-        #     labelArray2=[
-        #         'Paint robot',
-        #         'Light robot'],
-        #     numberOfRadioButtons=2,
-        #     changeCommand=pm.Callback(self.on_ops_change))
-# def find_contributing_stroke_nodes(skels):
-
-#     for
-#     # painting_node = pm.PyNode("mainPaintingShape")
-#     all_skels = pm.ls(type="skeletonStroke")
-
-#     result = [n for n in pm.ls(sl=True) if n.type() == "skeletonStroke"]
-#     if result:
-#         return result
-
-#     for node in all_skels:
-#         with isolate_nodes([node], all_skels):
-#             try:
-#                 pm.paintingQuery(painting_node, cc=True)
-#             except RuntimeError:
-#                 continue
-#         result.append(node)
-#     print "{} of {} skeleton nodes contributing".format(
-#         len(result), len(all_skels))
-#     return result
-
-
-# from uprising.pov.session.pov_session import PovSession
-
-# @contextmanager
-# def isolate_nodes(show_nodes, all_nodes):
-#     all_vals = [n.attr("active").get() for n in all_nodes]
-#     vals = [n.attr("active").get() for n in show_nodes]
-
-#     for n in all_nodes:
-#         n.attr("active").set(False)
-
-#     for n in show_nodes:
-#         n.attr("active").set(True)
-#     yield
-
-#     for i, n in enumerate(show_nodes):
-#         n.attr("active").set(vals[i])
-
-#     for i, n in enumerate(all_nodes):
-#         n.attr("active").set(all_vals[i])
+        robo.show()
