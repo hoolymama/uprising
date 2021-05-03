@@ -33,6 +33,7 @@
 #include "displaceStrokes.h"
 #include "brushLifter.h"
 
+#include "tiltStrokes.h"
 #include "mapColorStrokes.h"
 #include "strokeMutator.h"
 
@@ -175,6 +176,11 @@ MStatus initializePlugin(MObject obj)
 							 aimStrokes::initialize);
 	mser;
 
+	st = plugin.registerNode("tiltStrokes", tiltStrokes::id, tiltStrokes::creator,
+							 tiltStrokes::initialize);
+	mser;
+
+
 	st = plugin.registerNode("displaceStrokes", displaceStrokes::id, displaceStrokes::creator,
 							 displaceStrokes::initialize);
 	mser;
@@ -230,8 +236,12 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(displaceStrokes::id);
 	mser;
 
+	st = plugin.deregisterNode(tiltStrokes::id);
+	mser;
+
 	st = plugin.deregisterNode(aimStrokes::id);
 	mser;
+	
 	st = plugin.deregisterNode(mapColorStrokes::id);
 	mser;
 

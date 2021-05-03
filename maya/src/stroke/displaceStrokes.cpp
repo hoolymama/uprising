@@ -63,7 +63,8 @@ MStatus displaceStrokes::initialize()
   return (MS::kSuccess);
 }
 
-MStatus displaceStrokes::mutate(const MPlug &plug, MDataBlock &data, std::vector<Stroke> *strokes) const
+MStatus displaceStrokes::mutate(
+  const MPlug &plug, MDataBlock &data, std::vector<Stroke> *strokes) const
 {
   MStatus st;
   MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
