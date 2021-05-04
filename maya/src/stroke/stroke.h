@@ -199,7 +199,7 @@ public:
 	void appendRepeatIdToSortStack(bool ascending);
 	void appendTargetCountToSortStack(bool ascending);
 
-	void appendCustomBrushIdToSortStack(bool ascending);
+	// void appendCustomBrushIdToSortStack(bool ascending);
 
 	void appendMapRedIdToSortStack(bool ascending);
 	void appendMapGreenIdToSortStack(bool ascending);
@@ -215,7 +215,7 @@ public:
 	bool testRepeatId(FilterOperator op, int value) const;
 	bool testTargetCount(FilterOperator op, int value) const;
 
-	bool testCustomBrushId(FilterOperator op, int value) const;
+	// bool testCustomBrushId(FilterOperator op, int value) const;
 	bool testMapRedId(FilterOperator op, int value) const;
 	bool testMapGreenId(FilterOperator op, int value) const;
 	bool testMapBlueId(FilterOperator op, int value) const;

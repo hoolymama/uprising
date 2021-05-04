@@ -357,11 +357,11 @@ void Stroke::setFilterColor(const MFloatVector &color)
 	m_filterColor = color;
 }
 
-// void Stroke::appendStrokeIdToSortStack(bool ascending)
-// {
-// 	int val = ascending ? m_strokeId : -m_strokeId;
-// 	m_sortStack.append(val);
-// }
+void Stroke::appendStrokeIdToSortStack(bool ascending)
+{
+	int val = ascending ? m_strokeId : -m_strokeId;
+	m_sortStack.append(val);
+}
 
 void Stroke::appendParentIdToSortStack(bool ascending)
 {
@@ -439,10 +439,10 @@ bool Stroke::testAgainstValue(int lhs, FilterOperator op, int rhs) const
 	}
 }
 
-// bool Stroke::testStrokeId(FilterOperator op, int value) const
-// {
-// 	return testAgainstValue(m_strokeId, op, value);
-// }
+bool Stroke::testStrokeId(FilterOperator op, int value) const
+{
+	return testAgainstValue(m_strokeId, op, value);
+}
 bool Stroke::testParentId(FilterOperator op, int value) const
 {
 	return testAgainstValue(m_parentId, op, value);

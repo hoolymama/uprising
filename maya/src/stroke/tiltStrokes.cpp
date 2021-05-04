@@ -100,23 +100,23 @@ MStatus tiltStrokes::mutate(
  
   MStatus st;
   MObject thisObj = thisMObject();
-  JPMDBG;
+  // JPMDBG;
   if (!TexUtils::hasTexture(thisObj, tiltStrokes::aGradientTexture))
   {
     return MS::kUnknownParameter;
   }
-  JPMDBG;
+  // JPMDBG;
   float sampleDist = data.inputValue(aSampleDistance).asFloat();
   float strength = data.inputValue(aStrength).asFloat();
-  JPMDBG;
+  // JPMDBG;
   if (sampleDist == 0.0 || strength == 0.0)
   {
     return MS::kUnknownParameter;
   }
-  JPMDBG;
+  // JPMDBG;
   MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
   MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
-  JPMDBG;
+  // JPMDBG;
 
   MFloatPointArray points;
   std::vector<Stroke>::const_iterator csiter = strokes->begin();
@@ -128,7 +128,7 @@ MStatus tiltStrokes::mutate(
       points.append(ctiter->position());
     }
   }
-  JPMDBG;
+  // JPMDBG;
   MFloatVectorArray gradients;
   st = TexUtils::sample3dGradient(
       thisObj,
@@ -141,7 +141,7 @@ MStatus tiltStrokes::mutate(
   {
     return MS::kUnknownParameter;
   }
-  JPMDBG;
+  // JPMDBG;
 
 
   std::vector<Stroke>::iterator siter = strokes->begin();
@@ -163,7 +163,7 @@ MStatus tiltStrokes::mutate(
       titer->rotate(rotMat);
       }
   }
-  JPMDBG;
+  // JPMDBG;
   return MS::kSuccess;
 }
 

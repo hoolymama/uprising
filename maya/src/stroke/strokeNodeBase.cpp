@@ -64,12 +64,12 @@ MStatus strokeNodeBase::initialize()
  
 
   aStrokeSortKey = eAttr.create("strokeSortKey", "stsk", Stroke::kBrushId);
-  eAttr.addField("Brush Id", Stroke::kStrokeId);
+  eAttr.addField("Stroke Id", Stroke::kStrokeId);
   eAttr.addField("Brush Id", Stroke::kBrushId);
   eAttr.addField("Paint Id", Stroke::kPaintId);
   eAttr.addField("Repeat Id", Stroke::kRepeatId);
   eAttr.addField("Layer Id", Stroke::kLayerId);
-  eAttr.addField("Layer Id", Stroke::kParentId);
+  eAttr.addField("Parent Id", Stroke::kParentId);
   eAttr.addField("Target Count", Stroke::kTargetCount);
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
@@ -102,13 +102,13 @@ MStatus strokeNodeBase::initialize()
   addAttribute(aApplySort);
 
   aStrokeFilterKey = eAttr.create("strokeFilterKey", "stfk", Stroke::kBrushId);
-
+  eAttr.addField("Stroke Id", Stroke::kStrokeId);
   eAttr.addField("Brush Id", Stroke::kBrushId);
   eAttr.addField("Paint Id", Stroke::kPaintId);
   eAttr.addField("Repeat Id", Stroke::kRepeatId);
   eAttr.addField("Layer Id", Stroke::kLayerId);
+  eAttr.addField("Parent Id", Stroke::kParentId);
   eAttr.addField("Target Count", Stroke::kTargetCount);
-
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
@@ -171,10 +171,13 @@ MStatus strokeNodeBase::initialize()
   tAttr.setStorable(false);
   addAttribute(aOutput);
 
+  
+  st = attributeAffects(aApplySort, aOutput);
   st = attributeAffects(aStrokeSortKey, aOutput);
   st = attributeAffects(aStrokeSortDirection, aOutput);
   st = attributeAffects(aStrokeSortList, aOutput);
   st = attributeAffects(aStrokeSortTexture, aOutput);
+  st = attributeAffects(aApplyFilters, aOutput);
   st = attributeAffects(aStrokeFilterKey, aOutput);
   st = attributeAffects(aStrokeFilterOperator, aOutput);
   st = attributeAffects(aStrokeFilterOperand, aOutput);
@@ -346,6 +349,7 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
     return;
   }
 
+
   /* Set the mapped colors so they may be used for filtering */
   bool useFilterMap = filterDefinition.usesMap();
   if (useFilterMap)
@@ -371,6 +375,12 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
     switch (key)
     {
 
+
+
+    case Stroke::kStrokeId:
+      new_end = std::remove_if(geom->begin(), geom->end(),
+                               [op, value](const Stroke &stroke) { return stroke.testStrokeId(op, value) == false; });
+      break;
     case Stroke::kBrushId:
       new_end = std::remove_if(geom->begin(), geom->end(),
                                [op, value](const Stroke &stroke) { return stroke.testBrushId(op, value) == false; });
@@ -378,10 +388,6 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
     case Stroke::kPaintId:
       new_end = std::remove_if(geom->begin(), geom->end(),
                                [op, value](const Stroke &stroke) { return stroke.testPaintId(op, value) == false; });
-      break;
-    case Stroke::kLayerId:
-      new_end = std::remove_if(geom->begin(), geom->end(),
-                               [op, value](const Stroke &stroke) { return stroke.testLayerId(op, value) == false; });
       break;
     case Stroke::kRepeatId:
       new_end = std::remove_if(geom->begin(), geom->end(),
@@ -391,6 +397,14 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
       new_end = std::remove_if(geom->begin(), geom->end(),
                                [op, value](const Stroke &stroke) { return stroke.testTargetCount(op, value) == false; });
       break;
+    case Stroke::kLayerId:
+      new_end = std::remove_if(geom->begin(), geom->end(),
+                               [op, value](const Stroke &stroke) { return stroke.testLayerId(op, value) == false; });
+      break;
+      case Stroke::kParentId:
+      new_end = std::remove_if(geom->begin(), geom->end(),
+                               [op, value](const Stroke &stroke) { return stroke.testParentId(op, value) == false; });
+     break;
 
     case Stroke::kMapRed:
       if (useFilterMap)
@@ -497,7 +511,13 @@ void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) co
     bool ascending = (sortiter->second == Stroke::kSortAscending);
     switch (sortiter->first)
     {
-   
+      case Stroke::kStrokeId:
+      for (iter = geom->begin(); iter != geom->end(); iter++)
+      {
+        iter->appendStrokeIdToSortStack(ascending);
+      }
+      break;
+
     case Stroke::kBrushId:
       for (iter = geom->begin(); iter != geom->end(); iter++)
       {
@@ -516,6 +536,13 @@ void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) co
         iter->appendLayerIdToSortStack(ascending);
       }
       break;
+        case Stroke::kParentId:
+      for (iter = geom->begin(); iter != geom->end(); iter++)
+      {
+        iter->appendParentIdToSortStack(ascending);
+      }
+      break;
+
     case Stroke::kRepeatId:
       for (iter = geom->begin(); iter != geom->end(); iter++)
       {
