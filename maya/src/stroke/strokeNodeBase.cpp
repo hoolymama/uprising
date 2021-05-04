@@ -64,13 +64,13 @@ MStatus strokeNodeBase::initialize()
  
 
   aStrokeSortKey = eAttr.create("strokeSortKey", "stsk", Stroke::kBrushId);
-
+  eAttr.addField("Brush Id", Stroke::kStrokeId);
   eAttr.addField("Brush Id", Stroke::kBrushId);
   eAttr.addField("Paint Id", Stroke::kPaintId);
   eAttr.addField("Repeat Id", Stroke::kRepeatId);
   eAttr.addField("Layer Id", Stroke::kLayerId);
+  eAttr.addField("Layer Id", Stroke::kParentId);
   eAttr.addField("Target Count", Stroke::kTargetCount);
-
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);

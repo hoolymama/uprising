@@ -74,7 +74,6 @@ public:
 		kLayerId,
 		kParentId,
 		kTargetCount,
-		kCustomBrushId,
 		kMapRed,
 		kMapGreen,
 		kMapBlue,
