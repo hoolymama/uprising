@@ -10,7 +10,7 @@
 #include "cImgUtils.h"
 
 #include <jMayaIds.h>
-// #include "mayaMath.h"
+
 #include "errorMacros.h"
 #include "texUtils.h"
 
@@ -46,8 +46,7 @@ MStatus tiltStrokes::initialize()
 {
   MStatus st;
   MString method("tiltStrokes::initialize");
-	inheritAttributesFrom("strokeMutator");
-
+  inheritAttributesFrom("strokeMutator");
 
   MFnNumericAttribute nAttr;
   MFnTypedAttribute tAttr;
@@ -69,7 +68,7 @@ MStatus tiltStrokes::initialize()
   addAttribute(aGradientTexture);
 
   aSampleDistance = nAttr.create("sampleDistance",
-                                           "sds", MFnNumericData::kFloat);
+                                 "sds", MFnNumericData::kFloat);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -78,7 +77,7 @@ MStatus tiltStrokes::initialize()
   nAttr.setDefault(0.01);
   addAttribute(aSampleDistance);
 
-  aStrength = nAttr.create("strength",  "stn", MFnNumericData::kFloat);
+  aStrength = nAttr.create("strength", "stn", MFnNumericData::kFloat);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -95,32 +94,31 @@ MStatus tiltStrokes::initialize()
 }
 
 MStatus tiltStrokes::mutate(
-  const MPlug &plug, MDataBlock &data, std::vector<Stroke> *strokes) const 
+    const MPlug &plug, MDataBlock &data, std::vector<Stroke> *strokes) const
 {
- 
+
   MStatus st;
   MObject thisObj = thisMObject();
-  // JPMDBG;
+
   if (!TexUtils::hasTexture(thisObj, tiltStrokes::aGradientTexture))
   {
     return MS::kUnknownParameter;
   }
-  // JPMDBG;
+
   float sampleDist = data.inputValue(aSampleDistance).asFloat();
   float strength = data.inputValue(aStrength).asFloat();
-  // JPMDBG;
+
   if (sampleDist == 0.0 || strength == 0.0)
   {
     return MS::kUnknownParameter;
   }
-  // JPMDBG;
+
   MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
   MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
-  // JPMDBG;
 
   MFloatPointArray points;
   std::vector<Stroke>::const_iterator csiter = strokes->begin();
-  for (;csiter != strokes->end(); csiter++)
+  for (; csiter != strokes->end(); csiter++)
   {
     Stroke::const_target_iterator ctiter = csiter->targets_begin();
     for (; ctiter != csiter->targets_end(); ctiter++)
@@ -128,7 +126,7 @@ MStatus tiltStrokes::mutate(
       points.append(ctiter->position());
     }
   }
-  // JPMDBG;
+
   MFloatVectorArray gradients;
   st = TexUtils::sample3dGradient(
       thisObj,
@@ -141,8 +139,6 @@ MStatus tiltStrokes::mutate(
   {
     return MS::kUnknownParameter;
   }
-  // JPMDBG;
-
 
   std::vector<Stroke>::iterator siter = strokes->begin();
   for (unsigned i = 0; siter != strokes->end(); siter++)
@@ -159,11 +155,10 @@ MStatus tiltStrokes::mutate(
       {
         continue;
       }
-      MFloatMatrix rotMat = MFloatMatrix(MQuaternion(mag, axis).asMatrix().matrix); 
+      MFloatMatrix rotMat = MFloatMatrix(MQuaternion(mag, axis).asMatrix().matrix);
       titer->rotate(rotMat);
-      }
+    }
   }
-  // JPMDBG;
+
   return MS::kSuccess;
 }
-
