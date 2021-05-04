@@ -21,20 +21,20 @@ class DipWipeExerciseSession(Session):
 
     PROGRAM_NAME = "dwex"
 
-    def __init__(self, combinations):
+    def __init__(self, combinations, **kwargs):
 
         timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
         self.directory = os.path.join(pm.workspace.getPath(
         ), 'export', 'calibrations', self.PROGRAM_NAME, timestamp)
 
-
         brush_ids = list(set([c["brush"] for c in combinations]))
         robo.clean("kr30")
+
         with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
             pm.displayInfo("Creating pick_place_collection")
             self.pick_place_collection = PickPlaceCollection(brush_ids)
             pm.displayInfo("Creating dip_wipe_ex_collection")
-            self.dip_wipe_ex_collection = DipWipeExerciseCollection(combinations)
+            self.dip_wipe_ex_collection = DipWipeExerciseCollection(combinations, **kwargs)
             pm.displayInfo("Creating exercise_program")
             self.exercise_program = DipWipeExerciseProgram(self.PROGRAM_NAME, combinations)
 

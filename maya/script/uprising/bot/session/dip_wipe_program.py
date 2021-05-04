@@ -16,7 +16,11 @@ class DipWipeProgram(Program):
     def generate_program_name(paint_id, brush_id):
         return "p{:02d}_b{:02d}".format(paint_id, brush_id)
 
-    def __init__(self, pack):
+    def __init__(self, pack, **kwargs):
+        self.do_dip=kwargs.get("dip", True)
+        self.do_wipe=kwargs.get("wipe", True)
+
+
         print "DipWipeProgram init pack:", pack
         name = DipWipeProgram.generate_program_name(pack["paint_id"], pack["brush_id"])
 
@@ -25,9 +29,14 @@ class DipWipeProgram(Program):
         self.wipe_painting = BotPainting(pack["wipe"])
 
     def configure(self):
-        for cluster in self.dip_painting.clusters + self.wipe_painting.clusters:
+        print "DipWipeProgram CONFIGURING dip_painting.clusters and wipe_painting.clusters"
+        for cluster in self.dip_painting.clusters:
             for stroke in cluster.strokes:
                 stroke.configure(cluster.brush)
+
+            for cluster in self.wipe_painting.clusters:
+                for stroke in cluster.strokes:
+                    stroke.configure(cluster.brush)
 
     def send(self):
 
@@ -41,12 +50,12 @@ class DipWipeProgram(Program):
             "Dip with tool %s" % self.dip_painting.clusters[0].brush.node_name,
             INSTRUCTION_COMMENT,
         )
-
-        for cluster in self.dip_painting.clusters:
-            cluster.send(self.program, robo.dips_frame, self.dip_painting.motion)
-
-        for cluster in self.wipe_painting.clusters:
-            cluster.send(self.program, robo.dips_frame, self.wipe_painting.motion)
+        if self.do_dip:
+            for cluster in self.dip_painting.clusters:
+                cluster.send(self.program, robo.dips_frame, self.dip_painting.motion)
+        if self.do_wipe:
+            for cluster in self.wipe_painting.clusters:
+                cluster.send(self.program, robo.dips_frame, self.wipe_painting.motion)
 
 
 class WashProgram(Program):
@@ -54,7 +63,10 @@ class WashProgram(Program):
     def generate_program_name(brush_id):
         raise NotImplementedError
 
-    def __init__(self, pack):
+    def __init__(self, pack, **kwargs):
+        self.do_dip=kwargs.get("dip", True)
+        self.do_wipe=kwargs.get("wipe", True)
+
         name = self.generate_program_name(pack["brush_id"])
         super(WashProgram, self).__init__(name)
         self.dip_painting = BotPainting(pack["dip"])
@@ -67,12 +79,6 @@ class WashProgram(Program):
             cluster.configure()
         for cluster in self.wipe_painting.clusters:
             cluster.configure()
-
-    def configure(self):
-        for cluster in self.dip_painting.clusters + self.wipe_painting.clusters:
-            for stroke in cluster.strokes:
-                stroke.configure(cluster.brush)
-
 
     def _valid(self):
         return self.dip_painting.clusters and self.wipe_painting.clusters
@@ -91,13 +97,13 @@ class WashProgram(Program):
             ),
             INSTRUCTION_COMMENT,
         )
-
-        for cluster in self.dip_painting.clusters:
-            cluster.send(self.program, robo.wash_frame, self.dip_painting.motion)
-
-        for repeat in range(self.repeats):
-            for cluster in self.wipe_painting.clusters:
-                cluster.send(self.program, robo.wash_frame, self.wipe_painting.motion)
+        if self.do_dip:
+            for cluster in self.dip_painting.clusters:
+                cluster.send(self.program, robo.wash_frame, self.dip_painting.motion)
+        if self.do_wipe:
+            for repeat in range(self.repeats):
+                for cluster in self.wipe_painting.clusters:
+                    cluster.send(self.program, robo.wash_frame, self.wipe_painting.motion)
 
 
 class WaterProgram(WashProgram):
@@ -105,8 +111,8 @@ class WaterProgram(WashProgram):
     def generate_program_name(brush_id):
         return "water_b{:02d}".format(brush_id)
 
-    def __init__(self, pack, repeats):
-        super(WaterProgram, self).__init__(pack)
+    def __init__(self, pack, repeats, **kwargs):
+        super(WaterProgram, self).__init__(pack, **kwargs)
         self.repeats = repeats
 
     # def send(self):
@@ -120,8 +126,8 @@ class RetardantProgram(WashProgram):
     def generate_program_name(brush_id):
         return "retardant_b{:02d}".format(brush_id)
 
-    def __init__(self, pack):
-        super(RetardantProgram, self).__init__(pack)
+    def __init__(self, pack, **kwargs):
+        super(RetardantProgram, self).__init__(pack, **kwargs)
         # Dont wipe retardant off
         self.repeats = 0
 
@@ -255,7 +261,8 @@ class DipWipeCollection(RackCollection):
 
 
 class DipWipeExerciseCollection(RackCollection):
-    def __init__(self, combination_ids):
+    def __init__(self, combination_ids, **kwargs):
+        self.kwargs = kwargs
         self.combination_ids = combination_ids
         print "self.combination_ids", self.combination_ids
         super(DipWipeExerciseCollection, self).__init__()
@@ -265,12 +272,13 @@ class DipWipeExerciseCollection(RackCollection):
         pass
 
     def _build(self):
+        kwargs = self.kwargs
         result = []
         for paint_id in self.packs:
             paint_pack = self.packs[paint_id]
             for brush_id in paint_pack:
                 pack = paint_pack[brush_id]
-                result.append(DipWipeProgram(pack))
+                result.append(DipWipeProgram(pack,**kwargs))
         return result
 
         # self.painting_node = pm.PyNode("mainPaintingShape")

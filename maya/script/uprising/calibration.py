@@ -4,7 +4,7 @@ from uprising import palette_utils as putl
 import pymel.core as pm
 
 import uprising.utils as uutl
-
+from uprising import robo
 
 from uprising.bot.session.pick_place_exercise_session import PickPlaceExerciseSession
 from uprising.session.pot_calibration_session import PotCalibrationSession
@@ -252,41 +252,56 @@ def _set_precise(xf, gauge_reading, probe_height):
 
 
 def generate_pick_place_exercise():
+    robo.new()
+    robo.hide()
     session = PickPlaceExerciseSession()
-    session.send()
-    session.publish()
-
+    session.run()
+    robo.show()
 
 def generate_pot_calibration():
+    robo.new()
+    robo.hide()
     session = PotCalibrationSession()
-    session.send()
-    session.publish()
+    session.run()
+    robo.show()
+
 
 
 def generate_holder_calibration():
+    robo.new()
+    robo.hide()
     session = HolderCalibrationSession()
-    session.send()
-    session.publish()
+    session.run()
+    robo.show()
 
 
 def generate_board_calibration():
+    robo.new()
+    robo.hide()
     session = BoardCalibrationSession()
-    session.send()
-    session.publish()
+    session.run()
+    robo.show()
 
 
 def generate_rack_calibration():
+    robo.new()
+    robo.hide()
     session = RackCalibrationSession()
-    session.send()
-    session.publish()
+    session.run()
+    robo.show()
+
 
 
 def generate_manual_probe_calibration():
+    robo.new()
+    robo.hide()
     session = ManualProbeSession()
-    session.send()
-    session.publish()
+    session.run()
+    robo.show()
 
 def generate_kr8_object_track():
+    robo.new()
+    robo.hide()
     session = Kr8TrackSession()
-    session.send()
-    session.publish()
+    session.run()
+    robo.show()

@@ -19,32 +19,35 @@ class PickPlaceExerciseSession(Session):
     PROGRAM_NAME = "pap"
 
     def __init__(self):
-        with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-            brush_ids = [int(n[-2:]) for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
-            self.pick_place_collection = PickPlaceCollection(brush_ids)
-            self.exercise_program = PickPlaceExerciseProgram(self.PROGRAM_NAME)
 
-    def send(self):
-        robo.new()
+        timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
+        self.directory = os.path.join(pm.workspace.getPath(
+        ), 'export', 'calibrations', self.PROGRAM_NAME, timestamp)
         robo.clean("kr30")
         with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-            self.exercise_program.send()
+            brush_ids = [int(n[-2:]) for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
+            pm.displayInfo("Creating pick_place_collection")
+            self.pick_place_collection = PickPlaceCollection(brush_ids)
+            pm.displayInfo("Creating exercise_program")
+            self.exercise_program = PickPlaceExerciseProgram(self.PROGRAM_NAME)
+
+    def run(self):
+        with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
             self.pick_place_collection.send()
+            self.exercise_program.send()
             self.send_rack_geo()
-            self.send_holder_geo()
-        robo.show()
+            self.send_holder_geo() 
 
-    def publish(self):
-        program_name = self.exercise_program.program_name
-        timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
-        directory = os.path.join(pm.workspace.getPath(
-        ), 'export', 'calibrations', program_name, timestamp)
-
-        src_fn = self.save_program(directory, program_name)
+        pm.displayInfo("Publish main_file")
+        main_file = self.save_program(self.directory, self.PROGRAM_NAME)
 
         program_names = self.pick_place_collection.program_names()
-        for program_name in program_names:
-            self.save_program(directory, program_name)
 
-        self.insert_external_dependencies(program_names, src_fn)
-        self.save_station(directory, program_name)
+        for program_name in program_names:
+            pm.displayInfo("Publish {}".format(program_name))
+            self.save_program(self.directory, program_name)
+
+        self.insert_external_dependencies(program_names, main_file)
+        pm.displayInfo("Save_station {}".format(self.PROGRAM_NAME))
+        self.save_station(self.directory, self.PROGRAM_NAME)
+ 

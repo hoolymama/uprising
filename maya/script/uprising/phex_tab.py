@@ -33,11 +33,11 @@ class phexTab(gui.FormLayout):
         )
 
         self.add_brushes_row = pm.rowLayout(
-            numberOfColumns=3,
-            columnWidth3=(200, 200, 150),
+            numberOfColumns=4,
+            columnWidth4=(200, 200, 150, 210),
             adjustableColumn=3,
             columnAlign=(1, "right"),
-            columnAttach=[(1, "both", 2), (2, "both", 2), (2, "both", 2)],
+            columnAttach=[(1, "both", 2), (2, "both", 2), (3, "both", 2), (4, "both", 2)],
         )
         pm.button(label="Load selected brushes", command=pm.Callback(self.on_load_selected_brushes))
 
@@ -45,7 +45,16 @@ class phexTab(gui.FormLayout):
 
         pm.button(label="Clear", command=pm.Callback(self.on_clear_brushes))
 
+        self.do_components_cb = pm.checkBoxGrp(
+            columnWidth3=(10, 100, 100),
+            numberOfCheckBoxes=2,
+            label="",
+            valueArray2=(1, 1),
+            labelArray2=("Do Dips", "Do Wipes")
+        )
         pm.setParent("..")
+
+
 
         pm.scrollLayout(bv=True)
         self.brushes_column = pm.columnLayout(adj=True)
@@ -111,10 +120,17 @@ class phexTab(gui.FormLayout):
         uutl.show_in_window(data, title="Pot/holder  exercise stats")
 
     def on_go(self):
+
+        do_dip, do_wipe = pm.checkBoxGrp(
+            self.do_components_cb, query=True, valueArray2=True
+        )
+
+        kwargs = {"dip": do_dip,"wipe": do_wipe}
+
         data = self.get_pot_handle_exercise_data()
         robo.new()
         robo.hide()
-        session = DipWipeExerciseSession(data["combinations"])
+        session = DipWipeExerciseSession(data["combinations"], **kwargs)
         session.run()
         robo.show()
 

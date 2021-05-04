@@ -10,7 +10,8 @@ from robolink import (
 
 
 class DipWipeExerciseProgram(Program):
-    def __init__(self, name, combinations):
+    def __init__(self, name, combinations, **kwargs):
+
         super(DipWipeExerciseProgram, self).__init__(name)
         self.combinations = combinations
 
