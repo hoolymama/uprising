@@ -35,7 +35,8 @@ from uprising.bot.session import (
     pick_place_exercise_program,
     pick_place_exercise_session,
     pick_place_program,
-    bot_painting_session
+    bot_painting_session,
+    configurator
 )
 
 from uprising.common.session import (
@@ -88,6 +89,7 @@ from uprising import (
 
 
 ####################
+reload(configurator)
 reload(brush)
 reload(paint)
 reload(target)

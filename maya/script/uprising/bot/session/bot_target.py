@@ -11,22 +11,10 @@ class BotTarget(Target):
     def __init__(self, target_id, position, rotation):
         super(BotTarget, self).__init__(target_id, position, rotation)
 
-    def send(self, prefix, program, frame):
-
-        link = robo.link()
-        robot = robo.robot()
-        target_name = self.name(prefix)
-        rdk_target = link.AddTarget(target_name, frame, robot)
-        rdk_target.setPose(self.tool_pose)
-        rdk_target.setJoints(self.joint_pose)
-        if self.linear:
-            program.addMoveL(rdk_target)
-        else:
-            program.addMoveJ(rdk_target)
 
     def solve_single_joint_poses(self, brush, prev_target=None):
         """
-        # joint_poses : {
+    # joint_poses : {
         # "010": [[90,78,34,123,76,86], [90,78,34,123,76,86], ...],
         # "011": [[-124,78,34,123,76,86], [-124,78,34,123,76,86], ...],
         # ...
@@ -43,6 +31,9 @@ class BotTarget(Target):
 
         self.joint_poses = robo.solve_single_joint_pose(flange_pose, prev_pose)
 
+    def flange_pose(self, brush):
+        return self.tool_pose * brush.matrix.invH()
+
     def solve_all_joint_poses(self, brush):
         """
         # joint_poses : {
@@ -56,6 +47,19 @@ class BotTarget(Target):
 
     def _find_first_config(self):
         return [k for k in self.joint_poses.keys() if self.joint_poses[k]][0]
+
+    def send(self, prefix, program, frame):
+
+        link = robo.link()
+        robot = robo.robot()
+        target_name = self.name(prefix)
+        rdk_target = link.AddTarget(target_name, frame, robot)
+        rdk_target.setPose(self.tool_pose)
+        rdk_target.setJoints(self.joint_pose)
+        if self.linear:
+            program.addMoveL(rdk_target)
+        else:
+            program.addMoveJ(rdk_target)
 
 
 class ArrivalTarget(BotTarget):
