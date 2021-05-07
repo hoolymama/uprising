@@ -3,6 +3,8 @@ global proc AEpaintStrokeCreatorInclude (string $nodeName)
 
 	editorTemplate -cl 0 -beginLayout "Stroke length attributes";
 		editorTemplate -addControl "strokeLength";
+		editorTemplate -addControl "minimumStrokeAdvance";
+		
 		editorTemplate -addControl "overlap";
 		editorTemplate -addControl "minimumPoints";
 		editorTemplate -addControl "entryTransitionLength";

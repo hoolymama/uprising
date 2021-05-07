@@ -226,8 +226,11 @@ class PublishTab(gui.FormLayout):
 
         if not dry_run:
             robo.new()
-            robo.hide()
-        
+            if do_single:
+                robo.show()
+            else:
+                robo.hide()
+
         retries_session = None
         if do_retries:
             retries_session = RetriesSession(

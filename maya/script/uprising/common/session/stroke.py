@@ -21,12 +21,11 @@ class Stroke(object):
         self.linear_speed = self.query_linear_speed()
         self.angular_speed = self.query_angular_speed()
         self.config = None
-
+        self.ignore = False
         self._build_targets()
 
     def name(self, prefix):
         return "{}_p{}_s{}".format(prefix, self.parent_id, self.id)
-
 
     def _build_targets(self):
         raise NotImplementedError
@@ -52,30 +51,30 @@ class Stroke(object):
     #############################
     #############################
 
-    def test_linear_moves(self, configs, brush):
+    # def test_linear_moves(self, configs, brush):
 
-        robot = robo.robot()
+    #     robot = robo.robot()
 
-        # setPoseTool to the brush if not already set
-        brush.send()
+    #     # setPoseTool to the brush if not already set
+    #     brush.send()
 
-        for config in configs:
-            print "Tesing linear move for Stroke {} config: {}".format(
-                self.name("-"), config)
-            joints = self.targets[0].joint_poses[config][0]
-            config_okay = True
-            for target in self.targets[1:]:
-                fail = robot.MoveL_Test(joints, target.tool_pose, minstep_mm=2)
-                if fail:
-                    config_okay = False
-                    break
-                joints = target.joint_poses[config][0]
+    #     for config in configs:
+    #         print "Tesing linear move for Stroke {} config: {}".format(
+    #             self.name("-"), config)
+    #         joints = self.targets[0].joint_poses[config][0]
+    #         config_okay = True
+    #         for target in self.targets[1:]:
+    #             fail = robot.MoveL_Test(joints, target.tool_pose, minstep_mm=2)
+    #             if fail:
+    #                 config_okay = False
+    #                 break
+    #             joints = target.joint_poses[config][0]
 
-            if config_okay:
-                print "Config {} is okay! Returning".format(config)
-                return config
-            else:
-                print "Config {} NOT okay! Continuing".format(config)
+    #         if config_okay:
+    #             print "Config {} is okay! Returning".format(config)
+    #             return config
+    #         else:
+    #             print "Config {} NOT okay! Continuing".format(config)
 
 
     # def best_config(self):

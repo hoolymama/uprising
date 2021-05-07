@@ -59,6 +59,7 @@ protected:
         const MObject &dCurve,
         const MFloatVector &canvasNormal,
         float strokeLength,
+        float minimumStrokeAdvance,
         float overlap,
         float extendEntry,
         float extendExit,
@@ -72,6 +73,7 @@ protected:
         const MFloatVector &canvasNormal,
         float lastEndDist,
         float strokeLength,
+        float minimumStrokeAdvance,
         float overlap,
         float extendEntry,
         float extendExit,
@@ -109,6 +111,7 @@ protected:
 
     static MObject aCanvasMatrix;
     static MObject aStrokeLength;
+    static MObject aMinimumStrokeAdvance;
     static MObject aOverlap;
     static MObject aPaintId;
     static MObject aBrushFollowStroke;

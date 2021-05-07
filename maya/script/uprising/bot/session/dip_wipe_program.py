@@ -4,6 +4,7 @@ from uprising.common.session.program import Program
 from uprising.bot.session.bot_painting import BotPainting
 from uprising import progress
 from robolink import INSTRUCTION_COMMENT
+from uprising.bot.session import configurator
 
 WATER_POT_ID = 9
 WATER_REPEATS = 2
@@ -32,11 +33,11 @@ class DipWipeProgram(Program):
         print "DipWipeProgram CONFIGURING dip_painting.clusters and wipe_painting.clusters"
         for cluster in self.dip_painting.clusters:
             for stroke in cluster.strokes:
-                stroke.configure(cluster.brush)
+                configurator.solve(stroke, cluster.brush)
 
             for cluster in self.wipe_painting.clusters:
                 for stroke in cluster.strokes:
-                    stroke.configure(cluster.brush)
+                    configurator.solve(stroke, cluster.brush)
 
     def send(self):
 
@@ -71,14 +72,12 @@ class WashProgram(Program):
         super(WashProgram, self).__init__(name)
         self.dip_painting = BotPainting(pack["dip"])
         self.wipe_painting = BotPainting(pack["wipe"])
-        # self.frame = None
         self.repeats = 0
 
     def configure(self):
-        for cluster in self.dip_painting.clusters:
-            cluster.configure()
-        for cluster in self.wipe_painting.clusters:
-            cluster.configure()
+        for cluster in self.dip_painting.clusters + self.wipe_painting.clusters:
+            for stroke in cluster.strokes:
+                configurator.solve(stroke, cluster.brush)
 
     def _valid(self):
         return self.dip_painting.clusters and self.wipe_painting.clusters
@@ -115,12 +114,6 @@ class WaterProgram(WashProgram):
         super(WaterProgram, self).__init__(pack, **kwargs)
         self.repeats = repeats
 
-    # def send(self):
-    #     if not self._valid:
-    #         return
-    #     super(WaterProgram, self).send()
-
-
 class RetardantProgram(WashProgram):
     @staticmethod
     def generate_program_name(brush_id):
@@ -130,12 +123,6 @@ class RetardantProgram(WashProgram):
         super(RetardantProgram, self).__init__(pack, **kwargs)
         # Dont wipe retardant off
         self.repeats = 0
-
-    # def send(self):
-    #     if not self._valid:
-    #         return
-    #     super(RetardantProgram, self).send()
-
 
 class RackCollection(object):
     def __init__(self):
@@ -174,11 +161,6 @@ class RackCollection(object):
             }
 
         return result
-
-    # def configure(self):
-    #     print  " programs", self.programs
-    #     for program in self.programs:
-    #         program.configure()
 
     def _resolve_combination_ids(self):
         raise NotImplementedError
@@ -280,8 +262,3 @@ class DipWipeExerciseCollection(RackCollection):
                 pack = paint_pack[brush_id]
                 result.append(DipWipeProgram(pack,**kwargs))
         return result
-
-        # self.painting_node = pm.PyNode("mainPaintingShape")
-        # self._resolve_combination_ids()
-        # self.packs = self.get_packs()
-        # self.programs = self._build()

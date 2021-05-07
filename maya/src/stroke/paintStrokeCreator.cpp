@@ -34,6 +34,7 @@ const double rad_to_deg = (180 / 3.1415927);
 
 MObject paintStrokeCreator::aCanvasMatrix;
 MObject paintStrokeCreator::aStrokeLength;
+MObject paintStrokeCreator::aMinimumStrokeAdvance;
 MObject paintStrokeCreator::aOverlap;
 MObject paintStrokeCreator::aPaintId;
 MObject paintStrokeCreator::aBrushFollowStroke;
@@ -72,7 +73,6 @@ MStatus paintStrokeCreator::initialize()
 
     inheritAttributesFrom("strokeCreator");
 
-
     MFloatMatrix identity;
     identity.setToIdentity();
     aCanvasMatrix = mAttr.create("canvasMatrix", "cmat", MFnMatrixAttribute::kFloat);
@@ -89,6 +89,15 @@ MStatus paintStrokeCreator::initialize()
     nAttr.setMin(0.01f);
     nAttr.setDefault(10.0f);
     st = addAttribute(aStrokeLength);
+    mser;
+
+    aMinimumStrokeAdvance = nAttr.create("minimumStrokeAdvance", "msta", MFnNumericData::kFloat);
+    nAttr.setStorable(true);
+    nAttr.setReadable(true);
+    nAttr.setKeyable(true);
+    nAttr.setMin(0.1f);
+    nAttr.setDefault(0.3f);
+    st = addAttribute(aMinimumStrokeAdvance);
     mser;
 
     aOverlap = nAttr.create("overlap", "ovlp", MFnNumericData::kFloat);
@@ -134,9 +143,6 @@ MStatus paintStrokeCreator::initialize()
     st = addAttribute(aApplyBrushBias);
     mser;
 
-    
-
-
     aSplitTestInterval = nAttr.create("splitTestInterval", "spti", MFnNumericData::kFloat);
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
@@ -176,9 +182,8 @@ MStatus paintStrokeCreator::initialize()
     mser;
     //////////////
 
- 
-
     attributeAffects(aStrokeLength, aOutput);
+    attributeAffects(aMinimumStrokeAdvance, aOutput);
     attributeAffects(aOverlap, aOutput);
     attributeAffects(aPaintId, aOutput);
     attributeAffects(aBrushFollowStroke, aOutput);
@@ -192,9 +197,6 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aMinimumPoints, aOutput);
     attributeAffects(aApplyBrushBias, aOutput);
 
- 
-    
-
     return (MS::kSuccess);
 }
 
@@ -206,12 +208,11 @@ MStatus paintStrokeCreator::generateStrokeGeometry(
     return MS::kUnknownParameter;
 }
 
-
-
 unsigned int paintStrokeCreator::getStrokeBoundaries(
     const MObject &dCurve,
     const MFloatVector &canvasNormal,
     float strokeLength,
+    float minimumStrokeAdvance,
     float overlap,
     float extendEntry,
     float extendExit,
@@ -239,9 +240,13 @@ unsigned int paintStrokeCreator::getStrokeBoundaries(
         overlap = 0.0f;
     }
 
+    int counter = 0;
     do
     {
-
+        if (counter++ > 10)
+        {
+            break;
+        }
         MFloatVector boundary;
         bool done = getBoundary(
             dCurve,
@@ -249,12 +254,14 @@ unsigned int paintStrokeCreator::getStrokeBoundaries(
             canvasNormal,
             lastEndDist,
             strokeLength,
+            minimumStrokeAdvance,
             overlap,
             extendEntry,
             extendExit,
             splitAngle,
             splitTestInterval,
             boundary);
+
         if (done)
         {
             break;
@@ -273,6 +280,7 @@ bool paintStrokeCreator::getBoundary(
     const MFloatVector &canvasNormal,
     float lastEndDist,
     float strokeLength,
+    float minimumStrokeAdvance,
     float overlap,
     float extendEntry,
     float extendExit,
@@ -287,35 +295,43 @@ bool paintStrokeCreator::getBoundary(
         return done;
     }
 
-    float startDist = lastEndDist - extendExit - extendEntry - overlap;
+    float startDist = lastEndDist - (extendExit + extendEntry + overlap);
     startDist = fmax(startDist, 0.0f);
+
     if (startDist > curveLength)
     {
         return done;
     }
 
-    float endDist = startDist + extendEntry + strokeLength;
+    float endDist = startDist + extendEntry + strokeLength + extendExit;
 
     bool doSplitTest = (splitAngle > epsilon && splitTestInterval > 0.01);
-    float outMaxCoil=0.0f;
+    float outMaxCoil = 0.0f;
     if (doSplitTest)
     {
         endDist = findEndDist(
-            dCurve, canvasNormal, 
-            startDist, endDist, 
-            splitAngle, splitTestInterval,outMaxCoil);
+            dCurve,
+            canvasNormal,
+            startDist,
+            endDist,
+            splitAngle,
+            splitTestInterval,
+            outMaxCoil);
     }
-    endDist += extendExit;
+
+    if (endDist <= lastEndDist + minimumStrokeAdvance)
+    {
+        endDist = lastEndDist + minimumStrokeAdvance;
+    }
+
     if (endDist >= curveLength)
     {
         endDist = curveLength;
     }
+
     result = MFloatVector(startDist, endDist, outMaxCoil);
     return false;
 }
-
-
-
 
 float paintStrokeCreator::findEndDist(
     const MObject &dCurve,
@@ -338,10 +354,13 @@ float paintStrokeCreator::findEndDist(
     double angle;
     MVector axis;
     bool foundEnd = false;
+
     do
     {
+
         currDist += splitTestInterval;
-        if (currDist > endDist)
+
+        if (currDist >= endDist)
         {
             return endDist;
         }
@@ -374,7 +393,8 @@ float paintStrokeCreator::findEndDist(
         if (coil > outMaxCoil)
         {
             outMaxCoil = coil;
-        } 
+        }
+
     } while (!foundEnd);
 
     return currDist;

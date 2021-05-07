@@ -153,3 +153,39 @@ RL.Render(True)
 # # Notify the user:
 # print(msg_str)
 # RL.ShowMessage(msg_str)
+
+from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT, ITEM_TYPE_STATION,COLLISION_OFF, Robolink)
+
+import os
+ROBODK_PATH = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/MacOS/RoboDK")
+_link = Robolink(robodk_path=ROBODK_PATH)
+_robot = _link.Item("", ITEM_TYPE_ROBOT)
+prog =  _link.Item("", ITEM_TYPE_PROGRAM)
+print prog.Name()
+update_result = prog.Update(COLLISION_OFF)
+print update_result
+
+##################
+
+from robolink import (ITEM_TYPE_PROGRAM, ITEM_TYPE_ROBOT, ITEM_TYPE_STATION,COLLISION_OFF, Robolink)
+from uprising import (utils, robo, progress)
+from uprising.bot.session import configurator
+from uprising.bot.session.bot_program import BotProgram, BotRetryProgram
+
+reload (configurator)
+
+robo.new()
+robo.show()
+robo.clean("kr30", infrastructure=False)
+with utils.final_position(pm.PyNode("mainPaintingShape")):
+    with utils.at_value(pm.PyNode("canvasTransform").attr("applyBrushBias"), True):
+        with utils.at_value(pm.PyNode("brushLifter").attr("nodeState"), 0):
+            program = BotRetryProgram("retry")
+            program.configure()
+            program.send()
+            path_result = program.validate_path() 
+            print path_result
+
+
+import pymel.core as pm
+pm.PyNode("skeletonStroke_d_00").attr("inputData[77].splitAngle").set(123.21844)

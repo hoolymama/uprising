@@ -138,7 +138,7 @@ def create_program(name):
 
 
 def create_frame(name, force=True):
-    print "Create Frame for ", name
+    # print "Create Frame for ", name
     global _link
     frame = _link.Item(name)
     if frame.Valid():

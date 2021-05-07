@@ -107,8 +107,7 @@ class RetriesSession(Session):
                             with activate_node(skel):
                                 plug_ids = [self.plug_index] if self.plug_index is not None else range(
                                     chain.attr("outputCount").get())
-                                print "Activate skel:", skel, "with", len(
-                                    plug_ids), "outputs"
+
                                 for plug_index in plug_ids:
                                     result = self.run_for_plug(
                                         skel, plug_index, run_id, dry_run)
@@ -139,7 +138,7 @@ class RetriesSession(Session):
     def run_for_plug(self,  skel, plug_index, run_id, dry_run=False):
         skel.attr("selector").set(plug_index)
         result = self.initialize_plug_result(skel, plug_index, run_id, dry_run)
-
+        print "run_for_plug: "
         if dry_run:
 
             return result
@@ -157,10 +156,10 @@ class RetriesSession(Session):
 
         initial_angle = pm.strokeQuery(skel, maxCoil=True) + self.delta
         split_angle_plug.set(initial_angle)
-        print "run_for_plug - Skel: ", skel.name(), "Plug:", plug_index
+
         while True:
             attempt += 1
-            print "attempt", attempt
+            # print "attempt", attempt
             value = split_angle_plug.get()
             values.append(value)
             pm.refresh()
@@ -188,7 +187,6 @@ class RetriesSession(Session):
                  "timer": time.time() - iter_start
                  }
             )
-
             result["path_results"].append(path_result)
             if path_result["status"] == "SUCCESS":
                 result["attempts"] = attempt
@@ -197,14 +195,13 @@ class RetriesSession(Session):
 
             # Here if we need to try again
 
-            # coil = pm.PyNode(plug).node().attr("outCoil").get()
             angle = pm.strokeQuery(skel, maxCoil=True)
             next_val = min(angle, value) - self.delta
 
+            print "next_val", next_val
             if next_val <= 0:
                 break
             split_angle_plug.set(next_val)
-
         result["timer"] = time.time() - run_start
         return result
 
@@ -255,3 +252,4 @@ class RetriesSession(Session):
     def validate_retries_params(nodes):
         if len(nodes) == 0:
             pm.error("No nodes selected. Aborting!")
+

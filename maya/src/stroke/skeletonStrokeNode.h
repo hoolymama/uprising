@@ -6,7 +6,7 @@
 #include <maya/MVectorArray.h>
 #include <paintStrokeCreator.h>
 #include "stroke.h"
-// #include "skGraph.h"
+
 #include "skChain.h"
 #include "brush.h"
 
@@ -48,6 +48,7 @@ private:
         float extendEntry,
         float extendExit,
         float strokeLength,
+        float minimumStrokeAdvance,
         float overlap,
         float splitAngle,
         float splitTestInterval,

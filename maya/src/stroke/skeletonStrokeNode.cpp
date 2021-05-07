@@ -156,6 +156,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
 
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
+    float minimumStrokeAdvance = data.inputValue(aMinimumStrokeAdvance).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
     MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
     MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
@@ -229,6 +230,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 extendEntry,
                 extendExit,
                 strokeLength,
+                minimumStrokeAdvance,
                 overlap,
                 splitAngle,
                 splitTestInterval,
@@ -262,6 +264,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     float extendEntry,
     float extendExit,
     float strokeLength,
+    float minimumStrokeAdvance,
     float overlap,
     float splitAngle,
     float splitTestInterval,
@@ -301,6 +304,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         dChainCurve,
         canvasNormal,
         strokeLength,
+        minimumStrokeAdvance,
         overlap,
         extendEntry,
         extendExit,

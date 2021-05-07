@@ -26,12 +26,21 @@ def chunkify_skels(chain_skel_pairs, max_chains):
 
 def reset(chain_skel_pairs):
     for chain, skel in chain_skel_pairs:
-        for src, dest in chain.attr("outputs").connections(d=True, s=False, c=True, p=True):
+        for dest, src  in skel.attr("inputData").connections(s=True, d=False, c=True, p=True):    
             if src.index() != 0:
-                if dest.node() == skel:
+                try:
                     src // dest
-                pm.removeMultiInstance(src, b=True)
-                pm.removeMultiInstance(dest.parent(), b=True)
+                except RuntimeError:
+                    pass
+        # remove all unconnected muklti instances
+        for plug in skel.attr("inputData"):
+            if not plug.chains.isConnected():
+                pm.removeMultiInstance(plug, b=True)
+
+        for plug in chain.attr("outputs"):
+            if not plug.isConnected():
+                pm.removeMultiInstance(plug, b=True)
+
         chain.attr("maxChainsPerOutput").set(0)
         skel.attr("inputData")[0].attr("splitAngle").set(360)
         skel.attr("selector").set(0)

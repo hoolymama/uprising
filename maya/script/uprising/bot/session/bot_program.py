@@ -6,6 +6,7 @@ from uprising.bot.session.pick_place_program import PickProgram, PlaceProgram
 from uprising.bot.session.dip_wipe_program import DipWipeProgram, WaterProgram, RetardantProgram
 
 from uprising import progress
+from uprising.bot.session import configurator
 
 from robolink import INSTRUCTION_COMMENT, INSTRUCTION_CALL_PROGRAM, INSTRUCTION_INSERT_CODE
 
@@ -20,7 +21,10 @@ class BotProgram(Program):
     def configure(self):
         for cluster in self.painting.clusters:
             for stroke in cluster.strokes:
-                stroke.configure(cluster.brush)
+                try:
+                    configurator.solve(stroke, cluster.brush)
+                except BaseException:
+                    stroke.ignore=True
 
     def send(self, **kw):
         if not self.painting.clusters:
@@ -63,7 +67,7 @@ class BotProgram(Program):
 
         for cluster in self.painting.clusters[start:end]:
 
-            did_change_tool, did_change_brush, did_end_last_brush = cluster.get_flow_info(
+            did_change_paint, did_change_tool, did_change_brush, did_end_last_brush = cluster.get_flow_info(
                 last_cluster
             )
 
@@ -74,7 +78,10 @@ class BotProgram(Program):
 
             if did_change_brush:
                 subprograms |= self._on_start_tool(cluster)
+
+            if did_change_paint or did_change_brush:
                 num_dips = max(cluster.brush.initial_dips, 1)
+
 
             subprograms |= self._write_dip_and_cluster(cluster, num_dips)
 
@@ -155,7 +162,8 @@ class BotRetryProgram(Program):
     def configure(self):
         for cluster in self.painting.clusters:
             for stroke in cluster.strokes:
-                stroke.configure(cluster.brush)
+                # stroke.configure(cluster.brush)
+                configurator.solve(stroke, cluster.brush)
 
     def send(self, **kw):
         if not self.painting.clusters:

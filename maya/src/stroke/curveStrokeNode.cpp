@@ -117,6 +117,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     float splitAngle = float(data.inputValue(aSplitAngle).asAngle().asRadians());
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
+    float minimumStrokeAdvance = data.inputValue(aMinimumStrokeAdvance).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
     MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
     // m_maxCoil = 0.0;
@@ -159,6 +160,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             dCurve,
             canvasNormal,
             strokeLength,
+            minimumStrokeAdvance,
             overlap,
             extendEntry,
             extendExit,

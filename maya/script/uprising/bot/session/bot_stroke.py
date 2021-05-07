@@ -47,85 +47,6 @@ class BotStroke(Stroke):
             result.append(target)
         return result
 
-    ###################################
-    ###################################
-
-    def configure(self, brush):
-   
-        # self.brush.send()
-        solved = False
-        prev_target = None
-        for target in self.arrivals + self.targets + [self.departure]:
-            target.solve_single_joint_poses(brush, prev_target)
-            prev_target = target
-        try:
-            self.config = self.best_config()
-            solved = True
-     
-        except utils.StrokeError:
-            pass
-        if not solved:
-            for target in self.arrivals + self.targets + [self.departure]:
-                target.solve_all_joint_poses(brush)
-            try:
-                self.config = self.best_config()
-      
-            except utils.StrokeError:
-                configs = self.all_configs()
-                print ("FAILED:!! CONFIGS FOR STROKE : {}".format(self.id))
-                print (configs)
-                for target in self.targets + [self.departure]:
-                    print target.name("T"), target.valid_configs()
-                raise
-
-        for target in self.arrivals:
-            target.configure(self.config)
-            # print "STK Configured", target.name("-"), self.config, target.joint_pose
-
-        for target in self.targets:
-            target.configure(self.config)
-            # print "STK Configured", target.name("-"), self.config,self.joint_pose
-
-        self.departure.configure(self.config)
-        # print "STK Configured", self.departure.name("-"), self.config,self.joint_pose
-
-    def best_config(self):
-        if not self.targets:
-            print "Stroke has no targets {}".format(self.name("-"))
-            return
-
-        # Fined best configs for linear targets (targets + departure target).
-        # NOTE: May have to set the config explicitly for joint targets.
-        targets = self.targets + [self.departure]
-
-        common_configs = set([k for k in robo.ALL_KR30_CONFIGS])
-        for target in targets:
-            common_configs = common_configs.intersection(target.valid_configs())
-            if not common_configs:
-                raise utils.StrokeError(
-                    "Common Config failure, can't find best config for stroke. No common configs {}".format(
-                        self.name("-")
-                    )
-                )
-
-        return sorted(list(common_configs))[0]
-        # common_configs = sorted(list(common_configs))
-
-        # name = self.name("-")
-        # print "Stroke {} has common_configs {} -- Testing linear moves".format(
-        #     name, common_configs)
-        # config = self.test_linear_moves(common_configs)
-        # if not config:
-        #     raise utils.StrokeError(
-        #         "Linear move failure, can't find config where all linear moves are possible {}".format(self.name("-")))
-        # return config
-
-    def all_configs(self):
-        result = []
-        for target in self.targets + [self.departure]:
-            result.append(target.valid_configs())
-        return result
-
     def send(self, prefix, program, frame, motion):
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
@@ -135,8 +56,11 @@ class BotStroke(Stroke):
         for t in self.arrivals:
             t.send(stroke_name, program, frame)
 
-        for t in self.targets:
-            t.send(stroke_name, program, frame)
+        if self.ignore:
+            self.departure.linear = False
+        else:
+            for t in self.targets:
+                t.send(stroke_name, program, frame)
 
         self.departure.send(stroke_name, program, frame)
 
@@ -267,3 +191,79 @@ class BotStroke(Stroke):
     #                 "Can't find best config for stroke. No common configs")
 
     #     return sorted(list(common_configs))[0]
+
+    # def configure(self, brush):
+
+    #     # self.brush.send()
+    #     solved = False
+    #     prev_target = None
+    #     for target in self.arrivals + self.targets + [self.departure]:
+    #         target.solve_single_joint_poses(brush, prev_target)
+    #         prev_target = target
+    #     try:
+    #         self.config = self.best_config()
+    #         solved = True
+
+    #     except utils.StrokeError:
+    #         pass
+    #     if not solved:
+    #         for target in self.arrivals + self.targets + [self.departure]:
+    #             target.solve_all_joint_poses(brush)
+    #         try:
+    #             self.config = self.best_config()
+
+    #         except utils.StrokeError:
+    #             configs = self.all_configs()
+    #             print ("FAILED:!! CONFIGS FOR STROKE : {}".format(self.id))
+    #             print (configs)
+    #             for target in self.targets + [self.departure]:
+    #                 print target.name("T"), target.valid_configs()
+    #             raise
+
+    #     for target in self.arrivals:
+    #         target.configure(self.config)
+    #         # print "STK Configured", target.name("-"), self.config, target.joint_pose
+
+    #     for target in self.targets:
+    #         target.configure(self.config)
+    #         # print "STK Configured", target.name("-"), self.config,self.joint_pose
+
+    #     self.departure.configure(self.config)
+    #     # print "STK Configured", self.departure.name("-"), self.config,self.joint_pose
+
+    # def best_config(self):
+    #     if not self.targets:
+    #         print "Stroke has no targets {}".format(self.name("-"))
+    #         return
+
+    #     # Fined best configs for linear targets (targets + departure target).
+    #     # NOTE: May have to set the config explicitly for joint targets.
+    #     targets = self.targets + [self.departure]
+
+    #     common_configs = set([k for k in robo.ALL_KR30_CONFIGS])
+    #     for target in targets:
+    #         common_configs = common_configs.intersection(target.valid_configs())
+    #         if not common_configs:
+    #             raise utils.StrokeError(
+    #                 "Common Config failure, can't find best config for stroke. No common configs {}".format(
+    #                     self.name("-")
+    #                 )
+    #             )
+
+    #     return sorted(list(common_configs))[0]
+    #     # common_configs = sorted(list(common_configs))
+
+    #     # name = self.name("-")
+    #     # print "Stroke {} has common_configs {} -- Testing linear moves".format(
+    #     #     name, common_configs)
+    #     # config = self.test_linear_moves(common_configs)
+    #     # if not config:
+    #     #     raise utils.StrokeError(
+    #     #         "Linear move failure, can't find config where all linear moves are possible {}".format(self.name("-")))
+    #     # return config
+
+    # def all_configs(self):
+    #     result = []
+    #     for target in self.targets + [self.departure]:
+    #         result.append(target.valid_configs())
+    #     return result
