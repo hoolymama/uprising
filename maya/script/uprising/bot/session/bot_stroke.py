@@ -11,10 +11,13 @@ from uprising import const as k
 
 
 class BotStroke(Stroke):
-    def __init__(self, cluster_id, stroke_id, node):
+    def __init__(self, cluster_id, stroke_index, node):
         self.cluster_id = cluster_id
-        super(BotStroke, self).__init__(stroke_id, node)
+        
+        super(BotStroke, self).__init__(stroke_index, node)
 
+        self.global_stroke_id = self.query_stroke_id()
+        
     def _build_targets(self):
 
         positions = self.query_positions()
@@ -28,6 +31,9 @@ class BotStroke(Stroke):
         positions = self.query_departure_positions()
         rotations = self.query_departure_rotations()
         self.departure = self._target_factory(positions, rotations, self.id, DepartureTarget)[0]
+
+    def name(self, prefix):
+        return "{}_g{}_p{}_s{}".format(prefix, self.global_stroke_id, self.parent_id, self.id)
 
     @classmethod
     def _target_factory(cls, positions, rotations, stroke_id, target_type=BotTarget):
@@ -63,6 +69,18 @@ class BotStroke(Stroke):
                 t.send(stroke_name, program, frame)
 
         self.departure.send(stroke_name, program, frame)
+
+
+    # NOTE: NAMING HERE
+    # strokeIndex refers to the cluster relative index
+    # globalStrokeId refers to the ID of the stroke within the painting.
+    def query_stroke_id(self):
+        return pm.paintingQuery(
+            self.node,
+            clusterIndex=self.cluster_id,
+            strokeIndex=self.id,
+            globalStrokeId=True
+        )
 
     def query_arc_length(self):
         return pm.paintingQuery(

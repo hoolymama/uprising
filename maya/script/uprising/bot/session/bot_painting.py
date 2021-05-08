@@ -22,21 +22,23 @@ class BotPainting(Painting):
             minor_max=num_clusters,
             minor_progress=0)
 
-        for i in range(num_clusters):
+
+        for cluster_id in range(num_clusters):
 
             progress.update(
-                minor_line="Cluster {}/{}".format(i+1, num_clusters),
-                minor_progress=i)
+                minor_line="Cluster {}/{}".format(cluster_id+1, num_clusters),
+                minor_progress=cluster_id)
 
             brush_id = pm.paintingQuery(
-                self.node, clusterIndex=i, clusterBrushId=True)
+                self.node, clusterIndex=cluster_id, clusterBrushId=True)
             paint_id = pm.paintingQuery(
-                self.node, clusterIndex=i, clusterPaintId=True)
+                self.node, clusterIndex=cluster_id, clusterPaintId=True)
 
             brush = self.brushes.get(brush_id)
             paint = self.paints.get(paint_id)
 
-            cluster = Cluster(i, self.node, brush, paint)
+            cluster = Cluster(cluster_id, self.node, brush, paint)
+
             clusters.append(cluster)
 
         return clusters

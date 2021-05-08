@@ -12,8 +12,8 @@ from uprising import utils
 
 class Stroke(object):
 
-    def __init__(self, stroke_id, node):
-        self.id = stroke_id
+    def __init__(self, stroke_index, node):
+        self.id = stroke_index
         self.node = node
         self.targets = []
         self.arc_length = self.query_arc_length()

@@ -75,6 +75,8 @@ MSyntax paintingCmd::newSyntax()
 
 	syn.addFlag(kStrokeParentIndexFlag, kStrokeParentIndexFlagL);
 
+	syn.addFlag(kGlobalStrokeIndexFlag, kGlobalStrokeIndexFlagL);
+ 
 	syn.addFlag(kDipCombinationsFlag, kDipCombinationsFlagL);
 	syn.addFlag(kJsonFlag, kJsonFlagL);
 
@@ -230,9 +232,15 @@ MStatus paintingCmd::doIt(const MArgList &args)
 	{
 		return handleStrokeArcLengthFlag(*pGeom, argData);
 	}
+
 	if (argData.isFlagSet(kStrokeParentIndexFlag))
 	{
 		return handleStrokeParentIndexFlag(*pGeom, argData);
+	}
+
+	if (argData.isFlagSet(kGlobalStrokeIndexFlag))
+	{
+		return handleGlobalStrokeIndexFlag(*pGeom, argData);
 	}
 
 	if (argData.isFlagSet(kJsonFlag))
@@ -681,6 +689,23 @@ MStatus paintingCmd::handleStrokeParentIndexFlag(const paintingGeom &geom,
 	setResult(pid);
 	return MS::kSuccess;
 }
+
+
+MStatus paintingCmd::handleGlobalStrokeIndexFlag (const paintingGeom &geom,
+												 MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeIndex = getStrokeId(geom, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	int gsid = geom.clusters()[clusterId].strokes()[strokeIndex].strokeId();
+	setResult(gsid);
+	return MS::kSuccess;
+}
+
 
 MStatus paintingCmd::handleJsonFlag(const paintingGeom &geom)
 {

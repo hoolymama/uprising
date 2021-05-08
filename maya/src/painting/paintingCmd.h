@@ -39,6 +39,10 @@
 #define kStrokeIndexFlag "-si"
 #define kStrokeIndexFlagL "-strokeIndex"
 
+#define kGlobalStrokeIndexFlag "-gsi"
+#define kGlobalStrokeIndexFlagL "-globalStrokeId"
+
+
 #define kRotateOrderFlag "-ro"
 #define kRotateOrderFlagL "-rotateOrder"
 
@@ -153,6 +157,8 @@ private:
 	MStatus handleStrokeArcLengthFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleStrokeParentIndexFlag(const paintingGeom &geom, MArgDatabase &argData);
+
+	MStatus  handleGlobalStrokeIndexFlag (const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleDipCombinationsFlag(const paintingGeom &geom);
 
