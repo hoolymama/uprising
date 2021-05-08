@@ -4,9 +4,6 @@
 #include <maya/MTypeId.h>
 #include <maya/MFnPluginData.h>
 #include "strokeCmd.h"
-// #include "paintingData.h"
-// #include "skeletonStrokeNode.h"
-// #include "curveStrokeNode.h"
 #include "strokeNodeBase.h"
 #include "strokeData.h"
 #include "cmdUtils.h"
@@ -26,6 +23,8 @@ MSyntax strokeCmd::newSyntax()
 
 	syn.addFlag(kCoilFlag, kCoilFlagL);
 	syn.addFlag(kMaxCoilFlag, kMaxCoilFlagL);
+
+	syn.addFlag(kWeightFlag, kWeightFlagL);
 
 	syn.setObjectType(MSyntax::kSelectionList, 1, 1);
 
@@ -53,8 +52,6 @@ MStatus strokeCmd::doIt(const MArgList &args)
 	strokeNodeIter.getDependNode(strokeNodeObject);
 	MFnDependencyNode strokeNodeFn(strokeNodeObject);
 
-
-
 	MPlug plugStrokeData = strokeNodeFn.findPlug("output", true, &st);
 	MObject dStrokeData;
 	st = plugStrokeData.getValue(dStrokeData);
@@ -80,7 +77,8 @@ MStatus strokeCmd::doIt(const MArgList &args)
 		return MS::kUnknownParameter;
 	}
 
-	int strokeId  = getStrokeId(*pStrokes, argData, &st);msert;
+	int strokeId = getStrokeId(*pStrokes, argData, &st);
+	msert;
 
 	if (argData.isFlagSet(kStrokeCountFlag))
 	{
@@ -93,6 +91,10 @@ MStatus strokeCmd::doIt(const MArgList &args)
 	if (argData.isFlagSet(kMaxCoilFlag))
 	{
 		return handleMaxCoilFlag(*pStrokes);
+	}
+	if (argData.isFlagSet(kWeightFlag))
+	{
+		return handleWeightFlag(*pStrokes, strokeId);
 	}
 
 	// setResult(paintStrokeCreatorNode->maxCoil());
@@ -108,18 +110,16 @@ MStatus strokeCmd::handleCoilFlag(const std::vector<Stroke> &strokes, int stroke
 {
 	MStatus st;
 
-
-	MAngle::uiUnit();	
-
+	MAngle::uiUnit();
 
 	if (strokeId == -1)
 	{
 		MFloatArray coils;
-		for (std::vector<Stroke>::const_iterator curr_stroke = strokes.begin(); 
-			curr_stroke != strokes.end(); 
-			curr_stroke++)
+		for (std::vector<Stroke>::const_iterator curr_stroke = strokes.begin();
+			 curr_stroke != strokes.end();
+			 curr_stroke++)
 		{
-			coils.append(MAngle(curr_stroke->coil(), MAngle::kRadians).as(MAngle::uiUnit()) );
+			coils.append(MAngle(curr_stroke->coil(), MAngle::kRadians).as(MAngle::uiUnit()));
 		}
 
 		MDoubleArray result;
@@ -137,12 +137,13 @@ MStatus strokeCmd::handleMaxCoilFlag(const std::vector<Stroke> &strokes)
 	MStatus st;
 
 	float maxCoil = 0.0f;
-	for (std::vector<Stroke>::const_iterator curr_stroke = strokes.begin(); 
-		curr_stroke != strokes.end(); 
-		curr_stroke++)
+	for (std::vector<Stroke>::const_iterator curr_stroke = strokes.begin();
+		 curr_stroke != strokes.end();
+		 curr_stroke++)
 	{
-		const float & coil = curr_stroke->coil();
-		if (coil > maxCoil) {
+		const float &coil = curr_stroke->coil();
+		if (coil > maxCoil)
+		{
 			maxCoil = coil;
 		}
 	}
@@ -150,11 +151,37 @@ MStatus strokeCmd::handleMaxCoilFlag(const std::vector<Stroke> &strokes)
 	return MS::kSuccess;
 }
 
+MStatus strokeCmd::handleWeightFlag(const std::vector<Stroke> &strokes, int strokeId)
+{
+
+	std::vector<Stroke>::const_iterator current_stroke = strokes.begin();
+	std::vector<Stroke>::const_iterator end_stroke = strokes.end();
+	if (strokeId > -1) {
+		current_stroke = strokes.begin()+strokeId;
+		end_stroke = std::next(current_stroke);
+	}
+
+	MFloatArray weights;
+	for (;current_stroke != end_stroke; current_stroke++)
+	{
+		Stroke::const_target_iterator current_target = current_stroke->targets_begin();
+		for (; current_target != current_stroke->targets_end(); current_target++)
+		{
+			weights.append(current_target->weight());
+		}
+	}
+
+	MDoubleArray result;
+	CmdUtils::flatten(weights, result);
+	setResult(result);
+	return MS::kSuccess;
+}
 
 int strokeCmd::getStrokeId(const std::vector<Stroke> &strokes, MArgDatabase &argData,
-							 MStatus *status)
+						   MStatus *status)
 {
-	if (! argData.isFlagSet(kStrokeIndexFlag)) {
+	if (!argData.isFlagSet(kStrokeIndexFlag))
+	{
 		*status = MS::kSuccess;
 		return -1;
 	}

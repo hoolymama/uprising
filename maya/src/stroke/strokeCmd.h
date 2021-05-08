@@ -12,6 +12,10 @@
 #define kCoilFlag "-cl"
 #define kCoilFlagL "-coil"
 
+#define kWeightFlag "-w"
+#define kWeightFlagL "-weight"
+
+
 #define kMaxCoilFlag "-mcl"
 #define kMaxCoilFlagL "-maxCoil"
 
@@ -35,6 +39,7 @@ public:
 	MStatus handleStrokeCountFlag(const std::vector<Stroke> &strokes);
 	MStatus handleCoilFlag(const std::vector<Stroke> &strokes, int strokeId);
 	MStatus handleMaxCoilFlag(const std::vector<Stroke> &strokes);
+	MStatus handleWeightFlag(const std::vector<Stroke> &strokes, int strokeId);
 	int getStrokeId(const std::vector<Stroke> &strokes, MArgDatabase &argData,
 						MStatus *status);
 
