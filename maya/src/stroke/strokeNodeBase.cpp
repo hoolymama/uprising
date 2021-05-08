@@ -441,28 +441,51 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
 void strokeNodeBase::cullStartEnd(MDataBlock &data, std::vector<Stroke> *geom) const
 {
 
+
   int startFrom = data.inputValue(aStartFrom).asInt();
   int endAt = data.inputValue(aEndAt).asInt();
+  cerr << "startFrom:" << startFrom << " endAt:" << endAt << endl;
+
 
   if (endAt <= -1 )
   {
     endAt =  geom->size();
   }
   startFrom = std::max (std::min(startFrom, endAt), 0);
+  cerr << "SANITIZED: startFrom:" << startFrom << " endAt:" << endAt << endl;
+
+  if (startFrom > 0 || endAt < geom->size()) {
+    MGlobal::displayWarning("cullStartEnd IS NOT IMPLEMENTED");
+    // std::vector<Stroke>::const_iterator first = geom->begin() + startFrom;
+    // std::vector<Stroke>::const_iterator last = geom->begin() + endAt;
+    // std::vector<Stroke> newGeom(first, last);
+    // geom->clear();
+    // for (int i=0; i<newGeom.size(); i++)
+    // {
+    //   geom->push_back(newGeom[i]);
+    // }
+
+    // *geom = std::vector<Stroke>(first, last);
+  }
+
+
+
+
+
  
-  int remove = geom->size() - endAt;
+  // int remove = geom->size() - endAt;
 
-  if (startFrom > 0)
-  {
-    std::vector<Stroke>::iterator start_iter = geom->begin() + startFrom;
-    geom->erase(geom->begin(), geom->begin() + startFrom);
-  }
+  // if (startFrom > 0)
+  // {
+  //   std::vector<Stroke>::iterator start_iter = geom->begin() + startFrom;
+  //   geom->erase(geom->begin(), geom->begin() + startFrom);
+  // }
 
-  if (remove > 0)
-  {
-    std::vector<Stroke>::iterator end_iter = geom->end() - remove;
-    geom->erase(end_iter, geom->end());
-  }
+  // if (remove > 0)
+  // {
+  //   std::vector<Stroke>::iterator end_iter = geom->end() - remove;
+  //   geom->erase(end_iter, geom->end());
+  // }
 }
 
 void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) const
