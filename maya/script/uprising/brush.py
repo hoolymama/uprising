@@ -4,7 +4,7 @@ import re
 import utils as uutl
 import robodk as rdk
 from uprising import robo
-
+from robolink import (ITEM_TYPE_ROBOT)
 
 class Brush(object):
     def __init__(self, index, plug):
@@ -48,6 +48,8 @@ class Brush(object):
     def send(self, with_geo=False):
         link = robo.link()
         robot = robo.robot()
+        if not robot:
+            robot = link.Item("", ITEM_TYPE_ROBOT) 
 
         old_brush = link.Item(self.name)
         if old_brush.Valid():
