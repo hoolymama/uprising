@@ -31,8 +31,10 @@ def solve(stroke, brush):
     if not solved_config:
         raise StrokeError("Stroke not solvable: {}".format(stroke.name("-")))
 
+    main_solved_config = solved_config
     configs = ["000", "001"] if solved_config == "000" else ["001", "000"]
 
+    arrival_configs = set()
     last_joint_pose = stroke.arrivals[-1].joint_pose
     for target in reversed(stroke.arrivals[:-1]):
         solved_config = False
@@ -44,10 +46,13 @@ def solve(stroke, brush):
                 last_joint_pose = pose
                 solved_config = config
                 break
+        arrival_configs.add(solved_config)
         if not solved_config:
             raise StrokeError("Stroke arrival not solvable: {}".format(stroke.name("-")))
 
-def solve_pose(flange_pose, config, last_joint_pose):
+    # print "main_solved_config",stroke.name("-"), main_solved_config, "arr:", arrival_configs
+
+def solve_pose(flange_pose, config, last_joint_pose):  
     joint_pose = solve_single_joint_pose(flange_pose, last_joint_pose, config)
     if joint_pose:
         return joint_pose
