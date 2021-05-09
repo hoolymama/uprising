@@ -10,16 +10,19 @@ from uprising import const
 
 PAINTING_START_JOINTS = [0, -90, 120, 0, -30, 0]
 
+PAINTING_START_JOINTS = [10.000000, -70.000000, 120.000000, 0.000000, -30.000000, 0.000000]
+
 EPSILON = 0.0001
 
 def solve(stroke, brush):
 
     for config in ["000", "001"]:
         solved_config = config
-        last_joint_pose = const.PAINTING_START_JOINTS
+        last_joint_pose = PAINTING_START_JOINTS
+
         for target in [stroke.arrivals[-1]] + stroke.targets + [stroke.departure]:
             flange_pose = target.flange_pose(brush)
-            pose = solve_pose(flange_pose, config, last_joint_pose)
+            pose = _solve_pose(flange_pose, config, last_joint_pose)
             if not pose:
                 solved_config = False
                 break
@@ -40,7 +43,7 @@ def solve(stroke, brush):
         solved_config = False
         for config in configs:
             flange_pose = target.flange_pose(brush)
-            pose = solve_pose(flange_pose, config, last_joint_pose)
+            pose = _solve_pose(flange_pose, config, last_joint_pose)
             if pose:
                 target.joint_pose = pose
                 last_joint_pose = pose
@@ -52,21 +55,21 @@ def solve(stroke, brush):
 
     # print "main_solved_config",stroke.name("-"), main_solved_config, "arr:", arrival_configs
 
-def solve_pose(flange_pose, config, last_joint_pose):  
-    joint_pose = solve_single_joint_pose(flange_pose, last_joint_pose, config)
+def _solve_pose(flange_pose, config, last_joint_pose):  
+    joint_pose = _solve_single_joint_pose(flange_pose, last_joint_pose, config)
     if joint_pose:
         return joint_pose
 
-    joint_poses = solve_all_joint_poses(flange_pose, config)
+    joint_poses = _solve_all_joint_poses(flange_pose, config)
     if not joint_poses:
         return
 
     # Now we find which is closest to the last pose
-    joint_pose = get_closest_pose(joint_poses, last_joint_pose)
+    joint_pose = _get_closest_pose(joint_poses, last_joint_pose)
     return joint_pose
 
 
-def get_closest_pose(joint_poses, to_pose):
+def _get_closest_pose(joint_poses, to_pose):
     differences = []
     tp = to_pose
     for jp in joint_poses:
@@ -98,7 +101,7 @@ def config_key(config):
         return "%d%d%d" % tuple(config.list2()[0][0:3])
 
 
-def solve_all_joint_poses(pose, config):
+def _solve_all_joint_poses(pose, config):
     robot = robo.robot()
     ik = robot.SolveIK_All(pose)
     siz = ik.size()
@@ -116,7 +119,7 @@ def solve_all_joint_poses(pose, config):
     return result
 
 
-def solve_single_joint_pose(flange_pose, last_joint_pose, config):
+def _solve_single_joint_pose(flange_pose, last_joint_pose, config):
     robot = robo.robot()
 
     joint_pose = robot.SolveIK(flange_pose, last_joint_pose)
@@ -128,3 +131,12 @@ def solve_single_joint_pose(flange_pose, last_joint_pose, config):
     key = config_key(jcfg)
     if key == config:
         return joint_pose
+
+
+
+
+#############################
+# CONFIGURE LINKAGES
+
+
+
