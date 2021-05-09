@@ -20,6 +20,7 @@ from uprising.bot.session.dip_wipe_program import (
 )
 
 
+
 class BotPaintingSession(Session):
 
     PROGRAM_NAME = "px"
@@ -33,15 +34,12 @@ class BotPaintingSession(Session):
         self.cluster_count = pm.paintingQuery(self.painting_node, cc=True)
         self.cluster_chunk_size = min(cluster_chunk_size, self.cluster_count)
 
-
-
-
     def run(self):
         timer_start = time.time()
         with utils.final_position(self.painting_node):
             with utils.final_position(pm.PyNode("RACK1_CONTEXT")):
 
-                # CONFIGURE EVERYTHING 
+                # CONFIGURE EVERYTHING
                 self.program = self._build_bot_program()
                 self.program.configure()
 
@@ -51,9 +49,9 @@ class BotPaintingSession(Session):
                 self.retardant_collection = RetardantCollection()
 
                 for program in (
-                    self.dip_wipe_collection.programs +
-                    self.water_collection.programs +
-                    self.retardant_collection.programs
+                    self.dip_wipe_collection.programs
+                    + self.water_collection.programs
+                    + self.retardant_collection.programs
                 ):
                     program.configure()
 
@@ -84,7 +82,6 @@ class BotPaintingSession(Session):
         )
 
         self.stats = {"painting_stats": stats.stats(), "per_brush_stats": stats.stats_per_brush()}
-
 
     def _build_bot_program(self):
         self.init_progress()
@@ -145,10 +142,10 @@ class BotPaintingSession(Session):
     def _send_and_publish_dip_wipe_wash_programs(self):
 
         program_names = (
-            self.dip_wipe_collection.program_names() +
-            self.water_collection.program_names() +
-            self.retardant_collection.program_names()
-            )
+            self.dip_wipe_collection.program_names()
+            + self.water_collection.program_names()
+            + self.retardant_collection.program_names()
+        )
         count = len(program_names)
 
         progress.update(
@@ -167,7 +164,6 @@ class BotPaintingSession(Session):
             self.save_program(self.directory, program_name)
 
         self.save_station(self.directory, "dw")
-
 
     def init_progress(self):
         progress.update(
@@ -190,31 +186,34 @@ class BotPaintingSession(Session):
         with tarfile.open("{}.tar.gz".format(src_folder), "w:gz") as tar:
             tar.add(src_folder, arcname=os.path.sep)
 
-
-
     def configure_linkages(self):
 
+        orig_approach_height = self.painting_node.attr("approachDistanceMid").get()
         # make a program from the dip to the cluster arrival and see if it can be done linearly
         robo.clean("kr30")
 
-        for cluster in  self.program.painting.clusters:
+        for cluster in self.program.painting.clusters:
             print "configure_linkages cluster:", cluster.id
-            cluster_test_program = ClusterTestProgram("cluster_test", cluster, self.program.painting.motion)
-            
+
+            cluster_test_program = ClusterTestProgram(
+                "cluster_test", cluster, self.program.painting.motion, orig_approach_height
+            )
+
             num_strokes = len(cluster.strokes)
-            num_links = num_strokes-1
+            num_links = num_strokes - 1
             num_straightened = 0
-            for i in range(1,num_strokes):
+            for i in range(1, num_strokes):
                 cluster_test_program.configure_internal(i)
                 cluster_test_program.send()
                 path_result = cluster_test_program.validate_path()
-                if  path_result["status"] != "SUCCESS":
+                if path_result["status"] != "SUCCESS":
                     cluster_test_program.undo()
                 else:
-                    num_straightened +=1
+                    num_straightened += 1
 
-            print "configured ({}/{}) links for cluster:[{}] ".format( num_straightened, num_links, cluster.id) 
-
+            print "configured ({}/{}) links for cluster:[{}] ".format(
+                num_straightened, num_links, cluster.id
+            )
 
     # @staticmethod
     # def configure_cluster_arrival_linkages(cluster):
@@ -222,7 +221,7 @@ class BotPaintingSession(Session):
     #     target = first_stroke.arrivals[-1]
     #     brush = cluster.brush
     #     cluster_test_program = LinkProgram(
-    #         "linkage_test_program", 
+    #         "linkage_test_program",
     #         robo.DIP_TARGET,  target,  brush)
 
     #     cluster_test_program.send()
@@ -237,9 +236,9 @@ class BotPaintingSession(Session):
     #     prefix2 = first_stroke.name(cluster.name(cluster_test_program.program))
     #     print "TEST {} -> {} === Status {}".format(
     #         robo.DIP_TARGET,
-    #         target.name(prefix2), 
+    #         target.name(prefix2),
     #         path_result["status"])
- 
+
     # @staticmethod
     # def configure_cluster_departure_linkages(cluster):
     #     last_stroke = cluster.strokes[-1]
@@ -257,22 +256,21 @@ class BotPaintingSession(Session):
 
     #     prefix1 = last_stroke.name(cluster.name(cluster_test_program.program))
     #     print "TEST {} -> {} === Status {}".format(
-    #         target.name(prefix1), 
+    #         target.name(prefix1),
     #         robo.DIP_TARGET,
     #         path_result["status"])
- 
+
     # @staticmethod
     # def configure_cluster_internal_linkages(cluster):
     #     print "CONFIGURE_CLUSTER_INTERNAL_LINKAGES for", cluster.id
     #     for i, stroke in enumerate(cluster.strokes[1:]):
     #         prev_stroke = cluster.strokes[i-1]
 
-     
     #         target1 = prev_stroke.departure
     #         target2 = stroke.arrivals[-1]
     #         brush = cluster.brush
     #         cluster_test_program = LinkProgram(
-    #             "linkage_test_program", 
+    #             "linkage_test_program",
     #             target1,  target2,  brush)
 
     #         cluster_test_program.send()
@@ -282,15 +280,14 @@ class BotPaintingSession(Session):
     #             if len(stroke.arrivals) > 1:
     #                 stroke.arrivals = [stroke.arrivals[-1]]
     #             stroke.arrivals[0].linear=True
-            
 
-    #         n1 = "C:{} S:{} G:{}".format(cluster.id, prev_stroke.id,  prev_stroke.global_stroke_id) 
-    #         n2 = "C:{} S:{} G:{}".format(cluster.id, stroke.id,  stroke.global_stroke_id) 
+    #         n1 = "C:{} S:{} G:{}".format(cluster.id, prev_stroke.id,  prev_stroke.global_stroke_id)
+    #         n2 = "C:{} S:{} G:{}".format(cluster.id, stroke.id,  stroke.global_stroke_id)
 
     #         prev_stroke.name(cluster.name(cluster_test_program.program))
     #         prefix2 = stroke.name(cluster.name(cluster_test_program.program))
     #         print "TEST {} -> {} === Status {}".format(
-    #             target1.name( n1), 
+    #             target1.name( n1),
     #             target2.name(n2),
     #              path_result["status"])
 

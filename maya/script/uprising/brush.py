@@ -29,7 +29,17 @@ class Brush(object):
         self.initial_dips = self.node.attr("initialDips").get()
         self.retardant = self.node.attr("retardant").get()
         self.model = self.node.attr("model").get()
-
+        self.bristleHeight = self.node.attr("bristleHeight").get()
+        self.param = 0.0
+        if plug.attrName(True, False) == "outDipBrush":
+            self.param = self.node.attr("dipParam").get()
+        elif plug.attrName(True, False) == "outWipeBrush":
+            self.param = self.node.attr("wipeParam").get()
+        else:
+            self.param = self.node.attr("paintingParam").get()
+       
+        self.active_bristle = self.bristleHeight * self.param
+        
     def __str__(self):
         # Override to print a readable string
         return ", ".join(
