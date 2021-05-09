@@ -26,6 +26,7 @@ from uprising.bot.session import (
     cluster,
     bot_painting,
     bot_program,
+    cluster_test_program,
     bot_stroke,
     bot_target,
     retries_session,
@@ -107,7 +108,10 @@ reload(chains)
 
 ####################
 reload(program)
+reload(cluster_test_program)
 reload(bot_program)
+    
+
 
 reload(calibration_program)
 reload(board_calibration_program)
