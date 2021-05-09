@@ -452,7 +452,7 @@ void strokeNodeBase::cullStartEnd(MDataBlock &data, std::vector<Stroke> *geom) c
     endAt =  geom->size();
   }
   startFrom = std::max (std::min(startFrom, endAt), 0);
-  cerr << "SANITIZED: startFrom:" << startFrom << " endAt:" << endAt << endl;
+  // cerr << "SANITIZED: startFrom:" << startFrom << " endAt:" << endAt << endl;
 
   if (startFrom > 0 || endAt < geom->size()) {
     MGlobal::displayWarning("cullStartEnd IS NOT IMPLEMENTED");
