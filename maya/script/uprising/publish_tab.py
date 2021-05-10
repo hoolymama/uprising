@@ -237,18 +237,19 @@ class PublishTab(gui.FormLayout):
                 coil_delta,
                 chains_per_retry,
                 plug,
+                dry_run,
                 directory)
 
-            retries_session.run(dry_run)
+            retries_session.run()
             retries_session.show_results()
             retries_session.write_results()
 
             # don't do painting in the below cases
             if dry_run or do_single:
-                print "Not doing painting because you activated a single retry"
                 return
 
         if do_painting:
+
             painting_session = BotPaintingSession(cluster_chunk_size, directory)
             painting_session.run()
 

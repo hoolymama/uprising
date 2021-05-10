@@ -1,6 +1,6 @@
 
 """
-The goal of a retries session is to set the split angle for each set of clusters
+The goal of a retries session is to set the split angle for each set of chains
 in a skeletonStroke node to values that can be painted by the robot.
 """
 
@@ -43,22 +43,22 @@ class RetriesSession(Session):
 
     def __init__(self,
                  coil_delta,
-                 chains_per_retry,
-                 selector_plug, directory=None):
+                 chain_chunk_size,
+                 selector_plug, 
+                 dry_run=False,
+                 directory=None):
 
+        self.dry_run = dry_run
         self.directory = directory
         self.delta = coil_delta
-        self.chains_per_retry = chains_per_retry
+        self.chain_chunk_size = chain_chunk_size
         self.painting_node = pm.PyNode("mainPaintingShape")
 
         self.start_time = None
         self.total_num_runs = 0
-
+        self.current_run_id = 0
         self.plug_index = None
         if selector_plug:
-            # print "selector_plug.type()", selector_plug
-            # print "selector_plug.node().type()", selector_plug.node().type()
-
             self.chain_skel_pairs = chains.get_chain_skel_pairs(
                 selector_plug.node())
 
@@ -78,11 +78,11 @@ class RetriesSession(Session):
             "timer": 0
         }
 
-    def run(self, dry_run=False):
+    def run(self):
 
         chains.chunkify_skels(
             self.chain_skel_pairs,
-            self.chains_per_retry
+            self.chain_chunk_size
         )
 
         if self.plug_index is None:
@@ -91,35 +91,18 @@ class RetriesSession(Session):
             self.total_num_runs = 1
 
         with disable_all_skels():
-
             results = []
-
             progress.update(
                 major_max=self.total_num_runs,
                 header="Running {:d} Retries".format(self.total_num_runs)
             )
             timer_start = time.time()
-            run_id = 0
-            with utils.final_position(pm.PyNode("mainPaintingShape")):
-                with utils.at_value(pm.PyNode("canvasTransform").attr("applyBrushBias"), True):
-                    with utils.at_value(pm.PyNode("brushLifter").attr("nodeState"), 0):
-                        for chain, skel in self.chain_skel_pairs:
-                            with activate_node(skel):
-                                plug_ids = [self.plug_index] if self.plug_index is not None else range(
-                                    chain.attr("outputCount").get())
+            with utils.prep_for_output(): 
+                for pair in self.chain_skel_pairs:
+                    self.run_for_node(pair)
 
-                                for plug_index in plug_ids:
-                                    result = self.run_for_plug(
-                                        skel, plug_index, run_id, dry_run)
-                                    results.append(result)
-                                    run_id += 1
-                                skel.attr("selector").set(-1)
-
-        self.result_data = {
-            "plug_runs": results,
-            "success": all([res["solved"] for res in results]),
-            "timer": time.time() - timer_start,
-        }
+        self.result_data["success"] = all([res["solved"] for res in self.result_data["plug_runs"]])
+        self.result_data["timer"] = time.time() - timer_start
 
         status = "SUCCESS" if self.result_data["success"] else "FAILURE"
         time_str = str(datetime.timedelta(
@@ -132,14 +115,37 @@ class RetriesSession(Session):
             minor_progress=0,
         )
         
+    def run_for_node(self, chain_skel_pair):
+        chain, skel = chain_skel_pair
+
+        unsolved_plug_indices = []
+        with activate_node(skel):
+            plug_ids = [self.plug_index] if self.plug_index is not None else range(
+                chain.attr("outputCount").get())
+
+            for plug_index in plug_ids:
+                result = self.run_for_plug(
+                    skel, plug_index)
+                self.result_data["plug_runs"].append(result)
+                if not result["solved"]:
+                    unsolved_plug_indices.append(plug_index)
+                self.current_run_id += 1
+            skel.attr("selector").set(-1)
+            print "unsolved_plug_indices", unsolved_plug_indices
+            if unsolved_plug_indices:
+                self.disconnect_unsolved_chains(chain_skel_pair, unsolved_plug_indices)
+
+            
+
+
+
 
     # def calc_num_runs(self):
 
-    def run_for_plug(self,  skel, plug_index, run_id, dry_run=False):
+    def run_for_plug(self, skel, plug_index):
         skel.attr("selector").set(plug_index)
-        result = self.initialize_plug_result(skel, plug_index, run_id, dry_run)
-        print "run_for_plug: "
-        if dry_run:
+        result = self.initialize_plug_result(skel, plug_index)
+        if self.dry_run:
 
             return result
 
@@ -147,7 +153,7 @@ class RetriesSession(Session):
             return result
 
         run_start = time.time()
-        progress.update(major_progress=run_id)
+        progress.update(major_progress=self.current_run_id)
         attempt = 0
         values = []
         # plug.set(360)
@@ -166,7 +172,7 @@ class RetriesSession(Session):
 
             self.update_progress_for_attempt(
                 attempt,
-                split_angle_plug, run_id, values)
+                split_angle_plug, values)
 
             iter_start = time.time()
             robo.clean("kr30", infrastructure=False)
@@ -198,31 +204,34 @@ class RetriesSession(Session):
             angle = pm.strokeQuery(skel, maxCoil=True)
             next_val = min(angle, value) - self.delta
 
-            print "next_val", next_val
+            print "split - next_val", next_val
             if next_val <= 0:
                 break
             split_angle_plug.set(next_val)
         result["timer"] = time.time() - run_start
         return result
 
-    def update_progress_for_attempt(self, attempt, plug, run_id,  values):
+    def update_progress_for_attempt(self, attempt, plug,  values, cull=False):
         accum_values = (",").join(["{:.1f}".format(v) for v in values])
+
+        prefix = "Cull - plug" if cull else "Split - plug"
         progress.update(
-            major_line="Plug: {} - {:d}/{:d}, Attempt:{:d} Vals:{}".format(
+            major_line="{}: {} - {:d}/{:d}, Attempt:{:d} Vals:{}".format(
+                prefix,
                 plug,
-                (run_id + 1),
+                (self.current_run_id + 1),
                 self.total_num_runs,
                 attempt,
                 accum_values
             )
         )
 
-    def initialize_plug_result(self, skel,  plug_index, run_id, dry_run):
+    def initialize_plug_result(self, skel,  plug_index):
         result = {
             "skel_strokes_count": pm.strokeQuery(skel, sc=True),
             "plug": skel.attr("inputData")[plug_index].name(),
             "plug_index": plug_index,
-            "run_id": run_id,
+            "run_id": self.current_run_id,
             "attempts": 0,
             "path_results": [],
             "solved": False,
@@ -236,7 +245,7 @@ class RetriesSession(Session):
 
         if not result["cluster_count"]:
             result["solved"] = True
-        if dry_run:
+        if self.dry_run:
             result["solved"] = True
 
         return result
@@ -253,3 +262,88 @@ class RetriesSession(Session):
         if len(nodes) == 0:
             pm.error("No nodes selected. Aborting!")
 
+
+
+    def disconnect_unsolved_chains(self, chain_skel_pair, plug_indices):
+        print "Checking for disconnections"
+        chains.chunkify_skels([chain_skel_pair], 1)
+        chain, skel = chain_skel_pair
+        for chunked_plug_index in plug_indices:
+            start_index = chunked_plug_index*self.chain_chunk_size
+            end_index = start_index+self.chain_chunk_size
+            for plug_index in range(start_index, end_index):
+                plug = skel.attr("inputData")[plug_index]
+                conns = plug.chains.connections(s=True, d=False, type="skChainNode")
+                if conns:
+                    result = self.run_for_plug_simple(skel, plug_index)
+                    if not result["solved"]:
+                        pm.removeMultiInstance(skel.attr("inputData")[plug_index], b=True)
+                        print "Deleted unsolvable plug:", plug
+
+
+    def run_for_plug_simple(self, skel, plug_index):
+        skel.attr("selector").set(plug_index)
+        result = self.initialize_plug_result(skel, plug_index)
+        if self.dry_run:
+            return result
+        if not result["cluster_count"]:
+            return result
+
+        run_start = time.time()
+        # progress.update(major_progress=self.current_run_id)
+        attempt = 0
+        values = []
+        # plug.set(360)
+        split_angle_plug = skel.attr("inputData")[
+            plug_index].attr("splitAngle")
+
+        initial_angle = pm.strokeQuery(skel, maxCoil=True) + self.delta
+        split_angle_plug.set(initial_angle)
+
+        while True:
+            attempt += 1
+            # print "attempt", attempt
+            value = split_angle_plug.get()
+            values.append(value)
+            pm.refresh()
+
+            self.update_progress_for_attempt(
+                attempt,
+                split_angle_plug, values, True)
+
+            iter_start = time.time()
+            robo.clean("kr30", infrastructure=False)
+
+            ##########
+            program = BotRetryProgram("retry")
+            if not (program and program.painting and program.painting.clusters):
+                break
+            program.configure()
+
+            program.send()
+            path_result = program.validate_path() or {"status": "SUCCESS"}
+            ##########
+
+            path_result.update(
+                {"attempt": attempt,
+                 "value": value,
+                 "timer": time.time() - iter_start
+                 }
+            )
+            result["path_results"].append(path_result)
+            if path_result["status"] == "SUCCESS":
+                result["attempts"] = attempt
+                result["solved"] = True
+                break
+
+            # Here if we need to try again
+
+            angle = pm.strokeQuery(skel, maxCoil=True)
+            next_val = min(angle, value) - self.delta
+
+            print "cull - next_val", next_val
+            if next_val <= 0:
+                break
+            split_angle_plug.set(next_val)
+        result["timer"] = time.time() - run_start
+        return result
