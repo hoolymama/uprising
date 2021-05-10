@@ -36,40 +36,39 @@ class BotPaintingSession(Session):
 
     def run(self):
         timer_start = time.time()
-        with utils.final_position(self.painting_node):
-            with utils.final_position(pm.PyNode("RACK1_CONTEXT")):
+        with utils.prep_for_output(): 
 
-                # CONFIGURE EVERYTHING
-                self.program = self._build_bot_program()
-                self.program.configure()
+            # CONFIGURE EVERYTHING
+            self.program = self._build_bot_program()
+            self.program.configure()
 
-                # DIPS&WIPES, WATER, RETARDANT
-                self.dip_wipe_collection = DipWipeCollection()
-                self.water_collection = WaterCollection()
-                self.retardant_collection = RetardantCollection()
+            # DIPS&WIPES, WATER, RETARDANT
+            self.dip_wipe_collection = DipWipeCollection()
+            self.water_collection = WaterCollection()
+            self.retardant_collection = RetardantCollection()
 
-                for program in (
-                    self.dip_wipe_collection.programs
-                    + self.water_collection.programs
-                    + self.retardant_collection.programs
-                ):
-                    program.configure()
+            for program in (
+                self.dip_wipe_collection.programs
+                + self.water_collection.programs
+                + self.retardant_collection.programs
+            ):
+                program.configure()
 
-                # PICK PLACE
-                dc = pm.paintingQuery(self.painting_node, dc=True)
-                brush_ids = set(dc[::2])
-                self.pick_place_collection = PickPlaceCollection(brush_ids)
+            # PICK PLACE
+            dc = pm.paintingQuery(self.painting_node, dc=True)
+            brush_ids = set(dc[::2])
+            self.pick_place_collection = PickPlaceCollection(brush_ids)
 
-                # POST STEP Where we try to make linear moves between strokes and between clusters
-                # and the palette.
+            # POST STEP Where we try to make linear moves between strokes and between clusters
+            # and the palette.
 
-                print "LINKAGES"
-                self.configure_linkages()
+            print "LINKAGES"
+            self.configure_linkages()
 
-                print "SEND"
-                self._send_and_publish_bot_program()
-                self._send_and_publish_pick_place_programs()
-                self._send_and_publish_dip_wipe_wash_programs()
+            print "SEND"
+            self._send_and_publish_bot_program()
+            self._send_and_publish_pick_place_programs()
+            self._send_and_publish_dip_wipe_wash_programs()
 
         # robo.close()
 

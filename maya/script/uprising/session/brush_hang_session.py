@@ -25,13 +25,13 @@ class BrushHangSession(Session):
 
         robo.new()
         robo.clean("kr30")
-        with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+        with uutl.prep_for_output():
             self.pick_place_collection = PickPlaceCollection(brush_ids)
             self.program = BrushHangProgram(self.PROGRAM_NAME, data)
 
     def send(self):
 
-        with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+        with uutl.prep_for_output():
             self.program.send()
             self.pick_place_collection.send()
             self.send_rack_geo()

@@ -22,7 +22,7 @@ class BoardCalibrationProgram(CalibrationProgram):
 
         last = None
 
-        with uutl.final_position(pm.PyNode("mainPaintingShape")):
+        with uutl.prep_for_output():
             for pack in self.packs:
                 self._send_stops(
                     last, pack["approach_loc"], k.FACING_BOARD_JOINTS)

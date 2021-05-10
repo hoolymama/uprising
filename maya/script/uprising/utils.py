@@ -59,18 +59,18 @@ def at_position(node, x, y, z):
         node.attr("t").set(old)
 
 
-@contextmanager
-def final_position(*nodes):
-    remember = []
-    for node in nodes:
-        asy = assembly(node)
-        remember.append([asy, asy.attr("zeroPosition").get()])
-        asy.attr("zeroPosition").set(False)
-    try:
-        yield
-    finally:
-        for asy, rem in remember:
-            asy.attr("zeroPosition").set(rem)
+# @contextmanager
+# def final_position(*nodes):
+#     remember = []
+#     for node in nodes:
+#         asy = assembly(node)
+#         remember.append([asy, asy.attr("zeroPosition").get()])
+#         asy.attr("zeroPosition").set(False)
+#     try:
+#         yield
+#     finally:
+#         for asy, rem in remember:
+#             asy.attr("zeroPosition").set(rem)
 
 
 @contextmanager

@@ -17,7 +17,7 @@ class ManualProbeSession(CalibrationSession):
         self.program = ManualProbeProgram(self.PROGRAM_NAME)
 
     def send_props(self):
-        with uutl.final_position(pm.PyNode("mainPaintingShape")):
-            with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
-                self.send_rack_geo()
-                self.send_board_geo()
+        prep_for_output():
+        with uutl.prep_for_output():
+            self.send_rack_geo()
+            self.send_board_geo()

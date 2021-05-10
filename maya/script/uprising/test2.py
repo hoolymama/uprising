@@ -177,14 +177,13 @@ reload (configurator)
 robo.new()
 robo.show()
 robo.clean("kr30", infrastructure=False)
-with utils.final_position(pm.PyNode("mainPaintingShape")):
-    with utils.at_value(pm.PyNode("canvasTransform").attr("applyBrushBias"), True):
-        with utils.at_value(pm.PyNode("brushLifter").attr("nodeState"), 0):
-            program = BotRetryProgram("retry")
-            program.configure()
-            program.send()
-            path_result = program.validate_path() 
-            print path_result
+with uutl.prep_for_output():
+ 
+    program = BotRetryProgram("retry")
+    program.configure()
+    program.send()
+    path_result = program.validate_path() 
+    print path_result
 
 
 import pymel.core as pm

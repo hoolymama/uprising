@@ -24,7 +24,7 @@ class PickPlaceExerciseSession(Session):
         self.directory = os.path.join(pm.workspace.getPath(
         ), 'export', 'calibrations', self.PROGRAM_NAME, timestamp)
         robo.clean("kr30")
-        with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+        with uutl.prep_for_output():
             brush_ids = [int(n[-2:]) for n in pm.ls("RACK1_CONTEXT|j1|rack|holders|holderRot*")]
             pm.displayInfo("Creating pick_place_collection")
             self.pick_place_collection = PickPlaceCollection(brush_ids)
@@ -32,7 +32,7 @@ class PickPlaceExerciseSession(Session):
             self.exercise_program = PickPlaceExerciseProgram(self.PROGRAM_NAME)
 
     def run(self):
-        with uutl.final_position(pm.PyNode("RACK1_CONTEXT")):
+        with uutl.prep_for_output():
             self.pick_place_collection.send()
             self.exercise_program.send()
             self.send_rack_geo()
