@@ -99,6 +99,7 @@ private:
 
 
     static MObject aChains;
+    static MObject aActive;
     static MObject aBrushes;
     static MObject aInputData;
     static MObject aSplitAngle;

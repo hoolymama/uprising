@@ -91,8 +91,7 @@ class brushHangTab(gui.FormLayout):
     def on_go(self):
         data = self.get_brush_twist_data()
         session = BrushHangSession(data)
-        session.send()
-        session.publish()
+        session.run()
 
     def on_twist_on(self):
         for cb in pm.columnLayout(self.brushes_column, q=True, ca=True):

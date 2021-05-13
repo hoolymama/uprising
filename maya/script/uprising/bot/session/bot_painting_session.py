@@ -6,6 +6,7 @@ import tarfile
 import pymel.core as pm
 from uprising import utils
 from uprising import robo
+from uprising import props
 from uprising import stats
 from uprising import progress
 from uprising.common.session.session import Session
@@ -25,8 +26,9 @@ class BotPaintingSession(Session):
 
     PROGRAM_NAME = "px"
 
-    def __init__(self, cluster_chunk_size, directory):
+    def __init__(self, cluster_chunk_size, directory,do_separate_subprograms):
         self.program = None
+        self.do_separate_subprograms = do_separate_subprograms
         self.directory = directory
         self.painting_node = pm.PyNode("mainPaintingShape")
         self.program_names = []
@@ -66,10 +68,12 @@ class BotPaintingSession(Session):
             self.configure_linkages()
 
             print "SEND"
-            self._send_and_publish_bot_program()
-            self._send_and_publish_pick_place_programs()
-            self._send_and_publish_dip_wipe_wash_programs()
-
+            if self.do_separate_subprograms:
+                self._send_and_publish_bot_program()
+                self._send_and_publish_pick_place_programs()
+                self._send_and_publish_dip_wipe_wash_programs()
+            else:
+                self._send_and_publish_one_file()
         # robo.close()
 
         duration = int(time.time() - timer_start)
@@ -164,6 +168,72 @@ class BotPaintingSession(Session):
 
         self.save_station(self.directory, "dw")
 
+
+
+    def _send_and_publish_one_file(self):
+        # cluster_count = len(self.program.painting.clusters)
+        # num_chunks = int(math.ceil(cluster_count / float(self.cluster_chunk_size)))
+
+        progress.update(
+            major_max=1, header="Writing main program " 
+        )
+ 
+        robo.clean("kr30")
+ 
+        subprograms = self.program.send(with_brush_geo=True)
+
+        pp_program_names = self.pick_place_collection.program_names()
+        count = len(pp_program_names)
+
+        progress.update(
+            header="Creating {} pick and place programs".format(count),
+            major_line="",
+            major_max=count,
+            major_progress=0,
+        )
+ 
+        self.pick_place_collection.send()
+
+        program_names = (
+            self.dip_wipe_collection.program_names()
+            + self.water_collection.program_names()
+            + self.retardant_collection.program_names()
+        )
+        count = len(program_names)
+
+        progress.update(
+            header="Creating {} dip/wip/wash programs".format(count),
+            major_line="",
+            major_max=count,
+            major_progress=0,
+        )
+        self.dip_wipe_collection.send()
+        self.water_collection.send()
+        self.retardant_collection.send()
+
+        pm.displayInfo("Sending rack_geo")
+        self.send_rack_geo()
+        pm.displayInfo("Sending holder_geo")
+        self.send_holder_geo()
+        pm.displayInfo("Sending pot_geo")
+        self.send_pot_geo()
+        pm.displayInfo("Sending handle_geo")
+        self.send_handle_geo()
+        pm.displayInfo("Sending canvas")
+        props.send([pm.PyNode("canvas")])
+
+        src_fn = self.save_program(self.directory, self.program.program_name)
+        # self.insert_external_dependencies(subprograms, src_fn)
+        self.save_station(self.directory, self.program.program_name)
+
+        # self.program_names.append(self.program.program_name)
+
+        progress.update(major_progress=1, major_line="Done")
+
+        # if len(self.program_names) > 1:
+        #     self.orchestrate(self.directory, self.program_names)
+
+
     def init_progress(self):
         progress.update(
             header="Creating main painting",
@@ -184,6 +254,15 @@ class BotPaintingSession(Session):
         src_folder = os.path.join(self.directory, "src")
         with tarfile.open("{}.tar.gz".format(src_folder), "w:gz") as tar:
             tar.add(src_folder, arcname=os.path.sep)
+
+
+
+
+
+
+
+
+
 
     def configure_linkages(self):
 

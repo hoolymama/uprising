@@ -51,12 +51,16 @@ class Stroke(object):
     #############################
     #############################
 
-    # def test_linear_moves(self, configs, brush):
+    # def test_linear_moves(self,  brush, *names):
 
     #     robot = robo.robot()
 
     #     # setPoseTool to the brush if not already set
     #     brush.send()
+
+    #     for name in names[1:]:
+    #         _link.Item(name)
+
 
     #     for config in configs:
     #         print "Tesing linear move for Stroke {} config: {}".format(

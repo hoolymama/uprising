@@ -18,6 +18,6 @@ class Painting(object):
             "rounding": node.attr("approximationDistance").get() * 10,
         }
 
-    def send_brushes(self):
+    def send_brushes(self, with_geo=False):
         for brush in self.brushes:
-            self.brushes[brush].send()
+            self.brushes[brush].send(with_geo)

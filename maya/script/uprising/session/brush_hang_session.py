@@ -24,20 +24,19 @@ class BrushHangSession(Session):
         brush_ids = [b["id"] for b in data]
 
         robo.new()
-        robo.clean("kr30")
+        robo.clean("kr30", infrastructure=False)
         with uutl.prep_for_output():
             self.pick_place_collection = PickPlaceCollection(brush_ids)
             self.program = BrushHangProgram(self.PROGRAM_NAME, data)
 
-    def send(self):
 
+    def run(self):
         with uutl.prep_for_output():
             self.program.send()
             self.pick_place_collection.send()
             self.send_rack_geo()
             self.send_holder_geo()
 
-    def publish(self):
         program_name = self.program.program_name
         timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
         directory = os.path.join(pm.workspace.getPath(

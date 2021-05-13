@@ -18,7 +18,6 @@
 const double rad_to_deg = (180 / 3.1415927);
 const double deg_to_rad = (3.1415927 / 180);
 
-
 MObject strokeNodeBase::aStrokeSortKey;
 MObject strokeNodeBase::aStrokeSortDirection;
 MObject strokeNodeBase::aStrokeSortList;
@@ -57,11 +56,10 @@ MStatus strokeNodeBase::initialize()
 
   MFnNumericAttribute nAttr;
   MFnTypedAttribute tAttr;
- 
+
   MFnEnumAttribute eAttr;
- 
+
   MFnCompoundAttribute cAttr;
- 
 
   aStrokeSortKey = eAttr.create("strokeSortKey", "stsk", Stroke::kBrushId);
   eAttr.addField("Stroke Id", Stroke::kStrokeId);
@@ -165,13 +163,11 @@ MStatus strokeNodeBase::initialize()
   nAttr.setDefault(-1);
   st = addAttribute(aEndAt);
 
-
   aOutput = tAttr.create("output", "out", strokeData::id);
   tAttr.setReadable(true);
   tAttr.setStorable(false);
   addAttribute(aOutput);
 
-  
   st = attributeAffects(aApplySort, aOutput);
   st = attributeAffects(aStrokeSortKey, aOutput);
   st = attributeAffects(aStrokeSortDirection, aOutput);
@@ -185,15 +181,14 @@ MStatus strokeNodeBase::initialize()
   st = attributeAffects(aStrokeFilterTexture, aOutput);
   st = attributeAffects(aStartFrom, aOutput);
   st = attributeAffects(aEndAt, aOutput);
-  
 
   return (MS::kSuccess);
 }
 
 MStatus strokeNodeBase::generateStrokeGeometry(
-  const MPlug &plug,
-  MDataBlock &data,
- std::vector<Stroke> *geom ) 
+    const MPlug &plug,
+    MDataBlock &data,
+    std::vector<Stroke> *geom)
 {
   return MS::kSuccess;
 }
@@ -206,7 +201,6 @@ MStatus strokeNodeBase::compute(const MPlug &plug, MDataBlock &data)
     return (MS::kUnknownParameter);
   }
 
-
   MDataHandle hOutput = data.outputValue(aOutput);
   MFnPluginData fnOut;
   MTypeId kdid(strokeData::id);
@@ -217,28 +211,29 @@ MStatus strokeNodeBase::compute(const MPlug &plug, MDataBlock &data)
 
   std::vector<Stroke> *geom = newData->fGeometry;
 
-	short int nodeState = data.inputValue( state).asShort();
-  
+  short int nodeState = data.inputValue(state).asShort();
+
   st = generateStrokeGeometry(plug, data, geom);
-  if (nodeState == 0)  {
+  if (nodeState == 0)
+  {
     setStrokeIds(geom);
     filterStrokes(data, geom);
     sortStrokes(data, geom);
     cullStartEnd(data, geom);
-	}
+  }
 
   hOutput.set(newData);
   hOutput.setClean();
   return MS::kSuccess;
 }
 
-void strokeNodeBase::setStrokeIds( std::vector<Stroke> *geom)  const
+void strokeNodeBase::setStrokeIds(std::vector<Stroke> *geom) const
 {
   unsigned i = 0;
   std::vector<Stroke>::iterator iter = geom->begin();
   for (; iter != geom->end(); iter++, i++)
   {
-     iter->setStrokeId(i);
+    iter->setStrokeId(i);
   }
 }
 
@@ -252,8 +247,8 @@ void strokeNodeBase::getPivotPoints(const std::vector<Stroke> *geom, MFloatPoint
 }
 
 void strokeNodeBase::getTargetPoints(
-  const std::vector<Stroke> *geom, 
-  MFloatPointArray &result) const
+    const std::vector<Stroke> *geom,
+    MFloatPointArray &result) const
 {
   for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
   {
@@ -261,18 +256,16 @@ void strokeNodeBase::getTargetPoints(
     for (std::vector<Target>::const_iterator targetIter = targets.begin(); targetIter != targets.end(); targetIter++)
     {
       const MFloatMatrix &mat = targetIter->matrix();
-      result.append(MFloatPoint(mat[3][0],mat[3][1],mat[3][2]));
+      result.append(MFloatPoint(mat[3][0], mat[3][1], mat[3][2]));
     }
   }
 }
-
-
 
 bool strokeNodeBase::setFilterMapColor(std::vector<Stroke> *geom) const
 {
   MStatus st;
   MObject thisObj = thisMObject();
-   if (!TexUtils::hasTexture(thisObj, strokeNodeBase::aStrokeFilterTexture))
+  if (!TexUtils::hasTexture(thisObj, strokeNodeBase::aStrokeFilterTexture))
   {
     return false;
   }
@@ -281,12 +274,13 @@ bool strokeNodeBase::setFilterMapColor(std::vector<Stroke> *geom) const
   getPivotPoints(geom, points);
 
   MFloatVectorArray result;
-  st = TexUtils::sampleSolidTexture( thisObj, strokeNodeBase::aStrokeFilterTexture, 1.0, points, result);
-  if (st.error()) {
-        return false;
+  st = TexUtils::sampleSolidTexture(thisObj, strokeNodeBase::aStrokeFilterTexture, 1.0, points, result);
+  if (st.error())
+  {
+    return false;
   }
 
-  std::vector<Stroke>::iterator iter =geom->begin();
+  std::vector<Stroke>::iterator iter = geom->begin();
   for (unsigned i = 0; iter != geom->end(); iter++, i++)
   {
     iter->setFilterColor(result[i]);
@@ -296,9 +290,9 @@ bool strokeNodeBase::setFilterMapColor(std::vector<Stroke> *geom) const
 
 bool strokeNodeBase::setSortMapColor(std::vector<Stroke> *geom) const
 {
-   MStatus st;
+  MStatus st;
   MObject thisObj = thisMObject();
-   if (!TexUtils::hasTexture(thisObj,  strokeNodeBase::aStrokeSortTexture))
+  if (!TexUtils::hasTexture(thisObj, strokeNodeBase::aStrokeSortTexture))
   {
     return false;
   }
@@ -307,11 +301,12 @@ bool strokeNodeBase::setSortMapColor(std::vector<Stroke> *geom) const
   getPivotPoints(geom, points);
 
   MFloatVectorArray result;
-  st = TexUtils::sampleSolidTexture( 
-    thisObj,  strokeNodeBase::aStrokeSortTexture, 1.0, points, result);
-    if (st.error()) {
-          return false;
-    }
+  st = TexUtils::sampleSolidTexture(
+      thisObj, strokeNodeBase::aStrokeSortTexture, 1.0, points, result);
+  if (st.error())
+  {
+    return false;
+  }
 
   std::vector<Stroke>::iterator iter = geom->begin();
   for (unsigned i = 0; iter != geom->end(); iter++, i++)
@@ -349,7 +344,6 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
     return;
   }
 
-
   /* Set the mapped colors so they may be used for filtering */
   bool useFilterMap = filterDefinition.usesMap();
   if (useFilterMap)
@@ -375,8 +369,6 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
     switch (key)
     {
 
-
-
     case Stroke::kStrokeId:
       new_end = std::remove_if(geom->begin(), geom->end(),
                                [op, value](const Stroke &stroke) { return stroke.testStrokeId(op, value) == false; });
@@ -401,10 +393,10 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
       new_end = std::remove_if(geom->begin(), geom->end(),
                                [op, value](const Stroke &stroke) { return stroke.testLayerId(op, value) == false; });
       break;
-      case Stroke::kParentId:
+    case Stroke::kParentId:
       new_end = std::remove_if(geom->begin(), geom->end(),
                                [op, value](const Stroke &stroke) { return stroke.testParentId(op, value) == false; });
-     break;
+      break;
 
     case Stroke::kMapRed:
       if (useFilterMap)
@@ -441,51 +433,27 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
 void strokeNodeBase::cullStartEnd(MDataBlock &data, std::vector<Stroke> *geom) const
 {
 
-
   int startFrom = data.inputValue(aStartFrom).asInt();
   int endAt = data.inputValue(aEndAt).asInt();
-  cerr << "startFrom:" << startFrom << " endAt:" << endAt << endl;
 
-
-  if (endAt <= -1 )
+  if (endAt <= -1)
   {
-    endAt =  geom->size();
+    endAt = geom->size();
   }
-  startFrom = std::max (std::min(startFrom, endAt), 0);
-  // cerr << "SANITIZED: startFrom:" << startFrom << " endAt:" << endAt << endl;
+  startFrom = std::max(std::min(startFrom, endAt), 0);
 
-  if (startFrom > 0 || endAt < geom->size()) {
-    MGlobal::displayWarning("cullStartEnd IS NOT IMPLEMENTED");
-    // std::vector<Stroke>::const_iterator first = geom->begin() + startFrom;
-    // std::vector<Stroke>::const_iterator last = geom->begin() + endAt;
-    // std::vector<Stroke> newGeom(first, last);
-    // geom->clear();
-    // for (int i=0; i<newGeom.size(); i++)
-    // {
-    //   geom->push_back(newGeom[i]);
-    // }
+  if (startFrom > 0 || endAt < geom->size())
+  {
+    std::vector<Stroke>::iterator new_end = geom->end();
 
-    // *geom = std::vector<Stroke>(first, last);
+    // This is probably inefficient - but at least it doesn't crash.
+    new_end = std::remove_if(geom->begin(), geom->end(),
+                             [startFrom, endAt](const Stroke &stroke) {
+                               int sid = stroke.strokeId(); 
+                               return (sid < startFrom ||  sid >= endAt);
+                             });
+    geom->erase(new_end, geom->end());
   }
-
-
-
-
-
- 
-  // int remove = geom->size() - endAt;
-
-  // if (startFrom > 0)
-  // {
-  //   std::vector<Stroke>::iterator start_iter = geom->begin() + startFrom;
-  //   geom->erase(geom->begin(), geom->begin() + startFrom);
-  // }
-
-  // if (remove > 0)
-  // {
-  //   std::vector<Stroke>::iterator end_iter = geom->end() - remove;
-  //   geom->erase(end_iter, geom->end());
-  // }
 }
 
 void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) const
@@ -534,7 +502,7 @@ void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) co
     bool ascending = (sortiter->second == Stroke::kSortAscending);
     switch (sortiter->first)
     {
-      case Stroke::kStrokeId:
+    case Stroke::kStrokeId:
       for (iter = geom->begin(); iter != geom->end(); iter++)
       {
         iter->appendStrokeIdToSortStack(ascending);
@@ -559,7 +527,7 @@ void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) co
         iter->appendLayerIdToSortStack(ascending);
       }
       break;
-        case Stroke::kParentId:
+    case Stroke::kParentId:
       for (iter = geom->begin(); iter != geom->end(); iter++)
       {
         iter->appendParentIdToSortStack(ascending);

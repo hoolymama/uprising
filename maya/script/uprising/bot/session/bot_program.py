@@ -34,6 +34,9 @@ class BotProgram(Program):
 
         chunk_length = kw.get("chunk_length", num_clusters)
 
+        with_brush_geo = kw.get("with_brush_geo", False)
+
+
         start = kw.get("chunk_start", (chunk_id * chunk_length))
 
         end = start + chunk_length
@@ -51,7 +54,7 @@ class BotProgram(Program):
 
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
-        self.painting.send_brushes()
+        self.painting.send_brushes(with_brush_geo)
 
         last_cluster = None if start == 0 else self.painting.clusters[(start - 1)]
 

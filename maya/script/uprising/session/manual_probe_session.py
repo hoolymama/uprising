@@ -17,7 +17,7 @@ class ManualProbeSession(CalibrationSession):
         self.program = ManualProbeProgram(self.PROGRAM_NAME)
 
     def send_props(self):
-        prep_for_output():
+
         with uutl.prep_for_output():
             self.send_rack_geo()
             self.send_board_geo()

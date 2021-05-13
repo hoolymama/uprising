@@ -100,6 +100,8 @@ def link():
 
 def robot():
     global _robot
+    if not _robot:
+        _robot = _link.Item("", ITEM_TYPE_ROBOT)
     return _robot
 
 
@@ -319,3 +321,38 @@ def _create_infrastructure():
     # dip_approach = create_cartesian_target(
     #     pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame
     # )
+
+
+def linear_test(brushname, *names):
+
+    new()
+
+
+    link().setCollisionActive(False)
+    # plug = pm.PyNode(brushNode).attr("outPaintBrush")
+    # Brush(0, plug).send( with_geo=True, force=True)
+ 
+
+    # brush.send()
+    brush = link().Item(brushname)
+    if not brush.Valid():
+         print  "Invalid brush: {}. Abort".format(brushname)
+         return
+
+    robot().setPoseTool(brush)  
+
+    for i in range(1, len(names)):
+        t0 = link().Item(names[i-1])
+        t1 = link().Item(names[i])
+        if not t0.Valid() and t1.Valid():
+            print  "Skipping invalid pair: {} <> {}".format(names[i-1], names[i])
+            continue
+        print "testing lin move between {} and {}".format(names[i-1], names[i])
+
+        robot().MoveJ(t0.Pose())
+        joints = robot().Joints()
+        fail = robot().MoveL_Test(joints, t1.Pose())
+
+        print "FAIL" if fail else "SUCCESS"
+
+        

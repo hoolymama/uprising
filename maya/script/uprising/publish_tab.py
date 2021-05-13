@@ -45,13 +45,13 @@ class PublishTab(gui.FormLayout):
             numberOfFields=1, label="Coil retries delta", value1=20
         )
 
-        self.chains_per_retry = pm.intFieldGrp(
-            height=30,
-            label="Chains per retry",
-            annotation="Max number of chains for each retry resolution.",
-            numberOfFields=1,
-            value1=10,
-        )
+        # self.chains_per_retry = pm.intFieldGrp(
+        #     height=30,
+        #     label="Chains per retry",
+        #     annotation="Max number of chains for each retry resolution.",
+        #     numberOfFields=1,
+        #     value1=10,
+        # )
 
         with utils.activatable(state=False) as self.single_active_checkbox:
 
@@ -98,7 +98,8 @@ class PublishTab(gui.FormLayout):
         self.do_separate_subprograms_cb = pm.checkBoxGrp(
             numberOfCheckBoxes=1,
             label="Separate subprograms",
-            value1=1
+            value1=1,
+            changeCommand=pm.Callback(self.on_ops_change)
         )
 
         self.cluster_chunk_if = pm.intFieldGrp(
@@ -131,6 +132,9 @@ class PublishTab(gui.FormLayout):
 
         pm.frameLayout(self.export_frame, edit=True, en=(do_painting))
 
+        do_separate_subprograms = pm.checkBoxGrp(self.do_separate_subprograms_cb, q=True , value1=True)
+        pm.intFieldGrp(self.cluster_chunk_if, e=True, en=do_separate_subprograms)
+        
         if do_painting:
             do_save = True
             pm.checkBoxGrp(
@@ -164,15 +168,13 @@ class PublishTab(gui.FormLayout):
         node = pm.PyNode(pm.optionMenuGrp(
             self.single_skel_menu, query=True, value=True))
 
-        chains_per_retry = pm.intFieldGrp(
-            self.chains_per_retry, query=True, value1=True)
+        # chains_per_retry = pm.intFieldGrp(
+        #     self.chains_per_retry, query=True, value1=True)
 
         chain_skel_pairs = chains.get_chain_skel_pairs(node)
 
-        chains.chunkify_skels(
-            chain_skel_pairs,
-            chains_per_retry
-        )
+        chains.chunkify_skels( chain_skel_pairs, 1 )
+
         self.configure_single_selector()
 
     def configure_single_selector(self):
@@ -199,8 +201,8 @@ class PublishTab(gui.FormLayout):
         coil_delta = pm.floatFieldGrp(
             self.coil_delta_ff, query=True, value1=True)
 
-        chains_per_retry = pm.intFieldGrp(
-            self.chains_per_retry, query=True, value1=True)
+        # chains_per_retry = pm.intFieldGrp(
+        #     self.chains_per_retry, query=True, value1=True)
 
         cluster_chunk_size = pm.intFieldGrp(
             self.cluster_chunk_if, query=True, value1=True
@@ -235,7 +237,6 @@ class PublishTab(gui.FormLayout):
         if do_retries:
             retries_session = RetriesSession(
                 coil_delta,
-                chains_per_retry,
                 plug,
                 dry_run,
                 directory)
@@ -249,10 +250,8 @@ class PublishTab(gui.FormLayout):
                 return
 
         if do_painting:
-
-            painting_session = BotPaintingSession(cluster_chunk_size, directory)
+            painting_session = BotPaintingSession(cluster_chunk_size, directory, do_separate_subprograms)
             painting_session.run()
-
             painting_session.show_stats()
             painting_session.write_stats()
             painting_session.write_maya_scene(directory, "scene")

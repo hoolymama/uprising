@@ -55,15 +55,19 @@ class Brush(object):
     def is_flat(self):
         return self.shape == 0
 
-    def send(self, with_geo=False):
+    def send(self, with_geo=False, force=False):
         link = robo.link()
         robot = robo.robot()
         if not robot:
             robot = link.Item("", ITEM_TYPE_ROBOT) 
 
         old_brush = link.Item(self.name)
+     
         if old_brush.Valid():
-            return
+            if force:
+                old_brush.Delete()
+            else:
+                return
         try:
             tool_item = robot.AddTool(self.matrix, self.name)
         except AttributeError:
@@ -105,7 +109,7 @@ class Brush(object):
         for brush_node in brushNodes:
             for brush_att in brush_atts:
                 plug = brush_node.attr(brush_att)
-                Brush(0, plug).send( with_geo=True)
+                Brush(0, plug).send( with_geo=True, force=True)
 
     @classmethod
     def brush_at_index(cls, node, index):
