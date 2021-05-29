@@ -162,7 +162,7 @@ class PlaceProgram(PickPlaceProgram):
 class PickAtHomeProgram(PickPlaceProgram):
     @staticmethod
     def generate_program_name(brush_id):
-        return "pick_{:02d}".format(brush_id)
+        return "pick_{:03d}".format(brush_id)
 
     def __init__(self, brush, pack):
         name = PickAtHomeProgram.generate_program_name(pack["brush_id"])
@@ -195,7 +195,7 @@ class PickAtHomeProgram(PickPlaceProgram):
 class PlaceAtHomeProgram(PickPlaceProgram):
     @staticmethod
     def generate_program_name(brush_id):
-        return "place_{:02d}".format(brush_id)
+        return "place_{:03d}".format(brush_id)
 
     def __init__(self, brush, pack):
         name = PlaceAtHomeProgram.generate_program_name(pack["brush_id"])

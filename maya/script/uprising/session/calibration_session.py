@@ -4,7 +4,7 @@ import os
 import pymel.core as pm
 import datetime
 from uprising import robo
-
+import uprising.utils as uutl
 from uprising.common.session.session import Session
 
 
@@ -22,16 +22,15 @@ class CalibrationSession(Session):
         self.probe_grab_drop = PickPlaceCollection("calibration")
         self.program = None
 
-    def send(self):
-        robo.new()
-        # robo.hide()
-        robo.clean("kr30")
-        self.program.send()
-        self.probe_grab_drop.send()
-        self.send_props()
-        robo.show()
+    def run(self):
+        with uutl.prep_for_output():
+            robo.new()
+            robo.clean("kr30")
+            self.program.send()
+            self.probe_grab_drop.send()
+            self.send_props()
+            robo.show()
 
-    def publish(self):
         program_name = self.program.program_name
         timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
         directory = os.path.join(pm.workspace.getPath(

@@ -60,7 +60,9 @@ def get_clean_file(model):
 
 def get_license_file():
     project_path = get_uprising_project_path()
-    return os.path.join(project_path, "robodk", "RobAndNickCarterRoboDKLicense.rdklic")
+    return os.path.join(project_path, "robodk", "JulianMannRoboDKLicense.rdklic")
+
+
 
 
 def deleteAllStations():
@@ -121,6 +123,7 @@ def clean(model="kr30", infrastructure=True):
     cleanfile = get_clean_file(model)
 
     _link.AddFile(cleanfile)
+
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _model = model
     # _robot.setParam("PostProcessor", "KUKA KRC4 RN")

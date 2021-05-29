@@ -154,7 +154,11 @@ class RetriesSession(Session):
             self.update_progress_for_attempt(attempt, split_angle_plug, values)
 
             ##########
-            program = BotRetryProgram("retry")
+
+            try:
+                program = BotRetryProgram("retry")
+            except BaseException:
+                break
             if not (program and program.painting and program.painting.clusters):
                 break
             program.configure()
@@ -184,6 +188,10 @@ class RetriesSession(Session):
             if next_val <= 0:
                 break
             split_angle_plug.set(next_val)
+            cluster_count = pm.paintingQuery(self.painting_node, cc=True)
+            if not cluster_count:
+                break
+
         result["timer"] = time.time() - run_start
         return result
 
@@ -218,80 +226,3 @@ class RetriesSession(Session):
     def validate_retries_params(nodes):
         if len(nodes) == 0:
             pm.error("No nodes selected. Aborting!")
-
-    # def deactivate_unsolved_chains(self, chain_skel_pair, plug_indices):
-    #     print "Checking for deactivations"
-    #     chains.chunkify_skels([chain_skel_pair], 1)
-    #     chain, skel = chain_skel_pair
-    #     for chunked_plug_index in plug_indices:
-    #         start_index = chunked_plug_index * self.chain_chunk_size
-    #         end_index = start_index + self.chain_chunk_size
-    #         for plug_index in range(start_index, end_index):
-    #             plug = skel.attr("inputData")[plug_index]
-    #             conns = plug.chains.connections(s=True, d=False, type="skChainNode")
-    #             if conns:
-    #                 result = self.run_for_plug_simple(skel, plug_index)
-    #                 if not result["solved"]:
-    #                     skel.attr("inputData")[plug_index].attr("active").set(False)
-    #                     print "Deactivated unsolvable plug:", plug
-
-    # def run_for_plug_simple(self, skel, plug_index):
-    #     skel.attr("selector").set(plug_index)
-    #     result = self.initialize_plug_result(skel, plug_index)
-    #     if self.dry_run:
-    #         return result
-    #     if not result["cluster_count"]:
-    #         return result
-
-    #     run_start = time.time()
-    #     # progress.update(major_progress=self.current_run_id)
-    #     attempt = 0
-    #     values = []
-    #     # plug.set(360)
-    #     split_angle_plug = skel.attr("inputData")[plug_index].attr("splitAngle")
-
-    #     initial_angle = pm.strokeQuery(skel, maxCoil=True) + self.delta
-    #     split_angle_plug.set(initial_angle)
-
-    #     while True:
-    #         attempt += 1
-    #         # print "attempt", attempt
-    #         value = split_angle_plug.get()
-    #         values.append(value)
-    #         pm.refresh()
-
-    #         self.update_progress_for_attempt(attempt, split_angle_plug, values, True)
-
-    #         iter_start = time.time()
-    #         robo.clean("kr30", infrastructure=False)
-
-    #         ##########
-    #         program = BotRetryProgram("retry")
-    #         if not (program and program.painting and program.painting.clusters):
-    #             break
-    #         program.configure()
-
-    #         program.send()
-    #         path_result = program.validate_path() or {"status": "SUCCESS"}
-    #         ##########
-
-    #         path_result.update(
-    #             {"attempt": attempt, "value": value, "timer": time.time() - iter_start}
-    #         )
-    #         result["path_results"].append(path_result)
-    #         if path_result["status"] == "SUCCESS":
-    #             result["attempts"] = attempt
-    #             result["solved"] = True
-    #             break
-
-    #         # Here if we need to try again
-
-    #         angle = pm.strokeQuery(skel, maxCoil=True)
-    #         next_val = min(angle, value) - self.delta
-
-    #         print "cull - next_val", next_val
-    #         if next_val <= 0:
-    #             break
-    #         split_angle_plug.set(next_val)
-    #     result["timer"] = time.time() - run_start
-    #     return result

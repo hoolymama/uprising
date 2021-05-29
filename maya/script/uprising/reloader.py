@@ -9,6 +9,7 @@ from uprising.session import (
     kr8_track_program,
     manual_probe_program,
     pot_calibration_program,
+    handle_calibration_program,
     rack_calibration_program,
 
     board_calibration_session,
@@ -19,6 +20,7 @@ from uprising.session import (
     kr8_track_session,
     manual_probe_session,
     pot_calibration_session,
+    handle_calibration_session,
     rack_calibration_session,
 )
 
@@ -118,6 +120,7 @@ reload(board_calibration_program)
 reload(holder_calibration_program)
 reload(pot_calibration_program)
 reload(rack_calibration_program)
+reload(handle_calibration_program)
 
 reload(kr8_track_program)
 
@@ -139,6 +142,7 @@ reload(holder_calibration_session)
 reload(board_calibration_session)
 reload(pot_calibration_session)
 reload(rack_calibration_session)
+reload(handle_calibration_session)
 
 reload(kr8_track_session)
 

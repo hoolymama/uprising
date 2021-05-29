@@ -27,7 +27,10 @@ class Session(object):
     @staticmethod
     def send_handle_geo():
         geo = pm.ls("holes|*|holeTrans|wipe_loc|handle")
+        geo += pm.ls("holes|*|holeTrans|wipe_loc|comb")
         props.send(geo)
+    
+
 
     @staticmethod
     def send_pot_geo():
@@ -73,7 +76,7 @@ class Session(object):
         return rdk_fn
 
     @staticmethod
-    def choose_session_dir():
+    def choose_session_dir(suffix=None):
         export_dir = os.path.join(pm.workspace.getPath(), "export")
         entries = pm.fileDialog2(
             caption="Choose directory", okCaption="Save", dialogStyle=2, fileMode=3, dir=export_dir
@@ -84,6 +87,8 @@ class Session(object):
 
         timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M")
         directory = os.path.join(entries[0], timestamp)
+        if suffix:
+            directory = "{}_{}".format(directory, suffix)
         uutl.mkdir_p(directory)
         return directory
 

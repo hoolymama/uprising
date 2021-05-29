@@ -8,6 +8,7 @@ from uprising import robo
 
 from uprising.bot.session.pick_place_exercise_session import PickPlaceExerciseSession
 from uprising.session.pot_calibration_session import PotCalibrationSession
+from uprising.session.handle_calibration_session import HandleCalibrationSession
 from uprising.session.holder_calibration_session import HolderCalibrationSession
 from uprising.session.board_calibration_session import BoardCalibrationSession
 from uprising.session.rack_calibration_session import RackCalibrationSession
@@ -265,6 +266,12 @@ def generate_pot_calibration():
     session.run()
     robo.show()
 
+def generate_handle_calibration():
+    robo.new()
+    robo.hide()
+    session = HandleCalibrationSession()
+    session.run()
+    robo.show()
 
 
 def generate_holder_calibration():

@@ -1,5 +1,4 @@
 
-import logging
 import os
 import pymel.core as pm
 import uprising.utils as uutl
@@ -11,10 +10,6 @@ from uprising.common.session.session import Session
 from uprising.bot.session.pick_place_program import PickPlaceCollection
 from uprising.session.brush_hang_program import BrushHangProgram
 
-
-logger = logging.getLogger("uprising")
-
-
 class BrushHangSession(Session):
 
     PROGRAM_NAME = "hang"
@@ -24,7 +19,7 @@ class BrushHangSession(Session):
         brush_ids = [b["id"] for b in data]
 
         robo.new()
-        robo.clean("kr30", infrastructure=False)
+        robo.clean("kr30", infrastructure=True)
         with uutl.prep_for_output():
             self.pick_place_collection = PickPlaceCollection(brush_ids)
             self.program = BrushHangProgram(self.PROGRAM_NAME, data)

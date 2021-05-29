@@ -950,3 +950,36 @@ def show_objects(obs):
 # pm.PyNode("board_BL").attr("t").set(1783.31 / 10, 7.36 / 10, 461.64 / 10)
 # pm.PyNode("board_TL").attr("t").set(1787.15 / 10, 13.89 / 10, 1382.69 / 10)
 # pm.PyNode("board_TR").attr("t").set(1778.98 / 10, -900.69 / 10, 1391.56 / 10)
+
+
+
+# def assign_stroke_curves():
+#     attr = "outWipeBrush"
+#     result = []
+#     # brush_parts = brush.name().split("_")
+#     curves = pm.ls(sl=True)
+#     for curve in curves:
+#         parts = curve.name().split("_")
+#         print parts
+
+
+
+# assign_stroke_curves()
+
+#     # print curves
+#     # stroke_curves = pm.listConnections(curves, d=True, s=False, type="curveStroke")
+#     # print stroke_curves
+
+#     # dups = pm.duplicate(stroke_curves)
+#     # for i,dup in enumerate(dups):
+#     #     dup.rename("cs_bpx_{}_{}_{:02d}_{}".format(parts[1], parts[4], i, suffix))
+#     # for   pair in zip(curves, dups):
+#     #     result.append(
+#     #         [pair[0].attr("ws"), pair[1].attr("curves[0]")]
+#     #     )
+#     #     result.append(
+#     #         [brush.attr(attr), pair[1].attr("brush")]
+#     #     )
+
+#     # return result
+

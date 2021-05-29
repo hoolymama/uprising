@@ -105,7 +105,7 @@ class BrushHangProgram(Program):
         self.program.setRounding(k.CAL_ROUNDING_DISTANCE)
         self.program.setPoseTool(tool)
 
-        msg = "Record BACK(X) and RIGHT(Y) offsets for {}".format(pack["id"])
+        msg = "Record BACK(X) and RIGHT(Y) DOWN(Z) offsets for {}".format(pack["id"])
         if pack["twist"]:
             msg = "Watch closely for ARC center (using brush{})".format(
                 pack["id"])

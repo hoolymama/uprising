@@ -15,6 +15,11 @@ class PublishTab(gui.FormLayout):
     def __init__(self):
         self.setNumberOfDivisions(100)
         pm.setParent(self)
+        try:
+            pm.PyNode("mainPaintingShape")
+        except pm.MayaNodeError:
+            return
+
         self.column = pm.columnLayout()
         self.column.adjustableColumn(True)
 

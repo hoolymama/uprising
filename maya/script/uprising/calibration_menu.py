@@ -33,6 +33,19 @@ def create():
     pm.menuItem(divider=True)
 
     pm.menuItem(
+        label="Generate handle calibration",
+        command=pm.Callback(cal.generate_handle_calibration),
+    )
+
+    pm.menuItem(
+        label="Read handle calibration",
+        command=pm.Callback(cal.read_calibration, "handle_calibration"),
+    )
+
+    pm.menuItem(divider=True)
+
+
+    pm.menuItem(
         label="Generate holder calibration",
         command=pm.Callback(cal.generate_holder_calibration),
     )
