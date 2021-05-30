@@ -246,7 +246,7 @@ def create_cartesian_target(obj, name, frame):
     old_item = _link.Item(name)
     if old_item.Valid():
         old_item.Delete()
-    
+
     joint_poses = solve_joint_poses(tool_pose)
     joints = find_best_pose(joint_poses, ["000", "001"])
 
@@ -358,4 +358,3 @@ def linear_test(brushname, *names):
 
         print "FAIL" if fail else "SUCCESS"
 
-        
