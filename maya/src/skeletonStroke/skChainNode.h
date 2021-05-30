@@ -39,6 +39,10 @@ private:
   static MObject aProjectionMatrix;
 
 
+  static MObject aSeedPoints;
+  static MObject aFields;
+
+
   static MObject aMaxChainsPerOutput;
   static MObject aOutputCount;
 

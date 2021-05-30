@@ -9,6 +9,8 @@
 #include <maya/MFnUnitAttribute.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
+#include <maya/MFnMessageAttribute.h>
+
 #include "cImgUtils.h"
 #include <jMayaIds.h>
 #include "errorMacros.h"
@@ -22,6 +24,10 @@ MObject skChainNode::aImage;
 MObject skChainNode::aMaxIterations;
 MObject skChainNode::aMinBranchTwigLength;
 MObject skChainNode::aMinLooseTwigLength;
+
+MObject skChainNode::aSeedPoints;
+MObject skChainNode::aFields;
+
 
 MObject skChainNode::aSpan;
 MObject skChainNode::aMaxWidth;
@@ -59,6 +65,7 @@ MStatus skChainNode::initialize()
   MFnNumericAttribute nAttr;
   MFnTypedAttribute tAttr;
   MFnMatrixAttribute mAttr;
+	MFnMessageAttribute msgAttr;
 
   aImage = tAttr.create("image", "img", cImgData::id);
   tAttr.setStorable(false);
@@ -137,6 +144,16 @@ MStatus skChainNode::initialize()
   mAttr.setKeyable(true);
   mAttr.setDefault(identity);
   addAttribute(aProjectionMatrix);
+
+
+  aFields = msgAttr.create("fields","flds");
+  msgAttr.setArray(true);
+	st = addAttribute(aFields);
+
+	aSeedPoints = tAttr.create("seedPoints", "spts", MFnData::kVectorArray);
+	tAttr.setStorable(false);
+	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+  addAttribute(aSeedPoints);
 
   aMaxChainsPerOutput = nAttr.create("maxChainsPerOutput", "mco", MFnNumericData::kInt);
   nAttr.setHidden(false);
