@@ -32,6 +32,8 @@ def _okay(scroll, which):
             _read_board_calibration(content)
         elif which == "pot_calibration":
             _read_pot_calibration(content)
+        elif which == "handle_height_calibration":
+            _read_handle_height_calibration (content)
         elif which == "holder_calibration":
             _read_holder_calibration(content)
         elif which == "perspex_calibration":
@@ -208,6 +210,26 @@ def _read_pot_calibration(content):
         handle_face_precise = handle_posx + \
             (((facevals[i] * 0.1) - 1.0) * COS_30)
         handle_parent.attr("tx").set(handle_face_precise)
+
+
+def _read_handle_height_calibration(content):
+
+    COS_30 = 0.866
+
+    data = data_matrix(content)
+    handles = putl.get_handles()
+    datalen= len(handles)
+
+    handle_height = pm.PyNode("rack|holes").attr(
+        "calibrationHandleHeight").get()
+
+    flat = [uutl.numeric(row[0]) for row in data]
+    handlevals = flat[0:datalen]
+
+    for i in range(datalen):
+        handle_parent = handles[i].getParent()
+        handle_height_precise = handle_height + (handlevals[i] * 0.1) - 1.0
+        handle_parent.attr("tz").set(handle_height_precise)
 
 
 def _read_holder_calibration(content):

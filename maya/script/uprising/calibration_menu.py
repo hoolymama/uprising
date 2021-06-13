@@ -29,6 +29,12 @@ def create():
         label="Read pot calibration",
         command=pm.Callback(cal.read_calibration, "pot_calibration"),
     )
+    pm.menuItem(
+        label="Read handle height calibration",
+        command=pm.Callback(cal.read_calibration, "handle_height_calibration"),
+    )
+
+
 
     pm.menuItem(divider=True)
 
