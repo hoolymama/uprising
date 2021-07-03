@@ -1,0 +1,128 @@
+
+#ifndef _particleStrokeNode_H
+#define _particleStrokeNode_H
+
+#include <maya/MObject.h>
+#include <maya/MVectorArray.h>
+#include <strokeCreator.h>
+#include "stroke.h"
+#include "particleCache.h"
+// #include "toonGraph/tNode.h"
+// #include "toonGraph/tGraph.h"
+
+class particleStrokeNode : public strokeCreator
+{
+
+public:
+  particleStrokeNode();
+
+  virtual ~particleStrokeNode();
+  static void *creator();
+  static MStatus initialize();
+  virtual void postConstructor();
+  virtual bool isAbstractClass() const { return false; }
+  static MTypeId id;
+
+private:
+
+
+	MTime m_lastTimeIEvaluated;
+
+
+  MStatus generateStrokeGeometry(
+      const MPlug &plug,
+      MDataBlock &data,
+      std::vector<Stroke> *pStrokes);
+
+
+  // MStatus buildGraph(
+  //     MObject &dInMesh,
+  //     const MPoint &viewPoint,
+  //     tGraph *pGraph) const;
+
+  static MObject aPoints;     ///< The input points
+  static MObject aVelocities; ///< The input velocities
+  static MObject aParticleIds;        ///< The input particleIds
+  static MObject aColors; ///< The input colors
+
+  static MObject aViewpoint;            ///< The location of the camera
+  static MObject aTargetRotationMatrix; ///> Initial matrix for generated targets.
+
+  particleCache * m_cache;
+
+
+};
+
+#endif
+
+int rPeg = 0;
+
+std::list<HexapodAgent *>::iterator shadow;
+std::list<HexapodAgent *>::iterator agent = m_agents.begin();
+
+while (!(agent == m_agents.end() && rPeg == sortedId.length()))
+{
+
+  if (rPeg == sortedId.length())
+  {
+    // finished the list of new agents.
+    // Delete the rest of existing list.
+
+    shadow = agent;
+    agent++;
+    delete *shadow;
+    *shadow = 0;
+    m_agents.erase(shadow);
+  }
+  else if (agent == m_agents.end())
+  {
+    unsigned index = idIndex[rPeg];
+    // insert new agent with id idIndex[rPeg] before end
+    m_agents.push_back(new HexapodAgent(
+        dt, particleId[index], pos[index], phi[index], vel[index], omega[index],
+        scale[index], rankA, rankB, rankC,
+        bodyOffset, floorThickness, bodyFootAverageBias));
+    rPeg++;
+  }
+  else if (sortedId[rPeg] < (*agent)->id())
+  {
+    unsigned index = idIndex[rPeg];
+    // sortedId position less than current agent id
+    // so insert new sortedId idIndex[rPeg]
+
+    m_agents.insert(agent, new HexapodAgent(
+                               dt, particleId[index], pos[index], phi[index], vel[index], omega[index],
+                               scale[index], rankA, rankB, rankC, bodyOffset, floorThickness, bodyFootAverageBias));
+
+    rPeg++;
+  }
+  else if (sortedId[rPeg] == (*agent)->id())
+  {
+    unsigned index = idIndex[rPeg];
+    // sortedId position equal to current agent
+    // so update with sortedId:  idIndex[rPeg]
+
+    (*agent)->update(
+        dt, maxSpeed, pos[index], phi[index], vel[index], omega[index], scale[index],
+        rankA, rankB, rankC, bodyOffset, floorThickness, bodyFootAverageBias,
+        plantSpeedBiasRamp, anteriorRadiusRamp,
+        lateralRadiusRamp, posteriorRadiusRamp,
+        leftFootFeed[index], rightFootFeed[index], feedBlend[index],
+        m_ground
+
+    );
+
+    rPeg++;
+    agent++;
+  }
+  else
+  {
+
+    // sortedId position greater than current agent so remove current agent
+    shadow = agent;
+    agent++;
+    delete *shadow;
+    *shadow = 0;
+    m_agents.erase(shadow);
+  }
+}
