@@ -333,7 +333,7 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom, CImg
 
   pOutImage->assign(pImage->get_norm().normalize(0, 1));
   st = generateFlow(data, geom, pOutImage);
-  return MS::kSuccess;
+  // return MS::kSuccess;
 
   MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
   float scale = projection[0][0] * 2.0f; // just use the width.
@@ -365,15 +365,15 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom, CImg
   float radiusMult = data.inputValue(aRadiusMult).asFloat();
   int maxIterations = data.inputValue(aMaxIterations).asInt();
 
-  CImg<unsigned char> image = pImage->get_norm().normalize(0, 1);
+  // CImg<unsigned char> image = pImage->get_norm().normalize(0, 1);
 
   for (int i = 0; i < maxIterations; ++i)
   {
     // make a skeleton image from the BW image
-    CImg<float> mat = image.get_distance(0);
+    CImg<float> mat = pOutImage->get_distance(0);
     const CImgList<float> grad = mat.get_gradient("xyz");
-    CImg<float> flux = image.get_flux(grad, 1, 1);
-    CImg<bool> skel = image.get_skeleton(flux, mat, true, 0);
+    CImg<float> flux = pOutImage->get_flux(grad, 1, 1);
+    CImg<bool> skel = pOutImage->get_skeleton(flux, mat, true, 0);
 
     cimg_forXY(skel, x, y)
     {
@@ -397,7 +397,7 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom, CImg
     // limit brush size
     g.clampRadius(maxRadiusPixels);
 
-    g.draw(image, maxStampRadiusPixels);
+    g.draw(*pOutImage, maxStampRadiusPixels);
 
     g.adjustRadius(radiusMult, radiusOffsetPixels);
 
@@ -407,7 +407,7 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom, CImg
     g.getChains(projection, *geom, stepPixels);
 
     // then paint black over the image
-    if (image.sum() < minLooseTwigLengthPixels)
+    if (pOutImage->sum() < minLooseTwigLengthPixels)
     {
       break;
     }
@@ -421,22 +421,20 @@ MStatus skChainNode::generateFlow(
     std::vector<skChain> *geom,
     CImg<unsigned char> *pOutImage)
 {
-  cerr << "generateFlow" << endl;
+
   int w = pOutImage->width();
   int h = pOutImage->height();
 
   MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
 
-  // float scale = projection[0][0]; // just use the width.
   float pixelWidth = projection[0][0] * 2.0 / float(w);
-
-  int circleRadiusPixels = 5;
-  float circleRadius = pixelWidth * circleRadiusPixels;
+  float circleRadius =  data.inputValue(aMaxStampWidth).asFloat() * 0.5;
+  float circleRadiusPixels = circleRadius / pixelWidth;
+  circleRadiusPixels = std::max(circleRadiusPixels, 1.0f);
+  circleRadius = pixelWidth * circleRadiusPixels; 
 
   unsigned char color[] = {0};
 
-
-  // 0 to 1 
   MFloatMatrix norm;
   norm.setToIdentity();
   norm[0][0] = w*0.5;
@@ -445,7 +443,7 @@ MStatus skChainNode::generateFlow(
   norm[3][1] = h *0.5;
 
 
-  // MFloatMatrix transformation = norm * projection.inverse();
+  MFloatMatrix transformation =   projection.inverse() * norm;
 
 
   MVectorArray seedPoints = MFnVectorArrayData(data.inputValue(aSeedPoints).data()).array();
@@ -454,16 +452,13 @@ MStatus skChainNode::generateFlow(
   for (size_t i = 0; i < len; i++)
   {
 
-    MFloatVector seedPointImage = MFloatPoint(seedPoints[i]) *  projection.inverse()  * norm ;
+    MFloatVector seedPointImage = MFloatPoint(seedPoints[i]) *  transformation ;
 
-    cerr << "seedPointImage:" << seedPointImage << " -- seedPoints[i]:" << seedPoints[i] << endl;
     skChain chain;
     skPoint(seedPoints[i].x, seedPoints[i].y, circleRadius);
     chain.add(skPoint(seedPoints[i].x, seedPoints[i].y, circleRadius));
     chain.add(skPoint(seedPoints[i].x-0.5, seedPoints[i].y, circleRadius));
     
-
-    // result.assign(m_width, m_height, 1, 1, 0);
     unsigned char color[] = {0};
     pOutImage->draw_circle(seedPointImage.x, seedPointImage.y, circleRadiusPixels, color);
 
