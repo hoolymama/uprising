@@ -72,10 +72,8 @@
         "strstream": "cpp",
         "__functional_03": "cpp",
         "__memory": "cpp",
-        "bit": "cpp",
-        "clocale": "cpp",
-        "queue": "cpp",
-        "random": "cpp"
+        "filesystem": "cpp",
+        "queue": "cpp"
     },
     "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7",
     "python.linting.pylintEnabled": false,

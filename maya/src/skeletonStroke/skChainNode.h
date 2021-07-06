@@ -21,7 +21,9 @@ public:
   static MTypeId id;
 
 private:
-  MStatus generate(MDataBlock &data, std::vector<skChain> *geom);
+  MStatus generate(MDataBlock &data, std::vector<skChain> *geom, CImg<unsigned char> *pOutImage);
+
+  MStatus generateFlow(MDataBlock &data, std::vector<skChain> *geom, CImg<unsigned char> *pOutImage);
 
   static MObject aImage;
   static MObject aMaxIterations;
@@ -45,6 +47,7 @@ private:
 
   static MObject aMaxChainsPerOutput;
   static MObject aOutputCount;
+  static MObject aOutputImage;
 
   static MObject aOutputs;
 };
