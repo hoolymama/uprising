@@ -1,6 +1,10 @@
 import pymel.core.uitypes as gui
 import pymel.core as pm
 
+from uprising import reloader
+reload(reloader)
+
+
 from uprising import (
     brush_assign_tab,
     connector_tab,
@@ -21,8 +25,6 @@ from uprising import (
     props_menu
 )
 
-from uprising import reloader
-reload(reloader)
 
 class RobotWindow(gui.Window):
     def __init__(self):

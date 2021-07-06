@@ -184,8 +184,12 @@ class PublishTab(gui.FormLayout):
 
     def configure_single_selector(self):
 
-        node = pm.PyNode(pm.optionMenuGrp(
-            self.single_skel_menu, query=True, value=True))
+        node = pm.optionMenuGrp(
+            self.single_skel_menu, query=True, value=True)
+
+        if not node:
+            return
+        node = pm.PyNode(node)
 
         chain_skel_pairs = chains.get_chain_skel_pairs(node)
         numPlugs = chain_skel_pairs[0][0].attr("outputCount").get()

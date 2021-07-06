@@ -54,3 +54,4 @@ source_files:
 
 - src/brush/*.cpp
 - src/stroke/*.cpp
+- src/utils/*.cpp

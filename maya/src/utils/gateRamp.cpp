@@ -154,8 +154,6 @@ MStatus gateRamp::compute (const MPlug &plug, MDataBlock &data)
 	doRampLookup(thisMObject(), aRamp, sampleVals, out, 0.0, 1.0, rangeMin, rangeMax);
 
 
-
-	// Set the rotations for the joints
 	////////////////////////////////////////////////////////////////////
 	MArrayDataHandle     hOutput = data.outputArrayValue( aOutput, &st ); mser;
 	MArrayDataBuilder    bOutput = hOutput.builder();

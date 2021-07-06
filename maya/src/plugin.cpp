@@ -45,6 +45,7 @@
 #include "paintingDrawOverride.h"
 #include "lightPaintingDrawOverride.h"
 #include "skGraphNodeDrawOverride.h"
+#include "gateRamp.h"
 
 MStatus initializePlugin(MObject obj)
 {
@@ -191,6 +192,11 @@ MStatus initializePlugin(MObject obj)
 	mser;
 
 
+	st = plugin.registerNode("gateRamp", gateRamp::id, gateRamp::creator,
+							 gateRamp::initialize);
+	msert;
+
+
 	st = plugin.registerCommand("lightPaintingQuery", lightPaintingCmd::creator,
 								lightPaintingCmd::newSyntax);
 	mser;
@@ -230,6 +236,12 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterCommand("lightPaintingCmd");
 	mser;
+
+	st = plugin.deregisterNode(gateRamp::id);
+	mser;
+	
+
+
 	st = plugin.deregisterNode(brushLifter::id);
 	mser;
 	
