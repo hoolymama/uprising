@@ -44,6 +44,11 @@ public:
     void draw(
         CImg<unsigned char> &image,
         float maxStampRadiusPixels) const;
+        
+    void  draw(
+        CImg<unsigned char> &image, 
+        float maxStampRadiusPixels, 
+        int spanPixels) const;
 
     void clampRadius(float maxRadius);
 

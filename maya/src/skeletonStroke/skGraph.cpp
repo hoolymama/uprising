@@ -190,7 +190,6 @@ void skGraph::draw(CImg<unsigned char> &image, float maxStampRadiusPixels) const
         return;
     }
 
-    // result.assign(m_width, m_height, 1, 1, 0);
     unsigned char color[] = {0};
     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
          iter != m_nodes.end();
@@ -201,6 +200,28 @@ void skGraph::draw(CImg<unsigned char> &image, float maxStampRadiusPixels) const
         image.draw_circle(c.x, c.y, circleRadius, color);
     }
 }
+
+void skGraph::draw(CImg<unsigned char> &image, float maxStampRadiusPixels, int spanPixels) const
+{
+    if (!(
+            image.width() == m_width &&
+            image.height() == m_height &&
+            image.spectrum() == 1))
+    {
+        return;
+    }
+
+    unsigned char color[] = {0};
+    for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
+         iter != m_nodes.end();
+         iter++)
+    {
+        coord c = iter->first;
+        int circleRadius = int(fmin(maxStampRadiusPixels, iter->second->radius));
+        image.draw_circle(c.x, c.y, circleRadius, color);
+    }
+}
+
 
 void skGraph::clampRadius(float maxRadius)
 {
@@ -485,13 +506,13 @@ bool skGraph::hasJunctions() const
 void skGraph::getChains(
     const MFloatMatrix &projection,
     std::vector<skChain> &chains,
-    int step
+    int span
     )
 
 {
-    if (step < 1)
+    if (span < 1)
     {
-        step = 1;
+        span = 1;
     }
     // cerr << "origResX:"<< origResX<< " origResY:"<< origResY<< endl;
     // coord cropOffset(offsetX, offsetY);
@@ -509,13 +530,8 @@ void skGraph::getChains(
     norm[3][0] = half.x;
     norm[3][1] = half.y;
 
-    // MFloatMatrix cropOffset;
-    // cropOffset.setToIdentity();
-
-    // cropOffset[3][0] = offsetX;
-    // cropOffset[3][1] = offsetY;
-
-    // MFloatMatrix transformation = norm.inverse()  * crop.inverse() *  projection;
+ 
+ 
     MFloatMatrix transformation = norm.inverse() * projection;
     /*
     Loop through nodes, looking for endpoints that we havent seen yet,
@@ -536,13 +552,7 @@ void skGraph::getChains(
             int count = 0;
             for (;; count++)
             {
-                // coord offsetCoord = curr->c.offset(cropOffset);
-                // coord offsetCoord = curr->c;
-                // offsetCoord.x =
-                // coord offsetCoord  = curr->c;
-                // if (count == 0) {
-                //     cerr << "offsetCoord" << offsetCoord << endl;
-                // }
+
                 MFloatVector xy = curr->c * transformation;
                 skPoint pt(xy.x, xy.y, (curr->radius * pixelWidth));
                 chain.add(pt);
@@ -561,10 +571,10 @@ void skGraph::getChains(
                 }
                 curr = neighbor_iter->second;
             }
-            if (step > 1)
+            if (span > 1)
             {
                 skChain interpolated;
-                chain.interpolate(step, interpolated);
+                chain.interpolate(span, interpolated);
                 chains.push_back(interpolated);
             }
             else
