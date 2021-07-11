@@ -24,6 +24,200 @@
 
 #include <maya/MArrayDataBuilder.h>
 
+struct chainSegment
+{
+  int index;
+  float toPixels;
+  MFloatMatrix transformation;
+
+  MVector startPoint;
+  MFloatVector startCoord;
+  float startRadius;
+  float startStampRadius;
+
+  MVector endPoint;
+  MFloatVector endCoord;
+  float endRadius;
+  float endStampRadius;
+
+  chainSegment(int i,
+               float point0x,
+               float point0y,
+               float radius0,
+               float point1x,
+               float point1y,
+               float radius1,
+               float maxStampRadius,
+               const MFloatMatrix &xform,
+               float cmToPixels)
+      : index(i),
+        toPixels(cmToPixels),
+        startPoint(MVector(point0x, point0y, 0.0)),
+        startRadius(radius0),
+        endPoint(MVector(point1x, point1y, 0.0)),
+        endRadius(radius1),
+        transformation(xform)
+  {
+    startCoord = MFloatPoint(startPoint) * transformation;
+    endCoord = MFloatPoint(endPoint) * transformation;
+
+    startStampRadius = std::min(maxStampRadius, startRadius);
+    endStampRadius = std::min(maxStampRadius, endRadius);
+  }
+
+  chainSegment(int i, const MVector &point, float radius, float stampRadius, const MFloatMatrix &xform, float cmToPixels)
+      : index(i),
+        toPixels(cmToPixels),
+        startPoint(point),
+        startRadius(radius),
+        startStampRadius(stampRadius),
+        transformation(xform)
+  {
+    startPoint.z = 0.0;
+    startCoord = MFloatPoint(startPoint) * transformation;
+  }
+
+  void applyForce(const MVector &force)
+  {
+    endPoint = startPoint + force;
+    endCoord = MFloatPoint(endPoint) * transformation;
+    endRadius = startRadius;
+    endStampRadius = startStampRadius;
+  }
+
+  /// return true if done (if end point not on white).
+  bool stampAndChain(
+      CImg<unsigned char> *pOutImage,
+      skChain &chain)
+  {
+    unsigned char color[] = {0};
+    int w = pOutImage->width();
+    int h = pOutImage->height();
+
+    bool isFirstPoint = index == 0;
+    bool done = isOnBlack(w, h, pOutImage, 1);
+
+    bool startIsOnBlack = isFirstPoint && isOnBlack(w, h, pOutImage, 0);
+
+    if (startIsOnBlack && done)
+    {
+      return true;
+    }
+
+    if (isFirstPoint) // do first circle
+    {
+      chain.add(skPoint(startPoint.x, startPoint.y, startRadius));
+      pOutImage->draw_circle(
+          startCoord.x,
+          startCoord.y,
+          startStampRadius * toPixels,
+          color);
+    }
+
+    // calculate the stamp rectangle
+
+    if (!startPoint.isEquivalent(endPoint))
+    {
+      MVector side = (MVector::zAxis ^ (endPoint - startPoint)).normal();
+      MFloatVector startOffset = side * startStampRadius;
+      MFloatVector endOffset = side * endStampRadius;
+
+      MFloatVector pA = MFloatPoint(startPoint + startOffset) * transformation;
+      MFloatVector pB = MFloatPoint(startPoint - startOffset) * transformation;
+      MFloatVector pC = MFloatPoint(endPoint - endOffset) * transformation;
+      MFloatVector pD = MFloatPoint(endPoint + endOffset) * transformation;
+
+      CImg<int> points(4, 2);
+      int thePoints[] = {int(pA.x), int(pA.y), int(pB.x), int(pB.y), int(pC.x), int(pC.y), int(pD.x), int(pD.y)};
+      int *iterator = thePoints;
+
+      cimg_forX(points, i)
+      {
+        points(i, 0) = *(iterator++);
+        points(i, 1) = *(iterator++);
+      }
+
+      pOutImage->draw_polygon(points, color, 1.0f);
+    }
+
+    chain.add(skPoint(endPoint.x, endPoint.y, endRadius));
+    pOutImage->draw_circle(
+        endCoord.x,
+        endCoord.y,
+        endStampRadius * toPixels,
+        color);
+
+    return done;
+  }
+
+  /// We use this to stamp an image based on an existing chain
+  void stampImage(CImg<unsigned char> *pOutImage)
+  {
+    unsigned char color[] = {0};
+    int w = pOutImage->width();
+    int h = pOutImage->height();
+
+    bool isFirstPoint = index == 0;
+    // bool done = isOnBlack(w,h,pOutImage, 1);
+
+    // bool startIsOnBlack = isFirstPoint && isOnBlack(w,h,pOutImage, 0);
+
+    if (isFirstPoint) // do first circle
+    {
+      pOutImage->draw_circle(
+          startCoord.x,
+          startCoord.y,
+          startStampRadius * toPixels,
+          color);
+    }
+
+    // calculate the stamp polygon
+    // This is an isosceles trapezoid aligned along the segment
+    // where each end is the width of the circle diameter at the point.
+
+    if (!startPoint.isEquivalent(endPoint))
+    {
+      MVector side = (MVector::zAxis ^ (endPoint - startPoint)).normal();
+      MFloatVector startOffset = side * startStampRadius;
+      MFloatVector endOffset = side * endStampRadius;
+
+      MFloatVector pA = MFloatPoint(startPoint + startOffset) * transformation;
+      MFloatVector pB = MFloatPoint(startPoint - startOffset) * transformation;
+      MFloatVector pC = MFloatPoint(endPoint - endOffset) * transformation;
+      MFloatVector pD = MFloatPoint(endPoint + endOffset) * transformation;
+
+      CImg<int> points(4, 2);
+      int thePoints[] = {int(pA.x), int(pA.y), int(pB.x), int(pB.y), int(pC.x), int(pC.y), int(pD.x), int(pD.y)};
+      int *iterator = thePoints;
+
+      cimg_forX(points, i)
+      {
+        points(i, 0) = *(iterator++);
+        points(i, 1) = *(iterator++);
+      }
+
+      pOutImage->draw_polygon(points, color, 1.0f);
+    }
+
+    pOutImage->draw_circle(
+        endCoord.x,
+        endCoord.y,
+        endStampRadius * toPixels,
+        color);
+  }
+
+  bool isOnBlack(int w, int h, CImg<unsigned char> *pOutImage, int param = 1)
+  {
+    MFloatVector c = param == 1 ? endCoord : startCoord;
+    return (
+        c.x < 0 ||
+        c.x >= w ||
+        c.y < 0 ||
+        c.y >= h ||
+        (*pOutImage)(c.x, c.y) == 0);
+  }
+};
+
 MObject skChainNode::aImage;
 
 MObject skChainNode::aMaxIterations;
@@ -35,6 +229,7 @@ MObject skChainNode::aFields;
 MObject skChainNode::aSeedChainMaxSteps;
 MObject skChainNode::aSeedChainSpan;
 MObject skChainNode::aSeedChainStampWidth;
+MObject skChainNode::aSeedChainWidth;
 
 MObject skChainNode::aDoSeedChains;
 MObject skChainNode::aDoFillerChains;
@@ -101,6 +296,14 @@ MStatus skChainNode::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   st = addAttribute(aSeedChainSpan);
+  mser;
+
+  aSeedChainWidth = nAttr.create("seedChainWidth", "scw",
+                                 MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aSeedChainWidth);
   mser;
 
   aSeedChainStampWidth = nAttr.create("seedChainStampWidth", "ssw",
@@ -249,6 +452,7 @@ MStatus skChainNode::initialize()
   attributeAffects(aFields, aOutputs);
   attributeAffects(aSeedChainMaxSteps, aOutputs);
   attributeAffects(aSeedChainSpan, aOutputs);
+  attributeAffects(aSeedChainWidth, aOutputs);
   attributeAffects(aSeedChainStampWidth, aOutputs);
   attributeAffects(aDoSeedChains, aOutputs);
   attributeAffects(aDoFillerChains, aOutputs);
@@ -270,6 +474,7 @@ MStatus skChainNode::initialize()
   attributeAffects(aFields, aOutputCount);
   attributeAffects(aSeedChainMaxSteps, aOutputCount);
   attributeAffects(aSeedChainSpan, aOutputCount);
+  attributeAffects(aSeedChainWidth, aOutputCount);
   attributeAffects(aSeedChainStampWidth, aOutputCount);
   attributeAffects(aDoSeedChains, aOutputCount);
   attributeAffects(aDoFillerChains, aOutputCount);
@@ -291,6 +496,7 @@ MStatus skChainNode::initialize()
   attributeAffects(aFields, aOutputImage);
   attributeAffects(aSeedChainMaxSteps, aOutputImage);
   attributeAffects(aSeedChainSpan, aOutputImage);
+  attributeAffects(aSeedChainWidth, aOutputImage);
   attributeAffects(aSeedChainStampWidth, aOutputImage);
   attributeAffects(aDoSeedChains, aOutputImage);
   attributeAffects(aDoFillerChains, aOutputImage);
@@ -425,28 +631,30 @@ MStatus skChainNode::generateFillerChains(
   int w = pOutImage->width();
   int h = pOutImage->height();
 
-  float cmToPixels =getCmToPixels(data,pOutImage);
+  float cmToPixels = getCmToPixels(data, pOutImage);
   float pixelsToCm = 1.0 / cmToPixels;
 
   int minBranchLengthPixels = int(data.inputValue(aMinBranchTwigLength).asFloat() * cmToPixels);
-  minBranchLengthPixels = std::max(minBranchLengthPixels, 1 );
-  
+  minBranchLengthPixels = std::max(minBranchLengthPixels, 1);
+
   int minLooseTwigLengthPixels = int(data.inputValue(aMinLooseTwigLength).asFloat() * cmToPixels);
-  minLooseTwigLengthPixels = std::max(minLooseTwigLengthPixels, 1 );
+  minLooseTwigLengthPixels = std::max(minLooseTwigLengthPixels, 1);
 
   int spanPixels = int(data.inputValue(aSpan).asFloat() * cmToPixels);
-  spanPixels = std::max(spanPixels, 1 );
- 
+  spanPixels = std::max(spanPixels, 1);
+
   float maxRadiusPixels = data.inputValue(aMaxWidth).asFloat() * cmToPixels * 0.5f;
   maxRadiusPixels = std::max(maxRadiusPixels, 1.0f);
 
+  float maxStampRadius = data.inputValue(aMaxStampWidth).asFloat() * 0.5;
   float maxStampRadiusPixels = data.inputValue(aMaxStampWidth).asFloat() * cmToPixels * 0.5f;
   maxStampRadiusPixels = std::max(maxStampRadiusPixels, 1.0f);
 
   float radiusOffsetPixels = int(data.inputValue(aRadiusOffset).asFloat() * cmToPixels);
   float radiusMult = data.inputValue(aRadiusMult).asFloat();
   int maxIterations = data.inputValue(aMaxIterations).asInt();
- 
+
+  int lastNumNewChains = 999999;
   for (int i = 0; i < maxIterations; ++i)
   {
     // make a skeleton image from the BW image
@@ -477,20 +685,53 @@ MStatus skChainNode::generateFillerChains(
     // limit brush size
     g.clampRadius(maxRadiusPixels);
 
-    g.draw(*pOutImage, maxStampRadiusPixels);
-
     g.adjustRadius(radiusMult, radiusOffsetPixels);
 
     g.detachBranches();
 
     //////////////////
     MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
-    g.getChains(projection, *geom, spanPixels);
 
-    // then paint black over the image
-    if (pOutImage->sum() < minLooseTwigLengthPixels)
+    int nChainsBefore = geom->size();
+    int numAdded = g.getChains(projection, *geom, spanPixels);
+
+    if (numAdded == 0)
     {
       break;
+    }
+    // int nChainsAfter = geom->size();
+
+    // draw the chains
+    MFloatMatrix transformation = getTransformation(data, w, h);
+
+    std::vector<skChain>::const_iterator chainIter = geom->begin() + nChainsBefore;
+    for (; chainIter != geom->end(); chainIter++)
+    {
+      const std::vector<skPoint> &skpoints = chainIter->points();
+      std::vector<skPoint>::const_iterator pointIter0 = skpoints.begin();
+      std::vector<skPoint>::const_iterator pointIter1 = std::next(pointIter0);
+
+      if (skpoints.size() < 2)
+      {
+        continue;
+      }
+      for (int index = 0; pointIter1 != skpoints.end(); pointIter0++, pointIter1++, index++)
+      {
+
+        chainSegment segment(
+            index,
+            pointIter0->x,
+            pointIter0->y,
+            pointIter0->radius,
+            pointIter1->x,
+            pointIter1->y,
+            pointIter1->radius,
+            maxStampRadius,
+            transformation,
+            cmToPixels);
+
+        segment.stampImage(pOutImage);
+      }
     }
   }
 
@@ -501,6 +742,20 @@ float skChainNode::getCmToPixels(MDataBlock &data, const CImg<unsigned char> *pI
 {
   MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
   return float(pImage->width()) / (projection[0][0] * 2.0);
+}
+
+MFloatMatrix skChainNode::getTransformation(MDataBlock &data, int w, int h) const
+{
+  MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
+
+  MFloatMatrix norm;
+  norm.setToIdentity();
+  norm[0][0] = w * 0.5;
+  norm[1][1] = -h * 0.5;
+  norm[3][0] = w * 0.5;
+  norm[3][1] = h * 0.5;
+
+  return projection.inverse() * norm;
 }
 
 MStatus skChainNode::generateSeedChains(
@@ -527,28 +782,20 @@ MStatus skChainNode::generateSeedChains(
   int w = pOutImage->width();
   int h = pOutImage->height();
 
-
-  float cmToPixels =getCmToPixels(data,pOutImage);
+  float cmToPixels = getCmToPixels(data, pOutImage);
   float pixelsToCm = 1.0 / cmToPixels;
 
-  float circleRadius = data.inputValue(aSeedChainStampWidth).asFloat() * 0.5;
+  float circleStampRadius = data.inputValue(aSeedChainStampWidth).asFloat() * 0.5;
+  float circleRadius = data.inputValue(aSeedChainWidth).asFloat() * 0.5;
 
   float span = data.inputValue(aSeedChainSpan).asFloat();
   int maxSteps = data.inputValue(aSeedChainMaxSteps).asInt();
 
-  float circleRadiusPixels = circleRadius * cmToPixels;
-  circleRadiusPixels = std::max(circleRadiusPixels, 1.0f);
-  circleRadius = circleRadiusPixels * pixelsToCm;
+  float circleStampRadiusPixels = circleStampRadius * cmToPixels;
+  circleStampRadiusPixels = std::max(circleStampRadiusPixels, 1.0f);
+  circleStampRadius = circleStampRadiusPixels * pixelsToCm;
 
-  MFloatMatrix norm;
-  norm.setToIdentity();
-  norm[0][0] = w * 0.5;
-  norm[1][1] = -h * 0.5;
-  norm[3][0] = w * 0.5;
-  norm[3][1] = h * 0.5;
-
-  MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
-  MFloatMatrix transformation = projection.inverse() * norm;
+  MFloatMatrix transformation = getTransformation(data, w, h);
 
   MVectorArray seedPoints = MFnVectorArrayData(data.inputValue(aSeedPoints).data()).array();
 
@@ -562,6 +809,7 @@ MStatus skChainNode::generateSeedChains(
         fields,
         transformation,
         circleRadius,
+        circleStampRadius,
         span,
         cmToPixels,
         maxSteps,
@@ -578,6 +826,7 @@ void skChainNode::propagateAndStamp(
     const MObjectArray &fields,
     const MFloatMatrix &transformation,
     float circleRadius,
+    float circleStampRadius,
     float span,
     float cmToPixels,
     int maxSteps,
@@ -585,27 +834,24 @@ void skChainNode::propagateAndStamp(
     skChain &chain) const
 {
 
-  float circleRadiusPixels = circleRadius * cmToPixels;
+  // float circleRadiusPixels = circleRadius * cmToPixels;
+  float circleStampRadiusPixels = circleStampRadius * cmToPixels;
 
   MFnField fnField;
   unsigned char color[] = {0};
 
   MVector currPoint(seedPoint);
 
-  MFloatVector currCoord(MFloatPoint(currPoint) * transformation);
-
   for (size_t i = 0; i < maxSteps; i++)
   {
-    if (i == 0)
-    {
-      stampAndChain(
-          currPoint,
-          currCoord,
-          circleRadius,
-          circleRadiusPixels,
-          pOutImage,
-          chain);
-    }
+
+    chainSegment segment(
+        i, currPoint,
+        circleRadius,
+        circleStampRadius,
+        transformation,
+        cmToPixels);
+
     MVector forceAccumulated;
     MVectorArray force;
     MVectorArray velocity(1, MVector::zero);
@@ -619,15 +865,17 @@ void skChainNode::propagateAndStamp(
       forceAccumulated += force[0];
     }
     forceAccumulated = forceAccumulated.normal() * span;
-    currPoint = currPoint + forceAccumulated;
-    currCoord = MFloatPoint(currPoint) * transformation;
 
-    stampAndChain(
-        currPoint,
-        currCoord,
-        circleRadius,
-        circleRadiusPixels,
-        pOutImage,
-        chain);
+    segment.applyForce(forceAccumulated);
+    bool done = segment.stampAndChain(pOutImage, chain);
+
+    if (done)
+    {
+      break;
+    }
+
+    currPoint = segment.endPoint;
+    circleRadius = segment.endRadius;
+    circleStampRadius = segment.endStampRadius;
   }
 }

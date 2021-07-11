@@ -31,7 +31,7 @@ public:
     void getRadius(MDoubleArray &result) const;
     bool hasJunctions() const;
 
-    void getChains(const MFloatMatrix &projection,
+    int getChains(const MFloatMatrix &projection,
                    std::vector<skChain> &chains,
                    int step);
 
@@ -44,7 +44,7 @@ public:
     void draw(
         CImg<unsigned char> &image,
         float maxStampRadiusPixels) const;
-        
+
     void  draw(
         CImg<unsigned char> &image, 
         float maxStampRadiusPixels, 

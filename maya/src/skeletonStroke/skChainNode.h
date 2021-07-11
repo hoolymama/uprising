@@ -39,6 +39,7 @@ private:
       const MObjectArray &fields,
       const MFloatMatrix &transformation,
       float circleRadius,
+      float circleStampRadius,
       float span,
       float cmToPixels,
       int maxSteps,
@@ -47,17 +48,17 @@ private:
 
 
 
-  void  stampAndChain(
-    const MVector& point,
-    const MFloatVector & coord,
-    float radiusCm,
-    float radiusPixels,
-    CImg<unsigned char> *pOutImage,
-    skChain &chain
-  ) const;
+  // bool stampAndChain(
+  //   const MVector& point,
+  //   const MFloatVector & coord,
+  //   float radiusCm,
+  //   float radiusPixels,
+  //   CImg<unsigned char> *pOutImage,
+  //   skChain &chain
+  // ) const;
 
   float  getCmToPixels(MDataBlock &data, const CImg<unsigned char> *pImage) const;
-
+  MFloatMatrix  getTransformation(MDataBlock &data , int w, int h) const;
 
   static MObject aImage;
 
@@ -66,6 +67,7 @@ private:
   static MObject aSeedChainMaxSteps;
   static MObject aSeedChainSpan;
   static MObject aSeedChainStampWidth;
+  static MObject aSeedChainWidth;
  
   static MObject aDoSeedChains;
   static MObject aDoFillerChains;
@@ -94,42 +96,54 @@ private:
   static MObject aOutputs;
 };
 
-inline void skChainNode::stampAndChain(
-  const MVector& point,
-  const MFloatVector & coord,
-  float radiusCm,
-  float radiusPixels,
-  CImg<unsigned char> *pOutImage,
-  skChain &chain
-) const {
-    unsigned char color[] = {0};
+// inline bool skChainNode::stampAndChain(
+//   const MVector& point,
+//   const MFloatVector & coord,
+//   float radiusCm,
+//   float stampRadiusPixels,
+//   CImg<unsigned char> *pOutImage,
+//   skChain &chain
+// ) const {
+//     unsigned char color[] = {0};
     
-    int w = pOutImage->width();
-    int h = pOutImage->height();
+//     int w = pOutImage->width();
+//     int h = pOutImage->height();
     
-    if ( int(coord.x  + radiusPixels)  < 0) {
-      return;
-    }
-    if ( int(coord.y  + radiusPixels)  < 0) {
-      return;
-    }
-    if ( int(coord.x  - radiusPixels) > w) {
-      return;
-    }
-    if ( int(coord.y  - radiusPixels) > h) {
-      return;
-    }
+//     if ( int(coord.x  + stampRadiusPixels)  < 0) {
+//       return false;
+//     }
+//     if ( int(coord.y  + stampRadiusPixels)  < 0) {
+//       return false;
+//     }
+//     if ( int(coord.x  - stampRadiusPixels) > w) {
+//       return false;
+//     }
+//     if ( int(coord.y  - stampRadiusPixels) > h) {
+//       return false;
+//     }
 
+//     bool onWhite = true;
+//     if ( 
+//       coord.x < 0 || 
+//       coord.x >= w || 
+//       coord.y  <  0 || 
+//       coord.y >= h ||
+//       (*pOutImage)(coord.x,coord.y) == 0
+//     )
+//     {
+//       onWhite  = false;
+//     }
 
-    chain.add(skPoint(point.x, point.y, radiusCm));
+//     chain.add(skPoint(point.x, point.y, radiusCm));
 
-    pOutImage->draw_circle(
-    coord.x, coord.y, 
-    radiusPixels, 
-    color
-  );
+//     pOutImage->draw_circle(
+//       coord.x, coord.y, 
+//       stampRadiusPixels, 
+//       color
+//     );
+//     return onWhite;
 
-}
+// }
 
 
 

@@ -17,29 +17,28 @@ global proc AEskChainNodeTemplate ( string $nodeName )
 {
 	editorTemplate -beginScrollLayout;
 
-
-	editorTemplate -cl 0  -beginLayout "Radius Attributes";	
+	editorTemplate -cl 0  -beginLayout "Filler Attributes";	
+	editorTemplate -addControl "doFillerChains";	
 	editorTemplate -addControl "maxWidth";	
  	editorTemplate -addControl "maxStampWidth";
  	editorTemplate -addControl "radiusMult";
  	editorTemplate -addControl "radiusOffset";
- 	editorTemplate -endLayout;
 
-
-	editorTemplate -cl 0  -beginLayout "Chain Attributes";		
 	editorTemplate -addControl "maxIterations";
 	editorTemplate -addControl "minBranchTwigLength";
 	editorTemplate -addControl "minLooseTwigLength";
 	editorTemplate -addControl "span";
-	editorTemplate -endLayout;
 
-	// editorTemplate -cl 0  -beginLayout "Crop Attributes";		
-	// editorTemplate -addControl "applyCrop";
-	// editorTemplate -addControl "cropCorner";
-	// editorTemplate -addControl "cropResolution";
-	// editorTemplate -endLayout;
+ 	editorTemplate -endLayout;
 
-
+	editorTemplate -cl 0  -beginLayout "Seed Attributes";	
+	editorTemplate -addControl "doSeedChains";	
+	editorTemplate -addControl "seedChainWidth";	
+ 	editorTemplate -addControl "seedChainStampWidth";
+ 	editorTemplate -addControl "seedChainSpan";
+ 	editorTemplate -addControl "seedChainMaxSteps";
+ 	editorTemplate -endLayout;
+ 
 	editorTemplate -cl 0  -beginLayout "Image Attributes";		
 	editorTemplate -callCustom "AEskChainNodeNew" "AEskChainNodeReplace" "image";
 	editorTemplate -endLayout;
@@ -50,7 +49,6 @@ global proc AEskChainNodeTemplate ( string $nodeName )
 	editorTemplate -endLayout;
 
  	editorTemplate -suppress "outputs";
-
 
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;

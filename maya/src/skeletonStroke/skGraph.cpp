@@ -503,7 +503,7 @@ bool skGraph::hasJunctions() const
     return false;
 }
 
-void skGraph::getChains(
+int skGraph::getChains(
     const MFloatMatrix &projection,
     std::vector<skChain> &chains,
     int span
@@ -514,15 +514,11 @@ void skGraph::getChains(
     {
         span = 1;
     }
-    // cerr << "origResX:"<< origResX<< " origResY:"<< origResY<< endl;
-    // coord cropOffset(offsetX, offsetY);
-    // cerr << "cropOffset" << offsetX << " -- " << offsetY << endl;
-
+ 
     float pixelWidth = projection[0][0] * 2.0 / float(m_width);
 
     MFloatVector half(m_width * 0.5, m_height * 0.5);
-    // MFloatVector half(origResX * 0.5, origResY * 0.5);
-    
+ 
     MFloatMatrix norm;
     norm.setToIdentity();
     norm[0][0] = half.x;
@@ -530,12 +526,11 @@ void skGraph::getChains(
     norm[3][0] = half.x;
     norm[3][1] = half.y;
 
- 
+    int added = 0;
  
     MFloatMatrix transformation = norm.inverse() * projection;
     /*
-    Loop through nodes, looking for endpoints that we havent seen yet,
-    so we may make .
+    Loop through nodes, looking for endpoints that we havent seen yet.
     */
 
     for (std::map<coord, skNode *>::const_iterator mapiter = m_nodes.begin();
@@ -581,10 +576,12 @@ void skGraph::getChains(
             {
                 chains.push_back(chain);
             }
+            added++;
         }
     }
     // reset the seen flag
     _resetSeen();
+    return added;
 }
 
 bool _compareTwigLength(const TWIG &a, const TWIG &b)
