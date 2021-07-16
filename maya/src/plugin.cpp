@@ -42,10 +42,16 @@
 #include "skChainData.h"
 #include "skChainNode.h"
 #include "skGraphNode.h"
+#include "imagePoints.h"
+
+
 #include "paintingDrawOverride.h"
 #include "lightPaintingDrawOverride.h"
 #include "skGraphNodeDrawOverride.h"
+#include "imagePointsDrawOverride.h"
+
 #include "gateRamp.h"
+
 
 MStatus initializePlugin(MObject obj)
 {
@@ -197,6 +203,20 @@ MStatus initializePlugin(MObject obj)
 	msert;
 
 
+
+	st = plugin.registerNode("imagePoints", imagePoints::id, imagePoints::creator,
+							 imagePoints::initialize, MPxNode::kLocatorNode,
+							 &imagePoints::drawDbClassification);
+
+ 
+
+	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+		imagePoints::drawDbClassification,
+		imagePoints::drawRegistrantId,
+		imagePointsDrawOverride::Creator);
+	mser;
+
+
 	st = plugin.registerCommand("lightPaintingQuery", lightPaintingCmd::creator,
 								lightPaintingCmd::newSyntax);
 	mser;
@@ -213,6 +233,8 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerCommand("brushQuery", brushCmd::creator,
 								brushCmd::newSyntax);
 	mser;
+
+
 
 	return st;
 }
@@ -236,6 +258,14 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterCommand("lightPaintingCmd");
 	mser;
+
+	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+		imagePoints::drawDbClassification,
+		imagePoints::drawRegistrantId);
+	mser;
+ 
+	st = plugin.deregisterNode( imagePoints::id ); mser;
+
 
 	st = plugin.deregisterNode(gateRamp::id);
 	mser;
