@@ -15,12 +15,15 @@
 #include <maya/MPlugArray.h>
 #include <maya/MObjectArray.h>
 #include <maya/MFnField.h>
+#include <maya/MAngle.h>
+
 
 #include "cImgUtils.h"
 #include <jMayaIds.h>
 #include "errorMacros.h"
 #include "skGraph.h"
 #include "skChainNode.h"
+#include  "cImgFloatData.h"
 
 #include <maya/MArrayDataBuilder.h>
 
@@ -96,7 +99,11 @@ struct chainSegment
 
     bool isFirstPoint = index == 0;
     bool done = isOnBlack(w, h, pOutImage, 1);
-
+    // done means we are on black. We can still draw the segment and create the chain if the chain
+    // is in progress, but we will return done so that this is the last segment in the chain.
+    // However, if this is the first point, then we bail out before drawing anything. We don't start
+    // on black.
+ 
     bool startIsOnBlack = isFirstPoint && isOnBlack(w, h, pOutImage, 0);
 
     if (startIsOnBlack && done)
@@ -226,10 +233,15 @@ MObject skChainNode::aMinLooseTwigLength;
 
 MObject skChainNode::aSeedPoints;
 MObject skChainNode::aFields;
+MObject skChainNode::aFlowImage;
 MObject skChainNode::aSeedChainMaxSteps;
 MObject skChainNode::aSeedChainSpan;
 MObject skChainNode::aSeedChainStampWidth;
 MObject skChainNode::aSeedChainWidth;
+
+
+MObject skChainNode::aForceThreshold;
+MObject skChainNode::aFlowRotation;
 
 MObject skChainNode::aDoSeedChains;
 MObject skChainNode::aDoFillerChains;
@@ -238,14 +250,15 @@ MObject skChainNode::aSpan;
 MObject skChainNode::aMaxWidth;
 MObject skChainNode::aMaxStampWidth;
 MObject skChainNode::aProjectionMatrix;
-MObject skChainNode::aRadiusMult;
-MObject skChainNode::aRadiusOffset;
+// MObject skChainNode::aRadiusMult;
+MObject skChainNode::aOffsetWidth;
+
+MObject skChainNode::aTrigger;
 
 MObject skChainNode::aMaxChainsPerOutput;
 MObject skChainNode::aOutputs;
 MObject skChainNode::aOutputCount;
 
-MObject skChainNode::aOutputImage;
 
 MTypeId skChainNode::id(k_skChainNode);
 
@@ -273,6 +286,8 @@ MStatus skChainNode::initialize()
   MFnTypedAttribute tAttr;
   MFnMatrixAttribute mAttr;
   MFnMessageAttribute msgAttr;
+  MFnUnitAttribute uAttr;
+  
 
   aImage = tAttr.create("image", "img", cImgData::id);
   tAttr.setStorable(false);
@@ -284,12 +299,20 @@ MStatus skChainNode::initialize()
 
   aSeedPoints = tAttr.create("seedPoints", "spts", MFnData::kVectorArray);
   tAttr.setStorable(false);
+  tAttr.setKeyable(true);
   tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   addAttribute(aSeedPoints);
 
   aFields = msgAttr.create("fields", "flds");
   msgAttr.setArray(true);
   st = addAttribute(aFields);
+  aFlowImage = tAttr.create("flowImage", "fli",  cImgFloatData::id) ; mser;
+  tAttr.setStorable(false);
+  tAttr.setKeyable(false);
+  
+  addAttribute(aFlowImage);
+
+
 
   aSeedChainSpan = nAttr.create("seedChainSpan", "sspn", MFnNumericData::kFloat);
   nAttr.setStorable(true);
@@ -318,14 +341,34 @@ MStatus skChainNode::initialize()
   nAttr.setHidden(false);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
+  nAttr.setKeyable( true );
   nAttr.setDefault(5);
   st = addAttribute(aSeedChainMaxSteps);
   mser;
+
+
+  aForceThreshold = nAttr.create("forceThreshold", "fth",
+                                      MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aForceThreshold);
+  mser;
+
+	aFlowRotation = uAttr.create( "flowRotation", "frot",
+	                          MFnUnitAttribute::kAngle );
+	uAttr.setHidden( false );
+	uAttr.setKeyable( true );
+	uAttr.setStorable(true);
+	st = addAttribute(aFlowRotation); mser;
+
+
 
   aDoSeedChains = nAttr.create("doSeedChains", "dsc",
                                MFnNumericData::kBoolean);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
+  nAttr.setKeyable( true );
   nAttr.setReadable(true);
   nAttr.setDefault(true);
   addAttribute(aDoSeedChains);
@@ -336,12 +379,14 @@ MStatus skChainNode::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+  nAttr.setKeyable( true );
   addAttribute(aDoFillerChains);
 
   aMaxIterations = nAttr.create("maxIterations", "mxi", MFnNumericData::kInt);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
+  nAttr.setKeyable( true );
   nAttr.setDefault(5);
   st = addAttribute(aMaxIterations);
   mser;
@@ -382,20 +427,20 @@ MStatus skChainNode::initialize()
   st = addAttribute(aMaxStampWidth);
   mser;
 
-  aRadiusMult = nAttr.create("radiusMult", "rml", MFnNumericData::kFloat);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setKeyable(true);
-  nAttr.setDefault(1.0f);
-  st = addAttribute(aRadiusMult);
-  mser;
+  // aRadiusMult = nAttr.create("radiusMult", "rml", MFnNumericData::kFloat);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // nAttr.setKeyable(true);
+  // nAttr.setDefault(1.0f);
+  // st = addAttribute(aRadiusMult);
+  // mser;
 
-  aRadiusOffset = nAttr.create("radiusOffset", "rof", MFnNumericData::kFloat);
+  aOffsetWidth = nAttr.create("offsetWidth", "ofw", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(0.0f);
-  st = addAttribute(aRadiusOffset);
+  st = addAttribute(aOffsetWidth);
   mser;
 
   MFloatMatrix identity;
@@ -418,6 +463,21 @@ MStatus skChainNode::initialize()
   st = addAttribute(aMaxChainsPerOutput);
   mser;
 
+
+
+  aTrigger = nAttr.create("trigger", "trg", MFnNumericData::kFloat);
+  nAttr.setHidden(false);
+  nAttr.setStorable(false);
+  nAttr.setReadable(false);
+  nAttr.setKeyable(true);
+  nAttr.setArray(true);
+  nAttr.setIndexMatters(false);
+  addAttribute(aTrigger);
+
+
+ 
+
+
   aOutputs = tAttr.create("outputs", "outs", skChainData::id);
   tAttr.setReadable(true);
   tAttr.setStorable(false);
@@ -432,10 +492,6 @@ MStatus skChainNode::initialize()
   nAttr.setWritable(false);
   st = addAttribute(aOutputCount);
 
-  aOutputImage = tAttr.create("outputImage", "oim", cImgData::id);
-  tAttr.setReadable(true);
-  tAttr.setStorable(false);
-  addAttribute(aOutputImage);
 
   attributeAffects(aImage, aOutputs);
   attributeAffects(aMaxIterations, aOutputs);
@@ -444,18 +500,23 @@ MStatus skChainNode::initialize()
   attributeAffects(aSpan, aOutputs);
   attributeAffects(aMaxWidth, aOutputs);
   attributeAffects(aProjectionMatrix, aOutputs);
-  attributeAffects(aRadiusMult, aOutputs);
-  attributeAffects(aRadiusOffset, aOutputs);
+  // attributeAffects(aRadiusMult, aOutputs);
+  attributeAffects(aOffsetWidth, aOutputs);
   attributeAffects(aMaxStampWidth, aOutputs);
   attributeAffects(aMaxChainsPerOutput, aOutputs);
   attributeAffects(aSeedPoints, aOutputs);
   attributeAffects(aFields, aOutputs);
+  attributeAffects(aFlowImage, aOutputs);
   attributeAffects(aSeedChainMaxSteps, aOutputs);
   attributeAffects(aSeedChainSpan, aOutputs);
   attributeAffects(aSeedChainWidth, aOutputs);
   attributeAffects(aSeedChainStampWidth, aOutputs);
+  attributeAffects(aForceThreshold, aOutputs);
+  attributeAffects(aFlowRotation, aOutputs);
   attributeAffects(aDoSeedChains, aOutputs);
   attributeAffects(aDoFillerChains, aOutputs);
+  attributeAffects(aTrigger, aOutputs);
+
 
   attributeAffects(aImage, aOutputCount);
   attributeAffects(aSeedPoints, aOutputCount);
@@ -465,41 +526,24 @@ MStatus skChainNode::initialize()
   attributeAffects(aSpan, aOutputCount);
   attributeAffects(aMaxWidth, aOutputCount);
   attributeAffects(aProjectionMatrix, aOutputCount);
-  attributeAffects(aRadiusMult, aOutputCount);
-  attributeAffects(aRadiusOffset, aOutputCount);
+  // attributeAffects(aRadiusMult, aOutputCount);
+  attributeAffects(aOffsetWidth, aOutputCount);
   attributeAffects(aMaxStampWidth, aOutputCount);
   attributeAffects(aMaxChainsPerOutput, aOutputCount);
   attributeAffects(aSeedChainMaxSteps, aOutputCount);
   attributeAffects(aSeedPoints, aOutputCount);
   attributeAffects(aFields, aOutputCount);
+  attributeAffects(aFlowImage, aOutputs);
   attributeAffects(aSeedChainMaxSteps, aOutputCount);
   attributeAffects(aSeedChainSpan, aOutputCount);
   attributeAffects(aSeedChainWidth, aOutputCount);
   attributeAffects(aSeedChainStampWidth, aOutputCount);
+  attributeAffects(aForceThreshold, aOutputCount);
+  attributeAffects(aFlowRotation, aOutputCount);
   attributeAffects(aDoSeedChains, aOutputCount);
   attributeAffects(aDoFillerChains, aOutputCount);
+  attributeAffects(aTrigger, aOutputCount);
 
-  attributeAffects(aImage, aOutputImage);
-  attributeAffects(aSeedPoints, aOutputImage);
-  attributeAffects(aMaxIterations, aOutputImage);
-  attributeAffects(aMinBranchTwigLength, aOutputImage);
-  attributeAffects(aMinLooseTwigLength, aOutputImage);
-  attributeAffects(aSpan, aOutputImage);
-  attributeAffects(aMaxWidth, aOutputImage);
-  attributeAffects(aProjectionMatrix, aOutputImage);
-  attributeAffects(aRadiusMult, aOutputImage);
-  attributeAffects(aRadiusOffset, aOutputImage);
-  attributeAffects(aMaxStampWidth, aOutputImage);
-  attributeAffects(aMaxChainsPerOutput, aOutputImage);
-  attributeAffects(aSeedChainMaxSteps, aOutputImage);
-  attributeAffects(aSeedPoints, aOutputImage);
-  attributeAffects(aFields, aOutputImage);
-  attributeAffects(aSeedChainMaxSteps, aOutputImage);
-  attributeAffects(aSeedChainSpan, aOutputImage);
-  attributeAffects(aSeedChainWidth, aOutputImage);
-  attributeAffects(aSeedChainStampWidth, aOutputImage);
-  attributeAffects(aDoSeedChains, aOutputImage);
-  attributeAffects(aDoFillerChains, aOutputImage);
 
   return (MS::kSuccess);
 }
@@ -507,10 +551,21 @@ MStatus skChainNode::initialize()
 MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
 {
   MStatus st;
-  if (!((plug == aOutputs) || (plug == aOutputCount) || (plug == aOutputImage)))
+  if (!((plug == aOutputs) || (plug == aOutputCount) /*|| (plug == aOutputImage)*/))
   {
     return (MS::kUnknownParameter);
   }
+
+  // Pull on the trigger plugs
+  //////////////////////////////////////////////////
+  MArrayDataHandle hTrigger = data.inputArrayValue(aTrigger);
+  unsigned nt = hTrigger.elementCount();
+  for (unsigned j = 0; j < nt; j++, hTrigger.next())
+  {
+    MDataHandle hTriggerEl = hTrigger.inputValue();
+    hTrigger.inputValue().asFloat();
+  }
+
   int maxChains = data.inputValue(aMaxChainsPerOutput).asInt();
   MFnPluginData fnOut;
   MTypeId kdid(skChainData::id);
@@ -520,29 +575,18 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
   MArrayDataBuilder bOutputs = hOutputs.builder();
   int nextPlugIndex = 0;
 
-  MDataHandle hOutputImage = data.outputValue(aOutputImage);
-  MFnPluginData fnOutImage;
-  MTypeId kdidImage(cImgData::id);
-  MObject dOutImage = fnOutImage.create(kdidImage, &st);
-  mser;
-
-  cImgData *newImageData = (cImgData *)fnOutImage.data(&st);
-  mser;
-
-  CImg<unsigned char> *pOutImage = newImageData->fImg;
-
   if (maxChains < 1)
   {
+    // This is the version where we put all the chains on the first output plug.
     MDataHandle hOutput = bOutputs.addElement(0);
     MObject dOut = fnOut.create(kdid, &st);
     skChainData *newData = (skChainData *)fnOut.data(&st);
     mser;
 
     std::vector<skChain> *geom = newData->fGeometry;
-
     geom->clear();
 
-    st = generate(data, geom, pOutImage);
+    st = generate(data, geom);
     mser;
 
     hOutput.set(newData);
@@ -551,8 +595,9 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
   }
   else
   {
+    // This is the version where we split the chains into chunks and add outputs.
     std::vector<skChain> *allGeom = new std::vector<skChain>;
-    st = generate(data, allGeom, pOutImage);
+    st = generate(data, allGeom);
     int geomLength = allGeom->size();
 
     for (size_t i = 0; i < allGeom->size(); i += maxChains, nextPlugIndex++)
@@ -571,30 +616,36 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
       std::copy(start_itr, end_itr, geom->begin());
 
       hOutput.set(newData);
-      hOutput.setClean();
+      // hOutput.setClean();
     }
+    delete allGeom;
   }
-
-  pOutImage->normalize(0, 255);
-
-  hOutputImage.set(newImageData);
-
+ 
   MDataHandle hOutputCount = data.outputValue(aOutputCount);
-  hOutputCount.set(nextPlugIndex);
 
+  hOutputs.set(bOutputs);
   hOutputs.setAllClean();
-  hOutputCount.setClean();
-  hOutputImage.setClean();
 
+  hOutputCount.set(nextPlugIndex);
+  hOutputCount.setClean();
+ 
   return MS::kSuccess;
 }
 
-MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom, CImg<unsigned char> *pOutImage) const
+
+/*
+Generate all the chains.
+
+
+*/
+MStatus skChainNode::generate(
+  MDataBlock &data, 
+  std::vector<skChain> *geom) const
 {
   MStatus st;
 
   CImg<unsigned char> *pImage = cImgUtils::getImage(data, aImage);
-
+  
   if (!pImage)
   {
     return MS::kUnknownParameter;
@@ -606,17 +657,17 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom, CImg
   {
     return MS::kUnknownParameter;
   }
-
-  pOutImage->assign(pImage->get_norm().normalize(0, 1));
+  CImg<unsigned char> inkImage;
+  inkImage.assign(pImage->get_norm().normalize(0, 1));
 
   if (data.inputValue(aDoSeedChains).asBool())
   {
-    st = generateSeedChains(data, geom, pOutImage);
+    st = generateSeedChains(data, geom, &inkImage);
   }
 
   if (data.inputValue(aDoFillerChains).asBool())
   {
-    st = generateFillerChains(data, geom, pOutImage);
+    st = generateFillerChains(data, geom, &inkImage);
   }
 
   return MS::kSuccess;
@@ -625,13 +676,13 @@ MStatus skChainNode::generate(MDataBlock &data, std::vector<skChain> *geom, CImg
 MStatus skChainNode::generateFillerChains(
     MDataBlock &data,
     std::vector<skChain> *geom,
-    CImg<unsigned char> *pOutImage) const
+    CImg<unsigned char> *pInkImage) const
 {
 
-  int w = pOutImage->width();
-  int h = pOutImage->height();
+  int w = pInkImage->width();
+  int h = pInkImage->height();
 
-  float cmToPixels = getCmToPixels(data, pOutImage);
+  float cmToPixels = getCmToPixels(data, pInkImage);
   float pixelsToCm = 1.0 / cmToPixels;
 
   int minBranchLengthPixels = int(data.inputValue(aMinBranchTwigLength).asFloat() * cmToPixels);
@@ -650,18 +701,18 @@ MStatus skChainNode::generateFillerChains(
   float maxStampRadiusPixels = data.inputValue(aMaxStampWidth).asFloat() * cmToPixels * 0.5f;
   maxStampRadiusPixels = std::max(maxStampRadiusPixels, 1.0f);
 
-  float radiusOffsetPixels = int(data.inputValue(aRadiusOffset).asFloat() * cmToPixels);
-  float radiusMult = data.inputValue(aRadiusMult).asFloat();
+  float radiusOffsetPixels = int(data.inputValue(aOffsetWidth).asFloat()  * 0.5 * cmToPixels);
+  // float radiusMult = data.inputValue(aRadiusMult).asFloat();
   int maxIterations = data.inputValue(aMaxIterations).asInt();
 
   int lastNumNewChains = 999999;
   for (int i = 0; i < maxIterations; ++i)
   {
     // make a skeleton image from the BW image
-    CImg<float> mat = pOutImage->get_distance(0);
+    CImg<float> mat = pInkImage->get_distance(0);
     const CImgList<float> grad = mat.get_gradient("xyz");
-    CImg<float> flux = pOutImage->get_flux(grad, 1, 1);
-    CImg<bool> skel = pOutImage->get_skeleton(flux, mat, true, 0);
+    CImg<float> flux = pInkImage->get_flux(grad, 1, 1);
+    CImg<bool> skel = pInkImage->get_skeleton(flux, mat, true, 0);
 
     cimg_forXY(skel, x, y)
     {
@@ -683,9 +734,9 @@ MStatus skChainNode::generateFillerChains(
       break;
     }
     // limit brush size
-    g.clampRadius(maxRadiusPixels);
+    // g.clampRadius(maxRadiusPixels);
 
-    g.adjustRadius(radiusMult, radiusOffsetPixels);
+    g.adjustRadius( radiusOffsetPixels, maxRadiusPixels);
 
     g.detachBranches();
 
@@ -699,10 +750,9 @@ MStatus skChainNode::generateFillerChains(
     {
       break;
     }
-    // int nChainsAfter = geom->size();
 
     // draw the chains
-    MFloatMatrix transformation = getTransformation(data, w, h);
+    MFloatMatrix transformation = getTransformProjToImage(data, w, h);
 
     std::vector<skChain>::const_iterator chainIter = geom->begin() + nChainsBefore;
     for (; chainIter != geom->end(); chainIter++)
@@ -730,7 +780,7 @@ MStatus skChainNode::generateFillerChains(
             transformation,
             cmToPixels);
 
-        segment.stampImage(pOutImage);
+        segment.stampImage(pInkImage);
       }
     }
   }
@@ -744,7 +794,7 @@ float skChainNode::getCmToPixels(MDataBlock &data, const CImg<unsigned char> *pI
   return float(pImage->width()) / (projection[0][0] * 2.0);
 }
 
-MFloatMatrix skChainNode::getTransformation(MDataBlock &data, int w, int h) const
+MFloatMatrix skChainNode::getTransformProjToImage(MDataBlock &data, int w, int h) const
 {
   MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
 
@@ -758,14 +808,9 @@ MFloatMatrix skChainNode::getTransformation(MDataBlock &data, int w, int h) cons
   return projection.inverse() * norm;
 }
 
-MStatus skChainNode::generateSeedChains(
-    MDataBlock &data,
-    std::vector<skChain> *geom,
-    CImg<unsigned char> *pOutImage) const
-{
 
-  // Get the field MObjects
-  MObjectArray fields;
+int skChainNode::getFields(MObjectArray &result) const
+{
   MPlugArray plugArray;
   MPlug fieldArrayPlug(thisMObject(), aFields);
   int elementCount = fieldArrayPlug.numElements();
@@ -775,14 +820,26 @@ MStatus skChainNode::generateSeedChains(
     bool hasConnections = fieldPlug.connectedTo(plugArray, 1, 0);
     if (hasConnections)
     {
-      fields.append(plugArray[i].node());
+      result.append(plugArray[i].node());
     }
   }
+  return result.length();
+}
 
-  int w = pOutImage->width();
-  int h = pOutImage->height();
 
-  float cmToPixels = getCmToPixels(data, pOutImage);
+MStatus skChainNode::generateSeedChains(
+    MDataBlock &data,
+    std::vector<skChain> *geom,
+    CImg<unsigned char> *pInkImage) const
+{
+
+  MObjectArray fields;
+  int numFields = getFields(fields);
+
+  int w = pInkImage->width();
+  int h = pInkImage->height();
+
+  float cmToPixels = getCmToPixels(data, pInkImage);
   float pixelsToCm = 1.0 / cmToPixels;
 
   float circleStampRadius = data.inputValue(aSeedChainStampWidth).asFloat() * 0.5;
@@ -795,7 +852,35 @@ MStatus skChainNode::generateSeedChains(
   circleStampRadiusPixels = std::max(circleStampRadiusPixels, 1.0f);
   circleStampRadius = circleStampRadiusPixels * pixelsToCm;
 
-  MFloatMatrix transformation = getTransformation(data, w, h);
+  float forceThreshold = data.inputValue(aForceThreshold).asFloat();
+	float angle = float(data.inputValue(aFlowRotation).asAngle().asRadians());
+
+
+
+
+  MFloatMatrix transformation = getTransformProjToImage(data, w, h);
+
+
+  CImg<float> *pFlowImage = cImgUtils::getFloatImage(data, aFlowImage);
+  MFloatMatrix flowTransformation;
+  MFloatMatrix flowTransformationInverse;
+  if (pFlowImage) {
+    MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
+    int fw = pFlowImage->width();
+    int fh = pFlowImage->height();
+    flowTransformation = getTransformProjToImage(data, fw, fh);
+
+
+    MFloatMatrix rot;
+    rot.setToIdentity();
+    rot[0][0] = cos(angle);
+    rot[0][1] = -sin(angle);
+    rot[1][0] = sin(angle);
+    rot[1][1] = cos(angle);
+    
+    flowTransformationInverse = flowTransformation.inverse() * rot;
+
+  }
 
   MVectorArray seedPoints = MFnVectorArrayData(data.inputValue(aSeedPoints).data()).array();
 
@@ -808,14 +893,21 @@ MStatus skChainNode::generateSeedChains(
         seedPoints[i],
         fields,
         transformation,
+        flowTransformation,
+        flowTransformationInverse,
         circleRadius,
         circleStampRadius,
         span,
         cmToPixels,
         maxSteps,
-        pOutImage,
+        forceThreshold,
+        angle,
+        pInkImage,
+        pFlowImage,
         chain);
-    geom->push_back(chain);
+    if (chain.size() > 1) {
+      geom->push_back(chain);
+    }
   }
 
   return MS::kSuccess;
@@ -825,16 +917,20 @@ void skChainNode::propagateAndStamp(
     const MVector &seedPoint,
     const MObjectArray &fields,
     const MFloatMatrix &transformation,
+    const MFloatMatrix &flowTransformation,
+    const MFloatMatrix &flowTransformationInverse,
     float circleRadius,
     float circleStampRadius,
     float span,
     float cmToPixels,
     int maxSteps,
-    CImg<unsigned char> *pOutImage,
+    float forceThreshold,
+    float angle,
+    CImg<unsigned char> *pInkImage,
+    CImg<float> *pFlowImage,
     skChain &chain) const
 {
 
-  // float circleRadiusPixels = circleRadius * cmToPixels;
   float circleStampRadiusPixels = circleStampRadius * cmToPixels;
 
   MFnField fnField;
@@ -845,6 +941,7 @@ void skChainNode::propagateAndStamp(
   for (size_t i = 0; i < maxSteps; i++)
   {
 
+    // Initialize segment with first point 
     chainSegment segment(
         i, currPoint,
         circleRadius,
@@ -853,25 +950,62 @@ void skChainNode::propagateAndStamp(
         cmToPixels);
 
     MVector forceAccumulated;
-    MVectorArray force;
-    MVectorArray velocity(1, MVector::zero);
-    MDoubleArray mass(1, 1.0);
-    for (size_t f = 0; f < fields.length(); f++)
-    {
-      fnField.setObject(fields[f]);
-      MVectorArray position(1, currPoint);
-      MVectorArray result;
-      fnField.getForceAtPoint(position, velocity, mass, force);
-      forceAccumulated += force[0];
+
+    ////////////////////// Force from fields
+    int numFields = fields.length();
+    if (numFields > 0) {
+      MVectorArray force;
+      MVectorArray velocity(1, MVector::zero);
+      MDoubleArray mass(1, 1.0);
+      for (size_t f = 0; f < fields.length(); f++)
+      {
+        fnField.setObject(fields[f]);
+        MVectorArray position(1, currPoint);
+        MVectorArray result;
+        fnField.getForceAtPoint(position, velocity, mass, force);
+        forceAccumulated += force[0];
+      }
     }
+    //////////////////////
+    
+    
+    // Now calculate force from the flowField
+    //////////////////////
+    if (pFlowImage) {
+      int fw = pFlowImage->width();
+      int fh = pFlowImage->height();
+      MVector currPointImg = MFloatPoint(currPoint) * flowTransformation;
+      int imageCoordX = int(currPointImg.x);
+      int imageCoordY = int(currPointImg.y);
+      if ( (imageCoordX >=0) &&
+        (imageCoordY >=0) &&
+        (imageCoordX < fw) &&
+        (imageCoordY < fh) 
+      ) 
+      {
+        
+        float x = (*pFlowImage)(imageCoordX, imageCoordY, 0, 0);
+        float y = (*pFlowImage)(imageCoordX, imageCoordY, 0, 1);
+        forceAccumulated +=  MVector((MFloatVector(x,y,0.0) ) * flowTransformationInverse);
+      }
+    }
+    //////////////////////
+
+    // If there was no force, then we are done.
+    forceAccumulated.z=0.0;
+    if (forceAccumulated.length() < forceThreshold){
+      return;
+    }
+
     forceAccumulated = forceAccumulated.normal() * span;
 
     segment.applyForce(forceAccumulated);
-    bool done = segment.stampAndChain(pOutImage, chain);
+    bool done = segment.stampAndChain(pInkImage, chain);
 
+    // stampAndChain returns true when 
     if (done)
     {
-      break;
+      return;
     }
 
     currPoint = segment.endPoint;
