@@ -50,9 +50,9 @@ public:
         float maxStampRadiusPixels, 
         int spanPixels) const;
 
-    void clampRadius(float maxRadius);
+    // void clampRadius(float maxRadius);
 
-    void adjustRadius(float mult, float offset);
+    void adjustRadius(float offset, float maxRadius);
 
     void prune(int minBranchLength);
     void detachBranches();

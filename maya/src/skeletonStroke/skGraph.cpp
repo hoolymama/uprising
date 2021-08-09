@@ -223,29 +223,31 @@ void skGraph::draw(CImg<unsigned char> &image, float maxStampRadiusPixels, int s
 }
 
 
-void skGraph::clampRadius(float maxRadius)
-{
+// void skGraph::clampRadius(float offset, float maxRadius)
+// {
 
+//     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
+//          iter != m_nodes.end();
+//          iter++)
+//     {
+//         skNode *node = iter->second;
+
+        
+//         if (node->radius > maxRadius)
+//         {
+//             node->radius = maxRadius;
+//         }
+//     }
+// }
+
+void skGraph::adjustRadius(float offset, float maxRadius)
+{
     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
          iter != m_nodes.end();
          iter++)
     {
         skNode *node = iter->second;
-        if (node->radius > maxRadius)
-        {
-            node->radius = maxRadius;
-        }
-    }
-}
-
-void skGraph::adjustRadius(float mult, float offset)
-{
-    for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
-         iter != m_nodes.end();
-         iter++)
-    {
-        skNode *node = iter->second;
-        node->radius = std::max(0.0f, ((node->radius * mult) + offset));
+        node->radius = std::max(0.0f, std::min(node->radius+offset, maxRadius));
     }
 }
 

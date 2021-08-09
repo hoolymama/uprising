@@ -21,8 +21,7 @@ global proc AEskChainNodeTemplate ( string $nodeName )
 	editorTemplate -addControl "doFillerChains";	
 	editorTemplate -addControl "maxWidth";	
  	editorTemplate -addControl "maxStampWidth";
- 	editorTemplate -addControl "radiusMult";
- 	editorTemplate -addControl "radiusOffset";
+ 	editorTemplate -addControl "offsetWidth";
 
 	editorTemplate -addControl "maxIterations";
 	editorTemplate -addControl "minBranchTwigLength";
@@ -39,6 +38,11 @@ global proc AEskChainNodeTemplate ( string $nodeName )
  	editorTemplate -addControl "seedChainMaxSteps";
  	editorTemplate -endLayout;
  
+ 	editorTemplate -cl 0  -beginLayout "Force/Flow Attributes";	
+	editorTemplate -addControl "forceThreshold";	
+	editorTemplate -addControl "flowRotation";	
+ 	editorTemplate -endLayout;
+
 	editorTemplate -cl 0  -beginLayout "Image Attributes";		
 	editorTemplate -callCustom "AEskChainNodeNew" "AEskChainNodeReplace" "image";
 	editorTemplate -endLayout;

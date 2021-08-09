@@ -55,7 +55,6 @@ public:
 
 	static skPoint extrapolate(const skPoint &p0, const skPoint &p1, float dist)
 	{
-
 		if (dist  < epsilon)
 		{
 			return skPoint(p1);
@@ -73,14 +72,6 @@ public:
 		float y = p1.y + (dy * recip);
 		return skPoint(x, y, p1.radius);
 	}
-
-
-
-
-
-	// skPoint(int x, int y, int z = 0);
-	// skPoint(const coord &rhs);
-	// ~skPoint();
 
 };
 
