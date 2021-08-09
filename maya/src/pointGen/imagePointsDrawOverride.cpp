@@ -99,6 +99,8 @@ MUserData *imagePointsDrawOverride::prepareForDraw(
  
  	MPlug(imagePointsObj, imagePoints::aDisplayPoints).getValue(data->displayPoints);
  	MPlug(imagePointsObj, imagePoints::aDisplayCircles).getValue(data->displayCircles);
+	MPlug(imagePointsObj, imagePoints::aDisplayOrder).getValue(data->displayOrder);
+	 
  
 	MPlug(imagePointsObj, imagePoints::aColor).child(0).getValue(data->color[0]);
 	MPlug(imagePointsObj, imagePoints::aColor).child(1).getValue(data->color[1]);
@@ -120,52 +122,7 @@ MUserData *imagePointsDrawOverride::prepareForDraw(
 	data->radii = MFnDoubleArrayData(d).array();
 
 
-
-
-	// MPlug( imagePointsObj, imagePoints::aOutParams ).getValue(d); mser;
-	// MDoubleArray params = MFnDoubleArrayData(d).array();
-
-	// MPlug( imagePointsObj, imagePoints::aOutCounts ).getValue(d); mser;
-	// data->counts = MFnIntArrayData(d).array();
-
-	// MPlug(imagePointsObj, imagePoints::aDrawEdges).getValue(data->drawEdges);
-	// MPlug(imagePointsObj, imagePoints::aDrawPoints).getValue(data->drawPoints);
-	// MPlug(imagePointsObj, imagePoints::aDrawCircles).getValue(data->drawCircles);
-
-	// bool doRandColor;
-	// MPlug(imagePointsObj, imagePoints::aRandomChainColor).getValue(doRandColor);
-
-
-
-
-	// Color calcs
-	// data->colors.clear();
-	// int pIndex = 0;
-	// unsigned nChains = data->counts.length();
-	// if (doRandColor) {
-	// 	for (int c = 0; c < nChains; ++c)
-	// 	{
-	// 		MColor randCol(drand48(), drand48(), drand48());
-	// 		for (int i = 0; i < data->counts[c]; ++i)
-	// 		{
-	// 			data->colors.append(randCol);
-	// 		}
-	// 	}
-	// }
-	// else {
-	// 	for (int c = 0; c < nChains; ++c)
-	// 	{
-	// 		for (int i = 0; i < data->counts[c]; ++i)
-	// 		{
-	// 			float p = params[pIndex];
-	// 			float r =  ((c1.r * (1.0 - p)) + (c2.r * p));
-	// 			float g =  ((c1.g * (1.0 - p)) + (c2.g * p));
-	// 			float b =  ((c1.b * (1.0 - p)) + (c2.b * p));
-	// 			data->colors.append(MColor(r, g, b));
-	// 			pIndex ++;
-	// 		}
-	// 	}
-	// }
+  
 	return data;
 }
 
@@ -190,6 +147,12 @@ void imagePointsDrawOverride::addUIDrawables(
 		drawPoints(drawManager, cdata);
 	}
 
+	if (cdata->displayOrder > 0)
+	{
+		drawOrder(drawManager, cdata);
+	}
+	
+
 	drawBorder(drawManager, cdata);
  
 
@@ -206,6 +169,26 @@ void imagePointsDrawOverride::drawPoints(
 	drawManager.points(  cdata->points, false );
 	drawManager.endDrawable();
 }
+
+
+void imagePointsDrawOverride::drawOrder(
+  MHWRender::MUIDrawManager &drawManager,
+  const imagePointsDrawData *cdata)
+{
+	drawManager.beginDrawable();
+	// drawManager.setPointSize(cdata->pointSize);
+	drawManager.setColor(cdata->color);
+	unsigned len = cdata->points.length();
+	for (unsigned i = 0; i < len; i++) {
+		MString text;
+		text+= i;
+		drawManager.text(
+			MPoint(cdata->points[i]), 
+			text, MHWRender::MUIDrawManager::kLeft);
+	}
+	drawManager.endDrawable();
+}
+ 
 
 void imagePointsDrawOverride::drawCircles(
   MHWRender::MUIDrawManager &drawManager,

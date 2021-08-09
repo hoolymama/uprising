@@ -31,6 +31,7 @@ public:
 	int pointSize;
 	int lineThickness;
 	bool displayPoints;
+	bool displayOrder;
 	bool displayCircles;
  	float circleDisplaySize;
 };

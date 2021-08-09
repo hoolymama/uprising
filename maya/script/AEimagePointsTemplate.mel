@@ -29,6 +29,11 @@ global proc AEimagePointsTemplate ( string $nodeName )
  	editorTemplate -addControl"magnitude";
 	editorTemplate -endLayout;	
 
+	editorTemplate -cl 0  -beginLayout "Sort";
+ 	editorTemplate -addControl"sortVector";
+	editorTemplate -endLayout;	
+
+
 	editorTemplate -cl 0  -beginLayout "Display";
  	editorTemplate -addControl "lineThickness";
  	editorTemplate -addControl "pointSize";
@@ -37,6 +42,7 @@ global proc AEimagePointsTemplate ( string $nodeName )
  	editorTemplate -addControl "displayPoints";
  	editorTemplate -addControl "displayCircles";
  	editorTemplate -addControl "circleDisplaySize";
+	editorTemplate -addControl "displayOrder";
 	editorTemplate -endLayout;	
  
 

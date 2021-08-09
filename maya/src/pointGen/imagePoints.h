@@ -29,87 +29,88 @@ public:
 
   virtual MBoundingBox boundingBox() const;
 
-  virtual void draw(  M3dView &view,
-                      const MDagPath &path,
-                      M3dView::DisplayStyle style,
-                      M3dView:: DisplayStatus status  );
+  virtual void draw(M3dView &view,
+                    const MDagPath &path,
+                    M3dView::DisplayStyle style,
+                    M3dView::DisplayStatus status);
 
   MStatus compute(const MPlug &plug, MDataBlock &data);
 
-    static  MTypeId   id;
-    static MString drawDbClassification;
-    static MString drawRegistrantId;
+  static MTypeId id;
+  static MString drawDbClassification;
+  static MString drawRegistrantId;
 
-  static  MObject aProjectionMatrix;
 private:
-
   void makeDots(MDataBlock &data, std::vector<dotData> &dots);
   void relaxDots(MDataBlock &data, std::vector<dotData> &dots);
   void cullDots(MDataBlock &data, std::vector<dotData> &dots);
-  // bool shouldCull(const dotData &dot,
-  //                 const CImg<unsigned char>   &maskImage );
+  void sortDots(MDataBlock &data, std::vector<dotData> &dots, const MMatrix &worldMatrix);
 
-  // MStatus getImage(MDataBlock &data, MObject &attribute,
-  //                  CImg<unsigned char> *image );
+  CImg<unsigned char> *getImage(MDataBlock &data, MObject &attribute);
 
-  CImg<unsigned char> *getImage(MDataBlock &data, MObject &attribute );
+  static MObject aDensityImage;
+  static MObject aRadiusImage;
+  static MObject aMask;
 
-  static  MObject aDensityImage;
-  static  MObject aRadiusImage;
-  static  MObject aMask;
+  static MObject aDensityRamp;
+  static MObject aDensityRangeMin;
+  static MObject aDensityRangeMax;
+  static MObject aDensityRange;
 
-  static  MObject aDensityRamp;
-  static  MObject aDensityRangeMin;
-  static  MObject aDensityRangeMax;
-  static  MObject aDensityRange;
+  static MObject aRadiusRamp;
+  static MObject aRadiusRangeMin;
+  static MObject aRadiusRangeMax;
+  static MObject aRadiusRange;
 
-  static  MObject aRadiusRamp;
-  static  MObject aRadiusRangeMin;
-  static  MObject aRadiusRangeMax;
-  static  MObject aRadiusRange;
+  static MObject aNeighbors;
+  static MObject aIterations;
+  static MObject aMagnitude;
+  static MObject aSeed;
 
-  static  MObject aNeighbors;
-  static  MObject aIterations;
-  static  MObject aMagnitude;
-  static  MObject aSeed;
 
-  static  MObject aOutU;
-  static  MObject aOutV;
+  static MObject aSortVector;
+
+
+
+  static MObject aOutU;
+  static MObject aOutV;
+  static MObject aOutPointsWorld;
+
 
 
 public:
-  static  MObject aOutPoints;
-  static  MObject aOutRadius;
-  static  MObject aLineThickness;
-  static  MObject aPointSize;
-  static  MObject aCircleDisplaySize;
-  static  MObject aColor;
-  static  MObject aDisplayPoints;
-  static  MObject aDisplayCircles;
+  static MObject aInMatrix;
+  static MObject aOutPoints;
 
+  static MObject aOutRadius;
+  static MObject aLineThickness;
+  static MObject aPointSize;
+  static MObject aCircleDisplaySize;
+  static MObject aColor;
+  static MObject aDisplayPoints;
+  static MObject aDisplayCircles;
+  static MObject aDisplayOrder;
 };
 
 namespace
 {
-static  MCallbackId id;
+  static MCallbackId id;
 
-
-static void makeDefaultConnections(  MObject &node, void *clientData )
-{
-
-  MPlug wmPlugmulti( node, imagePoints::worldMatrix );
-  MPlug wm( wmPlugmulti.elementByLogicalIndex( 0 ) );
-  MPlug pmt( node, imagePoints::aProjectionMatrix );
-
-  MDGModifier mod;
-  mod.connect( wm, pmt );
-  MStatus stat = mod.doIt();
-  if (stat != MS::kSuccess)
+  static void makeDefaultConnections(MObject &node, void *clientData)
   {
-    stat.perror("painting ERROR :: callback unable to make matrix connections");
+
+    MPlug wmPlugmulti(node, imagePoints::worldMatrix);
+    MPlug wm(wmPlugmulti.elementByLogicalIndex(0));
+    MPlug pmt(node, imagePoints::aInMatrix);
+
+    MDGModifier mod;
+    mod.connect(wm, pmt);
+    MStatus stat = mod.doIt();
+    if (stat != MS::kSuccess)
+    {
+      stat.perror("painting ERROR :: callback unable to make matrix connections");
+    }
   }
 }
-}
-
 
 #endif

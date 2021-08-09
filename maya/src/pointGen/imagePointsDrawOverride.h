@@ -5,10 +5,6 @@
 
 #include <stdlib.h>
 
-
-
-
-
 #include <maya/MDagPath.h>
 
 #include <maya/MDrawRegistry.h>
@@ -18,16 +14,14 @@
 #include <maya/MSelectionList.h>
 #include <maya/MBoundingBox.h>
 
- 
 #include <assert.h>
 
 #include "imagePoints.h"
 #include "imagePointsDrawData.h"
 
-
-class imagePointsDrawOverride : public MHWRender::MPxDrawOverride {
+class imagePointsDrawOverride : public MHWRender::MPxDrawOverride
+{
 public:
-
 	static MHWRender::MPxDrawOverride *Creator(const MObject &obj)
 	{
 		return new imagePointsDrawOverride(obj);
@@ -38,63 +32,60 @@ public:
 	virtual MHWRender::DrawAPI supportedDrawAPIs() const;
 
 	virtual bool isBounded(
-	  const MDagPath &objPath,
-	  const MDagPath &cameraPath) const;
+		const MDagPath &objPath,
+		const MDagPath &cameraPath) const;
 
 	virtual MBoundingBox boundingBox(
-	  const MDagPath &objPath,
-	  const MDagPath &cameraPath) const;
+		const MDagPath &objPath,
+		const MDagPath &cameraPath) const;
 
 	virtual MUserData *prepareForDraw(
-	  const MDagPath &objPath,
-	  const MDagPath &cameraPath,
-	  const MHWRender::MFrameContext &frameContext,
-	  MUserData *oldData);
+		const MDagPath &objPath,
+		const MDagPath &cameraPath,
+		const MHWRender::MFrameContext &frameContext,
+		MUserData *oldData);
 
 	virtual bool hasUIDrawables() const { return true; }
 
 	virtual void addUIDrawables(
-	  const MDagPath &objPath,
-	  MHWRender::MUIDrawManager &drawManager,
-	  const MHWRender::MFrameContext &frameContext,
-	  const MUserData *data);
-
-
+		const MDagPath &objPath,
+		MHWRender::MUIDrawManager &drawManager,
+		const MHWRender::MFrameContext &frameContext,
+		const MUserData *data);
 
 	virtual bool traceCallSequence() const
 	{
 		return false;
 	}
 
-	virtual void handleTraceMessage( const MString &message ) const
+	virtual void handleTraceMessage(const MString &message) const
 	{
 		MGlobal::displayInfo("imagePointsDrawOverride: " + message);
-		cerr <<  "imagePointsDrawOverride: " << message.asChar() << endl;
+		cerr << "imagePointsDrawOverride: " << message.asChar() << endl;
 	}
 
 private:
-
-
-
-
 	void drawPoints(MHWRender::MUIDrawManager &drawManager,
-	                const imagePointsDrawData *cdata);
+					const imagePointsDrawData *cdata);
 
+ 
 	void drawBorder(MHWRender::MUIDrawManager &drawManager,
-	               const imagePointsDrawData *cdata);
+					const imagePointsDrawData *cdata);
 
 	void drawCircles(MHWRender::MUIDrawManager &drawManager,
-	                 const imagePointsDrawData *cdata);
+					 const imagePointsDrawData *cdata);
+
+	void drawOrder(MHWRender::MUIDrawManager &drawManager,
+				   const imagePointsDrawData *cdata);
 
 	imagePointsDrawOverride(const MObject &obj);
 
 	static void markDirty(void *clientData);
 
-	imagePoints  *fNode;
+	imagePoints *fNode;
 
 	MCallbackId fModelEditorChangedCbId;
 	MCallbackId fTimeChangedCbId;
 };
-
 
 #endif

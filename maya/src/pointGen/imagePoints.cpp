@@ -41,36 +41,7 @@
 #include "cImgUtils.h"
 
 
-const double  PI  = 3.141592653;
-
-
-const double rad_to_deg = (180 / PI);
-
-const double  TAU = 2.0 * PI;
-
-static int circleVertexCount = 16;
-const float gap = TAU / circleVertexCount;
-
-static float circle[][4] = {
-	{sin(gap * 0),   cos(gap * 0),  0.0f, 1.0f},
-	{sin(gap * 1),   cos(gap * 1),  0.0f, 1.0f},
-	{sin(gap * 2),   cos(gap * 2),  0.0f, 1.0f},
-	{sin(gap * 3),   cos(gap * 3),  0.0f, 1.0f},
-	{sin(gap * 4),   cos(gap * 4),  0.0f, 1.0f},
-	{sin(gap * 5),   cos(gap * 5),  0.0f, 1.0f},
-	{sin(gap * 6),   cos(gap * 6),  0.0f, 1.0f},
-	{sin(gap * 7),   cos(gap * 7),  0.0f, 1.0f},
-	{sin(gap * 8),   cos(gap * 8),  0.0f, 1.0f},
-	{sin(gap * 9),   cos(gap * 9),  0.0f, 1.0f},
-	{sin(gap * 10),  cos(gap * 10), 0.0f, 1.0f},
-	{sin(gap * 11),  cos(gap * 11), 0.0f, 1.0f},
-	{sin(gap * 12),  cos(gap * 12), 0.0f, 1.0f},
-	{sin(gap * 13),  cos(gap * 13), 0.0f, 1.0f},
-	{sin(gap * 14),  cos(gap * 14), 0.0f, 1.0f},
-	{sin(gap * 15),  cos(gap * 15), 0.0f, 1.0f}
-};
-
-
+MObject imagePoints::aInMatrix;
 MObject imagePoints::aDensityImage;
 MObject imagePoints::aRadiusImage;
 MObject imagePoints::aMask;
@@ -86,12 +57,14 @@ MObject imagePoints::aRadiusRange;
 MObject imagePoints::aIterations;
 MObject imagePoints::aNeighbors;
 MObject imagePoints::aMagnitude;
-// MObject imagePoints::aProjectionMatrix;
 MObject imagePoints::aSeed;
 MObject imagePoints::aOutPoints;
+MObject imagePoints::aOutPointsWorld;
 MObject imagePoints::aOutRadius;
 MObject imagePoints::aOutU;
 MObject imagePoints::aOutV;
+
+MObject imagePoints::aSortVector;
 
 
 
@@ -101,6 +74,8 @@ MObject imagePoints::aColor;
 MObject imagePoints::aDisplayPoints;
 MObject imagePoints::aDisplayCircles;
 MObject imagePoints::aCircleDisplaySize;
+MObject imagePoints::aDisplayOrder;
+
 
   
 MTypeId imagePoints::id(k_imagePoints);
@@ -128,18 +103,14 @@ MStatus imagePoints::initialize()
 	MFnMatrixAttribute mAttr;
 
 
-	MFloatMatrix identity;
+	MMatrix identity;
 	identity.setToIdentity();
-
-
-	// aProjectionMatrix = mAttr.create( "projectionMatrix", "pmat",
-	//                                   MFnMatrixAttribute::kFloat );
-	// mAttr.setStorable( false );
-	// mAttr.setHidden( false );
-	// nAttr.setKeyable(true);
-
-	// mAttr.setDefault(identity);
-	// addAttribute(aProjectionMatrix);
+	aInMatrix = mAttr.create( "inMatrix", "imat", MFnMatrixAttribute::kDouble );
+	mAttr.setStorable( false );
+	mAttr.setHidden( false );
+	nAttr.setKeyable(true);
+	mAttr.setDefault(identity);
+	addAttribute(aInMatrix);
 
 	aDensityImage = tAttr.create("densityImage", "dim", cImgData::id ) ;
 	tAttr.setStorable(false);
@@ -209,10 +180,24 @@ MStatus imagePoints::initialize()
 	nAttr.setDefault( 100 );
 	st = addAttribute(  aMagnitude );
 
+
+    aSortVector = nAttr.createPoint("sortVector", "svc");
+    nAttr.setStorable(true);
+    nAttr.setReadable(true);
+    nAttr.setKeyable(true);
+    addAttribute(aSortVector);
+
+
 	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray);
 	tAttr.setStorable( false);
 	tAttr.setReadable( true);
 	st = addAttribute( aOutPoints );
+
+	aOutPointsWorld = tAttr.create("outPointsWorld", "opw", MFnData::kVectorArray);
+	tAttr.setStorable( false);
+	tAttr.setReadable( true);
+	st = addAttribute( aOutPointsWorld );
+
 
 	aOutRadius = tAttr.create("outRadius", "orad", MFnData::kDoubleArray);
 	tAttr.setStorable( false);
@@ -254,6 +239,7 @@ MStatus imagePoints::initialize()
 	addAttribute(aDisplayPoints);
 
 
+
 	aDisplayCircles = nAttr.create( "displayCircles", "dcrc",
 	                                MFnNumericData::kBoolean);
 	nAttr.setHidden(false);
@@ -265,13 +251,22 @@ MStatus imagePoints::initialize()
 	aCircleDisplaySize = nAttr.create("circleDisplaySize", "cdsz", MFnNumericData::kFloat);
 	nAttr.setDefault( 2.0f );
 	nAttr.setKeyable( true );
-	st = addAttribute( aCircleDisplaySize ); mser
+	st = addAttribute( aCircleDisplaySize ); mser;
+
+
+
+	aDisplayOrder = nAttr.create( "displayOrder", "dord",
+	                               MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setReadable(true);
+	nAttr.setDefault(false);
+	addAttribute(aDisplayOrder);
 
 	st = attributeAffects( aDensityImage, aOutPoints);
 	st = attributeAffects( aRadiusImage, aOutPoints);
 	st = attributeAffects( aMask, aOutPoints);
 	st = attributeAffects( aSeed, aOutPoints);
-	// st = attributeAffects( aProjectionMatrix, aOutPoints);
 	st = attributeAffects( aIterations, aOutPoints);
 	st = attributeAffects( aNeighbors, aOutPoints);
 	st = attributeAffects( aMagnitude, aOutPoints);
@@ -279,22 +274,39 @@ MStatus imagePoints::initialize()
 	st = attributeAffects( aDensityRange, aOutPoints);
 	st = attributeAffects( aRadiusRamp, aOutPoints);
 	st = attributeAffects( aRadiusRange, aOutPoints);
+	st = attributeAffects( aSortVector, aOutPoints);
+	st = attributeAffects( aInMatrix, aOutPoints);
+
+	st = attributeAffects( aInMatrix, aOutPointsWorld);
+	st = attributeAffects( aDensityImage, aOutPointsWorld);
+	st = attributeAffects( aRadiusImage, aOutPointsWorld);
+	st = attributeAffects( aMask, aOutPointsWorld);
+	st = attributeAffects( aSeed, aOutPointsWorld);
+	st = attributeAffects( aIterations, aOutPointsWorld);
+	st = attributeAffects( aNeighbors, aOutPointsWorld);
+	st = attributeAffects( aMagnitude, aOutPointsWorld);
+	st = attributeAffects( aDensityRamp, aOutPointsWorld);
+	st = attributeAffects( aDensityRange, aOutPointsWorld);
+	st = attributeAffects( aRadiusRamp, aOutPointsWorld);
+	st = attributeAffects( aRadiusRange, aOutPointsWorld);
+	st = attributeAffects( aSortVector, aOutPointsWorld);
+	st = attributeAffects( aInMatrix, aOutPointsWorld);
 
 	st = attributeAffects( aDensityImage, aOutRadius);
 	st = attributeAffects( aRadiusImage, aOutRadius);
 	st = attributeAffects( aMask, aOutRadius);
 	st = attributeAffects( aSeed, aOutRadius);
-	// st = attributeAffects( aProjectionMatrix, aOutRadius);
 	st = attributeAffects( aDensityRamp, aOutRadius);
 	st = attributeAffects( aDensityRange, aOutRadius);
 	st = attributeAffects( aRadiusRamp, aOutRadius);
 	st = attributeAffects( aRadiusRange, aOutRadius);
+	st = attributeAffects( aSortVector, aOutRadius);
+	st = attributeAffects( aInMatrix, aOutRadius);
 
 	st = attributeAffects( aDensityImage, aOutU);
 	st = attributeAffects( aRadiusImage, aOutU);
 	st = attributeAffects( aMask, aOutU);
 	st = attributeAffects( aSeed, aOutU);
-	// st = attributeAffects( aProjectionMatrix, aOutU);
 	st = attributeAffects( aIterations, aOutU);
 	st = attributeAffects( aNeighbors, aOutU);
 	st = attributeAffects( aMagnitude, aOutU);
@@ -302,13 +314,14 @@ MStatus imagePoints::initialize()
 	st = attributeAffects( aDensityRange, aOutU);
 	st = attributeAffects( aRadiusRamp, aOutU);
 	st = attributeAffects( aRadiusRange, aOutU);
+	st = attributeAffects( aSortVector, aOutU);
+	st = attributeAffects( aInMatrix, aOutU);
 
 
 	st = attributeAffects( aDensityImage, aOutV);
 	st = attributeAffects( aRadiusImage, aOutV);
 	st = attributeAffects( aMask, aOutV);
 	st = attributeAffects( aSeed, aOutV);
-	// st = attributeAffects( aProjectionMatrix, aOutV);
 	st = attributeAffects( aIterations, aOutV);
 	st = attributeAffects( aNeighbors, aOutV);
 	st = attributeAffects( aMagnitude, aOutV);
@@ -316,6 +329,8 @@ MStatus imagePoints::initialize()
 	st = attributeAffects( aDensityRange, aOutV);
 	st = attributeAffects( aRadiusRamp, aOutV);
 	st = attributeAffects( aRadiusRange, aOutV);
+	st = attributeAffects( aSortVector, aOutV);
+	st = attributeAffects( aInMatrix, aOutV);
 
 	return (MS::kSuccess );
 }
@@ -434,13 +449,10 @@ void imagePoints::relaxDots(MDataBlock &data, std::vector<dotData> &dots)
 	int iterations = int(data.inputValue(aIterations).asInt());
 	int neighbors = int(data.inputValue(aNeighbors).asInt());
 	float magnitude = data.inputValue(aMagnitude).asFloat();
-	// MFloatMatrix invmat = data.inputValue(aProjectionMatrix).asFloatMatrix().inverse();
-
 
 	if (! iterations) { return; }
 
 	magnitude = magnitude / float(iterations);
-
 
 	const int numPoints = dots.size();
 
@@ -534,10 +546,31 @@ void imagePoints::cullDots(MDataBlock &data, std::vector<dotData> &dots)
 
 
 
+void imagePoints::sortDots(
+	MDataBlock &data, std::vector<dotData> &dots, const MMatrix &worldMatrix)
+{
+	float3 &fpoint = data.inputValue(aSortVector).asFloat3();
+	MVector sortVector(fpoint[0],fpoint[1],fpoint[2]);
+
+	if (sortVector.isEquivalent(MVector::zero)) 
+	{
+		return;
+	}
+
+	std::vector<dotData>::iterator iter;
+	for (iter = dots.begin(); iter != dots.end(); iter++)
+	{
+		iter->setSortParam(worldMatrix, sortVector);
+	}
+	std::sort(dots.begin(), dots.end());
+}
+
+
 MStatus imagePoints::compute(const MPlug &plug, MDataBlock &data )
 {
 	MStatus st;
 	if (! (
+		  plug == aOutPointsWorld ||
 	      plug == aOutPoints ||
 	      plug == aOutRadius ||
 	      plug == aOutU ||
@@ -547,14 +580,20 @@ MStatus imagePoints::compute(const MPlug &plug, MDataBlock &data )
 	}
 
 
+	MDataHandle mh = data.inputValue(aInMatrix, &st);
+	mser;
+	MMatrix wm = mh.asMatrix();
+ 
 	std::vector<dotData> dots;
 	makeDots(data, dots);
 	relaxDots(data, dots);
 	cullDots(data, dots);
+	sortDots(data, dots, wm);
 
 
 
 	MVectorArray resultPoints;
+	MVectorArray resultPointsWorld;
 	MDoubleArray resultRadii;
 	MDoubleArray resultU;
 	MDoubleArray resultV;
@@ -563,12 +602,14 @@ MStatus imagePoints::compute(const MPlug &plug, MDataBlock &data )
 	for (citer = dots.begin(); citer != dots.end(); citer++)
 	{
 		resultPoints.append(citer->asVector());
+		resultPointsWorld.append(citer->transformed(wm) );
 		resultRadii.append(citer->radius());
 		resultU.append(citer->u());
 		resultV.append(citer->v());
 	}
 
 	st = outputData(imagePoints::aOutPoints, data, resultPoints ); mser;
+	st = outputData(imagePoints::aOutPointsWorld, data, resultPointsWorld ); mser;
 	st = outputData(imagePoints::aOutRadius, data, resultRadii ); mser;
 	st = outputData(imagePoints::aOutU, data, resultU ); mser;
 	st = outputData(imagePoints::aOutV, data, resultV ); mser;
@@ -583,149 +624,6 @@ void imagePoints::draw( M3dView &view,
                              M3dView::DisplayStyle style,
                              M3dView:: DisplayStatus status  )
 {
-
-
-	// MStatus st;
-
-	// MObject thisObj = thisMObject();
-
-
-	// bool displayPoints, displayCircles;
-	// MPlug(thisObj, aDisplayPoints).getValue(displayPoints);
-	// MPlug(thisObj, aDisplayCircles).getValue(displayCircles);
-
-
-	// double lineThickness;
-	// MPlug(thisObj, aLineThickness).getValue(lineThickness);
-
-	// double circleDisplaySize;
-	// MPlug(thisObj, aCircleDisplaySize).getValue(circleDisplaySize);
-
-
-
-	// double pointSize;
-	// MPlug(thisObj, aPointSize).getValue(pointSize);
-
-
-	// MPlug pointsPlug( thisObj, aOutPoints );
-	// MObject dPoints;
-	// st = pointsPlug.getValue(dPoints); mser;
-	// MFnVectorArrayData fnPoints(dPoints);
-	// MVectorArray points = fnPoints.array();
-
-	// MPlug radiusPlug( thisObj, aOutRadius );
-	// MObject dRadius;
-	// st = radiusPlug.getValue(dRadius); mser;
-	// MFnDoubleArrayData fnRadius(dRadius);
-	// MDoubleArray radii = fnRadius.array();
-
-
-	// MPlug matrixPlug( thisObj, aProjectionMatrix );
-	// MObject dmat;
-	// st = matrixPlug.getValue(dmat); mser;
-	// MFnMatrixData fnMatrix(dmat);
-	// // const MMatrix mat =  fnMatrix.matrix();
-	// float dest[4][4];
-	// fnMatrix.matrix().get(dest);
-	// const MFloatMatrix imat = MFloatMatrix(dest).inverse();
-
-
-
-	// MPlug colorPlug(thisObj, aColor);
-
-
-	// float colorr , colorg , colorb;
-	// colorPlug.child(0).getValue(colorr);
-	// colorPlug.child(1).getValue(colorg);
-	// colorPlug.child(2).getValue(colorb);
-
-
-
-	// view.beginGL();
-
-	// unsigned len = points.length();
-
-	// if (displayPoints) {
-	// 	glPushAttrib(GL_CURRENT_BIT);
-	// 	glColor4f(colorr , colorg , colorb, 1.0f);
-
-	// 	glPointSize(float(pointSize));
-	// 	glBegin( GL_POINTS );
-
-	// 	for (int i = 0; i < len; ++i)
-	// 	{
-	// 		MFloatPoint inverted = MFloatPoint(points[i]) * imat;
-	// 		glVertex3f( inverted.x, inverted.y, inverted.z);
-	// 	}
-	// 	glEnd();
-	// 	glPopAttrib();
-	// }
-
-
-
-
-	// glPushAttrib(GL_CURRENT_BIT);
-	// glPushAttrib(GL_LINE_BIT);
-	// glLineWidth(GLfloat(lineThickness));
-	// glBegin(GL_LINES);
-	// glVertex3f( -1.0f , 1.0f , 0.0f );
-	// glVertex3f( 1.0f , 1.0f , 0.0f );
-
-	// glVertex3f( 1.0f , 1.0f , 0.0f );
-	// glVertex3f( 1.0f , -1.0f , 0.0f );
-
-	// glVertex3f( 1.0f , -1.0f , 0.0f );
-	// glVertex3f( -1.0f , -1.0f , 0.0f );
-
-	// glVertex3f( -1.0f , -1.0f , 0.0f );
-	// glVertex3f( -1.0f , 1.0f , 0.0f );
-	// glEnd();
-	// glPopAttrib();
-	// glPopAttrib();
-
-
-	// if (displayCircles) {
-
-
-	// 	MFloatPointArray cScaled(circleVertexCount);
-	// 	for (int j = 0; j < circleVertexCount; ++j) {
-	// 		cScaled[j] = MPoint(circle[j]) * circleDisplaySize;
-	// 	}
-
-
-	// 	glPushAttrib(GL_CURRENT_BIT);
-
-	// 	glColor4f(colorr , colorg , colorb, 1.0f);
-
-	// 	glPushAttrib(GL_LINE_BIT);
-	// 	glLineWidth(GLfloat(lineThickness));
-	// 	glBegin(GL_LINES);
-
-	// 	for (int i = 0; i < len; ++i)
-	// 	{
-	// 		MFloatPointArray c(circleVertexCount);
-	// 		for (int j = 0; j < circleVertexCount; ++j) {
-	// 			c[j] = ((cScaled[j] * radii[i]) + MFloatPoint(points[i])) * imat;
-	// 		}
-	// 		for (int j = 0; j < circleVertexCount; ++j)
-	// 		{
-	// 			int next = (j + 1) % circleVertexCount;
-	// 			glVertex3f( float(c[j].x) , float(c[j].y) , float(c[j].z) );
-	// 			glVertex3f( float(c[next].x) , float(c[next].y) , float(c[next].z) );
-	// 		}
-	// 	}
-	// 	glEnd();
-	// 	glPopAttrib();
-	// 	glPopAttrib();
-
-	// }
-
-
-
-	// view.endGL();
-
- 
-
 }
 
 

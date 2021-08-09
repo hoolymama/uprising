@@ -2,7 +2,6 @@
 #ifndef _dotData
 #define _dotData
 
-
 #include <vector>
 #include <map>
 
@@ -15,17 +14,16 @@
 
 typedef mayaMath::axis axis;
 
-class dotData {
+class dotData
+{
 public:
-
 	// dotData(const JPoint2D &c, float r, int id);
 	// dotData();
 
 	// dotData(const JPoint2D &c, float r, int id);
 
-
 	dotData(float u, float v, float density,
-	        float radius, int id);
+			float radius, int id);
 	dotData(const dotData &rhs);
 
 	// sets the UVs based on points in 0->1
@@ -33,13 +31,11 @@ public:
 
 	~dotData();
 
-
 	// void setUV(u, v);
 	// void setPosition(const MFloatMatrix &projection);
 	// void setRadius(float r);
 	// void setDensity(float val);
 	// void setAux(float val);
-
 
 	void setId(int id);
 	// bool isInProjection(const MFloatMatrix &projectionInverse) const;
@@ -47,21 +43,23 @@ public:
 	const JPoint2D &position() const;
 	const float &position(axis a) const;
 	const float &radius() const;
-	const float &min(axis a)  const;
-	const float &max(axis a)  const;
+	const float &min(axis a) const;
+	const float &max(axis a) const;
 
-	const float &u()  const;
-	const float &v()  const;
+	const float &u() const;
+	const float &v() const;
 
 	MVector asVector() const;
+	MVector transformed(const MMatrix &mat) const;
 
 	bool contains(const dotData *other) const;
 
 	void applyForce(const JVector2D &force);
-
-
+	
+	void setSortParam(const MMatrix &worldMatrix, const MVector&direction);
+	const float & sortParam() const; 
 	const int &id() const;
-
+	friend bool operator<(const dotData &a, const dotData &b);
 
 private:
 	JPoint2D m_p;
@@ -72,12 +70,10 @@ private:
 	float m_u;
 	float m_v;
 	int m_id;
-
-
+	float m_sortParam;
 };
 
 typedef std::vector<dotData *> PT_LIST;
 // typedef std::map<const dotData *, const dotData *> PT_MAP;
 
 #endif
-

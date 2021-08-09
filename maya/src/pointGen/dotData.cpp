@@ -12,7 +12,8 @@ dotData::dotData(float u, float v, float density,
 	m_v(v),
 	m_density(density),
 	m_radius(radius),
-	m_id(id)
+	m_id(id),
+	m_sortParam()
 
 {
 
@@ -78,6 +79,10 @@ MVector dotData::asVector() const
 	return MVector(m_p.x, m_p.y, 0.0);
 }
 
+MVector dotData::transformed(const MMatrix &mat) const {
+	return MVector(  MPoint(m_p.x, m_p.y, 0.0) * mat  );
+}
+
 const JPoint2D &dotData::position() const {
 	return m_p;
 }
@@ -105,7 +110,37 @@ const float &dotData::max(axis a)  const {
 
 const int &dotData::id() const {return m_id;}
 
+
+void dotData::setSortParam(const MMatrix &worldMatrix, const MVector&direction) {
+	MVector wsv = this->transformed(worldMatrix);
+	m_sortParam = float(wsv * direction);
+	// cerr << "wsv: " << wsv << " -- direction: " << direction << " -- m_sortParam:" << m_sortParam <<   endl;
+}
+
+const float & dotData::sortParam() const {
+	return m_sortParam;
+}
+
 bool dotData::contains(const dotData *other) const {
 	float sqdist = (other->position() - m_p).sqlength();
 	return (sqdist < (m_radius * m_radius));
+}
+
+
+bool operator<(const dotData &a, const dotData &b)
+{
+ 
+	if (a.sortParam() < b.sortParam()) {
+		return true;
+	}
+	if (a.sortParam() > b.sortParam()) {
+		return false;
+	}
+	/*
+	If we get this far, then sortParam is the same.
+	However we must conform to strict weak ordering,
+	so use the order of creation (id).
+	*/
+	 
+	return a.id() < b.id();
 }
