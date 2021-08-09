@@ -240,13 +240,13 @@ unsigned int paintStrokeCreator::getStrokeBoundaries(
         overlap = 0.0f;
     }
 
-    int counter = 0;
+    // int counter = 0;
     do
     {
-        if (counter++ > 10)
-        {
-            break;
-        }
+        // if (counter++ > 10)
+        // {
+        //     break;
+        // }
         MFloatVector boundary;
         bool done = getBoundary(
             dCurve,
@@ -302,6 +302,7 @@ bool paintStrokeCreator::getBoundary(
     {
         return done;
     }
+
 
     float endDist = startDist + extendEntry + strokeLength + extendExit;
 

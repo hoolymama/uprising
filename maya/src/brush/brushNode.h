@@ -94,9 +94,7 @@ namespace brushNodeCallback
     if (stat != MS::kSuccess)
     {
       stat.perror("brushNode ERROR :: callback unable to make matrix connections");
-    } else {
-      cerr << "Connected brushNode worldMatrix to inMatrix" << endl;
-    }
+    } 
   }
 } // namespace brushNodeCallback
 

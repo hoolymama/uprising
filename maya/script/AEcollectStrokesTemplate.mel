@@ -13,6 +13,5 @@ global proc AEcollectStrokesTemplate ( string $nodeName )
 
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;
-	editorTemplate -suppress "strokes";
 	
 }

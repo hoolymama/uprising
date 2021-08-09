@@ -206,8 +206,6 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
 
      }
 
-    cerr << "start:"<< start<<" - end:"<< end<<endl;
-
     for (unsigned i = start; i < end; i++)
     {
         hInputData.jumpToArrayElement(i);
@@ -588,7 +586,6 @@ Stroke skeletonStrokeNode::createReverseStroke(
 
     float brushWidth = fmax(brush.width(), 0.01);
 
-    // MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
     const MFloatMatrix &brushMatrix = brush.matrix();
 
     float forwardBias0 = 0.0;
@@ -609,7 +606,6 @@ Stroke skeletonStrokeNode::createReverseStroke(
     double exitDistance = curveFn.findLengthFromParam(curveParams[0]);
     double totalLength = entryDistance - exitDistance;
 
-    // cerr << "entryDistance - exitDistance = totalLength" <<  entryDistance << "-" << exitDistance <<"="<< totalLength << endl;
 
     entryTransitionLength = fmax(entryTransitionLength, 0.0);
     exitTransitionLength = fmax(exitTransitionLength, 0.0);
@@ -626,12 +622,7 @@ Stroke skeletonStrokeNode::createReverseStroke(
     double entryTransitionDistance = entryDistance - entryTransitionLength;
     double exitTransitionDistance = exitDistance + exitTransitionLength;
 
-    // cerr << "entryTransitionDistance, exitTransitionDistance" <<  entryTransitionDistance << "," << exitTransitionDistance << endl;
 
-    // cerr << "len = " << len << endl;
-
-    // JPMDBG;
-    // for (int i = (len-1); i >= 0 ; i--)
     for (unsigned j = 0; j < len; j++)
     {
         // JPMDBG;

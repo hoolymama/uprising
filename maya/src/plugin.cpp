@@ -44,14 +44,14 @@
 #include "skGraphNode.h"
 #include "imagePoints.h"
 
-
 #include "paintingDrawOverride.h"
 #include "lightPaintingDrawOverride.h"
 #include "skGraphNodeDrawOverride.h"
 #include "imagePointsDrawOverride.h"
 
-#include "gateRamp.h"
+#include "cImgGradField.h"
 
+#include "gateRamp.h"
 
 MStatus initializePlugin(MObject obj)
 {
@@ -75,12 +75,13 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerData("strokeData", strokeData::id,
 							 strokeData::creator);
 	mser;
-	
+
 	st = plugin.registerData("paintingData", paintingData::id,
 							 paintingData::creator);
 
-
-
+	st = plugin.registerNode("cImgGradField", cImgGradField::id,
+							 cImgGradField::creator, cImgGradField::initialize, MPxNode::kFieldNode);
+	mser;
 	st = plugin.registerNode("paintingBase", paintingBase::id, paintingBase::creator,
 							 paintingBase::initialize, MPxNode::kLocatorNode);
 	msert;
@@ -97,8 +98,8 @@ MStatus initializePlugin(MObject obj)
 	mser;
 
 	paintingBaseCallback::id = MDGMessage::addNodeAddedCallback(
-		paintingBaseCallback::makeDefaultConnections, "painting", NULL, &st);mser;
-
+		paintingBaseCallback::makeDefaultConnections, "painting", NULL, &st);
+	mser;
 
 	st = plugin.registerData("lightPaintingData", lightPaintingData::id,
 							 lightPaintingData::creator);
@@ -116,7 +117,8 @@ MStatus initializePlugin(MObject obj)
 	mser;
 
 	paintingBaseCallback::id = MDGMessage::addNodeAddedCallback(
-		paintingBaseCallback::makeDefaultConnections, "lightPainting", NULL, &st);mser;
+		paintingBaseCallback::makeDefaultConnections, "lightPainting", NULL, &st);
+	mser;
 
 	st = plugin.registerNode("skGraph", skGraphNode::id, skGraphNode::creator,
 							 skGraphNode::initialize, MPxNode::kLocatorNode,
@@ -137,7 +139,8 @@ MStatus initializePlugin(MObject obj)
 							 brushNode::initialize, MPxNode::kLocatorNode);
 	msert;
 	brushNodeCallback::id = MDGMessage::addNodeAddedCallback(
-		brushNodeCallback::makeDefaultConnections, "brushNode", NULL, &st);mser;
+		brushNodeCallback::makeDefaultConnections, "brushNode", NULL, &st);
+	mser;
 
 	st = plugin.registerNode("strokeNodeBase", strokeNodeBase::id, strokeNodeBase::creator,
 							 strokeNodeBase::initialize);
@@ -155,7 +158,6 @@ MStatus initializePlugin(MObject obj)
 							 paintStrokeCreator::initialize);
 	mser;
 
-
 	st = plugin.registerNode("meshStroke", meshStrokeNode::id,
 							 meshStrokeNode::creator,
 							 meshStrokeNode::initialize);
@@ -169,7 +171,6 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("curveStroke", curveStrokeNode::id, curveStrokeNode::creator,
 							 curveStrokeNode::initialize);
 	msert;
-
 
 	st = plugin.registerNode("strokeMutator", strokeMutator::id, strokeMutator::creator,
 							 strokeMutator::initialize);
@@ -187,35 +188,27 @@ MStatus initializePlugin(MObject obj)
 							 tiltStrokes::initialize);
 	mser;
 
-
 	st = plugin.registerNode("displaceStrokes", displaceStrokes::id, displaceStrokes::creator,
 							 displaceStrokes::initialize);
 	mser;
-
 
 	st = plugin.registerNode("brushLifter", brushLifter::id, brushLifter::creator,
 							 brushLifter::initialize);
 	mser;
 
-
 	st = plugin.registerNode("gateRamp", gateRamp::id, gateRamp::creator,
 							 gateRamp::initialize);
 	msert;
 
-
-
 	st = plugin.registerNode("imagePoints", imagePoints::id, imagePoints::creator,
 							 imagePoints::initialize, MPxNode::kLocatorNode,
 							 &imagePoints::drawDbClassification);
-
- 
 
 	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
 		imagePoints::drawDbClassification,
 		imagePoints::drawRegistrantId,
 		imagePointsDrawOverride::Creator);
 	mser;
-
 
 	st = plugin.registerCommand("lightPaintingQuery", lightPaintingCmd::creator,
 								lightPaintingCmd::newSyntax);
@@ -229,12 +222,9 @@ MStatus initializePlugin(MObject obj)
 								strokeCmd::newSyntax);
 	mser;
 
-
 	st = plugin.registerCommand("brushQuery", brushCmd::creator,
 								brushCmd::newSyntax);
 	mser;
-
-
 
 	return st;
 }
@@ -250,7 +240,7 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterCommand("brushCmd");
 	mser;
 
-		st = plugin.deregisterCommand("strokeCmd");
+	st = plugin.deregisterCommand("strokeCmd");
 	mser;
 
 	st = plugin.deregisterCommand("paintingCmd");
@@ -263,18 +253,16 @@ MStatus uninitializePlugin(MObject obj)
 		imagePoints::drawDbClassification,
 		imagePoints::drawRegistrantId);
 	mser;
- 
-	st = plugin.deregisterNode( imagePoints::id ); mser;
 
+	st = plugin.deregisterNode(imagePoints::id);
+	mser;
 
 	st = plugin.deregisterNode(gateRamp::id);
 	mser;
-	
-
 
 	st = plugin.deregisterNode(brushLifter::id);
 	mser;
-	
+
 	st = plugin.deregisterNode(displaceStrokes::id);
 	mser;
 
@@ -283,14 +271,14 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterNode(aimStrokes::id);
 	mser;
-	
+
 	st = plugin.deregisterNode(mapColorStrokes::id);
 	mser;
 
 	st = plugin.deregisterNode(strokeMutator::id);
 
 	msert;
-	
+
 	st = plugin.deregisterNode(curveStrokeNode::id);
 	mser;
 
@@ -302,7 +290,6 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterNode(paintStrokeCreator::id);
 	mser;
-
 
 	st = plugin.deregisterNode(strokeCreator::id);
 	mser;
@@ -337,7 +324,7 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterData(lightPaintingData::id);
 	mser;
-	
+
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
 		painting::drawDbClassification,
 		painting::drawRegistrantId);
@@ -348,8 +335,8 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(paintingBase::id);
 	mser;
 
-
-
+	st = plugin.deregisterNode(cImgGradField::id);
+	mser;
 
 	st = plugin.deregisterData(paintingData::id);
 	mser;
