@@ -147,17 +147,22 @@ MStatus gateRamp::compute (const MPlug &plug, MDataBlock &data)
 		sampleVals.append(gap * i);
 	}
 	sampleVals.append(1.0);
-	// now have num+1 samples
 
 
 	MFloatArray out;
-	doRampLookup(thisMObject(), aRamp, sampleVals, out, 0.0, 1.0, rangeMin, rangeMax);
-
+	doRampLookup(
+		thisMObject(), 
+		aRamp, 
+		sampleVals, 
+		out, 
+		0.0, 
+		1.0, 
+		rangeMin, 
+		rangeMax);
 
 	////////////////////////////////////////////////////////////////////
 	MArrayDataHandle     hOutput = data.outputArrayValue( aOutput, &st ); mser;
 	MArrayDataBuilder    bOutput = hOutput.builder();
-
 
 	for  ( unsigned i = 0; i < num; i++) {
 		MDataHandle hOut = bOutput.addElement(i);
@@ -165,8 +170,9 @@ MStatus gateRamp::compute (const MPlug &plug, MDataBlock &data)
 		outval[0] = out[i] - padding;
 		outval[1] = out[(i + 1)] + padding;
 	}
-
+	hOutput.set(bOutput);
 	hOutput.setAllClean();
 
 	return MS::kSuccess;
 }
+ 
