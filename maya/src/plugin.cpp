@@ -97,9 +97,9 @@ MStatus initializePlugin(MObject obj)
 		paintingDrawOverride::Creator);
 	mser;
 
-	paintingBaseCallback::id = MDGMessage::addNodeAddedCallback(
-		paintingBaseCallback::makeDefaultConnections, "painting", NULL, &st);
-	mser;
+	// paintingBaseCallback::id = MDGMessage::addNodeAddedCallback(
+	// 	paintingBaseCallback::makeDefaultConnections, "painting", NULL, &st);
+	// mser;
 
 	st = plugin.registerData("lightPaintingData", lightPaintingData::id,
 							 lightPaintingData::creator);
@@ -116,9 +116,9 @@ MStatus initializePlugin(MObject obj)
 		lightPaintingDrawOverride::Creator);
 	mser;
 
-	paintingBaseCallback::id = MDGMessage::addNodeAddedCallback(
-		paintingBaseCallback::makeDefaultConnections, "lightPainting", NULL, &st);
-	mser;
+	// paintingBaseCallback::id = MDGMessage::addNodeAddedCallback(
+	// 	paintingBaseCallback::makeDefaultConnections, "lightPainting", NULL, &st);
+	// mser;
 
 	st = plugin.registerNode("skGraph", skGraphNode::id, skGraphNode::creator,
 							 skGraphNode::initialize, MPxNode::kLocatorNode,
@@ -138,9 +138,9 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("brushNode", brushNode::id, brushNode::creator,
 							 brushNode::initialize, MPxNode::kLocatorNode);
 	msert;
-	brushNodeCallback::id = MDGMessage::addNodeAddedCallback(
-		brushNodeCallback::makeDefaultConnections, "brushNode", NULL, &st);
-	mser;
+	// brushNodeCallback::id = MDGMessage::addNodeAddedCallback(
+	// 	brushNodeCallback::makeDefaultConnections, "brushNode", NULL, &st);
+	// mser;
 
 	st = plugin.registerNode("strokeNodeBase", strokeNodeBase::id, strokeNodeBase::creator,
 							 strokeNodeBase::initialize);

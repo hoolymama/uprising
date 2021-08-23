@@ -50,6 +50,7 @@
 
 #include "brushData.h"
 #include "brushNode.h"
+#include "nodeUtils.h"
 
 const double rad_to_deg = (180 / 3.1415927);
 
@@ -306,7 +307,7 @@ MStatus brushNode::initialize()
   attributeAffects(aForwardBias, aOutPaintBrush);
   attributeAffects(aGravityBias, aOutPaintBrush);
 
-  attributeAffects(aInMatrix, aOutPaintBrush);
+  // attributeAffects(aInMatrix, aOutPaintBrush);
 
   
 
@@ -323,7 +324,7 @@ MStatus brushNode::initialize()
   attributeAffects(aTransHeightParam, aOutDipBrush);
   attributeAffects(aContactPower, aOutDipBrush);
 
-  attributeAffects(aInMatrix, aOutDipBrush);
+  // attributeAffects(aInMatrix, aOutDipBrush);
 
 
   attributeAffects(aPhysicalId, aOutWipeBrush);
@@ -338,7 +339,7 @@ MStatus brushNode::initialize()
   attributeAffects(aTransHeightParam, aOutWipeBrush);
   attributeAffects(aContactPower, aOutWipeBrush);
   // attributeAffects(aCustomId, aOutWipeBrush);
-  attributeAffects(aInMatrix, aOutWipeBrush);
+  // attributeAffects(aInMatrix, aOutWipeBrush);
 
   return (MS::kSuccess);
 }
@@ -398,7 +399,7 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
   float gravityBias0 = gravityBias[0];
   float gravityBias1 = gravityBias[1];
 
-  MFloatMatrix fmat =  MFloatMatrix(data.inputValue(aInMatrix).asMatrix().matrix);
+  MFloatMatrix fmat =  MFloatMatrix(NodeUtils::firstWorldMatrix(thisMObject()).matrix);
 
   Brush paintingBrush(fmat,
                       physicalId,
@@ -487,52 +488,3 @@ void brushNode::postConstructor()
   setExistWithoutInConnections(true);
   setExistWithoutOutConnections(true);
 }
-
-  // MStatus st;
-  // MObject thisObj = thisMObject();
-  // float lineThickness;
-  // MPlug(thisObj, aLineThickness).getValue(lineThickness);
-  // float lineLength;
-  // MPlug(thisObj, aLineLength).getValue(lineLength);
-
-  // std::map<std::string, Brush> brushes;
-  // Brush p, d, w;
-  // st = getBrush(brushNode::aOutPaintBrush, p);
-  // mser;
-  // st = getBrush(brushNode::aOutDipBrush, d);
-  // mser;
-  // st = getBrush(brushNode::aOutWipeBrush, w);
-  // mser;
-  // brushes["paint"] = p;
-  // brushes["dip"] = d;
-  // brushes["wipe"] = w;
-
-  // glPushAttrib(GL_CURRENT_BIT);
-  // glPushAttrib(GL_LINE_BIT);
-  // glLineWidth(GLfloat(lineThickness));
-  // glBegin(GL_LINES);
-  // for (std::map<std::string, Brush>::const_iterator iter = brushes.begin();
-  //      iter != brushes.end(); iter++)
-  // {
-  //   MFloatMatrix tcp = iter->second.tcp();
-
-  //   MFloatPoint start = MFloatPoint::origin * tcp;
-  //   MFloatPoint x = MFloatPoint(1.0, 0.0, 0.0) * tcp;
-  //   MFloatPoint y = MFloatPoint(0.0, 1.0, 0.0) * tcp;
-  //   MFloatPoint z = MFloatPoint(0.0, 0.0, 1.0) * tcp;
-
-  //   glColor3f(1.0f, 0.0f, 0.0f);
-  //   glVertex3f(start.x, start.y, start.z);
-  //   glVertex3f(x.x, x.y, x.z);
-
-  //   glColor3f(0.0f, 1.0f, 0.0f);
-  //   glVertex3f(start.x, start.y, start.z);
-  //   glVertex3f(y.x, y.y, y.z);
-
-  //   glColor3f(0.0f, 0.0f, 1.0f);
-  //   glVertex3f(start.x, start.y, start.z);
-  //   glVertex3f(z.x, z.y, z.z);
-  // }
-  // glEnd();
-  // glPopAttrib();
-  // glPopAttrib();

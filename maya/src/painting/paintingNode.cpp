@@ -13,6 +13,7 @@
 #include <jMayaIds.h>
 #include "errorMacros.h"
 #include "brushData.h"
+#include "nodeUtils.h"
 
 
 MTypeId painting::id(k_painting);
@@ -248,7 +249,6 @@ MStatus painting::initialize()
 
 
   st = attributeAffects(aStrokes, aOutput);
-  st = attributeAffects(aInMatrix, aOutput);
   st = attributeAffects(aCanvasMatrix, aOutput);
   st = attributeAffects(aLinearSpeed, aOutput);
   st = attributeAffects(aAngularSpeed, aOutput);
@@ -306,9 +306,7 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
     return (MS::kUnknownParameter);
   }
 
-  MDataHandle mh = data.inputValue(aInMatrix, &st);
-  mser;
-  MMatrix wm = mh.asMatrix();
+  MMatrix wm = NodeUtils::firstWorldMatrix(thisMObject());
 
   float ptpThresh = data.inputValue(aMaxPointToPointDistance).asFloat();
 

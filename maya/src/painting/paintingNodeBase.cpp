@@ -26,7 +26,7 @@ void *paintingBase::creator()
   return new paintingBase();
 }
 
-MObject paintingBase::aInMatrix;
+// MObject paintingBase::aInMatrix;
 
 MObject paintingBase::aStrokes;
 MObject paintingBase::aLinearSpeed;           // cm/sec
@@ -65,11 +65,11 @@ MStatus paintingBase::initialize()
   MMatrix identity;
   identity.setToIdentity();
 
-  aInMatrix = mAttr.create("inMatrix", "imat", MFnMatrixAttribute::kDouble);
-  mAttr.setStorable(false);
-  mAttr.setHidden(true);
-  mAttr.setDefault(identity);
-  addAttribute(aInMatrix);
+  // aInMatrix = mAttr.create("inMatrix", "imat", MFnMatrixAttribute::kDouble);
+  // mAttr.setStorable(false);
+  // mAttr.setHidden(true);
+  // mAttr.setDefault(identity);
+  // addAttribute(aInMatrix);
 
   // aViewMatrix= mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
   // mAttr.setStorable(false);
