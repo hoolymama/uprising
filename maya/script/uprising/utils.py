@@ -242,3 +242,9 @@ def show_in_window(data, **kw):
     pm.scrollField(text=result_json, editable=False, wordWrap=False)
     pm.showWindow()
 
+def toggle_skel_node_state(key):
+    nodes = pm.ls("skeletonStroke_{}_*".format(key))
+    newstate = 0 if nodes[0].attr("nodeState").get() else 1
+    for n in nodes:
+        n.attr("nodeState").set(newstate)
+
