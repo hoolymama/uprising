@@ -18,6 +18,13 @@ class BoardCalibrationProgram(CalibrationProgram):
         super(BoardCalibrationProgram, self).__init__(name)
         self.packs = self.get_packs()
 
+        # Make sure the board locs are at their original (uncompensated) calibration.
+        pm.PyNode("board_TL").attr("t").set(pm.PyNode("board_TL").attr("originalTranslate").get())
+        pm.PyNode("board_TR").attr("t").set(pm.PyNode("board_TR").attr("originalTranslate").get())
+        pm.PyNode("board_BL").attr("t").set(pm.PyNode("board_BL").attr("originalTranslate").get())
+
+
+
     def send_locator_packs(self):
 
         last = None
