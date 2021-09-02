@@ -111,7 +111,7 @@ class BotProgram(Program):
                     "Program halted for {}".format(brush.node_name),
                     INSTRUCTION_COMMENT,
                 )
-                self.program.RunInstruction("HALT {:d}".format(wait), INSTRUCTION_INSERT_CODE)
+                self.program.RunInstruction("HALT", INSTRUCTION_INSERT_CODE)
 
         pick_program_name = PickProgram.generate_program_name(bid)
         if call_program:
