@@ -8,6 +8,7 @@ def create():
 
     pm.menuItem(label="Split outputs", command=pm.Callback(on_split_outputs))
     pm.menuItem(label="Reset", command=pm.Callback(on_reset))
+    pm.menuItem(label="Create SK Graph Nodes", command=pm.Callback(create_skgraphs))
 
     pm.menuItem(label="Print connection stats", command=pm.Callback(chains.on_print_stats))
 
@@ -36,3 +37,27 @@ def on_split_outputs():
 def on_reset():
     skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
     chains.reset(chains.get_chain_skel_pairs(*skels))
+
+def create_skgraphs():
+    chains = pm.ls(sl=True, type="skChainNode")
+    for chain in chains:
+        result = []
+        graphs = pm.listHistory(chain, future=True, type="skGraph")
+        suffix=str(chain).partition("_")[2]
+        if not graphs:
+            graph = pm.createNode("skGraph")
+        else:
+            graph = graphs[0]
+        chain.attr("outputs")[0] >> graph.attr("chains")
+        graph.attr("drawColor1") >> graph.attr("drawColor2")
+        graph.attr("drawColor1").set(1,0,0)
+        graph.attr("drawCircles").set(False)
+        tf = graph.getParent()
+        pm.rename(tf,"skGraph_{}".format(suffix))
+        pm.rename(graph,"skGraph_{}Shape".format(suffix))
+        if not tf.getParent():
+            pm.parent(tf, "skGraphs", r=True)
+        result.append(graph)
+        
+    pm.select(result)
+          
