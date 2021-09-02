@@ -1,0 +1,28 @@
+source "AEpaintingUtilFuncs";
+source "AEpaintingBrushes";
+source "AEsortFilterInclude";
+
+global proc AErotateTargetsTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Sine Attributes";
+
+
+	editorTemplate -addControl"axis";
+	editorTemplate -addControl"sineFrequency";
+	editorTemplate -addControl"sineAmplitude";
+	
+	editorTemplate -addControl"seed";
+	editorTemplate -addControl"randomSineOffset";
+	editorTemplate -endLayout;	
+
+
+
+ 	AEsortFilterInclude($nodeName);
+ 
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
