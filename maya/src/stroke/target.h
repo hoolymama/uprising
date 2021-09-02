@@ -150,42 +150,13 @@ public:
 
 
 private:
+
 	MFloatVector m_drawTangent; // tangent to use for drawing.
 	MFloatMatrix m_matrix;
-	// float m_param;		 // A parameter value for 1D  mapping purposes
-	// float m_arcLength; // length from start
 	float m_weight;	 // used to indicate fraction of brush tip
 	MColor m_color;	 // RGBA
-							 // double m_tilt;		 // store these when setting rotation, just in case we have to recalc
-							 // double m_bank;		 // store these when setting rotation, just in case we have to recalc
-							 // double m_twist;		 // store these when setting rotation, just in case we have to recalc
+
 };
 
 #endif
 
-
-
-	// void setRotation(
-	// 	float tilt,
-	// 	float bank,
-	// 	float twist,
-	// 	mayaMath::axis frontAxis,
-	// 	mayaMath::axis upAxis,
-	// 	bool follow=false,
-	// 	bool backstroke=false);
-
-	// void setRotation(bool follow, bool backstroke);
-
-	// void reverseParam();
-
-	// const float &param() const;
-
-	// const float &arcLength() const;
-
-	// void setUV(const MFloatMatrix &inversePlaneMatrix);
-
-	// void appendUVsTo(MFloatArray &uVals, MFloatArray &vVals) const;
-
-	// void applyGlobalTilt(const MFloatVector &gradient);
-
-	// void applyGlobalAim(const MPoint &point);
