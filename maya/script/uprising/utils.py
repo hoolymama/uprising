@@ -85,11 +85,15 @@ def zero_position(node):
 
 @contextmanager
 def prep_for_output():
+    paint_and_pot_ids = get_paint_and_pot_ids()
+    set_skel_paint_ids(paint_and_pot_ids, "pot")
+
     painting_zero_val = pm.PyNode("mainPaintingGroup").attr("zeroPosition").get()
     rack_zero_val =   pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").get()
     apply_brush_bias_val = pm.PyNode("canvasTransform").attr("applyBrushBias").get()
     brush_lifter_ns_val = pm.PyNode("brushLifter").attr("nodeState").get()
     displacer_ns_val = pm.PyNode("displacer").attr("nodeState").get()
+    
 
     pm.PyNode("mainPaintingGroup").attr("zeroPosition").set(False)
     pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").set(False)
@@ -99,11 +103,30 @@ def prep_for_output():
     try:
         yield
     finally:
+        set_skel_paint_ids(paint_and_pot_ids, "paint")
+        
         pm.PyNode("mainPaintingGroup").attr("zeroPosition").set(painting_zero_val)
         pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").set(rack_zero_val)
         pm.PyNode("canvasTransform").attr("applyBrushBias").set(apply_brush_bias_val)
         pm.PyNode("brushLifter").attr("nodeState").set(brush_lifter_ns_val)
         pm.PyNode("displacer").attr("nodeState").set(displacer_ns_val)
+
+def get_paint_and_pot_ids():
+    skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+    result = {}
+    for skel in skels:
+        paint_id = skel.attr("paintId").get()
+        try:
+            pot_id=skel.attr("overridePotId").get()
+        except pm.MayaAttributeError:
+            pot_id=paint_id
+        result[skel.name()] = (paint_id, pot_id)
+    return result
+
+def set_skel_paint_ids(paint_and_pot_ids, which):
+    index = 0 if which=="paint" else 1
+    for skel in paint_and_pot_ids:
+        pm.PyNode(skel).attr("paintId").set(paint_and_pot_ids[skel][index])
 
 
 
@@ -243,7 +266,7 @@ def show_in_window(data, **kw):
     pm.showWindow()
 
 def toggle_skel_node_state(key):
-    nodes = pm.ls("skeletonStroke_{}_*".format(key))
+    nodes = pm.ls("skeletonStroke_*{}*".format(key))
     newstate = 0 if nodes[0].attr("nodeState").get() else 1
     for n in nodes:
         n.attr("nodeState").set(newstate)
