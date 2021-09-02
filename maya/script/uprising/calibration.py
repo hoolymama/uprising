@@ -136,9 +136,23 @@ def _read_any_triangulation(content):
         vals = [uutl.numeric(x) * 0.1 for x in row[1:4]]
         print "{} - set {} {} {}".format(node, vals[0], vals[1], vals[2])
         node.attr("translate").set(*vals)
+        try:
+            pm.addAttr(node, ln='originalTranslate', type='double3', k=1)
+        except RuntimeError:
+            pass
+        node.attr("originalTranslate").set(*vals)
+
 
 
 def _read_board_calibration(content):
+    print("_read_board_calibration")
+    # First zero the mesh
+    mesh = pm.PyNode(pm.sets("probePointsSet", q=True)[0])
+    for v in mesh.vtx:
+        pos = v.getPosition(space="object")
+        pos.z = 0
+        v.setPosition(pos, space="object")
+
     data = data_matrix(content)
 
     verts = [item for sublist in pm.sets(
@@ -151,27 +165,68 @@ def _read_board_calibration(content):
         pos.z = (uutl.numeric(val) * 0.1) - 1.0
         vtx.setPosition(pos, space="object")
 
-    borders_map = {
-        6:[5,0,1],
-        7:[2],
-        8:[3,4,9],
-        13:[14],
-        18:[19],
-        23:[24,29,28],
-        22:[27],
-        21:[26,25,20],
-        16:[15],
-        11:[10]
-        }
+    # If the three corner points are not zero in z, we need to correct the triangulation.
+    tl_offset =  mesh.vtx[49].getPosition(space="object").z
+    tr_offset =  mesh.vtx[54].getPosition(space="object").z
+    bl_offset =  mesh.vtx[9].getPosition(space="object").z
 
-    node = verts[0].node()
-    for vert_id in borders_map:
-        pos = node.vtx[vert_id].getPosition(space="object")
-        z = pos.z
-        for border_id in borders_map[vert_id]:
-            pos = node.vtx[border_id].getPosition(space="object")
-            pos.z = z 
-            node.vtx[border_id].setPosition(pos, space="object")
+    # get board translate atts
+    # originalTranslate was set when the triangulation was read. 
+    # We use originalTranslate because if we run this
+    # function twice and simply use translate, it will accumulate.
+    tl_orig_att = pm.PyNode("board_TL").attr("originalTranslate")
+    tr_orig_att = pm.PyNode("board_TR").attr("originalTranslate")
+    bl_orig_att = pm.PyNode("board_BL").attr("originalTranslate")
+
+    tl_att = pm.PyNode("board_TL").attr("t")
+    tr_att = pm.PyNode("board_TR").attr("t")
+    bl_att = pm.PyNode("board_BL").attr("t")
+
+    # get their values
+    v_tl = tl_orig_att.get()
+    v_tr = tr_orig_att.get()
+    v_bl = bl_orig_att.get()
+    
+    # figure out displacement direction
+    normal = ((v_tr - v_tl) ^  (v_bl -  v_tl)).normal()
+    print("NORMAL IS", normal)
+    print("OFFSETS ARE", tl_offset, tr_offset, bl_offset)
+    
+    # offset the triangulation (compensate by pushing it back if vertex z is positive )
+    tl_att.set(v_tl +(tl_offset*normal) )
+    tr_att.set(v_tr +(tr_offset*normal) )
+    bl_att.set(v_bl +(bl_offset*normal) )
+    
+
+    print("tl_att ARE", tl_att.get())
+    print("tr_att ARE", tr_att.get())
+    print("bl_att ARE", bl_att.get())
+    
+
+
+
+
+    # borders_map = {
+    #     6:[5,0,1],
+    #     7:[2],
+    #     8:[3,4,9],
+    #     13:[14],
+    #     18:[19],
+    #     23:[24,29,28],
+    #     22:[27],
+    #     21:[26,25,20],
+    #     16:[15],
+    #     11:[10]
+    #     }
+
+    # node = verts[0].node()
+    # for vert_id in borders_map:
+    #     pos = node.vtx[vert_id].getPosition(space="object")
+    #     z = pos.z
+    #     for border_id in borders_map[vert_id]:
+    #         pos = node.vtx[border_id].getPosition(space="object")
+    #         pos.z = z 
+    #         node.vtx[border_id].setPosition(pos, space="object")
 
 def _read_pot_calibration(content):
 
