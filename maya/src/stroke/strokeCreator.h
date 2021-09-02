@@ -41,7 +41,10 @@ public:
 
 protected:
   void applyRotations(MDataBlock &data, std::vector<Stroke> *pOutStrokes) const;
+  void applyCoats( MDataBlock &data, std::vector<Stroke> *geom) const;
+ 
 
+  static MObject aCoats;
 
   static MObject aLayerId;
   static MObject aPointDensity; ///< The minimum number of targets per centimeter.

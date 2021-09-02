@@ -277,6 +277,8 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         curr_stroke->setPaintId(paintId);
         curr_stroke->setLayerId(layerId);
     }
+    
+    // applyCoats(data,pOutStrokes);
 
     return MS::kSuccess;
 }

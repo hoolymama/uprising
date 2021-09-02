@@ -301,6 +301,11 @@ void Stroke::setParentId(int parentId)
 	m_parentId = parentId;
 }
 
+void Stroke::setRepeatId(int rhs){
+	m_repeatId = rhs;
+}
+
+
 void Stroke::setLayerId(int rhs)
 {
 	m_layerId = rhs;

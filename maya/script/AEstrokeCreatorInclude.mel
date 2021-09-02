@@ -6,5 +6,7 @@ global proc AEstrokeCreatorInclude (string $nodeName)
 	editorTemplate -addControl "brushTwist";
 	editorTemplate -addControl "brushBank";
 	editorTemplate -addControl "brushRotateOrder";
+	editorTemplate -addControl "coats";
+	
  	editorTemplate -endLayout;
 }

@@ -16,6 +16,10 @@
 #include <jMayaIds.h>
 #include "errorMacros.h"
 
+
+MObject strokeCreator::aCoats;
+
+
 MObject strokeCreator::aLayerId;
 MObject strokeCreator::aPointDensity;
 MObject strokeCreator::aBrushTiltStart;
@@ -58,6 +62,20 @@ MStatus strokeCreator::initialize()
   MFnNumericAttribute nAttr;
   MFnUnitAttribute uAttr;
   MFnEnumAttribute eAttr;
+
+
+
+  aCoats = nAttr.create("coats", "cts", MFnNumericData::kInt);
+  mser;
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setWritable(true);    
+  nAttr.setDefault(1);
+  st = addAttribute(aCoats);
+  mser;
+
+
 
   aLayerId = nAttr.create("layerId", "lid", MFnNumericData::kInt);
   mser;
@@ -125,6 +143,8 @@ MStatus strokeCreator::initialize()
   eAttr.setKeyable(true);
   st = addAttribute(aBrushRotateOrder);
 
+  st = attributeAffects(aCoats, aOutput);
+
   st = attributeAffects(aLayerId, aOutput);
   st = attributeAffects(aPointDensity, aOutput);
   st = attributeAffects(aBrushRotateOrder, aOutput);
@@ -149,6 +169,41 @@ MStatus strokeCreator::generateStrokeGeometry(
 {
   return (MS::kUnknownParameter);
 }
+
+
+void strokeCreator::applyCoats(
+  MDataBlock &data,
+  std::vector<Stroke> *geom) const
+{
+  int coats =  data.inputValue(aCoats).asInt();
+
+  if (coats < 2) {
+    return;
+  }
+
+  unsigned coatLength = geom->size();
+
+  for (unsigned repeatId = 1; repeatId < coats; repeatId++)
+  {
+    
+    std::vector<Stroke>::iterator iter = geom->begin();
+    for (unsigned i = 0; i<coatLength ; iter++, i++)
+    {
+      geom->push_back(*iter);
+      geom->back().setRepeatId(repeatId);
+    }
+  }
+  
+
+  unsigned i = 0;
+  std::vector<Stroke>::iterator iter = geom->begin();
+  for (; iter != geom->end(); iter++, i++)
+  {
+    iter->setStrokeId(i);
+  }
+}
+
+
 
 void strokeCreator::applyRotations(
     MDataBlock &data,
