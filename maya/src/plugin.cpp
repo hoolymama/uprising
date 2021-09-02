@@ -52,6 +52,7 @@
 #include "cImgGradField.h"
 
 #include "gateRamp.h"
+#include "rotateTargets.h"
 
 MStatus initializePlugin(MObject obj)
 {
@@ -188,6 +189,14 @@ MStatus initializePlugin(MObject obj)
 							 tiltStrokes::initialize);
 	mser;
 
+
+	st = plugin.registerNode("rotateTargets", rotateTargets::id, rotateTargets::creator,
+							 rotateTargets::initialize);
+	mser;
+
+
+	
+
 	st = plugin.registerNode("displaceStrokes", displaceStrokes::id, displaceStrokes::creator,
 							 displaceStrokes::initialize);
 	mser;
@@ -264,6 +273,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(displaceStrokes::id);
+	mser;
+
+	st = plugin.deregisterNode(rotateTargets::id);
 	mser;
 
 	st = plugin.deregisterNode(tiltStrokes::id);
