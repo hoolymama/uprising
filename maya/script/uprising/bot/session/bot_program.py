@@ -79,6 +79,9 @@ class BotProgram(Program):
             if did_end_last_brush:
                 subprograms |= self._on_end_tool(last_cluster)
 
+            if did_change_paint or did_change_brush:
+                self._add_halts(cluster)
+
             if did_change_brush:
                 subprograms |= self._on_start_tool(cluster)
 
@@ -97,21 +100,30 @@ class BotProgram(Program):
 
         return sorted(list(subprograms))
 
+    def _add_halts(self, cluster):
+        result = set()
+        brush = cluster.brush
+        bid = brush.id
+  
+        wait = brush.initial_wait
+        if wait > 0:
+            self.program.RunInstruction(
+                "Program waiting - Brush:{} Paint:{}".format(brush.id, cluster.paint.id),
+                INSTRUCTION_COMMENT
+            )
+            self.program.RunInstruction("WAIT SEC {:d}".format(wait), INSTRUCTION_INSERT_CODE)
+        elif wait == -1:
+            self.program.RunInstruction(
+                "Program halted for Brush:{} Paint:{}".format(brush.id, cluster.paint.id),
+                INSTRUCTION_COMMENT
+            )
+            self.program.RunInstruction("HALT", INSTRUCTION_INSERT_CODE)
+
+
     def _on_start_tool(self, cluster, call_program=True):
         result = set()
         brush = cluster.brush
         bid = brush.id
-
-        if call_program:
-            wait = brush.initial_wait
-            if wait > 0:
-                self.program.RunInstruction("WAIT SEC {:d}".format(wait), INSTRUCTION_INSERT_CODE)
-            elif wait == -1:
-                self.program.RunInstruction(
-                    "Program halted for {}".format(brush.node_name),
-                    INSTRUCTION_COMMENT,
-                )
-                self.program.RunInstruction("HALT", INSTRUCTION_INSERT_CODE)
 
         pick_program_name = PickProgram.generate_program_name(bid)
         if call_program:
