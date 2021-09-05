@@ -37,7 +37,7 @@ class PublishTab(gui.FormLayout):
         self.do_components_cb = pm.checkBoxGrp(
             numberOfCheckBoxes=4,
             label="",
-            valueArray4=(1, 0, 1, 0),
+            valueArray4=(1, 1, 0, 1),
             labelArray4=("Do Retries", "Do Painting", "Dry run", "Save"),
             changeCommand=pm.Callback(self.on_ops_change)
         )
@@ -176,7 +176,7 @@ class PublishTab(gui.FormLayout):
         # chains_per_retry = pm.intFieldGrp(
         #     self.chains_per_retry, query=True, value1=True)
 
-        chain_skel_pairs = chains.get_chain_skel_pairs(node)
+        chain_skel_pairs = utils.get_chain_skel_pairs(node)
 
         chains.chunkify_skels( chain_skel_pairs, 1 )
 
@@ -191,7 +191,7 @@ class PublishTab(gui.FormLayout):
             return
         node = pm.PyNode(node)
 
-        chain_skel_pairs = chains.get_chain_skel_pairs(node)
+        chain_skel_pairs = utils.get_chain_skel_pairs(node)
         numPlugs = chain_skel_pairs[0][0].attr("outputCount").get()
 
         pm.connectControl(self.single_plug_index_if, node.attr("selector"))

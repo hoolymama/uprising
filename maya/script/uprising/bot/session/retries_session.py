@@ -51,14 +51,14 @@ class RetriesSession(Session):
         self.current_run_id = 0
         self.plug_index = None
         if selector_plug:
-            self.chain_skel_pairs = chains.get_chain_skel_pairs(selector_plug.node())
+            self.chain_skel_pairs = utils.get_chain_skel_pairs(selector_plug.node())
 
             plug_index = selector_plug.get()
             if plug_index > -1:
                 self.plug_index = plug_index
         else:
             # Get all skel pairs where the skel has normal nodestate
-            self.chain_skel_pairs = chains.get_chain_skel_pairs()
+            self.chain_skel_pairs = utils.get_chain_skel_pairs()
 
         if not len(self.chain_skel_pairs):
             pm.error("No skel nodes. Aborting!")

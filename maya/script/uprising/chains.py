@@ -2,10 +2,10 @@ from uprising import utils
 
 import pymel.core as pm
 from cioseq.sequence import Sequence
-
+from uprising import utils
 
 def chunkify_skels(chain_skel_pairs, max_chains):
-    reset(chain_skel_pairs)
+    utils.reset_skels(chain_skel_pairs)
     num = len(chain_skel_pairs)
 
     for i, (chain, skel) in enumerate(chain_skel_pairs):
@@ -22,43 +22,43 @@ def chunkify_skels(chain_skel_pairs, max_chains):
         skel.attr("selector").set(-1)
 
 
-def reset(chain_skel_pairs):
-    for chain, skel in chain_skel_pairs:
-        for dest, src in skel.attr("inputData").connections(s=True, d=False, c=True, p=True):
-            if src.index() != 0:
-                try:
-                    src // dest
-                except RuntimeError:
-                    pass
-        # remove all inactive muklti instances
-        for plug in skel.attr("inputData"):
-            if not plug.chains.isConnected():
-                pm.removeMultiInstance(plug, b=True)
+# def reset(chain_skel_pairs):
+#     for chain, skel in chain_skel_pairs:
+#         for dest, src in skel.attr("inputData").connections(s=True, d=False, c=True, p=True):
+#             if src.index() != 0:
+#                 try:
+#                     src // dest
+#                 except RuntimeError:
+#                     pass
+#         # remove all inactive muklti instances
+#         for plug in skel.attr("inputData"):
+#             if not plug.chains.isConnected():
+#                 pm.removeMultiInstance(plug, b=True)
 
-        for plug in chain.attr("outputs"):
-            if not plug.isConnected():
-                pm.removeMultiInstance(plug, b=True)
+#         for plug in chain.attr("outputs"):
+#             if not plug.isConnected():
+#                 pm.removeMultiInstance(plug, b=True)
 
-        chain.attr("maxChainsPerOutput").set(0)
-        skel.attr("inputData")[0].attr("splitAngle").set(360)
-        skel.attr("inputData")[0].attr("active").set(True)
-        skel.attr("selector").set(0)
+#         chain.attr("maxChainsPerOutput").set(0)
+#         skel.attr("inputData")[0].attr("splitAngle").set(360)
+#         skel.attr("inputData")[0].attr("active").set(True)
+#         skel.attr("selector").set(0)
 
 
-def get_chain_skel_pairs(*skels):
-    result = []
-    if not skels:
-        skels = [n for n in pm.ls(sl=True) if n.type() == "skeletonStroke"]
-    if not skels:
-        skels = [
-            n
-            for n in pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
-            if n.attr("nodeState").get() == 0
-        ]
-    for skel in skels:
-        chain = skel.attr("inputData[0].chains").connections(s=True, d=False)[0]
-        result.append((chain, skel))
-    return result
+# def get_chain_skel_pairs(*skels):
+#     result = []
+#     if not skels:
+#         skels = [n for n in pm.ls(sl=True) if n.type() == "skeletonStroke"]
+#     if not skels:
+#         skels = [
+#             n
+#             for n in pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+#             if n.attr("nodeState").get() == 0
+#         ]
+#     for skel in skels:
+#         chain = skel.attr("inputData[0].chains").connections(s=True, d=False)[0]
+#         result.append((chain, skel))
+#     return result
 
 
 def count_outputs(chain_skel_pairs):
@@ -66,7 +66,7 @@ def count_outputs(chain_skel_pairs):
 
 
 def on_print_stats():
-    chain_skel_pairs = get_chain_skel_pairs()
+    chain_skel_pairs = utils.get_chain_skel_pairs()
   
     result = []
     for chain, skel in chain_skel_pairs:

@@ -1,6 +1,6 @@
 import pymel.core as pm
 from uprising import chains
-
+from uprising import utils
 
 def create():
 
@@ -28,7 +28,7 @@ def on_split_outputs():
 
     if choice == "OK":
         max_chains = int(pm.promptDialog(query=True, text=True))
-        chain_skel_pairs = chains.get_chain_skel_pairs()
+        chain_skel_pairs = utils.get_chain_skel_pairs()
         chains.chunkify_skels(chain_skel_pairs, max_chains)
         return
     print "Operation cancelled."
@@ -36,7 +36,7 @@ def on_split_outputs():
 
 def on_reset():
     skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
-    chains.reset(chains.get_chain_skel_pairs(*skels))
+    utils.reset_skels(utils.get_chain_skel_pairs(*skels))
 
 def create_skgraphs():
     chains = pm.ls(sl=True, type="skChainNode")

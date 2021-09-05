@@ -2,7 +2,7 @@ import errno
 import json
 import os
 from contextlib import contextmanager
-
+# from uprising import chains
 import pymel.core as pm
 
 PI = 3.14159265359
@@ -85,6 +85,7 @@ def zero_position(node):
 
 @contextmanager
 def prep_for_output():
+    pm.select(cl=True)
     paint_and_pot_ids = get_paint_and_pot_ids()
     set_skel_paint_ids(paint_and_pot_ids, "pot")
 
@@ -111,13 +112,18 @@ def prep_for_output():
         pm.PyNode("brushLifter").attr("nodeState").set(brush_lifter_ns_val)
         pm.PyNode("displacer").attr("nodeState").set(displacer_ns_val)
 
+        skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+        reset_skels(get_chain_skel_pairs(*skels))
+
+
 def get_paint_and_pot_ids():
     skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
     result = {}
     for skel in skels:
         paint_id = skel.attr("paintId").get()
+        pot = pm.PyNode("holeRot_{:02d}|holeTrans|dip_loc|pot".format(paint_id))
         try:
-            pot_id=skel.attr("overridePotId").get()
+            pot_id =  pot.attr("potOverrideId").get()
         except pm.MayaAttributeError:
             pot_id=paint_id
         result[skel.name()] = (paint_id, pot_id)
@@ -271,3 +277,43 @@ def toggle_skel_node_state(key):
     for n in nodes:
         n.attr("nodeState").set(newstate)
 
+
+
+
+def reset_skels(chain_skel_pairs):
+    for chain, skel in chain_skel_pairs:
+        for dest, src in skel.attr("inputData").connections(s=True, d=False, c=True, p=True):
+            if src.index() != 0:
+                try:
+                    src // dest
+                except RuntimeError:
+                    pass
+        # remove all inactive muklti instances
+        for plug in skel.attr("inputData"):
+            if not plug.chains.isConnected():
+                pm.removeMultiInstance(plug, b=True)
+
+        for plug in chain.attr("outputs"):
+            if not plug.isConnected():
+                pm.removeMultiInstance(plug, b=True)
+
+        chain.attr("maxChainsPerOutput").set(0)
+        skel.attr("inputData")[0].attr("splitAngle").set(360)
+        skel.attr("inputData")[0].attr("active").set(True)
+        skel.attr("selector").set(0)
+
+
+def get_chain_skel_pairs(*skels):
+    result = []
+    if not skels:
+        skels = [n for n in pm.ls(sl=True) if n.type() == "skeletonStroke"]
+    if not skels:
+        skels = [
+            n
+            for n in pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+            if n.attr("nodeState").get() == 0
+        ]
+    for skel in skels:
+        chain = skel.attr("inputData[0].chains").connections(s=True, d=False)[0]
+        result.append((chain, skel))
+    return result
