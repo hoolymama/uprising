@@ -49,39 +49,42 @@ def create():
             on_print_paint_and_brush_stats,
             "csv"))
 
-    pm.menuItem(label="Connect texture", subMenu=True)
-    pm.menuItem(
-        label="to brushId",
-        command=pm.Callback(
-            on_connect_texture,
-            "brushIdTexture"))
-    pm.menuItem(
-        label="to paintId",
-        command=pm.Callback(
-            on_connect_texture,
-            "paintIdTexture"))
-    pm.menuItem(
-        label="to strokeSort",
-        command=pm.Callback(
-            on_connect_texture,
-            "strokeSortTexture"))
-    pm.menuItem(
-        label="to strokeFilter",
-        command=pm.Callback(
-            on_connect_texture,
-            "strokeFilterTexture"))
-    pm.menuItem(
-        label="to rotation",
-        command=pm.Callback(
-            on_connect_texture,
-            "rotationTexture"))
-    pm.menuItem(
-        label="to translation",
-        command=pm.Callback(
-            on_connect_texture,
-            "translationTexture"))
+    # pm.menuItem(label="Connect texture", subMenu=True)
+    # pm.menuItem(
+    #     label="to brushId",
+    #     command=pm.Callback(
+    #         on_connect_texture,
+    #         "brushIdTexture"))
+    # pm.menuItem(
+    #     label="to paintId",
+    #     command=pm.Callback(
+    #         on_connect_texture,
+    #         "paintIdTexture"))
+    # pm.menuItem(
+    #     label="to strokeSort",
+    #     command=pm.Callback(
+    #         on_connect_texture,
+    #         "strokeSortTexture"))
+    # pm.menuItem(
+    #     label="to strokeFilter",
+    #     command=pm.Callback(
+    #         on_connect_texture,
+    #         "strokeFilterTexture"))
+    # pm.menuItem(
+    #     label="to rotation",
+    #     command=pm.Callback(
+    #         on_connect_texture,
+    #         "rotationTexture"))
+    # pm.menuItem(
+    #     label="to translation",
+    #     command=pm.Callback(
+    #         on_connect_texture,
+    #         "translationTexture"))
 
-    pm.setParent("..", menu=True)
+    # pm.setParent("..", menu=True)
+    pm.menuItem(
+        label="Print Painting Flow SS",
+        command=pm.Callback(on_print_painting_flow_ss))
 
     pm.menuItem(
         label="Test light robot session",
@@ -237,3 +240,40 @@ def randomize_dips():
         x_pos = brush.wipe_bar_position
         p.attr("tx").set(x_pos)
         p.attr("ty").set(0.6)
+
+
+
+
+
+def on_print_painting_flow_ss():
+
+    ptg = pm.PyNode("mainPaintingShape")
+    num_clusters = pm.paintingQuery(ptg, cc=True)
+
+    num_continuous_strokes = -1
+    header = ["","Red","Green","Blue","","Brush id", "Paint id", "Pot id", "Stroke count"]
+    tab = "\t"
+    print tab.join(header)
+    data=[]
+    for ci in range(num_clusters):
+        num_strokes = pm.paintingQuery(ptg, ci=ci, sc=True)
+        #print "num_strokes",num_strokes
+        resason =  pm.paintingQuery(ptg, ci=ci, clusterReason=True)
+    
+        if resason == "tool":
+            brush_id = pm.paintingQuery(ptg, ci=ci, clusterBrushId=True)
+            paint_id = pm.paintingQuery(ptg, ci=ci, clusterPaintId=True)
+            pot = pm.PyNode("holeRot_{:02d}|holeTrans|dip_loc|pot".format(paint_id))
+            col = pot.attr("sfPaintColor").get()
+            pot_id =  pot.attr("potOverrideId").get()
+        
+            if num_continuous_strokes > -1:
+                data.append(str(num_continuous_strokes))
+                print tab.join(data)
+            data = [str(s) for s in ["",int(col[0]*255),int(col[1]*255),int(col[2]*255),"",brush_id, paint_id, pot_id]]
+            num_continuous_strokes = num_strokes
+        else:
+            num_continuous_strokes += num_strokes
+    data.append(str(num_continuous_strokes))
+    print tab.join(data)
+            
