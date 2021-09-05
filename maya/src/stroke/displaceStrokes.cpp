@@ -69,7 +69,6 @@ MStatus displaceStrokes::mutate(
   MStatus st;
   MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
   
-  // canvasMatrix =canvasMatrix mayaMath::rotationTranslationOnly(canvasMatrix);
   MFloatVector normal = (MFloatVector::zAxis * canvasMatrix).normal();
   MFloatMatrix canvasMatrixInv = canvasMatrix.inverse();
 
@@ -84,20 +83,18 @@ MStatus displaceStrokes::mutate(
     Stroke::target_iterator current_target = current_stroke->targets_begin();
     for (; current_target != current_stroke->targets_end(); current_target++)
     {
-      // project the point onto the canvas plane
       MFloatPoint rayOrigin =  current_target->position() * canvasMatrixInv;
       rayOrigin[2]=0.0f;
       rayOrigin *= canvasMatrix;
-      float dist = 0;
       MFloatPoint hitPoint;
 
 	    bool hit = meshFn.closestIntersection(
 			 rayOrigin, normal, 0, 0, false,
 			 MSpace::kWorld,
-			 100.0f, true, &ap, hitPoint, &dist, 0, 0, 0, 0);
+			 100.0f, true, &ap, hitPoint, 0, 0, 0, 0, 0);
       if (hit)
       {
-        current_target->offsetBy(normal*dist);
+        current_target->offsetBy(hitPoint-rayOrigin);
       }
     }
   }
