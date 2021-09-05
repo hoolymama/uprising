@@ -41,6 +41,8 @@ MObject skeletonStrokeNode::aChains;
 MObject skeletonStrokeNode::aInputData;
 MObject skeletonStrokeNode::aSelector;
 MObject skeletonStrokeNode::aGoalPoint;
+MObject skeletonStrokeNode::aAwayFromGoal;
+
 
 MTypeId skeletonStrokeNode::id(k_skeletonStrokeNode);
 
@@ -121,6 +123,14 @@ MStatus skeletonStrokeNode::initialize()
     nAttr.setKeyable(true);
     addAttribute(aGoalPoint);
 
+    aAwayFromGoal = nAttr.create("awayFromGoal", "afg", MFnNumericData::kBoolean);
+    nAttr.setHidden(false);
+    nAttr.setStorable(true);
+    nAttr.setReadable(true);
+    nAttr.setDefault(true);
+    addAttribute(aAwayFromGoal);
+
+
     attributeAffects(aActive, aOutput);
     attributeAffects(aSplitAngle, aOutput);
     attributeAffects(aChains, aOutput);
@@ -128,6 +138,8 @@ MStatus skeletonStrokeNode::initialize()
     attributeAffects(aInputData, aOutput);
     attributeAffects(aSelector, aOutput);
     attributeAffects(aGoalPoint, aOutput);
+    attributeAffects(aAwayFromGoal, aOutput);
+    
 
     return (MS::kSuccess);
 }
@@ -178,6 +190,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     goalPoint *= canvasMatrix.inverse();
     goalPoint.z = 0.0;
     goalPoint *= canvasMatrix;
+    bool awayFromGoal = data.inputValue(aAwayFromGoal).asBool();
 
     std::vector<std::pair<int, Brush> > brushes;
     st = collectBrushes(data, brushes);
@@ -252,6 +265,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 brushes,
                 canvasNormal,
                 goalPoint,
+                awayFromGoal,
                 elIndex,
                 minimumPoints,
                 followStroke,
@@ -288,6 +302,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     const std::vector<std::pair<int, Brush> > &brushes,
     const MFloatVector &canvasNormal,
     const MFloatPoint &goalPoint,
+    bool awayFromGoal,
     unsigned parentId,
     int minimumPoints,
     bool followStroke,
@@ -384,7 +399,10 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         // cerr << "GOALPOINT" << goalPoint << endl;/
         if (startPoint.distanceTo(goalPoint) < endPoint.distanceTo(goalPoint))
         {
-            doReverse = true;
+            doReverse =  true;
+        }
+        if (awayFromGoal) {
+            doReverse = !doReverse;
         }
 
         Stroke stroke;

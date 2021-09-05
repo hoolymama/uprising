@@ -11,6 +11,13 @@ global proc AEskeletonStrokeTemplate ( string $nodeName )
 	AEstrokeCreatorInclude($nodeName);
 	AEpaintStrokeCreatorInclude($nodeName);
 	
+	editorTemplate -cl 0 -beginLayout "Goal attributes";
+	editorTemplate -addControl "goalPoint";
+	editorTemplate -addControl "awayFromGoal";
+	editorTemplate -endLayout;
+
+
+
 	editorTemplate -cl 0 -beginLayout "Coil attributes";
 	editorTemplate -addControl "splitTestInterval";
 	editorTemplate -endLayout;

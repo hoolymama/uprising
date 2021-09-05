@@ -38,6 +38,7 @@ private:
         const std::vector<std::pair<int, Brush> > &brushes,
         const MFloatVector &canvasNormal,
         const MFloatPoint &goalPoint,
+        bool awayFromGoal,
         unsigned parentIndex,
         int minimumPoints,
         bool followStroke,
@@ -105,6 +106,8 @@ private:
     static MObject aSplitAngle;
     static MObject aSelector;
     static MObject aGoalPoint;
+    static MObject aAwayFromGoal;
+    
 
 };
 
