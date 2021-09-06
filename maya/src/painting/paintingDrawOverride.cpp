@@ -240,7 +240,7 @@ void paintingDrawOverride::drawShaded(
 	{
 		const Brush &brush = cdata->geom->brushFromId(cluster.brushId());
 
-		drawManager.setColor(cdata->geom->paintFromId(cluster.paintId()).color);
+		drawManager.setColor(cdata->geom->paintFromId(cluster.paintId()).color());
 
 		drawManager.setDepthPriority(5);
 

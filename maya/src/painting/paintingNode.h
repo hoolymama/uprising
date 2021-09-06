@@ -43,6 +43,9 @@ public:
 
   static MObject aOutput;
 private:
+
+
+  MStatus  getPalette(MDataBlock &data, std::map<int, Paint> &palette) const;
   MStatus collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes);
 
   MStatus addStrokes(MDataBlock &data, paintingGeom *pGeom);
@@ -56,14 +59,7 @@ private:
 
   static MObject aMaxPointToPointDistance; // cm
 
-  static MObject aPaintColorR;
-  static MObject aPaintColorG;
-  static MObject aPaintColorB;
-  static MObject aPaintColor;
-  static MObject aPaintOpacity;
-  static MObject aPaintTravel;
-  static MObject aPaintCustomId;
-  static MObject aPaints;
+  static MObject aPalette;
 
 
 

@@ -41,13 +41,18 @@
 #include "paintStrokeCreator.h"
 #include "skChainData.h"
 #include "skChainNode.h"
-#include "skGraphNode.h"
 #include "imagePoints.h"
+
+#include "skGraphNode.h"
+#include "skGraphNodeDrawOverride.h"
 
 #include "paintingDrawOverride.h"
 #include "lightPaintingDrawOverride.h"
-#include "skGraphNodeDrawOverride.h"
 #include "imagePointsDrawOverride.h"
+
+#include "paletteData.h"
+#include "paletteNode.h"
+#include "paletteDrawOverride.h"
 
 #include "cImgGradField.h"
 
@@ -72,6 +77,11 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerData("brushData", brushData::id,
 							 brushData::creator);
 	mser;
+
+	st = plugin.registerData("paletteData", paletteData::id,
+							 paletteData::creator);
+	mser;
+
 
 	st = plugin.registerData("strokeData", strokeData::id,
 							 strokeData::creator);
@@ -98,9 +108,6 @@ MStatus initializePlugin(MObject obj)
 		paintingDrawOverride::Creator);
 	mser;
 
-	// paintingBaseCallback::id = MDGMessage::addNodeAddedCallback(
-	// 	paintingBaseCallback::makeDefaultConnections, "painting", NULL, &st);
-	// mser;
 
 	st = plugin.registerData("lightPaintingData", lightPaintingData::id,
 							 lightPaintingData::creator);
@@ -117,9 +124,6 @@ MStatus initializePlugin(MObject obj)
 		lightPaintingDrawOverride::Creator);
 	mser;
 
-	// paintingBaseCallback::id = MDGMessage::addNodeAddedCallback(
-	// 	paintingBaseCallback::makeDefaultConnections, "lightPainting", NULL, &st);
-	// mser;
 
 	st = plugin.registerNode("skGraph", skGraphNode::id, skGraphNode::creator,
 							 skGraphNode::initialize, MPxNode::kLocatorNode,
@@ -131,6 +135,19 @@ MStatus initializePlugin(MObject obj)
 		skGraphNode::drawRegistrantId,
 		skGraphNodeDrawOverride::Creator);
 	mser;
+
+
+	st = plugin.registerNode("palette", paletteNode::id, paletteNode::creator,
+							 paletteNode::initialize, MPxNode::kLocatorNode,
+							 &paletteNode::drawDbClassification);
+	msert;
+
+	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+		paletteNode::drawDbClassification,
+		paletteNode::drawRegistrantId,
+		PaletteDrawOverride::Creator);
+	mser;
+
 
 	st = plugin.registerNode("skChainNode", skChainNode::id, skChainNode::creator,
 							 skChainNode::initialize);
@@ -355,6 +372,10 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterData(strokeData::id);
 	mser;
+
+	st = plugin.deregisterData(paletteData::id);
+	mser;
+
 
 	st = plugin.deregisterData(brushData::id);
 	mser;

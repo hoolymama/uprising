@@ -8,11 +8,14 @@
 
 
 #include "paintingGeom.h"
+#include "paint.h"
+
 #include "strokeData.h"
 #include "paintingNode.h"
 #include <jMayaIds.h>
 #include "errorMacros.h"
 #include "brushData.h"
+#include "paletteData.h"
 #include "nodeUtils.h"
 
 
@@ -49,14 +52,7 @@ MObject painting::aApproachDistance;
 MObject painting::aCanvasMatrix;
 MObject painting::aBrushes;
 
-MObject painting::aPaintColorR;
-MObject painting::aPaintColorG;
-MObject painting::aPaintColorB;
-MObject painting::aPaintColor;
-MObject painting::aPaintOpacity;
-MObject painting::aPaintTravel;
-MObject painting::aPaintCustomId;
-MObject painting::aPaints;
+MObject painting::aPalette;
 
 MObject painting::aDisplayApproachTargets;
 MObject painting::aDisplayClusterPath;
@@ -131,45 +127,12 @@ MStatus painting::initialize()
   tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   addAttribute(aBrushes);
 
-  aPaintColorR = nAttr.create("paintColorR", "pcr", MFnNumericData::kFloat);
-  aPaintColorG = nAttr.create("paintColorG", "pcg", MFnNumericData::kFloat);
-  aPaintColorB = nAttr.create("paintColorB", "pcb", MFnNumericData::kFloat);
-  aPaintColor = nAttr.create("paintColor", "pc", aPaintColorR, aPaintColorG,
-                             aPaintColorB);
-  nAttr.setStorable(true);
-  nAttr.setHidden(false);
-  nAttr.setWritable(true);
-  nAttr.setUsedAsColor(true);
-  addAttribute(aPaintColor);
-
-  aPaintOpacity = nAttr.create("paintOpacity", "pvis", MFnNumericData::kFloat);
-  nAttr.setHidden(false);
-  nAttr.setKeyable(true);
-  nAttr.setDefault(0.5);
-
-  aPaintTravel = nAttr.create("paintTravel", "ptvl", MFnNumericData::kFloat);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setMin(0.00);
-  nAttr.setSoftMax(20.0);
-  nAttr.setDefault(5.0);
-  addAttribute(aPaintTravel);
-
-  aPaintCustomId = nAttr.create("paintCustomId", "pcid", MFnNumericData::kShort);
-  nAttr.setHidden(false);
-  nAttr.setKeyable(true);
-  nAttr.setDefault(-1);
-
-  aPaints = cAttr.create("paints", "pts");
-  cAttr.addChild(aPaintColor);
-  cAttr.addChild(aPaintOpacity);
-  cAttr.addChild(aPaintTravel);
-  cAttr.addChild(aPaintCustomId);
-  cAttr.setArray(true);
-  cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-  cAttr.setReadable(false);
-  st = addAttribute(aPaints);
-  mser;
+  aPalette = tAttr.create("palette", "plt", paletteData::id);
+  tAttr.setReadable(false);
+  tAttr.setStorable(false);
+  tAttr.setKeyable(true);
+  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+  addAttribute(aPalette);
 
   aOutput = tAttr.create("output", "out", paintingData::id);
   tAttr.setReadable(true);
@@ -256,8 +219,10 @@ MStatus painting::initialize()
   st = attributeAffects(aMaxPointToPointDistance, aOutput);
   st = attributeAffects(aApproachDistance, aOutput);
   st = attributeAffects(aBrushes, aOutput);
-  st = attributeAffects(aPaints, aOutput);
+  st = attributeAffects(aPalette, aOutput);
   st = attributeAffects(aReassignParentId, aOutput);
+
+  
 
   return (MS::kSuccess);
 }
@@ -297,6 +262,23 @@ MStatus painting::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes
   return MS::kSuccess;
 }
 
+
+
+MStatus painting::getPalette(MDataBlock &data, std::map<int, Paint> &palette) const
+{
+  MStatus st;
+  MDataHandle h = data.inputValue(aPalette, &st);msert;
+  MObject d = h.data();
+  MFnPluginData fnP(d, &st); msert;
+  paletteData *pData = (paletteData *)fnP.data(&st);msert;
+  palette = *(pData->fGeometry);
+  if (palette.size()==0) {
+    return MS::kFailure;
+  }
+  return MS::kSuccess;
+}
+
+
 MStatus painting::compute(const MPlug &plug, MDataBlock &data)
 {
   MStatus st;
@@ -316,23 +298,18 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
   }
   // cerr << "painting::compute ptpThresh: "<< ptpThresh << endl; 
   std::map<int, Brush> brushes;
+  std::map<int, Paint> palette;
   collectBrushes(data, brushes);
-
-  MArrayDataHandle hPaints = data.inputArrayValue(aPaints, &st);
-  msert;
-  std::map<int, Paint> paints = Paint::factory(
-      hPaints,
-      painting::aPaintColor,
-      painting::aPaintOpacity,
-      painting::aPaintTravel);
+  st = getPalette(data, palette);
+  if (st.error()) {
+    palette[-1] = Paint();
+  }
 
   m_pd->create();
   paintingGeom *pGeom = m_pd->geometry();
 
   pGeom->setBrushes(brushes);
-  pGeom->setPaints(paints);
-
-  // std::vector<Stroke> strokes;
+  pGeom->setPaints(palette);
 
   addStrokes(data, pGeom);
 

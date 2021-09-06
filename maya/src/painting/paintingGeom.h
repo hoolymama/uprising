@@ -27,7 +27,7 @@ public:
 	const std::map<int, Paint> &paints() const;
 	const std::map<int, Brush> &brushes() const;
 
-	void setPaints(const std::map<int, Paint> &paints);
+	void setPaints(const std::map<int, Paint> &palette);
 
 	void setBrushes(const std::map<int, Brush> &brushes);
 
