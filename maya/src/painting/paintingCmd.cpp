@@ -8,14 +8,6 @@
 #include "paintingGeom.h"
 #include "cluster.h"
 #include "cmdUtils.h"
-//	static
-
-/*
-Command will return data from the painting output plug.
-	std::vector<cluster> m_clusters;
-	std::map<int, Paint> m_paints;
-	std::map<int, Brush> m_brushes;
-*/
 
 const MString clusterIdPresenceMsg("You must provide a cluster Id");
 const MString clusterIdRangeMsg("Cluster Id not in range");

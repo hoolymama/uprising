@@ -6,10 +6,8 @@
 #include <maya/MPxData.h>
 #include <maya/MTypeId.h>
 #include <maya/MString.h>
-// #include "paintingGeom.h"
 
 #include "brush.h"
-// #include "paint.h"
 
 
 
