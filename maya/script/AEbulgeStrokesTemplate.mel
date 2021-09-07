@@ -1,0 +1,15 @@
+global proc AEbulgeStrokesTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "General attributes";		
+	editorTemplate -addControl "mult" ;
+	AEaddRampControl("ramp");		
+	editorTemplate -endLayout;
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
+

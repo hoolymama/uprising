@@ -59,6 +59,8 @@
 #include "gateRamp.h"
 #include "rotateTargets.h"
 
+#include "bulgeStrokes.h"
+
 MStatus initializePlugin(MObject obj)
 {
 
@@ -207,6 +209,13 @@ MStatus initializePlugin(MObject obj)
 	mser;
 
 
+	st = plugin.registerNode("bulgeStrokes", bulgeStrokes::id, bulgeStrokes::creator,
+							 bulgeStrokes::initialize);
+	mser;
+
+
+
+
 	st = plugin.registerNode("rotateTargets", rotateTargets::id, rotateTargets::creator,
 							 rotateTargets::initialize);
 	mser;
@@ -293,6 +302,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(rotateTargets::id);
+	mser;
+	
+	st = plugin.deregisterNode(bulgeStrokes::id);
 	mser;
 
 	st = plugin.deregisterNode(tiltStrokes::id);

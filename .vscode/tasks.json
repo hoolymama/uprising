@@ -6,7 +6,7 @@
         {
             "label": "rake",
             "type": "shell",
-            "command": "rake",
+            "command": "clear && rake",
             "group": {
                 "kind": "build",
                 "isDefault": true
