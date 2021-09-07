@@ -196,8 +196,8 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 	std::vector<Cluster>::const_iterator iter;
 	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
 	{
-		std::pair<int, int> combo(iter->brushId(), iter->paintId());
-		;
+		int potId = this->paintFromId(iter->paintId()).pot();
+		std::pair<int, int> combo(iter->brushId(), potId);
 		combos.insert(combo);
 	}
 	for (std::set<std::pair<int, int> >::const_iterator citer = combos.begin();
@@ -207,3 +207,22 @@ void paintingGeom::dipCombinations(MIntArray &result) const
 		result.append(citer->second);
 	}
 }
+
+
+void paintingGeom::paintCombinations(MIntArray &result) const
+{
+	std::set<std::pair<int, int> > combos;
+	std::vector<Cluster>::const_iterator iter;
+	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
+	{
+		std::pair<int, int> combo(iter->brushId(), iter->paintId());
+		combos.insert(combo);
+	}
+	for (std::set<std::pair<int, int> >::const_iterator citer = combos.begin();
+		 citer != combos.end(); citer++)
+	{
+		result.append(citer->first);
+		result.append(citer->second);
+	}
+}
+

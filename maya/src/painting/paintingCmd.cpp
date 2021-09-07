@@ -33,6 +33,8 @@ MSyntax paintingCmd::newSyntax()
 
 	syn.addFlag(kClusterPaintIdFlag, kClusterPaintIdFlagL);
 
+	syn.addFlag(kClusterPotIdFlag, kClusterPotIdFlagL);
+
 	syn.addFlag(kClusterBrushIdFlag, kClusterBrushIdFlagL);
 
 	syn.addFlag(kClusterTravelCutoffFlag, kClusterTravelCutoffFlagL);
@@ -70,6 +72,11 @@ MSyntax paintingCmd::newSyntax()
 	syn.addFlag(kGlobalStrokeIndexFlag, kGlobalStrokeIndexFlagL);
  
 	syn.addFlag(kDipCombinationsFlag, kDipCombinationsFlagL);
+
+	syn.addFlag(kPaintCombinationsFlag, kPaintCombinationsFlagL);
+
+
+
 	syn.addFlag(kJsonFlag, kJsonFlagL);
 
 	syn.setObjectType(MSyntax::kSelectionList, 1, 1);
@@ -128,6 +135,11 @@ MStatus paintingCmd::doIt(const MArgList &args)
 		return handleDipCombinationsFlag(*pGeom);
 	}
 
+	if (argData.isFlagSet(kPaintCombinationsFlag))
+	{
+		return handlePaintCombinationsFlag(*pGeom);
+	}
+
 	if (argData.isFlagSet(kClusterCountFlag))
 	{
 		return handleClusterCountFlag(*pGeom);
@@ -146,6 +158,11 @@ MStatus paintingCmd::doIt(const MArgList &args)
 	if (argData.isFlagSet(kClusterPaintIdFlag))
 	{
 		return handleClusterPaintIdFlag(*pGeom, argData);
+	}
+
+	if (argData.isFlagSet(kClusterPotIdFlag))
+	{
+		return handleClusterPotIdFlag(*pGeom, argData);
 	}
 
 	if (argData.isFlagSet(kClusterBrushIdFlag))
@@ -383,6 +400,14 @@ MStatus paintingCmd::handleDipCombinationsFlag(const paintingGeom &geom)
 	return MS::kSuccess;
 }
 
+MStatus paintingCmd::handlePaintCombinationsFlag(const paintingGeom &geom)
+{
+	MIntArray result;
+	geom.paintCombinations(result);
+	setResult(result);
+	return MS::kSuccess;
+}
+
 MStatus paintingCmd::handleClusterCountFlag(const paintingGeom &geom)
 {
 
@@ -446,6 +471,21 @@ MStatus paintingCmd::handleClusterPaintIdFlag(const paintingGeom &geom,
 	setResult(geom.clusters()[clusterId].paintId());
 	return MS::kSuccess;
 }
+
+
+MStatus paintingCmd::handleClusterPotIdFlag(const paintingGeom &geom,
+											  MArgDatabase &argData)
+{
+	MStatus st;
+	int clusterId = getClusterId(geom, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	setResult(geom.paintFromId(geom.clusters()[clusterId].paintId()).pot());
+	return MS::kSuccess;
+}
+
 
 MStatus paintingCmd::handleClusterBrushIdFlag(const paintingGeom &geom,
 											  MArgDatabase &argData)

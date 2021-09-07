@@ -45,6 +45,7 @@ public:
 		float ptpThresh);
 
 	void dipCombinations(MIntArray &result) const;
+	void paintCombinations(MIntArray &result) const;
 
 	// void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
 

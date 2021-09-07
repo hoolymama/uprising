@@ -27,6 +27,10 @@
 #define kClusterPaintIdFlag "-cpi"
 #define kClusterPaintIdFlagL "-clusterPaintId"
 
+#define kClusterPotIdFlag "-cti"
+#define kClusterPotIdFlagL "-clusterPotId"
+
+
 #define kClusterBrushIdFlag "-cbi"
 #define kClusterBrushIdFlagL "-clusterBrushId"
 
@@ -85,6 +89,9 @@
 #define kDipCombinationsFlag "-dc"
 #define kDipCombinationsFlagL "-dipCombinations"
 
+#define kPaintCombinationsFlag "-pc"
+#define kPaintCombinationsFlagL "-paintCombinations"
+
 #define kJsonFlag "-js"
 #define kJsonFlagL "-json"
 
@@ -124,6 +131,8 @@ private:
 
 	MStatus handleClusterPaintIdFlag(const paintingGeom &geom, MArgDatabase &argData);
 
+	MStatus	handleClusterPotIdFlag(const paintingGeom &geom, MArgDatabase &argData);
+
 	MStatus handleClusterBrushIdFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleClusterTravelCutoffFlag(const paintingGeom &geom, MArgDatabase &argData);
@@ -161,6 +170,8 @@ private:
 	MStatus  handleGlobalStrokeIndexFlag (const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleDipCombinationsFlag(const paintingGeom &geom);
+
+	MStatus handlePaintCombinationsFlag(const paintingGeom &geom);
 
 	MStatus handleJsonFlag(const paintingGeom &geom);
 
