@@ -15,7 +15,6 @@ from uprising import (
     curves_menu,
     images_menu,
     painting_tab,
-    palette_menu,
     phex_tab,
     probes_tab,
     publish_tab,
@@ -96,9 +95,6 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.images_menu = images_menu.create()
-
-        pm.setParent(self.menuBarLayout)
-        self.palette_menu = palette_menu.create()
 
         pm.setParent(self.menuBarLayout)
         self.calibration_menu = calibration_menu.create()

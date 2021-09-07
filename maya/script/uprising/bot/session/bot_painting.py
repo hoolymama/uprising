@@ -9,7 +9,7 @@ from uprising.common.session.painting import Painting
 class BotPainting(Painting):
     def __init__(self, node):
         super(BotPainting, self).__init__(node)
-        self.paints = Paint.paints(node)
+        self.paints = Paint.paints()
         self.clusters = self._create_clusters()
         
     def _create_clusters(self):

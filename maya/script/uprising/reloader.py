@@ -70,7 +70,6 @@ from uprising import (
     maya_util,
     paint,
     painting_tab,
-    palette_menu,
     palette_utils,
     phex_tab,
     probes_tab,
@@ -83,7 +82,6 @@ from uprising import (
     robo,
     select_menu,
     sequence,
-    setup_dip,
     stats,
     stroke_factory_utils,
     tools_menu,
@@ -178,7 +176,6 @@ reload(calibration_menu)
 reload(chain_menu)
 reload(curves_menu)
 reload(images_menu)
-reload(palette_menu)
 reload(select_menu)
 reload(tools_menu)
 reload(props_menu)
@@ -192,7 +189,6 @@ reload(progress)
 reload(props)
 reload(robo)
 reload(sequence)
-reload(setup_dip)
 reload(stats)
 ####################
 

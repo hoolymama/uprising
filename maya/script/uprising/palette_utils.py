@@ -5,30 +5,6 @@ from paint import Paint
 from brush import Brush
  
 
-def dip_combinations():
-
-    painting_node = pm.PyNode("mainPaintingShape")
-    result = {}
-
-    brushes = Brush.brushes(painting_node)
-    paints = Paint.paints(painting_node)
-
-    combos = pm.paintingQuery(painting_node, dc=True)
-
-    for i in range(0, len(combos), 2):
-        brush_id = int(combos[i])
-        paint_id = int(combos[i + 1])
-        key = "p%02d_b%02d" % (paint_id, brush_id)
-
-        try:
-            b = brushes[brush_id]
-            p = paints[paint_id]
-        except KeyError:
-            raise KeyError("Bad Brush or Paint ID")
-
-        result[key] = {"brush": b, "paint": p}
-    return result
-
 
 def dip_combination_ids():
     painting_node = pm.PyNode("mainPaintingShape")
@@ -37,7 +13,7 @@ def dip_combination_ids():
     combos = pm.paintingQuery(painting_node, dc=True) or []
  
     for i in range(0, len(combos), 2):
-        result.append({"brush": int(combos[i]), "paint": int(combos[i + 1])})
+        result.append({"brush": int(combos[i]), "pot": int(combos[i + 1])})
     return result
 
 
@@ -86,15 +62,15 @@ def select_handles():
     pm.select(get_handles())
 
 
-def clean_palette():
-    painting_node = pm.PyNode("mainPaintingShape")
-    delete_paints(painting_node)
-    for painting in pm.ls(
-        "rack|holes|holeRot*|holeTrans", dag=True, leaf=True, type="painting"
-    ):
-        pm.delete(painting.getParent())
-    for pot in pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*"):
-        pot.rename("pot")
+# def clean_palette():
+#     painting_node = pm.PyNode("mainPaintingShape")
+#     delete_paints(painting_node)
+#     for painting in pm.ls(
+#         "rack|holes|holeRot*|holeTrans", dag=True, leaf=True, type="painting"
+#     ):
+#         pm.delete(painting.getParent())
+#     for pot in pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*"):
+#         pot.rename("pot")
 
 
 def delete_shaders():
@@ -102,52 +78,10 @@ def delete_shaders():
         pm.delete("sx_*")
 
 
-def delete_paints(node):
-    indices = node.attr("paints").getArrayIndices()
-    for i in indices:
-        pm.removeMultiInstance(node.attr("paints[%d]" % i), b=True)
-
-
-def set_up_rack(colors):
-    pots = pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*")
-    used_pot_cols = set_pot_colors(pots, colors)
-    used_pots = zip(*used_pot_cols)[0]
-    connect_pots(used_pots)
-
-
-def set_pot_colors(pots, colors):
-    pot_cols = zip(pots, colors)
-    delete_shaders()
-    for geo, color in pot_cols:
-        ss = pm.shadingNode("lambert", asShader=True,
-                            name=("sx_%s" % color["name"]))
-        sg = pm.sets(
-            renderable=True,
-            noSurfaceShader=True,
-            empty=True,
-            name=("sx_%s_SG" % color["name"]),
-        )
-        ss.attr("outColor") >> sg.attr("surfaceShader")
-        pm.sets(sg, edit=True, forceElement=geo)
-        geo.attr("sfPaintColor") >> ss.attr("color")
-        try:
-            geo.attr("sfPaintColor").set([color["r"], color["g"], color["b"]])
-        except RuntimeError:
-            pm.warning("Can't set tray color. Skipping")
-        try:
-            geo.attr("sfPaintCode")
-        except pm.MayaAttributeError:
-            pm.addAttr(geo, dt="string", ln="sfPaintCode")
-        code_att = geo.attr("sfPaintCode")
-        code_att.set(color["code"])
-    return pot_cols
-
-
-def connect_pots(pots):
-    painting_node = pm.PyNode("mainPaintingShape")
-    delete_paints(painting_node)
-    for i, pot in enumerate(pots):
-        connect_paint_to_node(pot, painting_node, i)
+# def delete_paints(node):
+#     indices = node.attr("paints").getArrayIndices()
+#     for i in indices:
+#         pm.removeMultiInstance(node.attr("paints[%d]" % i), b=True)
 
 
 def connect_paint_to_node(pot, node, connect_to="next_available"):

@@ -41,9 +41,9 @@ class DipWipeExerciseProgram(Program):
 
             last_brush_id = brush_id
 
-            for paint_id in [p["paint"] for p in self.combinations if p["brush"] == brush_id]:
+            for pot_id in [p["pot"] for p in self.combinations if p["brush"] == brush_id]:
                 dw_program_name = DipWipeProgram.generate_program_name(
-                    paint_id, brush_id
+                    pot_id, brush_id
                 )
                 self.program.RunInstruction(
                     dw_program_name, INSTRUCTION_CALL_PROGRAM)

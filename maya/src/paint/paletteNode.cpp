@@ -69,7 +69,7 @@ MStatus paletteNode::initialize()
   nAttr.setDefault(0);
   addAttribute(aPot);
 
-  aOpacity = nAttr.create("Opacity", "opa", MFnNumericData::kFloat);
+  aOpacity = nAttr.create("opacity", "opa", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);

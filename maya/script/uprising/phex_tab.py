@@ -108,7 +108,7 @@ class phexTab(gui.FormLayout):
             p.getParent().attr("visibility").set(False)
 
         for combo in combinations:
-            for painting in pm.ls("ptg_*_b{:02d}_p{:02d}".format( combo["brush"], combo["paint"])):
+            for painting in pm.ls("ptg_*_b{:02d}_p{:02d}".format( combo["brush"], combo["pot"])):
                 print "painting", painting
                 painting.attr("visibility").set(True)
 
@@ -154,14 +154,12 @@ class phexTab(gui.FormLayout):
         if not brushes:
             return
         frame = 0
-        # painting_node = pm.PyNode("mainPaintingShape")
         combos = putl.dip_combination_ids()
         for brush in brushes:
-            conns = pm.PyNode(brush).attr("outPaintBrush").connections(p=True)
             brush_id = self._get_main_painting_connection_id(brush)
-            paint_ids = [c["paint"] for c in combos if c["brush"] == brush_id]
+            pot_ids = [c["pot"] for c in combos if c["brush"] == brush_id]
             pm.setParent(self.brushes_column)
-            self._create_entry(brush, paint_ids, frame)
+            self._create_entry(brush, pot_ids, frame)
             frame += 1
 
     def _clear_entries(self):
@@ -169,14 +167,14 @@ class phexTab(gui.FormLayout):
         if children:
             pm.deleteUI(children)
 
-    def _create_entry(self, brush, paint_ids, frame):
-        text = ",".join(str(p) for p in paint_ids)
+    def _create_entry(self, brush, pot_ids, frame):
+        text = ",".join(str(p) for p in pot_ids)
         tf = pm.textFieldGrp(columnWidth2=(300, 200), label=brush, text=text, cw2=(140, 300))
         return tf
 
     def get_pot_handle_exercise_data(self):
 
-        data = {"combinations": [], "brushes": [], "paints": []}
+        data = {"combinations": [], "brushes": [], "pots": []}
         text_fields = pm.columnLayout(self.brushes_column, q=True, ca=True)
         for tf in text_fields:
             brush_name = pm.textFieldGrp(tf, q=True, label=True)
@@ -186,11 +184,11 @@ class phexTab(gui.FormLayout):
 
             val = pm.textFieldGrp(tf, q=True, text=True)
 
-            for paint_id in [int(i) for i in val.split(",") if i is not None and i.isdigit()]:
-                data["combinations"].append({"brush": brush_id, "paint": paint_id})
+            for pot_id in [int(i) for i in val.split(",") if i is not None and i.isdigit()]:
+                data["combinations"].append({"brush": brush_id, "pot": pot_id})
                 data["brushes"].append(brush_name)
 
-        data["paints"] = list(set([c["paint"] for c in data["combinations"]]))
+        data["pot"] = list(set([c["pot"] for c in data["combinations"]]))
         data["brushes"] = list(set(data["brushes"]))
 
         return data

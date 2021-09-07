@@ -56,6 +56,8 @@ source_files:
 - src/painting/*.cpp
 
 - src/brush/*.cpp
+- src/paint/*.cpp
+
 - src/stroke/*.cpp
 - src/utils/*.cpp
 - src/pointGen/*.cpp

@@ -1,5 +1,5 @@
 source "AEpaintingUtilFuncs";
-source "AEpaintingPaints";
+// source "AEpaintingPaints";
 source "AEpaintingBrushes";
 source "AEpaintingStrokes";
 
@@ -53,9 +53,9 @@ source "AEpaintingStrokes";
 	editorTemplate -addControl "stackGap"; 
   	editorTemplate -endLayout;
 
-	editorTemplate -cl 0 -beginLayout "Paints";
- 	editorTemplate -callCustom "AEpaintingPaintsNew" "AEpaintingPaintsReplace" "paints";
- 	editorTemplate -endLayout;
+	// editorTemplate -cl 0 -beginLayout "Paints";
+ 	// editorTemplate -callCustom "AEpaintingPaintsNew" "AEpaintingPaintsReplace" "paints";
+ 	// editorTemplate -endLayout;
  
 	editorTemplate -cl 0 -beginLayout "Brushes";
  	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";

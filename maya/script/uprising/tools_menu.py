@@ -7,22 +7,17 @@ from random import random
 from uprising import brush_utils as butl
 from uprising import curve_utils as cutl
 import pymel.core as pm
-from uprising import setup_dip
 from uprising import stats
 from uprising import utils
 from uprising.brush import Brush
 from uprising.pov.session.pov_session import PovTestSession
-
+from uprising.paint import Paint 
 
 def create():
     menu = pm.menu(label="Tools", tearOff=True)
 
     pm.menuItem(label="Bake mapped paintIds",
                 command=pm.Callback(on_bake_paint_ids))
-    pm.menuItem(
-        label="Make dips and wipes",
-        command=pm.Callback(
-            setup_dip.doit))
 
     pm.menuItem(
         label="Randomize dips",
@@ -38,50 +33,14 @@ def create():
     pm.menuItem(label="Print stats per brush",
                 command=pm.Callback(on_print_stats_per_brush))
 
-    # pm.menuItem(
-    #     label="Print paint and brush json",
-    #     command=pm.Callback(
-    #         on_print_paint_and_brush_stats,
-    #         "json"))
+
     pm.menuItem(
         label="Print paint and brush csv",
         command=pm.Callback(
             on_print_paint_and_brush_stats,
             "csv"))
 
-    # pm.menuItem(label="Connect texture", subMenu=True)
-    # pm.menuItem(
-    #     label="to brushId",
-    #     command=pm.Callback(
-    #         on_connect_texture,
-    #         "brushIdTexture"))
-    # pm.menuItem(
-    #     label="to paintId",
-    #     command=pm.Callback(
-    #         on_connect_texture,
-    #         "paintIdTexture"))
-    # pm.menuItem(
-    #     label="to strokeSort",
-    #     command=pm.Callback(
-    #         on_connect_texture,
-    #         "strokeSortTexture"))
-    # pm.menuItem(
-    #     label="to strokeFilter",
-    #     command=pm.Callback(
-    #         on_connect_texture,
-    #         "strokeFilterTexture"))
-    # pm.menuItem(
-    #     label="to rotation",
-    #     command=pm.Callback(
-    #         on_connect_texture,
-    #         "rotationTexture"))
-    # pm.menuItem(
-    #     label="to translation",
-    #     command=pm.Callback(
-    #         on_connect_texture,
-    #         "translationTexture"))
 
-    # pm.setParent("..", menu=True)
     pm.menuItem(
         label="Print Painting Flow SS",
         command=pm.Callback(on_print_painting_flow_ss))
@@ -253,7 +212,9 @@ def on_print_painting_flow_ss():
     num_continuous_strokes = -1
     header = ["","Red","Green","Blue","","Brush id", "Paint id", "Pot id", "Stroke count"]
     tab = "\t"
-    print tab.join(header)
+    print(tab.join(header))
+
+    palette = Paint.paints()
     data=[]
     for ci in range(num_clusters):
         num_strokes = pm.paintingQuery(ptg, ci=ci, sc=True)
@@ -263,13 +224,13 @@ def on_print_painting_flow_ss():
         if resason == "tool":
             brush_id = pm.paintingQuery(ptg, ci=ci, clusterBrushId=True)
             paint_id = pm.paintingQuery(ptg, ci=ci, clusterPaintId=True)
-            pot = pm.PyNode("holeRot_{:02d}|holeTrans|dip_loc|pot".format(paint_id))
-            col = pot.attr("sfPaintColor").get()
-            pot_id =  pot.attr("potOverrideId").get()
+            pot_id = pm.paintingQuery(ptg,   ci=ci, clusterPotId=True)
+            
+            col = palette[paint_id].color
         
             if num_continuous_strokes > -1:
                 data.append(str(num_continuous_strokes))
-                print tab.join(data)
+                print(tab.join(data))
             data = [str(s) for s in ["",int(col[0]*255),int(col[1]*255),int(col[2]*255),"",brush_id, paint_id, pot_id]]
             num_continuous_strokes = num_strokes
         else:

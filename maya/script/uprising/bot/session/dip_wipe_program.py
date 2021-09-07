@@ -7,15 +7,14 @@ from robolink import INSTRUCTION_COMMENT
 from uprising.bot.session import configurator
 
 WATER_POT_ID = 9
-WATER_REPEATS = 2
-
 RETARDANT_POT_ID = 19
+WATER_REPEATS = 2
 
 
 class DipWipeProgram(Program):
     @staticmethod
-    def generate_program_name(paint_id, brush_id):
-        return "p{:02d}_b{:02d}".format(paint_id, brush_id)
+    def generate_program_name(pot_id, brush_id):
+        return "p{:02d}_b{:02d}".format(pot_id, brush_id)
 
     def __init__(self, pack, **kwargs):
         self.do_dip=kwargs.get("dip", True)
@@ -23,7 +22,7 @@ class DipWipeProgram(Program):
 
 
         print "DipWipeProgram init pack:", pack
-        name = DipWipeProgram.generate_program_name(pack["paint_id"], pack["brush_id"])
+        name = DipWipeProgram.generate_program_name(pack["pot_id"], pack["brush_id"])
 
         super(DipWipeProgram, self).__init__(name)
         self.dip_painting = BotPainting(pack["dip"])
@@ -135,29 +134,29 @@ class RackCollection(object):
         result = {}
         for combo in self.combination_ids:
 
-            paint_key = "p{:02d}".format(combo["paint"])
             brush_key = "b{:02d}".format(combo["brush"])
+            pot_key = "p{:02d}".format(combo["pot"])
 
             try:
                 dip_ptg = pm.PyNode(
-                    "ptg_dip_b{:02d}_p{:02d}".format(combo["brush"], combo["paint"])
+                    "ptg_dip_b{:02d}_p{:02d}".format(combo["brush"], combo["pot"])
                 ).getChildren()[0]
                 wipe_ptg = pm.PyNode(
-                    "ptg_wipe_b{:02d}_p{:02d}".format(combo["brush"], combo["paint"])
+                    "ptg_wipe_b{:02d}_p{:02d}".format(combo["brush"], combo["pot"])
                 ).getChildren()[0]
             except IndexError:
                 raise IndexError(
-                    "Either dip or wipe node is missing: for {} {}".format(paint_key, brush_key)
+                    "Either dip or wipe node is missing: for {} {}".format(pot_key, brush_key)
                 )
 
-            if paint_key not in result:
-                result[paint_key] = {}
-            result[paint_key][brush_key] = {
+            if pot_key not in result:
+                result[pot_key] = {}
+            result[pot_key][brush_key] = {
                 "dip": dip_ptg,
                 "wipe": wipe_ptg,
-                "paint_id": combo["paint"],
+                "pot_id": combo["pot"],
                 "brush_id": combo["brush"],
-                "name": "{}_{}".format(paint_key, brush_key),
+                "name": "{}_{}".format(pot_key, brush_key),
             }
 
         return result
@@ -192,15 +191,15 @@ class WaterCollection(RackCollection):
         combos = pm.paintingQuery(self.painting_node, dc=True) or []
         brush_ids = sorted(set(combos[::2]))
         self.combination_ids = [
-            {"brush": int(brush_id), "paint": WATER_POT_ID} for brush_id in brush_ids
+            {"brush": int(brush_id), "pot": WATER_POT_ID} for brush_id in brush_ids
         ]
 
     def _build(self):
         result = []
-        for paint_id in self.packs:
-            paint_pack = self.packs[paint_id]
-            for brush_id in paint_pack:
-                pack = paint_pack[brush_id]
+        for pot_id in self.packs:
+            pot_pack = self.packs[pot_id]
+            for brush_id in pot_pack:
+                pack = pot_pack[brush_id]
                 result.append(WaterProgram(pack, WATER_REPEATS))
         return result
 
@@ -210,34 +209,41 @@ class RetardantCollection(RackCollection):
         combos = pm.paintingQuery(self.painting_node, dc=True) or []
         brush_ids = sorted(set(combos[::2]))
         self.combination_ids = [
-            {"brush": int(brush_id), "paint": RETARDANT_POT_ID} for brush_id in brush_ids
+            {"brush": int(brush_id), "pot": RETARDANT_POT_ID} for brush_id in brush_ids
         ]
 
     def _build(self):
         result = []
-        for paint_id in self.packs:
-            paint_pack = self.packs[paint_id]
-            for brush_id in paint_pack:
-                pack = paint_pack[brush_id]
+        for pot_id in self.packs:
+            pot_pack = self.packs[pot_id]
+            for brush_id in pot_pack:
+                pack = pot_pack[brush_id]
                 result.append(RetardantProgram(pack))
         return result
 
 
 class DipWipeCollection(RackCollection):
+
     def _resolve_combination_ids(self):
+
         result = []
         combos = pm.paintingQuery(self.painting_node, dc=True) or []
 
         for i in range(0, len(combos), 2):
-            result.append({"brush": int(combos[i]), "paint": int(combos[i + 1])})
+            brushId = int(combos[i])
+            potId = int(combos[i + 1])
+            result.append({
+                "brush": brushId, 
+                "pot":potId
+            })
         self.combination_ids = result
 
     def _build(self):
         result = []
-        for paint_id in self.packs:
-            paint_pack = self.packs[paint_id]
-            for brush_id in paint_pack:
-                pack = paint_pack[brush_id]
+        for pot_id in self.packs:
+            pot_pack = self.packs[pot_id]
+            for brush_id in pot_pack:
+                pack = pot_pack[brush_id]
                 result.append(DipWipeProgram(pack))
         return result
 
@@ -246,7 +252,6 @@ class DipWipeExerciseCollection(RackCollection):
     def __init__(self, combination_ids, **kwargs):
         self.kwargs = kwargs
         self.combination_ids = combination_ids
-        print "self.combination_ids", self.combination_ids
         super(DipWipeExerciseCollection, self).__init__()
 
     def _resolve_combination_ids(self):
@@ -256,9 +261,9 @@ class DipWipeExerciseCollection(RackCollection):
     def _build(self):
         kwargs = self.kwargs
         result = []
-        for paint_id in self.packs:
-            paint_pack = self.packs[paint_id]
-            for brush_id in paint_pack:
-                pack = paint_pack[brush_id]
+        for pot_id in self.packs:
+            pot_pack = self.packs[pot_id]
+            for brush_id in pot_pack:
+                pack = pot_pack[brush_id]
                 result.append(DipWipeProgram(pack,**kwargs))
         return result

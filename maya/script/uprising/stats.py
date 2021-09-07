@@ -4,11 +4,14 @@ from brush import Brush
 
 
 def _used_paints(painting_node):
-    ids = pm.paintingQuery(painting_node, dc=True)[1::2]
+    ids = pm.paintingQuery(painting_node, pc=True)[1::2]
     ids = sorted(set(ids))
-    paints = Paint.paints(painting_node)
+    paints = Paint.paints()
     return [paints[_id] for _id in ids]
 
+def _used_pot_ids(painting_node):
+    ids = pm.paintingQuery(painting_node, dc=True)[1::2]
+    return sorted(set(ids))
 
 def _used_brushes(painting_node):
     ids = pm.paintingQuery(painting_node, dc=True)[0::2]
@@ -18,10 +21,12 @@ def _used_brushes(painting_node):
 
 
 def used_paints_and_brushes(painting_node):
-    dc = pm.paintingQuery(painting_node, dc=True)
-    bids = dc[::2]
-    pids = dc[1::2]
-    paints = Paint.paints(painting_node)
+    # dc = pm.paintingQuery(painting_node, pc=True)
+    pc = pm.paintingQuery(painting_node, pc=True)
+    
+    bids = pc[::2]
+    pids = pc[1::2]
+    paints = Paint.paints()
     brushes = Brush.brushes(painting_node)
     _used_paints = [paints[_id] for _id in pids]
     _used_brushes = [brushes[_id] for _id in bids]
@@ -68,8 +73,13 @@ def stats():
     result["brush_paint_pairs"] = []
     for brush, paint in brush_paint_pairs:
         result["brush_paint_pairs"].append(
-            "brush:{}({:02d})-P({}) & paint:{}({:02d})".format(
-                brush.node_name, brush.id, brush.physical_id, paint.name, paint.id
+            "brush:{}({:02d})-P({}) & paint:{}({:02d}) in pot({:02d})".format(
+                brush.node_name, 
+                brush.id, 
+                brush.physical_id, 
+                paint.name, 
+                paint.id,
+                paint.pot_id
             )
         )
 
@@ -81,7 +91,7 @@ def stats():
         )
 
     for paint in _used_paints(painting_node):
-        result["summary"]["paints_in_use"].append("paint:{}({:02d})".format(paint.name, paint.id))
+        result["summary"]["paints_in_use"].append("paint:{}({:02d}) in pot({:02d})".format(paint.name, paint.id, paint.pot_id))
 
     result["painting_node"] = painting_stats(painting_node)
 
@@ -107,6 +117,7 @@ def stats():
         result["paints"].append(
             {
                 "id": paint.id,
+                "pot": paint.pot_id,
                 "color_r": paint.color[0],
                 "color_g": paint.color[1],
                 "color_b": paint.color[2],

@@ -86,8 +86,6 @@ def zero_position(node):
 @contextmanager
 def prep_for_output():
     pm.select(cl=True)
-    paint_and_pot_ids = get_paint_and_pot_ids()
-    set_skel_paint_ids(paint_and_pot_ids, "pot")
 
     painting_zero_val = pm.PyNode("mainPaintingGroup").attr("zeroPosition").get()
     rack_zero_val =   pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").get()
@@ -104,8 +102,7 @@ def prep_for_output():
     try:
         yield
     finally:
-        set_skel_paint_ids(paint_and_pot_ids, "paint")
-        
+ 
         pm.PyNode("mainPaintingGroup").attr("zeroPosition").set(painting_zero_val)
         pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").set(rack_zero_val)
         pm.PyNode("canvasTransform").attr("applyBrushBias").set(apply_brush_bias_val)
@@ -116,23 +113,23 @@ def prep_for_output():
         reset_skels(get_chain_skel_pairs(*skels))
 
 
-def get_paint_and_pot_ids():
-    skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
-    result = {}
-    for skel in skels:
-        paint_id = skel.attr("paintId").get()
-        pot = pm.PyNode("holeRot_{:02d}|holeTrans|dip_loc|pot".format(paint_id))
-        try:
-            pot_id =  pot.attr("potOverrideId").get()
-        except pm.MayaAttributeError:
-            pot_id=paint_id
-        result[skel.name()] = (paint_id, pot_id)
-    return result
+# def get_paint_and_pot_ids():
+#     skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+#     result = {}
+#     for skel in skels:
+#         paint_id = skel.attr("paintId").get()
+#         pot = pm.PyNode("holeRot_{:02d}|holeTrans|dip_loc|pot".format(paint_id))
+#         try:
+#             pot_id =  pot.attr("potOverrideId").get()
+#         except pm.MayaAttributeError:
+#             pot_id=paint_id
+#         result[skel.name()] = (paint_id, pot_id)
+#     return result
 
-def set_skel_paint_ids(paint_and_pot_ids, which):
-    index = 0 if which=="paint" else 1
-    for skel in paint_and_pot_ids:
-        pm.PyNode(skel).attr("paintId").set(paint_and_pot_ids[skel][index])
+# def set_skel_paint_ids(paint_and_pot_ids, which):
+#     index = 0 if which=="paint" else 1
+#     for skel in paint_and_pot_ids:
+#         pm.PyNode(skel).attr("paintId").set(paint_and_pot_ids[skel][index])
 
 
 

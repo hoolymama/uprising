@@ -156,7 +156,7 @@ class BotProgram(Program):
 
     def _write_dip_and_cluster(self, cluster, num_dips, call_program=True):
         result = set()
-        dip_program_name = DipWipeProgram.generate_program_name(cluster.paint.id, cluster.brush.id)
+        dip_program_name = DipWipeProgram.generate_program_name(cluster.paint.pot_id, cluster.brush.id)
         if call_program:
             for repeat in range(num_dips):
                 self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
@@ -194,5 +194,4 @@ class BotRetryProgram(Program):
         self.painting.send_brushes()
 
         for cluster in self.painting.clusters:
-            # cluster.brush.send()
             cluster.send(self.program, self.frame, self.painting.motion)
