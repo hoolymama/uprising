@@ -39,7 +39,7 @@ const std::vector< skPoint > &skChain::points() const
 void skChain::add(const skPoint &pt)
 {
 	m_points.push_back(pt);
-	// cerr << "Adding: " << pt.radius << endl;
+
 	if (pt.radius > m_maxRadius) {
 		m_maxRadius = pt.radius;
 	}
@@ -47,37 +47,6 @@ void skChain::add(const skPoint &pt)
 		m_minRadius = pt.radius;
 	}
 }
-
-
-// void skChain::extend(float entryLength, float exitLength)
-// {
-// 	/*
-// 	insert a point at the beginning and at the end.
-// 	*/
-// 	// int len = m_points.size();
-// 	// float dx = m_points[0].x - m_points[1].x;
-// 	// float dy = m_points[0].y - m_points[1].y;
-// 	// float hyp = sqrt()
-// 	skPoint p0, p1;
-// 	p1 = m_points.begin(); // 0
-// 	p0 = std::next(fromIt); // 1
-// 	m_points.insert(skPoint::extrapolate(p0, p1, entryLength));
-
-
-
-// 	skPoint toIt = std::prev(m_points.end()); // -1
-// 	skPoint fromIt = std::prev(toIt); // -2
-
-// 	m_points.insert(point.begin())
-
-
-
-
-// 	// inserts 3 at front
-// 	auto it = vec.insert(vec.begin(), 3);
-
-
-// }
 
 void skChain::appendPointsTo(MPointArray &positions) const
 {

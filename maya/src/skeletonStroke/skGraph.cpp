@@ -97,76 +97,6 @@ skGraph::skGraph(const CImg<float> &inImage) : m_nodes(),
     }
 }
 
-// skGraph::skGraph(const CImg<float>   &inImage, int x, int y, int resx , int resy):
-//     m_nodes(),
-//     m_width(),
-//     m_height()
-// {
-
-//     CImg<float> croppedImage =  inImage.get_crop(x, y ,0,0,x+resx, y+resy,1,1);
-//     CImg<bool> image = croppedImage.get_threshold(0.5);
-
-//     m_width = image.width();
-//     m_height = image.height();
-
-//     std::deque<coord> q;
-//     std::vector< coord > kernel;
-//     kernel.push_back(coord(0, 1));
-//     kernel.push_back(coord(-1, 1));
-//     kernel.push_back(coord(1, 1));
-//     kernel.push_back(coord(-1, 0));
-//     kernel.push_back(coord(1, 0));
-//     kernel.push_back(coord(-1, -1));
-//     kernel.push_back(coord(1, -1));
-//     kernel.push_back(coord(0, -1));
-
-//     int nWhitePixels = image.sum();
-//     coord start(0, 0, 0);
-//     float radius ;
-//     while (nWhitePixels > 0)
-//     {
-//         coord whitePixel = findWhitePixel(start,  image );
-//         if (!whitePixel.valid(m_width, m_height)) {
-//             break;
-//         }
-
-//         int x =  whitePixel.x;
-//         int y =  whitePixel.y;
-
-//         radius = croppedImage(x, y);
-//         _addNode(x, y, 0, radius);
-//         q.push_back(whitePixel);
-//         image(x, y) = false;
-//         nWhitePixels--;
-
-//         while (! q.empty())
-//         {
-//             coord curr = q.front();
-
-//             std::vector< coord >::const_iterator iter;
-//             for (iter = kernel.begin(); iter != kernel.end(); iter++ )
-//             {
-//                 coord neighbor = curr.offset(*iter);
-//                 if (! neighbor.valid(m_width, m_height))
-//                 {
-//                     continue;
-//                 }
-//                 if (image(neighbor.x, neighbor.y))
-//                 {
-//                     radius = croppedImage(neighbor.x, neighbor.y);
-//                     _addNode(neighbor.x, neighbor.y, 0, radius);
-//                     q.push_back(neighbor);
-//                     image(neighbor.x, neighbor.y) = false;
-//                     nWhitePixels--;
-//                     _connect(neighbor, curr);
-//                 }
-//             }
-//             q.pop_front();
-//         }
-//         start = whitePixel;
-//     }
-
-// }
 
 skGraph::~skGraph()
 {
@@ -223,23 +153,6 @@ void skGraph::draw(CImg<unsigned char> &image, float maxStampRadiusPixels, int s
 }
 
 
-// void skGraph::clampRadius(float offset, float maxRadius)
-// {
-
-//     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
-//          iter != m_nodes.end();
-//          iter++)
-//     {
-//         skNode *node = iter->second;
-
-        
-//         if (node->radius > maxRadius)
-//         {
-//             node->radius = maxRadius;
-//         }
-//     }
-// }
-
 void skGraph::adjustRadius(float offset, float maxRadius)
 {
     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
@@ -251,35 +164,6 @@ void skGraph::adjustRadius(float offset, float maxRadius)
     }
 }
 
-// void skGraph::offets(const coord &offsetCoord)
-// {
-//     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
-//             iter != m_nodes.end();
-//             iter++)
-//     {
-//         skNode *node = iter->second;
-//         node->radius = std::max(0.0f, ((node->radius * mult) + offset));
-//     }
-// }
-
-// coord offset(const coord &other) const
-// 	{
-// 		return coord( x + other.x,  y + other.y);
-// 	}
-
-// void skGraph::_setRadius(const CImg<float>  *pImage)
-// {
-//     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
-//             iter != m_nodes.end();
-//             iter++)
-//     {
-//         coord c = iter->first;
-//         // float rad = (*pImage)(c.x, c.y);
-//         // cerr << ", " << rad;
-//         iter->second->radius = (*pImage)(c.x, c.y);
-//     }
-//     // cerr << endl;
-// }
 
 skNode *skGraph::_addNode(int x, int y, int z, float radius)
 {

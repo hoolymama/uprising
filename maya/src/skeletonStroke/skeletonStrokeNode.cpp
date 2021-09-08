@@ -42,6 +42,7 @@ MObject skeletonStrokeNode::aInputData;
 MObject skeletonStrokeNode::aSelector;
 MObject skeletonStrokeNode::aGoalPoint;
 MObject skeletonStrokeNode::aAwayFromGoal;
+MObject skeletonStrokeNode::aSmoothNeighbors;
 
 
 MTypeId skeletonStrokeNode::id(k_skeletonStrokeNode);
@@ -130,6 +131,12 @@ MStatus skeletonStrokeNode::initialize()
     nAttr.setDefault(true);
     addAttribute(aAwayFromGoal);
 
+    aSmoothNeighbors = nAttr.create("smoothWeightNeighbors", "swn", MFnNumericData::kInt);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setStorable(true);
+    nAttr.setDefault(-1);
+    st = addAttribute(aSmoothNeighbors);
 
     attributeAffects(aActive, aOutput);
     attributeAffects(aSplitAngle, aOutput);
@@ -139,6 +146,8 @@ MStatus skeletonStrokeNode::initialize()
     attributeAffects(aSelector, aOutput);
     attributeAffects(aGoalPoint, aOutput);
     attributeAffects(aAwayFromGoal, aOutput);
+    attributeAffects(aSmoothNeighbors, aOutput);
+    
     
 
     return (MS::kSuccess);
@@ -175,6 +184,8 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
     int layerId = data.inputValue(aLayerId).asInt();
     int paintId = data.inputValue(aPaintId).asInt();
+    int smoothNeighbors = data.inputValue(aSmoothNeighbors).asInt();
+    
 
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
@@ -291,11 +302,18 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         curr_stroke->setPaintId(paintId);
         curr_stroke->setLayerId(layerId);
     }
-    
-    // applyCoats(data,pOutStrokes);
+    if (smoothNeighbors > 0) {
+
+        for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+        {
+            curr_stroke->smoothWeights(smoothNeighbors);
+        }
+    }
 
     return MS::kSuccess;
 }
+ 
+
 
 unsigned skeletonStrokeNode::createStrokesForChain(
     const skChain &current_chain,

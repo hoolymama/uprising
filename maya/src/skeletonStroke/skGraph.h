@@ -35,11 +35,6 @@ public:
                    std::vector<skChain> &chains,
                    int step);
 
-    // void  draw(
-    //     CImg<unsigned char>  &image,
-    //     float mult = 1.0,
-    //     float offset = 0.0,
-    //     bool adjustStampAtMaxOnly = true) const;
 
     void draw(
         CImg<unsigned char> &image,
