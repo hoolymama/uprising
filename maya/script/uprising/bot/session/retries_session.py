@@ -39,6 +39,8 @@ def activate_node(skel):
 
 class RetriesSession(Session):
     def __init__(self, coil_delta, selector_plug, dry_run=False, directory=None):
+        # Deselect everything
+        pm.select(cl=True)
 
         self.dry_run = dry_run
         self.directory = directory
