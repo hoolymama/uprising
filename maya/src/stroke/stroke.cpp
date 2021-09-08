@@ -191,6 +191,31 @@ void Stroke::calculateParams(MFloatArray &result) const
 	}
 }
 
+void Stroke::smoothWeights(int neighbors)
+{
+	if (neighbors < 1) {
+		return;
+	}
+	int count =  m_targets.size();
+	std::vector<Target>::iterator iter = m_targets.begin();
+	for (int i = 0; iter != m_targets.end(); iter++,i++)
+	{
+ 		int fromStart = i;
+		int fromEnd = (count-1) - i;
+		int n = std::min(neighbors, std::min(fromStart, fromEnd));
+		if (n < 1) {
+			continue;
+		}
+		float mean = 0.0;
+		for (int j =i-n; j<i+n+1;j++) {
+			mean+=m_targets[j].weight();
+		}
+		mean = mean / ((2*n)+1);
+		iter->setWeight(mean);
+	}
+}
+
+
 void Stroke::setCoil(float rhs)
 {
 	m_coil = rhs;
@@ -878,6 +903,8 @@ void Stroke::setArrival(
 	}
 	m_arrivals.push_back(arrival);
 }
+
+
 
 void Stroke::reverseArray(const MDoubleArray &arr, MDoubleArray &result)
 {

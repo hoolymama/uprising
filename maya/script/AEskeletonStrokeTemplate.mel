@@ -22,6 +22,12 @@ global proc AEskeletonStrokeTemplate ( string $nodeName )
 	editorTemplate -addControl "splitTestInterval";
 	editorTemplate -endLayout;
 
+	editorTemplate -cl 0 -beginLayout "Weight smoothing attributes";
+	editorTemplate -addControl "smoothWeightNeighbors";
+	editorTemplate -endLayout;
+
+
+
 
 	editorTemplate -cl 0 -beginLayout "Brushes";
  	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";

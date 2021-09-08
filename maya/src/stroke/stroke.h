@@ -315,6 +315,9 @@ public:
 	float linearSpeed() const;
 	float angularSpeed() const;
 
+	void smoothWeights(int neighbors);
+
+
 	friend bool operator<(const Stroke &a, const Stroke &b);
 	friend ostream &operator<<(ostream &os, const Stroke &s);
 
