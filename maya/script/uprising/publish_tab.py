@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import progress
 import pymel.core as pm
 import pymel.core.uitypes as gui
-
+import datetime
 from uprising.common.session.session import Session
 from uprising.bot.session.bot_painting_session import BotPaintingSession
 from uprising.bot.session.retries_session import RetriesSession
@@ -266,3 +266,45 @@ class PublishTab(gui.FormLayout):
             painting_session.write_maya_scene(directory, "scene")
 
         robo.show()
+
+
+
+# import pymel.core as pm
+
+# import datetime
+# import os
+
+
+# from uprising.common.session.session import Session
+# from uprising.bot.session.bot_painting_session import BotPaintingSession
+# from uprising.bot.session.retries_session import RetriesSession
+# from uprising import (chains,robo, utils)
+
+
+# suffixes = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
+# i = 0
+# for y in [-0.33, -0.01, 0.31]:
+#     for x in [-0.19 , 0.13,0.45 ]:
+        
+#         skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+#         utils.reset_skels(utils.get_chain_skel_pairs(*skels))
+
+#         suffix = suffixes[i]
+#         directory = "/Volumes/xtr/gd/venus/export/crops"
+#         timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M")
+#         directory = os.path.join("/Volumes/xtr/gd/venus/export/crops", "{}_{}".format(timestamp, suffix) )
+#         utils.mkdir_p(directory)
+
+#         cropNode = pm.PyNode("cImgCropMainLow")
+#         cropNode.attr("extraOffsetX").set(x)
+#         cropNode.attr("extraOffsetY").set(y)        
+#         robo.new()
+#         robo.hide()
+#         retries_session = RetriesSession( 20, None, False, directory)
+#         retries_session.run()
+#         retries_session.write_results()
+
+#         painting_session = BotPaintingSession(100, directory, True)
+#         painting_session.run()
+#         painting_session.write_stats()
+#         i += 1
