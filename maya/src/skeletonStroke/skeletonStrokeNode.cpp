@@ -43,7 +43,8 @@ MObject skeletonStrokeNode::aSelector;
 MObject skeletonStrokeNode::aGoalPoint;
 MObject skeletonStrokeNode::aAwayFromGoal;
 MObject skeletonStrokeNode::aSmoothNeighbors;
-
+MObject skeletonStrokeNode::aSmoothPositions;
+MObject skeletonStrokeNode::aSmoothWeights;
 
 MTypeId skeletonStrokeNode::id(k_skeletonStrokeNode);
 
@@ -131,12 +132,29 @@ MStatus skeletonStrokeNode::initialize()
     nAttr.setDefault(true);
     addAttribute(aAwayFromGoal);
 
-    aSmoothNeighbors = nAttr.create("smoothWeightNeighbors", "swn", MFnNumericData::kInt);
+    aSmoothNeighbors = nAttr.create("neighborsToSmooth", "smn", MFnNumericData::kInt);
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
     nAttr.setStorable(true);
     nAttr.setDefault(-1);
     st = addAttribute(aSmoothNeighbors);
+
+
+    aSmoothPositions = nAttr.create("smoothPositions", "smps", MFnNumericData::kBoolean);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setStorable(true);
+    nAttr.setDefault(false);
+    st = addAttribute(aSmoothPositions);
+
+
+    aSmoothWeights = nAttr.create("smoothWeights", "swts", MFnNumericData::kBoolean);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setStorable(true);
+    nAttr.setDefault(false);
+    st = addAttribute(aSmoothWeights);
+
 
     attributeAffects(aActive, aOutput);
     attributeAffects(aSplitAngle, aOutput);
@@ -146,9 +164,10 @@ MStatus skeletonStrokeNode::initialize()
     attributeAffects(aSelector, aOutput);
     attributeAffects(aGoalPoint, aOutput);
     attributeAffects(aAwayFromGoal, aOutput);
+
     attributeAffects(aSmoothNeighbors, aOutput);
-    
-    
+    attributeAffects(aSmoothPositions, aOutput);
+    attributeAffects(aSmoothWeights, aOutput);
 
     return (MS::kSuccess);
 }
@@ -184,8 +203,11 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
     int layerId = data.inputValue(aLayerId).asInt();
     int paintId = data.inputValue(aPaintId).asInt();
+
     int smoothNeighbors = data.inputValue(aSmoothNeighbors).asInt();
-    
+    bool smoothPositions = data.inputValue(aSmoothPositions).asBool();
+    bool smoothWeights = data.inputValue(aSmoothWeights).asBool();
+
 
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
@@ -302,11 +324,14 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         curr_stroke->setPaintId(paintId);
         curr_stroke->setLayerId(layerId);
     }
-    if (smoothNeighbors > 0) {
+
+
+    if ((smoothPositions || smoothWeights) &&  smoothNeighbors > 0)
+    {
 
         for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
         {
-            curr_stroke->smoothWeights(smoothNeighbors);
+            curr_stroke->smoothTargets(smoothNeighbors, smoothPositions , smoothWeights);
         }
     }
 

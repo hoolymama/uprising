@@ -23,7 +23,11 @@ global proc AEskeletonStrokeTemplate ( string $nodeName )
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Weight smoothing attributes";
-	editorTemplate -addControl "smoothWeightNeighbors";
+	
+	editorTemplate -addControl "neighborsToSmooth";
+	editorTemplate -addControl "smoothPositions";
+	editorTemplate -addControl "smoothWeights";
+
 	editorTemplate -endLayout;
 
 

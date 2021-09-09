@@ -191,7 +191,7 @@ void Stroke::calculateParams(MFloatArray &result) const
 	}
 }
 
-void Stroke::smoothWeights(int neighbors)
+void Stroke::smoothTargets(int neighbors, bool doPositions, bool doWeights)
 {
 	if (neighbors < 1) {
 		return;
@@ -206,12 +206,26 @@ void Stroke::smoothWeights(int neighbors)
 		if (n < 1) {
 			continue;
 		}
-		float mean = 0.0;
-		for (int j =i-n; j<i+n+1;j++) {
-			mean+=m_targets[j].weight();
+		float denom = (2*n)+1;
+
+		if (doWeights) {
+			float meanWeight = 0.0;
+			for (int j =i-n; j<i+n+1;j++) {
+				meanWeight+=m_targets[j].weight();
+			}
+			meanWeight = meanWeight / denom;	
+			iter->setWeight(meanWeight);
 		}
-		mean = mean / ((2*n)+1);
-		iter->setWeight(mean);
+
+		if (doPositions) {
+			MFloatVector meanPoint;
+			for (int j =i-n; j<i+n+1;j++) {
+				const MFloatMatrix mat = m_targets[j].matrix();
+				meanPoint += MFloatVector( mat[3][0], mat[3][1], mat[3][2]);
+			}
+			meanPoint = meanPoint / denom;
+			iter->setPosition(MFloatPoint(meanPoint));
+		}
 	}
 }
 
