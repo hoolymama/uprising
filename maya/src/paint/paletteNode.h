@@ -39,25 +39,20 @@ public:
   static MTypeId id;
   static MString drawDbClassification;
   static MString drawRegistrantId;
- 
 
   static MObject aWidth;
   static MObject aHeight;
   static MObject aXPos;
   static MObject aYPos;
-    
+
   static MObject aOutput;
 private:
 
- 
   static MObject aColor;
-  static MObject aPot;
   static MObject aOpacity;
   static MObject aTravel;
   static MObject aInput;
-
-
-
+  
 };
 
 #endif

@@ -12,8 +12,8 @@ public:
 
 	Paint();
 
-	Paint( const MColor &color, float travel, int pot);
-	Paint( const MFloatVector &color, float opacity, float travel , int pot);
+	Paint( const MColor &color, float travel);
+	Paint( const MFloatVector &color, float opacity, float travel );
 
 	~Paint();
 
@@ -25,7 +25,6 @@ public:
 
 private:
 	MColor m_color;
-	int m_pot;
 	float m_travel;
 
 

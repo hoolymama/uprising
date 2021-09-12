@@ -33,7 +33,6 @@ void *paletteNode::creator()
 const double epsilon = 0.0001;
 
 MObject paletteNode::aColor;
-MObject paletteNode::aPot;
 MObject paletteNode::aOpacity;
 MObject paletteNode::aTravel;
 MObject paletteNode::aInput;
@@ -62,12 +61,6 @@ MStatus paletteNode::initialize()
   nAttr.setDefault(1.0f, 0.5f, 0.0f);
   nAttr.setConnectable(true);
   addAttribute(aColor);
-
-  aPot = nAttr.create("potId", "pid", MFnNumericData::kInt);
-  nAttr.setHidden(false);
-  nAttr.setKeyable(true);
-  nAttr.setDefault(0);
-  addAttribute(aPot);
 
   aOpacity = nAttr.create("opacity", "opa", MFnNumericData::kFloat);
   nAttr.setStorable(true);
