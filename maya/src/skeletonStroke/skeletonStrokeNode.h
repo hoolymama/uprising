@@ -107,8 +107,8 @@ private:
     static MObject aSelector;
     static MObject aGoalPoint;
     static MObject aAwayFromGoal;
-    
     static MObject aSmoothNeighbors;
+    
     static MObject aSmoothPositions;
     static MObject aSmoothWeights;
 

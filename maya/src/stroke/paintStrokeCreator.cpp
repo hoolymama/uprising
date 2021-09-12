@@ -205,7 +205,8 @@ MStatus paintStrokeCreator::generateStrokeGeometry(
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes)
 {
-    return MS::kUnknownParameter;
+    strokeCreator::generateStrokeGeometry(plug,data,pOutStrokes);
+    return MS::kSuccess;
 }
 
 unsigned int paintStrokeCreator::getStrokeBoundaries(

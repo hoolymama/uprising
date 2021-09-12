@@ -115,7 +115,7 @@ MStatus strokeMutator::generateStrokeGeometry(
 	if (nodeState == 0)  {
     mutate(plug, data, pOutStrokes);
 	}
-
+  strokeNodeBase::generateStrokeGeometry(plug,data,pOutStrokes);
   return (MS::kSuccess);
 }
 

@@ -167,7 +167,11 @@ MStatus strokeCreator::generateStrokeGeometry(
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes)
 {
-  return (MS::kUnknownParameter);
+
+  applyCoats(data, pOutStrokes);
+  strokeNodeBase::generateStrokeGeometry(plug,data,pOutStrokes);
+
+  return MS::kSuccess;
 }
 
 
@@ -181,25 +185,16 @@ void strokeCreator::applyCoats(
     return;
   }
 
-  unsigned coatLength = geom->size();
+  std::vector<Stroke> sourceStrokes(*geom);
 
   for (unsigned repeatId = 1; repeatId < coats; repeatId++)
   {
-    
-    std::vector<Stroke>::iterator iter = geom->begin();
-    for (unsigned i = 0; i<coatLength ; iter++, i++)
+    std::vector<Stroke>::iterator iter = sourceStrokes.begin();
+    for (;iter != sourceStrokes.end() ; iter++)
     {
+      iter->setRepeatId(repeatId);
       geom->push_back(*iter);
-      geom->back().setRepeatId(repeatId);
     }
-  }
-  
-
-  unsigned i = 0;
-  std::vector<Stroke>::iterator iter = geom->begin();
-  for (; iter != geom->end(); iter++, i++)
-  {
-    iter->setStrokeId(i);
   }
 }
 

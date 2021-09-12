@@ -335,6 +335,8 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         }
     }
 
+    paintStrokeCreator::generateStrokeGeometry(plug,data,pOutStrokes);
+
     return MS::kSuccess;
 }
  

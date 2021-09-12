@@ -212,6 +212,8 @@ MStatus curveStrokeNode::generateStrokeGeometry(
         curr_stroke->setPaintId(paintId);
         curr_stroke->setLayerId(layerId);
     }
+    
+    paintStrokeCreator::generateStrokeGeometry(plug,data,pOutStrokes);
 
     return MS::kSuccess;
 }

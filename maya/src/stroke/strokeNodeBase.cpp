@@ -190,6 +190,11 @@ MStatus strokeNodeBase::generateStrokeGeometry(
     MDataBlock &data,
     std::vector<Stroke> *geom)
 {
+    setStrokeIds(geom);
+    filterStrokes(data, geom);
+    sortStrokes(data, geom);
+    cullStartEnd(data, geom);
+
   return MS::kSuccess;
 }
 
@@ -214,13 +219,6 @@ MStatus strokeNodeBase::compute(const MPlug &plug, MDataBlock &data)
   short int nodeState = data.inputValue(state).asShort();
 
   st = generateStrokeGeometry(plug, data, geom);
-  if (nodeState == 0)
-  {
-    setStrokeIds(geom);
-    filterStrokes(data, geom);
-    sortStrokes(data, geom);
-    cullStartEnd(data, geom);
-  }
 
   hOutput.set(newData);
   hOutput.setClean();

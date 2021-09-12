@@ -111,6 +111,7 @@ MStatus meshStrokeNode::generateStrokeGeometry(
         subdivide(*iter,pointDensity, pts);
         pStrokes->push_back(Stroke(pts, targetRotationMatrix));
     }
+    strokeCreator::generateStrokeGeometry(plug,data,pStrokes);
     return (MS::kSuccess);
 }
 

@@ -83,5 +83,6 @@ MStatus collectStrokes::generateStrokeGeometry(const MPlug &plug, MDataBlock &da
       pStrokes->back().setParentId(index);
     }
   }
+  strokeNodeBase::generateStrokeGeometry(plug,data,pStrokes);
   return MS::kSuccess;
 }
