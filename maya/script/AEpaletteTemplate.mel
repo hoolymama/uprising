@@ -1,0 +1,101 @@
+source "AEpaintingUtilFuncs";
+
+
+global proc AEpaletteTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+
+	editorTemplate -cl 0  -beginLayout "Palette attributes";
+
+	editorTemplate -callCustom "AEpalettePaintNew" "AEpalettePaintReplace" "input";
+
+	editorTemplate -endLayout;	
+ 
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
+
+
+
+ global proc AEpalettePaintNew (string $nodeAttr) {
+ 	setUITemplate -pst attributeEditorTemplate;
+ 	global int $gTextColumnWidthIndex;
+
+
+ 	string $col = "AEpalettePaintCol";
+ 	columnLayout -adj 1 $col ;	
+ 	setParent ..;
+ 	rowLayout -nc 3  -columnWidth3 $gTextColumnWidthIndex $gTextColumnWidthIndex $gTextColumnWidthIndex;
+ 	text -label "";
+ 	button -width 210 -l "Add" "AEaddPaintBtn";
+ 	text -label "";
+ 	setParent ..;
+ 	setUITemplate -ppt;
+
+ 	AEpalettePaintReplace($nodeAttr);
+
+ }
+
+ global proc AEpalettePaintReplace (string $nodeAttr) {
+
+ 	string $node = nodeFromNodeAttr($nodeAttr);
+ 	string $col = "AEpalettePaintCol";
+
+ 	setParent ..;
+ 	int $numElements = `getAttr -size $nodeAttr`;
+
+ 	string $controls[] = `layout -q -ca $col`;
+ 	int $numExistingControls = size($controls);
+ 	for ($i = 0;$i<$numExistingControls;$i++) {
+ 		deleteUI $controls[$i];
+ 	}
+ 	int $indices[] = `getAttr -mi $nodeAttr`;
+ 	for ($i = 0;$i<$numElements;$i++) {
+ 		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
+ 		AEpalettePaintAddMultiWidget ($plug, $col, $indices[$i]) ;
+ 	}
+ 	setParent ..;
+
+	button -e -c ( "onAddPalettePaintEntry(\"" + $nodeAttr +"\")") AEaddPaintBtn;
+
+
+ }
+
+
+
+ global proc AEpalettePaintAddMultiWidget(
+ 	string $plug, 
+ 	string $columnLayout,  
+ 	int $index) 
+{
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+
+ 	string $node = nodeFromNodeAttr($plug);
+	string $label = ("Paint: " + $index);
+
+ 	string $layout = `frameLayout -cl 0 -cll 0 -label $label`;
+
+ 	attrControlGrp -attribute ($plug +".color");
+ 	attrControlGrp -attribute ($plug +".opacity");
+ 	attrControlGrp -attribute ($plug +".travel");
+ 	attrControlGrp -attribute ($plug +".potId");
+ 
+ 	string $removeCmd = ("deleteUI " + $layout+";removeMultiInstance -b 1 "+$plug+";" ) ;
+ 	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
+
+ 	setParent ..;
+ }
+
+global proc onAddPalettePaintEntry(string $nodeAttr)
+{
+	int $nextIndex = findNextNonExistentIndex($nodeAttr);
+	setAttr  ($nodeAttr+"["+$nextIndex+"].opacity")  1;
+	setAttr  ($nodeAttr+"["+$nextIndex+"].travel")  15;
+}
+
+
+
