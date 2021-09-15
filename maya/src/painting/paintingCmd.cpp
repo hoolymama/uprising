@@ -71,10 +71,7 @@ MSyntax paintingCmd::newSyntax()
 
 	syn.addFlag(kGlobalStrokeIndexFlag, kGlobalStrokeIndexFlagL);
  
-	syn.addFlag(kDipCombinationsFlag, kDipCombinationsFlagL);
-
-	syn.addFlag(kPaintCombinationsFlag, kPaintCombinationsFlagL);
-
+	syn.addFlag(kToolCombinationsFlag, kToolCombinationsFlagL);
 
 
 	syn.addFlag(kJsonFlag, kJsonFlagL);
@@ -130,14 +127,10 @@ MStatus paintingCmd::doIt(const MArgList &args)
 		return MS::kUnknownParameter;
 	}
 
-	if (argData.isFlagSet(kDipCombinationsFlag))
-	{
-		return handleDipCombinationsFlag(*pGeom);
-	}
 
-	if (argData.isFlagSet(kPaintCombinationsFlag))
+	if (argData.isFlagSet(kToolCombinationsFlag))
 	{
-		return handlePaintCombinationsFlag(*pGeom);
+		return handleToolCombinationsFlag(*pGeom);
 	}
 
 	if (argData.isFlagSet(kClusterCountFlag))
@@ -392,21 +385,14 @@ int paintingCmd::getStrokeId(const paintingGeom &geom, MArgDatabase &argData,
 	return strokeId;
 }
 
-MStatus paintingCmd::handleDipCombinationsFlag(const paintingGeom &geom)
+MStatus paintingCmd::handleToolCombinationsFlag(const paintingGeom &geom)
 {
 	MIntArray result;
-	geom.dipCombinations(result);
+	geom.toolCombinations(result);
 	setResult(result);
 	return MS::kSuccess;
 }
 
-MStatus paintingCmd::handlePaintCombinationsFlag(const paintingGeom &geom)
-{
-	MIntArray result;
-	geom.paintCombinations(result);
-	setResult(result);
-	return MS::kSuccess;
-}
 
 MStatus paintingCmd::handleClusterCountFlag(const paintingGeom &geom)
 {
@@ -449,9 +435,7 @@ MStatus paintingCmd::handleClusterReasonFlag(const paintingGeom &geom,
 	case Cluster::kPaint:
 		setResult(MString("dip"));
 		break;
-	case Cluster::kTcp:
-		setResult(MString("tcp"));
-		break;
+
 	default:
 		setResult(MString("none"));
 		break;
@@ -482,7 +466,8 @@ MStatus paintingCmd::handleClusterPotIdFlag(const paintingGeom &geom,
 	{
 		return MS::kUnknownParameter;
 	}
-	setResult(geom.paintFromId(geom.clusters()[clusterId].paintId()).pot());
+
+	setResult(geom.clusters()[clusterId].potId());
 	return MS::kSuccess;
 }
 

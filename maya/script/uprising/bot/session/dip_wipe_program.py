@@ -1,5 +1,6 @@
 import pymel.core as pm
 from uprising import robo
+from uprising import palette_utils  
 from uprising.common.session.program import Program
 from uprising.bot.session.bot_painting import BotPainting
 from uprising import progress
@@ -188,8 +189,8 @@ class RackCollection(object):
 
 class WaterCollection(RackCollection):
     def _resolve_combination_ids(self):
-        combos = pm.paintingQuery(self.painting_node, dc=True) or []
-        brush_ids = sorted(set(combos[::2]))
+        combos = pm.paintingQuery(self.painting_node, toolCombinations=True) or []
+        brush_ids = sorted(set(combos[::3]))
         self.combination_ids = [
             {"brush": int(brush_id), "pot": WATER_POT_ID} for brush_id in brush_ids
         ]
@@ -206,8 +207,8 @@ class WaterCollection(RackCollection):
 
 class RetardantCollection(RackCollection):
     def _resolve_combination_ids(self):
-        combos = pm.paintingQuery(self.painting_node, dc=True) or []
-        brush_ids = sorted(set(combos[::2]))
+        combos = pm.paintingQuery(self.painting_node, toolCombinations=True) or []
+        brush_ids = sorted(set(combos[::3]))
         self.combination_ids = [
             {"brush": int(brush_id), "pot": RETARDANT_POT_ID} for brush_id in brush_ids
         ]
@@ -225,18 +226,7 @@ class RetardantCollection(RackCollection):
 class DipWipeCollection(RackCollection):
 
     def _resolve_combination_ids(self):
-
-        result = []
-        combos = pm.paintingQuery(self.painting_node, dc=True) or []
-
-        for i in range(0, len(combos), 2):
-            brushId = int(combos[i])
-            potId = int(combos[i + 1])
-            result.append({
-                "brush": brushId, 
-                "pot":potId
-            })
-        self.combination_ids = result
+        self.combination_ids = palette_utils.brush_pot_combination_ids()
 
     def _build(self):
         result = []

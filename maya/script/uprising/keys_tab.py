@@ -108,8 +108,8 @@ class KeysTab(gui.FormLayout):
             if index < first_parent:
                 continue
             input_node.attr("active").set(1)
-            combos = pm.paintingQuery(painting_node, dc=True)
-            brush_ids_reversed = sorted(set(combos[::2]))[::-1]
+            combos = pm.paintingQuery(painting_node, toolCombinations=True)
+            brush_ids_reversed = sorted(set(combos[::3]))[::-1]
             for bid in brush_ids_reversed:
                 vals.append([frame, index, bid])
                 frame += 1
@@ -117,10 +117,7 @@ class KeysTab(gui.FormLayout):
         parent_id_attr = painting_node.attr("stfl[0].stfod")
         brush_id_attr = painting_node.attr("stfl[1].stfod")
 
-        # conns = parent_id_attr.connections(s=1, d=0, p=1, c=1)
-        # conns = conns + brush_id_attr.connections(s=1, d=0, p=1, c=1)
-        # for me, other in conns:
-        #     other // me
+  
         if not dry:
             for t, parent_id, brush_id in vals:
                 pm.currentTime(t)

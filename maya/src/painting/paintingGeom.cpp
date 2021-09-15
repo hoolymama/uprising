@@ -78,16 +78,19 @@ void paintingGeom::addStroke(const Stroke &stroke, int parentIndex)
 {
 	int brushId = stroke.brushId();
 	int paintId = stroke.paintId();
+	int potId = stroke.potId();
+	
 
 	const Brush &b = brushFromId(brushId);
-	Cluster &g = prepCluster(brushId, b.physicalId(), paintId);
+	Cluster &g = prepCluster(brushId, paintId, potId);
 	g.pushStroke(stroke, parentIndex);
 }
 
 Cluster &paintingGeom::prepCluster(
 	int brushId,
-	int physicalId,
-	int paintId)
+	int paintId,
+	int potId
+	)
 {
 
 	// FIRST CLUSTER
@@ -95,7 +98,7 @@ Cluster &paintingGeom::prepCluster(
 	{
 		float cutoff = travelCutoff(brushId, paintId);
 		m_clusters.push_back(
-			Cluster(brushId, paintId, cutoff, Cluster::kBrush));
+			Cluster(brushId, paintId, potId, cutoff, Cluster::kBrush));
 		return m_clusters.back();
 	}
 
@@ -103,24 +106,16 @@ Cluster &paintingGeom::prepCluster(
 	// therefore safe to call back()
 	const Cluster &back = m_clusters.back();
 	int lastBrushId = back.brushId();
+	int lastPotId = back.potId();
 	int lastPaintId = back.paintId();
+	
 
-	// CHANGE PAINT OR BRUSH (tool change)
-	if (!(lastBrushId == brushId && lastPaintId == paintId))
+	// CHANGE POT OR BRUSH (tool change)
+	if (!(lastBrushId == brushId && lastPotId == potId  && lastPaintId == paintId))
 	{
 		float cutoff = travelCutoff(brushId, paintId);
-		Cluster::Reason reason = Cluster::kBrush;
-		if (lastPaintId == paintId)
-		{
-			// brush Id changed - but is it the same physical brush?
-			int lastPhysicalId = brushFromId(lastBrushId).physicalId();
-			if (lastPhysicalId == physicalId)
-			{
-				reason = Cluster::kTcp;
-			}
-		}
 		m_clusters.push_back(
-			Cluster(brushId, paintId, cutoff, reason));
+			Cluster(brushId, paintId, potId, cutoff, Cluster::kBrush));
 		return m_clusters.back();
 	}
 
@@ -134,10 +129,11 @@ Cluster &paintingGeom::prepCluster(
 
 	if (back.ranOutOfPaint())
 	{
-		// cerr << "RAN OUT PAINT  (dip only)" << endl;
+	 
 		m_clusters.push_back(Cluster(
 			back.brushId(),
 			back.paintId(),
+			back.potId(),
 			back.travelCutoff(),
 			Cluster::kPaint));
 
@@ -190,39 +186,25 @@ void paintingGeom::setApproaches(
 	}
 }
 
-void paintingGeom::dipCombinations(MIntArray &result) const
+void paintingGeom::toolCombinations(MIntArray &result) const
 {
-	std::set<std::pair<int, int> > combos;
+	std::set<std::tuple<int, int, int> > combos;
 	std::vector<Cluster>::const_iterator iter;
 	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
 	{
-		int potId = this->paintFromId(iter->paintId()).pot();
-		std::pair<int, int> combo(iter->brushId(), potId);
+		std::tuple<int, int, int> combo(iter->brushId(), iter->paintId(),  iter->potId());
 		combos.insert(combo);
 	}
-	for (std::set<std::pair<int, int> >::const_iterator citer = combos.begin();
+	int brushId, paintId, potId;
+	for (std::set<std::tuple<int, int, int> >::const_iterator citer = combos.begin();
 		 citer != combos.end(); citer++)
 	{
-		result.append(citer->first);
-		result.append(citer->second);
+		
+		std::tie(brushId, paintId, potId) = *citer;
+		result.append(brushId);
+		result.append(paintId);
+		result.append(potId);
+		
 	}
 }
-
-
-void paintingGeom::paintCombinations(MIntArray &result) const
-{
-	std::set<std::pair<int, int> > combos;
-	std::vector<Cluster>::const_iterator iter;
-	for (iter = m_clusters.begin(); iter != m_clusters.end(); iter++)
-	{
-		std::pair<int, int> combo(iter->brushId(), iter->paintId());
-		combos.insert(combo);
-	}
-	for (std::set<std::pair<int, int> >::const_iterator citer = combos.begin();
-		 citer != combos.end(); citer++)
-	{
-		result.append(citer->first);
-		result.append(citer->second);
-	}
-}
-
+ 

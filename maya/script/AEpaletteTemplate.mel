@@ -1,17 +1,29 @@
 source "AEpaintingUtilFuncs";
 
 
+
+
+
+
 global proc AEpaletteTemplate ( string $nodeName )
 {
 
 	editorTemplate -beginScrollLayout;
 
+ 	editorTemplate -cl 0  -beginLayout "Display attributes";
+	editorTemplate -addControl "Width";
+	editorTemplate -addControl "height";
+	editorTemplate -addControl "xpos";
+	editorTemplate -addControl "ypos";
+	editorTemplate -addControl "displayId";
+	editorTemplate -addControl "displayName";
+	editorTemplate -endLayout;
+
 	editorTemplate -cl 0  -beginLayout "Palette attributes";
-
 	editorTemplate -callCustom "AEpalettePaintNew" "AEpalettePaintReplace" "input";
-
-	editorTemplate -endLayout;	
+	editorTemplate -endLayout;
  
+
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;
 	
@@ -77,12 +89,13 @@ global proc AEpaletteTemplate ( string $nodeName )
  	string $node = nodeFromNodeAttr($plug);
 	string $label = ("Paint: " + $index);
 
- 	string $layout = `frameLayout -cl 0 -cll 0 -label $label`;
+ 	string $layout = `frameLayout -cl 0 -cll 0 -label $label -bv 1`;
 
- 	attrControlGrp -attribute ($plug +".color");
+ 	attrControlGrp -attribute ($plug +".name");
+	attrControlGrp -attribute ($plug +".color");
  	attrControlGrp -attribute ($plug +".opacity");
  	attrControlGrp -attribute ($plug +".travel");
- 	attrControlGrp -attribute ($plug +".potId");
+
  
  	string $removeCmd = ("deleteUI " + $layout+";removeMultiInstance -b 1 "+$plug+";" ) ;
  	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;

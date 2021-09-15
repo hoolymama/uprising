@@ -114,6 +114,8 @@ protected:
     static MObject aMinimumStrokeAdvance;
     static MObject aOverlap;
     static MObject aPaintId;
+    static MObject aPotId;
+    
     static MObject aBrushFollowStroke;
     static MObject aSplitAngle;
     static MObject aSplitTestInterval;
@@ -123,8 +125,7 @@ protected:
     static MObject aExtendExit;
     static MObject aMinimumPoints;
     static MObject aApplyBrushBias;
-    // static MObject aOutCoil;
-    
+
 
 };
 

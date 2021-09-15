@@ -18,10 +18,10 @@ class Cluster(object):
         self.strokes = []
 
         self.travel = pm.paintingQuery(node, clusterIndex=_id, clusterTravel=True)
-
         self.reason = pm.paintingQuery(node, clusterIndex=_id, clusterReason=True)
+        num_strokes = pm.paintingQuery(node, clusterIndex=_id, strokeCount=True)
+        self.pot_id = pm.paintingQuery(node, clusterIndex=_id, clusterPotId=True)
 
-        num_strokes = pm.paintingQuery(node, clusterIndex=self.id, strokeCount=True)
 
         for i in range(num_strokes):
             stroke = BotStroke(self.id, i, node)
@@ -47,13 +47,16 @@ class Cluster(object):
 
     def get_flow_info(self, last_cluster):
         last_paint_id = last_cluster.paint.id if last_cluster else None
+        last_pot_id = last_cluster.pot_id if last_cluster else None
+        
         this_paint_id = self.paint.id
         did_change_paint = last_paint_id != this_paint_id
+        did_change_pot = last_pot_id != self.pot_id
 
         last_brush_id = last_cluster.brush.id if last_cluster else None
         this_brush_id = self.brush.id
         did_change_tool = self.reason == "tool"
         did_change_brush = did_change_tool and (last_brush_id != this_brush_id)
         did_end_last_brush = did_change_brush and (last_brush_id is not None)
-        return (did_change_paint, did_change_tool, did_change_brush, did_end_last_brush)
+        return (did_change_pot, did_change_paint, did_change_tool, did_change_brush, did_end_last_brush)
  

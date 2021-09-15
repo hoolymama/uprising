@@ -102,15 +102,13 @@ MUserData *PaletteDrawOverride::prepareForDraw(
 
 	data->palette = *(pdata->fGeometry);
 
-	// data->xPosition;
-	// data->yPosition;
-	// data->width;
-	// data->height;
-
 	MPlug(paletteNodeObj, paletteNode::aXPos).getValue(data->xPosition);
 	MPlug(paletteNodeObj, paletteNode::aYPos).getValue(data->yPosition);
 	MPlug(paletteNodeObj, paletteNode::aWidth).getValue(data->width);
 	MPlug(paletteNodeObj, paletteNode::aHeight).getValue(data->height);
+
+	MPlug(paletteNodeObj, paletteNode::aDisplayId).getValue(data->displayId);
+	MPlug(paletteNodeObj, paletteNode::aDisplayName).getValue(data->displayName);
 
 	return data;
 }
@@ -143,9 +141,11 @@ void PaletteDrawOverride::addUIDrawables(
 	if (displayStyle & MHWRender::MFrameContext::kWireFrame)
 	{
 		return;
-		// drawWireframe(drawManager, cdata);
 	}
 }
+
+
+
 
 void PaletteDrawOverride::drawShaded(
 	MHWRender::MUIDrawManager &drawManager,
@@ -168,20 +168,57 @@ void PaletteDrawOverride::drawShaded(
 	float centerX = fScaleX + fXPosition;
  
 	int y=fYPosition + fScaleY;
-	drawManager.setColor(MColor(1,0,0));
-	
+
+	drawManager.setFontSize(11);
+
+	float h,s,v;
+	MColor textColor;
+
     for (std::map<int, Paint>::const_iterator iter = cdata->palette.begin();
          iter != cdata->palette.end();
          iter++)
     {
         int paintId = iter->first;
         const Paint & p = iter->second;
-
+		const MColor &c = p.color();
 		drawManager.setColor(p.color());
 		MPoint center(centerX,y,0.5);
 
 		drawManager.rect2d(center, MVector::yAxis, fScaleX, fScaleY, true);
 		y = y + fScaleY + fScaleY+4;
+
+		if (cdata->displayId || cdata->displayName) {
+			int red = c.r *255;
+			int green = c.g *255;
+			int blue = c.b *255;
+
+			MString txt = "";
+			if (cdata->displayId) {
+				txt+=paintId;
+				txt+=" ";
+			}
+			if (cdata->displayName) {
+				txt+=p.name() ;
+			}
+			p.color().get(MColor::kHSV,h,s,v);
+			textColor = v > 0.68 ? MColor(0,0,0) : MColor(1,1,1);
+			MPoint textPos(center + MVector(-fScaleX,0,-0.1));
+			MPoint colorPos(center + MVector(fScaleX,-fScaleY+2,-0.1));
+			
+			MString coltx = "(";
+			coltx+=red;coltx+=",";
+			coltx+=green;coltx+=",";
+			coltx+=blue;coltx+=")";
+
+
+			drawManager.setColor(textColor);
+			drawManager.text2d(textPos,txt)	;
+			drawManager.text2d(colorPos,coltx, MUIDrawManager::kRight)	;
+
+
+
+		}
     }
+
 	drawManager.endDrawable();
 }

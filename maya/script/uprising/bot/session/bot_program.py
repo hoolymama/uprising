@@ -70,7 +70,7 @@ class BotProgram(Program):
 
         for cluster in self.painting.clusters[start:end]:
 
-            did_change_paint, did_change_tool, did_change_brush, did_end_last_brush = cluster.get_flow_info(
+            did_change_pot, did_change_paint, did_change_tool, did_change_brush, did_end_last_brush = cluster.get_flow_info(
                 last_cluster
             )
 
@@ -79,13 +79,13 @@ class BotProgram(Program):
             if did_end_last_brush:
                 subprograms |= self._on_end_tool(last_cluster)
 
-            if did_change_paint or did_change_brush:
+            if did_change_pot or did_change_brush:
                 self._add_halts(cluster)
 
             if did_change_brush:
                 subprograms |= self._on_start_tool(cluster)
 
-            if did_change_paint or did_change_brush:
+            if did_change_pot or did_change_brush:
                 num_dips = max(cluster.brush.initial_dips, 1)
 
 
@@ -101,20 +101,18 @@ class BotProgram(Program):
         return sorted(list(subprograms))
 
     def _add_halts(self, cluster):
-        result = set()
         brush = cluster.brush
-        bid = brush.id
   
         wait = brush.initial_wait
         if wait > 0:
             self.program.RunInstruction(
-                "Program waiting - Brush:{} Paint:{}".format(brush.id, cluster.paint.id),
+                "Program waiting - Brush:{} Pot:{}".format(brush.id, cluster.pot_id),
                 INSTRUCTION_COMMENT
             )
             self.program.RunInstruction("WAIT SEC {:d}".format(wait), INSTRUCTION_INSERT_CODE)
         elif wait == -1:
             self.program.RunInstruction(
-                "Program halted for Brush:{} Paint:{}".format(brush.id, cluster.paint.id),
+                "Program halted for Brush:{} pot:{}".format(brush.id, cluster.pot_id),
                 INSTRUCTION_COMMENT
             )
             self.program.RunInstruction("HALT", INSTRUCTION_INSERT_CODE)
@@ -156,7 +154,7 @@ class BotProgram(Program):
 
     def _write_dip_and_cluster(self, cluster, num_dips, call_program=True):
         result = set()
-        dip_program_name = DipWipeProgram.generate_program_name(cluster.paint.pot_id, cluster.brush.id)
+        dip_program_name = DipWipeProgram.generate_program_name(cluster.pot_id, cluster.brush.id)
         if call_program:
             for repeat in range(num_dips):
                 self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)

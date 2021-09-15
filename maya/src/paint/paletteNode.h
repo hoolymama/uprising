@@ -45,12 +45,19 @@ public:
   static MObject aXPos;
   static MObject aYPos;
 
+  static MObject aDisplayId;
+  static MObject aDisplayName;
+  
+  
+
+
   static MObject aOutput;
 private:
 
   static MObject aColor;
   static MObject aOpacity;
   static MObject aTravel;
+  static MObject aName;
   static MObject aInput;
   
 };

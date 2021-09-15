@@ -203,6 +203,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
     int layerId = data.inputValue(aLayerId).asInt();
     int paintId = data.inputValue(aPaintId).asInt();
+    int potId = data.inputValue(aPotId).asInt();
 
     int smoothNeighbors = data.inputValue(aSmoothNeighbors).asInt();
     bool smoothPositions = data.inputValue(aSmoothPositions).asBool();
@@ -322,6 +323,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
         curr_stroke->setPaintId(paintId);
+        curr_stroke->setPotId(potId);
         curr_stroke->setLayerId(layerId);
     }
 

@@ -44,14 +44,9 @@ public:
 		const MFloatVector &approachEnd, 
 		float ptpThresh);
 
-	void dipCombinations(MIntArray &result) const;
-	void paintCombinations(MIntArray &result) const;
 
-	// void displace(MFnMesh &meshFn, MMeshIsectAccelParams &ap);
+	void toolCombinations(MIntArray &result) const;
 
-	// void offsetBrushContact();
-
-	// friend ostream &operator<<(ostream &os, const paintingGeom &geom);
 
 private:
 	Cluster &prepCluster(

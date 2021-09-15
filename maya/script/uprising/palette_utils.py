@@ -1,3 +1,4 @@
+# from typing import Set
 import pymel.core as pm
 import stroke_factory_utils as sfu
 
@@ -6,15 +7,22 @@ from brush import Brush
  
 
 
-def dip_combination_ids():
-    painting_node = pm.PyNode("mainPaintingShape")
-    result = []
 
-    combos = pm.paintingQuery(painting_node, dc=True) or []
- 
-    for i in range(0, len(combos), 2):
-        result.append({"brush": int(combos[i]), "pot": int(combos[i + 1])})
-    return result
+def brush_pot_combination_ids():
+    painting_node = pm.PyNode("mainPaintingShape")
+    combos = pm.paintingQuery(painting_node, toolCombinations=True) or []
+    s=set()
+    for i in range(0, len(combos), 3):
+        s.add((int(combos[i]),  int(combos[i + 2])))
+    return sorted([{"brush":b,"pot":p} for (b,p) in s], key=lambda k: (k["brush"], k["pot"]))
+
+def brush_paint_combination_ids():
+    painting_node = pm.PyNode("mainPaintingShape")
+    combos = pm.paintingQuery(painting_node, toolCombinations=True) or []
+    s=set()
+    for i in range(0, len(combos), 3):
+        s.add((int(combos[i]),  int(combos[i + 1])))
+    return sorted([{"brush":b,"paint":p} for (b,p) in s], key=lambda k: (k["brush"], k["paint"]))
 
 
 def get_pot_handle_pairs():

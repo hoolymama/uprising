@@ -25,6 +25,9 @@ public:
 	float yPosition;
 	float width;
 	float height;
+	bool displayId;
+	bool displayName;
+	
  
 };
 

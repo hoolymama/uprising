@@ -185,6 +185,10 @@ public:
 	// void setCustomBrushId(int val);
 
 	void setPaintId(int val);
+
+	int potId() const;
+	void setPotId(int val);
+
 	void setSortColor(const MFloatVector &color);
 	void setFilterColor(const MFloatVector &color);
 
@@ -216,7 +220,6 @@ public:
 	bool testRepeatId(FilterOperator op, int value) const;
 	bool testTargetCount(FilterOperator op, int value) const;
 
-	// bool testCustomBrushId(FilterOperator op, int value) const;
 	bool testMapRedId(FilterOperator op, int value) const;
 	bool testMapGreenId(FilterOperator op, int value) const;
 	bool testMapBlueId(FilterOperator op, int value) const;
@@ -234,7 +237,7 @@ public:
 	void getBorders(
 		const MFloatVector &planeNormal,
 		const Brush &brush,
-		// float stackHeight,
+
 		MFloatPointArray &lefts,
 		MFloatPointArray &rights,
 		bool scaleWidthByWeight,
@@ -243,7 +246,7 @@ public:
 	void getBorderLoop(
 		const MFloatVector &planeNormal,
 		const Brush &brush,
-		// float stackHeight,
+
 		MFloatPointArray &result,
 		bool scaleWidthByWeight,
 		int maxSegments = -1) const;
@@ -251,7 +254,7 @@ public:
 	void getTriangleStrip(
 		const MFloatVector &planeNormal,
 		const Brush &brush,
-		// float stackHeight,
+
 		MFloatPointArray &result,
 		bool scaleWidthByWeight,
 		int maxSegments = -1) const;
@@ -282,10 +285,10 @@ public:
 
 	const Target &departure() const;
 
-	void setDeparture(const MFloatVector & offset);
-	void setArrival(const MFloatVector & offset);
+	void setDeparture(const MFloatVector &offset);
+	void setArrival(const MFloatVector &offset);
 	void setArrival(
-		const MFloatVector & offset,
+		const MFloatVector &offset,
 		float threshold,
 		const Stroke &prev);
 
@@ -339,6 +342,7 @@ private:
 	int m_strokeId;
 	int m_brushId;
 	int m_paintId;
+	int m_potId;
 	int m_layerId;
 	int m_parentId;
 	int m_customBrushId;

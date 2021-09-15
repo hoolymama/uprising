@@ -24,14 +24,14 @@ from uprising.bot.session.dip_wipe_program import (
 
 class BotPaintingSession(Session):
 
-    PROGRAM_NAME = "px"
 
-    def __init__(self, cluster_chunk_size, directory,do_separate_subprograms):
+    def __init__(self, cluster_chunk_size, directory,do_separate_subprograms, program_prefix="px"):
         self.program = None
         self.do_separate_subprograms = do_separate_subprograms
         self.directory = directory
         self.painting_node = pm.PyNode("mainPaintingShape")
         self.program_names = []
+        self.program_prefix = program_prefix
 
         self.cluster_count = pm.paintingQuery(self.painting_node, cc=True)
         self.cluster_chunk_size = min(cluster_chunk_size, self.cluster_count)
@@ -57,8 +57,8 @@ class BotPaintingSession(Session):
                 program.configure()
 
             # PICK PLACE
-            dc = pm.paintingQuery(self.painting_node, dc=True)
-            brush_ids = set(dc[::2])
+            tc = pm.paintingQuery(self.painting_node, toolCombinations=True)
+            brush_ids = set(tc[::3])
             self.pick_place_collection = PickPlaceCollection(brush_ids)
 
             # POST STEP Where we try to make linear moves between strokes and between clusters
@@ -89,9 +89,9 @@ class BotPaintingSession(Session):
     def _build_bot_program(self):
         self.init_progress()
         robo.clean("kr30")
-        with utils.at_value(pm.PyNode("canvasTransform").attr("applyBrushBias"), True):
-            with utils.at_value(pm.PyNode("brushLifter").attr("nodeState"), 0):
-                program = BotProgram(self.PROGRAM_NAME)
+
+        program = BotProgram(self.program_prefix)
+        
         if not (program and program.painting and program.painting.clusters):
             raise ValueError("Invalid bot_program. No painting/clusters")
         return program

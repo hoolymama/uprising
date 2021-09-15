@@ -70,7 +70,7 @@ class RetriesSession(Session):
     def run(self):
         robo.new()
         robo.clean("kr30", infrastructure=False)
-        
+
         chains.chunkify_skels(self.chain_skel_pairs, 1)
 
         if self.plug_index is None:
@@ -118,35 +118,29 @@ class RetriesSession(Session):
                     self.result_data["plug_runs"].append(result)
                     if not result["solved"]:
                         skel.attr("inputData")[plug_index].attr("active").set(False)
-                        # unsolved_plug_indices.append(plug_index)
                 self.current_run_id += 1
             skel.attr("selector").set(-1)
     
-    # def calc_num_runs(self):
+
 
     def run_for_plug(self, skel, plug_index):
         skel.attr("selector").set(plug_index)
         if self.dry_run:
             return None
-        
         split_angle_plug = skel.attr("inputData")[plug_index].attr("splitAngle")
 
         cluster_count = pm.paintingQuery(self.painting_node, cc=True)
         if not cluster_count:
             pm.displayInfo("Skipping plug: {}".format(split_angle_plug))
             return None
-
         result = self.initialize_plug_result(split_angle_plug)
- 
+
         run_start = time.time()
         progress.update(major_progress=self.current_run_id)
         attempt = 0
         values = []
-        # plug.set(360)
-   
         initial_angle = pm.strokeQuery(skel, maxCoil=True) + self.delta
         split_angle_plug.set(initial_angle)
-
         while True:
             attempt += 1
             value = split_angle_plug.get()
@@ -159,7 +153,8 @@ class RetriesSession(Session):
 
             try:
                 program = BotRetryProgram("retry")
-            except BaseException:
+            except BaseException as ex:
+                print("BaseException", str(ex)) 
                 break
             if not (program and program.painting and program.painting.clusters):
                 break
@@ -167,8 +162,7 @@ class RetriesSession(Session):
 
             program.send()
             validation_result = program.validate_path() or {"status": "SUCCESS"}
-            ##########
-
+   
             path_result = {
                 "status": validation_result["status"],
                 "attempt": attempt, 

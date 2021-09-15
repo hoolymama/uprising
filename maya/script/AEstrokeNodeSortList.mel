@@ -18,7 +18,6 @@
  	 -adjustableColumn 4
  		-columnWidth4 $gTextColumnWidthIndex 120 120 40`;
 
- 	// print( "PLUG: " + $plug + "   ---   " + $index + "\n");
 
   string $removeCmd = ("deleteUI " + $rl+";removeMultiInstance -b 1 "+$plug+";" ) ;
 

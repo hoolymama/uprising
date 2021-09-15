@@ -86,11 +86,10 @@
 #define kStrokeParentIndexFlag "-spi"
 #define kStrokeParentIndexFlagL "-strokeParentIndex"
 
-#define kDipCombinationsFlag "-dc"
-#define kDipCombinationsFlagL "-dipCombinations"
 
-#define kPaintCombinationsFlag "-pc"
-#define kPaintCombinationsFlagL "-paintCombinations"
+#define kToolCombinationsFlag "-tc"
+#define kToolCombinationsFlagL "-toolCombinations"
+
 
 #define kJsonFlag "-js"
 #define kJsonFlagL "-json"
@@ -169,9 +168,11 @@ private:
 
 	MStatus  handleGlobalStrokeIndexFlag (const paintingGeom &geom, MArgDatabase &argData);
 
-	MStatus handleDipCombinationsFlag(const paintingGeom &geom);
+	// MStatus handleDipCombinationsFlag(const paintingGeom &geom);
 
-	MStatus handlePaintCombinationsFlag(const paintingGeom &geom);
+	// MStatus handlePaintCombinationsFlag(const paintingGeom &geom);
+	MStatus handleToolCombinationsFlag(const paintingGeom &geom);
+	
 
 	MStatus handleJsonFlag(const paintingGeom &geom);
 

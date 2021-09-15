@@ -37,7 +37,7 @@ def create():
     pm.menuItem(
         label="Print paint and brush csv",
         command=pm.Callback(
-            on_print_paint_and_brush_stats,
+            on_print_paint_pot_and_brush_stats,
             "csv"))
 
 
@@ -129,11 +129,12 @@ def on_print_stats_per_brush():
 
 
 
-def on_print_paint_and_brush_stats(fmt="json"):
+def on_print_paint_pot_and_brush_stats(fmt="json"):
     painting_node = pm.PyNode("mainPaintingShape")
-    brushes, paints = zip(*(stats.used_paints_and_brushes(painting_node)))
+    brushes, paints, pots = zip(*(stats.used_pots_paints_and_brushes(painting_node)))
 
-    result = {"brushes": [], "paints": []}
+    result = {"brushes": [], "paints": [], "pots": pots}
+    
     for brush in brushes:
         result["brushes"].append({
             "id": brush.id,
@@ -154,29 +155,10 @@ def on_print_paint_and_brush_stats(fmt="json"):
             "travel(cm)": paint.travel,
             "name": paint.name
         })
-
-    utils.show_in_window(result, title="Stats")
-    # if fmt == "json":
-    # else:
-    #     for key in result:
-    #         data = result[key]
-    #         output = csv.writer(sys.stdout)
-    #         output.writerow(data[0].keys())
-    #         for row in data:
-    #             output.writerow(row.values())
     
-def on_print_stats_range():
-    min_frame = int(pm.playbackOptions(min=True, query=True))
-    max_frame = int(pm.playbackOptions(max=True, query=True))
-    painting_node = pm.PyNode("mainPaintingShape")
+    utils.show_in_window(result, title="Stats")
 
-    for f in range(int(min_frame), int(max_frame + 1)):
-        pm.currentTime(f)
-        p_stats = stats.painting_stats(painting_node)
-        print "%d, %d, %f, %d, %d, %f, %d, %d, %f" % tuple(
-            [f] + p_stats.values())
-
-
+ 
 def randomize_dips():
     dip_paintings = pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|*",
                           dag=True, leaf=True, type="painting"),

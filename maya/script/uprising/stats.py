@@ -4,33 +4,36 @@ from brush import Brush
 
 
 def _used_paints(painting_node):
-    ids = pm.paintingQuery(painting_node, pc=True)[1::2]
+    ids = pm.paintingQuery(painting_node, toolCombinations=True)[1::3]
     ids = sorted(set(ids))
     paints = Paint.paints()
     return [paints[_id] for _id in ids]
 
 def _used_pot_ids(painting_node):
-    ids = pm.paintingQuery(painting_node, dc=True)[1::2]
+    ids = pm.paintingQuery(painting_node, toolCombinations=True)[2::3]
     return sorted(set(ids))
 
 def _used_brushes(painting_node):
-    ids = pm.paintingQuery(painting_node, dc=True)[0::2]
+    ids = pm.paintingQuery(painting_node, toolCombinations=True)[0::3]
     ids = sorted(set(ids))
     brushes = Brush.brushes(painting_node)
     return [brushes[_id] for _id in ids]
 
 
-def used_paints_and_brushes(painting_node):
-    # dc = pm.paintingQuery(painting_node, pc=True)
-    pc = pm.paintingQuery(painting_node, pc=True)
+def used_pots_paints_and_brushes(painting_node):
+
+    tc = pm.paintingQuery(painting_node, toolCombinations=True)
     
-    bids = pc[::2]
-    pids = pc[1::2]
+    bids = list(set(tc[::3]))
+    paintids = list(set(tc[1::3]))
+    _used_pots = list(set(tc[2::3]))
+    
     paints = Paint.paints()
     brushes = Brush.brushes(painting_node)
-    _used_paints = [paints[_id] for _id in pids]
+    _used_paints = [paints[_id] for _id in paintids]
     _used_brushes = [brushes[_id] for _id in bids]
-    return zip(_used_brushes, _used_paints)
+
+    return zip(_used_brushes, _used_paints, _used_pots)
 
 
 def painting_stats(node):
@@ -69,9 +72,9 @@ def stats():
     result = {}
 
     painting_node = pm.PyNode("mainPaintingShape")
-    brush_paint_pairs = used_paints_and_brushes(painting_node)
+   
     result["brush_paint_pairs"] = []
-    for brush, paint in brush_paint_pairs:
+    for brush, paint, pot_id in used_pots_paints_and_brushes(painting_node):
         result["brush_paint_pairs"].append(
             "brush:{}({:02d})-P({}) & paint:{}({:02d}) in pot({:02d})".format(
                 brush.node_name, 
@@ -79,54 +82,33 @@ def stats():
                 brush.physical_id, 
                 paint.name, 
                 paint.id,
-                paint.pot_id
+                pot_id
             )
         )
 
-    result["summary"] = {"brushes_in_use": [], "paints_in_use": []}
+    result["summary"] = {"brushes_in_use": [], "paints_in_use": [], "pots_in_use": []}
+
+    result["brushes"] = []
+    result["paints"] = []
+
 
     for brush in _used_brushes(painting_node):
         result["summary"]["brushes_in_use"].append(
             "brush:{}({:02d})-P({})".format(brush.node_name, brush.id, brush.physical_id)
         )
 
+
     for paint in _used_paints(painting_node):
-        result["summary"]["paints_in_use"].append("paint:{}({:02d}) in pot({:02d})".format(paint.name, paint.id, paint.pot_id))
+        result["summary"]["paints_in_use"].append("paint:{}({:02d})".format(paint.name, paint.id))
+
+    for pot_id in _used_pot_ids(painting_node):
+        result["summary"]["pots_in_use"].append("{:02d}".format( pot_id))
+
 
     result["painting_node"] = painting_stats(painting_node)
 
-    brushes, paints = zip(*brush_paint_pairs)
-
-    result["brushes"] = []
-    result["paints"] = []
-
-    for brush in brushes:
-        result["brushes"].append(
-            {
-                "id": brush.id,
-                "physical_id": brush.physical_id,
-                "width(mm)": brush.width,
-                "shape": brush.shape,
-                "retention": brush.retention,
-                "tip": brush.tip,
-                "name": brush.name,
-            }
-        )
-
-    for paint in paints:
-        result["paints"].append(
-            {
-                "id": paint.id,
-                "pot": paint.pot_id,
-                "color_r": paint.color[0],
-                "color_g": paint.color[1],
-                "color_b": paint.color[2],
-                "travel(cm)": paint.travel,
-                "name": paint.name,
-            }
-        )
-
     return result
+
 
 
 def stats_per_brush():

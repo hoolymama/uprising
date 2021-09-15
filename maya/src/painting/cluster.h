@@ -26,7 +26,6 @@ public:
 	const_stroke_iterator strokes_begin() const { return m_strokes.begin(); }
 	const_stroke_iterator strokes_end() const { return m_strokes.end(); }
 
- 
 
 	enum Reason
 	{
@@ -47,12 +46,15 @@ public:
 	Cluster(
 		short brushId,
 		short paintId,
+		short potId,
 		float travelCutoff,
 		Cluster::Reason reason);
 
 	~Cluster();
 
 	short paintId() const;
+
+	short potId() const;
 
 	short brushId() const;
 
@@ -74,18 +76,13 @@ public:
 	 */
 	void pushStroke(const Stroke &stroke, int parentIndex);
 
-	// void setApproaches(float approachStart, float approachMid,
-	// 				   float approachEnd, float ptpThresh);
-
-
 private:
-	// void setDeparture(float approachMid, float approachEnd);
-	// void setArrival(float approachStart, float approachMid, float ptpThresh);
 
 	std::vector<Stroke> m_strokes;
 	Reason m_reason;
 	MString m_name;
 	short m_paintId;
+	short m_potId;
 	short m_brushId;
 	float m_travelCutoff;
 	float m_travel;

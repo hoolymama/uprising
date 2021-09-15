@@ -35,12 +35,16 @@ const double epsilon = 0.0001;
 MObject paletteNode::aColor;
 MObject paletteNode::aOpacity;
 MObject paletteNode::aTravel;
+MObject paletteNode::aName;
+
 MObject paletteNode::aInput;
 
 MObject paletteNode::aWidth;
 MObject paletteNode::aHeight;
 MObject paletteNode::aXPos;
 MObject paletteNode::aYPos;
+MObject paletteNode::aDisplayId;
+MObject paletteNode::aDisplayName;
 
 MObject paletteNode::aOutput;
   
@@ -75,12 +79,14 @@ MStatus paletteNode::initialize()
   nAttr.setKeyable(true);
   nAttr.setDefault(1.0f);
   addAttribute(aTravel);
+  
+  aName = tAttr.create("name", "nm", MFnData::kString);
 
   aInput = cAttr.create("input", "in");
   cAttr.addChild(aColor);
   cAttr.addChild(aOpacity);
-  cAttr.addChild(aPot);
   cAttr.addChild(aTravel);
+  cAttr.addChild(aName);
   cAttr.setArray(true);
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   cAttr.setReadable(false);
@@ -110,13 +116,30 @@ MStatus paletteNode::initialize()
   nAttr.setDefault(0.01);
   addAttribute(aYPos);
 
+  aDisplayId= nAttr.create("displayId", "did",
+                                  MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayId);
+
+  aDisplayName= nAttr.create("displayName", "dnm",
+                                  MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayName);
+
+
   aOutput = tAttr.create("output", "owb", paletteData::id);
   tAttr.setReadable(true);
   tAttr.setStorable(false);
   addAttribute(aOutput);
 
   attributeAffects(aColor,aOutput);
-  attributeAffects(aPot,aOutput);
+  attributeAffects(aName,aOutput);
   attributeAffects(aOpacity,aOutput);
   attributeAffects(aTravel,aOutput);
   attributeAffects(aInput,aOutput);
@@ -134,9 +157,7 @@ MStatus paletteNode::compute(const MPlug &plug, MDataBlock &data)
     return (MS::kUnknownParameter);
   }
 
-	// std::map<int, Paint> palette;
-  // palette[-1] = Paint();
-
+ 
   MArrayDataHandle hInput = data.inputArrayValue(aInput, &st);
   
   /////////////
@@ -163,10 +184,12 @@ MStatus paletteNode::compute(const MPlug &plug, MDataBlock &data)
     }
 
     MFloatVector color = hPaintInput.child(aColor).asFloatVector();
-    int pot =  hPaintInput.child(aPot).asInt();
+    // int pot =  hPaintInput.child(aPot).asInt();
     float opacity = hPaintInput.child(aOpacity).asFloat();
     float travel = hPaintInput.child(aTravel).asFloat();
-    (*palette)[paintId] = Paint(color, opacity , travel, pot);
+    MString name = hPaintInput.child(aName).asString();
+ 
+    (*palette)[paintId] = Paint(color, opacity , travel, name);
   }
 
   hOutput.set(newData);

@@ -114,13 +114,15 @@ MStatus curveStrokeNode::generateStrokeGeometry(
 
     int layerId = data.inputValue(aLayerId).asInt();
     int paintId = data.inputValue(aPaintId).asInt();
+    int potId = data.inputValue(aPotId).asInt();
+
     float splitAngle = float(data.inputValue(aSplitAngle).asAngle().asRadians());
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float minimumStrokeAdvance = data.inputValue(aMinimumStrokeAdvance).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
     MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
-    // m_maxCoil = 0.0;
+
     //////////////////////////////////////////////////////////////
 
     int brushId = data.inputValue(aBrushId).asInt();
@@ -210,6 +212,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
         curr_stroke->setPaintId(paintId);
+        curr_stroke->setPotId(potId);
         curr_stroke->setLayerId(layerId);
     }
     

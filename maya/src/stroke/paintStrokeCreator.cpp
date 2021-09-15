@@ -37,8 +37,10 @@ MObject paintStrokeCreator::aStrokeLength;
 MObject paintStrokeCreator::aMinimumStrokeAdvance;
 MObject paintStrokeCreator::aOverlap;
 MObject paintStrokeCreator::aPaintId;
+MObject paintStrokeCreator::aPotId;
+    
 MObject paintStrokeCreator::aBrushFollowStroke;
-// MObject paintStrokeCreator::aSplitAngle;
+
 MObject paintStrokeCreator::aSplitTestInterval;
 MObject paintStrokeCreator::aEntryTransitionLength;
 MObject paintStrokeCreator::aExitTransitionLength;
@@ -46,8 +48,7 @@ MObject paintStrokeCreator::aExtendEntry;
 MObject paintStrokeCreator::aExtendExit;
 MObject paintStrokeCreator::aMinimumPoints;
 MObject paintStrokeCreator::aApplyBrushBias;
-
-// MObject paintStrokeCreator::aOutCoil;
+;
 
 MTypeId paintStrokeCreator::id(k_paintStrokeCreator);
 
@@ -114,6 +115,16 @@ MStatus paintStrokeCreator::initialize()
     nAttr.setWritable(true);
     st = addAttribute(aPaintId);
     mser;
+
+    aPotId = nAttr.create("potId", "poid", MFnNumericData::kInt);
+    mser;
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setStorable(true);
+    nAttr.setWritable(true);
+    st = addAttribute(aPotId);
+    mser;
+
 
     aMinimumPoints = nAttr.create("minimumPoints", "mnpts", MFnNumericData::kInt);
     mser;
@@ -186,6 +197,8 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aMinimumStrokeAdvance, aOutput);
     attributeAffects(aOverlap, aOutput);
     attributeAffects(aPaintId, aOutput);
+    attributeAffects(aPotId, aOutput);
+    
     attributeAffects(aBrushFollowStroke, aOutput);
 
     attributeAffects(aSplitTestInterval, aOutput);
@@ -241,13 +254,10 @@ unsigned int paintStrokeCreator::getStrokeBoundaries(
         overlap = 0.0f;
     }
 
-    // int counter = 0;
+  
     do
     {
-        // if (counter++ > 10)
-        // {
-        //     break;
-        // }
+ 
         MFloatVector boundary;
         bool done = getBoundary(
             dCurve,

@@ -85,8 +85,8 @@ class Brush(object):
     @classmethod
     def send_used_brush_sets(cls):
         painting = pm.PyNode("mainPaintingShape")
-        dc = pm.paintingQuery(painting, dc=True)
-        bids = sorted(set(dc[::2]))
+        tc = pm.paintingQuery(painting, toolCombinations=True)
+        bids = sorted(set(tc[::3]))
         for bid in bids:
             brush_set = Brush.brush_set_at_index(bid)
             for key in brush_set:
@@ -163,8 +163,8 @@ class Brush(object):
     def used_brushes(cls, node):
         result = {}
         try:
-            dc = pm.paintingQuery(node, dc=True)
-            bids = sorted(set(dc[::2]))
+            tc = pm.paintingQuery(node, toolCombinations=True)
+            bids = sorted(set(tc[::3]))
             for brush_id in bids:
                 result[brush_id] = Brush.brush_at_index(node, brush_id)
             return result

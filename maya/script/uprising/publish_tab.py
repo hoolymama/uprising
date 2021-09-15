@@ -1,9 +1,10 @@
 
+import os
 from contextlib import contextmanager
-
 import progress
 import pymel.core as pm
 import pymel.core.uitypes as gui
+
 import datetime
 from uprising.common.session.session import Session
 from uprising.bot.session.bot_painting_session import BotPaintingSession
@@ -37,7 +38,7 @@ class PublishTab(gui.FormLayout):
         self.do_components_cb = pm.checkBoxGrp(
             numberOfCheckBoxes=4,
             label="",
-            valueArray4=(1, 1, 0, 1),
+            valueArray4=(1, 0, 0, 0),
             labelArray4=("Do Retries", "Do Painting", "Dry run", "Save"),
             changeCommand=pm.Callback(self.on_ops_change)
         )
@@ -50,13 +51,7 @@ class PublishTab(gui.FormLayout):
             numberOfFields=1, label="Coil retries delta", value1=20
         )
 
-        # self.chains_per_retry = pm.intFieldGrp(
-        #     height=30,
-        #     label="Chains per retry",
-        #     annotation="Max number of chains for each retry resolution.",
-        #     numberOfFields=1,
-        #     value1=10,
-        # )
+        
 
         with utils.activatable(state=False) as self.single_active_checkbox:
 
@@ -74,8 +69,16 @@ class PublishTab(gui.FormLayout):
                 label="Single plug",
                 changeCommand=pm.Callback(self.configure_single_selector)
             )
+            found = None
             for node in all_skels:
+
                 pm.menuItem(label=node)
+                if (not found ) and (node.attr("nodeState").get() == 0):
+                    found=node
+            if found:
+                pm.optionMenuGrp(self.single_skel_menu, e=True, v=found.name())
+
+            
 
             self.single_plug_index_if = pm.intSliderGrp(
                 label="Selector",
@@ -173,9 +176,7 @@ class PublishTab(gui.FormLayout):
         node = pm.PyNode(pm.optionMenuGrp(
             self.single_skel_menu, query=True, value=True))
 
-        # chains_per_retry = pm.intFieldGrp(
-        #     self.chains_per_retry, query=True, value1=True)
-
+ 
         chain_skel_pairs = utils.get_chain_skel_pairs(node)
 
         chains.chunkify_skels( chain_skel_pairs, 1 )
@@ -268,43 +269,52 @@ class PublishTab(gui.FormLayout):
         robo.show()
 
 
+# batch_export(4, 1, 0.25, 0.25, False, "batch")
 
-# import pymel.core as pm
+def batch_export(xrepeat, yrepeat, x_offset, y_offset, do_subprograms, dirname, dry_run, return_to_start, animation=True):
+    if not dry_run:
+        robo.new()
+    crop_node = pm.PyNode("cImgCropMainLow")
+    skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+    directory = os.path.join("/Volumes/xtr/gd/venus/export", dirname)
 
-# import datetime
-# import os
+    identifiers = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J","K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+    i = 0
+    x_start = crop_node.attr("extraOffsetX").get()
+    y_start = crop_node.attr("extraOffsetY").get()
 
+    timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M")
+    for y in range(yrepeat):
+        crop_node.attr("extraOffsetX").set(x_start)
+        for x in range(xrepeat):
+            identifier = identifiers[i]
+            if animation:
+                pm.currentTime(i+1)
+            pm.refresh()
+            if not dry_run:
+                utils.reset_skels(utils.get_chain_skel_pairs(*skels))
 
-# from uprising.common.session.session import Session
-# from uprising.bot.session.bot_painting_session import BotPaintingSession
-# from uprising.bot.session.retries_session import RetriesSession
-# from uprising import (chains,robo, utils)
+                utils.mkdir_p(directory)
 
+                robo.new()
+                robo.hide()
+                retries_session = RetriesSession( 20, None, False, directory)
+                retries_session.run()
+                # retries_session.write_results()
 
-# suffixes = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
-# i = 0
-# for y in [-0.33, -0.01, 0.31]:
-#     for x in [-0.19 , 0.13,0.45 ]:
-        
-#         skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
-#         utils.reset_skels(utils.get_chain_skel_pairs(*skels))
+                prefix = "{}_px".format(identifier)
+                painting_session = BotPaintingSession(100, directory, do_subprograms, program_prefix=prefix)
+                painting_session.run()
+                # painting_session.write_stats()
 
-#         suffix = suffixes[i]
-#         directory = "/Volumes/xtr/gd/venus/export/crops"
-#         timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M")
-#         directory = os.path.join("/Volumes/xtr/gd/venus/export/crops", "{}_{}".format(timestamp, suffix) )
-#         utils.mkdir_p(directory)
+            i += 1
+            crop_node.attr("extraOffsetX").set(crop_node.attr("extraOffsetX").get()+x_offset)
+        crop_node.attr("extraOffsetY").set(crop_node.attr("extraOffsetY").get()+y_offset)
 
-#         cropNode = pm.PyNode("cImgCropMainLow")
-#         cropNode.attr("extraOffsetX").set(x)
-#         cropNode.attr("extraOffsetY").set(y)        
-#         robo.new()
-#         robo.hide()
-#         retries_session = RetriesSession( 20, None, False, directory)
-#         retries_session.run()
-#         retries_session.write_results()
+    crop_node.attr("extraOffsetX").set(x_start)
+    if return_to_start:
+        crop_node.attr("extraOffsetY").set(y_start)
 
-#         painting_session = BotPaintingSession(100, directory, True)
-#         painting_session.run()
-#         painting_session.write_stats()
-#         i += 1
+    if not dry_run:
+        BotPaintingSession.write_maya_scene(directory, "scene")
+        robo.show()

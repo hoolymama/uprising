@@ -1,4 +1,4 @@
-import palette_utils as putl
+from uprising import palette_utils  
 
 import pymel.core as pm
 import pymel.core.uitypes as gui
@@ -154,7 +154,7 @@ class phexTab(gui.FormLayout):
         if not brushes:
             return
         frame = 0
-        combos = putl.dip_combination_ids()
+        combos = palette_utils.brush_pot_combination_ids()
         for brush in brushes:
             brush_id = self._get_main_painting_connection_id(brush)
             pot_ids = [c["pot"] for c in combos if c["brush"] == brush_id]
