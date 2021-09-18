@@ -9,7 +9,7 @@ import datetime
 from uprising.common.session.session import Session
 from uprising.bot.session.bot_painting_session import BotPaintingSession
 from uprising.bot.session.retries_session import RetriesSession
-from uprising import (chains,robo, utils)
+from uprising import (chains, robo, utils)
 
 
 class PublishTab(gui.FormLayout):
@@ -292,6 +292,7 @@ def batch_export(xrepeat, yrepeat, x_offset, y_offset, do_subprograms, dirname, 
                 pm.currentTime(i+1)
             pm.refresh()
             if not dry_run:
+                pm.select(cl=True)
                 utils.reset_skels(utils.get_chain_skel_pairs(*skels))
 
                 utils.mkdir_p(directory)
