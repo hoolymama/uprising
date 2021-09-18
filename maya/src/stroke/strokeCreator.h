@@ -41,8 +41,8 @@ public:
 
 protected:
   void applyRotations(MDataBlock &data, std::vector<Stroke> *pOutStrokes) const;
-  void applyCoats( MDataBlock &data, std::vector<Stroke> *geom) const;
- 
+  void applyCoats(MDataBlock &data, std::vector<Stroke> *geom) const;
+  void applySpeeds(MDataBlock &data, std::vector<Stroke> *geom) const;
 
   static MObject aCoats;
 
@@ -58,6 +58,13 @@ protected:
   static MObject aBrushBankEnd;
   static MObject aBrushBank;
   static MObject aBrushRotateOrder;
+
+  static MObject aLinearSpeed;             // cm/sec
+  static MObject aAngularSpeed;            // per sec
+  static MObject aApproximationDistance;   // cm
+
+
+
 };
 
 #endif

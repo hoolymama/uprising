@@ -304,8 +304,8 @@ MStatus lightPaintingCmd::handleStrokeSpeedAngularFlag(const std::vector<Stroke>
 	{
 		return MS::kUnknownParameter;
 	}
-
-	setResult(strokes[strokeId].angularSpeed());
+	MAngle::Unit unit = getRotationUnit(argData);
+	setResult(strokes[strokeId].angularSpeed(unit));
 	return MS::kSuccess;
 }
 

@@ -50,6 +50,8 @@ MSyntax paintingCmd::newSyntax()
 	syn.addFlag(kStrokeSpeedLinearFlag, kStrokeSpeedLinearFlagL);
 
 	syn.addFlag(kStrokeSpeedAngularFlag, kStrokeSpeedAngularFlagL);
+	
+	syn.addFlag(kStrokeApproxDistFlag, kStrokeApproxDistFlagL);
 
 	syn.addFlag(kStrokePositionsFlag, kStrokePositionsFlagL);
 
@@ -182,6 +184,12 @@ MStatus paintingCmd::doIt(const MArgList &args)
 	{
 		return handleStrokeSpeedAngularFlag(*pGeom, argData);
 	}
+
+	if (argData.isFlagSet(kStrokeApproxDistFlag))
+	{
+		return handleStrokeApproxDistFlag(*pGeom, argData);
+	}
+
 
 	if (argData.isFlagSet(kStrokePositionsFlag))
 	{
@@ -536,9 +544,26 @@ MStatus paintingCmd::handleStrokeSpeedAngularFlag(const paintingGeom &geom,
 		return MS::kUnknownParameter;
 	}
 	int clusterId = getClusterId(geom, argData, &st);
-	setResult(geom.clusters()[clusterId].strokes()[strokeId].angularSpeed());
+	MAngle::Unit unit = getRotationUnit(argData);
+
+	setResult(geom.clusters()[clusterId].strokes()[strokeId].angularSpeed(unit));
 	return MS::kSuccess;
 }
+
+MStatus paintingCmd::handleStrokeApproxDistFlag(const paintingGeom &geom,
+												  MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(geom, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	setResult(geom.clusters()[clusterId].strokes()[strokeId].approximationDistance());
+	return MS::kSuccess;
+}
+
 
 MStatus paintingCmd::handleStrokePositionsFlag(const paintingGeom &geom,
 											   MArgDatabase &argData, const MFloatMatrix &worldMatrix)

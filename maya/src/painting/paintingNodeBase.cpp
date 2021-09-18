@@ -65,18 +65,6 @@ MStatus paintingBase::initialize()
   MMatrix identity;
   identity.setToIdentity();
 
-  // aInMatrix = mAttr.create("inMatrix", "imat", MFnMatrixAttribute::kDouble);
-  // mAttr.setStorable(false);
-  // mAttr.setHidden(true);
-  // mAttr.setDefault(identity);
-  // addAttribute(aInMatrix);
-
-  // aViewMatrix= mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
-  // mAttr.setStorable(false);
-  // mAttr.setHidden(false);
-  // mAttr.setKeyable(true);
-  // addAttribute(aViewMatrix);
- 
   aLinearSpeed = nAttr.create("linearSpeed", "lnsp", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);

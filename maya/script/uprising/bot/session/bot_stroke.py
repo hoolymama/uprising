@@ -56,17 +56,25 @@ class BotStroke(Stroke):
     def send(self, prefix, program, frame, motion):
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
-        lin = motion["linear_speed"] * self.linear_speed
-        ang = motion["angular_speed"] * self.angular_speed
-        program.setSpeed(lin, ang)
+        
         for t in self.arrivals:
             t.send(stroke_name, program, frame)
-
+        
+        if self.override_path_parameters:
+            program.setSpeed(self.linear_speed, self.angular_speed)
+            program.setRounding(self.approximation_distance)
+   
         if self.ignore:
             self.departure.linear = False
         else:
             for t in self.targets:
                 t.send(stroke_name, program, frame)
+                
+        if self.override_path_parameters:
+            program.setSpeed(motion["linear_speed"], motion["angular_speed"])
+            program.setRounding(motion["rounding"])
+   
+
 
         self.departure.send(stroke_name, program, frame)
 
@@ -104,7 +112,7 @@ class BotStroke(Stroke):
             clusterIndex=self.cluster_id,
             strokeIndex=self.id,
             strokeSpeedLinear=True,
-        )
+        ) * 10
 
     def query_angular_speed(self):
         return pm.paintingQuery(
@@ -112,7 +120,17 @@ class BotStroke(Stroke):
             clusterIndex=self.cluster_id,
             strokeIndex=self.id,
             strokeSpeedAngular=True,
+            rotateUnit="deg"
         )
+
+    def query_approximation_distance(self):
+        return pm.paintingQuery(
+            self.node,
+            clusterIndex=self.cluster_id,
+            strokeIndex=self.id,
+            strokeApoproximationDistance=True,
+        ) * 10
+
 
     def query_positions(self):
         return utils.to_point_array(

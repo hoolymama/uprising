@@ -33,6 +33,10 @@ MObject strokeCreator::aBrushBankEnd;
 MObject strokeCreator::aBrushBank;
 MObject strokeCreator::aBrushRotateOrder;
 
+MObject strokeCreator::aLinearSpeed;           // cm/sec
+MObject strokeCreator::aAngularSpeed;          // per sec
+MObject strokeCreator::aApproximationDistance; // cm
+
 MTypeId strokeCreator::id(k_strokeCreator);
 
 strokeCreator::strokeCreator() {}
@@ -63,6 +67,35 @@ MStatus strokeCreator::initialize()
   MFnUnitAttribute uAttr;
   MFnEnumAttribute eAttr;
 
+
+  aLinearSpeed = nAttr.create("linearSpeed", "lnsp", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  // nAttr.setMin(0.00f);
+  nAttr.setSoftMax(200.0f);
+  // nAttr.setDefault(100.00f);
+  nAttr.setKeyable(true);
+  addAttribute(aLinearSpeed);
+
+  // const double minAngSpeed = mayaMath::single_pi / 900.00;
+  // const double defaultAngSpeed = mayaMath::single_pi / 9.00;
+  aAngularSpeed = uAttr.create("angularSpeed", "agsp", MFnUnitAttribute::kAngle);
+  uAttr.setStorable(true);
+  uAttr.setReadable(true);
+  // uAttr.setMin(minAngSpeed);
+  uAttr.setKeyable(true);
+  // uAttr.setMax((mayaMath::single_pi));
+  addAttribute(aAngularSpeed);
+
+  aApproximationDistance = nAttr.create("approximationDistance", "apxd",
+                                        MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setMin(0.0f);
+  nAttr.setSoftMax(20.0f);
+  nAttr.setDefault(5.0f);
+  nAttr.setKeyable(true);
+  addAttribute(aApproximationDistance);
 
 
   aCoats = nAttr.create("coats", "cts", MFnNumericData::kInt);
@@ -159,6 +192,10 @@ MStatus strokeCreator::initialize()
   st = attributeAffects(aBrushBankEnd, aOutput);
   st = attributeAffects(aBrushBank, aOutput);
 
+  st = attributeAffects(aLinearSpeed, aOutput);
+  st = attributeAffects(aAngularSpeed, aOutput);
+  st = attributeAffects(aApproximationDistance, aOutput);
+
   return (MS::kSuccess);
 }
 
@@ -169,9 +206,26 @@ MStatus strokeCreator::generateStrokeGeometry(
 {
 
   applyCoats(data, pOutStrokes);
+  applySpeeds(data, pOutStrokes);
   strokeNodeBase::generateStrokeGeometry(plug,data,pOutStrokes);
 
   return MS::kSuccess;
+}
+
+void strokeCreator::applySpeeds(
+  MDataBlock &data,
+  std::vector<Stroke> *geom) const
+{
+  float linSpeed =  data.inputValue(aLinearSpeed).asFloat();
+  float approxDist =  data.inputValue(aApproximationDistance).asFloat();
+  float angSpeed =  float(data.inputValue(aAngularSpeed).asAngle().asRadians());
+  std::vector<Stroke>::iterator iter = geom->begin();
+  for (;iter != geom->end() ; iter++)
+  {
+    iter->setLinearSpeed(linSpeed);
+    iter->setAngularSpeed(angSpeed);
+    iter->setApproximationDistance(approxDist);
+  }
 }
 
 
@@ -350,5 +404,4 @@ void strokeCreator::applyRotations(
     }
     break;
   }
-  
 }

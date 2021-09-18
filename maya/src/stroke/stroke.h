@@ -312,11 +312,16 @@ public:
 		MAngle::Unit unit,
 		MFloatVector &result) const;
 
+	float linearSpeed() const;
 	void setLinearSpeed(float val);
+
+	float angularSpeed(MAngle::Unit unit = MAngle::kRadians) const;
 	void setAngularSpeed(float val);
 
-	float linearSpeed() const;
-	float angularSpeed() const;
+	float approximationDistance() const;
+	void setApproximationDistance(float val);
+
+	
 
 	void smoothTargets(int neighbors, bool doPositions, bool doWeights);
 
@@ -352,6 +357,7 @@ private:
 	MIntArray m_sortStack;
 	float m_linearSpeed;
 	float m_angularSpeed;
+	float m_approximationDistance;
 
 	float m_coil;
 };

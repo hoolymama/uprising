@@ -11,10 +11,10 @@ source "AEpaintingStrokes";
 	editorTemplate -cl 0 -beginLayout "Speed Attributes";
 	editorTemplate -addControl "linearSpeed";
 	editorTemplate -addControl "angularSpeed";
+	editorTemplate -addControl "approximationDistance";
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Path Attributes";
-	editorTemplate -addControl "approximationDistance";
 	editorTemplate -addControl "maxPointToPointDistance";
 	editorTemplate -addControl "approachDistance";
 	editorTemplate -endLayout;

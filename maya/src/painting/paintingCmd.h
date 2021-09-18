@@ -46,7 +46,6 @@
 #define kGlobalStrokeIndexFlag "-gsi"
 #define kGlobalStrokeIndexFlagL "-globalStrokeId"
 
-
 #define kRotateOrderFlag "-ro"
 #define kRotateOrderFlagL "-rotateOrder"
 
@@ -64,6 +63,9 @@
 
 #define kStrokeSpeedAngularFlag "-ssa"
 #define kStrokeSpeedAngularFlagL "-strokeSpeedAngular"
+
+#define kStrokeApproxDistFlag "-sad"
+#define kStrokeApproxDistFlagL "-strokeApoproximationDistance"
 
 #define kStrokeColorsFlag "-tcl"
 #define kStrokeColorsFlagL "-strokeColors"
@@ -141,6 +143,9 @@ private:
 	MStatus handleStrokeSpeedLinearFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleStrokeSpeedAngularFlag(const paintingGeom &geom, MArgDatabase &argData);
+
+	MStatus handleStrokeApproxDistFlag(const paintingGeom &geom,
+												  MArgDatabase &argData);
 
 	MStatus handleStrokePositionsFlag(const paintingGeom &geom, MArgDatabase &argData,
 									  const MFloatMatrix &worldMatrix);

@@ -60,50 +60,8 @@ protected:
   static MObject aAngularSpeed;            // per sec
   static MObject aApproximationDistance;   // cm
 
-
-  // MMatrix getWorldMatrix() const;
+ 
 
 };
-
-
-
-// inline MMatrix paintingBase::firstWorldMatrix(  const MObject & shapeNode) const
-// {	
-//   MStatus st;
-//   MFnDagNode fnDag(shapeNode); 
-//   MObject dParent = fnDag.parent( 0 );
-
-//   MFnDependencyNode fnParent( dParent );
-//   MObject dWorldMatAttr = fnParent.attribute( "worldMatrix" );
-//   MPlug worldMatrixPlg = MPlug( dParent, dWorldMatAttr ).elementByLogicalIndex( 0 );
-
-//   MObject dWorldMat;
-//   worldMatrixPlg.getValue( dWorldMat );
-//   return MFnMatrixData( dWorldMat ).matrix();
-// }
-
-
-
-
-// namespace paintingBaseCallback
-// {
-//   static MCallbackId id;
-
-//   static void makeDefaultConnections(MObject &node, void *clientData)
-//   {
-
-//     MPlug wmPlugmulti(node, paintingBase::worldMatrix);
-//     MPlug wm(wmPlugmulti.elementByLogicalIndex(0));
-//     MPlug mt(node, paintingBase::aInMatrix);
-
-//     MDGModifier mod;
-//     mod.connect(wm, mt);
-//     MStatus stat = mod.doIt();
-//     if (stat != MS::kSuccess)
-//     {
-//       stat.perror("painting ERROR :: callback unable to make matrix connections");
-//     }
-//   }
-// } // namespace paintingBaseCallback
-
+ 
 #endif

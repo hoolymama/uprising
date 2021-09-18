@@ -7,6 +7,11 @@ global proc AEstrokeCreatorInclude (string $nodeName)
 	editorTemplate -addControl "brushBank";
 	editorTemplate -addControl "brushRotateOrder";
 	editorTemplate -addControl "coats";
-	
  	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Path Attributes";
+	editorTemplate -addControl "linearSpeed";
+	editorTemplate -addControl "angularSpeed";
+	editorTemplate -addControl "approximationDistance";
+	editorTemplate -endLayout;
 }

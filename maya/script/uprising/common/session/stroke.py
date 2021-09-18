@@ -20,6 +20,10 @@ class Stroke(object):
         self.parent_id = self.query_parent_id()
         self.linear_speed = self.query_linear_speed()
         self.angular_speed = self.query_angular_speed()
+        self.approximation_distance = self.query_approximation_distance()
+
+        self.override_path_parameters = self.linear_speed > 0 and self.angular_speed > 0
+        
         self.config = None
         self.ignore = False
         self._build_targets()
@@ -40,6 +44,9 @@ class Stroke(object):
         raise NotImplementedError
 
     def query_angular_speed(self):
+        raise NotImplementedError
+
+    def query_approximation_distance(self):
         raise NotImplementedError
 
     def configure(self):

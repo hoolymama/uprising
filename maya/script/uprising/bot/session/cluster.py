@@ -40,7 +40,7 @@ class Cluster(object):
         cluster_name = self.name(program)
 
         program.RunInstruction("Cluster %s" % cluster_name, INSTRUCTION_COMMENT)
-        program.setRounding(motion["rounding"])
+
 
         for stroke in self.strokes:
             stroke.send(cluster_name, program, frame, motion)

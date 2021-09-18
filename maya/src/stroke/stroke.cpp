@@ -5,7 +5,7 @@
 #include <maya/MQuaternion.h>
 #include <algorithm>
 #include <vector>
-
+const double rad_to_deg = (180 / 3.1415927);
 #include "errorMacros.h"
 #include "mayaMath.h"
 #include <stroke.h>
@@ -837,10 +837,14 @@ void Stroke::colors(MColorArray &result) const
 	}
 }
 
-void Stroke::setLinearSpeed(float val)
+float Stroke::angularSpeed(MAngle::Unit unit) const
 {
-	m_linearSpeed = val;
+	if (unit == MAngle::kRadians) {
+		return m_angularSpeed;
+	}
+	return m_angularSpeed * rad_to_deg;
 }
+
 void Stroke::setAngularSpeed(float val)
 {
 	m_angularSpeed = val;
@@ -851,9 +855,19 @@ float Stroke::linearSpeed() const
 	return m_linearSpeed;
 }
 
-float Stroke::angularSpeed() const
+void Stroke::setLinearSpeed(float val)
 {
-	return m_angularSpeed;
+	m_linearSpeed = val;
+}
+
+float Stroke::approximationDistance() const
+{
+	return m_approximationDistance;
+}
+
+void Stroke::setApproximationDistance(float val)
+{
+	m_approximationDistance = val;
 }
 
 const Target &Stroke::departure() const
@@ -861,20 +875,11 @@ const Target &Stroke::departure() const
 	return m_departure;
 }
 
-// void Stroke::setDeparture(float offset)
-// {
-// 	m_departure = Target(m_targets.back());
-// 	MFloatPoint p = m_departure.position();
-// 	p.z = offset;
-// 	m_departure.setPosition(p);
-// }
-
 void Stroke::setDeparture(const MFloatVector & offset)
 {
 	m_departure = Target(m_targets.back());
 	m_departure.offsetBy(offset);
 }
-
 
 void Stroke::setArrival(const MFloatVector & offset)
 {
