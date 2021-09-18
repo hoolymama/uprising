@@ -76,18 +76,11 @@ class BotProgram(Program):
 
             num_dips = 1
 
-            if did_end_last_brush:
+            if did_change_pot or did_change_brush:
                 subprograms |= self._on_end_tool(last_cluster)
-
-            if did_change_pot or did_change_brush:
                 self._add_halts(cluster)
-
-            if did_change_brush:
                 subprograms |= self._on_start_tool(cluster)
-
-            if did_change_pot or did_change_brush:
                 num_dips = max(cluster.brush.initial_dips, 1)
-
 
             subprograms |= self._write_dip_and_cluster(cluster, num_dips)
 
@@ -118,52 +111,54 @@ class BotProgram(Program):
             self.program.RunInstruction("HALT", INSTRUCTION_INSERT_CODE)
 
 
-    def _on_start_tool(self, cluster, call_program=True):
+    def _on_start_tool(self, cluster):
         result = set()
         brush = cluster.brush
         bid = brush.id
 
         pick_program_name = PickProgram.generate_program_name(bid)
-        if call_program:
-            self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
+
+        self.program.RunInstruction(pick_program_name, INSTRUCTION_CALL_PROGRAM)
         result.add(pick_program_name)
         # Initial Wait
 
         # Initial Water
         if brush.initial_water:
             water_program_name = WaterProgram.generate_program_name(bid)
-            if call_program:
-                self.program.RunInstruction(water_program_name, INSTRUCTION_CALL_PROGRAM)
+
+            self.program.RunInstruction(water_program_name, INSTRUCTION_CALL_PROGRAM)
             result.add(water_program_name)
         return result
 
-    def _on_end_tool(self, cluster, call_program=True):
+    def _on_end_tool(self, cluster):
         result = set()
+        if not cluster:
+            return result
         bid = cluster.brush.id
         if cluster.brush.retardant:
             retardant_program_name = RetardantProgram.generate_program_name(bid)
-            if call_program:
-                self.program.RunInstruction(retardant_program_name, INSTRUCTION_CALL_PROGRAM)
+
+            self.program.RunInstruction(retardant_program_name, INSTRUCTION_CALL_PROGRAM)
             result.add(retardant_program_name)
 
         place_program_name = PlaceProgram.generate_program_name(bid)
-        if call_program:
-            self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
+
+        self.program.RunInstruction(place_program_name, INSTRUCTION_CALL_PROGRAM)
         result.add(place_program_name)
         return result
 
-    def _write_dip_and_cluster(self, cluster, num_dips, call_program=True):
+    def _write_dip_and_cluster(self, cluster, num_dips):
         result = set()
         dip_program_name = DipWipeProgram.generate_program_name(cluster.pot_id, cluster.brush.id)
-        if call_program:
-            for repeat in range(num_dips):
-                self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
+
+        for repeat in range(num_dips):
+            self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
         result.add(dip_program_name)
 
-        if call_program:
-            self.program.addMoveJ(robo.dip_approach)
-            cluster.send(self.program, self.frame, self.painting.motion)
-            self.program.addMoveJ(robo.dip_approach)
+
+        self.program.addMoveJ(robo.dip_approach)
+        cluster.send(self.program, self.frame, self.painting.motion)
+        self.program.addMoveJ(robo.dip_approach)
         return result
 
 
