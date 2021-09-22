@@ -53,6 +53,8 @@ MSyntax paintingCmd::newSyntax()
 	
 	syn.addFlag(kStrokeApproxDistFlag, kStrokeApproxDistFlagL);
 
+	syn.addFlag(kStrokeLayerIdFlag, kStrokeLayerIdFlagL);
+
 	syn.addFlag(kStrokePositionsFlag, kStrokePositionsFlagL);
 
 	syn.addFlag(kStrokeRotationsFlag, kStrokeRotationsFlagL);
@@ -190,6 +192,10 @@ MStatus paintingCmd::doIt(const MArgList &args)
 		return handleStrokeApproxDistFlag(*pGeom, argData);
 	}
 
+	if (argData.isFlagSet(kStrokeLayerIdFlag))
+	{
+		return handleStrokeLayerIdFlag(*pGeom, argData);
+	}
 
 	if (argData.isFlagSet(kStrokePositionsFlag))
 	{
@@ -561,6 +567,20 @@ MStatus paintingCmd::handleStrokeApproxDistFlag(const paintingGeom &geom,
 	}
 	int clusterId = getClusterId(geom, argData, &st);
 	setResult(geom.clusters()[clusterId].strokes()[strokeId].approximationDistance());
+	return MS::kSuccess;
+}
+
+MStatus paintingCmd::handleStrokeLayerIdFlag(const paintingGeom &geom,
+												  MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(geom, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	setResult(geom.clusters()[clusterId].strokes()[strokeId].layerId());
 	return MS::kSuccess;
 }
 

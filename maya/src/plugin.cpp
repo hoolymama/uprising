@@ -60,6 +60,8 @@
 #include "rotateTargets.h"
 
 #include "bulgeStrokes.h"
+#include "mapStrokes.h"
+
 
 MStatus initializePlugin(MObject obj)
 {
@@ -214,6 +216,9 @@ MStatus initializePlugin(MObject obj)
 	mser;
 
 
+	st = plugin.registerNode("mapStrokes", mapStrokes::id, mapStrokes::creator,
+							 mapStrokes::initialize);
+	mser;
 
 
 	st = plugin.registerNode("rotateTargets", rotateTargets::id, rotateTargets::creator,
@@ -303,7 +308,10 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterNode(rotateTargets::id);
 	mser;
-	
+
+	st = plugin.deregisterNode(mapStrokes::id);
+	mser;
+
 	st = plugin.deregisterNode(bulgeStrokes::id);
 	mser;
 

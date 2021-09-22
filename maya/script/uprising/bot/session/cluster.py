@@ -49,6 +49,10 @@ class Cluster(object):
         last_paint_id = last_cluster.paint.id if last_cluster else None
         last_pot_id = last_cluster.pot_id if last_cluster else None
         
+        last_layer_id = last_cluster.strokes[-1].layerId if last_cluster else None
+        this_layer_id = self.strokes[0].layerId if self.strokes else "XXXX"
+        did_change_layer = last_layer_id != this_layer_id
+        
         this_paint_id = self.paint.id
         did_change_paint = last_paint_id != this_paint_id
         did_change_pot = last_pot_id != self.pot_id
@@ -58,5 +62,5 @@ class Cluster(object):
         did_change_tool = self.reason == "tool"
         did_change_brush = did_change_tool and (last_brush_id != this_brush_id)
         did_end_last_brush = did_change_brush and (last_brush_id is not None)
-        return (did_change_pot, did_change_paint, did_change_tool, did_change_brush, did_end_last_brush)
+        return (did_change_pot, did_change_paint, did_change_tool, did_change_brush, did_end_last_brush, did_change_layer)
  

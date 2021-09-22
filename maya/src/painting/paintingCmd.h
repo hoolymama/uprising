@@ -30,7 +30,6 @@
 #define kClusterPotIdFlag "-cti"
 #define kClusterPotIdFlagL "-clusterPotId"
 
-
 #define kClusterBrushIdFlag "-cbi"
 #define kClusterBrushIdFlagL "-clusterBrushId"
 
@@ -63,6 +62,9 @@
 
 #define kStrokeSpeedAngularFlag "-ssa"
 #define kStrokeSpeedAngularFlagL "-strokeSpeedAngular"
+
+#define kStrokeLayerIdFlag "-lid"
+#define kStrokeLayerIdFlagL "-strokeLayerId"
 
 #define kStrokeApproxDistFlag "-sad"
 #define kStrokeApproxDistFlagL "-strokeApoproximationDistance"
@@ -145,6 +147,9 @@ private:
 	MStatus handleStrokeSpeedAngularFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleStrokeApproxDistFlag(const paintingGeom &geom,
+												  MArgDatabase &argData);
+
+	MStatus handleStrokeLayerIdFlag(const paintingGeom &geom,
 												  MArgDatabase &argData);
 
 	MStatus handleStrokePositionsFlag(const paintingGeom &geom, MArgDatabase &argData,

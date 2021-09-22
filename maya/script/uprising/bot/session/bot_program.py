@@ -77,13 +77,13 @@ class BotProgram(Program):
 
         for cluster in self.painting.clusters[start:end]:
 
-            did_change_pot, did_change_paint, did_change_tool, did_change_brush, did_end_last_brush = cluster.get_flow_info(
+            did_change_pot, did_change_paint, did_change_tool, did_change_brush, did_end_last_brush, did_change_layer = cluster.get_flow_info(
                 last_cluster
             )
 
             num_dips = 1
 
-            if did_change_pot or did_change_brush:
+            if (did_change_layer and did_change_pot) or did_change_brush:
                 subprograms |= self._on_end_tool(last_cluster)
                 self._add_halts(cluster)
                 subprograms |= self._on_start_tool(cluster)

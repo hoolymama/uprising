@@ -21,6 +21,7 @@ class Stroke(object):
         self.linear_speed = self.query_linear_speed()
         self.angular_speed = self.query_angular_speed()
         self.approximation_distance = self.query_approximation_distance()
+        self.layerId = self.query_layer_id()
 
         self.override_path_parameters = self.linear_speed > 0 and self.angular_speed > 0
         
@@ -47,6 +48,9 @@ class Stroke(object):
         raise NotImplementedError
 
     def query_approximation_distance(self):
+        raise NotImplementedError
+
+    def query_layer_id(self):
         raise NotImplementedError
 
     def configure(self):

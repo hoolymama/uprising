@@ -34,11 +34,6 @@
 #define kStrokeColorsFlag "-tcl"
 #define kStrokeColorsFlagL "-strokeColors"
 
-// #define kStrokeTangentsFlag "-st"
-// #define kStrokeTangentsFlagL "-strokeTangents"
-
-// #define kStrokeBackstrokeFlag "-sb"
-// #define kStrokeBackstrokeFlagL "-strokeBackstroke"
 
 #define kStrokeArcLengthFlag "-sal"
 #define kStrokeArcLengthFlagL "-strokeArcLength"

@@ -269,7 +269,10 @@ MStatus painting::getPalette(MDataBlock &data, std::map<int, Paint> &palette) co
   MStatus st;
   MDataHandle h = data.inputValue(aPalette, &st);msert;
   MObject d = h.data();
-  MFnPluginData fnP(d, &st); msert;
+  MFnPluginData fnP(d, &st);
+  if (st.error()) {
+    return st;
+  }
   paletteData *pData = (paletteData *)fnP.data(&st);msert;
   palette = *(pData->fGeometry);
   if (palette.size()==0) {
