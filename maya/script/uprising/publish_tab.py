@@ -34,7 +34,11 @@ class PublishTab(gui.FormLayout):
         self.on_ops_change()
 
     def create_header(self):
-
+        pm.rowLayout(numberOfColumns=2,
+            adjustableColumn=1,
+            columnAlign=(1, "right"),
+            columnAttach=[(1, "both", 2), (2, "both", 2)],
+        )
         self.do_components_cb = pm.checkBoxGrp(
             numberOfCheckBoxes=4,
             label="",
@@ -42,6 +46,9 @@ class PublishTab(gui.FormLayout):
             labelArray4=("Do Retries", "Do Painting", "Dry run", "Save"),
             changeCommand=pm.Callback(self.on_ops_change)
         )
+        self.suffix_tf = pm.textFieldGrp(label="Suffix", columnWidth2=(50, 140))
+
+        pm.setParent("..")
 
     def create_retries_frame(self):
 
@@ -149,6 +156,9 @@ class PublishTab(gui.FormLayout):
                 self.do_components_cb, edit=True, valueArray4=(do_retries, do_painting, dry_run, do_save)
             )
 
+        pm.textFieldGrp(self.suffix_tf, edit=True, enable=do_save)
+
+
         pm.button(self.go_but, edit=True, en=(do_retries or do_painting))
 
 
@@ -224,9 +234,10 @@ class PublishTab(gui.FormLayout):
 
         directory = None
         if do_save:
-            directory = Session.choose_session_dir()
+            suffix = pm.textFieldGrp(self.suffix_tf, query=True, text=True).strip()
+            directory = Session.choose_session_dir(suffix=suffix)
             if not directory:
-                print "Aborted"
+                print("Aborted")
                 return
 
         plug = None
