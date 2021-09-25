@@ -25,7 +25,7 @@ from uprising.bot.session.dip_wipe_program import (
 class BotPaintingSession(Session):
 
 
-    def __init__(self, cluster_chunk_size, directory,do_separate_subprograms, program_prefix="px"):
+    def __init__(self, cluster_chunk_size, directory, do_separate_subprograms, program_prefix="px"):
         self.program = None
         self.do_separate_subprograms = do_separate_subprograms
         self.directory = directory
@@ -64,10 +64,10 @@ class BotPaintingSession(Session):
             # POST STEP Where we try to make linear moves between strokes and between clusters
             # and the palette.
 
-            print "LINKAGES"
+            # print "LINKAGES"
             self.configure_linkages()
 
-            print "SEND"
+            # print "SEND"
             if self.do_separate_subprograms:
                 self._send_and_publish_bot_program()
                 self._send_and_publish_pick_place_programs()
@@ -88,9 +88,8 @@ class BotPaintingSession(Session):
             "painting_stats": stats.stats(), 
             "per_brush_stats": stats.stats_per_brush()
             }
-        print("EVENT LOG --------------")
+        print("EVENT LOG -- {}".format(os.path.basename(self.directory)))
         print(self.program.event_log)
-        print("------------------------")
 
     def _build_bot_program(self):
         self.init_progress()
@@ -277,7 +276,7 @@ class BotPaintingSession(Session):
         robo.clean("kr30")
 
         for cluster in self.program.painting.clusters:
-            print "configure_linkages cluster:", cluster.id
+            # print "configure_linkages cluster:", cluster.id
 
             cluster_test_program = ClusterTestProgram(
                 "cluster_test", cluster, self.program.painting.motion, orig_approach_height
@@ -295,9 +294,9 @@ class BotPaintingSession(Session):
                 else:
                     num_straightened += 1
 
-            print "configured ({}/{}) links for cluster:[{}] ".format(
-                num_straightened, num_links, cluster.id
-            )
+            # print "configured ({}/{}) links for cluster:[{}] ".format(
+            #     num_straightened, num_links, cluster.id
+            # )
 
     # @staticmethod
     # def configure_cluster_arrival_linkages(cluster):

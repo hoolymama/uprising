@@ -91,7 +91,7 @@ class Kr8TrackProgram(Program):
         link = robo.link()
         tool_pose = robo.maya_to_robodk_mat(mat)
         flange_pose = tool_pose * self.tool_matrix.invH()
-        print "ADDING JOINT TARGET: ", name
+        # print "ADDING JOINT TARGET: ", name
         target = link.AddTarget(name, robo.calibration_frame, robot)
         joints = robot.SolveIK(flange_pose, HOME_JOINTS)
         target.setPose(tool_pose)

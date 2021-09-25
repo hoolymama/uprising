@@ -49,8 +49,8 @@ class PovStroke(Stroke):
             config = self.best_config()
         except utils.StrokeError:
             configs = self.all_configs()
-            print("CONFIGS FOR STROKE : {}".format(self.id))
-            print(configs)
+            # print("CONFIGS FOR STROKE : {}".format(self.id))
+            # print(configs)
             raise
 
         for target in self.targets:

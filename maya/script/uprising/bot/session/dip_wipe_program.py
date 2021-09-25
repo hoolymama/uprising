@@ -22,7 +22,7 @@ class DipWipeProgram(Program):
         self.do_wipe=kwargs.get("wipe", True)
 
 
-        print "DipWipeProgram init pack:", pack
+        # print "DipWipeProgram init pack:", pack
         name = DipWipeProgram.generate_program_name(pack["pot_id"], pack["brush_id"])
 
         super(DipWipeProgram, self).__init__(name)
@@ -30,7 +30,7 @@ class DipWipeProgram(Program):
         self.wipe_painting = BotPainting(pack["wipe"])
 
     def configure(self):
-        print "DipWipeProgram CONFIGURING dip_painting.clusters and wipe_painting.clusters"
+        # print "DipWipeProgram CONFIGURING dip_painting.clusters and wipe_painting.clusters"
         for cluster in self.dip_painting.clusters:
             for stroke in cluster.strokes:
                 configurator.solve(stroke, cluster.brush)
