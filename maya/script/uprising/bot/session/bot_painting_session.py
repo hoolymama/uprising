@@ -84,7 +84,13 @@ class BotPaintingSession(Session):
             minor_progress=0,
         )
 
-        self.stats = {"painting_stats": stats.stats(), "per_brush_stats": stats.stats_per_brush()}
+        self.stats = {
+            "painting_stats": stats.stats(), 
+            "per_brush_stats": stats.stats_per_brush()
+            }
+        print("EVENT LOG --------------")
+        print(self.program.event_log)
+        print("------------------------")
 
     def _build_bot_program(self):
         self.init_progress()

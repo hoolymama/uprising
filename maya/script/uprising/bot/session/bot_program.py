@@ -12,11 +12,16 @@ from robolink import INSTRUCTION_COMMENT, INSTRUCTION_CALL_PROGRAM, INSTRUCTION_
 
 PAINTING_NAME = "mainPaintingShape"
 
+def _log_line(*vals):
+    return "{}\n".format("\t".join(vals)) 
+
 
 class BotProgram(Program):
     def __init__(self, name, **kw):
         super(BotProgram, self).__init__(name)
         self.painting = BotPainting(pm.PyNode(PAINTING_NAME))
+        self.event_log = _log_line("ClusterId", "Red","Green","Blue","","Brush Id", "Paint Id", "Pot Id")
+
 
     def configure(self):
         for cluster in self.painting.clusters:
@@ -77,9 +82,16 @@ class BotProgram(Program):
 
         for cluster in self.painting.clusters[start:end]:
 
-            did_change_pot, did_change_paint, did_change_tool, did_change_brush, did_end_last_brush, did_change_layer = cluster.get_flow_info(
-                last_cluster
-            )
+            (did_change_pot, 
+            did_change_paint, 
+            did_change_tool, 
+            did_change_brush, 
+            did_end_last_brush, 
+            did_change_layer  )= cluster.get_flow_info(last_cluster)
+
+            # Add an Identifier
+            if did_change_pot or did_change_brush:
+                self.push_to_event_log(cluster)
 
             num_dips = 1
 
@@ -167,6 +179,27 @@ class BotProgram(Program):
         cluster.send(self.program, self.frame, self.painting.motion)
         self.program.addMoveJ(robo.dip_approach)
         return result
+
+    def push_to_event_log(self, cluster):
+        paint = cluster.paint
+        clusterid = "Cluster:{:06d}".format(cluster.id)
+        brushid = "{:02d}".format(cluster.brush.id)
+        paintid = "{:02d}".format(paint.id)
+        potid = "{:02d}".format(cluster.pot_id)
+        self.program.RunInstruction(
+            "{} BrushId:{} PaintId:{} PotId:{}".format(clusterid, brushid, paintid, potid),
+            INSTRUCTION_COMMENT
+        )
+        self.event_log += _log_line(
+            clusterid,
+            "{:d}".format(int(paint.color[0]*255)),
+            "{:d}".format(int(paint.color[1]*255)),
+            "{:d}".format(int(paint.color[2]*255)),
+            "",
+            brushid,
+            paintid,
+            potid
+            )
 
 
 class BotRetryProgram(Program):

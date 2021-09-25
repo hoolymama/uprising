@@ -11,6 +11,23 @@ from uprising.bot.session.bot_painting_session import BotPaintingSession
 from uprising.bot.session.retries_session import RetriesSession
 from uprising import (chains, robo, utils)
 
+@contextmanager
+def isolate_batch(batch_name, batches):
+    # batch - array
+    # batches - dict of arrays
+    for b in batches:
+        if b == batch_name:
+            for skel in batches[b]:
+                skel.attr("nodeState").set(0)
+        else:
+            for skel in batches[b]:
+                skel.attr("nodeState").set(1)
+    try:
+        yield
+    finally:
+        for b in batches:
+            for skel in batches[b]:
+                skel.attr("nodeState").set(0)
 
 class PublishTab(gui.FormLayout):
     def __init__(self):
@@ -34,18 +51,28 @@ class PublishTab(gui.FormLayout):
         self.on_ops_change()
 
     def create_header(self):
-        pm.rowLayout(numberOfColumns=2,
+        pm.rowLayout(numberOfColumns=3,
             adjustableColumn=1,
             columnAlign=(1, "right"),
-            columnAttach=[(1, "both", 2), (2, "both", 2)],
+            columnAttach=[(1, "both", 2), (2, "both", 2), (3, "both", 2)],
         )
         self.do_components_cb = pm.checkBoxGrp(
-            numberOfCheckBoxes=4,
+            numberOfCheckBoxes=2,
+            cw1=0,
             label="",
-            valueArray4=(1, 0, 0, 0),
-            labelArray4=("Do Retries", "Do Painting", "Dry run", "Save"),
+            valueArray2=(1, 1),
+            labelArray2=("Do Retries", "Do Painting"),
             changeCommand=pm.Callback(self.on_ops_change)
         )
+        self.do_save_rb = pm.radioButtonGrp(
+            label='Save', 
+            sl=2,
+            labelArray2=[
+                'One program',
+                'Batched'],
+            numberOfRadioButtons=2,
+            changeCommand=pm.Callback(self.on_ops_change))
+
         self.suffix_tf = pm.textFieldGrp(label="Suffix", columnWidth2=(50, 140))
 
         pm.setParent("..")
@@ -57,8 +84,6 @@ class PublishTab(gui.FormLayout):
         self.coil_delta_ff = pm.floatFieldGrp(
             numberOfFields=1, label="Coil retries delta", value1=20
         )
-
-        
 
         with utils.activatable(state=False) as self.single_active_checkbox:
 
@@ -104,6 +129,7 @@ class PublishTab(gui.FormLayout):
         pm.setParent("..")  # out of frame
 
         self.configure_single_selector()
+
         return frame
 
     def create_export_frame(self):
@@ -139,8 +165,8 @@ class PublishTab(gui.FormLayout):
 
     def on_ops_change(self):
 
-        do_retries, do_painting, dry_run, do_save = pm.checkBoxGrp(
-            self.do_components_cb, query=True, valueArray4=True
+        do_retries, do_painting = pm.checkBoxGrp(
+            self.do_components_cb, query=True, valueArray2=True
         )
 
         pm.frameLayout(self.retries_frame, edit=True, en=(do_retries))
@@ -149,15 +175,6 @@ class PublishTab(gui.FormLayout):
 
         do_separate_subprograms = pm.checkBoxGrp(self.do_separate_subprograms_cb, q=True , value1=True)
         pm.intFieldGrp(self.cluster_chunk_if, e=True, en=do_separate_subprograms)
-        
-        if do_painting:
-            do_save = True
-            pm.checkBoxGrp(
-                self.do_components_cb, edit=True, valueArray4=(do_retries, do_painting, dry_run, do_save)
-            )
-
-        pm.textFieldGrp(self.suffix_tf, edit=True, enable=do_save)
-
 
         pm.button(self.go_but, edit=True, en=(do_retries or do_painting))
 
@@ -214,61 +231,91 @@ class PublishTab(gui.FormLayout):
 
     def on_go(self):
 
-        do_retries, do_painting, dry_run, do_save = pm.checkBoxGrp(
-            self.do_components_cb, query=True, valueArray4=True
-        )
+        do_single = pm.checkBox(self.single_active_checkbox, q=True, v=True)
+        if do_single:
+            self.do_single_retry()
+            return
 
+        do_batch = pm.radioButtonGrp(
+            self.do_save_rb, query=True, sl=True) == 2
+
+        if do_batch:
+            self.do_batch_programs()
+            return
+
+        self.do_one_program()
+
+    def _get_ui_params(self):
         coil_delta = pm.floatFieldGrp(
             self.coil_delta_ff, query=True, value1=True)
-
-        # chains_per_retry = pm.intFieldGrp(
-        #     self.chains_per_retry, query=True, value1=True)
-
         cluster_chunk_size = pm.intFieldGrp(
             self.cluster_chunk_if, query=True, value1=True
         )
-
-        do_single = pm.checkBox(self.single_active_checkbox, q=True, v=True)
-
         do_separate_subprograms = pm.checkBoxGrp(self.do_separate_subprograms_cb, q=True, value1=True)
+        
+        suffix = pm.textFieldGrp(self.suffix_tf, query=True, text=True).strip()
+        directory = Session.choose_session_dir(suffix=suffix)
+  
+        do_retries, do_painting = pm.checkBoxGrp(
+            self.do_components_cb, query=True, valueArray2=True
+        )
 
-        directory = None
-        if do_save:
-            suffix = pm.textFieldGrp(self.suffix_tf, query=True, text=True).strip()
-            directory = Session.choose_session_dir(suffix=suffix)
-            if not directory:
-                print("Aborted")
-                return
-
-        plug = None
-        if do_single:
-            node = pm.PyNode(pm.optionMenuGrp(
-                self.single_skel_menu, query=True, value=True))
-            plug = node.attr("selector")
+        return (do_retries, do_painting, coil_delta, cluster_chunk_size, do_separate_subprograms, suffix, directory)
 
 
-        if not dry_run:
-            robo.new()
-            if do_single:
-                robo.show()
-            else:
-                robo.hide()
+    def do_batch_programs(self):
+        do_retries, do_painting, coil_delta, cluster_chunk_size, do_separate_subprograms, suffix, directory = self._get_ui_params()
+        if not directory:
+            print("No directory - Aborted")
+            return
+        robo.new()
+        robo.hide()
 
-        retries_session = None
+        batches = _get_active_skel_batches()
+        for batch_name in batches:
+            with isolate_batch(batch_name, batches):
+                batch_directory = os.path.join(directory,batch_name)
+                utils.mkdir_p(batch_directory)
+
+                if do_retries:
+                    retries_session = RetriesSession(
+                        coil_delta,
+                        None,
+                        False,
+                        batch_directory)
+
+                    retries_session.run()
+                    retries_session.show_results()
+                    retries_session.write_results()
+
+                if do_painting:
+                    painting_session = BotPaintingSession(cluster_chunk_size, batch_directory, do_separate_subprograms)
+                    painting_session.run()
+                    painting_session.show_stats()
+                    painting_session.write_stats()
+        
+        painting_session.write_maya_scene(directory, "scene")
+
+
+
+    def do_one_program_export(self):
+        do_retries, do_painting, coil_delta, cluster_chunk_size, do_separate_subprograms, suffix, directory = self._get_ui_params()
+        if not directory:
+            print("No directory - Aborted")
+            return
+        robo.new()
+        robo.hide()
+
         if do_retries:
             retries_session = RetriesSession(
                 coil_delta,
-                plug,
-                dry_run,
+                None,
+                False,
                 directory)
 
             retries_session.run()
             retries_session.show_results()
             retries_session.write_results()
-
-            # don't do painting in the below cases
-            if dry_run or do_single:
-                return
 
         if do_painting:
             painting_session = BotPaintingSession(cluster_chunk_size, directory, do_separate_subprograms)
@@ -279,54 +326,97 @@ class PublishTab(gui.FormLayout):
 
         robo.show()
 
+    def do_single_retry(self):
+
+        coil_delta = pm.floatFieldGrp(
+            self.coil_delta_ff, query=True, value1=True)
+
+        node = pm.PyNode(pm.optionMenuGrp(
+            self.single_skel_menu, query=True, value=True))
+        plug = node.attr("selector")
+
+        robo.new()
+        robo.show()
+        retries_session = RetriesSession(
+            coil_delta,
+            plug,
+            False,
+            None)
+
+        retries_session.run()
+        retries_session.show_results()
+
+
+
+def _get_active_skel_batches():
+    skels = [s for s in pm.ls(type="skeletonStroke") if s.attr("nodeState").get() == 0]
+    result = {}
+    for skel in skels:
+        name = skel.attr("batchName").get()
+        if not name:
+            name = "noname"
+        if name not in result:
+            result[name] = []
+        result[name].append(skel)
+    return result
+
 
 # batch_export(4, 1, 0.25, 0.25, False, "batch")
 
-def batch_export(xrepeat, yrepeat, x_offset, y_offset, do_subprograms, dirname, dry_run, return_to_start, animation=True):
-    if not dry_run:
-        robo.new()
-    crop_node = pm.PyNode("cImgCropMainLow")
-    skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
-    directory = os.path.join("/Volumes/xtr/gd/venus/export", dirname)
+# def batch_export(
+#     xrepeat, 
+#     yrepeat, 
+#     x_offset, 
+#     y_offset, 
+#     do_subprograms, 
+#     dirname, 
+#     dry_run, 
+#     return_to_start, 
+#     animation=True):
+#     if not dry_run:
+#         robo.new()
+#     crop_node = pm.PyNode("cImgCropMainLow")
+#     skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+#     directory = os.path.join("/Volumes/xtr/gd/venus/export", dirname)
 
-    identifiers = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J","K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
-    i = 0
-    x_start = crop_node.attr("extraOffsetX").get()
-    y_start = crop_node.attr("extraOffsetY").get()
+#     identifiers = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J","K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+#     i = 0
+#     x_start = crop_node.attr("extraOffsetX").get()
+#     y_start = crop_node.attr("extraOffsetY").get()
 
-    timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M")
-    for y in range(yrepeat):
-        crop_node.attr("extraOffsetX").set(x_start)
-        for x in range(xrepeat):
-            identifier = identifiers[i]
-            if animation:
-                pm.currentTime(i+1)
-            pm.refresh()
-            if not dry_run:
-                pm.select(cl=True)
-                utils.reset_skels(utils.get_chain_skel_pairs(*skels))
+#     timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M")
+#     for y in range(yrepeat):
+#         crop_node.attr("extraOffsetX").set(x_start)
+#         for x in range(xrepeat):
+#             identifier = identifiers[i]
+#             if animation:
+#                 pm.currentTime(i+1)
+#             pm.refresh()
+#             if not dry_run:
+#                 pm.select(cl=True)
+#                 utils.reset_skels(utils.get_chain_skel_pairs(*skels))
 
-                utils.mkdir_p(directory)
+#                 utils.mkdir_p(directory)
 
-                robo.new()
-                robo.hide()
-                retries_session = RetriesSession( 20, None, False, directory)
-                retries_session.run()
-                # retries_session.write_results()
+#                 robo.new()
+#                 robo.hide()
+#                 retries_session = RetriesSession( 20, None, False, directory)
+#                 retries_session.run()
+#                 # retries_session.write_results()
 
-                prefix = "{}_px".format(identifier)
-                painting_session = BotPaintingSession(100, directory, do_subprograms, program_prefix=prefix)
-                painting_session.run()
-                # painting_session.write_stats()
+#                 prefix = "{}_px".format(identifier)
+#                 painting_session = BotPaintingSession(100, directory, do_subprograms, program_prefix=prefix)
+#                 painting_session.run()
+#                 # painting_session.write_stats()
 
-            i += 1
-            crop_node.attr("extraOffsetX").set(crop_node.attr("extraOffsetX").get()+x_offset)
-        crop_node.attr("extraOffsetY").set(crop_node.attr("extraOffsetY").get()+y_offset)
+#             i += 1
+#             crop_node.attr("extraOffsetX").set(crop_node.attr("extraOffsetX").get()+x_offset)
+#         crop_node.attr("extraOffsetY").set(crop_node.attr("extraOffsetY").get()+y_offset)
 
-    crop_node.attr("extraOffsetX").set(x_start)
-    if return_to_start:
-        crop_node.attr("extraOffsetY").set(y_start)
+#     crop_node.attr("extraOffsetX").set(x_start)
+#     if return_to_start:
+#         crop_node.attr("extraOffsetY").set(y_start)
 
-    if not dry_run:
-        BotPaintingSession.write_maya_scene(directory, "scene")
-        robo.show()
+#     if not dry_run:
+#         BotPaintingSession.write_maya_scene(directory, "scene")
+#         robo.show()
