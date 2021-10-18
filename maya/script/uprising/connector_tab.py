@@ -152,6 +152,14 @@ class ConnectorTab(gui.FormLayout):
                 "Wrong number of nodes selected. Must be the same, or one column must have 1 node.")
 
         maxlen = max(dlen, slen)
+        if maxlen == 1 and '{}' in dest_template:
+            choice = pm.promptDialog(
+                title="Only one source/destination pair",
+                message="How many connections?",
+            )
+
+
+            maxlen = int(pm.promptDialog(query=True, text=True) or 1)
 
         for i in range(maxlen):
             result.append((
@@ -163,20 +171,20 @@ class ConnectorTab(gui.FormLayout):
         return result
 
     def on_go(self):
-        for p in self.get_connection_pairs():
-            print p[0], ">>", p[1]
-            p[0] >> p[1]
+        for pair in self.get_connection_pairs():
+            print(pair[0], ">>", pair[1])
+            pair[0] >> pair[1]
 
     def on_dry(self):
-        for p in self.get_connection_pairs():
-            print p[0], ">>", p[1]
+        for pair in self.get_connection_pairs():
+            print(pair[0], ">>", pair[1])
 
     @staticmethod
     def get_attribute_templates(node):
         result = []
         attrs = pm.listAttr(node)
-        print attrs
-        print "-"*20
+        print(attrs)
+        print("-"*20)
         for attr in attrs:
             try:
                 attname = node.attr(attr).name()

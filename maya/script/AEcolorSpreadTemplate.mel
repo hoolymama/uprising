@@ -1,0 +1,124 @@
+source "AEpaintingUtilFuncs";
+
+
+
+
+
+
+global proc AEcolorSpreadTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+
+ 	editorTemplate -cl 0  -beginLayout "Input attributes";
+	editorTemplate -addControl "color";
+	editorTemplate -addControl "numColors";
+	editorTemplate -addControl "seed";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Hue attributes";
+	editorTemplate -addControl "hueRange";
+	editorTemplate -addControl "huePropagation";
+	editorTemplate -endLayout;
+
+ 	editorTemplate -cl 0  -beginLayout "Saturation attributes";
+	editorTemplate -addControl "saturationRange";
+	editorTemplate -addControl "saturationPropagation";
+	editorTemplate -endLayout;
+
+
+ 	editorTemplate -cl 0  -beginLayout "Value attributes";
+	editorTemplate -addControl "valueRange";
+	editorTemplate -addControl "valuePropagation";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Out attributes";
+	editorTemplate -callCustom "AEcolorSpreadPaintNew" "AEcolorSpreadPaintReplace" "outColor";
+	editorTemplate -endLayout;
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
+
+
+
+ global proc AEcolorSpreadPaintNew (string $nodeAttr) {
+ 	setUITemplate -pst attributeEditorTemplate;
+ 	global int $gTextColumnWidthIndex;
+ 	string $col = "AEcolorSpreadPaintCol";
+
+ 	columnLayout -adj 1 $col ;	
+ 	setParent ..;
+
+ 	rowLayout -nc 3  -columnWidth3 $gTextColumnWidthIndex $gTextColumnWidthIndex $gTextColumnWidthIndex;
+ 	text -label "";
+ 	button -width 210 -l "Add" "AEaddColorBtn";
+ 	text -label "";
+ 	setParent ..;
+
+ 	setUITemplate -ppt;
+ 	AEcolorSpreadPaintReplace($nodeAttr);
+ }
+
+ global proc AEcolorSpreadPaintReplace (string $nodeAttr) {
+
+ 	string $node = nodeFromNodeAttr($nodeAttr);
+ 	string $col = "AEcolorSpreadPaintCol";
+	setParent $col;
+ 	int $numElements = `getAttr -size $nodeAttr`;
+ 	string $controls[] = `layout -q -ca $col`;
+ 	int $numExistingControls = size($controls);
+	
+ 	for ($i = 0;$i<$numExistingControls;$i++) {
+ 		deleteUI $controls[$i];
+ 	}
+
+ 	int $indices[] = `getAttr -mi $nodeAttr`;
+
+ 	for ($i = 0;$i<$numElements;$i++) {
+ 		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
+
+		AEcolorSpreadAddMultiWidget ($plug, $col, $indices[$i]) ;
+		// attrColorSliderGrp -en 0 -at  $plug;
+ 	}
+ 	setParent ..;
+
+	button -e -c ( "onAddColorSpreadEntry(\"" + $nodeAttr +"\")") AEaddColorBtn;
+
+
+ }
+
+ global proc AEcolorSpreadAddMultiWidget(
+ 	string $plug, 
+ 	string $columnLayout,  
+ 	int $index) 
+{
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+
+ 	string $node = nodeFromNodeAttr($plug);
+	string $label = ("Color: " + $index);
+
+ 	string $layout = `frameLayout -cl 0 -cll 0 -label $label -bv 1`;
+
+
+ 	rowLayout -nc 2 -adjustableColumn 1 -cw2 150 50;
+	attrColorSliderGrp -en 0 -at  $plug;
+
+ 	string $removeCmd = ("deleteUI " + $layout+";removeMultiInstance -b 1 "+$plug+";" ) ;
+ 	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
+	setParent ..;
+ 	setParent ..;
+ }
+
+global proc onAddColorSpreadEntry(string $nodeAttr)
+{
+	int $nextIndex = findNextNonExistentIndex($nodeAttr);
+	setAttr  ($nodeAttr+"["+$nextIndex+"]") 1 1 1;
+	string $node = nodeFromNodeAttr($nodeAttr);
+	// force eval
+	setAttr ($node+".seed") `getAttr ($node+".seed")`;
+
+}

@@ -52,6 +52,7 @@
 
 #include "paletteData.h"
 #include "paletteNode.h"
+#include "colorSpreadNode.h"
 #include "paletteDrawOverride.h"
 
 #include "cImgGradField.h"
@@ -152,7 +153,11 @@ MStatus initializePlugin(MObject obj)
 		PaletteDrawOverride::Creator);
 	mser;
 
+	
 
+	st = plugin.registerNode("colorSpread", colorSpreadNode::id, colorSpreadNode::creator,
+							 colorSpreadNode::initialize);
+	msert;
 	st = plugin.registerNode("skChainNode", skChainNode::id, skChainNode::creator,
 							 skChainNode::initialize);
 	msert;
@@ -355,6 +360,21 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(skChainNode::id);
 	mser;
 
+
+
+	st = plugin.deregisterNode(colorSpreadNode::id);
+	mser;
+
+	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+		paletteNode::drawDbClassification,
+		paletteNode::drawRegistrantId);
+	mser;
+
+	st = plugin.deregisterNode(paletteNode::id);
+	mser;
+
+
+
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
 		skGraphNode::drawDbClassification,
 		skGraphNode::drawRegistrantId);
@@ -392,6 +412,8 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterData(strokeData::id);
 	mser;
+
+
 
 	st = plugin.deregisterData(paletteData::id);
 	mser;
