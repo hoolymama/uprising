@@ -77,7 +77,6 @@ void *brushNode::creator()
 }
 
 const double epsilon = 0.0001;
-MObject brushNode::aInMatrix;
 
 MObject brushNode::aPhysicalId;
 MObject brushNode::aWidth;
@@ -127,12 +126,6 @@ MStatus brushNode::initialize()
 
   MFloatMatrix identity;
   identity.setToIdentity();
-
-  aInMatrix = mAttr.create("inMatrix", "imat", MFnMatrixAttribute::kDouble);
-  mAttr.setStorable(false);
-  mAttr.setHidden(false);
-  mAttr.setDefault(identity);
-  addAttribute(aInMatrix);
 
   aPhysicalId = nAttr.create("physicalId", "pid", MFnNumericData::kInt);
   nAttr.setHidden(false);
@@ -303,13 +296,9 @@ MStatus brushNode::initialize()
   attributeAffects(aShape, aOutPaintBrush);
   attributeAffects(aTransHeightParam, aOutPaintBrush);
   attributeAffects(aContactPower, aOutPaintBrush);
-  // attributeAffects(aCustomId, aOutPaintBrush);
   attributeAffects(aForwardBias, aOutPaintBrush);
   attributeAffects(aGravityBias, aOutPaintBrush);
 
-  // attributeAffects(aInMatrix, aOutPaintBrush);
-
-  
 
 
   attributeAffects(aPhysicalId, aOutDipBrush);
@@ -324,8 +313,7 @@ MStatus brushNode::initialize()
   attributeAffects(aTransHeightParam, aOutDipBrush);
   attributeAffects(aContactPower, aOutDipBrush);
 
-  // attributeAffects(aInMatrix, aOutDipBrush);
-
+  
 
   attributeAffects(aPhysicalId, aOutWipeBrush);
   attributeAffects(aWidth, aOutWipeBrush);
@@ -338,8 +326,6 @@ MStatus brushNode::initialize()
   attributeAffects(aShape, aOutWipeBrush);
   attributeAffects(aTransHeightParam, aOutWipeBrush);
   attributeAffects(aContactPower, aOutWipeBrush);
-  // attributeAffects(aCustomId, aOutWipeBrush);
-  // attributeAffects(aInMatrix, aOutWipeBrush);
 
   return (MS::kSuccess);
 }

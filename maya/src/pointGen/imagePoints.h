@@ -79,7 +79,7 @@ private:
 
 
 public:
-  static MObject aInMatrix;
+
   static MObject aOutPoints;
 
   static MObject aOutRadius;
@@ -92,25 +92,5 @@ public:
   static MObject aDisplayOrder;
 };
 
-namespace
-{
-  static MCallbackId id;
-
-  static void makeDefaultConnections(MObject &node, void *clientData)
-  {
-
-    MPlug wmPlugmulti(node, imagePoints::worldMatrix);
-    MPlug wm(wmPlugmulti.elementByLogicalIndex(0));
-    MPlug pmt(node, imagePoints::aInMatrix);
-
-    MDGModifier mod;
-    mod.connect(wm, pmt);
-    MStatus stat = mod.doIt();
-    if (stat != MS::kSuccess)
-    {
-      stat.perror("painting ERROR :: callback unable to make matrix connections");
-    }
-  }
-}
 
 #endif

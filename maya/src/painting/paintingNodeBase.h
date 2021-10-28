@@ -35,8 +35,7 @@ public:
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
   static MTypeId id;
-  // static MObject aInMatrix;
-  // static MObject aViewMatrix;
+
   static MObject aReassignParentId;
   static MObject aPointSize;
   static MObject aLineLength;

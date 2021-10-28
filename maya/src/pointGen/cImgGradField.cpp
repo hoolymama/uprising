@@ -47,8 +47,7 @@
  
 MObject cImgGradField::aInputGradientImage;
 MObject cImgGradField::aProjectionMatrix;
-// MObject cImgGradField::aInMatrixInverse;
-	
+
 
 const double epsilon = 0.00000001;
 MTypeId cImgGradField::id( k_cImgGradField );

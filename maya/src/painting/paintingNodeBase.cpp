@@ -26,14 +26,11 @@ void *paintingBase::creator()
   return new paintingBase();
 }
 
-// MObject paintingBase::aInMatrix;
 
 MObject paintingBase::aStrokes;
 MObject paintingBase::aLinearSpeed;           // cm/sec
 MObject paintingBase::aAngularSpeed;          // per sec
 MObject paintingBase::aApproximationDistance; // cm
-
-// MObject paintingBase::aViewMatrix;
 
 MObject paintingBase::aReassignParentId;
 

@@ -39,9 +39,8 @@
 #include "dotTree.h"
 #include "cImgData.h"
 #include "cImgUtils.h"
+#include "nodeUtils.h"
 
-
-MObject imagePoints::aInMatrix;
 MObject imagePoints::aDensityImage;
 MObject imagePoints::aRadiusImage;
 MObject imagePoints::aMask;
@@ -102,15 +101,6 @@ MStatus imagePoints::initialize()
 
 	MFnMatrixAttribute mAttr;
 
-
-	MMatrix identity;
-	identity.setToIdentity();
-	aInMatrix = mAttr.create( "inMatrix", "imat", MFnMatrixAttribute::kDouble );
-	mAttr.setStorable( false );
-	mAttr.setHidden( false );
-	nAttr.setKeyable(true);
-	mAttr.setDefault(identity);
-	addAttribute(aInMatrix);
 
 	aDensityImage = tAttr.create("densityImage", "dim", cImgData::id ) ;
 	tAttr.setStorable(false);
@@ -275,9 +265,7 @@ MStatus imagePoints::initialize()
 	st = attributeAffects( aRadiusRamp, aOutPoints);
 	st = attributeAffects( aRadiusRange, aOutPoints);
 	st = attributeAffects( aSortVector, aOutPoints);
-	st = attributeAffects( aInMatrix, aOutPoints);
 
-	st = attributeAffects( aInMatrix, aOutPointsWorld);
 	st = attributeAffects( aDensityImage, aOutPointsWorld);
 	st = attributeAffects( aRadiusImage, aOutPointsWorld);
 	st = attributeAffects( aMask, aOutPointsWorld);
@@ -290,7 +278,7 @@ MStatus imagePoints::initialize()
 	st = attributeAffects( aRadiusRamp, aOutPointsWorld);
 	st = attributeAffects( aRadiusRange, aOutPointsWorld);
 	st = attributeAffects( aSortVector, aOutPointsWorld);
-	st = attributeAffects( aInMatrix, aOutPointsWorld);
+;
 
 	st = attributeAffects( aDensityImage, aOutRadius);
 	st = attributeAffects( aRadiusImage, aOutRadius);
@@ -301,7 +289,6 @@ MStatus imagePoints::initialize()
 	st = attributeAffects( aRadiusRamp, aOutRadius);
 	st = attributeAffects( aRadiusRange, aOutRadius);
 	st = attributeAffects( aSortVector, aOutRadius);
-	st = attributeAffects( aInMatrix, aOutRadius);
 
 	st = attributeAffects( aDensityImage, aOutU);
 	st = attributeAffects( aRadiusImage, aOutU);
@@ -315,8 +302,6 @@ MStatus imagePoints::initialize()
 	st = attributeAffects( aRadiusRamp, aOutU);
 	st = attributeAffects( aRadiusRange, aOutU);
 	st = attributeAffects( aSortVector, aOutU);
-	st = attributeAffects( aInMatrix, aOutU);
-
 
 	st = attributeAffects( aDensityImage, aOutV);
 	st = attributeAffects( aRadiusImage, aOutV);
@@ -330,7 +315,6 @@ MStatus imagePoints::initialize()
 	st = attributeAffects( aRadiusRamp, aOutV);
 	st = attributeAffects( aRadiusRange, aOutV);
 	st = attributeAffects( aSortVector, aOutV);
-	st = attributeAffects( aInMatrix, aOutV);
 
 	return (MS::kSuccess );
 }
@@ -362,8 +346,6 @@ void imagePoints::makeDots(MDataBlock &data, std::vector<dotData> &dots)
 	densityRangeMin = densityRangeMin / densityRangeMax;
 	densityRangeMax = 1.0;
 	double densityRange = densityRangeMax - densityRangeMin;
-
-	// MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
 
 	CImg<unsigned char>  *pDensityImage = getImage(data, imagePoints::aDensityImage );
 	CImg<unsigned char>  *pRadiusImage = getImage(data, imagePoints::aRadiusImage);
@@ -412,7 +394,6 @@ void imagePoints::makeDots(MDataBlock &data, std::vector<dotData> &dots)
 
 	int j = 0;
 
-	// cerr << "count: " << count << endl;
 	for (int i = 0; i < count; ++i)
 	{
 		float u = float(drand48()) ;
@@ -434,7 +415,6 @@ void imagePoints::makeDots(MDataBlock &data, std::vector<dotData> &dots)
 			float newRval;
 			radiusAttr.getValueAtPosition( rval, newRval, &st ); mser;
 			newRval = (newRval * radiusRange) + radiusRangeMin;
-			// dots.push_back(dotData(projection, u, v , newDval , newRval, j)) ;
 			dots.push_back(dotData(u, v , newDval , newRval, j)) ;
 			
 			j++;
@@ -579,19 +559,14 @@ MStatus imagePoints::compute(const MPlug &plug, MDataBlock &data )
 		return (MS::kUnknownParameter );
 	}
 
+   	MMatrix wm = NodeUtils::firstWorldMatrix(thisMObject());
 
-	MDataHandle mh = data.inputValue(aInMatrix, &st);
-	mser;
-	MMatrix wm = mh.asMatrix();
- 
 	std::vector<dotData> dots;
 	makeDots(data, dots);
 	relaxDots(data, dots);
 	cullDots(data, dots);
 	sortDots(data, dots, wm);
-
-
-
+	
 	MVectorArray resultPoints;
 	MVectorArray resultPointsWorld;
 	MDoubleArray resultRadii;
