@@ -257,6 +257,7 @@ MObject skChainNode::aTrigger;
 
 MObject skChainNode::aMaxChainsPerOutput;
 MObject skChainNode::aOutputs;
+MObject skChainNode::aOutputImage;
 MObject skChainNode::aOutputCount;
 
 
@@ -492,6 +493,10 @@ MStatus skChainNode::initialize()
   nAttr.setWritable(false);
   st = addAttribute(aOutputCount);
 
+  aOutputImage = tAttr.create("outputImage", "oim", cImgData::id);
+  tAttr.setReadable(true);
+  tAttr.setStorable(false);
+  addAttribute(aOutputImage);
 
   attributeAffects(aImage, aOutputs);
   attributeAffects(aMaxIterations, aOutputs);
@@ -500,7 +505,6 @@ MStatus skChainNode::initialize()
   attributeAffects(aSpan, aOutputs);
   attributeAffects(aMaxWidth, aOutputs);
   attributeAffects(aProjectionMatrix, aOutputs);
-  // attributeAffects(aRadiusMult, aOutputs);
   attributeAffects(aOffsetWidth, aOutputs);
   attributeAffects(aMaxStampWidth, aOutputs);
   attributeAffects(aMaxChainsPerOutput, aOutputs);
@@ -526,7 +530,6 @@ MStatus skChainNode::initialize()
   attributeAffects(aSpan, aOutputCount);
   attributeAffects(aMaxWidth, aOutputCount);
   attributeAffects(aProjectionMatrix, aOutputCount);
-  // attributeAffects(aRadiusMult, aOutputCount);
   attributeAffects(aOffsetWidth, aOutputCount);
   attributeAffects(aMaxStampWidth, aOutputCount);
   attributeAffects(aMaxChainsPerOutput, aOutputCount);
@@ -544,6 +547,30 @@ MStatus skChainNode::initialize()
   attributeAffects(aDoFillerChains, aOutputCount);
   attributeAffects(aTrigger, aOutputCount);
 
+  attributeAffects(aImage, aOutputImage);
+  attributeAffects(aSeedPoints, aOutputImage);
+  attributeAffects(aMaxIterations, aOutputImage);
+  attributeAffects(aMinBranchTwigLength, aOutputImage);
+  attributeAffects(aMinLooseTwigLength, aOutputImage);
+  attributeAffects(aSpan, aOutputImage);
+  attributeAffects(aMaxWidth, aOutputImage);
+  attributeAffects(aProjectionMatrix, aOutputImage);
+  attributeAffects(aOffsetWidth, aOutputImage);
+  attributeAffects(aMaxStampWidth, aOutputImage);
+  attributeAffects(aMaxChainsPerOutput, aOutputImage);
+  attributeAffects(aSeedChainMaxSteps, aOutputImage);
+  attributeAffects(aSeedPoints, aOutputImage);
+  attributeAffects(aFields, aOutputImage);
+  attributeAffects(aFlowImage, aOutputs);
+  attributeAffects(aSeedChainMaxSteps, aOutputImage);
+  attributeAffects(aSeedChainSpan, aOutputImage);
+  attributeAffects(aSeedChainWidth, aOutputImage);
+  attributeAffects(aSeedChainStampWidth, aOutputImage);
+  attributeAffects(aForceThreshold, aOutputImage);
+  attributeAffects(aFlowRotation, aOutputImage);
+  attributeAffects(aDoSeedChains, aOutputImage);
+  attributeAffects(aDoFillerChains, aOutputImage);
+  attributeAffects(aTrigger, aOutputImage);
 
   return (MS::kSuccess);
 }
@@ -551,7 +578,7 @@ MStatus skChainNode::initialize()
 MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
 {
   MStatus st;
-  if (!((plug == aOutputs) || (plug == aOutputCount) /*|| (plug == aOutputImage)*/))
+  if (!((plug == aOutputs) || (plug == aOutputCount) || (plug == aOutputImage)))
   {
     return (MS::kUnknownParameter);
   }
@@ -565,6 +592,22 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
     MDataHandle hTriggerEl = hTrigger.inputValue();
     hTrigger.inputValue().asFloat();
   }
+
+
+  MDataHandle hOutputImage = data.outputValue(aOutputImage);
+  MFnPluginData fnOutImage;
+  MTypeId kdidImage(cImgData::id);
+  MObject dOutImage = fnOutImage.create(kdidImage, &st);
+  mser;
+  cImgData *newImageData = (cImgData *)fnOutImage.data(&st);
+  mser;
+  CImg<unsigned char> *pOutImage = newImageData->fImg;
+
+
+
+
+
+
 
   int maxChains = data.inputValue(aMaxChainsPerOutput).asInt();
   MFnPluginData fnOut;
@@ -586,7 +629,7 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
     std::vector<skChain> *geom = newData->fGeometry;
     geom->clear();
 
-    st = generate(data, geom);
+    st = generate(data, geom, pOutImage);
     mser;
 
     hOutput.set(newData);
@@ -597,7 +640,7 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
   {
     // This is the version where we split the chains into chunks and add outputs.
     std::vector<skChain> *allGeom = new std::vector<skChain>;
-    st = generate(data, allGeom);
+    st = generate(data, allGeom, pOutImage);
     int geomLength = allGeom->size();
 
     for (size_t i = 0; i < allGeom->size(); i += maxChains, nextPlugIndex++)
@@ -621,6 +664,11 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
     delete allGeom;
   }
  
+  pOutImage->normalize(0,255);
+  hOutputImage.set(newImageData);
+
+
+
   MDataHandle hOutputCount = data.outputValue(aOutputCount);
 
   hOutputs.set(bOutputs);
@@ -629,6 +677,8 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
   hOutputCount.set(nextPlugIndex);
   hOutputCount.setClean();
  
+  hOutputImage.setClean();
+
   return MS::kSuccess;
 }
 
@@ -640,7 +690,8 @@ Generate all the chains.
 */
 MStatus skChainNode::generate(
   MDataBlock &data, 
-  std::vector<skChain> *geom) const
+  std::vector<skChain> *geom,
+  CImg<unsigned char> *pInkImage) const
 {
   MStatus st;
 
@@ -657,17 +708,17 @@ MStatus skChainNode::generate(
   {
     return MS::kUnknownParameter;
   }
-  CImg<unsigned char> inkImage;
-  inkImage.assign(pImage->get_norm().normalize(0, 1));
+
+  pInkImage->assign(pImage->get_norm().normalize(0, 1));
 
   if (data.inputValue(aDoSeedChains).asBool())
   {
-    st = generateSeedChains(data, geom, &inkImage);
+    st = generateSeedChains(data, geom, pInkImage);
   }
 
   if (data.inputValue(aDoFillerChains).asBool())
   {
-    st = generateFillerChains(data, geom, &inkImage);
+    st = generateFillerChains(data, geom, pInkImage);
   }
 
   return MS::kSuccess;

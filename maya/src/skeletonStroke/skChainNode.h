@@ -21,7 +21,11 @@ public:
   static MTypeId id;
 
 private:
-  MStatus generate(MDataBlock &data, std::vector<skChain> *geom) const;
+  MStatus generate(
+    MDataBlock &data, 
+    std::vector<skChain> *geom, 
+    CImg<unsigned char> *pInkImage) const;
+
 
 
 int  getFields(MObjectArray &result) const;
@@ -92,7 +96,7 @@ int  getFields(MObjectArray &result) const;
   static MObject aTrigger;
   static MObject aMaxChainsPerOutput;
   static MObject aOutputCount;
-
+  static MObject aOutputImage;
   static MObject aOutputs;
 };
 
