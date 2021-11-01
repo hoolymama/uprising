@@ -58,7 +58,7 @@ class PovProgram(Program):
             self.send_shutter()
             self.program.addMoveJ(robo.home_approach)
 
-        self.program.setParam("PostProcessor", "KUKA KRC4")  # Needed??
+        # self.program.setParam("PostProcessor", "KUKA KRC4")  # Needed??
 
     def send_lights_off(self):
         """Trigger a lights-off instruction."""
