@@ -53,8 +53,7 @@ def get_clean_file(model):
 
 def get_license_file():
     project_path = get_uprising_project_path()
-    return os.path.join(project_path, "robodk", "RobAndNickCarterRoboDKLicense.rdklic")
-
+    return os.path.join(project_path, "robodk", "JulianMannRoboDKLicense.rdklic")
 
 def deleteAllStations():
     global _link
