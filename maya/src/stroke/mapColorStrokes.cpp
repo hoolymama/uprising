@@ -293,7 +293,7 @@ void mapColorStrokes::removeBlackSpans(
 
   strokes->clear();
 
-  cerr << "sourceStrokes.size()" << sourceStrokes.size() << endl;
+  // cerr << "sourceStrokes.size()" << sourceStrokes.size() << endl;
   std::vector<Stroke>::iterator iter = sourceStrokes.begin();
   std::vector<Stroke>::iterator enditer = sourceStrokes.end();
 

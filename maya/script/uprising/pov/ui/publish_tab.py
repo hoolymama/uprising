@@ -65,28 +65,9 @@ class PovPublishTab(gui.FormLayout):
         stroke_chunk_size = pm.intFieldGrp(
             self.stroke_chunk_if, query=True, value1=True
         )
-
-        # retries_session = None
-        # if do_retries:
-        #     stroke_nodes = find_contributing_stroke_nodes() if do_retries else []
-        #     retries_session = RetriesSession(coil_delta, stroke_nodes)
-        #     print retries_session.plugs
-        #     retries_session.run()
-        #     retries_session.show_results()
-        #     retries_session.write_results()
-
-        # if do_painting:
-        #     directory = retries_session and retries_session.directory
-        #     painting_session = PaintingSession(cluster_chunk_size, directory)
-        #     painting_session.show_stats()
-        #     painting_session.write_stats()
-        #     painting_session.write_maya_scene(directory, "scene")
-
+        
         pov_session = PovSession(stroke_chunk_size)
-        # pov_session.show_stats()
-        # pov_session.write_stats()
-        # pov_session.write_maya_scene(pov_session.directory, "scene")
-
+        pov_session.run()
 
 def find_contributing_stroke_nodes():
     pass

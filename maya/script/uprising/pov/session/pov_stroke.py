@@ -13,8 +13,8 @@ from uprising.common.session.stroke import Stroke
 
 class PovStroke(Stroke):
 
-    def __init__(self,  stroke_id, brush, node):
-        super(PovStroke, self).__init__(stroke_id, brush, node)
+    def __init__(self,  stroke_id, node):
+        super(PovStroke, self).__init__(stroke_id, node)
 
     def _build_targets(self):
 
@@ -36,8 +36,8 @@ class PovStroke(Stroke):
             try:
                 target = PovTarget(i, (p * 10), r, c)
             except utils.StrokeError:
-                print "Target Position:", p
-                print "StrokeId:", stroke_id
+                print("Target Position:", p)
+                print("StrokeId:", stroke_id)
                 raise
 
             result.append(target)
@@ -49,8 +49,6 @@ class PovStroke(Stroke):
             config = self.best_config()
         except utils.StrokeError:
             configs = self.all_configs()
-            # print("CONFIGS FOR STROKE : {}".format(self.id))
-            # print(configs)
             raise
 
         for target in self.targets:
@@ -61,7 +59,7 @@ class PovStroke(Stroke):
     def best_config(self):
         name = self.name("-")
         if not self.targets:
-            print "Stroke has no targets {}".format(name)
+            print("Stroke has no targets {}".format(name))
             return
         common_configs = set([k for k in robo.ALL_KR8_CONFIGS])
 
@@ -74,7 +72,7 @@ class PovStroke(Stroke):
 
         common_configs = sorted(list(common_configs))
 
-        print "Stroke {} has common_configs {} -- Testing linear moves".format(name, common_configs)
+        print("Stroke {} has common_configs {} -- Testing linear moves".format(name, common_configs))
         config = self.test_linear_moves(common_configs)
         if not config:
             raise utils.StrokeError(
@@ -92,9 +90,19 @@ class PovStroke(Stroke):
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke {}".format(stroke_name), INSTRUCTION_COMMENT)
         last_color = None
+
+        if self.override_path_parameters:
+            program.setSpeed(self.linear_speed, self.angular_speed)
+            program.setRounding(self.approximation_distance)
+   
         for i, t in enumerate(self.targets):
             t.send(stroke_name, program, frame, last_color)
             last_color = t.color
+
+        if self.override_path_parameters:
+            program.setSpeed(motion["linear_speed"], motion["angular_speed"])
+            program.setRounding(motion["rounding"])
+   
 
         program.RunInstruction("End stroke {}. Set to black".format(
             stroke_name), INSTRUCTION_COMMENT)
@@ -135,6 +143,13 @@ class PovStroke(Stroke):
             strokeSpeedAngular=True,
         )
 
+    def query_approximation_distance(self):
+        return pm.lightPaintingQuery(
+            self.node,
+            strokeIndex=self.id,
+            strokeApoproximationDistance=True,
+        ) * 10
+
     def query_positions(self):
         return utils.to_point_array(
             pm.lightPaintingQuery(
@@ -162,4 +177,12 @@ class PovStroke(Stroke):
                 strokeIndex=self.id,
                 strokeColors=True
             )
+        )
+
+
+    def query_layer_id(self):
+        return pm.lightPaintingQuery(
+            self.node,
+            strokeIndex=self.id,
+            strokeLayerId=True
         )

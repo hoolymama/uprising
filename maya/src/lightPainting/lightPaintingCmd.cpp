@@ -36,6 +36,10 @@ MSyntax lightPaintingCmd::newSyntax()
 
 	syn.addFlag(kStrokeSpeedAngularFlag, kStrokeSpeedAngularFlagL);
 
+	syn.addFlag(kStrokeApproxDistFlag, kStrokeApproxDistFlagL);
+
+	syn.addFlag(kStrokeLayerIdFlag, kStrokeLayerIdFlagL);
+
 	syn.addFlag(kStrokePositionsFlag, kStrokePositionsFlagL);
 
 	syn.addFlag(kStrokeRotationsFlag, kStrokeRotationsFlagL);
@@ -118,6 +122,16 @@ MStatus lightPaintingCmd::doIt(const MArgList &args)
 	if (argData.isFlagSet(kStrokeSpeedAngularFlag))
 	{
 		return handleStrokeSpeedAngularFlag(*pStrokes, argData);
+	}
+
+	if (argData.isFlagSet(kStrokeApproxDistFlag))
+	{
+		return handleStrokeApproxDistFlag(*pStrokes, argData);
+	}
+
+	if (argData.isFlagSet(kStrokeLayerIdFlag))
+	{
+		return handleStrokeLayerIdFlag(*pStrokes, argData);
 	}
 
 	if (argData.isFlagSet(kStrokePositionsFlag))
@@ -306,6 +320,34 @@ MStatus lightPaintingCmd::handleStrokeSpeedAngularFlag(const std::vector<Stroke>
 	}
 	MAngle::Unit unit = getRotationUnit(argData);
 	setResult(strokes[strokeId].angularSpeed(unit));
+	return MS::kSuccess;
+}
+
+
+MStatus lightPaintingCmd::handleStrokeApproxDistFlag(const std::vector<Stroke> &strokes,
+												  MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(strokes, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	setResult(strokes[strokeId].approximationDistance());
+	return MS::kSuccess;
+}
+
+MStatus lightPaintingCmd::handleStrokeLayerIdFlag(const std::vector<Stroke> &strokes,
+												  MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(strokes, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+
+	setResult(strokes[strokeId].layerId());
 	return MS::kSuccess;
 }
 

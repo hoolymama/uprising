@@ -24,8 +24,9 @@ Stroke::Stroke()
 	  m_sortStack(),
 	  m_arrivals(),
 	  m_departure(),
-	  m_linearSpeed(1.0),
-	  m_angularSpeed(1.0),
+	  m_linearSpeed(0.0),
+	  m_angularSpeed(0.0),
+	  m_approximationDistance(0.0),
 	  m_coil(0.0f)
 {
 }

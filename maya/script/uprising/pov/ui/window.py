@@ -2,7 +2,7 @@ import pymel.core.uitypes as gui
 import pymel.core as pm
 
 from uprising.pov.ui import (
-    painting_tab,
+    # painting_tab,
     publish_tab,
     tools_menu
 )
@@ -31,9 +31,9 @@ class PovWindow(gui.Window):
         self.tabs = pm.tabLayout(
             changeCommand=pm.Callback(self.on_tab_changed))
 
-        pm.setParent(self.tabs)
-        self.painting_tab = painting_tab.PovPaintingTab()
-        self.tabs.setTabLabel((self.painting_tab, "Painting"))
+        # pm.setParent(self.tabs)
+        # self.painting_tab = painting_tab.PovPaintingTab()
+        # self.tabs.setTabLabel((self.painting_tab, "Painting"))
 
         pm.setParent(self.tabs)
         self.publish_tab = publish_tab.PovPublishTab()
@@ -51,7 +51,7 @@ class PovWindow(gui.Window):
         self.save()
 
     def populate(self):
-        var = ("pov_ov_tab_index", 2)
+        var = ("pov_ov_tab_index", 1)
         self.tabs.setSelectTabIndex(pm.optionVar.get(var[0], var[1]))
 
     def save(self):

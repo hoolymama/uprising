@@ -25,7 +25,12 @@ from uprising.bot.session.dip_wipe_program import (
 class BotPaintingSession(Session):
 
 
-    def __init__(self, cluster_chunk_size, directory, do_separate_subprograms, program_prefix="px"):
+    def __init__(self, 
+        cluster_chunk_size, 
+        directory, 
+        do_separate_subprograms, 
+        program_prefix="px"
+    ):
         self.program = None
         self.do_separate_subprograms = do_separate_subprograms
         self.directory = directory

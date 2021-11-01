@@ -22,10 +22,12 @@ logger = logging.getLogger("uprising")
 
 
 class PovSession(Session):
-
-    PROGRAM_NAME = "pv"
-
-    def __init__(self, stroke_chunk_size=None, directory=None):
+ 
+    def __init__(self, 
+    stroke_chunk_size=None, 
+    directory=None,
+    program_prefix="pv"
+    ):
 
         self.directory = directory or self.choose_session_dir()
         if not self.directory:
@@ -33,20 +35,22 @@ class PovSession(Session):
 
         self.painting_node = pm.PyNode("lightPaintingShape")
         self.program_names = []
+        self.program_prefix = program_prefix
 
-        robo.new()
-        robo.clean("kr8")
-        robo.hide()
 
         self.stroke_count = pm.lightPaintingQuery(self.painting_node, sc=True)
         self.stroke_chunk_size = stroke_chunk_size or self.stroke_count
 
-        timer_start = time.time()
-        # PAINTING
-        self.init_progress()
-        robo.clean("kr8")
-        self.pov_program = PovProgram(self.PROGRAM_NAME)
+        self.stats = {}
+        robo.show()
 
+    def run(self):
+        timer_start = time.time()
+        # CONFIGURE EVERYTHING
+        self.program = self._build_pov_program()
+        self.program.configure()
+
+        # SEND
         self.send_and_publish_pov_program()
 
         duration = int(time.time() - timer_start)
@@ -59,46 +63,59 @@ class PovSession(Session):
         )
 
         self.stats = {}
-        robo.show()
+
+    def _build_pov_program(self):
+        # self.init_progress()
+        robo.new()
+        robo.clean("kr8")
+        program = PovProgram(self.program_prefix)
+        if not (program and program.painting and program.painting.strokes):
+            raise ValueError("Invalid bot_program. No painting/clusters")
+        return program
+
 
     def send_and_publish_pov_program(self):
-        stroke_count = len(self.pov_program.painting.strokes)
-        num_chunks = int(
-            math.ceil(stroke_count / float(self.stroke_chunk_size)))
+        stroke_count = len(self.program.painting.strokes)
+        # num_chunks = int(
+        #     math.ceil(stroke_count / float(self.stroke_chunk_size)))
 
-        progress.update(
-            major_max=num_chunks,
-            header="Writing {} main program chunks".format(num_chunks)
-        )
+        # progress.update(
+        #     major_max=1,
+        #     header="Writing {} main program chunks".format(num_chunks)
+        # )
 
-        for i in range(num_chunks):
-            robo.clean("kr8")
-            progress.update(
-                major_progress=i, major_line="Writing {:d} of {:d} chunks".format(i+1, num_chunks))
+        # for i in range(num_chunks):
 
-            self.pov_program.send(i, self.stroke_chunk_size)
+        robo.clean("kr8")
+        robo.hide()
 
-            self.save_program(
-                self.directory, self.pov_program.program_name)
+        # progress.update(
+        #     major_progress=i, major_line="Writing {:d} of {:d} chunks".format(i+1, num_chunks))
 
-            self.save_station(
-                self.directory, self.pov_program.program_name)
+        # self.program.send(0, self.stroke_chunk_size)
+        self.program.send(0, 99999)
 
-            self.program_names.append(self.pov_program.program_name)
+        self.save_program(
+            self.directory, self.program.program_name)
 
-            progress.update(major_progress=num_chunks, major_line="Done")
+        self.save_station(
+            self.directory, self.program.program_name)
 
-        if len(self.program_names) > 1:
-            self.orchestrate(self.directory, self.program_names)
+        self.program_names.append(self.program.program_name)
 
-    def init_progress(self):
-        progress.update(
-            header="Creating main painting",
-            major_line="{} strokes in chunks of {}".format(
-                self.stroke_count, self.stroke_chunk_size),
-            major_progress=0,
-            minor_progress=0
-        )
+        # progress.update(major_progress=num_chunks, major_line="Done")
+
+        # if len(self.program_names) > 1:
+        #     self.orchestrate(self.directory, self.program_names)
+
+    # def init_progress(self):
+    #     progress.update(
+    #         header="Creating main painting",
+    #         major_line="{} strokes in chunks of {}".format(
+    #             self.stroke_count, self.stroke_chunk_size),
+    #         major_progress=0,
+    #         minor_progress=0
+    #     )
 
     # def show_stats(self):
     #     utils.show_in_window(self.stats, title="Painting stats")

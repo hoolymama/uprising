@@ -5,8 +5,9 @@ import pymel.core as pm
 from uprising import robo
 from uprising.common.session.program import Program
 from uprising.pov.session.pov_painting import PovPainting
+from uprising.pov.session import configurator
 
-from uprising import progress
+# from uprising import progress
 
 PAINTING_NAME = "lightPaintingShape"
 
@@ -14,13 +15,24 @@ PAINTING_NAME = "lightPaintingShape"
 class PovProgram(Program):
     def __init__(self, name, **kw):
         super(PovProgram, self).__init__(name)
-        print "INITIALIZE PovProgram " 
+        print "INITIALIZE PovProgram" 
         self.painting = PovPainting(pm.PyNode(PAINTING_NAME))
         
+    
+    def configure(self):
+        print("configure....")
+        for stroke in self.painting.strokes:
+            try:
+                configurator.solve(stroke, self.painting.brush)
+            except BaseException:
+                stroke.ignore=True
+        print("DONE configure")
+
+
     def send(self, chunk_id, chunk_length):
         if not self.painting.strokes:
             return
-
+        print("SEND....")
         self.bump_program_name(chunk_id)
         super(PovProgram, self).send()
 
@@ -31,10 +43,10 @@ class PovProgram(Program):
         end = min((start+chunk_length), num_strokes)
         is_last_chunk = (end >= num_strokes)
 
-        progress.update(
-            minor_line="Writing {} strokes from {} to {}".format(
-                self.program_name, start, end)
-        )
+        # progress.update(
+        #     minor_line="Writing {} strokes from {} to {}".format(
+        #         self.program_name, start, end)
+        # )
 
         if chunk_id == 0:
             self.send_lights_off()

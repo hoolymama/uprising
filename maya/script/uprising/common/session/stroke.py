@@ -1,4 +1,4 @@
-
+EPSILON = 0.000001
 from robolink import (
     INSTRUCTION_COMMENT,
     INSTRUCTION_SHOW_MESSAGE,
@@ -23,7 +23,11 @@ class Stroke(object):
         self.approximation_distance = self.query_approximation_distance()
         self.layerId = self.query_layer_id()
 
-        self.override_path_parameters = self.linear_speed > 0 and self.angular_speed > 0
+        self.override_path_parameters =  (
+            self.approximation_distance > EPSILON and 
+            self.linear_speed > EPSILON and 
+            self.angular_speed > EPSILON
+            )
         
         self.config = None
         self.ignore = False

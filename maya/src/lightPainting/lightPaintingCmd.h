@@ -31,16 +31,20 @@
 #define kStrokeSpeedAngularFlag "-ssa"
 #define kStrokeSpeedAngularFlagL "-strokeSpeedAngular"
 
+#define kStrokeLayerIdFlag "-lid"
+#define kStrokeLayerIdFlagL "-strokeLayerId"
+
+#define kStrokeApproxDistFlag "-sad"
+#define kStrokeApproxDistFlagL "-strokeApoproximationDistance"
+
 #define kStrokeColorsFlag "-tcl"
 #define kStrokeColorsFlagL "-strokeColors"
-
 
 #define kStrokeArcLengthFlag "-sal"
 #define kStrokeArcLengthFlagL "-strokeArcLength"
 
 #define kStrokeParentIndexFlag "-spi"
 #define kStrokeParentIndexFlagL "-strokeParentIndex"
-
 
 class lightPaintingCmd : public MPxCommand
 
@@ -56,7 +60,6 @@ public:
 	static MSyntax newSyntax();
 
 private:
-
 	MStatus handleStrokeCountFlag(const std::vector<Stroke> &strokes);
 
 	int getStrokeId(const std::vector<Stroke> &strokes, MArgDatabase &argData,
@@ -66,14 +69,15 @@ private:
 
 	MStatus handleStrokeSpeedAngularFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
 
+	MStatus handleStrokeApproxDistFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
+
+	MStatus handleStrokeLayerIdFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
+
 	MStatus handleStrokePositionsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData,
 									  const MFloatMatrix &worldMatrix);
 
 	MStatus handleStrokeRotationsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData,
 									  const MFloatMatrix &worldMatrix);
-
-	// MStatus handleStrokeTangentsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData,
-	// 								 const MFloatMatrix &worldMatrix);
 
 	MStatus handleStrokeColorsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
 

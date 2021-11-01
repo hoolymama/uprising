@@ -1,7 +1,7 @@
 import pymel.core as pm
 from uprising.common.session.painting import Painting
 from uprising.pov.session.pov_stroke import PovStroke
-from uprising import progress
+# from uprising import progress
 
 
 class PovPainting(Painting):
@@ -10,6 +10,7 @@ class PovPainting(Painting):
 
         super(PovPainting, self).__init__(node)
         self.strokes = self._create_strokes()
+        self.brush = [self.brushes[brush] for brush in self.brushes][0]
 
         print "POV PAINTING INIT: ", self.node
 
@@ -19,18 +20,16 @@ class PovPainting(Painting):
         if not num_strokes:
             return []
 
-        brush = [self.brushes[brush] for brush in self.brushes][0]
-
         strokes = []
-        progress.update(
-            minor_max=num_strokes,
-            minor_progress=0)
+        # progress.update(
+        #     minor_max=num_strokes,
+        #     minor_progress=0)
 
         for i in range(num_strokes):
-            progress.update(
-                minor_line="Stroke {}/{}".format(i+1, num_strokes),
-                minor_progress=i)
- 
-            stroke = PovStroke(i, brush, self.node)
+            # progress.update(
+            #     minor_line="Stroke {}/{}".format(i+1, num_strokes),
+            #     minor_progress=i)
+            print("Create stroke:",i)
+            stroke = PovStroke(i, self.node)
             strokes.append(stroke)
         return strokes
