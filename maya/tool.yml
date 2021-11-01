@@ -24,7 +24,7 @@ include_paths:
 - ../../kettle/src/maya
 - ../../kettle/src/maya
 - ../../kit/maya/src
-- ../../../CImg-2.6.6_pre061119
+- ../../../CImg-2.9.8_pre051821
 libs:
 - OpenMayaUI
 - OpenMayaRender
