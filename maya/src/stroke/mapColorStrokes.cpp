@@ -200,7 +200,7 @@ void mapColorStrokes::getColors(
 
     st = TexUtils::sampleSolidTexture(
         thisObj,
-        mapColorStrokes::aRGB,
+        mapColorStrokes::aWhite,
         1.0,
         points,
         whites);
