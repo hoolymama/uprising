@@ -16,9 +16,7 @@
 class meshStrokeNode : public strokeCreator
 {
 
-public: 
-
-
+public:
   meshStrokeNode();
 
   virtual ~meshStrokeNode();
@@ -29,50 +27,34 @@ public:
   static MTypeId id;
 
 private:
-
   /**
    * @brief Generate some strokes.
-   * 
+   *
    * @param data Access to all node's data block
    * @param pStrokes A pointer to the vectmor of strokes to be filled
-   * @return MStatus 
+   * @return MStatus
    */
   MStatus generateStrokeGeometry(
-    const MPlug &plug,
+      const MPlug &plug,
       MDataBlock &data,
-      std::vector<Stroke> *pStrokes) ;
+      std::vector<Stroke> *pStrokes);
 
+  /**
+   * @brief Generate a view dependent graph of edges from a mesh
+   *
+   * @param dInMesh ///> The mesh MObject.
+   * @param viewPoint ///> The point to consider as the camera.
+   * @param pGraph ///> A pointer to the resulting graph.
+   * @return MStatus
+   */
+  MStatus buildGraph(
+      MObject &dInMesh,
+      const MPoint &viewPoint,
+      tGraph *pGraph) const;
 
-/**
- * @brief Generate a view dependent graph of edges from a mesh 
- * 
- * @param dInMesh ///> The mesh MObject.
- * @param viewPoint ///> The point to consider as the camera.
- * @param pGraph ///> A pointer to the resulting graph.
- * @return MStatus
- */
-MStatus  buildGraph(
-    MObject& dInMesh,
-    const MPoint &viewPoint,
-    tGraph *pGraph)const ;
-
-
-/**
- * @brief insert points so there are at least density points per cm
- * 
- * @param inPoints The sparse points describing a degree 1 curve
- * @param density The  minimum number of points per cm
- * @param outPoints The result
- */
-void   subdivide(
-    const MFloatPointArray & inPoints, 
-    float density,
-    MFloatPointArray & outPoints ) const ;
-
-  static MObject aMesh; ///< The input mesh
-  static MObject aViewpoint; ///< The location of the camera
+  static MObject aMesh;                 ///< The input mesh
+  static MObject aViewpoint;            ///< The location of the camera
   static MObject aTargetRotationMatrix; ///> Initial matrix for generated targets.
-
 };
 
 #endif

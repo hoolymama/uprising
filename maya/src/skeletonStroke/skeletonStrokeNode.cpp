@@ -83,7 +83,7 @@ MStatus skeletonStrokeNode::initialize()
     aChains = tAttr.create("chains", "chn", skChainData::id);
     tAttr.setStorable(false);
     tAttr.setKeyable(true);
-    cAttr.setDisconnectBehavior(MFnAttribute::kReset);
+    tAttr.setDisconnectBehavior(MFnAttribute::kReset);
     mser;
 
     aActive = nAttr.create("active", "act", MFnNumericData::kBoolean);

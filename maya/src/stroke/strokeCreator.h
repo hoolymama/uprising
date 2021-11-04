@@ -7,7 +7,7 @@
 #include "stroke.h"
 
 /**
- * @brief A node with attributes common to al nodes that generate strokes. 
+ * @brief A node with attributes common to al nodes that generate strokes.
  *
  * It inherits from strokeNodeBase and adds point density and initial rot matrix.
  */
@@ -33,13 +33,16 @@ public:
   virtual void postConstructor();
 
   virtual MStatus generateStrokeGeometry(
-    const MPlug &plug,
+      const MPlug &plug,
       MDataBlock &data,
       std::vector<Stroke> *pStrokes);
 
   static MTypeId id;
 
 protected:
+  void subsample(const MFloatPointArray &inPoints, float density, MFloatPointArray &outPoints) const;
+  void subsample(const MFloatPointArray &inPoints, const MColorArray &inColors, float density, MFloatPointArray &outPoints, MColorArray &outColors) const;
+
   void applyRotations(MDataBlock &data, std::vector<Stroke> *pOutStrokes) const;
   void applyCoats(MDataBlock &data, std::vector<Stroke> *geom) const;
   void applySpeeds(MDataBlock &data, std::vector<Stroke> *geom) const;
@@ -59,12 +62,9 @@ protected:
   static MObject aBrushBank;
   static MObject aBrushRotateOrder;
 
-  static MObject aLinearSpeed;             // cm/sec
-  static MObject aAngularSpeed;            // per sec
-  static MObject aApproximationDistance;   // cm
-
-
-
+  static MObject aLinearSpeed;           // cm/sec
+  static MObject aAngularSpeed;          // per sec
+  static MObject aApproximationDistance; // cm
 };
 
 #endif

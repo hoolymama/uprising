@@ -254,6 +254,81 @@ void strokeCreator::applyCoats(
 
 
 
+void strokeCreator::subsample(
+    const MFloatPointArray & inPoints,
+    float density,
+    MFloatPointArray & outPoints) const
+{
+    int lastIndex = inPoints.length() -1;
+    if (density < 0.00001 || lastIndex < 1) {
+        outPoints = inPoints;
+        return;
+    }
+
+    float gap = 1.0 / density;
+
+    for (size_t i = 0; i < lastIndex; i++)
+    {
+        const MFloatPoint & start =  inPoints[i];
+        const MFloatPoint & end =  inPoints[i+1];
+
+        float dist = start.distanceTo(end);
+        int numGaps = int(ceilf(dist / gap));
+        // float fgap = dist / numGaps;
+
+        for (size_t i = 0; i < numGaps; i++)
+        {
+
+          float param =  i / float(numGaps);
+          outPoints.append((start * (1.0-param)) + (end*param));
+        }
+    }
+    outPoints.append(inPoints[lastIndex]);
+}
+
+
+void strokeCreator::subsample(
+    const MFloatPointArray & inPoints,
+    const MColorArray & inColors, 
+    float density,
+    MFloatPointArray & outPoints,
+    MColorArray & outColors ) const 
+{
+    int lastIndex = inPoints.length() -1;
+    if (density < 0.00001 || lastIndex < 1) {
+        outPoints = inPoints;
+        outColors = inColors;
+        return;
+    }
+ 
+    float gap = 1.0 / density;
+
+    for (size_t i = 0; i < lastIndex; i++)
+    {
+        const MFloatPoint & start =  inPoints[i];
+        const MFloatPoint & end =  inPoints[i+1];
+
+        const MColor & startColor =  inColors[i];
+        const MColor & endColor =  inColors[i+1];
+
+
+        float dist = start.distanceTo(end);
+        int numGaps = int(ceilf(dist / gap));
+        // float fgap = dist / numGaps;
+    
+        for (size_t i = 0; i < numGaps; i++)
+        {
+          float param =  i / float(numGaps);
+          outPoints.append((start * (1.0-param)) + (end*param));
+          outColors.append((startColor * (1.0-param)) + (endColor*param));
+        }
+    }
+    outPoints.append(inPoints[lastIndex]);
+    outColors.append(inColors[lastIndex]);
+    
+}
+
+
 void strokeCreator::applyRotations(
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes) const

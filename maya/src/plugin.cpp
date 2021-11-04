@@ -6,6 +6,7 @@
 
 #include "collectStrokes.h"
 #include "meshStrokeNode.h"
+
 #include "skeletonStrokeNode.h"
 #include "curveStrokeNode.h"
 
@@ -63,6 +64,11 @@
 #include "bulgeStrokes.h"
 #include "mapStrokes.h"
 
+#include "particleStrokeNode.h"
+
+#include "particleTrailsNode.h"
+#include "particleTrailsData.h"
+
 
 MStatus initializePlugin(MObject obj)
 {
@@ -74,6 +80,11 @@ MStatus initializePlugin(MObject obj)
 	MFnPlugin plugin(obj, PLUGIN_VENDOR, PLUGIN_VERSION, MAYA_VERSION);
 
 	MGlobal::executePythonCommand("import pymel.core as pm;pm.loadPlugin('Kit')");
+
+	st = plugin.registerData("particleTrailsData", particleTrailsData::id,
+							 particleTrailsData::creator);
+	mser;
+
 
 	st = plugin.registerData("skChainData", skChainData::id,
 							 skChainData::creator);
@@ -153,7 +164,10 @@ MStatus initializePlugin(MObject obj)
 		PaletteDrawOverride::Creator);
 	mser;
 
-	
+
+
+	st = plugin.registerNode("particleTrails", particleTrailsNode::id, particleTrailsNode::creator,
+							 particleTrailsNode::initialize);
 
 	st = plugin.registerNode("colorSpread", colorSpreadNode::id, colorSpreadNode::creator,
 							 colorSpreadNode::initialize);
@@ -184,6 +198,13 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("paintStrokeCreator", paintStrokeCreator::id, paintStrokeCreator::creator,
 							 paintStrokeCreator::initialize);
 	mser;
+	
+	st = plugin.registerNode("particleStroke", particleStrokeNode::id,
+							 particleStrokeNode::creator,
+							 particleStrokeNode::initialize);
+	msert;
+
+
 
 	st = plugin.registerNode("meshStroke", meshStrokeNode::id,
 							 meshStrokeNode::creator,
@@ -342,6 +363,11 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(meshStrokeNode::id);
 	mser;
 
+	st = plugin.deregisterNode(particleStrokeNode::id);
+	mser;
+
+	
+
 	st = plugin.deregisterNode(paintStrokeCreator::id);
 	mser;
 
@@ -364,6 +390,12 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterNode(colorSpreadNode::id);
 	mser;
+
+	st = plugin.deregisterNode(particleTrailsNode::id);
+	mser;
+
+
+
 
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
 		paletteNode::drawDbClassification,
@@ -413,17 +445,20 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterData(strokeData::id);
 	mser;
 
-
-
 	st = plugin.deregisterData(paletteData::id);
 	mser;
-
 
 	st = plugin.deregisterData(brushData::id);
 	mser;
 
 	st = plugin.deregisterData(skChainData::id);
 	mser;
+
+	st = plugin.deregisterData(particleTrailsData::id);
+	mser;
+
+	
+
 
 	return st;
 }

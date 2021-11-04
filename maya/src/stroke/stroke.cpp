@@ -51,6 +51,19 @@ Stroke::Stroke(
 }
 
 Stroke::Stroke(
+	const MFloatPointArray &points,
+	const MColorArray &colors,
+	const MFloatMatrix &rotationMat)
+	: Stroke(points, rotationMat)
+{
+	std::vector<Target>::iterator iter = m_targets.begin();
+	for (int i = 0; iter != m_targets.end(); iter++, i++)
+	{
+		iter->setColor(colors[i]);
+	}
+}
+
+Stroke::Stroke(
 	const std::vector<MFloatMatrix> &matrices)
 	: Stroke()
 {
@@ -194,42 +207,47 @@ void Stroke::calculateParams(MFloatArray &result) const
 
 void Stroke::smoothTargets(int neighbors, bool doPositions, bool doWeights)
 {
-	if (neighbors < 1) {
+	if (neighbors < 1)
+	{
 		return;
 	}
-	int count =  m_targets.size();
+	int count = m_targets.size();
 	std::vector<Target>::iterator iter = m_targets.begin();
-	for (int i = 0; iter != m_targets.end(); iter++,i++)
+	for (int i = 0; iter != m_targets.end(); iter++, i++)
 	{
- 		int fromStart = i;
-		int fromEnd = (count-1) - i;
+		int fromStart = i;
+		int fromEnd = (count - 1) - i;
 		int n = std::min(neighbors, std::min(fromStart, fromEnd));
-		if (n < 1) {
+		if (n < 1)
+		{
 			continue;
 		}
-		float denom = (2*n)+1;
+		float denom = (2 * n) + 1;
 
-		if (doWeights) {
+		if (doWeights)
+		{
 			float meanWeight = 0.0;
-			for (int j =i-n; j<i+n+1;j++) {
-				meanWeight+=m_targets[j].weight();
+			for (int j = i - n; j < i + n + 1; j++)
+			{
+				meanWeight += m_targets[j].weight();
 			}
-			meanWeight = meanWeight / denom;	
+			meanWeight = meanWeight / denom;
 			iter->setWeight(meanWeight);
 		}
 
-		if (doPositions) {
+		if (doPositions)
+		{
 			MFloatVector meanPoint;
-			for (int j =i-n; j<i+n+1;j++) {
+			for (int j = i - n; j < i + n + 1; j++)
+			{
 				const MFloatMatrix mat = m_targets[j].matrix();
-				meanPoint += MFloatVector( mat[3][0], mat[3][1], mat[3][2]);
+				meanPoint += MFloatVector(mat[3][0], mat[3][1], mat[3][2]);
 			}
 			meanPoint = meanPoint / denom;
 			iter->setPosition(MFloatPoint(meanPoint));
 		}
 	}
 }
-
 
 void Stroke::setCoil(float rhs)
 {
@@ -341,10 +359,10 @@ void Stroke::setParentId(int parentId)
 	m_parentId = parentId;
 }
 
-void Stroke::setRepeatId(int rhs){
+void Stroke::setRepeatId(int rhs)
+{
 	m_repeatId = rhs;
 }
-
 
 void Stroke::setLayerId(int rhs)
 {
@@ -367,7 +385,6 @@ void Stroke::setPotId(int val)
 {
 	m_potId = val;
 }
-
 
 int Stroke::brushId() const
 {
@@ -840,7 +857,8 @@ void Stroke::colors(MColorArray &result) const
 
 float Stroke::angularSpeed(MAngle::Unit unit) const
 {
-	if (unit == MAngle::kRadians) {
+	if (unit == MAngle::kRadians)
+	{
 		return m_angularSpeed;
 	}
 	return m_angularSpeed * rad_to_deg;
@@ -876,13 +894,13 @@ const Target &Stroke::departure() const
 	return m_departure;
 }
 
-void Stroke::setDeparture(const MFloatVector & offset)
+void Stroke::setDeparture(const MFloatVector &offset)
 {
 	m_departure = Target(m_targets.back());
 	m_departure.offsetBy(offset);
 }
 
-void Stroke::setArrival(const MFloatVector & offset)
+void Stroke::setArrival(const MFloatVector &offset)
 {
 	Target arrival(m_targets.front());
 	arrival.offsetBy(offset);
@@ -890,7 +908,7 @@ void Stroke::setArrival(const MFloatVector & offset)
 }
 
 void Stroke::setArrival(
-	const MFloatVector & offset,
+	const MFloatVector &offset,
 	float threshold,
 	const Stroke &prev)
 {
@@ -929,8 +947,6 @@ void Stroke::setArrival(
 	}
 	m_arrivals.push_back(arrival);
 }
-
-
 
 void Stroke::reverseArray(const MDoubleArray &arr, MDoubleArray &result)
 {

@@ -28,6 +28,7 @@ libs:
 - OpenMayaUI
 - OpenMayaRender
 - OpenMayaFX
+- OpenMayaAnim
 templates:
 - cpp
 - maya
