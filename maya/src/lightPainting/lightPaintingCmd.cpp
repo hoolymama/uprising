@@ -184,7 +184,7 @@ MTransformationMatrix::RotationOrder lightPaintingCmd::getRotationOrder(MArgData
 	st = argData.getFlagArgument(kRotateOrderFlag, 0, sRotOrder);
 	if (st.error())
 	{
-		displayInfo("No rotation order specified. Default to XYZ");
+		// displayInfo("No rotation order specified. Default to XYZ");
 		return MTransformationMatrix::kXYZ;
 	}
 
@@ -227,7 +227,7 @@ MAngle::Unit lightPaintingCmd::getRotationUnit(MArgDatabase &argData)
 	st = argData.getFlagArgument(kRotateUnitFlag, 0, sRotUnit);
 	if (st.error())
 	{
-		displayInfo("No rotation unit specified. Default to Radians");
+		// displayInfo("No rotation unit specified. Default to Radians");
 		return MAngle::kRadians;
 	}
 

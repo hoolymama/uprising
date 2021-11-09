@@ -15,7 +15,7 @@ EPSILON = 0.0001
 
 def solve(stroke, brush):
 
-    for config in ["000", "001"]:
+    for config in ["001", "000"]:
         solved_config = config
         last_joint_pose = PAINTING_START_JOINTS
 
@@ -109,10 +109,5 @@ def _solve_single_joint_pose(flange_pose, last_joint_pose, config):
         return joint_pose
 
 
-
-
-#############################
-# CONFIGURE LINKAGES
-
-
+ 
 

@@ -1,6 +1,5 @@
 from robolink import (
     INSTRUCTION_COMMENT,
-    INSTRUCTION_SHOW_MESSAGE,
     INSTRUCTION_INSERT_CODE
 )
 
@@ -34,6 +33,9 @@ class PovStroke(Stroke):
 
         for i, (p, r, c) in enumerate(zip(positions, rotations, colors)):
             try:
+                if i == 0:
+                    tg = PovTarget(i, (p * 10), r, pm.dt.Color(0.0,0.0,0.0,0.0))
+                    result.append(tg)
                 target = PovTarget(i, (p * 10), r, c)
             except utils.StrokeError:
                 print("Target Position:", p)
@@ -43,50 +45,10 @@ class PovStroke(Stroke):
             result.append(target)
         return result
 
-    def configure(self):
-
-        try:
-            config = self.best_config()
-        except utils.StrokeError:
-            configs = self.all_configs()
-            raise
-
-        for target in self.targets:
-            target.configure(config)
-        self.targets[0].linear = False
-
-
-    def best_config(self):
-        name = self.name("-")
-        if not self.targets:
-            print("Stroke has no targets {}".format(name))
-            return
-        common_configs = set([k for k in robo.ALL_KR8_CONFIGS])
-
-        for target in self.targets:
-            common_configs = common_configs.intersection(
-                target.valid_configs())
-            if not common_configs:
-                raise utils.StrokeError(
-                    "Common Config failure, can't find best config for stroke. No common configs {}".format(name))
-
-        common_configs = sorted(list(common_configs))
-
-        print("Stroke {} has common_configs {} -- Testing linear moves".format(name, common_configs))
-        config = self.test_linear_moves(common_configs)
-        if not config:
-            raise utils.StrokeError(
-                    "Linear move failure, can't find config where all linear moves are possible {}".format(name))
-
-        return config
-
-    def all_configs(self):
-        result = []
-        for target in self.targets:
-            result.append(target.valid_configs())
-        return result
+    ##########################
 
     def send(self, prefix, program, frame, motion):
+        
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke {}".format(stroke_name), INSTRUCTION_COMMENT)
         last_color = None
@@ -95,6 +57,7 @@ class PovStroke(Stroke):
             program.setSpeed(self.linear_speed, self.angular_speed)
             program.setRounding(self.approximation_distance)
    
+        print("Sending stroke {}".format(stroke_name))
         for i, t in enumerate(self.targets):
             t.send(stroke_name, program, frame, last_color)
             last_color = t.color
@@ -186,3 +149,55 @@ class PovStroke(Stroke):
             strokeIndex=self.id,
             strokeLayerId=True
         )
+
+
+
+
+
+
+
+
+
+
+    # def configure(self):
+
+    #     try:
+    #         config = self.best_config()
+    #     except utils.StrokeError:
+    #         configs = self.all_configs()
+    #         raise
+
+    #     for target in self.targets:
+    #         target.configure(config)
+    #     self.targets[0].linear = False
+
+
+    # def best_config(self):
+    #     name = self.name("-")
+    #     if not self.targets:
+    #         print("Stroke has no targets {}".format(name))
+    #         return
+    #     common_configs = set([k for k in robo.ALL_KR8_CONFIGS])
+
+    #     for target in self.targets:
+    #         common_configs = common_configs.intersection(
+    #             target.valid_configs())
+    #         if not common_configs:
+    #             raise utils.StrokeError(
+    #                 "Common Config failure, can't find best config for stroke. No common configs {}".format(name))
+
+    #     common_configs = sorted(list(common_configs))
+
+    #     print("Stroke {} has common_configs {} -- Testing linear moves".format(name, common_configs))
+    #     config = self.test_linear_moves(common_configs)
+    #     if not config:
+    #         raise utils.StrokeError(
+    #                 "Linear move failure, can't find config where all linear moves are possible {}".format(name))
+
+    #     return config
+
+    # def all_configs(self):
+    #     result = []
+    #     for target in self.targets:
+    #         result.append(target.valid_configs())
+    #     return result

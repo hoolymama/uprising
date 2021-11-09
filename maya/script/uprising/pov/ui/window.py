@@ -10,7 +10,6 @@ from uprising.pov.ui import (
 from uprising.pov import reloader
 reload(reloader)
 
-
 class PovWindow(gui.Window):
     def __init__(self):
 

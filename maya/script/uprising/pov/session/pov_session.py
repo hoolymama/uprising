@@ -42,12 +42,18 @@ class PovSession(Session):
         self.stroke_chunk_size = stroke_chunk_size or self.stroke_count
 
         self.stats = {}
-        robo.show()
+
 
     def run(self):
         timer_start = time.time()
         # CONFIGURE EVERYTHING
-        self.program = self._build_pov_program()
+        robo.new()
+        robo.clean("kr8")
+        robo.hide()
+        self.program = PovProgram(self.program_prefix)
+        if not (self.program and self.program.painting and self.program.painting.strokes):
+            raise ValueError("Invalid bot_program. No painting/clusters")
+
         self.program.configure()
 
         # SEND
@@ -64,49 +70,41 @@ class PovSession(Session):
 
         self.stats = {}
 
-    def _build_pov_program(self):
-        # self.init_progress()
-        robo.new()
-        robo.clean("kr8")
-        program = PovProgram(self.program_prefix)
-        if not (program and program.painting and program.painting.strokes):
-            raise ValueError("Invalid bot_program. No painting/clusters")
-        return program
+
 
 
     def send_and_publish_pov_program(self):
         stroke_count = len(self.program.painting.strokes)
-        # num_chunks = int(
-        #     math.ceil(stroke_count / float(self.stroke_chunk_size)))
+        num_chunks = int(
+            math.ceil(stroke_count / float(self.stroke_chunk_size)))
 
         # progress.update(
         #     major_max=1,
         #     header="Writing {} main program chunks".format(num_chunks)
         # )
 
-        # for i in range(num_chunks):
+        for i in range(num_chunks):
+            robo.clean("kr8")
 
-        robo.clean("kr8")
-        robo.hide()
 
-        # progress.update(
-        #     major_progress=i, major_line="Writing {:d} of {:d} chunks".format(i+1, num_chunks))
+            # progress.update(
+            #     major_progress=i, major_line="Writing {:d} of {:d} chunks".format(i+1, num_chunks))
 
-        # self.program.send(0, self.stroke_chunk_size)
-        self.program.send(0, 99999)
+            # self.program.send(0, self.stroke_chunk_size)
+            self.program.send(i, self.stroke_chunk_size)
 
-        self.save_program(
-            self.directory, self.program.program_name)
+            self.save_program(
+                self.directory, self.program.program_name)
 
-        self.save_station(
-            self.directory, self.program.program_name)
+            self.save_station(
+                self.directory, self.program.program_name)
 
-        self.program_names.append(self.program.program_name)
+            self.program_names.append(self.program.program_name)
 
-        # progress.update(major_progress=num_chunks, major_line="Done")
+            # progress.update(major_progress=num_chunks, major_line="Done")
 
-        # if len(self.program_names) > 1:
-        #     self.orchestrate(self.directory, self.program_names)
+            if len(self.program_names) > 1:
+                self.orchestrate(self.directory, self.program_names)
 
     # def init_progress(self):
     #     progress.update(

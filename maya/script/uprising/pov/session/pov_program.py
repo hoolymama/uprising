@@ -18,7 +18,6 @@ class PovProgram(Program):
         print "INITIALIZE PovProgram" 
         self.painting = PovPainting(pm.PyNode(PAINTING_NAME))
         
-    
     def configure(self):
         print("configure....")
         for stroke in self.painting.strokes:
@@ -26,13 +25,14 @@ class PovProgram(Program):
                 configurator.solve(stroke, self.painting.brush)
             except BaseException:
                 stroke.ignore=True
+                pm.warning("IGNORING IMPOSSIBLE STROKE {}".format(stroke.name("stk" )) )
         print("DONE configure")
 
 
     def send(self, chunk_id, chunk_length):
         if not self.painting.strokes:
             return
-        print("SEND....")
+        print("SEND....", chunk_id)
         self.bump_program_name(chunk_id)
         super(PovProgram, self).send()
 
@@ -61,16 +61,24 @@ class PovProgram(Program):
             self.painting.motion["angular_speed"]
             )
 
-
+        link = robo.link()
+        tool = link.Item(self.painting.brush.name)
+        self.program.setPoseTool(tool)
+        
+        prefix = "stk"
         for stroke in self.painting.strokes[start:end]:
-            prefix = "stk"
-            stroke.send(prefix, self.program, self.frame, self.painting.motion)
+            if not stroke.ignore:
+                stroke.send(
+                    prefix, 
+                    self.program, 
+                    self.frame, 
+                    self.painting.motion)
 
         if is_last_chunk:
             self.send_shutter()
             self.program.addMoveJ(robo.home_approach)
 
-        self.program.setParam("PostProcessor", "KUKA KRC4")  # Needed??
+        # self.program.setParam("PostProcessor", "KUKA KRC4")  # Needed??
 
     def send_lights_off(self):
         """Trigger a lights-off instruction."""

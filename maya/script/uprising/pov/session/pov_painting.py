@@ -11,7 +11,6 @@ class PovPainting(Painting):
         super(PovPainting, self).__init__(node)
         self.strokes = self._create_strokes()
         self.brush = [self.brushes[brush] for brush in self.brushes][0]
-
         print "POV PAINTING INIT: ", self.node
 
     def _create_strokes(self):
@@ -21,14 +20,8 @@ class PovPainting(Painting):
             return []
 
         strokes = []
-        # progress.update(
-        #     minor_max=num_strokes,
-        #     minor_progress=0)
-
+   
         for i in range(num_strokes):
-            # progress.update(
-            #     minor_line="Stroke {}/{}".format(i+1, num_strokes),
-            #     minor_progress=i)
             print("Create stroke:",i)
             stroke = PovStroke(i, self.node)
             strokes.append(stroke)
