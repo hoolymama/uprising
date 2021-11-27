@@ -594,16 +594,6 @@ MStatus imagePoints::compute(const MPlug &plug, MDataBlock &data )
 
 
 
-void imagePoints::draw( M3dView &view,
-                             const MDagPath &path,
-                             M3dView::DisplayStyle style,
-                             M3dView:: DisplayStatus status  )
-{
-}
-
-
-
-
 
 bool imagePoints::isBounded() const
 {
@@ -618,6 +608,4 @@ MBoundingBox imagePoints::boundingBox() const
 
 void imagePoints::postConstructor()
 {
-	// setExistWithoutInConnections(true);
-	// setExistWithoutOutConnections(true);
 }

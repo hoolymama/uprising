@@ -29,10 +29,10 @@ public:
 
   virtual MBoundingBox boundingBox() const;
 
-  virtual void draw(M3dView &view,
-                    const MDagPath &path,
-                    M3dView::DisplayStyle style,
-                    M3dView::DisplayStatus status);
+  // virtual void draw(M3dView &view,
+  //                   const MDagPath &path,
+  //                   M3dView::DisplayStyle style,
+  //                   M3dView::DisplayStatus status);
 
   MStatus compute(const MPlug &plug, MDataBlock &data);
 
