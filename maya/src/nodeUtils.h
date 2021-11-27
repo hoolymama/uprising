@@ -13,6 +13,7 @@ class NodeUtils {
 public:
 
 	static MMatrix firstWorldMatrix(  const MObject & shapeNode);
+	static MMatrix fieldWorldMatrix(  const MObject & fieldNode);
 };
 
 

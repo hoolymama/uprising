@@ -58,6 +58,7 @@
 
 #include "cImgGradField.h"
 
+
 #include "gateRamp.h"
 #include "rotateTargets.h"
 
@@ -107,8 +108,15 @@ MStatus initializePlugin(MObject obj)
 							 paintingData::creator);
 
 	st = plugin.registerNode("cImgGradField", cImgGradField::id,
-							 cImgGradField::creator, cImgGradField::initialize, MPxNode::kFieldNode);
+							 cImgGradField::creator, 
+							 cImgGradField::initialize, 
+							 MPxNode::kFieldNode);
 	mser;
+
+
+
+
+
 	st = plugin.registerNode("paintingBase", paintingBase::id, paintingBase::creator,
 							 paintingBase::initialize, MPxNode::kLocatorNode);
 	msert;

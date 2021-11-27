@@ -18,3 +18,14 @@ MMatrix NodeUtils::firstWorldMatrix(  const MObject & shapeNode)
 	worldMatrixPlg.getValue( dWorldMat );
 	return MFnMatrixData( dWorldMat ).matrix();
 }
+
+
+MMatrix NodeUtils::fieldWorldMatrix(  const MObject & fieldNode)
+{	
+	MFnDependencyNode fnD(fieldNode); 
+	MObject dWorldMatAttr = fnD.attribute( "worldMatrix" );
+	MPlug worldMatrixPlg = MPlug( fieldNode, dWorldMatAttr ).elementByLogicalIndex( 0 );
+	MObject dWorldMat;
+	worldMatrixPlg.getValue( dWorldMat );
+	return MFnMatrixData( dWorldMat ).matrix();
+}
