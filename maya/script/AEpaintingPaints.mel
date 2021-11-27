@@ -1,5 +1,8 @@
 
- global proc AEPaintingPaintsAddMultiWidget(string $plug, string $columnLayout, int $index) {
+ source "AEpaintingUtilFuncs";
+
+
+global proc AEPaintingPaintsAddMultiWidget(string $plug, string $columnLayout, int $index) {
 
  	string $label = ("No paint : " + $index);
  	string $input[] = `listConnections -s 1 -d 0 ($plug+".paintTravel")`;

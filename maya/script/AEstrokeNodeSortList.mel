@@ -1,4 +1,8 @@
 
+source "AEpaintingUtilFuncs";
+
+
+
  global proc AEstrokeNodeSortListAddMultiWidget(
  	string $plug, 
  	string $columnLayout,  

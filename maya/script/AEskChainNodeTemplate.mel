@@ -1,5 +1,6 @@
 source "AEpaintingUtilFuncs";
 
+ 
 global proc AEskChainNodeReplace (string $nodeAttr) {
  	setUITemplate -pst attributeEditorTemplate;
  	string $node = nodeFromNodeAttr($nodeAttr);

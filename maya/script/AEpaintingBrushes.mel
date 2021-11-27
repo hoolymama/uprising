@@ -1,5 +1,7 @@
 
- global proc AEpaintingBrushesReplace (string $nodeAttr) {
+ source "AEpaintingUtilFuncs";
+
+global proc AEpaintingBrushesReplace (string $nodeAttr) {
 
  	string $node = nodeFromNodeAttr($nodeAttr);
  	string $col = "AEaddPaintingBrushesCol";

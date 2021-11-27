@@ -1,3 +1,4 @@
+
 global proc string nodeFromNodeAttr(string $nodeAttr){
 	string $buff[];
 	tokenize $nodeAttr ".[]" $buff;

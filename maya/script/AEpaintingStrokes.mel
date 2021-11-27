@@ -1,4 +1,6 @@
 
+source "AEpaintingUtilFuncs";
+
 
  global proc AEpaintingStrokesReplace (string $nodeAttr) {
 

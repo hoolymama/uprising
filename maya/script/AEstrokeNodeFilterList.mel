@@ -1,5 +1,7 @@
+source "AEpaintingUtilFuncs";
 
- global proc AEstrokeNodeFilterListAddMultiWidget(
+
+global proc AEstrokeNodeFilterListAddMultiWidget(
  	string $plug, 
  	string $columnLayout,  
  	int $index) 
