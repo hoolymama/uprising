@@ -4,7 +4,9 @@ import pymel.core as pm
 from uprising.pov.ui import (
     # painting_tab,
     publish_tab,
-    tools_menu
+    tools_menu,
+    particles_menu,
+    
 )
 
 from uprising.pov import reloader
@@ -40,18 +42,20 @@ class PovWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.tools_menu = tools_menu.create()
+        
+        self.particles_menu = particles_menu.create()
 
         self.show()
         self.setResizeToFitChildren()
 
-        self.populate()
+        # self.populate()
 
     def on_tab_changed(self):
         self.save()
 
-    def populate(self):
-        var = ("pov_ov_tab_index", 1)
-        self.tabs.setSelectTabIndex(pm.optionVar.get(var[0], var[1]))
+    # def populate(self):
+    #     var = ("pov_ov_tab_index", 1)
+    #     self.tabs.setSelectTabIndex(pm.optionVar.get(var[0], var[1]))
 
     def save(self):
         var = "pov_ov_tab_index"

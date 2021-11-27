@@ -1,0 +1,48 @@
+
+
+global proc AEcImgGradFieldTemplate ( string $nodeName )
+{ 
+	editorTemplate -beginScrollLayout;
+	AEtransformMain $nodeName;
+	editorTemplate -beginLayout "Field Attributes" -collapse 0;
+	editorTemplate -addControl "inputGradientImage";
+	editorTemplate -addControl "rotation";
+	AEaddRampControl($nodeName+ ".magnitudeRemapRamp");
+	editorTemplate -addControl "magnitudeRemapRange";
+	editorTemplate -addControl "magnitude";
+	editorTemplate -endLayout;	
+	
+	editorTemplate -beginLayout "Grid Attributes" -collapse 0;
+	editorTemplate -addControl "resolutionX";
+	editorTemplate -addControl "resolutionY";
+	editorTemplate -addControl "resolutionZ";
+	editorTemplate -endLayout;	
+	
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+	AEfieldInclude  $nodeName;
+
+	editorTemplate -suppress "useMaxDistance";
+	editorTemplate -suppress "magnitude";
+	editorTemplate -suppress "attenuation";
+	editorTemplate -suppress "volumeShape";
+	editorTemplate -suppress "volumeExclusion";
+	editorTemplate -suppress "volumeOffset";
+	editorTemplate -suppress "sectionRadius";
+	editorTemplate -suppress "volumeSweep";
+	editorTemplate -suppress "applyPerVertex";
+	editorTemplate -suppress "falloffCurve";
+	editorTemplate -suppress "selectionChildHighlighting";
+	editorTemplate -suppress "selectionChildHighlighting";
+	editorTemplate -suppress "trapInside";
+	editorTemplate -suppress "trapRadius";
+	editorTemplate -suppress "trapEnds";
+	editorTemplate -suppress "trapEnds";
+	editorTemplate -suppress "curveRadius";
+
+
+
+
+}
