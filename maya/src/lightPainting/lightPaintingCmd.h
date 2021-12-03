@@ -40,6 +40,10 @@
 #define kStrokeColorsFlag "-tcl"
 #define kStrokeColorsFlagL "-strokeColors"
 
+#define kStrokeWaitsFlag "-wat"
+#define kStrokeWaitsFlagL "-strokeWaits"
+
+
 #define kStrokeArcLengthFlag "-sal"
 #define kStrokeArcLengthFlagL "-strokeArcLength"
 
@@ -81,6 +85,8 @@ private:
 
 	MStatus handleStrokeColorsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
 
+	MStatus handleStrokeWaitsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
+ 
 	MStatus handleStrokeBackstrokeFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
 
 	MStatus handleStrokeArcLengthFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);

@@ -97,6 +97,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     {
         return MS::kUnknownParameter;
     }
+
     MObject thisObj = thisMObject();
     MFnDependencyNode fnNode(thisObj);
     MString nodeName = fnNode.name();
@@ -140,12 +141,27 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
     MArrayDataHandle hCurves = data.inputArrayValue(aCurves, &st);
     unsigned nInputs = hCurves.elementCount();
+
     for (unsigned i = 0; i < nInputs; i++, hCurves.next())
     {
+
         int elIndex = hCurves.elementIndex();
         MDataHandle hCurve = hCurves.inputValue(&st);
+        mser;
+        if (st.error())
+        {
+            MGlobal::displayWarning("Skipping " + nodeName + " curve plug" + elIndex);
+            continue;
+        }
         MObject dCurve = hCurve.asNurbsCurveTransformed();
         MFnNurbsCurve curveFn(dCurve, &st);
+        mser;
+
+        if (st.error())
+        {
+            MGlobal::displayWarning("Skipping " + nodeName + " curve plug" + elIndex);
+            continue;
+        }
 
         MDoubleArray knotVals;
         st = curveFn.getKnots(knotVals);
@@ -169,10 +185,12 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             splitAngle,
             splitTestInterval,
             boundaries);
+
         if (!num)
         {
             return MS::kUnknownParameter;
         }
+
         for (int i = 0; i < num; ++i)
         {
             const float &startDist = boundaries[i].x;
@@ -209,14 +227,15 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     }
 
     strokeCreator::applyRotations(data, pOutStrokes);
+
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
         curr_stroke->setPaintId(paintId);
         curr_stroke->setPotId(potId);
         curr_stroke->setLayerId(layerId);
     }
-    
-    paintStrokeCreator::generateStrokeGeometry(plug,data,pOutStrokes);
+
+    paintStrokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);
 
     return MS::kSuccess;
 }
@@ -267,7 +286,7 @@ Stroke curveStrokeNode::createStroke(
     double curveLength = curveFn.length(epsilon);
 
     // MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
-    const MFloatMatrix & brushMatrix = brush.matrix();
+    const MFloatMatrix &brushMatrix = brush.matrix();
 
     float forwardBias0 = 0.0;
     float forwardBias1 = 0.0;
@@ -321,7 +340,8 @@ Stroke curveStrokeNode::createStroke(
         MVector tangent = curveFn.tangent(biasedCurveParam);
 
         float extraDist = biasedDist - curveLength;
-        if (extraDist > 0.0) {
+        if (extraDist > 0.0)
+        {
             point += tangent.normal() * extraDist;
         }
         ///////////////////////////////////

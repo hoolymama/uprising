@@ -7,7 +7,8 @@ const double rad_to_deg = (180 / 3.1415927);
 Target::Target() : m_matrix(),
 				   m_drawTangent(),
 				   m_weight(1.0f),
-				   m_color(0.0, 0.0, 0.0, 0.0)
+				   m_color(0.0, 0.0, 0.0, 0.0),
+				   m_wait(0.0f)
 {
 }
 
@@ -15,18 +16,20 @@ Target::Target(
 	const MFloatMatrix &mat,
 	const MFloatVector &tangent,
 	float weight)
-	: m_matrix(mat),
-	  m_drawTangent(tangent),
-	  m_weight(weight)
+	: Target()
 {
+	m_matrix = mat;
+	m_drawTangent = tangent;
+	m_weight = weight;
 }
 
 Target::Target(
 	const MFloatMatrix &mat,
 	float weight)
-	: m_matrix(mat),
-	  m_weight(weight)
+	: Target()
 {
+	m_matrix = mat;
+	m_weight = weight;
 }
 
 Target::Target(
@@ -34,10 +37,11 @@ Target::Target(
 	const MFloatVector &tangent,
 	float weight,
 	const MColor &color)
-	: m_drawTangent(tangent),
-	  m_weight(weight),
-	  m_color(color)
+	: Target()
 {
+	m_drawTangent = tangent;
+	m_weight = weight;
+	m_color = color;
 }
 
 Target::~Target() {}
@@ -251,9 +255,19 @@ void Target::setWeight(float weight)
 	}
 }
 
-const float &Target::weight() const
+const float & Target::weight() const
 {
 	return m_weight;
+}
+ 
+void Target::setWait(float wait)
+{
+	m_wait = fmax(wait, 0.0f);
+}
+
+const float &Target::wait() const
+{
+	return m_wait;
 }
 
 void Target::setColor(const MColor &color)

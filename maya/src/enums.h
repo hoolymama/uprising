@@ -20,7 +20,8 @@ public:
         kTargetColorsOff,
         kTargetColorsWhite,
         kTargetColorsRGB,
-        kTargetColorsBlend
+        kTargetColorsBlend,
+        kTargetColorsWait
     };
 };
 

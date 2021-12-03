@@ -38,6 +38,13 @@ void getColors(
     MFloatArray &whites
      ) const;
 
+
+bool getWaits(
+    MDataBlock &data,
+    MFloatPointArray &points,
+    MFloatArray &waits) const;
+
+
 MStatus occludeColors(
   MDataBlock &data,
   const MFloatPointArray &points,
@@ -51,10 +58,15 @@ void applyColors(
     const MFloatArray &whites) const;
  
 
+void applyWaits(
+    std::vector<Stroke> *strokes,
+    const MFloatArray &waits) const;
+
 void removeBlackSpans(std::vector<Stroke> *strokes, float thresh) const;
 
   static MObject aRGB;  ///> The solid texture whose color will be mapped to the RGB component of targets. 
-  static MObject aWhite;  ///> The solid texture whose red channel will be mapped to the white component of targets. 
+  static MObject aWhite;  ///> The solid texture whose red channel will be mapped to the white component of targets.
+  static MObject aWait;  ///> The solid texture whose red channel will be mapped to the wait component of targets.
   static MObject aMesh;  ///> The occlusion mesh
   static MObject aPoint; ///> The point from which occlusions are calculated. 
   static MObject aBias; ///> An offset on the occlusion ray test.

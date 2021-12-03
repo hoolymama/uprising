@@ -47,6 +47,7 @@ MSyntax lightPaintingCmd::newSyntax()
 	// syn.addFlag(kStrokeTangentsFlag, kStrokeTangentsFlagL);
 
 	syn.addFlag(kStrokeColorsFlag, kStrokeColorsFlagL);
+	syn.addFlag(kStrokeWaitsFlag, kStrokeWaitsFlagL);
 
 	// syn.addFlag(kStrokeBackstrokeFlag, kStrokeBackstrokeFlagL);
 
@@ -97,7 +98,6 @@ MStatus lightPaintingCmd::doIt(const MArgList &args)
 		return MS::kUnknownParameter;
 	}
 
-
 	std::vector<Stroke> *pStrokes = ptd->strokes();
 
 	cerr << "pStrokes->size():" << pStrokes->size() << endl;
@@ -108,7 +108,7 @@ MStatus lightPaintingCmd::doIt(const MArgList &args)
 		displayError("No valid painting strokes geometry.");
 		return MS::kUnknownParameter;
 	}
- 
+
 	if (argData.isFlagSet(kStrokeCountFlag))
 	{
 		return handleStrokeCountFlag(*pStrokes);
@@ -160,6 +160,10 @@ MStatus lightPaintingCmd::doIt(const MArgList &args)
 		return handleStrokeColorsFlag(*pStrokes, argData);
 	}
 
+	if (argData.isFlagSet(kStrokeWaitsFlag))
+	{
+		return handleStrokeWaitsFlag(*pStrokes, argData);
+	}
 	// if (argData.isFlagSet(kStrokeBackstrokeFlag))
 	// {
 	// 	return handleStrokeBackstrokeFlag(*pStrokes, argData);
@@ -259,13 +263,13 @@ MFloatMatrix lightPaintingCmd::getWorldMatrix(MObject &paintingObject, MStatus *
 	MObject dMatrix;
 	plugMatrix.getValue(dMatrix);
 	MFnMatrixData fnX(dMatrix);
-	
+
 	pmat = MFloatMatrix(fnX.matrix().matrix);
 	return pmat;
 }
 
 int lightPaintingCmd::getStrokeId(const std::vector<Stroke> &strokes, MArgDatabase &argData,
-							 MStatus *status)
+								  MStatus *status)
 {
 
 	int strokeId = -1;
@@ -296,7 +300,7 @@ MStatus lightPaintingCmd::handleStrokeCountFlag(const std::vector<Stroke> &strok
 }
 
 MStatus lightPaintingCmd::handleStrokeSpeedLinearFlag(const std::vector<Stroke> &strokes,
-												 MArgDatabase &argData)
+													  MArgDatabase &argData)
 {
 	MStatus st;
 	int strokeId = getStrokeId(strokes, argData, &st);
@@ -310,7 +314,7 @@ MStatus lightPaintingCmd::handleStrokeSpeedLinearFlag(const std::vector<Stroke> 
 }
 
 MStatus lightPaintingCmd::handleStrokeSpeedAngularFlag(const std::vector<Stroke> &strokes,
-												  MArgDatabase &argData)
+													   MArgDatabase &argData)
 {
 	MStatus st;
 	int strokeId = getStrokeId(strokes, argData, &st);
@@ -323,9 +327,8 @@ MStatus lightPaintingCmd::handleStrokeSpeedAngularFlag(const std::vector<Stroke>
 	return MS::kSuccess;
 }
 
-
 MStatus lightPaintingCmd::handleStrokeApproxDistFlag(const std::vector<Stroke> &strokes,
-												  MArgDatabase &argData)
+													 MArgDatabase &argData)
 {
 	MStatus st;
 	int strokeId = getStrokeId(strokes, argData, &st);
@@ -352,7 +355,7 @@ MStatus lightPaintingCmd::handleStrokeLayerIdFlag(const std::vector<Stroke> &str
 }
 
 MStatus lightPaintingCmd::handleStrokePositionsFlag(const std::vector<Stroke> &strokes,
-											   MArgDatabase &argData, const MFloatMatrix &worldMatrix)
+													MArgDatabase &argData, const MFloatMatrix &worldMatrix)
 {
 	MStatus st;
 	int strokeId = getStrokeId(strokes, argData, &st);
@@ -370,7 +373,7 @@ MStatus lightPaintingCmd::handleStrokePositionsFlag(const std::vector<Stroke> &s
 }
 
 MStatus lightPaintingCmd::handleStrokeRotationsFlag(const std::vector<Stroke> &strokes,
-											   MArgDatabase &argData, const MFloatMatrix &worldMatrix)
+													MArgDatabase &argData, const MFloatMatrix &worldMatrix)
 {
 	MStatus st;
 	MTransformationMatrix::RotationOrder order = getRotationOrder(argData);
@@ -406,8 +409,27 @@ MStatus lightPaintingCmd::handleStrokeColorsFlag(const std::vector<Stroke> &stro
 	return MS::kSuccess;
 }
 
+MStatus lightPaintingCmd::handleStrokeWaitsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(strokes, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	MDoubleArray result;
+	const Stroke &stroke = strokes[strokeId];
+	Stroke::const_target_iterator titer = stroke.targets_begin();
+	for (; titer != stroke.targets_end(); titer++)
+	{
+		result.append(double(titer->wait()));
+	}
+	setResult(result);
+	return MS::kSuccess;
+}
+
 MStatus lightPaintingCmd::handleStrokeArcLengthFlag(const std::vector<Stroke> &strokes,
-											   MArgDatabase &argData)
+													MArgDatabase &argData)
 {
 	MStatus st;
 	int strokeId = getStrokeId(strokes, argData, &st);
@@ -421,7 +443,7 @@ MStatus lightPaintingCmd::handleStrokeArcLengthFlag(const std::vector<Stroke> &s
 }
 
 MStatus lightPaintingCmd::handleStrokeParentIndexFlag(const std::vector<Stroke> &strokes,
-												 MArgDatabase &argData)
+													  MArgDatabase &argData)
 {
 	MStatus st;
 	int strokeId = getStrokeId(strokes, argData, &st);

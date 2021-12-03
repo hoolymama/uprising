@@ -744,27 +744,44 @@ void Stroke::getTargetBorderColors(
 	std::vector<Target>::const_iterator citer;
 	unsigned i = 0;
 	unsigned j = 0;
-
-	for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len); citer++, i += 2, j++)
+	MColor color;
+	if (displayMode == PaintingEnums::kTargetColorsBlend)
+	{
+		for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len); citer++, i += 2, j++)
+		{
+			const MColor &tc = citer->color();
+			color = MColor((tc.r + tc.a), (tc.g + tc.a), (tc.b + tc.a)) * 0.5f;
+			result.set(color, i);
+			result.set(color, (i + 1));
+		}
+	} else if (displayMode == PaintingEnums::kTargetColorsWhite)
 	{
 
-		const MColor &tc = citer->color();
-		MColor color;
-
-		if (displayMode == PaintingEnums::kTargetColorsBlend)
+		for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len); citer++, i += 2, j++)
 		{
-			color = MColor((tc.r + tc.a), (tc.g + tc.a), (tc.b + tc.a)) * 0.5f;
-		}
-		else if (displayMode == PaintingEnums::kTargetColorsWhite)
-		{
+			const MColor &tc = citer->color();
 			color = MColor(tc.a, tc.a, tc.a);
+			result.set(color, i);
+			result.set(color, (i + 1));
 		}
-		else
+	}
+	else if (displayMode == PaintingEnums::kTargetColorsRGB)
+	{
+		for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len); citer++, i += 2, j++)
 		{
+			const MColor &tc = citer->color();
 			color = MColor(tc.r, tc.g, tc.b);
+			result.set(color, i);
+			result.set(color, (i + 1));
 		}
-		result.set(color, i);
-		result.set(color, (i + 1));
+	} else { // wait
+		for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len); citer++, i += 2, j++)
+		{
+			const float &wait = citer->wait();
+			color = MColor(wait,wait,wait);
+			result.set(color, i);
+			result.set(color, (i + 1));
+		}
 	}
 }
 ///////// ///////// /////////

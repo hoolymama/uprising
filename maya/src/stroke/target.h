@@ -137,10 +137,13 @@ public:
 		 bool flatBrush,
 		 bool displayWeightWidth = true) const;
 
-	void setWeight(float contact);
-
+	void setWeight(float wait);
 	const float &weight() const;
+	
 
+	void setWait(float wait);
+	const float &wait() const;
+ 
 
 	void setColor(const MColor &rgba);
 
@@ -155,6 +158,8 @@ private:
 	MFloatMatrix m_matrix;
 	float m_weight;	 // used to indicate fraction of brush tip
 	MColor m_color;	 // RGBA
+	float m_wait;
+
 
 };
 

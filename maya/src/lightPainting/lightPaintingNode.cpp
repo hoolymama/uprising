@@ -70,6 +70,7 @@ MStatus lightPainting::initialize()
   eAttr.addField("white", PaintingEnums::kTargetColorsWhite);
   eAttr.addField("rgb", PaintingEnums::kTargetColorsRGB);
   eAttr.addField("blend", PaintingEnums::kTargetColorsBlend);
+  eAttr.addField("wait", PaintingEnums::kTargetColorsWait);
   eAttr.setHidden(false);
   eAttr.setStorable(true);
   eAttr.setReadable(true);

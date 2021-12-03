@@ -26,6 +26,8 @@
 
 MObject mapColorStrokes::aRGB;
 MObject mapColorStrokes::aWhite;
+MObject mapColorStrokes::aWait;
+
 
 MObject mapColorStrokes::aMesh;
 MObject mapColorStrokes::aPoint;
@@ -78,6 +80,13 @@ MStatus mapColorStrokes::initialize()
   nAttr.setKeyable(true);
   addAttribute(aWhite);
 
+  aWait = nAttr.create("wait", "wai", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aWait);
+
+
   aPoint = nAttr.createPoint("occlusionPoint", "opt");
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -125,6 +134,7 @@ MStatus mapColorStrokes::initialize()
   attributeAffects(aB, aOutput);
   attributeAffects(aWhite, aOutput);
 
+  attributeAffects(aWait, aOutput); 
   return (MS::kSuccess);
 }
 
@@ -137,11 +147,19 @@ MStatus mapColorStrokes::mutate(
 
   MFloatVectorArray colors;
   MFloatArray whites;
+  MFloatArray waits;
+  
 
   MFloatPointArray points;
   getTargetPoints(strokes, points);
 
   getColors(data, points, colors, whites);
+  bool doWaits = getWaits(data, points, waits);
+
+  if (doWaits && waits.length() == points.length()) {
+    applyWaits(strokes, waits);
+  }
+
 
   if ((points.length() != colors.length()) || (points.length() != whites.length()))
   {
@@ -162,6 +180,7 @@ MStatus mapColorStrokes::mutate(
 
     removeBlackSpans(strokes, thresh);
   }
+
 
   return MS::kSuccess;
 }
@@ -217,6 +236,49 @@ void mapColorStrokes::getColors(
     whites = MFloatArray(len, white);
   }
 }
+
+
+
+
+bool mapColorStrokes::getWaits(
+    MDataBlock &data,
+    MFloatPointArray &points,
+    MFloatArray &waits) const
+{
+
+  MStatus st;
+  MObject thisObj = thisMObject();
+
+  unsigned len = points.length();
+  bool isMapped = false;
+
+  if (TexUtils::hasTexture(thisObj, mapColorStrokes::aWait))
+  {
+
+    st = TexUtils::sampleSolidTexture(
+        thisObj,
+        mapColorStrokes::aWait,
+        1.0,
+        points,
+        waits);
+
+    if (!st.error())
+    {
+      isMapped = true;
+    }
+  }
+  if (!isMapped)
+  {
+    float wait = data.inputValue(aWait).asFloat();
+    if (wait == 0.0) {
+      return false;
+    }
+    waits = MFloatArray(len, wait);
+  }
+  return true;
+}
+
+
 
 MStatus mapColorStrokes::occludeColors(
     MDataBlock &data,
@@ -282,6 +344,24 @@ void mapColorStrokes::applyColors(
     }
   }
 }
+
+
+void mapColorStrokes::applyWaits(
+    std::vector<Stroke> *strokes,
+    const MFloatArray &waits) const
+{
+  std::vector<Stroke>::iterator siter = strokes->begin();
+  unsigned index = 0;
+  for (unsigned i = 0; siter != strokes->end(); siter++, i++)
+  {
+    Stroke::target_iterator titer = siter->targets_begin();
+    for (; titer != siter->targets_end(); titer++, index++)
+    {
+      titer->setWait(waits[index]);
+    }
+  }
+}
+
 
 void mapColorStrokes::removeBlackSpans(
     std::vector<Stroke> *strokes,
