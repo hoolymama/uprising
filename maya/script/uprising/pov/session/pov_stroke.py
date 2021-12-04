@@ -14,29 +14,32 @@ class PovStroke(Stroke):
 
     def __init__(self,  stroke_id, node):
         super(PovStroke, self).__init__(stroke_id, node)
+        
 
     def _build_targets(self):
 
         positions = self.query_positions()
         rotations = self.query_rotations()
         colors = self.query_colors()
+        waits = self.query_waits()
         self.targets = self._target_factory(
-            positions, rotations, colors, self.id)
+            positions, rotations, colors, waits, self.id)
 
     @classmethod
-    def _target_factory(cls, positions, rotations, colors, stroke_id):
+    def _target_factory(cls, positions, rotations, colors, waits, stroke_id):
         result = []
         num_targets = len(positions)
-        if not (num_targets == len(rotations) and num_targets == len(colors)):
+        if not (num_targets == len(rotations) and num_targets == len(colors) and num_targets == len(waits)):
             raise utils.StrokeError(
-                "Length mismatch: positions, rotations, colors")
+                "Length mismatch: positions, rotations, colors, waits")
 
-        for i, (p, r, c) in enumerate(zip(positions, rotations, colors)):
+        for i, (p, r, c, w) in enumerate(zip(positions, rotations, colors, waits)):
             try:
                 if i == 0:
-                    tg = PovTarget(i, (p * 10), r, pm.dt.Color(0.0,0.0,0.0,0.0))
+                    tg = PovTarget(i, (p * 10), r, pm.dt.Color(0.0,0.0,0.0,0.0), w)
+                    tg.linear = False
                     result.append(tg)
-                target = PovTarget(i, (p * 10), r, c)
+                target = PovTarget(i, (p * 10), r, c, w)
             except utils.StrokeError:
                 print("Target Position:", p)
                 print("StrokeId:", stroke_id)
@@ -150,10 +153,12 @@ class PovStroke(Stroke):
             strokeLayerId=True
         )
 
-
-
-
-
+    def query_waits(self):
+        return pm.lightPaintingQuery(
+            self.node,
+            strokeIndex=self.id,
+            strokeWaits=True
+        )
 
 
 

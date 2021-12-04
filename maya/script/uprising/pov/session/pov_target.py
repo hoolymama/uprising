@@ -2,12 +2,14 @@
 from robolink import INSTRUCTION_INSERT_CODE
 from uprising.common.session.target import Target
 from uprising import robo
-
+EPSILON = 0.00001
 
 class PovTarget(Target):
-    def __init__(self, target_id, position, rotation, color):
+    def __init__(self, target_id, position, rotation, color, wait):
         super(PovTarget, self).__init__(target_id, position, rotation)
         self.color = color*10
+        self.wait = wait
+        self.linear = True
 
     def send(self, prefix, program, frame, last_color):
         link = robo.link()
@@ -21,6 +23,7 @@ class PovTarget(Target):
             program.addMoveL(rdk_target)
         else:
             program.addMoveJ(rdk_target)
+        self.send_wait(program)
         self.send_color(program, last_color=last_color)
 
     def send_color(self, program, last_color=None):
@@ -39,3 +42,8 @@ class PovTarget(Target):
         if not last_color or last_color.a != self.color.a:
             program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4]={:.3f}".format(
                 self.color.a), INSTRUCTION_INSERT_CODE)
+
+    def send_wait(self, program):
+        if self.wait < EPSILON:
+            return
+        program.RunInstruction("WAIT SEC {:.3f}".format(self.wait), INSTRUCTION_INSERT_CODE)

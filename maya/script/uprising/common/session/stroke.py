@@ -23,6 +23,7 @@ class Stroke(object):
         self.approximation_distance = self.query_approximation_distance()
         self.layerId = self.query_layer_id()
 
+        # TODO: Check - should this be OR
         self.override_path_parameters =  (
             self.approximation_distance > EPSILON and 
             self.linear_speed > EPSILON and 
