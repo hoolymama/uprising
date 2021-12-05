@@ -93,7 +93,6 @@
 #include "cImgMult.h"
 #include "cImgMerge.h"
 #include "cImgGradient.h"
-#include "cImgFace.h"
 #include "cImgLayout.h"
 #include "cImgChoice.h"
 #include "cImgReverse.h"
@@ -370,10 +369,6 @@ MStatus initializePlugin(MObject obj)
 							 cImgGradient::initialize);
 	msert;
 
-	st = plugin.registerNode("cImgFace", cImgFace::id, cImgFace::creator,
-							 cImgFace::initialize);
-	msert;
-
 	st = plugin.registerNode("cImgProcess", cImgProcess::id, cImgProcess::creator,
 							 cImgProcess::initialize);
 	msert;
@@ -570,9 +565,6 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(cImgGradient::id);
-	mser;
-
-	st = plugin.deregisterNode(cImgFace::id);
 	mser;
 
 	st = plugin.deregisterNode(cImgPngFile::id);
