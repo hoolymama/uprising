@@ -1,0 +1,52 @@
+ R"***(<fragment uiName="cImgPluginFragmentOutput" name="cImgPluginFragmentOutput" type="structure" class="ShadeFragment" version="1.0">
+	<description>
+		<![CDATA[Struct output for simple file texture fragment]]>
+	</description>
+	<properties>
+		<struct name="cImgPluginFragmentOutput" struct_name="cImgPluginFragmentOutput" />
+	</properties>
+	<values>
+	</values>
+	<outputs>
+		<alias name="cImgPluginFragmentOutput" struct_name="cImgPluginFragmentOutput" />
+		<float3 name="outColor" />
+		<float name="outAlpha" />
+	</outputs>
+	<implementation>
+		<implementation render="OGSRenderer" language="Cg" lang_version="2.1">
+			<function_name val="" />
+			<declaration name="cImgPluginFragmentOutput">
+				<![CDATA[
+				struct cImgPluginFragmentOutput 
+				{ 
+				float3 outColor; 
+				float outAlpha; 
+				}; 
+				]]>
+			</declaration>
+		</implementation>
+		<implementation render="OGSRenderer" language="HLSL" lang_version="11.0">
+			<function_name val="" />
+			<declaration name="cImgPluginFragmentOutput">
+				<![CDATA[
+				struct cImgPluginFragmentOutput 
+				{ 
+				float3 outColor; 
+				float outAlpha; 
+				}; 
+				]]>
+			</declaration>
+		</implementation>
+		<implementation render="OGSRenderer" language="GLSL" lang_version="3.0">
+			<function_name val="" />
+			<declaration name="cImgPluginFragmentOutput"><![CDATA[
+				struct cImgPluginFragmentOutput 
+				{ 
+				vec3 outColor; 
+				float outAlpha; 
+				}; 
+				]]>
+			</declaration>
+		</implementation>
+	</implementation>
+</fragment>)***"; 

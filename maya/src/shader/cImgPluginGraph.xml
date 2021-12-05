@@ -1,0 +1,19 @@
+ R"***(<fragment_graph name="cImgPluginGraph" ref="cImgPluginGraph" class="FragmentGraph" version="1.0">
+	<fragments>
+			<fragment_ref name="cImgPluginFragment" ref="cImgPluginFragment" />
+			<fragment_ref name="cImgPluginFragmentOutput" ref="cImgPluginFragmentOutput" />
+	</fragments>
+	<connections>
+		<connect from="cImgPluginFragment.output" to="cImgPluginFragmentOutput.cImgPluginFragmentOutput" />
+	</connections>
+	<properties>
+		<float2 name="uvCoord" ref="cImgPluginFragment.uvCoord" semantic="mayaUvCoordSemantic" flags="varyingInputParam" />
+		<texture2 name="map" ref="cImgPluginFragment.map" />
+		<sampler name="textureSampler" ref="cImgPluginFragment.textureSampler" />
+	</properties>
+	<values>
+	</values>
+	<outputs>
+		<struct name="output" ref="cImgPluginFragmentOutput.cImgPluginFragmentOutput" />
+	</outputs>
+</fragment_graph>)***";

@@ -47,7 +47,7 @@ MStatus initializePlugin(MObject obj)
 	const MString UserClassifyindexShader("texture/2d:drawdb/shader/texture/2d/indexShader");
 	const MString UserClassifycImgShader("texture/2d:drawdb/shader/texture/2d/cImgShader");
 
-	MGlobal::executePythonCommand("import pymel.core as pm;pm.loadPlugin('Kit')");
+	MGlobal::executePythonCommand("from uprising import menu;menu.UprisingMenu()");
 
 	st = plugin.registerData("skChainData", skChainData::id,
 							 skChainData::creator);

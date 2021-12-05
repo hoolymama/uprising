@@ -22,7 +22,6 @@ maya_modules_erb_files:
 include_paths:
 - ../../kettle/src
 - ../../kettle/src/maya
-- ../../kit/maya/src
 - ../../../CImg-2.9.8_pre051821
 libs:
 - OpenMayaUI
@@ -38,10 +37,6 @@ source_files:
 # - src/**/*.cpp
 - ../../kettle/src/maya/mayaMath.cpp
 - ../../kettle/src/maya/texUtils.cpp
-
-- ../../kit/maya/src/cImgData.cpp
-- ../../kit/maya/src/cImgFloatData.cpp
-- ../../kit/maya/src/cImgUtils.cpp
 
 - src/plugin.cpp
 - src/cmdUtils.cpp
@@ -62,3 +57,6 @@ source_files:
 - src/stroke/*.cpp
 - src/utils/*.cpp
 - src/pointGen/*.cpp
+
+- src/shader/*.cpp
+- src/cimg/*.cpp

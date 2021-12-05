@@ -1,7 +1,7 @@
 from uprising import utils
 
 import pymel.core as pm
-from cioseq.sequence import Sequence
+from uprising.sequence import Sequence
 from uprising import utils
 
 def chunkify_skels(chain_skel_pairs, max_chains):

@@ -70,6 +70,41 @@
 #include "particleTrailsNode.h"
 #include "particleTrailsData.h"
 
+#include "cImgData.h"
+#include "cImgFloatData.h"
+#include "imageMeasureCmd.h"
+#include "shader/cImgShader.h"
+#include "cImgFile.h"
+#include "cImgFileSplit.h"
+#include "cImgConstant.h"
+#include "cImgProcess.h"
+#include "cImgSkel.h"
+#include "cImgGate.h"
+#include "cImgDetail.h"
+#include "cImgBlur.h"
+#include "cImgMinMax.h"
+#include "cImgNoise.h"
+#include "cImgDilate.h"
+#include "axisImg.h"
+#include "cImgSmear.h"
+#include "cImgPngFile.h"
+#include "pngInfo.h"
+#include "cImgOverride.h"
+#include "cImgMult.h"
+#include "cImgMerge.h"
+#include "cImgGradient.h"
+#include "cImgFace.h"
+#include "cImgLayout.h"
+#include "cImgChoice.h"
+#include "cImgReverse.h"
+#include "cImgFileCrop.h"
+#include "cImgCrop.h"
+#include "cImgFloatCrop.h"
+#include "cImgDistance.h"
+#include "cImgFloatGate.h"
+
+static const MString sRegistrantId("cImgPlugin");
+
 
 MStatus initializePlugin(MObject obj)
 {
@@ -80,7 +115,10 @@ MStatus initializePlugin(MObject obj)
 
 	MFnPlugin plugin(obj, PLUGIN_VENDOR, PLUGIN_VERSION, MAYA_VERSION);
 
-	MGlobal::executePythonCommand("import pymel.core as pm;pm.loadPlugin('Kit')");
+	// BUILD UI
+	MGlobal::executePythonCommandOnIdle("from uprising import menu;menu.UprisingMenu()", true);
+
+	const MString cImgShaderUserClassify("texture/2d:drawdb/shader/texture/2d/cImgShader");
 
 	st = plugin.registerData("particleTrailsData", particleTrailsData::id,
 							 particleTrailsData::creator);
@@ -300,6 +338,153 @@ MStatus initializePlugin(MObject obj)
 								brushCmd::newSyntax);
 	mser;
 
+	
+	// ############################
+
+
+	st = plugin.registerData("cImgData", cImgData::id,
+							 cImgData::creator);
+	mser;
+
+	st = plugin.registerData("cImgFloatData", cImgFloatData::id,
+							 cImgFloatData::creator);
+	mser;
+
+	st = plugin.registerNode("cImgConstant", cImgConstant::id, cImgConstant::creator,
+							 cImgConstant::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgFileSplit", cImgFileSplit::id, cImgFileSplit::creator,
+							 cImgFileSplit::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgFile", cImgFile::id, cImgFile::creator,
+							 cImgFile::initialize);
+	msert;
+	
+	st = plugin.registerNode("cImgPngFile", cImgPngFile::id, cImgPngFile::creator,
+							 cImgPngFile::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgGradient", cImgGradient::id, cImgGradient::creator,
+							 cImgGradient::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgFace", cImgFace::id, cImgFace::creator,
+							 cImgFace::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgProcess", cImgProcess::id, cImgProcess::creator,
+							 cImgProcess::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgMerge", cImgMerge::id, cImgMerge::creator,
+							 cImgMerge::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgSkel", cImgSkel::id, cImgSkel::creator,
+							 cImgSkel::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgGate", cImgGate::id, cImgGate::creator,
+							 cImgGate::initialize);
+	msert;
+	st = plugin.registerNode("cImgFloatGate", cImgFloatGate::id, cImgFloatGate::creator,
+							 cImgFloatGate::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgSmear", cImgSmear::id, cImgSmear::creator,
+							 cImgSmear::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgDetail", cImgDetail::id, cImgDetail::creator,
+							 cImgDetail::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgBlur", cImgBlur::id, cImgBlur::creator,
+							 cImgBlur::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgDilate", cImgDilate::id,
+							 cImgDilate::creator,
+							 cImgDilate::initialize);
+	msert;
+	
+	st = plugin.registerNode("cImgDistance", cImgDistance::id,
+							 cImgDistance::creator,
+							 cImgDistance::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgReverse", cImgReverse::id,
+							 cImgReverse::creator,
+							 cImgReverse::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgMult", cImgMult::id,
+							 cImgMult::creator,
+							 cImgMult::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgMinMax", cImgMinMax::id,
+							 cImgMinMax::creator,
+							 cImgMinMax::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgNoise", cImgNoise::id,
+							 cImgNoise::creator,
+							 cImgNoise::initialize);
+	msert;
+
+	st = plugin.registerNode("axisImg", axisImg::id, axisImg::creator,
+							 axisImg::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgLayout", cImgLayout::id,
+							 cImgLayout::creator,
+							 cImgLayout::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgChoice", cImgChoice::id,
+							 cImgChoice::creator,
+							 cImgChoice::initialize);
+	msert;
+	
+	st = plugin.registerNode("cImgFileCrop", cImgFileCrop::id,
+							 cImgFileCrop::creator,
+							 cImgFileCrop::initialize);
+	msert;
+	
+	st = plugin.registerNode("cImgCrop", cImgCrop::id,
+							 cImgCrop::creator,
+							 cImgCrop::initialize);
+	msert;
+	
+
+	st = plugin.registerNode("cImgFloatCrop", cImgFloatCrop::id,
+							 cImgFloatCrop::creator,
+							 cImgFloatCrop::initialize);
+	msert;
+	
+
+
+	st = plugin.registerNode("cImgShader", cImgShader::id, &cImgShader::creator,
+							 &cImgShader::initialize, MPxNode::kDependNode, &cImgShaderUserClassify);
+	mser;
+
+	st = plugin.registerCommand("pngInfo", pngInfo::creator,
+								pngInfo::newSyntax);
+	mser;
+
+	st = plugin.registerCommand("imageMeasure", imageMeasureCmd::creator,
+								imageMeasureCmd::newSyntax);
+	mser;
+
+	MHWRender::MDrawRegistry::registerShadingNodeOverrideCreator(
+		"drawdb/shader/texture/2d/cImgShader",
+		sRegistrantId,
+		cImgOverride::creator);
+
+
 	return st;
 }
 
@@ -310,6 +495,109 @@ MStatus uninitializePlugin(MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin(obj);
+
+	MHWRender::MDrawRegistry::deregisterShadingNodeOverrideCreator("drawdb/shader/texture/2d/cImgShader",
+																   sRegistrantId);
+
+	st = plugin.deregisterCommand("imageMeasureCmd");
+	mser;
+
+	st = plugin.deregisterCommand("pngInfo");
+	mser;
+
+	st = plugin.deregisterNode(cImgShader::id);
+	mser;
+
+
+	st = plugin.deregisterNode(cImgFloatCrop::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgCrop::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgFileCrop::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgChoice::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgLayout::id);
+	mser;
+
+	st = plugin.deregisterNode(axisImg::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgNoise::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgMinMax::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgMult::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgReverse::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgDistance::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgDilate::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgBlur::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgDetail::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgSmear::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgFloatGate::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgGate::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgSkel::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgMerge::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgProcess::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgGradient::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgFace::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgPngFile::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgFile::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgFileSplit::id);
+	mser;
+
+
+	st = plugin.deregisterNode(cImgConstant::id);
+	mser;
+
+	st = plugin.deregisterData(cImgFloatData::id);
+	mser;
+
+	st = plugin.deregisterData(cImgData::id);
+	mser;
+
+
+	// #######################################
+
+
 
 	st = plugin.deregisterCommand("brushCmd");
 	mser;
