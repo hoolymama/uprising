@@ -12,7 +12,7 @@ from shutil import copy2
 PKG_DIR =  os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODULE_DIR = os.path.join(PKG_DIR, "maya")
 VERSION = os.path.basename(PKG_DIR)  # 5.1.0
-MODULE_NAME = "uprising"
+MODULE_NAME = os.path.dirname(PKG_DIR)
 SUPPORTED_MAYA_VERSIONS = [2019]
 
 def main():

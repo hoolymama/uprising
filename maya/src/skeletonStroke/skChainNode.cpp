@@ -23,6 +23,7 @@
 #include "errorMacros.h"
 #include "skGraph.h"
 #include "skChainNode.h"
+#include  "cImgData.h"
 #include  "cImgFloatData.h"
 
 #include <maya/MArrayDataBuilder.h>

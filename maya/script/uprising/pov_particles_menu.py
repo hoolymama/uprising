@@ -8,7 +8,7 @@ from uprising import robo
 
 
 def create():
-    menu = pm.menu(label="Particles", tearOff=True)
+    menu = pm.menu(label="KR8 Particles", tearOff=True)
 
     pm.menuItem(label="Create Image Gradient Field",
                 command=pm.Callback(create_gradient_image_field))

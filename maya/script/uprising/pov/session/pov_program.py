@@ -5,7 +5,7 @@ import pymel.core as pm
 from uprising import robo
 from uprising.common.session.program import Program
 from uprising.pov.session.pov_painting import PovPainting
-from uprising.pov.session import configurator
+from uprising.pov.session import pov_configurator
 
 # from uprising import progress
 
@@ -22,7 +22,7 @@ class PovProgram(Program):
         print("configure....")
         for stroke in self.painting.strokes:
             try:
-                configurator.solve(stroke, self.painting.brush)
+                pov_configurator.solve(stroke, self.painting.brush)
             except BaseException:
                 stroke.ignore=True
                 pm.warning("IGNORING IMPOSSIBLE STROKE {}".format(stroke.name("stk" )) )

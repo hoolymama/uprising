@@ -1,7 +1,6 @@
 
 from uprising.session import (
 
-
     board_calibration_program,
     brush_hang_program,
     calibration_program,
@@ -40,6 +39,15 @@ from uprising.bot.session import (
     pick_place_program,
     bot_painting_session,
     configurator
+)
+
+from uprising.pov.session import (
+    pov_target,
+    pov_stroke,
+    pov_painting,
+    pov_program,
+    pov_session,
+    pov_configurator
 )
 
 from uprising.common.session import (
@@ -86,6 +94,8 @@ from uprising import (
     stroke_factory_utils,
     tools_menu,
     utils,
+    pov_particles_menu,
+    pov_publish_tab
 )
 
 
@@ -95,11 +105,14 @@ reload(brush)
 reload(paint)
 reload(target)
 reload(bot_target)
+reload(pov_target)
 reload(stroke)
 reload(bot_stroke)
+reload(pov_stroke)
 reload(cluster)
 reload(painting)
 reload(bot_painting)
+reload(pov_painting)
 
 reload(chains)
 ####################
@@ -110,7 +123,7 @@ reload(chains)
 reload(program)
 reload(cluster_test_program)
 reload(bot_program)
-    
+reload(pov_program)
 
 
 reload(calibration_program)
@@ -145,6 +158,7 @@ reload(handle_calibration_session)
 reload(kr8_track_session)
 
 reload(bot_painting_session)
+reload(pov_session)
 reload(dip_wipe_exercise_session)
 reload(pick_place_exercise_session)
 
@@ -169,6 +183,9 @@ reload(probes_tab)
 reload(publish_tab)
 reload(rings_design_tab)
 reload(rings_setup_tab)
+reload(pov_publish_tab)
+
+
 ####################
 
 ####################
@@ -179,6 +196,7 @@ reload(images_menu)
 reload(select_menu)
 reload(tools_menu)
 reload(props_menu)
+reload(pov_particles_menu)
 ####################
 
 ####################

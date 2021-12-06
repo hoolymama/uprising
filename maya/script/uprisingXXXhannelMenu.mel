@@ -1,5 +1,5 @@
 
-global proc uprising.channelMenu(string $parent) {
+global proc uprising_channelMenu(string $parent) {
 	
 	setParent -m $parent;
 

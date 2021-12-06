@@ -25,6 +25,16 @@ from uprising import (
 )
 
 
+# from uprising import pov
+
+
+from uprising import (
+    pov_publish_tab,
+    pov_particles_menu
+)
+
+
+
 class RobotWindow(gui.Window):
     def __init__(self):
 
@@ -81,6 +91,11 @@ class RobotWindow(gui.Window):
         self.probes_tab = probes_tab.probesTab()
         self.tabs.setTabLabel((self.probes_tab, "Probes"))
 
+        pm.setParent(self.tabs)
+        self.pov_publish_tab = pov_publish_tab.PovPublishTab()
+        self.tabs.setTabLabel((self.pov_publish_tab, "KR8 Publish"))
+
+
         pm.setParent(self.menuBarLayout)
         self.tools_menu = tools_menu.create()
 
@@ -101,6 +116,10 @@ class RobotWindow(gui.Window):
 
         pm.setParent(self.menuBarLayout)
         self.chain_menu = chain_menu.create()
+
+    
+        pm.setParent(self.menuBarLayout)
+        self.pov_particles_menu = pov_particles_menu.create()
 
         self.show()
         self.setResizeToFitChildren()
