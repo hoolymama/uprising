@@ -8,8 +8,10 @@
 #include <maya/MFloatVectorArray.h>
 #include <maya/MString.h>
 #include <maya/MFnNumericAttribute.h>
+#include <maya/MFnUnitAttribute.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
+
 
 #include <maya/MFnMesh.h>
 #include <maya/MFnMeshData.h>
@@ -24,9 +26,12 @@
 #include "errorMacros.h"
 #include "texUtils.h"
 
+const float PI = 3.14159265359;
 MObject mapColorStrokes::aRGB;
 MObject mapColorStrokes::aWhite;
 MObject mapColorStrokes::aWait;
+MObject mapColorStrokes::aAngleWaitRemap;
+MObject mapColorStrokes::aStartEndAngle;
 
 
 MObject mapColorStrokes::aMesh;
@@ -63,6 +68,8 @@ MStatus mapColorStrokes::initialize()
 
   MFnNumericAttribute nAttr;
   MFnTypedAttribute tAttr;
+	MRampAttribute rAttr;
+  MFnUnitAttribute uAttr;
 
   aRGB = nAttr.createColor("rgb", "rgb");
   nAttr.setStorable(true);
@@ -85,6 +92,21 @@ MStatus mapColorStrokes::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   addAttribute(aWait);
+
+  aAngleWaitRemap = MRampAttribute::createCurveRamp("angleWaitRemap", "awr");
+  st = addAttribute(aAngleWaitRemap);
+  mser;
+
+
+	aStartEndAngle = uAttr.create( "startEndAngle", "sea",
+	                          MFnUnitAttribute::kAngle );
+	uAttr.setHidden( false );
+	uAttr.setKeyable( true );
+	uAttr.setStorable(true);
+  uAttr.setDefault(0.0);
+  
+	st = addAttribute(aStartEndAngle); mser;
+
 
 
   aPoint = nAttr.createPoint("occlusionPoint", "opt");
@@ -135,6 +157,13 @@ MStatus mapColorStrokes::initialize()
   attributeAffects(aWhite, aOutput);
 
   attributeAffects(aWait, aOutput); 
+  attributeAffects(aAngleWaitRemap, aOutput); 
+  attributeAffects(aStartEndAngle, aOutput); 
+
+
+
+
+
   return (MS::kSuccess);
 }
 
@@ -156,9 +185,14 @@ MStatus mapColorStrokes::mutate(
   getColors(data, points, colors, whites);
   bool doWaits = getWaits(data, points, waits);
 
+  MRampAttribute rampAttr( thisMObject(), aAngleWaitRemap, &st );
+  float startEndAngle = float(data.inputValue(aStartEndAngle).asAngle().asRadians());
+
+
   if (doWaits && waits.length() == points.length()) {
-    applyWaits(strokes, waits);
+    applyWaits(strokes, waits, rampAttr, startEndAngle);
   }
+
 
 
   if ((points.length() != colors.length()) || (points.length() != whites.length()))
@@ -361,6 +395,43 @@ void mapColorStrokes::applyWaits(
     }
   }
 }
+
+
+void mapColorStrokes::applyWaits(
+    std::vector<Stroke> *strokes,
+    const MFloatArray &waits,
+    MRampAttribute & rampAttr,
+    float startEndAngle
+    ) const
+{
+  std::vector<Stroke>::iterator siter = strokes->begin();
+  unsigned index = 0;
+  for (unsigned i = 0; siter != strokes->end(); siter++, i++)
+  {
+    Stroke::target_iterator titer = siter->targets_begin();
+    // Stroke::target_iterator prev; = siter;
+    // Stroke::target_iterator next; = std::next(siter);
+    
+    float param ;
+    for (; titer != siter->targets_end(); titer++, index++)
+    {
+      if (titer == siter->targets_begin()) {
+        param = startEndAngle / PI;
+      } else if (std::next(titer) == siter->targets_end()) {
+        param = startEndAngle / PI;
+      } else {
+        MFloatVector a = std::prev(titer)->position() - titer->position();
+        MFloatVector b = std::next(titer)->position() - titer->position();
+        param = a.angle(b) / PI ;
+      }
+      float waitMult;
+      rampAttr.getValueAtPosition( param, waitMult );
+      titer->setWait(waits[index] * waitMult);
+    }
+  }
+}
+
+
 
 
 void mapColorStrokes::removeBlackSpans(

@@ -1,0 +1,88 @@
+source "AEpaintingUtilFuncs";
+// source "AEpaintingPaints";
+source "AEpaintingBrushes";
+source "AEpaintingStrokes";
+
+ global proc     AElightPaintingTemplate(string $nodeName)
+ {
+
+ 	editorTemplate -beginScrollLayout;
+
+
+
+	editorTemplate -cl 0 -beginLayout "Path Attributes";
+	editorTemplate -addControl "linearSpeed";
+	editorTemplate -addControl "angularSpeed";
+	editorTemplate -addControl "approximationDistance";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Parent Id Behaviour";
+	editorTemplate -addControl "reassignParentId";
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0 -beginLayout "Display Attributes";
+	editorTemplate -addControl "pointSize"; 
+	editorTemplate -addControl "lineLength";
+	editorTemplate -addControl "lineThickness";
+	editorTemplate -addControl "arrowheadSize";
+	editorTemplate -addControl "wireframeColor";
+	editorTemplate -beginNoOptimize;
+	editorTemplate -addControl "displayTargets";
+	editorTemplate -addControl "displayTargetColors";
+	editorTemplate -addControl "displayIds";
+	editorTemplate -addControl "displayParentIds";
+	editorTemplate -addControl "displayLayerIds";
+	editorTemplate -addControl "idDisplayOffset";
+	editorTemplate -endNoOptimize;
+  	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0 -beginLayout "Strokes";
+ 	editorTemplate -callCustom "AEpaintingStrokesNew" "AEpaintingStrokesReplace" "strokes";
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Matrix";
+ 	editorTemplate -addControl "viewMatrix"; 
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Light Painting Attributes";
+	editorTemplate -addControl "brush";
+	editorTemplate -endLayout;
+
+	AElocatorInclude $nodeName;
+	
+	editorTemplate -suppress "values" ;
+	editorTemplate -suppress "useObjectColor" ;
+	editorTemplate -suppress "objectColor" ;
+	editorTemplate -suppress "nodeState"; 
+	editorTemplate -suppress "visibility"; 
+	editorTemplate -suppress "intermediateObject"; 
+	editorTemplate -suppress "lodVisibility"; 
+	editorTemplate -suppress "instObjGroups";  
+	editorTemplate -suppress "compInstObjGroups"; 
+	
+	editorTemplate -suppress "caching";
+	editorTemplate -suppress "template";
+	editorTemplate -suppress "drawOverride" ;
+	editorTemplate -suppress "renderInfo" ;
+	editorTemplate -suppress "motionBlur" ;
+	editorTemplate -suppress "visibleInReflections" ;
+	editorTemplate -suppress "visibleInRefractions" ; 
+	editorTemplate -suppress "castsShadows" ;
+	editorTemplate -suppress "maxVisibilitySamplesOverride";
+	editorTemplate -suppress "maxVisibilitySamples";
+	editorTemplate -suppress "geometryAntialiasingOverride";
+	editorTemplate -suppress "antialiasingLevel";
+	editorTemplate -suppress "shadingSamplesOverride";
+	editorTemplate -suppress "shadingSamples";
+	editorTemplate -suppress "maxShadingSamples";
+	editorTemplate -suppress "volumeSamplesOverride";
+	editorTemplate -suppress "volumeSamples";
+	editorTemplate -suppress "primaryVisibility";
+	
+	editorTemplate -suppress "localPosition";
+ 	editorTemplate -addExtraControls;
+
+ 	editorTemplate -endScrollLayout;
+ }

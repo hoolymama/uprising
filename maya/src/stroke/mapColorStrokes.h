@@ -2,6 +2,7 @@
 #ifndef _mapColorStrokes_H
 #define _mapColorStrokes_H
 
+#include <maya/MRampAttribute.h>
 #include "strokeMutator.h"
 #include "stroke.h"
 
@@ -61,18 +62,34 @@ void applyColors(
 void applyWaits(
     std::vector<Stroke> *strokes,
     const MFloatArray &waits) const;
+    
+void applyWaits(
+    std::vector<Stroke> *strokes,
+    const MFloatArray &waits,
+    MRampAttribute & rampAttr,
+    float startEndAngle
+    ) const;
 
 void removeBlackSpans(std::vector<Stroke> *strokes, float thresh) const;
 
   static MObject aRGB;  ///> The solid texture whose color will be mapped to the RGB component of targets. 
   static MObject aWhite;  ///> The solid texture whose red channel will be mapped to the white component of targets.
   static MObject aWait;  ///> The solid texture whose red channel will be mapped to the wait component of targets.
+  static MObject aAngleWaitRemap;
+  static MObject aStartEndAngle;
+  
+  
+  // static MObject aAngleRGB;
+  // static MObject aAngleWhite;
+  
+  
   static MObject aMesh;  ///> The occlusion mesh
   static MObject aPoint; ///> The point from which occlusions are calculated. 
   static MObject aBias; ///> An offset on the occlusion ray test.
   static MObject aDoOcclusion;
   static MObject aRemoveBlackSpans;
   static MObject aBlackSpanThreshold;
+
 };
 
 #endif

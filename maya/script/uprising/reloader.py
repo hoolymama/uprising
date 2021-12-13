@@ -94,7 +94,7 @@ from uprising import (
     stroke_factory_utils,
     tools_menu,
     utils,
-    pov_particles_menu,
+    kr8_menu,
     pov_publish_tab
 )
 
@@ -196,7 +196,7 @@ reload(images_menu)
 reload(select_menu)
 reload(tools_menu)
 reload(props_menu)
-reload(pov_particles_menu)
+reload(kr8_menu)
 ####################
 
 ####################

@@ -30,7 +30,7 @@ from uprising import (
 
 from uprising import (
     pov_publish_tab,
-    pov_particles_menu
+    kr8_menu
 )
 
 
@@ -119,7 +119,7 @@ class RobotWindow(gui.Window):
 
     
         pm.setParent(self.menuBarLayout)
-        self.pov_particles_menu = pov_particles_menu.create()
+        self.kr8_menu = kr8_menu.create()
 
         self.show()
         self.setResizeToFitChildren()

@@ -1,0 +1,40 @@
+source "AEsortFilterInclude";
+source "AEstrokeCreatorInclude";
+
+
+global proc AEmapColorStrokesTemplate ( string $nodeName )
+{
+
+
+
+
+	editorTemplate -beginScrollLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "RGBW attributes";		
+	editorTemplate -addControl "rgb" ;
+	editorTemplate -addControl "white" ;
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Wait attributes";		
+	editorTemplate -addControl "wait" ;
+	AEaddRampControl("angleWaitRemap");	
+	editorTemplate -addControl "startEndAngle" ;
+	editorTemplate -endLayout;
+
+
+
+	editorTemplate -cl 0  -beginLayout "Occlusion  attributes";		
+	editorTemplate -addControl "doOcclusion" ;
+	editorTemplate -addControl "occlusionPoint" ;
+	editorTemplate -addControl "occlusionMesh" ;
+	editorTemplate -addControl "occlusionBias" ;
+	editorTemplate -addControl "removeBlackSpans" ;
+	editorTemplate -addControl "blackSpanThreshold" ;
+	editorTemplate -endLayout;
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
