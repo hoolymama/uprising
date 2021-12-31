@@ -33,6 +33,8 @@ MObject mapColorStrokes::aWait;
 MObject mapColorStrokes::aAngleWaitRemap;
 MObject mapColorStrokes::aStartEndAngle;
 
+MObject mapColorStrokes::aPivotSampleOnly;
+
 
 MObject mapColorStrokes::aMesh;
 MObject mapColorStrokes::aPoint;
@@ -108,6 +110,12 @@ MStatus mapColorStrokes::initialize()
 	st = addAttribute(aStartEndAngle); mser;
 
 
+  aPivotSampleOnly = nAttr.create("rgbwPivotSampleOnly", "pso", MFnNumericData::kBoolean);
+  nAttr.setReadable(false);
+  nAttr.setDefault(false);
+  nAttr.setKeyable(true);
+  addAttribute(aPivotSampleOnly);
+
 
   aPoint = nAttr.createPoint("occlusionPoint", "opt");
   nAttr.setStorable(true);
@@ -160,9 +168,7 @@ MStatus mapColorStrokes::initialize()
   attributeAffects(aAngleWaitRemap, aOutput); 
   attributeAffects(aStartEndAngle, aOutput); 
 
-
-
-
+  attributeAffects(aPivotSampleOnly, aOutput); 
 
   return (MS::kSuccess);
 }
@@ -178,22 +184,33 @@ MStatus mapColorStrokes::mutate(
   MFloatArray whites;
   MFloatArray waits;
   
+  bool pivotSampleOnly = data.inputValue(aPivotSampleOnly).asBool();
 
   MFloatPointArray points;
-  getTargetPoints(strokes, points);
+  if (pivotSampleOnly){
+    getPivotPoints(strokes, points);
+  } else {
+    getTargetPoints(strokes, points);
+  }
 
   getColors(data, points, colors, whites);
+
+  if (pivotSampleOnly){
+    // pivotSampleOnly is not valid for waits, so we resample the target points
+    points.clear();
+    getTargetPoints(strokes, points);
+  }
+
+
+
   bool doWaits = getWaits(data, points, waits);
 
   MRampAttribute rampAttr( thisMObject(), aAngleWaitRemap, &st );
   float startEndAngle = float(data.inputValue(aStartEndAngle).asAngle().asRadians());
 
-
   if (doWaits && waits.length() == points.length()) {
     applyWaits(strokes, waits, rampAttr, startEndAngle);
   }
-
-
 
   if ((points.length() != colors.length()) || (points.length() != whites.length()))
   {

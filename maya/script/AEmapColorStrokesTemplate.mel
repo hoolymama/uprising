@@ -14,6 +14,7 @@ global proc AEmapColorStrokesTemplate ( string $nodeName )
 	editorTemplate -cl 0  -beginLayout "RGBW attributes";		
 	editorTemplate -addControl "rgb" ;
 	editorTemplate -addControl "white" ;
+	editorTemplate -addControl "rgbwPivotSampleOnly" ;
 	editorTemplate -endLayout;
 
 

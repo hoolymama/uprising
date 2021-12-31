@@ -78,10 +78,8 @@ void removeBlackSpans(std::vector<Stroke> *strokes, float thresh) const;
   static MObject aAngleWaitRemap;
   static MObject aStartEndAngle;
   
-  
-  // static MObject aAngleRGB;
-  // static MObject aAngleWhite;
-  
+  static MObject aPivotSampleOnly;
+
   
   static MObject aMesh;  ///> The occlusion mesh
   static MObject aPoint; ///> The point from which occlusions are calculated. 
