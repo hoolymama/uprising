@@ -397,22 +397,6 @@ void mapColorStrokes::applyColors(
 }
 
 
-void mapColorStrokes::applyWaits(
-    std::vector<Stroke> *strokes,
-    const MFloatArray &waits) const
-{
-  std::vector<Stroke>::iterator siter = strokes->begin();
-  unsigned index = 0;
-  for (unsigned i = 0; siter != strokes->end(); siter++, i++)
-  {
-    Stroke::target_iterator titer = siter->targets_begin();
-    for (; titer != siter->targets_end(); titer++, index++)
-    {
-      titer->setWait(waits[index]);
-    }
-  }
-}
-
 
 void mapColorStrokes::applyWaits(
     std::vector<Stroke> *strokes,
@@ -426,9 +410,7 @@ void mapColorStrokes::applyWaits(
   for (unsigned i = 0; siter != strokes->end(); siter++, i++)
   {
     Stroke::target_iterator titer = siter->targets_begin();
-    // Stroke::target_iterator prev; = siter;
-    // Stroke::target_iterator next; = std::next(siter);
-    
+
     float param ;
     for (; titer != siter->targets_end(); titer++, index++)
     {
@@ -437,7 +419,7 @@ void mapColorStrokes::applyWaits(
       } else if (std::next(titer) == siter->targets_end()) {
         param = startEndAngle / PI;
       } else {
-        MFloatVector a = std::prev(titer)->position() - titer->position();
+        MFloatVector a = titer->position() - std::prev(titer)->position();
         MFloatVector b = std::next(titer)->position() - titer->position();
         param = a.angle(b) / PI ;
       }

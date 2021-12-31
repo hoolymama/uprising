@@ -59,10 +59,7 @@ void applyColors(
     const MFloatArray &whites) const;
  
 
-void applyWaits(
-    std::vector<Stroke> *strokes,
-    const MFloatArray &waits) const;
-    
+
 void applyWaits(
     std::vector<Stroke> *strokes,
     const MFloatArray &waits,
