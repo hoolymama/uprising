@@ -1,10 +1,5 @@
 EPSILON = 0.000001
-from robolink import (
-    INSTRUCTION_COMMENT,
-    INSTRUCTION_SHOW_MESSAGE,
-    INSTRUCTION_INSERT_CODE
-)
-
+ 
 import pymel.core as pm
 from uprising import robo
 from uprising import utils

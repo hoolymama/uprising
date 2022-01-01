@@ -1,6 +1,5 @@
 import robodk as rdk
-from robolink import INSTRUCTION_INSERT_CODE
-
+ 
 from uprising.utils import StrokeError
 from uprising import robo
 
