@@ -95,7 +95,8 @@ from uprising import (
     tools_menu,
     utils,
     kr8_menu,
-    pov_publish_tab
+    pov_publish_tab,
+    online
 )
 
 
@@ -218,3 +219,6 @@ reload(palette_utils)
 reload(stroke_factory_utils)
 reload(utils)
 ####################
+
+
+reload(online)

@@ -1,7 +1,7 @@
 
 import pymel.core as pm
 
-from uprising import props
+from uprising import props, online
 import pymel.core as pm
 from uprising import robo
  
@@ -18,7 +18,13 @@ def create():
     pm.menuItem(label="Create Image Gradient Field",
                 command=pm.Callback(create_gradient_image_field))
 
+    pm.menuItem(label="Test online",
+                command=pm.Callback(test_online))
+
     return menu
+
+def test_online():
+    online.test()
 
     
 def _remove_unconnected_curve_plugs(node):
