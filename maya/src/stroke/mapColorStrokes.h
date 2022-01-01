@@ -58,7 +58,12 @@ void applyColors(
     const MFloatVectorArray &colors,
     const MFloatArray &whites) const;
  
-
+MStatus flattenStrokeColors(
+    const std::vector<Stroke> *strokes,
+    const MFloatVectorArray &strokeColors, 
+    const MFloatArray &strokeWhites, 
+    MFloatVectorArray &colors, 
+    MFloatArray &whites) const;
 
 void applyWaits(
     std::vector<Stroke> *strokes,
