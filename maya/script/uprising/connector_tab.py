@@ -1,7 +1,8 @@
 import pymel.core as pm
 import pymel.core.uitypes as gui
 import re
-
+TRANSFORM_ATTS = ["tx","ty","tz","rx","ry","rz","sx","sy","sz"]
+TRANSFORMS = "TRANSFORMS"
 class ConnectorTab(gui.FormLayout):
     def __init__(self):
         self.setNumberOfDivisions(100)
@@ -132,7 +133,9 @@ class ConnectorTab(gui.FormLayout):
 
     def get_nodes(self, which):
         col = self.src_column if which == "src" else self.dest_column
-        return [pm.nameField(c, q=True, o=True) for c in pm.columnLayout(col, q=True, ca=True)]
+        nodes = [pm.nameField(c, q=True, o=True) for c in pm.columnLayout(col, q=True, ca=True)]
+        print(nodes)
+        return nodes
 
     def get_connection_pairs(self):
         result = []
@@ -151,23 +154,33 @@ class ConnectorTab(gui.FormLayout):
             raise ValueError(
                 "Wrong number of nodes selected. Must be the same, or one column must have 1 node.")
 
+        if src_template == TRANSFORMS: 
+            slen *= 9
+        if dest_template == TRANSFORMS: 
+            dlen *= 9
+        
+
         maxlen = max(dlen, slen)
         if maxlen == 1 and '{}' in dest_template:
             choice = pm.promptDialog(
                 title="Only one source/destination pair",
                 message="How many connections?",
             )
-
-
             maxlen = int(pm.promptDialog(query=True, text=True) or 1)
 
         for i in range(maxlen):
-            result.append((
-                pm.PyNode(src_nodes[i % slen]).attr(
-                    src_template.format(i+src_offset)),
-                pm.PyNode(dest_nodes[i % dlen]).attr(
-                    dest_template.format(i+dest_offset)))
-            )
+            if src_template == TRANSFORMS:
+                src_attr =pm.PyNode(src_nodes[int(i / 9)% slen]).attr(TRANSFORM_ATTS[i%9])
+            else:
+                src_attr = pm.PyNode(src_nodes[i % slen]).attr(src_template.format(i+src_offset))
+
+            if dest_template == TRANSFORMS:
+                dest_attr =pm.PyNode(dest_nodes[int(i / 9) % dlen]).attr(TRANSFORM_ATTS[i%9])
+            else:
+                dest_attr = pm.PyNode(dest_nodes[i % dlen]).attr(dest_template.format(i+dest_offset))
+
+            result.append((src_attr,dest_attr))
+
         return result
 
     def on_go(self):
@@ -183,8 +196,6 @@ class ConnectorTab(gui.FormLayout):
     def get_attribute_templates(node):
         result = []
         attrs = pm.listAttr(node)
-        print(attrs)
-        print("-"*20)
         for attr in attrs:
             try:
                 attname = node.attr(attr).name()
@@ -201,5 +212,14 @@ class ConnectorTab(gui.FormLayout):
 
             except (RuntimeError, pm.MayaAttributeError):
                 pass
-        return sorted(list(set(result)))
+        
+        result = sorted(list(set(result)))
+        
+        
+        try:
+            pm.nodetypes.Transform(node)
+            result = [TRANSFORMS]+result
+        except TypeError:
+            pass
+        return result
   
