@@ -57,7 +57,8 @@ class PovStroke(Stroke):
         last_color = None
 
         if self.override_path_parameters:
-            program.setSpeed(self.linear_speed, self.angular_speed)
+            program.setSpeed(self.linear_speed)
+            program.setSpeedJoints(self.angular_speed)
             program.setRounding(self.approximation_distance)
    
         print("Sending stroke {}".format(stroke_name))
@@ -66,7 +67,8 @@ class PovStroke(Stroke):
             last_color = t.color
 
         if self.override_path_parameters:
-            program.setSpeed(motion["linear_speed"], motion["angular_speed"])
+            program.setSpeed(motion["linear_speed"])
+            program.setSpeedJoints( motion["angular_speed"])
             program.setRounding(motion["rounding"])
    
         

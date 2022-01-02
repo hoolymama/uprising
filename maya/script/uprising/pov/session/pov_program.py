@@ -55,11 +55,8 @@ class PovProgram(Program):
         self.painting.send_brushes()
 
         self.program.setRounding(self.painting.motion["rounding"])
-       
-        self.program.setSpeed(
-            self.painting.motion["linear_speed"], 
-            self.painting.motion["angular_speed"]
-            )
+        self.program.setSpeed(self.painting.motion["linear_speed"])
+        self.program.setSpeedJoints(self.painting.motion["angular_speed"])
 
         link = robo.link()
         tool = link.Item(self.painting.brush.name)

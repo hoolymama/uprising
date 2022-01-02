@@ -104,9 +104,9 @@ class PickProgram(PickPlaceProgram):
         self.program.RunInstruction("Starting pick", INSTRUCTION_COMMENT)
         self.program.addMoveJ(self.pin_ap_target)
 
-        self.program.setSpeed(
-            self.pack["precision_lin_speed"], self.pack["ang_speed"]
-        )
+        self.program.setSpeed(self.pack["precision_lin_speed"])
+        self.program.setSpeedJoints(self.pack["ang_speed"])
+
         self.program.addMoveL(self.pin_target)
 
         self.program.RunInstruction(
@@ -122,7 +122,12 @@ class PickProgram(PickPlaceProgram):
         )
         self.program.Pause(k.GRIPPER_OPEN_CLOSE_PAUSE)
         self.program.addMoveL(self.clear_target)
-        self.program.setSpeed(self.pack["lin_speed"], self.pack["ang_speed"])
+ 
+        self.program.setSpeed(self.pack["lin_speed"])
+        self.program.setSpeedJoints(self.pack["ang_speed"])
+        
+
+
         self.program.addMoveL(self.clear_ap_target)
 
 
@@ -141,11 +146,17 @@ class PlaceProgram(PickPlaceProgram):
 
         self.program.RunInstruction("Starting place", INSTRUCTION_COMMENT)
         self.program.addMoveJ(self.clear_ap_target)
-        self.program.setSpeed(self.pack["lin_speed"], self.pack["ang_speed"])
+        self.program.setSpeed(self.pack["lin_speed"])
+        self.program.setSpeedJoints(self.pack["ang_speed"])
+        
+
+
         self.program.addMoveL(self.clear_target)
-        self.program.setSpeed(
-            self.pack["precision_lin_speed"], self.pack["ang_speed"]
-        )
+
+        self.program.setSpeed(self.pack["precision_lin_speed"])
+        self.program.setSpeedJoints(self.pack["ang_speed"])
+        
+
         self.program.addMoveL(self.pin_target)
 
         self.program.RunInstruction(

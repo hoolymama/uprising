@@ -5,6 +5,10 @@ INT io_id
 INT my_id
 INT j_id
 INT program_id
+REAL my_com_value_R
+REAL my_com_value_G
+REAL my_com_value_B
+REAL my_com_value_W
 
 BAS(#INITMOV,0)
 
@@ -135,13 +139,29 @@ io_id = COM_VALUE1
 IF io_id > 10 THEN
    ; Assume it is trigger Color directive
    my_id = io_id - 10
-   TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[my_id]=COM_VALUE2
+   IF my_id == 1 THEN
+        my_com_value_R = COM_VALUE2
+        TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[1] = my_com_value_R
+    ENDIF
+    IF my_id == 2 THEN
+        my_com_value_G = COM_VALUE2
+        TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[2] = my_com_value_G
+    ENDIF
+    IF my_id == 3 THEN
+        my_com_value_B = COM_VALUE2
+        TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[3] = my_com_value_B
+    ENDIF
+    IF my_id == 4 THEN
+        my_com_value_W = COM_VALUE2
+        TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4] = my_com_value_W
+    ENDIF
+
 ENDIF
 
 IF (io_id > 5) AND (io_id < 10)  THEN
    ; Assume it is non-trigger Color directive
    my_id = io_id - 5
-   $ANOUT[my_id]=COM_VALUE2
+   $ANOUT[my_id] = COM_VALUE2
 ENDIF
 
 IF io_id < 5  THEN

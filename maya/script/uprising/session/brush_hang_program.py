@@ -101,7 +101,8 @@ class BrushHangProgram(Program):
             raise ProgramError(
                 "Brush is not valid. Risk of damage. Can't continue.")
 
-        self.program.setSpeed(k.CAL_LINEAR_SPEED, k.CAL_ANGULAR_SPEED)
+        self.program.setSpeed(k.CAL_LINEAR_SPEED)
+        self.program.setSpeedJoints(k.CAL_ANGULAR_SPEED)
         self.program.setRounding(k.CAL_ROUNDING_DISTANCE)
         self.program.setPoseTool(tool)
 

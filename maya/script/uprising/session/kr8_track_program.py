@@ -39,7 +39,9 @@ class Kr8TrackProgram(Program):
             raise ProgramError(
                 "No Probe Brush. Risk of damage. Can't continue.")
 
-        self.program.setSpeed(LINEAR_SPEED, ANGULAR_SPEED)
+        self.program.setSpeed(LINEAR_SPEED)
+        self.program.setSpeedJoints( ANGULAR_SPEED)
+        
         self.program.setRounding(ROUNDING_DISTANCE)
         self.program.setPoseTool(self.tool)
         self.program.RunInstruction(

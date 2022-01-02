@@ -126,7 +126,7 @@ def clean(model="kr30", infrastructure=True):
 
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _model = model
-    # _robot.setParam("PostProcessor", "KUKA KRC4 RN")
+    # _robot.setParam("PostProcessor", "KUKA KRC4")
 
     if infrastructure:
         _create_infrastructure()

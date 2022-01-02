@@ -60,13 +60,10 @@ class BotProgram(Program):
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
         self.painting.send_brushes(with_brush_geo)
-        
-        self.program.setRounding(self.painting.motion["rounding"])
-        self.program.setSpeed(
-            self.painting.motion["linear_speed"], 
-            self.painting.motion["angular_speed"]
-            )
 
+        self.program.setRounding(self.painting.motion["rounding"])
+        self.program.setSpeed(self.painting.motion["linear_speed"])
+        self.program.setSpeedJoints(self.painting.motion["angular_speed"])
 
         last_cluster = None if start == 0 else self.painting.clusters[(start - 1)]
 

@@ -61,9 +61,10 @@ class BotStroke(Stroke):
             t.send(stroke_name, program, frame)
         
         if self.override_path_parameters:
-            program.setSpeed(self.linear_speed, self.angular_speed)
             program.setRounding(self.approximation_distance)
-   
+            program.setSpeed(self.linear_speed)
+            program.setSpeedJoints(self.angular_speed)
+        
         if self.ignore:
             self.departure.linear = False
         else:
@@ -71,9 +72,9 @@ class BotStroke(Stroke):
                 t.send(stroke_name, program, frame)
                 
         if self.override_path_parameters:
-            program.setSpeed(motion["linear_speed"], motion["angular_speed"])
+            program.setSpeed(motion["linear_speed"])
             program.setRounding(motion["rounding"])
-   
+            program.setSpeedJoints(motion["angular_speed"])
 
 
         self.departure.send(stroke_name, program, frame)

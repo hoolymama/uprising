@@ -63,8 +63,10 @@ class CalibrationProgram(Program):
 
         subprograms.append(self.send_pick_probe_home())
 
-        self.program.setSpeed(LINEAR_SPEED, ANGULAR_SPEED)
+        self.program.setSpeed(LINEAR_SPEED)
+        self.program.setSpeedJoints(ANGULAR_SPEED)
         self.program.setRounding(ROUNDING_DISTANCE)
+        
         self.program.setPoseTool(self.tool)
         self.program.RunInstruction(
             "Starting calibration", INSTRUCTION_COMMENT)
