@@ -24,7 +24,8 @@ logger = logging.getLogger("uprising")
 class PovSession(Session):
  
     def __init__(self, 
-    stroke_chunk_size=None, 
+    stroke_chunk_size, 
+    run_on_robot,
     directory=None,
     program_prefix="pv"
     ):
@@ -40,6 +41,7 @@ class PovSession(Session):
 
         self.stroke_count = pm.lightPaintingQuery(self.painting_node, sc=True)
         self.stroke_chunk_size = stroke_chunk_size or self.stroke_count
+        self.run_on_robot = run_on_robot
 
         self.stats = {}
 
@@ -50,7 +52,7 @@ class PovSession(Session):
         robo.new()
         robo.clean("kr8")
         robo.hide()
-        self.program = PovProgram(self.program_prefix)
+        self.program = PovProgram(self.program_prefix, self.run_on_robot)
         if not (self.program and self.program.painting and self.program.painting.strokes):
             raise ValueError("Invalid bot_program. No painting/clusters")
 

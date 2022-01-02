@@ -2,6 +2,7 @@
 DEF RoboDKsync35()
 
 INT io_id
+INT my_id
 INT j_id
 INT program_id
 
@@ -127,15 +128,23 @@ WAIT SEC COM_VALUE1
 COM_ACTION = 0
 
 
-
+; XXXXXXXXXXXXXXXXXXXXXXXX
 CASE 10
 COM_ACTCNT = COM_ACTCNT + 1
 io_id = COM_VALUE1
 IF io_id > 10 THEN
-   ; Assume it is Color directive
-   io_id = io_id - 10
-   TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[io_id]=COM_VALUE2
-ELSE
+   ; Assume it is trigger Color directive
+   my_id = io_id - 10
+   TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[my_id]=COM_VALUE2
+ENDIF
+
+IF (io_id > 5) AND (io_id < 10)  THEN
+   ; Assume it is non-trigger Color directive
+   my_id = io_id - 5
+   $ANOUT[my_id]=COM_VALUE2
+ENDIF
+
+IF io_id < 5  THEN
    ; Default behavior (Digital Output)
    IF COM_VALUE2 > 0.5 THEN
        $OUT[io_id] = TRUE
@@ -144,7 +153,7 @@ ELSE
    ENDIF
 ENDIF
 COM_ACTION = 0
-
+; XXXXXXXXXXXXXXXXXXXXXXXX
 
 
 

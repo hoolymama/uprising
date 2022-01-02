@@ -47,7 +47,8 @@ from uprising.pov.session import (
     pov_painting,
     pov_program,
     pov_session,
-    pov_configurator
+    pov_configurator,
+    pov_lights
 )
 
 from uprising.common.session import (
@@ -97,11 +98,15 @@ from uprising import (
     kr8_menu,
     pov_publish_tab,
     online
+    
 )
 
 
 ####################
+reload(pov_lights)
 reload(configurator)
+reload(pov_configurator)
+
 reload(brush)
 reload(paint)
 reload(target)

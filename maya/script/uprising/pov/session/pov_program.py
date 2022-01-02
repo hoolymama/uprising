@@ -1,11 +1,10 @@
-
-from robolink import INSTRUCTION_INSERT_CODE
+ 
 
 import pymel.core as pm
 from uprising import robo
 from uprising.common.session.program import Program
 from uprising.pov.session.pov_painting import PovPainting
-from uprising.pov.session import pov_configurator
+from uprising.pov.session import pov_configurator,  pov_lights
 
 # from uprising import progress
 
@@ -13,11 +12,12 @@ PAINTING_NAME = "lightPaintingShape"
 
 
 class PovProgram(Program):
-    def __init__(self, name, **kw):
+    def __init__(self, name, run_on_robot):
         super(PovProgram, self).__init__(name)
         print "INITIALIZE PovProgram" 
         self.painting = PovPainting(pm.PyNode(PAINTING_NAME))
-        
+        self.run_on_robot = run_on_robot
+
     def configure(self):
         print("configure....")
         for stroke in self.painting.strokes:
@@ -49,8 +49,8 @@ class PovProgram(Program):
         # )
 
         if chunk_id == 0:
-            self.send_lights_off()
-            self.send_shutter()
+            pov_lights.send_lights_off(self.program, self.run_on_robot)
+            pov_lights.send_shutter(self.program, self.run_on_robot)
 
         self.painting.send_brushes()
 
@@ -72,34 +72,12 @@ class PovProgram(Program):
                     prefix, 
                     self.program, 
                     self.frame, 
-                    self.painting.motion)
+                    self.painting.motion,
+                    self.run_on_robot)
 
         if is_last_chunk:
-            self.send_shutter()
+            pov_lights.send_shutter(self.program, self.run_on_robot)
             self.program.addMoveJ(robo.home_approach)
 
         # self.program.setParam("PostProcessor", "KUKA KRC4")  # Needed??
 
-    def send_lights_off(self):
-        """Trigger a lights-off instruction."""
-        self.program.RunInstruction(
-            "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[1]=0.0", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction(
-            "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[2]=0.0", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction(
-            "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[3]=0.0", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction(
-            "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)
-
-    def send_shutter(self):
-        """
-        Send a shutter instruction.
-
-        Shutter behaves like a toggle. If it's open, it closes, and vice versa. 
-        """
-        self.program.RunInstruction(
-            "$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction(
-            "WAIT SEC 1", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction(
-            "$OUT[1]=FALSE", INSTRUCTION_INSERT_CODE)

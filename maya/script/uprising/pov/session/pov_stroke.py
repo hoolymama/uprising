@@ -1,6 +1,5 @@
 from robolink import (
-    INSTRUCTION_COMMENT,
-    INSTRUCTION_INSERT_CODE
+    INSTRUCTION_COMMENT
 )
 
 from uprising.pov.session.pov_target import PovTarget
@@ -8,6 +7,7 @@ import pymel.core as pm
 from uprising import robo
 from uprising import utils
 from uprising.common.session.stroke import Stroke
+from uprising.pov.session import  pov_lights
 
 
 class PovStroke(Stroke):
@@ -50,7 +50,7 @@ class PovStroke(Stroke):
 
     ##########################
 
-    def send(self, prefix, program, frame, motion):
+    def send(self, prefix, program, frame, motion, run_on_robot):
         
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke {}".format(stroke_name), INSTRUCTION_COMMENT)
@@ -62,24 +62,15 @@ class PovStroke(Stroke):
    
         print("Sending stroke {}".format(stroke_name))
         for i, t in enumerate(self.targets):
-            t.send(stroke_name, program, frame, last_color)
+            t.send(stroke_name, program, frame, last_color,run_on_robot)
             last_color = t.color
 
         if self.override_path_parameters:
             program.setSpeed(motion["linear_speed"], motion["angular_speed"])
             program.setRounding(motion["rounding"])
    
-
-        program.RunInstruction("End stroke {}. Set to black".format(
-            stroke_name), INSTRUCTION_COMMENT)
-        program.RunInstruction(
-            "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[1]=0.0", INSTRUCTION_INSERT_CODE)
-        program.RunInstruction(
-            "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[2]=0.0", INSTRUCTION_INSERT_CODE)
-        program.RunInstruction(
-            "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[3]=0.0", INSTRUCTION_INSERT_CODE)
-        program.RunInstruction(
-            "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4]=0.0", INSTRUCTION_INSERT_CODE)
+        
+        pov_lights.send_lights_off(program, run_on_robot)
 
     def query_arc_length(self):
         return pm.lightPaintingQuery(

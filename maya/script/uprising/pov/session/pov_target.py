@@ -1,6 +1,7 @@
 
-from robolink import INSTRUCTION_INSERT_CODE
 from uprising.common.session.target import Target
+from uprising.pov.session import  pov_lights
+
 from uprising import robo
 EPSILON = 0.00001
 
@@ -11,7 +12,7 @@ class PovTarget(Target):
         self.wait = wait
         self.linear = True
 
-    def send(self, prefix, program, frame, last_color):
+    def send(self, prefix, program, frame, last_color, run_on_robot):
         link = robo.link()
         robot = robo.robot()
         target_name = self.name(prefix)
@@ -23,27 +24,11 @@ class PovTarget(Target):
             program.addMoveL(rdk_target)
         else:
             program.addMoveJ(rdk_target)
+
+        pov_lights.send_lights(program,run_on_robot, self.color, last_color)
         self.send_wait(program)
-        self.send_color(program, last_color=last_color)
-
-    def send_color(self, program, last_color=None):
-        if not last_color or last_color.r != self.color.r:
-            program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[1]={:.3f}".format(
-                self.color.r), INSTRUCTION_INSERT_CODE)
-
-        if not last_color or last_color.g != self.color.g:
-            program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[2]={:.3f}".format(
-                self.color.g), INSTRUCTION_INSERT_CODE)
-
-        if not last_color or last_color.b != self.color.b:
-            program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[3]={:.3f}".format(
-                self.color.b), INSTRUCTION_INSERT_CODE)
-
-        if not last_color or last_color.a != self.color.a:
-            program.RunInstruction("TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4]={:.3f}".format(
-                self.color.a), INSTRUCTION_INSERT_CODE)
-
+ 
     def send_wait(self, program):
         if self.wait < EPSILON:
             return
-        program.RunInstruction("WAIT SEC {:.3f}".format(self.wait), INSTRUCTION_INSERT_CODE)
+        program.Pause(int(self.wait*1000))

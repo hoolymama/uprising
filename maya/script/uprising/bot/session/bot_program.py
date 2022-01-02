@@ -8,7 +8,7 @@ from uprising.bot.session.dip_wipe_program import DipWipeProgram, WaterProgram, 
 from uprising import progress
 from uprising.bot.session import configurator
 
-from robolink import INSTRUCTION_COMMENT, INSTRUCTION_CALL_PROGRAM, INSTRUCTION_INSERT_CODE
+from robolink import INSTRUCTION_COMMENT, INSTRUCTION_CALL_PROGRAM, INSTRUCTION_INSERT_CODE, INSTRUCTION_SHOW_MESSAGE
 
 PAINTING_NAME = "mainPaintingShape"
 
@@ -228,3 +228,13 @@ class BotRetryProgram(Program):
 
         for cluster in self.painting.clusters:
             cluster.send(self.program, self.frame, self.painting.motion)
+
+
+    def send_open_gripper(self):
+        self.program.RunInstruction(
+            "Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
+        self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction(
+            "WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
+

@@ -28,7 +28,14 @@ class PovPublishTab(gui.FormLayout):
             label="Max strokes/file",
             annotation="Max number of strokes per painting partial program",
             numberOfFields=1,
-            value1=100,
+            value1=500,
+        )
+
+
+        self.run_on_robot_cb =  pm.checkBoxGrp(
+            numberOfCheckBoxes=1,
+            label="Run on Robot",
+            value1=1
         )
 
         pm.setParent("..")
@@ -65,8 +72,12 @@ class PovPublishTab(gui.FormLayout):
         stroke_chunk_size = pm.intFieldGrp(
             self.stroke_chunk_if, query=True, value1=True
         )
+
+        run_on_robot = pm.checkBoxGrp(self.run_on_robot_cb, q=True , value1=True)
+
+
         
-        pov_session = PovSession(stroke_chunk_size)
+        pov_session = PovSession(stroke_chunk_size, run_on_robot)
         pov_session.run()
 
 def find_contributing_stroke_nodes():

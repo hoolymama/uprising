@@ -3,11 +3,8 @@
 from uprising import robo
 from uprising import progress
 
-from robolink import (
-    COLLISION_OFF,
-    INSTRUCTION_SHOW_MESSAGE,
-    INSTRUCTION_INSERT_CODE
-)
+from robolink import  COLLISION_OFF
+
  
 class ProgramError(Exception):
     pass
@@ -41,12 +38,4 @@ class Program(object):
                 "problems": update_result[4],
                 "status": "SUCCESS" if (update_result[3] == 1.0) else "FAILURE",
             }
-
-    def send_open_gripper(self):
-        self.program.RunInstruction(
-            "Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
-        self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction(
-            "WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
 
