@@ -8,20 +8,25 @@ from uprising.bot.session.dip_wipe_program import DipWipeProgram, WaterProgram, 
 from uprising import progress
 from uprising.bot.session import configurator
 
-from robolink import INSTRUCTION_COMMENT, INSTRUCTION_CALL_PROGRAM, INSTRUCTION_INSERT_CODE, INSTRUCTION_SHOW_MESSAGE
+from robolink import (
+    INSTRUCTION_COMMENT,
+    INSTRUCTION_CALL_PROGRAM,
+    INSTRUCTION_INSERT_CODE,
+    INSTRUCTION_SHOW_MESSAGE,
+)
 
-PAINTING_NAME = "mainPaintingShape"
 
 def _log_line(*vals):
-    return "{}\n".format("\t".join(vals)) 
+    return "{}\n".format("\t".join(vals))
 
 
 class BotProgram(Program):
     def __init__(self, name, **kw):
         super(BotProgram, self).__init__(name)
-        self.painting = BotPainting(pm.PyNode(PAINTING_NAME))
-        self.event_log = _log_line("ClusterId", "Red","Green","Blue","","Brush Id", "Paint Id", "Pot Id")
-
+        self.painting = BotPainting()
+        self.event_log = _log_line(
+            "ClusterId", "Red", "Green", "Blue", "", "Brush Id", "Paint Id", "Pot Id"
+        )
 
     def configure(self):
         for cluster in self.painting.clusters:
@@ -29,19 +34,16 @@ class BotProgram(Program):
                 try:
                     configurator.solve(stroke, cluster.brush)
                 except BaseException:
-                    stroke.ignore=True
+                    stroke.ignore = True
 
     def send(self, **kw):
         if not self.painting.clusters:
             return
         num_clusters = len(self.painting.clusters)
+
         chunk_id = kw.get("chunk_id", 0)
-
         chunk_length = kw.get("chunk_length", num_clusters)
-
         with_brush_geo = kw.get("with_brush_geo", False)
-
-
         start = kw.get("chunk_start", (chunk_id * chunk_length))
 
         end = start + chunk_length
@@ -61,9 +63,9 @@ class BotProgram(Program):
 
         self.painting.send_brushes(with_brush_geo)
 
-        self.program.setRounding(self.painting.motion["rounding"])
-        self.program.setSpeed(self.painting.motion["linear_speed"])
-        self.program.setSpeedJoints(self.painting.motion["angular_speed"])
+        self.program.setRounding(self.painting.rounding)
+        self.program.setSpeed(self.painting.linear_speed)
+        self.program.setSpeedJoints(self.painting.angular_speed)
 
         last_cluster = None if start == 0 else self.painting.clusters[(start - 1)]
 
@@ -79,12 +81,14 @@ class BotProgram(Program):
 
         for cluster in self.painting.clusters[start:end]:
 
-            (did_change_pot, 
-            did_change_paint, 
-            did_change_tool, 
-            did_change_brush, 
-            did_end_last_brush, 
-            did_change_layer  )= cluster.get_flow_info(last_cluster)
+            (
+                did_change_pot,
+                did_change_paint,
+                did_change_tool,
+                did_change_brush,
+                did_end_last_brush,
+                did_change_layer,
+            ) = cluster.get_flow_info(last_cluster)
 
             # Add an Identifier
             if did_change_pot or did_change_brush:
@@ -111,21 +115,20 @@ class BotProgram(Program):
 
     def _add_halts(self, cluster):
         brush = cluster.brush
-  
+
         wait = brush.initial_wait
         if wait > 0:
             self.program.RunInstruction(
                 "Program waiting - Brush:{} Pot:{}".format(brush.id, cluster.pot_id),
-                INSTRUCTION_COMMENT
+                INSTRUCTION_COMMENT,
             )
             self.program.RunInstruction("WAIT SEC {:d}".format(wait), INSTRUCTION_INSERT_CODE)
         elif wait == -1:
             self.program.RunInstruction(
                 "Program halted for Brush:{} pot:{}".format(brush.id, cluster.pot_id),
-                INSTRUCTION_COMMENT
+                INSTRUCTION_COMMENT,
             )
             self.program.RunInstruction("HALT", INSTRUCTION_INSERT_CODE)
-
 
     def _on_start_tool(self, cluster):
         result = set()
@@ -171,9 +174,8 @@ class BotProgram(Program):
             self.program.RunInstruction(dip_program_name, INSTRUCTION_CALL_PROGRAM)
         result.add(dip_program_name)
 
-
         self.program.addMoveJ(robo.dip_approach)
-        cluster.send(self.program, self.frame, self.painting.motion)
+        cluster.send(self.program, self.frame)
         self.program.addMoveJ(robo.dip_approach)
         return result
 
@@ -185,18 +187,18 @@ class BotProgram(Program):
         potid = "{:02d}".format(cluster.pot_id)
         self.program.RunInstruction(
             "{} BrushId:{} PaintId:{} PotId:{}".format(clusterid, brushid, paintid, potid),
-            INSTRUCTION_COMMENT
+            INSTRUCTION_COMMENT,
         )
         self.event_log += _log_line(
             clusterid,
-            "{:d}".format(int(paint.color[0]*255)),
-            "{:d}".format(int(paint.color[1]*255)),
-            "{:d}".format(int(paint.color[2]*255)),
+            "{:d}".format(int(paint.color[0] * 255)),
+            "{:d}".format(int(paint.color[1] * 255)),
+            "{:d}".format(int(paint.color[2] * 255)),
             "",
             brushid,
             paintid,
-            potid
-            )
+            potid,
+        )
 
 
 class BotRetryProgram(Program):
@@ -224,14 +226,10 @@ class BotRetryProgram(Program):
         self.painting.send_brushes()
 
         for cluster in self.painting.clusters:
-            cluster.send(self.program, self.frame, self.painting.motion)
-
+            cluster.send(self.program, self.frame)
 
     def send_open_gripper(self):
-        self.program.RunInstruction(
-            "Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
+        self.program.RunInstruction("Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
         self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
         self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction(
-            "WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
-
+        self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)

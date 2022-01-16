@@ -1,28 +1,21 @@
 import pymel.core as pm
 from uprising.common.session.painting import Painting
 from uprising.pov.session.pov_stroke import PovStroke
+
 # from uprising import progress
+
+PAINTING_NAME = "lightPaintingShape"
 
 
 class PovPainting(Painting):
+    def __init__(self):
 
-    def __init__(self, node):
-
-        super(PovPainting, self).__init__(node)
-        self.strokes = self._create_strokes()
+        super(PovPainting, self).__init__(pm.PyNode(PAINTING_NAME))
         self.brush = [self.brushes[brush] for brush in self.brushes][0]
-        print "POV PAINTING INIT: ", self.node
+        self.colorGain = self.node.attr("colorGain").get()
+        self.whiteGain = self.node.attr("whiteGain").get()
+        self.waitGain = self.node.attr("waitGain").get()
+        self.num_strokes = pm.lightPaintingQuery(self.node, strokeCount=True)
+        self.strokes = [PovStroke(self, i) for i in range(self.num_strokes)]
 
-    def _create_strokes(self):
-
-        num_strokes = pm.lightPaintingQuery(self.node, strokeCount=True)
-        if not num_strokes:
-            return []
-
-        strokes = []
-   
-        for i in range(num_strokes):
-            print("Create stroke:",i)
-            stroke = PovStroke(i, self.node)
-            strokes.append(stroke)
-        return strokes
+        print("POV PAINTING INIT: ", self.node)

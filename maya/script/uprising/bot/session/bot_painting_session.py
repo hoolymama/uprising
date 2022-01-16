@@ -21,16 +21,8 @@ from uprising.bot.session.dip_wipe_program import (
 )
 
 
-
 class BotPaintingSession(Session):
-
-
-    def __init__(self, 
-        cluster_chunk_size, 
-        directory, 
-        do_separate_subprograms, 
-        program_prefix="px"
-    ):
+    def __init__(self, cluster_chunk_size, directory, do_separate_subprograms, program_prefix="px"):
         self.program = None
         self.do_separate_subprograms = do_separate_subprograms
         self.directory = directory
@@ -43,7 +35,7 @@ class BotPaintingSession(Session):
 
     def run(self):
         timer_start = time.time()
-        with utils.prep_for_output(): 
+        with utils.prep_for_output():
 
             # CONFIGURE EVERYTHING
             self.program = self._build_bot_program()
@@ -89,10 +81,7 @@ class BotPaintingSession(Session):
             minor_progress=0,
         )
 
-        self.stats = {
-            "painting_stats": stats.stats(), 
-            "per_brush_stats": stats.stats_per_brush()
-            }
+        self.stats = {"painting_stats": stats.stats(), "per_brush_stats": stats.stats_per_brush()}
         print("EVENT LOG -- {}".format(os.path.basename(self.directory)))
         print(self.program.event_log)
 
@@ -101,7 +90,7 @@ class BotPaintingSession(Session):
         robo.clean("kr30")
 
         program = BotProgram(self.program_prefix)
-        
+
         if not (program and program.painting and program.painting.clusters):
             raise ValueError("Invalid bot_program. No painting/clusters")
         return program
@@ -178,18 +167,12 @@ class BotPaintingSession(Session):
 
         self.save_station(self.directory, "dw")
 
-
-
     def _send_and_publish_one_file(self):
-        # cluster_count = len(self.program.painting.clusters)
-        # num_chunks = int(math.ceil(cluster_count / float(self.cluster_chunk_size)))
 
-        progress.update(
-            major_max=1, header="Writing main program " 
-        )
- 
+        progress.update(major_max=1, header="Writing main program ")
+
         robo.clean("kr30")
- 
+
         subprograms = self.program.send(with_brush_geo=True)
 
         pp_program_names = self.pick_place_collection.program_names()
@@ -201,7 +184,7 @@ class BotPaintingSession(Session):
             major_max=count,
             major_progress=0,
         )
- 
+
         self.pick_place_collection.send()
 
         program_names = (
@@ -243,7 +226,6 @@ class BotPaintingSession(Session):
         # if len(self.program_names) > 1:
         #     self.orchestrate(self.directory, self.program_names)
 
-
     def init_progress(self):
         progress.update(
             header="Creating main painting",
@@ -265,15 +247,6 @@ class BotPaintingSession(Session):
         with tarfile.open("{}.tar.gz".format(src_folder), "w:gz") as tar:
             tar.add(src_folder, arcname=os.path.sep)
 
-
-
-
-
-
-
-
-
-
     def configure_linkages(self):
 
         orig_approach_height = self.painting_node.attr("approachDistanceMid").get()
@@ -283,9 +256,7 @@ class BotPaintingSession(Session):
         for cluster in self.program.painting.clusters:
             # print "configure_linkages cluster:", cluster.id
 
-            cluster_test_program = ClusterTestProgram(
-                "cluster_test", cluster, self.program.painting.motion, orig_approach_height
-            )
+            cluster_test_program = ClusterTestProgram("cluster_test", cluster, orig_approach_height)
 
             num_strokes = len(cluster.strokes)
             num_links = num_strokes - 1

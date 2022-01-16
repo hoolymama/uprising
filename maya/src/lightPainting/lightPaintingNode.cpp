@@ -3,6 +3,7 @@
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
+#include <maya/MFnNumericAttribute.h>
 #include "strokeData.h"
 #include "lightPaintingNode.h"
 #include <jMayaIds.h>
@@ -32,10 +33,16 @@ void *lightPainting::creator()
 {
   return new lightPainting();
 }
- 
+
 MObject lightPainting::aBrush;
 MObject lightPainting::aDisplayTargetColors;
 MObject lightPainting::aViewMatrix;
+
+MObject lightPainting::aColorGain;
+MObject lightPainting::aWhiteGain;
+
+MObject lightPainting::aWaitGain;
+
 MObject lightPainting::aOutput;
 
 MStatus lightPainting::initialize()
@@ -48,8 +55,9 @@ MStatus lightPainting::initialize()
   MFnTypedAttribute tAttr;
   MFnEnumAttribute eAttr;
   MFnMatrixAttribute mAttr;
+  MFnNumericAttribute nAttr;
 
-  aViewMatrix= mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
+  aViewMatrix = mAttr.create("viewMatrix", "vmat", MFnMatrixAttribute::kFloat);
   mAttr.setStorable(false);
   mAttr.setHidden(false);
   mAttr.setKeyable(true);
@@ -60,6 +68,27 @@ MStatus lightPainting::initialize()
   tAttr.setStorable(false);
   tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   addAttribute(aBrush);
+
+  aColorGain = nAttr.create("colorGain", "clg", MFnNumericData::kFloat);
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(1.0);
+  nAttr.setMax(10.0);
+  st = addAttribute(aColorGain);
+
+  aWhiteGain = nAttr.create("whiteGain", "whg", MFnNumericData::kFloat);
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(1.0);
+  nAttr.setMax(10.0);
+  st = addAttribute(aWhiteGain);
+
+  aWaitGain = nAttr.create("waitGain", "wag", MFnNumericData::kFloat);
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(1.0);
+  nAttr.setMax(10.0);
+  st = addAttribute(aWaitGain);
 
   aOutput = tAttr.create("output", "out", lightPaintingData::id);
   tAttr.setReadable(true);
@@ -79,14 +108,14 @@ MStatus lightPainting::initialize()
 
   st = attributeAffects(aStrokes, aOutput);
 
-  st = attributeAffects(aViewMatrix, aOutput);
+  // st = attributeAffects(aViewMatrix, aOutput);
 
   st = attributeAffects(aBrush, aOutput);
-  st = attributeAffects(aLinearSpeed, aOutput);
-  st = attributeAffects(aAngularSpeed, aOutput);
-  st = attributeAffects(aApproximationDistance, aOutput);
-
   st = attributeAffects(aReassignParentId, aOutput);
+
+  // st = attributeAffects(aLinearSpeed, aOutput);
+  // st = attributeAffects(aAngularSpeed, aOutput);
+  // st = attributeAffects(aApproximationDistance, aOutput);
 
   return (MS::kSuccess);
 }
@@ -104,19 +133,18 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
 
   m_pd->create();
 
-  MDataHandle hBrush = data.inputValue(aBrush, &st); msert;
-
+  MDataHandle hBrush = data.inputValue(aBrush, &st);
+  msert;
 
   MObject dBrush = hBrush.data();
-  MFnPluginData fnBrush(dBrush, &st); msert;
-
+  MFnPluginData fnBrush(dBrush, &st);
+  msert;
 
   brushData *bData = (brushData *)fnBrush.data();
 
   Brush *outBrush = m_pd->brush();
 
   *outBrush = *(bData->fGeometry);
-   
 
   std::vector<Stroke> *outStrokeGeom = m_pd->strokes();
 

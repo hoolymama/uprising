@@ -13,7 +13,7 @@ public:
   lightPainting();
 
   virtual ~lightPainting();
-  
+
   virtual bool isAbstractClass() const { return false; }
 
   static void *creator();
@@ -27,19 +27,20 @@ public:
   static MTypeId id;
   static MString drawDbClassification;
   static MString drawRegistrantId;
- 
+
   static MObject aViewMatrix;
   static MObject aDisplayTargetColors;
   static MObject aOutput;
 
 private:
-
-  MStatus  addStrokes( MDataBlock &data, std::vector<Stroke> *outStrokeGeom );
+  MStatus addStrokes(MDataBlock &data, std::vector<Stroke> *outStrokeGeom);
 
   static MObject aBrush;
+  static MObject aColorGain;
+  static MObject aWhiteGain;
+  static MObject aWaitGain;
 
   lightPaintingData *m_pd;
-
 };
- 
+
 #endif

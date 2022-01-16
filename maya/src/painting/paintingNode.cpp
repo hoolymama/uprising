@@ -6,7 +6,6 @@
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
 
-
 #include "paintingGeom.h"
 #include "paint.h"
 
@@ -17,7 +16,6 @@
 #include "brushData.h"
 #include "paletteData.h"
 #include "nodeUtils.h"
-
 
 MTypeId painting::id(k_painting);
 MString painting::drawDbClassification("drawdb/geometry/painting");
@@ -74,9 +72,8 @@ MStatus painting::initialize()
 {
   MStatus st;
   MString method("painting::initialize");
-  
-  inheritAttributesFrom("paintingBase");
 
+  inheritAttributesFrom("paintingBase");
 
   MFnNumericAttribute nAttr;
   MFnTypedAttribute tAttr;
@@ -84,12 +81,11 @@ MStatus painting::initialize()
   MFnEnumAttribute eAttr;
   MFnMatrixAttribute mAttr;
 
-  aCanvasMatrix= mAttr.create("canvasMatrix", "cmat", MFnMatrixAttribute::kFloat);
+  aCanvasMatrix = mAttr.create("canvasMatrix", "cmat", MFnMatrixAttribute::kFloat);
   mAttr.setStorable(false);
   mAttr.setHidden(false);
   mAttr.setKeyable(true);
   addAttribute(aCanvasMatrix);
-
 
   aMaxPointToPointDistance = nAttr.create("maxPointToPointDistance", "mxptp",
                                           MFnNumericData::kFloat);
@@ -195,12 +191,10 @@ MStatus painting::initialize()
   nAttr.setDefault(true);
   addAttribute(aDisplayRepeatIds);
 
-
-	aClusterPathColor = nAttr.createColor("clusterPathColor", "cpcol");
-	nAttr.setStorable(true);
-	nAttr.setKeyable(true);
-	addAttribute(aClusterPathColor);
-
+  aClusterPathColor = nAttr.createColor("clusterPathColor", "cpcol");
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aClusterPathColor);
 
   aStackGap = nAttr.create("stackGap", "sgap", MFnNumericData::kFloat);
   nAttr.setStorable(true);
@@ -210,19 +204,14 @@ MStatus painting::initialize()
   nAttr.setDefault(0);
   addAttribute(aStackGap);
 
-
   st = attributeAffects(aStrokes, aOutput);
   st = attributeAffects(aCanvasMatrix, aOutput);
-  st = attributeAffects(aLinearSpeed, aOutput);
-  st = attributeAffects(aAngularSpeed, aOutput);
-  st = attributeAffects(aApproximationDistance, aOutput);
+
   st = attributeAffects(aMaxPointToPointDistance, aOutput);
   st = attributeAffects(aApproachDistance, aOutput);
   st = attributeAffects(aBrushes, aOutput);
   st = attributeAffects(aPalette, aOutput);
   st = attributeAffects(aReassignParentId, aOutput);
-
-  
 
   return (MS::kSuccess);
 }
@@ -262,25 +251,26 @@ MStatus painting::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes
   return MS::kSuccess;
 }
 
-
-
 MStatus painting::getPalette(MDataBlock &data, std::map<int, Paint> &palette) const
 {
   MStatus st;
-  MDataHandle h = data.inputValue(aPalette, &st);msert;
+  MDataHandle h = data.inputValue(aPalette, &st);
+  msert;
   MObject d = h.data();
   MFnPluginData fnP(d, &st);
-  if (st.error()) {
+  if (st.error())
+  {
     return st;
   }
-  paletteData *pData = (paletteData *)fnP.data(&st);msert;
+  paletteData *pData = (paletteData *)fnP.data(&st);
+  msert;
   palette = *(pData->fGeometry);
-  if (palette.size()==0) {
+  if (palette.size() == 0)
+  {
     return MS::kFailure;
   }
   return MS::kSuccess;
 }
-
 
 MStatus painting::compute(const MPlug &plug, MDataBlock &data)
 {
@@ -299,12 +289,13 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
   {
     ptpThresh = 3.0;
   }
-  // cerr << "painting::compute ptpThresh: "<< ptpThresh << endl; 
+  // cerr << "painting::compute ptpThresh: "<< ptpThresh << endl;
   std::map<int, Brush> brushes;
   std::map<int, Paint> palette;
   collectBrushes(data, brushes);
   st = getPalette(data, palette);
-  if (st.error()) {
+  if (st.error())
+  {
     palette[-1] = Paint();
   }
 
@@ -375,7 +366,6 @@ MStatus painting::addStrokes(MDataBlock &data, paintingGeom *pGeom)
     strokeData *sData = (strokeData *)fnStrokeInput.data();
     const std::vector<Stroke> *strokeGeom = sData->fGeometry;
 
-
     std::vector<Stroke>::const_iterator citer;
     for (citer = strokeGeom->begin(); citer != strokeGeom->end(); citer++)
     {
@@ -393,4 +383,3 @@ void painting::postConstructor()
   setExistWithoutInConnections(true);
   setExistWithoutOutConnections(true);
 }
- 

@@ -14,7 +14,15 @@ source "AEpaintingStrokes";
 	editorTemplate -addControl "linearSpeed";
 	editorTemplate -addControl "angularSpeed";
 	editorTemplate -addControl "approximationDistance";
-	editorTemplate -endLayout;
+	editorTemplate -endLayout; 
+
+
+	editorTemplate -cl 0 -beginLayout "DMX Gain Attributes";
+	editorTemplate -addControl "colorGain";
+	editorTemplate -addControl "whiteGain";
+	editorTemplate -addControl "waitGain";
+	editorTemplate -endLayout; 
+
 
 	editorTemplate -cl 0 -beginLayout "Parent Id Behaviour";
 	editorTemplate -addControl "reassignParentId";

@@ -1,6 +1,6 @@
 import pymel.core as pm
 from uprising import robo
-from uprising import palette_utils  
+from uprising import palette_utils
 from uprising.common.session.program import Program
 from uprising.bot.session.bot_painting import BotPainting
 from uprising import progress
@@ -18,9 +18,8 @@ class DipWipeProgram(Program):
         return "p{:02d}_b{:02d}".format(pot_id, brush_id)
 
     def __init__(self, pack, **kwargs):
-        self.do_dip=kwargs.get("dip", True)
-        self.do_wipe=kwargs.get("wipe", True)
-
+        self.do_dip = kwargs.get("dip", True)
+        self.do_wipe = kwargs.get("wipe", True)
 
         # print "DipWipeProgram init pack:", pack
         name = DipWipeProgram.generate_program_name(pack["pot_id"], pack["brush_id"])
@@ -53,10 +52,10 @@ class DipWipeProgram(Program):
         )
         if self.do_dip:
             for cluster in self.dip_painting.clusters:
-                cluster.send(self.program, robo.dips_frame, self.dip_painting.motion)
+                cluster.send(self.program, robo.dips_frame)
         if self.do_wipe:
             for cluster in self.wipe_painting.clusters:
-                cluster.send(self.program, robo.dips_frame, self.wipe_painting.motion)
+                cluster.send(self.program, robo.dips_frame)
 
 
 class WashProgram(Program):
@@ -65,8 +64,8 @@ class WashProgram(Program):
         raise NotImplementedError
 
     def __init__(self, pack, **kwargs):
-        self.do_dip=kwargs.get("dip", True)
-        self.do_wipe=kwargs.get("wipe", True)
+        self.do_dip = kwargs.get("dip", True)
+        self.do_wipe = kwargs.get("wipe", True)
 
         name = self.generate_program_name(pack["brush_id"])
         super(WashProgram, self).__init__(name)
@@ -98,11 +97,11 @@ class WashProgram(Program):
         )
         if self.do_dip:
             for cluster in self.dip_painting.clusters:
-                cluster.send(self.program, robo.wash_frame, self.dip_painting.motion)
+                cluster.send(self.program, robo.wash_frame)
         if self.do_wipe:
             for repeat in range(self.repeats):
                 for cluster in self.wipe_painting.clusters:
-                    cluster.send(self.program, robo.wash_frame, self.wipe_painting.motion)
+                    cluster.send(self.program, robo.wash_frame)
 
 
 class WaterProgram(WashProgram):
@@ -114,6 +113,7 @@ class WaterProgram(WashProgram):
         super(WaterProgram, self).__init__(pack, **kwargs)
         self.repeats = repeats
 
+
 class RetardantProgram(WashProgram):
     @staticmethod
     def generate_program_name(brush_id):
@@ -123,6 +123,7 @@ class RetardantProgram(WashProgram):
         super(RetardantProgram, self).__init__(pack, **kwargs)
         # Dont wipe retardant off
         self.repeats = 0
+
 
 class RackCollection(object):
     def __init__(self):
@@ -224,7 +225,6 @@ class RetardantCollection(RackCollection):
 
 
 class DipWipeCollection(RackCollection):
-
     def _resolve_combination_ids(self):
         self.combination_ids = palette_utils.brush_pot_combination_ids()
 
@@ -255,5 +255,5 @@ class DipWipeExerciseCollection(RackCollection):
             pot_pack = self.packs[pot_id]
             for brush_id in pot_pack:
                 pack = pot_pack[brush_id]
-                result.append(DipWipeProgram(pack,**kwargs))
+                result.append(DipWipeProgram(pack, **kwargs))
         return result

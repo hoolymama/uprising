@@ -8,7 +8,7 @@ EPSILON = 0.00001
 class PovTarget(Target):
     def __init__(self, target_id, position, rotation, color, wait):
         super(PovTarget, self).__init__(target_id, position, rotation)
-        self.color = color*10
+        self.color = color
         self.wait = wait
         self.linear = True
 

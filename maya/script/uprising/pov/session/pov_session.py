@@ -1,4 +1,3 @@
-
 import logging
 import math
 import datetime
@@ -6,6 +5,7 @@ import time
 import os
 import tarfile
 import pymel.core as pm
+
 # from uprising.pov.session.pov_target import PovTarget
 
 from uprising import utils
@@ -22,13 +22,7 @@ logger = logging.getLogger("uprising")
 
 
 class PovSession(Session):
- 
-    def __init__(self, 
-    stroke_chunk_size, 
-    run_on_robot,
-    directory=None,
-    program_prefix="pv"
-    ):
+    def __init__(self, stroke_chunk_size, run_on_robot, directory=None, program_prefix="pv"):
 
         self.directory = directory or self.choose_session_dir()
         if not self.directory:
@@ -38,13 +32,11 @@ class PovSession(Session):
         self.program_names = []
         self.program_prefix = program_prefix
 
-
         self.stroke_count = pm.lightPaintingQuery(self.painting_node, sc=True)
         self.stroke_chunk_size = stroke_chunk_size or self.stroke_count
         self.run_on_robot = run_on_robot
 
         self.stats = {}
-
 
     def run(self):
         timer_start = time.time()
@@ -63,8 +55,7 @@ class PovSession(Session):
 
         duration = int(time.time() - timer_start)
         progress.update(
-            major_line="Total time: {}".format(
-                str(datetime.timedelta(seconds=duration))),
+            major_line="Total time: {}".format(str(datetime.timedelta(seconds=duration))),
             minor_line="",
             major_progress=0,
             minor_progress=0,
@@ -72,13 +63,11 @@ class PovSession(Session):
 
         self.stats = {}
 
-
-
+        robo.show()
 
     def send_and_publish_pov_program(self):
         stroke_count = len(self.program.painting.strokes)
-        num_chunks = int(
-            math.ceil(stroke_count / float(self.stroke_chunk_size)))
+        num_chunks = int(math.ceil(stroke_count / float(self.stroke_chunk_size)))
 
         # progress.update(
         #     major_max=1,
@@ -88,18 +77,15 @@ class PovSession(Session):
         for i in range(num_chunks):
             robo.clean("kr8")
 
-
             # progress.update(
             #     major_progress=i, major_line="Writing {:d} of {:d} chunks".format(i+1, num_chunks))
 
             # self.program.send(0, self.stroke_chunk_size)
             self.program.send(i, self.stroke_chunk_size)
 
-            self.save_program(
-                self.directory, self.program.program_name)
+            self.save_program(self.directory, self.program.program_name)
 
-            self.save_station(
-                self.directory, self.program.program_name)
+            self.save_station(self.directory, self.program.program_name)
 
             self.program_names.append(self.program.program_name)
 
@@ -139,19 +125,16 @@ UP = pm.dt.Vector(0, 0, -1)
 
 
 class PovTestSession(Session):
-
     def __init__(self):
 
         self.directory = "/Volumes/xtr/gd/pov/export/test"
-        self.brush = Brush(0, pm.PyNode(
-            "fbx_0_slot_00_fo1_roundShape").attr("outPaintBrush"))
+        self.brush = Brush(0, pm.PyNode("fbx_0_slot_00_fo1_roundShape").attr("outPaintBrush"))
 
         robo.new()
         robo.clean("kr8")
         robo.hide()
         _id = "{}_{}_{}".format(X, Y, Z)
-        mat = om.MMatrix([list(UP)+[0], list(SIDE)+[0],
-                          list(FRONT)+[0], [X, Y, Z, 1]])
+        mat = om.MMatrix([list(UP) + [0], list(SIDE) + [0], list(FRONT) + [0], [X, Y, Z, 1]])
 
         mtmat = om.MTransformationMatrix(mat)
 
@@ -159,15 +142,16 @@ class PovTestSession(Session):
         xyz_rotation = mtmat.rotation(False)
         zyx_rotation = xyz_rotation.reorder(om.MEulerRotation.kZYX)
         try:
-            t = PovTarget(_id, list(position * 10),
-                          list(zyx_rotation),  pm.dt.Color(1, 0, 0, 0.5), self.brush)
+            t = PovTarget(
+                _id, list(position * 10), list(zyx_rotation), pm.dt.Color(1, 0, 0, 0.5), self.brush
+            )
         except utils.StrokeError:
             return
-        print "Making Frame for", PROGRAM_NAME
+        print("Making Frame for", PROGRAM_NAME)
         frame = robo.create_frame("POV_frame")
-        print "Making Program for", PROGRAM_NAME
+        print("Making Program for", PROGRAM_NAME)
         program = robo.create_program(PROGRAM_NAME)
-        print "Made Program for", PROGRAM_NAME
+        print("Made Program for", PROGRAM_NAME)
 
         self.brush.send()
         t.configure("001")

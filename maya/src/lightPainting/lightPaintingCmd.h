@@ -43,7 +43,6 @@
 #define kStrokeWaitsFlag "-wat"
 #define kStrokeWaitsFlagL "-strokeWaits"
 
-
 #define kStrokeArcLengthFlag "-sal"
 #define kStrokeArcLengthFlagL "-strokeArcLength"
 
@@ -83,10 +82,17 @@ private:
 	MStatus handleStrokeRotationsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData,
 									  const MFloatMatrix &worldMatrix);
 
-	MStatus handleStrokeColorsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
+	MStatus handleStrokeColorsFlag(
+		const std::vector<Stroke> &strokes,
+		MArgDatabase &argData,
+		float colorGain,
+		float whiteGain);
 
-	MStatus handleStrokeWaitsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
- 
+	MStatus handleStrokeWaitsFlag(
+		const std::vector<Stroke> &strokes,
+		MArgDatabase &argData,
+		float waitGain);
+
 	MStatus handleStrokeBackstrokeFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
 
 	MStatus handleStrokeArcLengthFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);

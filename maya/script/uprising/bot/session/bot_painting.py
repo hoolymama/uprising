@@ -5,39 +5,38 @@ from uprising.bot.session.cluster import Cluster
 from uprising import progress
 from uprising.common.session.painting import Painting
 
+PAINTING_NAME = "mainPaintingShape"
+
 
 class BotPainting(Painting):
-    def __init__(self, node):
-        super(BotPainting, self).__init__(node)
+    def __init__(self):
+        super(BotPainting, self).__init__(pm.PyNode(PAINTING_NAME))
         self.paints = Paint.paints()
+
+        self.num_clusters = pm.paintingQuery(self.node, clusterCount=True)
         self.clusters = self._create_clusters()
-        
+
     def _create_clusters(self):
-        num_clusters = pm.paintingQuery(self.node, clusterCount=True)
-        if not num_clusters:
+
+        if not self.num_clusters:
             return []
 
         clusters = []
-        progress.update(
-            minor_max=num_clusters,
-            minor_progress=0)
+        progress.update(minor_max=self.num_clusters, minor_progress=0)
 
-
-        for cluster_id in range(num_clusters):
+        for id in range(self.num_clusters):
 
             progress.update(
-                minor_line="Cluster {}/{}".format(cluster_id+1, num_clusters),
-                minor_progress=cluster_id)
+                minor_line="Cluster {}/{}".format(id + 1, self.num_clusters), minor_progress=id
+            )
 
-            brush_id = pm.paintingQuery(
-                self.node, clusterIndex=cluster_id, clusterBrushId=True)
-            paint_id = pm.paintingQuery(
-                self.node, clusterIndex=cluster_id, clusterPaintId=True)
+            brush_id = pm.paintingQuery(self.node, clusterIndex=id, clusterBrushId=True)
+            paint_id = pm.paintingQuery(self.node, clusterIndex=id, clusterPaintId=True)
 
             brush = self.brushes.get(brush_id)
             paint = self.paints.get(paint_id)
 
-            cluster = Cluster(cluster_id, self.node, brush, paint)
+            cluster = Cluster(self, id, brush, paint)
 
             clusters.append(cluster)
 

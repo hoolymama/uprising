@@ -148,31 +148,29 @@ MStatus lightPaintingCmd::doIt(const MArgList &args)
 		return handleStrokeRotationsFlag(*pStrokes, argData, wm);
 	}
 
-	// if (argData.isFlagSet(kStrokeTangentsFlag))
-	// {
-	// 	MFloatMatrix wm = getWorldMatrix(paintingObject, &st);
-	// 	msert;
-	// 	return handleStrokeTangentsFlag(*pStrokes, argData, wm);
-	// }
-
 	if (argData.isFlagSet(kStrokeColorsFlag))
 	{
-		return handleStrokeColorsFlag(*pStrokes, argData);
+		MPlug colorGainPlug = paintingFn.findPlug("colorGain", true, &st);
+		MPlug whiteGainPlug = paintingFn.findPlug("waitGain", true, &st);
+		float colorGain, whiteGain;
+		colorGainPlug.getValue(colorGain);
+		whiteGainPlug.getValue(whiteGain);
+		return handleStrokeColorsFlag(*pStrokes, argData, colorGain, whiteGain);
 	}
 
 	if (argData.isFlagSet(kStrokeWaitsFlag))
 	{
-		return handleStrokeWaitsFlag(*pStrokes, argData);
+		MPlug waitGainPlug = paintingFn.findPlug("waitGain", true, &st);
+		float waitGain;
+		waitGainPlug.getValue(waitGain);
+		return handleStrokeWaitsFlag(*pStrokes, argData, waitGain);
 	}
-	// if (argData.isFlagSet(kStrokeBackstrokeFlag))
-	// {
-	// 	return handleStrokeBackstrokeFlag(*pStrokes, argData);
-	// }
 
 	if (argData.isFlagSet(kStrokeArcLengthFlag))
 	{
 		return handleStrokeArcLengthFlag(*pStrokes, argData);
 	}
+
 	if (argData.isFlagSet(kStrokeParentIndexFlag))
 	{
 		return handleStrokeParentIndexFlag(*pStrokes, argData);
@@ -393,7 +391,11 @@ MStatus lightPaintingCmd::handleStrokeRotationsFlag(const std::vector<Stroke> &s
 	return MS::kSuccess;
 }
 
-MStatus lightPaintingCmd::handleStrokeColorsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData)
+MStatus lightPaintingCmd::handleStrokeColorsFlag(
+	const std::vector<Stroke> &strokes,
+	MArgDatabase &argData,
+	float colorGain,
+	float whiteGain)
 {
 	MStatus st;
 	int strokeId = getStrokeId(strokes, argData, &st);
@@ -403,13 +405,18 @@ MStatus lightPaintingCmd::handleStrokeColorsFlag(const std::vector<Stroke> &stro
 	}
 	MColorArray colors;
 	strokes[strokeId].colors(colors);
+	for (size_t i = 0; i < colors.length(); i++)
+	{
+		MColor &c = colors[i];
+		c = MColor(c.r * colorGain, c.g * colorGain, c.b * colorGain, c.a * whiteGain);
+	}
 	MDoubleArray result;
 	CmdUtils::flatten(colors, result);
 	setResult(result);
 	return MS::kSuccess;
 }
 
-MStatus lightPaintingCmd::handleStrokeWaitsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData)
+MStatus lightPaintingCmd::handleStrokeWaitsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData, float waitGain)
 {
 	MStatus st;
 	int strokeId = getStrokeId(strokes, argData, &st);
@@ -422,7 +429,7 @@ MStatus lightPaintingCmd::handleStrokeWaitsFlag(const std::vector<Stroke> &strok
 	Stroke::const_target_iterator titer = stroke.targets_begin();
 	for (; titer != stroke.targets_end(); titer++)
 	{
-		result.append(double(titer->wait()));
+		result.append(double(titer->wait() * waitGain));
 	}
 	setResult(result);
 	return MS::kSuccess;

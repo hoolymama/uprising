@@ -7,9 +7,9 @@ from uprising import utils
 
 class Stroke(object):
 
-    def __init__(self, stroke_index, node):
+    def __init__(self, painting, stroke_index):
         self.id = stroke_index
-        self.node = node
+        self.painting = painting
         self.targets = []
         self.arc_length = self.query_arc_length()
         self.parent_id = self.query_parent_id()
