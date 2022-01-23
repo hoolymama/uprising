@@ -22,19 +22,28 @@ logger = logging.getLogger("uprising")
 
 
 class PovSession(Session):
-    def __init__(self, stroke_chunk_size, run_on_robot, directory=None, program_prefix="pv"):
+    def __init__(self, stroke_chunk_size, run_on_robot, save_files, program_prefix="pv"):
 
-        self.directory = directory or self.choose_session_dir()
-        if not self.directory:
-            return
 
         self.painting_node = pm.PyNode("lightPaintingShape")
+        self.stroke_count = pm.lightPaintingQuery(self.painting_node, sc=True)
+
         self.program_names = []
         self.program_prefix = program_prefix
 
-        self.stroke_count = pm.lightPaintingQuery(self.painting_node, sc=True)
-        self.stroke_chunk_size = stroke_chunk_size or self.stroke_count
+
         self.run_on_robot = run_on_robot
+        self.save_files = save_files
+        self.directory = None
+        if self.save_files:
+            self.directory = self.choose_session_dir()
+            if not self.directory: 
+                print("No file chosen. Aborted")
+                return
+            self.stroke_chunk_size = stroke_chunk_size or self.stroke_count
+        else:
+            self.stroke_chunk_size = self.stroke_count
+
 
         self.stats = {}
 
@@ -82,10 +91,9 @@ class PovSession(Session):
 
             # self.program.send(0, self.stroke_chunk_size)
             self.program.send(i, self.stroke_chunk_size)
-
-            self.save_program(self.directory, self.program.program_name)
-
-            self.save_station(self.directory, self.program.program_name)
+            if self.save_files:
+                self.save_program(self.directory, self.program.program_name)
+                self.save_station(self.directory, self.program.program_name)
 
             self.program_names.append(self.program.program_name)
 

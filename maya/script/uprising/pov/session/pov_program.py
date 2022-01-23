@@ -3,6 +3,7 @@ from uprising import robo
 from uprising.common.session.program import Program
 from uprising.pov.session.pov_painting import PovPainting
 from uprising.pov.session import pov_configurator, pov_lights
+from robolink import PROGRAM_RUN_ON_ROBOT, RUNMODE_RUN_ROBOT
 
 PAINTING_NAME = "lightPaintingShape"
 
@@ -12,6 +13,7 @@ class PovProgram(Program):
         super(PovProgram, self).__init__(name)
         print("INITIALIZE PovProgram")
         self.painting = PovPainting()
+
         self.run_on_robot = run_on_robot
 
     def configure(self):
@@ -48,6 +50,10 @@ class PovProgram(Program):
             pov_lights.send_shutter(self.program, self.run_on_robot)
 
         self.painting.send_brushes()
+
+        if self.run_on_robot:
+            robo.link().setRunMode(RUNMODE_RUN_ROBOT) 
+            self.program.setRunType(PROGRAM_RUN_ON_ROBOT)
 
         self.program.setRounding(self.painting.rounding)
         self.program.setSpeed(self.painting.linear_speed)

@@ -19,6 +19,10 @@ class PovPublishTab(gui.FormLayout):
         pm.setParent(self)
         self.go_but = self.create_action_buttons()
 
+        self.populate()
+        self.on_ops_change()
+
+
     def create_export_frame(self):
 
         frame = pm.frameLayout(label="Export", bv=True)
@@ -32,10 +36,11 @@ class PovPublishTab(gui.FormLayout):
         )
 
 
-        self.run_on_robot_cb =  pm.checkBoxGrp(
-            numberOfCheckBoxes=1,
-            label="Run on Robot",
-            value1=1
+        self.options_cb =  pm.checkBoxGrp(
+            numberOfCheckBoxes=2,
+            label1="Run on Robot",
+            label2="Save RDK & SRC",
+            changeCommand=pm.Callback(self.on_ops_change)
         )
 
         pm.setParent("..")
@@ -51,34 +56,73 @@ class PovPublishTab(gui.FormLayout):
 
     def create_action_buttons(self):
         pm.setParent(self)  # form
-
+        save_but = pm.button(label='Save', command=pm.Callback(self.save))
         go_but = pm.button(label="Go", command=pm.Callback(self.on_go))
 
         self.attachForm(self.column, "left", 2)
         self.attachForm(self.column, "right", 2)
         self.attachForm(self.column, "top", 2)
-        self.attachControl(self.column, "bottom", 2, go_but)
+        self.attachControl(self.column, "bottom", 2, save_but)
+
+
+        self.attachNone(save_but, 'top')
+        self.attachForm(save_but, 'left', 2)
+        self.attachPosition(save_but, 'right', 2, 50)
+        self.attachForm(save_but, 'bottom', 2)
+
 
         self.attachNone(go_but, "top")
         self.attachForm(go_but, "right", 2)
-        self.attachForm(go_but, "left", 2)
+        self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, "bottom", 2)
         return go_but
 
     ##############################################################
 
-    def on_go(self):
+    def on_ops_change(self):
+        save_files = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
 
+        pm.intFieldGrp(
+            self.stroke_chunk_if, edit=True, en=(save_files)
+        )
+
+    def on_go(self):
+        self.save()
         stroke_chunk_size = pm.intFieldGrp(
             self.stroke_chunk_if, query=True, value1=True
         )
 
-        run_on_robot = pm.checkBoxGrp(self.run_on_robot_cb, q=True , value1=True)
+        run_on_robot = pm.checkBoxGrp(self.options_cb, q=True , value1=True)
+        save_files = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
 
-
-        
-        pov_session = PovSession(stroke_chunk_size, run_on_robot)
+        pov_session = PovSession(stroke_chunk_size, run_on_robot, save_files)
         pov_session.run()
+
+    def populate(self):
+
+        var = ("upov_pov_pub_options", 0, 1)
+        vals = pm.optionVar.get(var[0], var[1:])
+        pm.checkBoxGrp(
+            self.options_cb,
+            e=True,
+            valueArray2=vals)
+
+        var = ("upov_pov_pub_chunk_ctl", 500)
+        pm.intFieldGrp(
+            self.stroke_chunk_if,
+            e=True,
+            value1=pm.optionVar.get(var[0],var[1]))
+
+    def save(self):
+        # board
+
+        var = "upov_pov_pub_options"
+        pm.optionVar[var] = pm.checkBoxGrp(self.options_cb, q=True, valueArray2=True)
+
+        var = "upov_pov_pub_chunk_ctl"
+        pm.optionVar[var] = pm.intFieldGrp(
+            self.stroke_chunk_if, q=True, value1=True)
+
 
 def find_contributing_stroke_nodes():
     pass
