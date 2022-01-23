@@ -56,7 +56,9 @@ MStatus occludeColors(
 void applyColors(   
     std::vector<Stroke> *geom,
     const MFloatVectorArray &colors,
-    const MFloatArray &whites) const;
+    const MFloatArray &whites,
+    float rgbBlend=1.0,
+    float whiteBlend=1.0) const;
  
 MStatus flattenStrokeColors(
     const std::vector<Stroke> *strokes,
@@ -77,6 +79,10 @@ void removeBlackSpans(std::vector<Stroke> *strokes, float thresh) const;
   static MObject aRGB;  ///> The solid texture whose color will be mapped to the RGB component of targets. 
   static MObject aWhite;  ///> The solid texture whose red channel will be mapped to the white component of targets.
   static MObject aWait;  ///> The solid texture whose red channel will be mapped to the wait component of targets.
+
+  static MObject aRgbBlend;   
+  static MObject aWhiteBlend; 
+
   static MObject aAngleWaitRemap;
   static MObject aStartEndAngle;
   

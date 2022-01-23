@@ -1,0 +1,15 @@
+
+
+global proc AEcImgSetRangeTemplate ( string $nodeName )
+{ 
+	editorTemplate -beginScrollLayout;
+	editorTemplate -beginLayout "Attributes" -collapse 0;
+	editorTemplate -addControl "minColor";
+	editorTemplate -addControl "maxColor";
+	editorTemplate -endLayout;	
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+	AEfieldInclude  $nodeName;
+}

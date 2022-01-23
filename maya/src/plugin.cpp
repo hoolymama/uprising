@@ -58,7 +58,6 @@
 
 #include "cImgGradField.h"
 
-
 #include "gateRamp.h"
 #include "rotateTargets.h"
 
@@ -101,9 +100,9 @@
 #include "cImgFloatCrop.h"
 #include "cImgDistance.h"
 #include "cImgFloatGate.h"
+#include "cImgSetRange.h"
 
 static const MString sRegistrantId("cImgPlugin");
-
 
 MStatus initializePlugin(MObject obj)
 {
@@ -118,8 +117,6 @@ MStatus initializePlugin(MObject obj)
 	MGlobal::executePythonCommandOnIdle("from uprising import menu;menu.UprisingMenu()", true);
 
 	const MString cImgShaderUserClassify("texture/2d:drawdb/shader/texture/2d/cImgShader");
-
-
 
 	st = plugin.registerData("cImgData", cImgData::id,
 							 cImgData::creator);
@@ -140,7 +137,7 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("cImgFile", cImgFile::id, cImgFile::creator,
 							 cImgFile::initialize);
 	msert;
-	
+
 	st = plugin.registerNode("cImgPngFile", cImgPngFile::id, cImgPngFile::creator,
 							 cImgPngFile::initialize);
 	msert;
@@ -184,7 +181,12 @@ MStatus initializePlugin(MObject obj)
 							 cImgDilate::creator,
 							 cImgDilate::initialize);
 	msert;
-	
+
+	st = plugin.registerNode("cImgSetRange", cImgSetRange::id,
+							 cImgSetRange::creator,
+							 cImgSetRange::initialize);
+	msert;
+
 	st = plugin.registerNode("cImgDistance", cImgDistance::id,
 							 cImgDistance::creator,
 							 cImgDistance::initialize);
@@ -223,24 +225,21 @@ MStatus initializePlugin(MObject obj)
 							 cImgChoice::creator,
 							 cImgChoice::initialize);
 	msert;
-	
+
 	st = plugin.registerNode("cImgFileCrop", cImgFileCrop::id,
 							 cImgFileCrop::creator,
 							 cImgFileCrop::initialize);
 	msert;
-	
+
 	st = plugin.registerNode("cImgCrop", cImgCrop::id,
 							 cImgCrop::creator,
 							 cImgCrop::initialize);
 	msert;
-	
 
 	st = plugin.registerNode("cImgFloatCrop", cImgFloatCrop::id,
 							 cImgFloatCrop::creator,
 							 cImgFloatCrop::initialize);
 	msert;
-	
-
 
 	st = plugin.registerNode("cImgShader", cImgShader::id, &cImgShader::creator,
 							 &cImgShader::initialize, MPxNode::kDependNode, &cImgShaderUserClassify);
@@ -261,16 +260,9 @@ MStatus initializePlugin(MObject obj)
 
 	/////////////////////////////////////////////////////
 
-
-
-
-
-
-
 	st = plugin.registerData("particleTrailsData", particleTrailsData::id,
 							 particleTrailsData::creator);
 	mser;
-
 
 	st = plugin.registerData("skChainData", skChainData::id,
 							 skChainData::creator);
@@ -284,7 +276,6 @@ MStatus initializePlugin(MObject obj)
 							 paletteData::creator);
 	mser;
 
-
 	st = plugin.registerData("strokeData", strokeData::id,
 							 strokeData::creator);
 	mser;
@@ -293,14 +284,10 @@ MStatus initializePlugin(MObject obj)
 							 paintingData::creator);
 
 	st = plugin.registerNode("cImgGradField", cImgGradField::id,
-							 cImgGradField::creator, 
-							 cImgGradField::initialize, 
+							 cImgGradField::creator,
+							 cImgGradField::initialize,
 							 MPxNode::kFieldNode);
 	mser;
-
-
-
-
 
 	st = plugin.registerNode("paintingBase", paintingBase::id, paintingBase::creator,
 							 paintingBase::initialize, MPxNode::kLocatorNode);
@@ -317,7 +304,6 @@ MStatus initializePlugin(MObject obj)
 		paintingDrawOverride::Creator);
 	mser;
 
-
 	st = plugin.registerData("lightPaintingData", lightPaintingData::id,
 							 lightPaintingData::creator);
 	mser;
@@ -333,7 +319,6 @@ MStatus initializePlugin(MObject obj)
 		lightPaintingDrawOverride::Creator);
 	mser;
 
-
 	st = plugin.registerNode("skGraph", skGraphNode::id, skGraphNode::creator,
 							 skGraphNode::initialize, MPxNode::kLocatorNode,
 							 &skGraphNode::drawDbClassification);
@@ -345,7 +330,6 @@ MStatus initializePlugin(MObject obj)
 		skGraphNodeDrawOverride::Creator);
 	mser;
 
-
 	st = plugin.registerNode("palette", paletteNode::id, paletteNode::creator,
 							 paletteNode::initialize, MPxNode::kLocatorNode,
 							 &paletteNode::drawDbClassification);
@@ -356,8 +340,6 @@ MStatus initializePlugin(MObject obj)
 		paletteNode::drawRegistrantId,
 		PaletteDrawOverride::Creator);
 	mser;
-
-
 
 	st = plugin.registerNode("particleTrails", particleTrailsNode::id, particleTrailsNode::creator,
 							 particleTrailsNode::initialize);
@@ -391,13 +373,11 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("paintStrokeCreator", paintStrokeCreator::id, paintStrokeCreator::creator,
 							 paintStrokeCreator::initialize);
 	mser;
-	
+
 	st = plugin.registerNode("particleStroke", particleStrokeNode::id,
 							 particleStrokeNode::creator,
 							 particleStrokeNode::initialize);
 	msert;
-
-
 
 	st = plugin.registerNode("meshStroke", meshStrokeNode::id,
 							 meshStrokeNode::creator,
@@ -429,23 +409,17 @@ MStatus initializePlugin(MObject obj)
 							 tiltStrokes::initialize);
 	mser;
 
-
 	st = plugin.registerNode("bulgeStrokes", bulgeStrokes::id, bulgeStrokes::creator,
 							 bulgeStrokes::initialize);
 	mser;
-
 
 	st = plugin.registerNode("mapStrokes", mapStrokes::id, mapStrokes::creator,
 							 mapStrokes::initialize);
 	mser;
 
-
 	st = plugin.registerNode("rotateTargets", rotateTargets::id, rotateTargets::creator,
 							 rotateTargets::initialize);
 	mser;
-
-
-	
 
 	st = plugin.registerNode("displaceStrokes", displaceStrokes::id, displaceStrokes::creator,
 							 displaceStrokes::initialize);
@@ -485,10 +459,7 @@ MStatus initializePlugin(MObject obj)
 								brushCmd::newSyntax);
 	mser;
 
-	
 	// ############################
-
-
 
 	return st;
 }
@@ -502,8 +473,6 @@ MStatus uninitializePlugin(MObject obj)
 	MFnPlugin plugin(obj);
 
 	// #######################################
-
-
 
 	st = plugin.deregisterCommand("brushCmd");
 	mser;
@@ -568,8 +537,6 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(particleStrokeNode::id);
 	mser;
 
-	
-
 	st = plugin.deregisterNode(paintStrokeCreator::id);
 	mser;
 
@@ -588,16 +555,11 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(skChainNode::id);
 	mser;
 
-
-
 	st = plugin.deregisterNode(colorSpreadNode::id);
 	mser;
 
 	st = plugin.deregisterNode(particleTrailsNode::id);
 	mser;
-
-
-
 
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
 		paletteNode::drawDbClassification,
@@ -606,8 +568,6 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterNode(paletteNode::id);
 	mser;
-
-
 
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
 		skGraphNode::drawDbClassification,
@@ -661,7 +621,6 @@ MStatus uninitializePlugin(MObject obj)
 
 	////////////////////////////////////
 
-
 	MHWRender::MDrawRegistry::deregisterShadingNodeOverrideCreator("drawdb/shader/texture/2d/cImgShader",
 																   sRegistrantId);
 
@@ -673,7 +632,6 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterNode(cImgShader::id);
 	mser;
-
 
 	st = plugin.deregisterNode(cImgFloatCrop::id);
 	mser;
@@ -706,6 +664,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(cImgDistance::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgSetRange::id);
 	mser;
 
 	st = plugin.deregisterNode(cImgDilate::id);
@@ -747,7 +708,6 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(cImgFileSplit::id);
 	mser;
 
-
 	st = plugin.deregisterNode(cImgConstant::id);
 	mser;
 
@@ -756,9 +716,6 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterData(cImgData::id);
 	mser;
-
-
-
 
 	return st;
 }

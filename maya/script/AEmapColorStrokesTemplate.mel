@@ -13,7 +13,9 @@ global proc AEmapColorStrokesTemplate ( string $nodeName )
 
 	editorTemplate -cl 0  -beginLayout "RGBW attributes";		
 	editorTemplate -addControl "rgb" ;
+	editorTemplate -addControl "colorBlend";
 	editorTemplate -addControl "white" ;
+	editorTemplate -addControl "whiteBlend";
 	editorTemplate -addControl "rgbwPivotSampleOnly" ;
 	editorTemplate -endLayout;
 
@@ -23,8 +25,6 @@ global proc AEmapColorStrokesTemplate ( string $nodeName )
 	AEaddRampControl("angleWaitRemap");	
 	editorTemplate -addControl "startEndAngle" ;
 	editorTemplate -endLayout;
-
-
 
 	editorTemplate -cl 0  -beginLayout "Occlusion  attributes";		
 	editorTemplate -addControl "doOcclusion" ;

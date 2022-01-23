@@ -29,6 +29,10 @@ const float PI = 3.14159265359;
 MObject mapColorStrokes::aRGB;
 MObject mapColorStrokes::aWhite;
 MObject mapColorStrokes::aWait;
+
+MObject mapColorStrokes::aRgbBlend;
+MObject mapColorStrokes::aWhiteBlend;
+
 MObject mapColorStrokes::aAngleWaitRemap;
 MObject mapColorStrokes::aStartEndAngle;
 
@@ -92,6 +96,20 @@ MStatus mapColorStrokes::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   addAttribute(aWait);
+
+  aRgbBlend = nAttr.create("colorBlend", "cb", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(1.0);
+  st = addAttribute(aRgbBlend); mser;
+
+  aWhiteBlend = nAttr.create("whiteBlend", "whtb", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(1.0);
+  addAttribute(aWhiteBlend);
 
   aAngleWaitRemap = MRampAttribute::createCurveRamp("angleWaitRemap", "awr");
   st = addAttribute(aAngleWaitRemap);
@@ -163,8 +181,10 @@ MStatus mapColorStrokes::initialize()
   attributeAffects(aWait, aOutput);
   attributeAffects(aAngleWaitRemap, aOutput);
   attributeAffects(aStartEndAngle, aOutput);
-
   attributeAffects(aPivotSampleOnly, aOutput);
+
+  attributeAffects(aRgbBlend, aOutput);
+  attributeAffects(aWhiteBlend, aOutput);
 
   return (MS::kSuccess);
 }
@@ -222,7 +242,10 @@ MStatus mapColorStrokes::mutate(
     st = occludeColors(data, points, colors, whites);
   }
 
-  applyColors(strokes, colors, whites);
+  float rgbBlend = data.inputValue(aRgbBlend).asFloat();
+  float whiteBlend = data.inputValue(aWhiteBlend).asFloat();
+
+  applyColors(strokes, colors, whites, rgbBlend, whiteBlend);
 
   if (data.inputValue(aRemoveBlackSpans).asBool())
   {
@@ -288,22 +311,21 @@ void mapColorStrokes::getColors(
 
 MStatus mapColorStrokes::flattenStrokeColors(
     const std::vector<Stroke> *strokes,
-    const MFloatVectorArray &strokeColors, 
-    const MFloatArray &strokeWhites, 
-    MFloatVectorArray &colors, 
+    const MFloatVectorArray &strokeColors,
+    const MFloatArray &strokeWhites,
+    MFloatVectorArray &colors,
     MFloatArray &whites) const
 {
- 
 
   MStatus st;
-  int numStrokes = strokes->size() ;
-  if (! ((numStrokes == strokeColors.length()) && (numStrokes == strokeWhites.length())))
+  int numStrokes = strokes->size();
+  if (!((numStrokes == strokeColors.length()) && (numStrokes == strokeWhites.length())))
   {
     return MS::kFailure;
   }
   std::vector<Stroke>::const_iterator iter = strokes->begin();
   unsigned strokeIndex = 0;
-  for (;iter != strokes->end(); iter++,strokeIndex++)
+  for (; iter != strokes->end(); iter++, strokeIndex++)
   {
     unsigned count = iter->size();
     for (int i = 0; i < count; i++)
@@ -403,21 +425,57 @@ MStatus mapColorStrokes::occludeColors(
 void mapColorStrokes::applyColors(
     std::vector<Stroke> *strokes,
     const MFloatVectorArray &colors,
-    const MFloatArray &whites) const
+    const MFloatArray &whites,
+    float rgbBlend,
+    float whiteBlend) const
 {
+  const float epsilon = 0.0000001;
   std::vector<Stroke>::iterator siter = strokes->begin();
   unsigned index = 0;
+
+  // If both blend vals are zero, do nothing
+  if ((rgbBlend - epsilon) < 0.0f && (whiteBlend - epsilon) < 0.0f)
+  {
+    return;
+  }
+  rgbBlend = fmin(1.0f, fmax(0.0f, rgbBlend));
+  whiteBlend = fmin(1.0f, fmax(0.0f, whiteBlend));
+  // If both blend vals are one, replace the existing color
+  if ((rgbBlend + epsilon) > 1.0 && (whiteBlend + epsilon) > 1.0)
+  {
+    for (unsigned i = 0; siter != strokes->end(); siter++, i++)
+    {
+
+      Stroke::target_iterator titer = siter->targets_begin();
+      for (; titer != siter->targets_end(); titer++, index++)
+      {
+        MColor color(colors[index].x, colors[index].y, colors[index].z, whites[index]);
+        titer->setColor(color);
+      }
+    }
+    return;
+  }
+
+  // Blend with the existing color
+  float oneMinusRgbBlend = 1.0f - rgbBlend;
+  float oneMinusWhiteBlend = 1.0f - whiteBlend;
+
   for (unsigned i = 0; siter != strokes->end(); siter++, i++)
   {
-
     Stroke::target_iterator titer = siter->targets_begin();
     for (; titer != siter->targets_end(); titer++, index++)
     {
-      MColor color(colors[index].x, colors[index].y, colors[index].z, whites[index]);
+      const MColor &existing = titer->color();
+      MColor color(
+          colors[index].x * rgbBlend + existing.r * oneMinusRgbBlend,
+          colors[index].y * rgbBlend + existing.g * oneMinusRgbBlend,
+          colors[index].z * rgbBlend + existing.b * oneMinusRgbBlend,
+          whites[index] * whiteBlend + existing.a * oneMinusWhiteBlend);
       titer->setColor(color);
     }
   }
 }
+
 
 void mapColorStrokes::applyWaits(
     std::vector<Stroke> *strokes,
