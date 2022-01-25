@@ -102,6 +102,14 @@
 #include "cImgFloatGate.h"
 #include "cImgSetRange.h"
 
+#include "multVectorDoublePP.h"
+#include "multVectorVectorPP.h"
+#include "multDoubleDoublePP.h"
+#include "addDoublePP.h"
+#include "addVectorPP.h"
+
+
+
 static const MString sRegistrantId("cImgPlugin");
 
 MStatus initializePlugin(MObject obj)
@@ -459,6 +467,25 @@ MStatus initializePlugin(MObject obj)
 								brushCmd::newSyntax);
 	mser;
 
+
+	st = plugin.registerNode( "addDoublePP", addDoublePP::id, addDoublePP::creator,
+	                          addDoublePP::initialize); 
+							  mser;
+	st = plugin.registerNode( "addVectorPP", addVectorPP::id, addVectorPP::creator,
+	                          addVectorPP::initialize); 
+							  mser;
+	st = plugin.registerNode( "multDoubleDoublePP", multDoubleDoublePP::id,
+	                          multDoubleDoublePP::creator, multDoubleDoublePP::initialize); 
+							  mser;
+	st = plugin.registerNode( "multVectorDoublePP", multVectorDoublePP::id,
+	                          multVectorDoublePP::creator, multVectorDoublePP::initialize); 
+							  mser;
+	st = plugin.registerNode( "multVectorVectorPP", multVectorVectorPP::id,
+	                          multVectorVectorPP::creator, multVectorVectorPP::initialize); 
+							  mser;
+
+
+
 	// ############################
 
 	return st;
@@ -473,6 +500,17 @@ MStatus uninitializePlugin(MObject obj)
 	MFnPlugin plugin(obj);
 
 	// #######################################
+
+	st = plugin.deregisterCommand("multVectorVectorPP");
+	mser;
+		st = plugin.deregisterCommand("multVectorDoublePP");
+	mser;
+		st = plugin.deregisterCommand("multDoubleDoublePP");
+	mser;
+		st = plugin.deregisterCommand("addVectorPP");
+	mser;
+		st = plugin.deregisterCommand("addDoublePP");
+	mser;
 
 	st = plugin.deregisterCommand("brushCmd");
 	mser;
