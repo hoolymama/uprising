@@ -29,11 +29,6 @@ public:
 
   virtual MBoundingBox boundingBox() const;
 
-  // virtual void draw(M3dView &view,
-  //                   const MDagPath &path,
-  //                   M3dView::DisplayStyle style,
-  //                   M3dView::DisplayStatus status);
-
   MStatus compute(const MPlug &plug, MDataBlock &data);
 
   static MTypeId id;
@@ -67,19 +62,13 @@ private:
   static MObject aMagnitude;
   static MObject aSeed;
 
-
   static MObject aSortVector;
-
-
 
   static MObject aOutU;
   static MObject aOutV;
   static MObject aOutPointsWorld;
 
-
-
 public:
-
   static MObject aOutPoints;
 
   static MObject aOutRadius;
@@ -91,6 +80,5 @@ public:
   static MObject aDisplayCircles;
   static MObject aDisplayOrder;
 };
-
 
 #endif

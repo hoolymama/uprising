@@ -45,11 +45,19 @@
 #include "jMayaIds.h"
 
 MObject cImgGradField::aInputGradientImage;
-MObject cImgGradField::aRotation;
-MObject cImgGradField::aMagnitudeRemapRamp;
+// MObject cImgGradField::aRotation;
+
 MObject cImgGradField::aMagnitudeRemapRange;
 
- 
+MObject cImgGradField::aRadialMag;
+MObject cImgGradField::aTangentMag;
+
+MObject cImgGradField::aRadialMagnitudeRemapRamp;
+MObject cImgGradField::aTangentMagnitudeRemapRamp;
+// MObject cImgGradField::aMagnitudeRemapRange;
+// MObject cImgGradField::aRadialMag;
+// MObject cImgGradField::aTangentMag;
+
 MObject cImgGradField::aResolutionX;
 MObject cImgGradField::aResolutionY;
 MObject cImgGradField::aResolutionZ;
@@ -57,7 +65,9 @@ MObject cImgGradField::aResolutionZ;
 MObject cImgGradField::aOutputGridPoints;
 MObject cImgGradField::aOutputGridVectors;
 
-const double epsilon = 0.0000001;
+const double epsilon = 0.000001;
+const double deg_to_rad = (3.1415927 / 180);
+
 MTypeId cImgGradField::id(k_cImgGradField);
 
 cImgGradField::cImgGradField(){};
@@ -80,21 +90,35 @@ MStatus cImgGradField::initialize()
     MFnTypedAttribute tAttr;
     MFnNumericAttribute nAttr;
 
-    MFnUnitAttribute uAttr;
+    // MFnUnitAttribute uAttr;
 
     aInputGradientImage = tAttr.create("inputGradientImage", "igi", cImgFloatData::id);
     mser;
     tAttr.setStorable(false);
     addAttribute(aInputGradientImage);
 
-    aRotation = uAttr.create("rotation", "rot", MFnUnitAttribute::kAngle);
-    uAttr.setHidden(false);
-    uAttr.setKeyable(true);
-    uAttr.setStorable(true);
-    addAttribute(aRotation);
+    // aRotation = uAttr.create("rotation", "rot", MFnUnitAttribute::kAngle);
+    // uAttr.setHidden(false);
+    // uAttr.setKeyable(true);
+    // uAttr.setStorable(true);
+    // addAttribute(aRotation);
 
-    aMagnitudeRemapRamp = MRampAttribute::createCurveRamp("magnitudeRemapRamp", "mrmp");
-    st = addAttribute(aMagnitudeRemapRamp);
+    aRadialMag = nAttr.create("radialMagnitude", "urd", MFnNumericData::kDouble);
+    nAttr.setDefault(1.0);
+    st = addAttribute(aRadialMag);
+    mser;
+
+    aTangentMag = nAttr.create("tangentMagnitude", "utn", MFnNumericData::kDouble);
+    nAttr.setDefault(1.0);
+    st = addAttribute(aTangentMag);
+    mser;
+
+    aRadialMagnitudeRemapRamp = MRampAttribute::createCurveRamp("radialMagnitudeRemap", "rmgr");
+    st = addAttribute(aRadialMagnitudeRemapRamp);
+    mser;
+
+    aTangentMagnitudeRemapRamp = MRampAttribute::createCurveRamp("tangentMagnitudeRemap", "tmgr");
+    st = addAttribute(aTangentMagnitudeRemapRamp);
     mser;
 
     aMagnitudeRemapRange = nAttr.create("magnitudeRemapRange", "mrx", MFnNumericData::kDouble);
@@ -102,8 +126,7 @@ MStatus cImgGradField::initialize()
     st = addAttribute(aMagnitudeRemapRange);
     mser;
 
- 
-        aResolutionX = nAttr.create("resolutionX", "rsx", MFnNumericData::kInt);
+    aResolutionX = nAttr.create("resolutionX", "rsx", MFnNumericData::kInt);
     nAttr.setDefault(2);
     nAttr.setKeyable(true);
     st = addAttribute(aResolutionX);
@@ -136,8 +159,15 @@ MStatus cImgGradField::initialize()
     attributeAffects(aResolutionZ, aOutputGridPoints);
 
     attributeAffects(aInputGradientImage, aOutputGridVectors);
-    attributeAffects(aRotation, aOutputGridVectors);
-    attributeAffects(aMagnitudeRemapRamp, aOutputGridVectors);
+    // attributeAffects(aRotation, aOutputGridVectors);
+    // attributeAffects(aMagnitudeRemapRamp, aOutputGridVectors);
+
+    attributeAffects(aRadialMagnitudeRemapRamp, aOutputGridVectors);
+    attributeAffects(aTangentMagnitudeRemapRamp, aOutputGridVectors);
+
+    attributeAffects(aTangentMag, aOutputGridVectors);
+    attributeAffects(aRadialMag, aOutputGridVectors);
+
     attributeAffects(aMagnitudeRemapRange, aOutputGridVectors);
     attributeAffects(aResolutionX, aOutputGridVectors);
     attributeAffects(aResolutionY, aOutputGridVectors);
@@ -293,8 +323,8 @@ MStatus cImgGradField::calcForce(
 
     MObject thisObj = thisMObject();
     unsigned int pl = points.length();
-    outputForce = MVectorArray(pl);
-
+    outputForce.clear();
+    outputForce.setLength(pl);
     CImg<float> *pImage = cImgUtils::getFloatImage(data, aInputGradientImage);
     if (!pImage)
     {
@@ -317,16 +347,18 @@ MStatus cImgGradField::calcForce(
     norm[3][0] = 0.5;
     norm[3][1] = 0.5;
 
-    double magnitude = data.inputValue(mMagnitude).asDouble();
-    double angle = data.inputValue(aRotation).asAngle().asRadians();
     double magnitudeRemapRange = data.inputValue(aMagnitudeRemapRange).asDouble();
+    double tangentMag = data.inputValue(aTangentMag).asDouble();
+    double radialMag = data.inputValue(aRadialMag).asDouble();
 
-    MRampAttribute magRemapAttr(thisObj, aMagnitudeRemapRamp);
+    MRampAttribute radialMagRemapAttr(thisObj, aRadialMagnitudeRemapRamp);
+    MRampAttribute tangentMagRemapAttr(thisObj, aTangentMagnitudeRemapRamp);
+
     mser;
 
     for (unsigned i = 0; i < pl; i++)
     {
-
+        // JPMDBG;
         MPoint imageCoord(points[i]);
         imageCoord *= iwm;
         imageCoord *= norm;
@@ -339,32 +371,53 @@ MStatus cImgGradField::calcForce(
             (imageCoordX >= w) ||
             (imageCoordY >= h))
         {
+            outputForce.set(MVector::zero, i);
             continue;
         }
-
+        // JPMDBG;
         float x = (*pImage)(imageCoordX, imageCoordY, 0, 0);
         float y = -(*pImage)(imageCoordX, imageCoordY, 0, 1);
-        MVector force = MVector(x, y, 0.0);
+        MVector gradient = MVector(x, y, 0.0);
 
-        if (force.isEquivalent(MVector::zero, epsilon))
+        if (gradient.isEquivalent(MVector::zero, epsilon))
         {
+            outputForce.set(MVector::zero, i);
             continue;
         }
-        if (fabs(angle) > epsilon)
+        // JPMDBG;
+        bool useTangent = fabs(tangentMag) > 0.0;
+        bool useRadial = fabs(radialMag) > 0.0;
+
+        MVector tForce, rForce;
+        if (useTangent)
         {
-            force = force.rotateBy(MVector::kZaxis, angle);
+            tForce = gradient.rotateBy(MVector::kZaxis, deg_to_rad * 90.0);
+        }
+        if (useRadial)
+        {
+            rForce = gradient;
         }
 
         if (magnitudeRemapRange > epsilon)
         {
-            float sampleValue = float(force.length() / magnitudeRemapRange);
-            float newMagValue;
-            magRemapAttr.getValueAtPosition(sampleValue, newMagValue, &st);
-            mser;
-            force = force.normal() * newMagValue;
+            float sampleValue = float(gradient.length() / magnitudeRemapRange);
+            sampleValue = fmin(sampleValue, 1.0f);
+            float newRadialMagValue, newTangentailMagValue;
+            if (useRadial)
+            {
+                radialMagRemapAttr.getValueAtPosition(sampleValue, newRadialMagValue, &st);
+                mser;
+                rForce = rForce.normal() * double(newRadialMagValue);
+            }
+            if (useTangent)
+            {
+                tangentMagRemapAttr.getValueAtPosition(sampleValue, newTangentailMagValue, &st);
+                mser;
+                tForce = tForce.normal() * double(newTangentailMagValue);
+            }
         }
-        force = force * magnitude * wm;
-        outputForce.set(force, i);
+        MVector result = ((rForce * radialMag) + (tForce * tangentMag)) * wm;
+        outputForce.set(result, i);
     }
     return MS::kSuccess;
 }

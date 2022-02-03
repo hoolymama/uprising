@@ -6,10 +6,14 @@ global proc AEcImgGradFieldTemplate ( string $nodeName )
 	AEtransformMain $nodeName;
 	editorTemplate -beginLayout "Field Attributes" -collapse 0;
 	editorTemplate -addControl "inputGradientImage";
-	editorTemplate -addControl "rotation";
-	AEaddRampControl($nodeName+ ".magnitudeRemapRamp");
+	
+	AEaddRampControl($nodeName+ ".radialMagnitudeRemap");
+	AEaddRampControl($nodeName+ ".tangentMagnitudeRemap");
+	
 	editorTemplate -addControl "magnitudeRemapRange";
-	editorTemplate -addControl "magnitude";
+	editorTemplate -addControl "radialMagnitude";
+	editorTemplate -addControl "tangentMagnitude";
+
 	editorTemplate -endLayout;	
 	
 	editorTemplate -beginLayout "Grid Attributes" -collapse 0;

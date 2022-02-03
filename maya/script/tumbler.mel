@@ -1,0 +1,352 @@
+
+proc string dynamics_expressionFlagFromType(int $type) {
+
+	if ($type == 0)	return "-c";
+	if ($type == 1)	return "-rbd";
+	if ($type == 2)	return "-rad";
+	return "-c";
+}
+
+global proc dynamics_prependToDynExpression(string $particle, string $code, string $title, int $type){
+	dynamics_writeDynExpression( $particle,  $code,  $title,  $type,  0) ;
+}
+
+global proc dynamics_appendToDynExpression(string $particle, string $code, string $title, int $type){
+	dynamics_writeDynExpression( $particle,  $code,  $title,  $type,  1) ;
+}
+
+global proc dynamics_writeDynExpression(string $particle, string $code, string $title, int $type, int $position) {
+	// $position == 0 , prepend
+	// $position == 0 , append
+
+	string $flag= dynamics_expressionFlagFromType( $type) ;
+	string $str;
+	
+	
+	string $new= ( ";\n// *************** " + $title+ " **********************\n");
+	 $new += $code;
+	 $new += ( ";\n// ****************************************************\n");
+	
+	
+	string $existing = eval("dynExpression " +$flag + " -q -s " + $particle);  
+	
+	if ($position) { // after
+		$str = ($existing + $new);
+	} else { // before
+		$str = ($new + $existing);
+	}	
+	
+	
+	eval("dynExpression " +$flag + " -s \"" +	encodeString($str) +"\" "+ $particle);  
+
+}
+
+proc string selection_firstOfType(string $type) {
+
+	string $s[] = `ls -sl -dag -leaf -ni -type $type`;
+	if (! size($s)) error("Select at least one "+$type);
+	
+	return $s[0] ;
+
+}
+
+proc string[] string_tokenize(string $str, string $delim) {
+	string $result[];
+	tokenize($str, $delim, $result);
+	return $result;
+}
+
+
+proc string attr_nodeFromNodeAttr(string $nodeAttr){
+	string $buff[];
+	tokenize $nodeAttr ".[]" $buff;
+	return $buff[0];
+}
+
+proc string  attr_attrFromNodeAttr(string $nodeAttr){
+	string $buff[];
+	int $n = `tokenize $nodeAttr "." $buff`;
+	string $result = "";
+	if ($n >1) {
+		$result = $buff[1];
+		if ($n >2) {
+			for ($i=2;$i<$n;$i++){
+				$result += ("."+$buff[$i]);	
+			}
+		}
+
+	}
+	return  $result ;
+}
+
+proc attr_addAttrs(string $node,string $attrs[]){
+
+	// try with -dt, if it fails try -at
+	for ($a in $attrs){
+		string $attrAndType[] = string_tokenize($a,":");
+	//print ("$node is "+$node+"\n");
+		if (! `attributeQuery -n $node -ex $attrAndType[0]`) {
+	
+			if  (catch(`addAttr -ln $attrAndType[0]  -dt   $attrAndType[1] $node`)) {
+				warning("-dt flag didn't work -- trying -at flag");
+				addAttr -ln  $attrAndType[0] -at $attrAndType[1] $node;
+				setAttr -k 1 ($node+"." + $attrAndType[0]);
+			}
+		} 
+	}
+}
+
+
+proc attr_connectPairs(string $srcNode, string $destNode, string $attrPairs[]) {
+	for ($a in $attrPairs) {
+		string $atts[] = string_tokenize($a,":");
+		string $src = ($srcNode+"."+$atts[0]);
+		string $dest = ($destNode+"."+$atts[1]);
+
+		if (! `isConnected $src  $dest`){
+			catch(`connectAttr -f $src  $dest`);
+		}	
+	}
+}
+
+global proc int attr_findNextUnconnectedIndex ( string $plug ) {
+	string $myarr[] = `listConnections -scn 1 -c 1 $plug`;
+	int $siz = `size  $myarr`;
+	if (!$siz) return 0;
+	string $lastConn = $myarr[($siz-2)] ;
+	string $buf[] = string_tokenize($lastConn, "[]"); 
+
+	int $sizBuf = `size $buf`;
+	int $index ;
+	if ( endsWith($lastConn, "]")) {
+		$index = (int)$buf[($sizBuf-1)];
+	} else {
+		$index = (int)$buf[($sizBuf-2)];
+	}
+	
+	return ($index+1);
+}
+
+
+global proc tumbler_performConnectFieldImpulse(string $p, string $f, string $t) {
+
+	int $fInId = attr_findNextUnconnectedIndex($f+".inputData");
+	int $fOutId = attr_findNextUnconnectedIndex($f+".outputForce");
+	int $fid =  max($fInId, $fOutId);
+	
+	
+	string $connectionPairs[] = {
+	    "position:inputData["+$fid+"].inputPositions",
+	    "velocity:inputData["+$fid+"].inputVelocities",
+	    "mass:inputData["+$fid+"].inputMass"
+	};
+	attr_connectPairs($p, $f, $connectionPairs);
+
+	// if there is already an imulse input then use an addPP to accumulate the fields
+	string $conns[] = `listConnections -s 1 -d 0 -p 1 ( $t+".impulse")`;
+	if (! `size $conns`) {
+		connectAttr -f ($f+".outputForce["+$fid+"]" ) ( $t+".impulse");
+ 	} else {
+		string $nt = `nodeType  $conns[0]`;
+		string $addPP;
+		if ($nt == "addPP") {
+			$addPP = attr_nodeFromNodeAttr($conns[0]);
+		} else {
+		 	$addPP = `createNode "addPP"`;
+			connectAttr $conns[0] (	$addPP+".input[0]");
+			connectAttr -f ($addPP+".outputV") ( $t+".impulse");
+		}
+		int $tId = attr_findNextUnconnectedIndex($addPP+".input");
+		connectAttr -f ($f+".outputForce["+$fid+"]" )  ($addPP+".input["+$tId+"]");		
+	}
+}
+
+
+global proc tumbler_addGoalWeightPP() {
+
+	string $t = selection_firstOfType("tumbler") ;
+	
+	string $psys[] = `listHistory $t`;
+	$psys = `ls -type "nParticle" $psys`;
+	if (!`size $psys`) error("Cant find particles associated with this tumbler");			
+	string $p = $psys[0];	
+	
+	attr_addAttrs($p,{"tumblerGoalWeightPP:doubleArray"});
+	
+	connectAttr -f ($p+".tumblerGoalWeightPP") ($t+".goalWeightPP");
+	
+	string $expr =	"tumblerGoalWeightPP = 1.0;\r";
+	dynamics_appendToDynExpression( $p, $expr, " TUMBLER GW ", 1);
+	
+}
+
+
+global proc tumbler_addField (string $mode) {
+	// mode 0 = asTorque
+	// mode 1 = asImpulse
+	
+
+	string $t;
+	string $tumblers[] = `ls -sl -type "tumbler"`;	
+	if (`size $tumblers`) $t =  $tumblers[0];
+
+	string $fields[] = `ls -sl -type "field"`;
+	if (!size($fields)) {error("No Fields Selected");}
+		
+	string $psys[] = `listHistory $t`;
+	$psys = `ls -type "nParticle" $psys`;
+	if (!`size $psys`) error("Cant find particles associated with this tumbler");			
+	string $p = $psys[0];
+	
+	for ($f in $fields){
+		tumbler_performConnectFieldImpulse($p, $f,  $t);
+	}
+}
+
+
+
+
+
+
+// create matrixGlyph visualizations
+proc tumbler_attachDiagnostics(string $particle, string $tumbler) {
+	string $p;
+	string $g;
+	
+	$g =   `createNode matrixGlyphShape`;
+	connectAttr ($particle+".position")  ($g+".points");
+	connectAttr ($particle+".goalView")  ($g+".frontVector");
+	connectAttr ($particle+".goalUp")  ($g+".upVector");
+	setAttr ($g+".colorMult" ) 0.5;
+	setAttr ($g+".colorOffset" ) 0.0;
+	setAttr  ($g+".rotateType" ) 0;
+	setAttr  ($g+".frontAxis" ) 0;
+	setAttr  ($g+".upAxis" ) 1;
+	
+	connectAttr -f ($tumbler+".frontAxis") ($g+".frontAxis");
+	connectAttr -f ($tumbler+".upAxis") ($g+".upAxis");	
+	
+	$p = firstParentOf($g);
+	rename $p "goalGlyph";
+
+
+
+
+	$g =   `createNode matrixGlyphShape`;
+	connectAttr ($particle+".position")  ($g+".points");
+	connectAttr ($particle+".phi")  ($g+".axisAngle");
+	setAttr ($g+".colorMult" ) 1.0;
+	setAttr ($g+".colorOffset" ) 0.0;
+	setAttr  ($g+".rotateType" ) 1;
+	$p = firstParentOf($g);
+	rename $p "phiGlyph";
+
+}
+
+global proc tumbler_attachDiagnosticsFromSel(){
+	string $tumblers[] = `ls -sl -type "tumbler"`;
+	if (!`size $tumblers`) error("No tumblers selected");
+	string $t = $tumblers[0] ;
+	string $psys[] = `listHistory $t`;
+	$psys = `ls -type "nParticle" $psys`;
+	if (!`size $psys`) error("Cant find particles associated with this tumbler");
+	string $p = $psys[0];
+	tumbler_attachDiagnostics( $p,  $t);
+}
+
+
+proc tumbler_addAttrs(string $particle) {
+
+	string $atts[] = { 
+		"goalView:vectorArray",		
+		"goalUp:vectorArray",	
+		"view:vectorArray",		
+		"upVector:vectorArray",	
+		"phi:vectorArray",
+		"omega:vectorArray",	
+		"rotation:vectorArray"
+	};
+	attr_addAttrs( $particle,$atts);
+}
+proc tumbler_createCreationExpression(string $particle) {
+
+	
+	string $expr =( 
+		"phi = sphrand(3.1415927);\n" + 
+		"omega = sphrand(3.1415927);\n" + 
+		"goalView = <<1,0,0>>;\r"+
+		"goalUp = <<0,1,0>> ;\r"
+		);
+
+	dynamics_appendToDynExpression( $particle, $expr, " TUMBLER ", 0);
+
+}
+
+proc tumbler_createRuntimeBeforeExpression(string $particle) {
+	string $expr = (	
+		"// goalView = unit(velocity);\r"+
+		"// goalUp = unit(cross(cross(goalView , <<0,1,0>>) , goalView )) ;\r"
+		);
+	dynamics_appendToDynExpression( $particle, $expr, " TUMBLER ", 1);
+
+}
+
+proc tumbler_createRuntimeAfterExpression(string $particle,string $tumbler) {
+	
+
+	string $expr = ( "phi = "+$tumbler+".outPhi;\n"+
+	  "omega  = "+$tumbler+".outOmega;\n" +
+	  "view  = "+$tumbler+".outFront;\n" +
+	  "upVector  = "+$tumbler+".outUp;\n" +
+	  "rotation = "+$tumbler+".outRotation;\n"
+		);
+	
+	dynamics_appendToDynExpression( $particle, $expr, " TUMBLER ", 2);
+}
+
+global proc tumbler_dynamicConnections(string $p,string $t) {
+	string $connectionPairs[] = {
+		"goalView:goalFrontVector",
+		"goalUp:goalUpVector",
+		"phi:phi",
+		"omega:omega"
+	};
+	attr_connectPairs($p, $t, $connectionPairs);
+	
+	connectAttr -f "time1.o" ($t+".currentTime");
+}
+
+proc tumbler_configDefaults(string $tumbler) {
+	
+	setAttr  ($tumbler+".angularUnit") 0 ;
+	setAttr  ($tumbler+".conserveSpin") 0.85 ;
+
+
+
+}
+
+global proc tumbler_create() {
+	
+	string $particle = selection_firstOfType("nParticle");
+	
+	string $tumbler = `createNode "tumbler" -n "tumbler"`;
+
+	tumbler_addAttrs( $particle);
+	
+	tumbler_createCreationExpression($particle);
+
+	tumbler_createRuntimeBeforeExpression( $particle);
+
+	tumbler_createRuntimeAfterExpression( $particle,$tumbler);
+
+
+
+	tumbler_dynamicConnections( $particle,$tumbler);
+
+	tumbler_configDefaults( $tumbler);
+	
+ 	tumbler_attachDiagnostics( $particle,  $tumbler);
+
+	setAttr  ($tumbler+".angularUnit") 0 ;
+
+}

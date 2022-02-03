@@ -1,0 +1,13 @@
+global proc AEprojectToPlanePPTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+	
+	editorTemplate -cl 0  -beginLayout "Input attributes";
+ 	editorTemplate -addControl"planeNormal";
+	editorTemplate -endLayout;	
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}

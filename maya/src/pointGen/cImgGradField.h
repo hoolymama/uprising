@@ -14,7 +14,7 @@
 #include <maya/MPxFieldNode.h>
 #include <maya/MDGMessage.h>
 #include <maya/MDGModifier.h>
- 
+
 class cImgGradField : public MPxFieldNode
 {
 public:
@@ -34,9 +34,15 @@ public:
 									double deltaTime) override;
 
 	static MObject aInputGradientImage;
-	static MObject aRotation;
-	static MObject aMagnitudeRemapRamp ;
-	static MObject aMagnitudeRemapRange ;
+
+	static MObject aMagnitudeRemapRange;
+
+	static MObject aRadialMagnitudeRemapRamp;
+	static MObject aTangentMagnitudeRemapRamp;
+
+	static MObject aRadialMag;
+	static MObject aTangentMag;
+
 	static MObject aResolutionX;
 	static MObject aResolutionY;
 	static MObject aResolutionZ;
@@ -55,7 +61,6 @@ private:
 
 	MStatus computeOutputForce(const MPlug &plug, MDataBlock &data);
 	MStatus computeOutputGrid(const MPlug &plug, MDataBlock &data);
-
 };
 
 #endif
