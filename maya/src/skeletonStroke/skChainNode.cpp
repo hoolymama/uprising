@@ -668,8 +668,6 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
   pOutImage->normalize(0,255);
   hOutputImage.set(newImageData);
 
-
-
   MDataHandle hOutputCount = data.outputValue(aOutputCount);
 
   hOutputs.set(bOutputs);
@@ -677,7 +675,6 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
 
   hOutputCount.set(nextPlugIndex);
   hOutputCount.setClean();
- 
   hOutputImage.setClean();
 
   return MS::kSuccess;

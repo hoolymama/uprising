@@ -54,7 +54,7 @@ private:
      * breaking the graph up into chains, we visit any such junction and lift 2 of
      * the neighbors away, and join them with a new node. The new node needs a
      * unique layer number because the key to a node is an object with its XYZ
-     * coordinates and a layer. Since the new node is a copy, its XYZ coors are the
+     * coordinates and a layer. Since the new node is a copy, its XYZ coords are the
      * same, so the layer must change. 
      *
      * @param node The node to detatch from the two neighbors.

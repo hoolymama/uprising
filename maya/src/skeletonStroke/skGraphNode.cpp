@@ -36,28 +36,28 @@ const double PI = 3.141592653;
 
 const double rad_to_deg = (180 / PI);
 
-const double TAU = 2.0 * PI;
+// const double TAU = 2.0 * PI;
 
-static int circleVertexCount = 16;
-const float gap = TAU / circleVertexCount;
+// static int circleVertexCount = 16;
+// const float gap = TAU / circleVertexCount;
 
-static float circle[][4] = {
-	{sin(gap * 0), cos(gap * 0), 0.0f, 1.0f},
-	{sin(gap * 1), cos(gap * 1), 0.0f, 1.0f},
-	{sin(gap * 2), cos(gap * 2), 0.0f, 1.0f},
-	{sin(gap * 3), cos(gap * 3), 0.0f, 1.0f},
-	{sin(gap * 4), cos(gap * 4), 0.0f, 1.0f},
-	{sin(gap * 5), cos(gap * 5), 0.0f, 1.0f},
-	{sin(gap * 6), cos(gap * 6), 0.0f, 1.0f},
-	{sin(gap * 7), cos(gap * 7), 0.0f, 1.0f},
-	{sin(gap * 8), cos(gap * 8), 0.0f, 1.0f},
-	{sin(gap * 9), cos(gap * 9), 0.0f, 1.0f},
-	{sin(gap * 10), cos(gap * 10), 0.0f, 1.0f},
-	{sin(gap * 11), cos(gap * 11), 0.0f, 1.0f},
-	{sin(gap * 12), cos(gap * 12), 0.0f, 1.0f},
-	{sin(gap * 13), cos(gap * 13), 0.0f, 1.0f},
-	{sin(gap * 14), cos(gap * 14), 0.0f, 1.0f},
-	{sin(gap * 15), cos(gap * 15), 0.0f, 1.0f}};
+// static float circle[][4] = {
+// 	{sin(gap * 0), cos(gap * 0), 0.0f, 1.0f},
+// 	{sin(gap * 1), cos(gap * 1), 0.0f, 1.0f},
+// 	{sin(gap * 2), cos(gap * 2), 0.0f, 1.0f},
+// 	{sin(gap * 3), cos(gap * 3), 0.0f, 1.0f},
+// 	{sin(gap * 4), cos(gap * 4), 0.0f, 1.0f},
+// 	{sin(gap * 5), cos(gap * 5), 0.0f, 1.0f},
+// 	{sin(gap * 6), cos(gap * 6), 0.0f, 1.0f},
+// 	{sin(gap * 7), cos(gap * 7), 0.0f, 1.0f},
+// 	{sin(gap * 8), cos(gap * 8), 0.0f, 1.0f},
+// 	{sin(gap * 9), cos(gap * 9), 0.0f, 1.0f},
+// 	{sin(gap * 10), cos(gap * 10), 0.0f, 1.0f},
+// 	{sin(gap * 11), cos(gap * 11), 0.0f, 1.0f},
+// 	{sin(gap * 12), cos(gap * 12), 0.0f, 1.0f},
+// 	{sin(gap * 13), cos(gap * 13), 0.0f, 1.0f},
+// 	{sin(gap * 14), cos(gap * 14), 0.0f, 1.0f},
+// 	{sin(gap * 15), cos(gap * 15), 0.0f, 1.0f}};
 
 MObject skGraphNode::aChains;
 
@@ -106,23 +106,6 @@ MStatus skGraphNode::initialize()
 	st = addAttribute(aChains);
 	mser;
 
-	aPointSize = nAttr.create("pointSize", "psz", MFnNumericData::kFloat);
-	nAttr.setDefault(2.0f);
-	nAttr.setKeyable(true);
-	st = addAttribute(aPointSize);
-	mser;
- 
-	aColor1 = nAttr.createColor("drawColor1", "dc1");
-	nAttr.setStorable(true);
-	nAttr.setKeyable(true);
-	st = addAttribute(aColor1);
-	mser;
-
-	aColor2 = nAttr.createColor("drawColor2", "dc2");
-	nAttr.setStorable(true);
-	nAttr.setKeyable(true);
-	st = addAttribute(aColor2);
-	mser;
 
 	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray);
 	tAttr.setStorable(false);
@@ -144,6 +127,26 @@ MStatus skGraphNode::initialize()
 	tAttr.setReadable(true);
 	st = addAttribute(aOutCounts);
 
+
+
+	aPointSize = nAttr.create("pointSize", "psz", MFnNumericData::kFloat);
+	nAttr.setDefault(2.0f);
+	nAttr.setKeyable(true);
+	st = addAttribute(aPointSize);
+	mser;
+ 
+	aColor1 = nAttr.createColor("drawColor1", "dc1");
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aColor1);
+	mser;
+
+	aColor2 = nAttr.createColor("drawColor2", "dc2");
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aColor2);
+	mser;
+	
 	aDrawEdges = nAttr.create("drawEdges", "ded",
 							  MFnNumericData::kBoolean);
 	nAttr.setHidden(false);

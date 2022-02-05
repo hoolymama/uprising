@@ -110,6 +110,12 @@
 #include "projectToPlanePP.h"
 #include "tumbler.h"
 
+#include "pearlChainData.h"
+#include "pearlNode.h"
+
+#include "pearlNodeDrawOverride.h"
+ 
+
 static const MString sRegistrantId("cImgPlugin");
 
 MStatus initializePlugin(MObject obj)
@@ -133,6 +139,10 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerData("cImgFloatData", cImgFloatData::id,
 							 cImgFloatData::creator);
 	mser;
+
+
+
+
 
 	st = plugin.registerNode("cImgConstant", cImgConstant::id, cImgConstant::creator,
 							 cImgConstant::initialize);
@@ -266,6 +276,13 @@ MStatus initializePlugin(MObject obj)
 		sRegistrantId,
 		cImgOverride::creator);
 
+	////////////////////////////////////////////////////////////////////////
+
+	st = plugin.registerData("pearlChainData", pearlChainData::id,
+							 pearlChainData::creator);
+	mser;
+
+
 	st = plugin.registerData("particleTrailsData", particleTrailsData::id,
 							 particleTrailsData::creator);
 	mser;
@@ -288,6 +305,13 @@ MStatus initializePlugin(MObject obj)
 
 	st = plugin.registerData("paintingData", paintingData::id,
 							 paintingData::creator);
+
+
+
+
+
+
+
 
 	st = plugin.registerNode("cImgGradField", cImgGradField::id,
 							 cImgGradField::creator,
@@ -325,6 +349,13 @@ MStatus initializePlugin(MObject obj)
 		lightPaintingDrawOverride::Creator);
 	mser;
 
+
+
+ 
+
+
+
+
 	st = plugin.registerNode("skGraph", skGraphNode::id, skGraphNode::creator,
 							 skGraphNode::initialize, MPxNode::kLocatorNode,
 							 &skGraphNode::drawDbClassification);
@@ -345,6 +376,17 @@ MStatus initializePlugin(MObject obj)
 		paletteNode::drawDbClassification,
 		paletteNode::drawRegistrantId,
 		PaletteDrawOverride::Creator);
+	mser;
+
+	st = plugin.registerNode("pearlNode", pearlNode::id, pearlNode::creator,
+							 pearlNode::initialize, MPxNode::kLocatorNode,
+							 &pearlNode::drawDbClassification);
+	msert;
+
+	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+		pearlNode::drawDbClassification,
+		pearlNode::drawRegistrantId,
+		pearlNodeDrawOverride::Creator);
 	mser;
 
 	st = plugin.registerNode("particleTrails", particleTrailsNode::id, particleTrailsNode::creator,
@@ -599,6 +641,15 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+		pearlNode::drawDbClassification,
+		pearlNode::drawRegistrantId);
+	mser;
+
+	st = plugin.deregisterNode(pearlNode::id);
+	mser;
+
+
+	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
 		paletteNode::drawDbClassification,
 		paletteNode::drawRegistrantId);
 	mser;
@@ -654,6 +705,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterData(particleTrailsData::id);
+	mser;
+
+	st = plugin.deregisterData(pearlChainData::id);
 	mser;
 
 	////////////////////////////////////

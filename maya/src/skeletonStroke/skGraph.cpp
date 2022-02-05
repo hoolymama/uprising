@@ -470,6 +470,88 @@ int skGraph::getChains(
     return added;
 }
 
+
+int skGraph::getChains(
+    std::vector<pearlChain> &chains,
+    int span
+    )
+
+{
+    if (span < 1)
+    {
+        span = 1;
+    }
+ 
+    float pixelWidth = 2.0 / float(m_width);
+
+    MFloatVector half(m_width * 0.5, m_height * 0.5);
+ 
+    MFloatMatrix norm;
+    norm.setToIdentity();
+    norm[0][0] = half.x;
+    norm[1][1] = -half.y;
+    norm[3][0] = half.x;
+    norm[3][1] = half.y;
+
+    int added = 0;
+ 
+    MFloatMatrix transformation = norm.inverse();
+    /*
+    Loop through nodes, looking for endpoints that we havent seen yet.
+    */
+
+    for (std::map<coord, skNode *>::const_iterator mapiter = m_nodes.begin();
+         mapiter != m_nodes.end();
+         mapiter++)
+    {
+        // identify the start of a chain with at least 2 nodes that has not been seen
+        if (mapiter->second->isEnd() && (!mapiter->second->seen))
+        {
+
+            // make a chain and set both ends to seen
+            pearlChain chain;
+            skNode *curr = mapiter->second;
+            int count = 0;
+            for (;; count++)
+            {
+
+                MFloatVector xy = curr->c * transformation;
+                pearl pt(xy.x, xy.y, (curr->radius * pixelWidth));
+                chain.add(pt);
+                curr->seen = true;
+
+                auto neighbor_iter = std::find_if(
+                    curr->neighbors.begin(),
+                    curr->neighbors.end(),
+                    [](const std::pair<coord, skNode *> &p) -> bool {
+                        return p.second->seen == false;
+                    });
+
+                if (neighbor_iter == curr->neighbors.end())
+                {
+                    break;
+                }
+                curr = neighbor_iter->second;
+            }
+            if (span > 1)
+            {
+                pearlChain interpolated;
+                chain.interpolate(span, interpolated);
+                chains.push_back(interpolated);
+            }
+            else
+            {
+                chains.push_back(chain);
+            }
+            added++;
+        }
+    }
+    // reset the seen flag
+    _resetSeen();
+    return added;
+}
+
+
 bool _compareTwigLength(const TWIG &a, const TWIG &b)
 {
     return (a.size() < b.size());

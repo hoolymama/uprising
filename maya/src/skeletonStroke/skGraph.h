@@ -15,6 +15,10 @@
 
 #include "skChain.h"
 
+#include "pearlChain.h"
+
+#include "pearl.h"
+
 using namespace cimg_library;
 
 class skGraph
@@ -33,6 +37,9 @@ public:
 
     int getChains(const MFloatMatrix &projection,
                    std::vector<skChain> &chains,
+                   int step);
+
+    int getChains( std::vector<pearlChain> &chains,
                    int step);
 
 
