@@ -14,8 +14,9 @@
 #include <maya/MPxFieldNode.h>
 #include <maya/MDGMessage.h>
 #include <maya/MDGModifier.h>
+#include "gridableField.h"
 
-class cImgGradField : public MPxFieldNode
+class cImgGradField : public gridableField
 {
 public:
 	cImgGradField();
@@ -25,16 +26,10 @@ public:
 	static MStatus initialize();
 	void postConstructor() override;
 
-	virtual MStatus compute(const MPlug &plug, MDataBlock &data) override;
+	virtual bool    isAbstractClass()  const  override {return true;}
 
-	virtual MStatus getForceAtPoint(const MVectorArray &point,
-									const MVectorArray &velocity,
-									const MDoubleArray &mass,
-									MVectorArray &force,
-									double deltaTime) override;
 
 	static MObject aInputGradientImage;
-
 	static MObject aMagnitudeRemapRange;
 
 	static MObject aRadialMagnitudeRemapRamp;
@@ -43,24 +38,16 @@ public:
 	static MObject aRadialMag;
 	static MObject aTangentMag;
 
-	static MObject aResolutionX;
-	static MObject aResolutionY;
-	static MObject aResolutionZ;
-	static MObject aOutputGridPoints;
-	static MObject aOutputGridVectors;
-
 	static MTypeId id;
 
 private:
-	MStatus calcForce(
+	virtual MStatus calcForce(
 		MDataBlock &data,
 		const MVectorArray &points,
 		const MVectorArray &velocities,
 		const MDoubleArray &masses,
-		MVectorArray &outputForce);
+		MVectorArray &outputForce) override;
 
-	MStatus computeOutputForce(const MPlug &plug, MDataBlock &data);
-	MStatus computeOutputGrid(const MPlug &plug, MDataBlock &data);
 };
 
 #endif

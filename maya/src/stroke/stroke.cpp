@@ -148,6 +148,152 @@ Stroke::Stroke(
 	resetTangents(); // because the end tangents will change.
 }
 
+Stroke::Stroke(
+	const MPointArray &editPoints,
+	float resampleDensity,
+	int minimumPoints,
+	const MFloatMatrix &rotationMat)
+	: Stroke()
+{
+
+	MStatus st;
+	MFnNurbsCurve curveFn;
+	MFnNurbsCurveData dataCreator;
+	MObject curveData = dataCreator.create(&st);
+	mser;
+	if (st.error())
+		return;
+
+	MObject curveObject = curveFn.createWithEditPoints(
+		editPoints, 3, MFnNurbsCurve::kOpen,
+		false,
+		false,
+		false,
+		curveData,
+		&st);
+	mser;
+	if (st.error())
+		return;
+
+	MDoubleArray knotVals;
+	st = curveFn.getKnots(knotVals);
+	int numKnots = knotVals.length();
+	double recip = 1.0 / knotVals[(numKnots - 1)];
+	for (int i = 0; i < numKnots; ++i)
+	{
+		knotVals[i] = knotVals[i] * recip;
+	}
+	curveFn.setKnots(knotVals, 0, (numKnots - 1));
+
+	double curveLength = curveFn.length(epsilon);
+	int numPoints = int(resampleDensity * fabs(curveLength));
+	numPoints = std::max(numPoints, minimumPoints);
+	float gap = curveLength / (numPoints - 1);
+
+	MFloatPointArray points;
+
+	for (unsigned i = 0; i < numPoints; i++)
+	{
+		float curveDist = i * gap;
+
+		double curveParam = curveFn.findParamFromLength(curveDist);
+		MPoint point;
+		st = curveFn.getPointAtParam(curveParam, point, MSpace::kObject);
+		mser;
+		if (st.error())
+			return;
+
+		points.append(point);
+
+	}
+
+	MFloatMatrix mat = rotationMat;
+	for (size_t i = 0; i < numPoints; i++)
+	{
+		mat[3][0] = points[i].x;
+		mat[3][1] = points[i].y;
+		mat[3][2] = points[i].z;
+		m_targets.push_back(Target(mat));
+	}
+	m_pivot = Target(m_targets[0]);
+	resetTangents();
+}
+
+Stroke::Stroke(
+	const MPointArray &editPoints,
+	MFloatArray radii,
+	float resampleDensity,
+	int minimumPoints,
+	const MFloatMatrix &rotationMat)
+	: Stroke()
+{
+
+	MStatus st;
+	MFnNurbsCurve curveFn;
+	MFnNurbsCurveData dataCreator;
+	MObject curveData = dataCreator.create(&st);
+	mser;
+	if (st.error())
+		return;
+
+	MObject curveObject = curveFn.createWithEditPoints(
+		editPoints, 3, MFnNurbsCurve::kOpen,
+		false,
+		false,
+		false,
+		curveData,
+		&st);
+	mser;
+	if (st.error())
+		return;
+
+	MDoubleArray knotVals;
+	st = curveFn.getKnots(knotVals);
+	int numKnots = knotVals.length();
+	double recip = 1.0 / knotVals[(numKnots - 1)];
+	for (int i = 0; i < numKnots; ++i)
+	{
+		knotVals[i] = knotVals[i] * recip;
+	}
+	curveFn.setKnots(knotVals, 0, (numKnots - 1));
+
+	double curveLength = curveFn.length(epsilon);
+	int numPoints = int(resampleDensity * fabs(curveLength));
+	numPoints = std::max(numPoints, minimumPoints);
+	float gap = curveLength / (numPoints - 1);
+
+	MFloatPointArray points;
+	MFloatArray weights;
+
+	for (unsigned i = 0; i < numPoints; i++)
+	{
+		float curveDist = i * gap;
+
+		double curveParam = curveFn.findParamFromLength(curveDist);
+		MPoint point;
+		st = curveFn.getPointAtParam(curveParam, point, MSpace::kObject);
+		mser;
+		if (st.error())
+			return;
+
+		float weight = Stroke::interpFloat(radii, curveParam);
+
+		points.append(point);
+		weights.append(weight);
+	}
+
+	MFloatMatrix mat = rotationMat;
+	for (size_t i = 0; i < numPoints; i++)
+	{
+		mat[3][0] = points[i].x;
+		mat[3][1] = points[i].y;
+		mat[3][2] = points[i].z;
+		m_targets.push_back(Target(mat, weights[i]));
+	}
+	m_pivot = Target(m_targets[0]);
+	resetTangents();
+}
+
 void Stroke::resetTangents()
 {
 
@@ -754,7 +900,8 @@ void Stroke::getTargetBorderColors(
 			result.set(color, i);
 			result.set(color, (i + 1));
 		}
-	} else if (displayMode == PaintingEnums::kTargetColorsWhite)
+	}
+	else if (displayMode == PaintingEnums::kTargetColorsWhite)
 	{
 
 		for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len); citer++, i += 2, j++)
@@ -774,11 +921,13 @@ void Stroke::getTargetBorderColors(
 			result.set(color, i);
 			result.set(color, (i + 1));
 		}
-	} else { // wait
+	}
+	else
+	{ // wait
 		for (citer = m_targets.begin(); (citer != m_targets.end()) && (j < len); citer++, i += 2, j++)
 		{
 			const float &wait = citer->wait();
-			color = MColor(wait,wait,wait);
+			color = MColor(wait, wait, wait);
 			result.set(color, i);
 			result.set(color, (i + 1));
 		}
@@ -860,6 +1009,15 @@ void Stroke::drawTangents(
 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
 	{
 		result.append(citer->drawTangent() * space);
+	}
+}
+
+void Stroke::drawTangents(MFloatVectorArray &result) const
+{
+	std::vector<Target>::const_iterator citer;
+	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
+	{
+		result.append(citer->drawTangent());
 	}
 }
 

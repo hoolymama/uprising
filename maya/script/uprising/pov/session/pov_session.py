@@ -22,7 +22,7 @@ logger = logging.getLogger("uprising")
 
 
 class PovSession(Session):
-    def __init__(self, stroke_chunk_size, run_on_robot, save_files, program_prefix="pv"):
+    def __init__(self, stroke_chunk_size, run_on_robot, save_rdk, save_src, program_prefix="pv"):
 
 
         self.painting_node = pm.PyNode("lightPaintingShape")
@@ -33,13 +33,15 @@ class PovSession(Session):
 
 
         self.run_on_robot = run_on_robot
-        self.save_files = save_files
+        self.save_rdk = save_rdk
+        self.save_src = save_src
+        
         self.directory = None
-        if self.save_files:
+        if self.save_rdk or self.save_src:
             self.directory = self.choose_session_dir()
             if not self.directory: 
                 print("No file chosen. Aborted")
-                return
+                raise ValueError("No valid directory chosen.")
             self.stroke_chunk_size = stroke_chunk_size or self.stroke_count
         else:
             self.stroke_chunk_size = self.stroke_count
@@ -91,8 +93,9 @@ class PovSession(Session):
 
             # self.program.send(0, self.stroke_chunk_size)
             self.program.send(i, self.stroke_chunk_size)
-            if self.save_files:
+            if self.save_src:
                 self.save_program(self.directory, self.program.program_name)
+            if self.save_rdk:
                 self.save_station(self.directory, self.program.program_name)
 
             self.program_names.append(self.program.program_name)

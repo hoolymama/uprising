@@ -1,0 +1,46 @@
+source "AEpaintingUtilFuncs";
+source "AEstrokeCreatorInclude";
+source "AEsortFilterInclude";
+
+global proc AEscribbleStrokesTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+	AEstrokeCreatorInclude($nodeName);
+
+	editorTemplate -cl 0 -beginLayout "General attributes";
+	editorTemplate -addControl "pointDensity";
+	editorTemplate -addControl "minimumPoints";
+	editorTemplate -addControl "angleCm";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Map attributes";
+	editorTemplate -addControl "radiusGain";
+	editorTemplate -addControl "radiusOffset";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Rotation attributes";
+	editorTemplate -addControl "rotateOrder";
+	editorTemplate -addSeparator;
+  	editorTemplate -addControl "tilt";
+	editorTemplate -addControl "tiltMap";
+	editorTemplate -addSeparator;
+  	editorTemplate -addControl "bank";
+	editorTemplate -addControl "bankMap";
+	editorTemplate -addSeparator;
+  	editorTemplate -addControl "twist";
+	editorTemplate -addControl "twistMap";
+	editorTemplate -endLayout;
+
+
+	AEsortFilterInclude($nodeName);
+
+	editorTemplate -suppress "smoothWeights";
+	editorTemplate -suppress "inputMatrix";
+	editorTemplate -suppress "targetRotationMatrix";
+
+	editorTemplate -addExtraControls;
+
+	editorTemplate -endScrollLayout;
+
+}

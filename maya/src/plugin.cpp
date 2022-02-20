@@ -36,6 +36,7 @@
 
 #include "tiltStrokes.h"
 #include "mapColorStrokes.h"
+#include "scribbleStrokes.h"
 #include "strokeMutator.h"
 
 #include "strokeCreator.h"
@@ -57,6 +58,8 @@
 #include "paletteDrawOverride.h"
 
 #include "cImgGradField.h"
+#include "gridableField.h"
+
 
 #include "gateRamp.h"
 #include "rotateTargets.h"
@@ -65,6 +68,7 @@
 #include "mapStrokes.h"
 
 #include "particleStrokeNode.h"
+#include "pearlStrokeNode.h"
 
 #include "particleTrailsNode.h"
 #include "particleTrailsData.h"
@@ -306,10 +310,11 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerData("paintingData", paintingData::id,
 							 paintingData::creator);
 
-
-
-
-
+	st = plugin.registerNode("gridableField", gridableField::id,
+							 gridableField::creator,
+							 gridableField::initialize,
+							 MPxNode::kFieldNode);
+	mser;
 
 
 
@@ -424,6 +429,14 @@ MStatus initializePlugin(MObject obj)
 							 particleStrokeNode::initialize);
 	msert;
 
+
+	st = plugin.registerNode("pearlStroke", pearlStrokeNode::id,
+							 pearlStrokeNode::creator,
+							 pearlStrokeNode::initialize);
+	msert;
+
+
+
 	st = plugin.registerNode("meshStroke", meshStrokeNode::id,
 							 meshStrokeNode::creator,
 							 meshStrokeNode::initialize);
@@ -444,6 +457,10 @@ MStatus initializePlugin(MObject obj)
 
 	st = plugin.registerNode("mapColorStrokes", mapColorStrokes::id, mapColorStrokes::creator,
 							 mapColorStrokes::initialize);
+	mser;
+
+	st = plugin.registerNode("scribbleStrokes", scribbleStrokes::id, scribbleStrokes::creator,
+							 scribbleStrokes::initialize);
 	mser;
 
 	st = plugin.registerNode("aimStrokes", aimStrokes::id, aimStrokes::creator,
@@ -597,9 +614,11 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(aimStrokes::id);
 	mser;
 
-	st = plugin.deregisterNode(mapColorStrokes::id);
+	st = plugin.deregisterNode(scribbleStrokes::id);
 	mser;
 
+	st = plugin.deregisterNode(mapColorStrokes::id);
+	mser;
 	st = plugin.deregisterNode(strokeMutator::id);
 
 	msert;
@@ -611,6 +630,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(meshStrokeNode::id);
+	mser;
+
+	st = plugin.deregisterNode(pearlStrokeNode::id);
 	mser;
 
 	st = plugin.deregisterNode(particleStrokeNode::id);
@@ -688,6 +710,10 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterNode(cImgGradField::id);
 	mser;
+
+	st = plugin.deregisterNode(gridableField::id);
+	mser;
+
 
 	st = plugin.deregisterData(paintingData::id);
 	mser;

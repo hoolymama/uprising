@@ -20,12 +20,12 @@ class PovTarget(Target):
         rdk_target.setPose(self.tool_pose)
         rdk_target.setJoints(self.joint_pose)
 
+        pov_lights.send_lights(program,run_on_robot, self.color, last_color)
         if self.linear:
             program.addMoveL(rdk_target)
         else:
             program.addMoveJ(rdk_target)
 
-        pov_lights.send_lights(program,run_on_robot, self.color, last_color)
         self.send_wait(program)
  
     def send_wait(self, program):

@@ -27,7 +27,7 @@ public:
  *
  * Creates a Target and sets its matrix to the identity.
  *
- * This target's tangent will be the zero vector, so you'l;l need to set it.
+ * This target's tangent will be the zero vector, so you'll need to set it.
  *
  * Other members are given sensible defaults.
  *

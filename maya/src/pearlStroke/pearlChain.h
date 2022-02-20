@@ -4,8 +4,12 @@
 
 #include <maya/MVectorArray.h>
 #include <maya/MPointArray.h>
+#include <maya/MFloatPointArray.h>
 #include <maya/MDoubleArray.h>
 #include <maya/MFloatArray.h>
+#include <maya/MMatrix.h>
+
+
 
 #include "pearl.h"
 
@@ -20,13 +24,14 @@ public:
 
 	void add(const pearl &pt);
 
-	void appendPointsTo(MPointArray &positions) const;
-
+	void appendPointsTo(MPointArray &points, const MMatrix &wm=MMatrix::identity) const;
+	void appendPointsTo(MFloatPointArray &points, const MMatrix &wm=MMatrix::identity) const;
+	
 	void appendPointsTo(MVectorArray &positions) const;
 
 	const pearl &operator[](const int index) const;
 
-	void appendRadiiTo(MFloatArray &radii) const;
+	void appendRadiiTo(MFloatArray &radii, float scale=1.0f) const;
 	void appendRadiiTo(MDoubleArray &radii) const;
 
 	void appendParamsTo(MDoubleArray &params) const;

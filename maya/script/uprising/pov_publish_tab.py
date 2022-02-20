@@ -37,9 +37,10 @@ class PovPublishTab(gui.FormLayout):
 
 
         self.options_cb =  pm.checkBoxGrp(
-            numberOfCheckBoxes=2,
+            numberOfCheckBoxes=3,
             label1="Run on Robot",
-            label2="Save RDK & SRC",
+            label2="Save RDK",
+            label3="Save SRC",
             changeCommand=pm.Callback(self.on_ops_change)
         )
 
@@ -80,11 +81,13 @@ class PovPublishTab(gui.FormLayout):
     ##############################################################
 
     def on_ops_change(self):
-        save_files = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
+        pass
+        # save_rdk = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
+        # save_src = pm.checkBoxGrp(self.options_cb, q=True , value3=True)
 
-        pm.intFieldGrp(
-            self.stroke_chunk_if, edit=True, en=(save_files)
-        )
+        # pm.intFieldGrp(
+        #     self.stroke_chunk_if, edit=True, en=(save_src or save_rdk)
+        # )
 
     def on_go(self):
         self.save()
@@ -93,19 +96,26 @@ class PovPublishTab(gui.FormLayout):
         )
 
         run_on_robot = pm.checkBoxGrp(self.options_cb, q=True , value1=True)
-        save_files = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
+        # save_files = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
+        save_rdk = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
+        save_src = pm.checkBoxGrp(self.options_cb, q=True , value3=True)
 
-        pov_session = PovSession(stroke_chunk_size, run_on_robot, save_files)
-        pov_session.run()
+        try:
+            pov_session = PovSession(stroke_chunk_size, run_on_robot, save_rdk, save_src)
+            pov_session.run()
+        except ValueError:
+            print("PovSession aborted")
 
     def populate(self):
 
-        var = ("upov_pov_pub_options", 0, 1)
+        var = ("upov_pov_pub_options", 0, 1, 1)
         vals = pm.optionVar.get(var[0], var[1:])
+        if len(vals) != (len(var)-1):
+            vals =  var[1:]
         pm.checkBoxGrp(
             self.options_cb,
             e=True,
-            valueArray2=vals)
+            valueArray3=vals)
 
         var = ("upov_pov_pub_chunk_ctl", 500)
         pm.intFieldGrp(
@@ -117,7 +127,7 @@ class PovPublishTab(gui.FormLayout):
         # board
 
         var = "upov_pov_pub_options"
-        pm.optionVar[var] = pm.checkBoxGrp(self.options_cb, q=True, valueArray2=True)
+        pm.optionVar[var] = pm.checkBoxGrp(self.options_cb, q=True, valueArray3=True)
 
         var = "upov_pov_pub_chunk_ctl"
         pm.optionVar[var] = pm.intFieldGrp(

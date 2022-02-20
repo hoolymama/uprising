@@ -34,6 +34,8 @@ global proc AEmapColorStrokesTemplate ( string $nodeName )
 	editorTemplate -addControl "removeBlackSpans" ;
 	editorTemplate -addControl "blackSpanThreshold" ;
 	editorTemplate -endLayout;
+	
+	AEsortFilterInclude($nodeName);
 
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;

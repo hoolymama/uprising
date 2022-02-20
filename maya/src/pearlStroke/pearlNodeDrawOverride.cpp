@@ -99,9 +99,10 @@ MUserData *pearlNodeDrawOverride::prepareForDraw(
 	MPlug(pearlNodeObj, pearlNode::aDrawPoints).getValue(data->drawPoints);
 	MPlug(pearlNodeObj, pearlNode::aDrawCircles).getValue(data->drawCircles);
 
-	if (!(data->drawEdges && data->drawPoints && data->drawCircles) )   {
+	if (!(data->drawEdges || data->drawPoints || data->drawCircles) )   {
 		return 0;
 	}
+
 
 	MPlug plugPearlChainData(pearlNodeObj, pearlNode::aOutput);
 	MObject dPearlChainData;
@@ -114,7 +115,10 @@ MUserData *pearlNodeDrawOverride::prepareForDraw(
 	}
 
 	std::vector< pearlChain > *geom  = pld->fGeometry;
-
+	data->points.clear();
+	data->radius.clear();
+	data->colors.clear();
+	data->counts.clear();
 	MDoubleArray params;
 	std::vector<pearlChain>::const_iterator iter;
 	for (iter = geom->begin(); iter != geom->end(); iter++)
@@ -140,7 +144,7 @@ MUserData *pearlNodeDrawOverride::prepareForDraw(
 	MPlug(pearlNodeObj, pearlNode::aRandomChainColor).getValue(doRandColor);
 
 	// Color calcs
-	data->colors.clear();
+
 	int pIndex = 0;
 	unsigned nChains = data->counts.length();
 	if (doRandColor) {
@@ -178,6 +182,7 @@ void pearlNodeDrawOverride::addUIDrawables(
   const MHWRender::MFrameContext &context,
   const MUserData *data)
 {
+	// cerr << "addUIDrawables" << endl;
 	pearlNodeDrawData *cdata = (pearlNodeDrawData *)data;
 	if (! cdata) { return; }
 
@@ -215,11 +220,14 @@ void pearlNodeDrawOverride::drawEdges(
 	unsigned nChains = cdata->counts.length();
 	MPointArray pts;
 	MColorArray cols;
+	// cerr << "Draw Edges, nChains:" << nChains << endl;
+	
 	for (int c = 0; c < nChains; ++c)
 	{
 		unsigned len =  cdata->counts[c];
 		pts.clear();
 		cols.clear();
+		// cerr << "cdata->counts[c]:" << cdata->counts[c] << " pIndex:"<< pIndex <<  " cdata->points.length()" << cdata->points.length() << endl; 
 		for (int i = 0; i < len; ++i)
 		{
 			pts.append(cdata->points[pIndex]);

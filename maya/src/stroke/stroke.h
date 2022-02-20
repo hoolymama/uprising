@@ -134,6 +134,19 @@ public:
 		unsigned start,
 		unsigned count);
 
+	Stroke(
+	const MPointArray & editPoints,
+	MFloatArray radii,
+	float resampleDensity,
+	int minimumPoints,
+	const MFloatMatrix &rotationMat);
+
+	Stroke(
+	const MPointArray & editPoints,
+	float resampleDensity,
+	int minimumPoints,
+	const MFloatMatrix &rotationMat);
+	
 	~Stroke();
 
 	void setStrokeId(unsigned rhs);
@@ -158,13 +171,14 @@ public:
 
 	// void appendTangents(MVectorArray &result) const;
 
-	void getParams(MFloatArray &result) const;
+	// void getParams(MFloatArray &result) const;
 
 	const std::vector<Target> &targets() const;
 
 	float calculateArcLength() const;
 
 	void calculateParams(MFloatArray &result) const;
+	
 
 	const float &paintFlow() const;
 
@@ -285,6 +299,10 @@ public:
 		const MFloatMatrix &space,
 		MFloatVectorArray &result) const;
 
+	void drawTangents(
+		MFloatVectorArray &result) const;
+
+
 	void colors(MColorArray &result) const;
 
 	MFloatPoint getHead(
@@ -372,13 +390,15 @@ private:
 inline float Stroke::interpFloat(const MFloatArray &values, float param)
 {
 	int len = values.length();
+	if (len < 2) {
+		return 1.0;
+	}
 	int last = (len - 1);
 	if (param >= 1.0f)
 	{
 		return values[last];
 	}
 	else if (param <= 0.0f)
-
 	{
 		return values[0];
 	}

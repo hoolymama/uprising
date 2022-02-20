@@ -10,8 +10,8 @@
 class particleStrokeNode : public strokeCreator
 {
 
-public:
   particleStrokeNode();
+public:
 
   virtual ~particleStrokeNode();
   static void *creator();
@@ -26,7 +26,7 @@ private:
       MDataBlock &data,
       std::vector<Stroke> *pStrokes);
 
-  static MObject aViewpoint;
+  // static MObject aViewpoint;
   static MObject aTargetRotationMatrix;
   static MObject aTrails;
 };

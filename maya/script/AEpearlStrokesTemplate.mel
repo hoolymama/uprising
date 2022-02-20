@@ -1,0 +1,31 @@
+source "AEpaintingUtilFuncs";
+source "AEstrokeCreatorInclude";
+source "AEsortFilterInclude";
+
+global proc AEpearlStrokeTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+	AEstrokeCreatorInclude($nodeName);
+
+	editorTemplate -cl 0 -beginLayout "Weight smoothing attributes";
+
+	editorTemplate -addControl "neighborsToSmooth";
+	editorTemplate -addControl "smoothPositions";
+	editorTemplate -endLayout;
+
+	AEsortFilterInclude($nodeName);
+
+	editorTemplate -cl 0 -beginLayout "Chain inputs";
+	editorTemplate -addControl "pearlChains";
+	editorTemplate -endLayout;
+
+	editorTemplate -suppress "smoothWeights";
+	editorTemplate -suppress "inputMatrix";
+	editorTemplate -suppress "targetRotationMatrix";
+
+	editorTemplate -addExtraControls;
+
+	editorTemplate -endScrollLayout;
+
+}

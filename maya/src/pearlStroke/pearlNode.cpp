@@ -17,7 +17,6 @@
 #include <maya/MFnField.h>
 #include <maya/MAngle.h>
 
- 
 #include "cImgUtils.h"
 #include <jMayaIds.h>
 #include "errorMacros.h"
@@ -297,6 +296,8 @@ MStatus pearlNode::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
+  nAttr.setDefault(0.01);
+  
   st = addAttribute(aMinBranchTwigLength);
   mser;
 
@@ -304,6 +305,7 @@ MStatus pearlNode::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
+  nAttr.setDefault(0.01);
   st = addAttribute(aMinLooseTwigLength);
   mser;
 
@@ -311,6 +313,7 @@ MStatus pearlNode::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
+  nAttr.setDefault(0.01);
   st = addAttribute(aSpan);
   mser;
 
@@ -318,6 +321,7 @@ MStatus pearlNode::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
+  nAttr.setDefault(0.01);
   st = addAttribute(aMaxWidth);
   mser;
 
@@ -326,6 +330,7 @@ MStatus pearlNode::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
+  nAttr.setDefault(0.01);
   st = addAttribute(aMaxStampWidth);
   mser;
 
@@ -338,58 +343,57 @@ MStatus pearlNode::initialize()
   mser;
 
   // Display
-	aPointSize = nAttr.create("pointSize", "psz", MFnNumericData::kFloat);
-	nAttr.setDefault(2.0f);
-	nAttr.setKeyable(true);
-	st = addAttribute(aPointSize);
-	mser;
- 
-	aColor1 = nAttr.createColor("drawColor1", "dc1");
-	nAttr.setStorable(true);
-	nAttr.setKeyable(true);
-	st = addAttribute(aColor1);
-	mser;
+  aPointSize = nAttr.create("pointSize", "psz", MFnNumericData::kFloat);
+  nAttr.setDefault(2.0f);
+  nAttr.setKeyable(true);
+  st = addAttribute(aPointSize);
+  mser;
 
-	aColor2 = nAttr.createColor("drawColor2", "dc2");
-	nAttr.setStorable(true);
-	nAttr.setKeyable(true);
-	st = addAttribute(aColor2);
-	mser;
+  aColor1 = nAttr.createColor("drawColor1", "dc1");
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aColor1);
+  mser;
 
-	
-	aDrawEdges = nAttr.create("drawEdges", "ded",
-							  MFnNumericData::kBoolean);
-	nAttr.setHidden(false);
-	nAttr.setStorable(true);
-	nAttr.setDefault(true);
-	nAttr.setKeyable(true);
+  aColor2 = nAttr.createColor("drawColor2", "dc2");
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aColor2);
+  mser;
 
-	addAttribute(aDrawEdges);
+  aDrawEdges = nAttr.create("drawEdges", "ded",
+                            MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setDefault(true);
+  nAttr.setKeyable(true);
 
-	aDrawPoints = nAttr.create("drawPoints", "dpt",
-							   MFnNumericData::kBoolean);
-	nAttr.setHidden(false);
-	nAttr.setStorable(true);
-	nAttr.setDefault(true);
-	nAttr.setKeyable(true);
-	addAttribute(aDrawPoints);
+  addAttribute(aDrawEdges);
 
-	aDrawCircles = nAttr.create("drawCircles", "dci",
-								MFnNumericData::kBoolean);
-	nAttr.setHidden(false);
-	nAttr.setStorable(true);
-	nAttr.setDefault(true);
-	nAttr.setKeyable(true);
-	addAttribute(aDrawCircles);
+  aDrawPoints = nAttr.create("drawPoints", "dpt",
+                             MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setDefault(true);
+  nAttr.setKeyable(true);
+  addAttribute(aDrawPoints);
 
-	aRandomChainColor = nAttr.create("randomChainColor", "rcc",
-									 MFnNumericData::kBoolean);
-	nAttr.setHidden(false);
-	nAttr.setStorable(true);
-	nAttr.setDefault(false);
-	addAttribute(aRandomChainColor);
+  aDrawCircles = nAttr.create("drawCircles", "dci",
+                              MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setDefault(true);
+  nAttr.setKeyable(true);
+  addAttribute(aDrawCircles);
 
-  aOutput = tAttr.create("outputs", "outs", pearlChainData::id);
+  aRandomChainColor = nAttr.create("randomChainColor", "rcc",
+                                   MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setDefault(false);
+  addAttribute(aRandomChainColor);
+
+  aOutput = tAttr.create("output", "out", pearlChainData::id);
   tAttr.setReadable(true);
   tAttr.setStorable(false);
   addAttribute(aOutput);
@@ -408,7 +412,6 @@ MStatus pearlNode::initialize()
   attributeAffects(aOffsetWidth, aOutput);
   attributeAffects(aMaxStampWidth, aOutput);
 
-
   attributeAffects(aImage, aOutputImage);
   attributeAffects(aMaxIterations, aOutputImage);
   attributeAffects(aMinBranchTwigLength, aOutputImage);
@@ -417,7 +420,6 @@ MStatus pearlNode::initialize()
   attributeAffects(aMaxWidth, aOutputImage);
   attributeAffects(aOffsetWidth, aOutputImage);
   attributeAffects(aMaxStampWidth, aOutputImage);
-
 
   return (MS::kSuccess);
 }
@@ -441,13 +443,12 @@ MStatus pearlNode::compute(const MPlug &plug, MDataBlock &data)
   mser;
   CImg<unsigned char> *pOutImage = newImageData->fImg;
 
- 
   MFnPluginData fnOut;
   MTypeId kdid(pearlChainData::id);
 
   MDataHandle hOutput = data.outputValue(aOutput, &st);
   mser;
- 
+
   MObject dOut = fnOut.create(kdid, &st);
   pearlChainData *newData = (pearlChainData *)fnOut.data(&st);
   mser;
@@ -509,7 +510,7 @@ MStatus pearlNode::generateFillerChains(
   int w = pInkImage->width();
   int h = pInkImage->height();
 
-  float pixelsToCm = 1.0 / w;
+  // float pixelsToCm = 1.0 / w;
 
   int minBranchLengthPixels = int(data.inputValue(aMinBranchTwigLength).asFloat() * w);
   minBranchLengthPixels = std::max(minBranchLengthPixels, 1);
@@ -524,8 +525,6 @@ MStatus pearlNode::generateFillerChains(
   maxRadiusPixels = std::max(maxRadiusPixels, 1.0f);
 
   float maxStampRadius = data.inputValue(aMaxStampWidth).asFloat() * 0.5;
-  float maxStampRadiusPixels = data.inputValue(aMaxStampWidth).asFloat() * w * 0.5f;
-  maxStampRadiusPixels = std::max(maxStampRadiusPixels, 1.0f);
 
   float radiusOffsetPixels = int(data.inputValue(aOffsetWidth).asFloat() * 0.5 * w);
   int maxIterations = data.inputValue(aMaxIterations).asInt();
@@ -571,7 +570,7 @@ MStatus pearlNode::generateFillerChains(
     }
 
     // draw the chains
-    MFloatMatrix transformation = getTransformProjToImage(w, h);
+    MFloatMatrix transformation = imageTransform(w, h);
 
     std::vector<pearlChain>::const_iterator chainIter = geom->begin() + nChainsBefore;
     for (; chainIter != geom->end(); chainIter++)
@@ -605,10 +604,11 @@ MStatus pearlNode::generateFillerChains(
 
   return MS::kSuccess;
 }
- 
-MFloatMatrix pearlNode::getTransformProjToImage(int w, int h) const
-{
 
+MFloatMatrix pearlNode::imageTransform(int w, int h) const
+{
+  w *= 0.5;
+  h *= 0.5;
   MFloatMatrix flip;
   flip.setToIdentity();
   flip[0][0] = w;
@@ -620,18 +620,18 @@ MFloatMatrix pearlNode::getTransformProjToImage(int w, int h) const
 }
 
 void pearlNode::draw(M3dView &view,
-					   const MDagPath &path,
-					   M3dView::DisplayStyle style,
-					   M3dView::DisplayStatus status)
+                     const MDagPath &path,
+                     M3dView::DisplayStyle style,
+                     M3dView::DisplayStatus status)
 {
 }
 
 bool pearlNode::isBounded() const
 {
-	return false;
+  return false;
 }
 
 MBoundingBox pearlNode::boundingBox() const
 {
-	return MBoundingBox();
+  return MBoundingBox();
 }

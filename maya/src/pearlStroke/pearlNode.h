@@ -64,7 +64,7 @@ private:
     std::vector<pearlChain> *geom, 
     CImg<unsigned char> *pInkImage) const;
 
-  MFloatMatrix  getTransformProjToImage(int w, int h) const;
+  MFloatMatrix  imageTransform(int w, int h) const;
 
   static MObject aImage;
 
