@@ -86,6 +86,8 @@ public:
 	};
 
 	static float interpFloat(const MFloatArray &values, float param);
+	static MColor interpColor(const MColorArray &colors, float param);
+	
 
 	Stroke();
 
@@ -147,6 +149,15 @@ public:
 	int minimumPoints,
 	const MFloatMatrix &rotationMat);
 	
+
+	Stroke(
+	const MPointArray &editPoints,
+	const MFloatArray &originalWeights,
+	const MColorArray &originalColors,
+	float resampleDensity,
+	int minimumPoints,
+	const MFloatMatrix &rotationMat);
+
 	~Stroke();
 
 	void setStrokeId(unsigned rhs);
@@ -406,6 +417,27 @@ inline float Stroke::interpFloat(const MFloatArray &values, float param)
 	float r = t - floor(t);
 	int lindex = int(t);
 	return (values[lindex] * (1 - r)) + (values[(lindex + 1)] * (r));
+}
+
+inline MColor Stroke::interpColor(const MColorArray &colors, float param)
+{
+	int len = colors.length();
+	if (len < 2) {
+		return MColor(1.0f,1.0f,1.0f,1.0f);
+	}
+	int last = (len - 1);
+	if (param >= 1.0f)
+	{
+		return colors[last];
+	}
+	else if (param <= 0.0f)
+	{
+		return colors[0];
+	}
+	float t = param * last;
+	float r = t - floor(t);
+	int lindex = int(t);
+	return (colors[lindex] * (1 - r)) + (colors[(lindex + 1)] * (r));
 }
 
 #endif

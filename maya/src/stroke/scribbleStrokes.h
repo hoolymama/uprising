@@ -5,8 +5,6 @@
 
 #include <maya/MRampAttribute.h>
 
-
-
 #include "strokeMutator.h"
 #include "stroke.h"
 #include "target.h"
@@ -44,6 +42,12 @@ private:
     kTiltTwistBank,
     kTwistBankTilt,
     kBankTiltTwist,
+  };
+
+  enum ColorPropagation
+  {
+    kOverride,
+    kInterpolate
   };
 
   void getMappedValues(
@@ -102,6 +106,11 @@ private:
   static MObject aBankMap;
   static MObject aTwistMap;
   static MObject aRotateOrder;
+
+  static MObject aColorPropagation;
+  static MObject aColorOverride;
+  static MObject aWhiteOverride;
+  static MObject aWeightOverride;
 };
 
 #endif

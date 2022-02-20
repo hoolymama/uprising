@@ -36,6 +36,7 @@ MObject scribbleStrokes::aTargetRotationMatrix;
 MObject scribbleStrokes::aAngle;
 MObject scribbleStrokes::aPointDensity;
 MObject scribbleStrokes::aMinimumPoints;
+
 MObject scribbleStrokes::aRadiusGain;
 MObject scribbleStrokes::aRadiusOffset;
 
@@ -48,6 +49,11 @@ MObject scribbleStrokes::aBankMap;
 MObject scribbleStrokes::aTwistMap;
 
 MObject scribbleStrokes::aRotateOrder;
+
+MObject scribbleStrokes::aColorPropagation;
+MObject scribbleStrokes::aColorOverride;
+MObject scribbleStrokes::aWhiteOverride;
+MObject scribbleStrokes::aWeightOverride;
 
 MTypeId scribbleStrokes::id(k_scribbleStrokes);
 
@@ -164,7 +170,6 @@ MStatus scribbleStrokes::initialize()
   nAttr.setWritable(true);
   nAttr.setDefault(1.0f);
   addAttribute(aTwistMap);
- 
 
   aRotateOrder = eAttr.create("rotateOrder", "ro", scribbleStrokes::kTwistTiltBank);
   eAttr.addField("twistTiltBank", scribbleStrokes::kTwistTiltBank);
@@ -177,8 +182,32 @@ MStatus scribbleStrokes::initialize()
   eAttr.setKeyable(true);
   st = addAttribute(aRotateOrder);
 
-  attributeAffects(aTargetRotationMatrix, aOutput);
+  aColorPropagation = eAttr.create("ColorPropagation", "cpr", scribbleStrokes::kOverride);
+  eAttr.addField("interpolate", scribbleStrokes::kInterpolate);
+  eAttr.addField("kOverride", scribbleStrokes::kOverride);
+  eAttr.setHidden(false);
+  eAttr.setKeyable(true);
+  st = addAttribute(aColorPropagation);
 
+  aColorOverride = nAttr.createColor("colorOverride", "cov");
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aColorOverride);
+
+  aWhiteOverride = nAttr.create("whiteOverride", "whov", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aWhiteOverride);
+
+  aWeightOverride = nAttr.create("weightOverride", "wgov", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aWeightOverride);
+
+  attributeAffects(aTargetRotationMatrix, aOutput);
   attributeAffects(aPointDensity, aOutput);
   attributeAffects(aAngle, aOutput);
   attributeAffects(aRadiusOffset, aOutput);
@@ -191,6 +220,11 @@ MStatus scribbleStrokes::initialize()
   attributeAffects(aBankMap, aOutput);
   attributeAffects(aTwistMap, aOutput);
   attributeAffects(aRotateOrder, aOutput);
+
+  attributeAffects(aColorPropagation, aOutput);
+  attributeAffects(aColorOverride, aOutput);
+  attributeAffects(aWhiteOverride, aOutput);
+  attributeAffects(aWeightOverride, aOutput);
 
   return (MS::kSuccess);
 }
@@ -232,6 +266,12 @@ MStatus scribbleStrokes::mutate(
   float angleCm = float(data.inputValue(aAngle).asAngle().asRadians());
 
   scribbleStrokes::RotateOrder order = scribbleStrokes::RotateOrder(data.inputValue(aRotateOrder).asShort());
+  scribbleStrokes::ColorPropagation propagation = scribbleStrokes::ColorPropagation(data.inputValue(aColorPropagation).asShort());
+
+  MFloatVector rgbOverride = data.inputValue(aColorOverride).asFloatVector();
+  float whiteOverride = data.inputValue(aWhiteOverride).asFloat();
+  float weightOverride = data.inputValue(aWeightOverride).asFloat();
+  MColor colorOverride(rgbOverride[0], rgbOverride[1], rgbOverride[2], whiteOverride);
 
   std::vector<Stroke> sourceStrokes(*strokes);
   strokes->clear();
@@ -243,22 +283,32 @@ MStatus scribbleStrokes::mutate(
   for (; siter != senditer; siter++)
   {
 
-    std::vector<Target>::const_iterator titer = siter->targets().begin();
+    std::vector<Target>::const_iterator titer;
     std::vector<Target>::const_iterator tenditer = siter->targets().end();
-
-    titer = siter->targets().begin();
-    tenditer = siter->targets().end();
-    // MFloatVectorArray tangents;
-    // siter->drawTangents(tangents);
 
     float angle = 0.0f;
     float distance = 0.0f;
-    MPointArray editPoints(siter->size());
+    int len = siter->size();
+    MPointArray editPoints(len);
+    MFloatArray weights(len);
+    MColorArray colors(len);
 
-    std::vector<MFloatMatrix>  scribbleTransforms;
+    bool doInterp = (propagation == scribbleStrokes::kInterpolate);
+    if (doInterp)
+    {
+      titer = siter->targets().begin();
+      unsigned t = 0;
+      for (titer = siter->targets().begin(); titer != tenditer; titer++, t++)
+      {
+        weights.set(titer->weight(), t);
+        colors.set(titer->color(), t);
+      }
+    }
+
+    std::vector<MFloatMatrix> scribbleTransforms;
     calculateScribbleTransforms(*siter, mapIndex, tilts, banks, twists, order, scribbleTransforms);
-
-    for (unsigned t = 0; titer != tenditer; titer++, t++, mapIndex++)
+    unsigned t = 0; 
+    for (titer = siter->targets().begin(); titer != tenditer; titer++, t++, mapIndex++)
     {
       if (titer != siter->targets().begin())
       {
@@ -266,14 +316,28 @@ MStatus scribbleStrokes::mutate(
       }
       angle += (angleCm * distance);
       float radius = (titer->weight() * radiusGain[mapIndex]) + radiusOffset[mapIndex];
-
       MVector z = MFloatVector::zAxis * scribbleTransforms[t];
       MVector tangent = MFloatVector::yAxis * scribbleTransforms[t];
       MQuaternion q(angle, z);
       editPoints.set((titer->position() + (tangent * radius).rotateBy(q)), t);
     }
 
-    Stroke stroke(editPoints, pointDensity, minimumPoints, targetRotationMatrix);
+    Stroke stroke;
+    if (doInterp)
+    {
+      stroke = Stroke(editPoints, weights, colors, pointDensity, minimumPoints, targetRotationMatrix);
+    }
+    else
+    {
+      stroke = Stroke(editPoints, pointDensity, minimumPoints, targetRotationMatrix);
+
+      for ( Stroke::target_iterator ttiter = stroke.targets_begin(); ttiter !=  stroke.targets_end(); ttiter++)
+      {
+        ttiter->setWeight(weightOverride);
+        ttiter->setColor(colorOverride);
+      }
+    }
+
     if (stroke.valid())
     {
       strokes->push_back(stroke);
@@ -391,7 +455,7 @@ void scribbleStrokes::calculateScribbleTransforms(
     for (unsigned m = mapIndex; titer != tenditer; titer++, m++)
     {
       MFloatMatrix mat;
-            getFollowMatrix(*titer, mat);
+      getFollowMatrix(*titer, mat);
       const float &tilt = tilts[m];
       const float &bank = banks[m];
       const float &twist = twists[m];
@@ -408,7 +472,7 @@ void scribbleStrokes::calculateScribbleTransforms(
     {
       MFloatMatrix mat;
       getFollowMatrix(*titer, mat);
-            getFollowMatrix(*titer, mat);
+      getFollowMatrix(*titer, mat);
       const float &tilt = tilts[m];
       const float &bank = banks[m];
       const float &twist = twists[m];
@@ -470,33 +534,32 @@ void scribbleStrokes::calculateScribbleTransforms(
   }
 }
 
-
-void scribbleStrokes::getFollowMatrix(const Target &target, MFloatMatrix & mat) const
+void scribbleStrokes::getFollowMatrix(const Target &target, MFloatMatrix &mat) const
 {
-      mat = target.matrix();
-      mat[3][0] = 0.0;
-      mat[3][1] = 0.0;
-      mat[3][2] = 0.0;
-      mat *=  MFloatMatrix(MQuaternion(MFloatVector::yAxis * mat,target.drawTangent() ).asMatrix().matrix);
+  mat = target.matrix();
+  mat[3][0] = 0.0;
+  mat[3][1] = 0.0;
+  mat[3][2] = 0.0;
+  mat *= MFloatMatrix(MQuaternion(MFloatVector::yAxis * mat, target.drawTangent()).asMatrix().matrix);
 }
 
-void scribbleStrokes::applyTilt(float angle, MFloatMatrix & mat)const
+void scribbleStrokes::applyTilt(float angle, MFloatMatrix &mat) const
 {
-	MFloatVector axis = MFloatVector::xAxis * mat;
-  MFloatMatrix rotMat = MFloatMatrix(	MQuaternion(angle, axis).asMatrix().matrix);
-	mat *=rotMat;
+  MFloatVector axis = MFloatVector::xAxis * mat;
+  MFloatMatrix rotMat = MFloatMatrix(MQuaternion(angle, axis).asMatrix().matrix);
+  mat *= rotMat;
 }
 
-void scribbleStrokes::applyBank(float angle, MFloatMatrix & mat)const
+void scribbleStrokes::applyBank(float angle, MFloatMatrix &mat) const
 {
-	MFloatVector axis = MFloatVector::yAxis * mat;
-  MFloatMatrix rotMat = MFloatMatrix(	MQuaternion(angle, axis).asMatrix().matrix);
-	mat *=rotMat;
+  MFloatVector axis = MFloatVector::yAxis * mat;
+  MFloatMatrix rotMat = MFloatMatrix(MQuaternion(angle, axis).asMatrix().matrix);
+  mat *= rotMat;
 }
 
-void scribbleStrokes::applyTwist(float angle, MFloatMatrix & mat)const
+void scribbleStrokes::applyTwist(float angle, MFloatMatrix &mat) const
 {
-	MFloatVector axis = MFloatVector::zAxis * mat;
-  MFloatMatrix rotMat = MFloatMatrix(	MQuaternion(angle, axis).asMatrix().matrix);
-	mat *=rotMat;
+  MFloatVector axis = MFloatVector::zAxis * mat;
+  MFloatMatrix rotMat = MFloatMatrix(MQuaternion(angle, axis).asMatrix().matrix);
+  mat *= rotMat;
 }

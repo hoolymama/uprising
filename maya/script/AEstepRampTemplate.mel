@@ -1,0 +1,16 @@
+global proc AEstepRampTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "General attributes";		
+	editorTemplate -addControl "numSteps" ;
+	editorTemplate -addControl "range" ;
+	AEaddRampControl("ramp");
+	editorTemplate -endLayout;
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
+

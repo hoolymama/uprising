@@ -62,6 +62,8 @@
 
 
 #include "gateRamp.h"
+#include "stepRamp.h"
+
 #include "rotateTargets.h"
 
 #include "bulgeStrokes.h"
@@ -495,6 +497,11 @@ MStatus initializePlugin(MObject obj)
 							 gateRamp::initialize);
 	msert;
 
+	st = plugin.registerNode("stepRamp", stepRamp::id, stepRamp::creator,
+							 stepRamp::initialize);
+	msert;
+	
+
 	st = plugin.registerNode("imagePoints", imagePoints::id, imagePoints::creator,
 							 imagePoints::initialize, MPxNode::kLocatorNode,
 							 &imagePoints::drawDbClassification);
@@ -590,6 +597,9 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(imagePoints::id);
 	mser;
 
+	st = plugin.deregisterNode(stepRamp::id);
+	mser;
+	
 	st = plugin.deregisterNode(gateRamp::id);
 	mser;
 
