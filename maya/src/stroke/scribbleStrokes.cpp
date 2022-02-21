@@ -249,6 +249,12 @@ MStatus scribbleStrokes::mutate(
   getMappedValues(scribbleStrokes::aRadiusGain, data, points, radiusGain);
   getMappedValues(scribbleStrokes::aRadiusOffset, data, points, radiusOffset);
 
+
+  attributeAffects(aRadiusOffset, aOutput);
+  attributeAffects(aRadiusGain, aOutput);
+  float dummy1 = data.inputValue(aRadiusOffset).asFloat();
+  float dummy2 =  data.inputValue(aRadiusGain).asFloat();
+
   float tilt = float(data.inputValue(aTilt).asAngle().asRadians());
   float bank = float(data.inputValue(aBank).asAngle().asRadians());
   float twist = float(data.inputValue(aTwist).asAngle().asRadians());
