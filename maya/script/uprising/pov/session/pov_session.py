@@ -22,47 +22,63 @@ logger = logging.getLogger("uprising")
 
 
 class PovSession(Session):
-    def __init__(self, stroke_chunk_size, run_on_robot, save_rdk, save_src, program_prefix="pv"):
+    def __init__(self, 
+        stroke_chunk_size, 
+        run_on_robot, 
+        save_rdk, 
+        save_src,
+        start_frame, 
+        end_frame,
+        program_prefix="pv"):
 
-
-        self.painting_node = pm.PyNode("lightPaintingShape")
-        self.stroke_count = pm.lightPaintingQuery(self.painting_node, sc=True)
-
-        self.program_names = []
+        self.frame_range=range(start_frame, end_frame+1)
         self.program_prefix = program_prefix
-
+        self.stroke_chunk_size = stroke_chunk_size
 
         self.run_on_robot = run_on_robot
         self.save_rdk = save_rdk
         self.save_src = save_src
-        
+
         self.directory = None
         if self.save_rdk or self.save_src:
             self.directory = self.choose_session_dir()
             if not self.directory: 
                 print("No file chosen. Aborted")
                 raise ValueError("No valid directory chosen.")
-            self.stroke_chunk_size = stroke_chunk_size or self.stroke_count
-        else:
-            self.stroke_chunk_size = self.stroke_count
 
+        self.painting_node = pm.PyNode("lightPaintingShape")
 
         self.stats = {}
 
     def run(self):
         timer_start = time.time()
-        # CONFIGURE EVERYTHING
-        robo.new()
-        robo.clean("kr8")
-        robo.hide()
-        self.program = PovProgram(self.program_prefix, self.run_on_robot)
-        if not (self.program and self.program.painting and self.program.painting.strokes):
-            raise ValueError("Invalid bot_program. No painting/clusters")
 
-        self.program.configure()
+        all_program_names = []
+        
+        for f in self.frame_range:
+            pm.currentTime(f)
+            stroke_count = pm.lightPaintingQuery(self.painting_node, sc=True)
+            if self.save_rdk or self.save_src:
+                stroke_chunk_size = self.stroke_chunk_size or stroke_count
+            else:
+                stroke_chunk_size = stroke_count
 
-        # SEND
-        self.send_and_publish_pov_program()
+            program_prefix = "{}_f{:03d}".format(self.program_prefix, f)
+            robo.new()
+            robo.clean("kr8")
+            robo.hide()
+            program = PovProgram(program_prefix, self.run_on_robot)
+            if not (program and program.painting and program.painting.strokes):
+                raise ValueError("Invalid bot_program. No painting/clusters")
+
+            program.configure()
+
+            # SEND
+            program_names = self.send_and_publish_pov_program(program, stroke_chunk_size)
+            all_program_names.extend(program_names)
+            
+        if len(all_program_names) > 1:
+            self.orchestrate(self.directory, all_program_names)
 
         duration = int(time.time() - timer_start)
         progress.update(
@@ -76,9 +92,11 @@ class PovSession(Session):
 
         robo.show()
 
-    def send_and_publish_pov_program(self):
-        stroke_count = len(self.program.painting.strokes)
-        num_chunks = int(math.ceil(stroke_count / float(self.stroke_chunk_size)))
+    def send_and_publish_pov_program(self, program, stroke_chunk_size):
+        stroke_count = len(program.painting.strokes)
+        num_chunks = int(math.ceil(stroke_count / float(stroke_chunk_size)))
+
+        program_names = []
 
         # progress.update(
         #     major_max=1,
@@ -92,18 +110,17 @@ class PovSession(Session):
             #     major_progress=i, major_line="Writing {:d} of {:d} chunks".format(i+1, num_chunks))
 
             # self.program.send(0, self.stroke_chunk_size)
-            self.program.send(i, self.stroke_chunk_size)
+            program.send(i, stroke_chunk_size)
             if self.save_src:
-                self.save_program(self.directory, self.program.program_name)
+                self.save_program(self.directory, program.program_name)
             if self.save_rdk:
-                self.save_station(self.directory, self.program.program_name)
+                self.save_station(self.directory, program.program_name)
 
-            self.program_names.append(self.program.program_name)
+            program_names.append(program.program_name)
 
+        return program_names
             # progress.update(major_progress=num_chunks, major_line="Done")
 
-            if len(self.program_names) > 1:
-                self.orchestrate(self.directory, self.program_names)
 
     # def init_progress(self):
     #     progress.update(

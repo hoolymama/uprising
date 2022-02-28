@@ -2,6 +2,7 @@
 from uprising import progress
 import pymel.core as pm
 import pymel.core.uitypes as gui
+from uprising import utils
 
 from uprising.pov.session.pov_session import PovSession
 
@@ -33,6 +34,11 @@ class PovPublishTab(gui.FormLayout):
             annotation="Max number of strokes per painting partial program",
             numberOfFields=1,
             value1=500,
+        )
+        self.anim_cb =  pm.checkBoxGrp(
+            numberOfCheckBoxes=1,
+            label="Animated",
+            changeCommand=pm.Callback(self.on_ops_change)
         )
 
 
@@ -91,20 +97,36 @@ class PovPublishTab(gui.FormLayout):
 
     def on_go(self):
         self.save()
+        do_anim = pm.checkBoxGrp(self.anim_cb, q=True, value1=True)
+
+        if do_anim:
+            start_frame = int(pm.playbackOptions(q=True, min=True))
+            end_frame = int(pm.playbackOptions(q=True, max=True))
+        else:
+            start_frame = pm.currentTime(q=True)
+            end_frame = start_frame
+
+
         stroke_chunk_size = pm.intFieldGrp(
             self.stroke_chunk_if, query=True, value1=True
         )
-
         run_on_robot = pm.checkBoxGrp(self.options_cb, q=True , value1=True)
-        # save_files = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
         save_rdk = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
         save_src = pm.checkBoxGrp(self.options_cb, q=True , value3=True)
 
         try:
-            pov_session = PovSession(stroke_chunk_size, run_on_robot, save_rdk, save_src)
+            pov_session = PovSession(
+                stroke_chunk_size, 
+                run_on_robot, 
+                save_rdk, 
+                save_src,
+                start_frame, 
+                end_frame,
+                program_prefix="pv")
             pov_session.run()
         except ValueError:
             print("PovSession aborted")
+            raise
 
     def populate(self):
 
@@ -117,17 +139,31 @@ class PovPublishTab(gui.FormLayout):
             e=True,
             valueArray3=vals)
 
+        var = ("upov_pov_anim_options", 0)
+        try:
+            val = pm.optionVar.get(var[0], var[1])
+        except:
+            val =  var[1]
+        pm.checkBoxGrp(
+            self.anim_cb,
+            e=True,
+            value1=val)
+
         var = ("upov_pov_pub_chunk_ctl", 500)
         pm.intFieldGrp(
             self.stroke_chunk_if,
             e=True,
             value1=pm.optionVar.get(var[0],var[1]))
 
+
     def save(self):
         # board
 
         var = "upov_pov_pub_options"
         pm.optionVar[var] = pm.checkBoxGrp(self.options_cb, q=True, valueArray3=True)
+
+        var = "upov_pov_anim_options"
+        pm.optionVar[var] = pm.checkBoxGrp(self.anim_cb, q=True, value1=True)
 
         var = "upov_pov_pub_chunk_ctl"
         pm.optionVar[var] = pm.intFieldGrp(
@@ -153,3 +189,5 @@ def find_contributing_stroke_nodes():
     # print "{} of {} skeleton nodes contributing".format(
     #     len(result), len(all_skels))
     # return result
+
+
