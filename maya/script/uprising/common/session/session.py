@@ -95,7 +95,7 @@ class Session(object):
     @staticmethod
     def orchestrate(directory, programs):
         """
-        Write a program to act as orchestrator for several othyer programs.
+        Write a program to act as orchestrator for several other programs.
 
         Writes main.src
         which includes a header and a list of function calls:
