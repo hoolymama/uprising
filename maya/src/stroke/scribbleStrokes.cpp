@@ -209,6 +209,9 @@ MStatus scribbleStrokes::initialize()
 
   attributeAffects(aTargetRotationMatrix, aOutput);
   attributeAffects(aPointDensity, aOutput);
+  attributeAffects(aMinimumPoints, aOutput);
+
+
   attributeAffects(aAngle, aOutput);
   attributeAffects(aRadiusOffset, aOutput);
   attributeAffects(aRadiusGain, aOutput);
