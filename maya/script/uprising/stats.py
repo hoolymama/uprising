@@ -67,12 +67,39 @@ def painting_stats(node):
     }
     return result
 
+def light_painting_stats(node):
+
+    stroke_count = pm.lightPaintingQuery(node, sc=True)
+    arclen = 0
+    target_count = 0
+    for i in  range(stroke_count):
+        arclen += pm.lightPaintingQuery(node, si=i, strokeArcLength=True)
+        target_count += len(pm.lightPaintingQuery(node, si=i, wat=True))
+
+    avg_arclen = arclen / float(stroke_count) 
+    avg_target_count =  target_count / float(stroke_count) 
+    result = {
+        "stroke_count": stroke_count,
+        "total_arc_length": arclen,
+        "average_arc_length": avg_arclen,
+        "total_target_count": target_count,
+        "average_target_count": avg_target_count,
+        "linear_speed": node.attr("linearSpeed").get(),
+        "angular_speed": node.attr("angularSpeed").get(),
+    }
+    return result
+
 
 def stats():
     result = {}
 
+    if pm.objExists("lightPaintingShape"):
+        painting_node = pm.PyNode("lightPaintingShape")
+        result["light_painting_node"] = light_painting_stats(painting_node)
+        return result
+
     painting_node = pm.PyNode("mainPaintingShape")
-   
+
     result["brush_paint_pairs"] = []
     for brush, paint, pot_id in used_pots_paints_and_brushes(painting_node):
         result["brush_paint_pairs"].append(
@@ -109,7 +136,7 @@ def stats():
 
     return result
 
-
+    
 
 def stats_per_brush():
     result = {}
