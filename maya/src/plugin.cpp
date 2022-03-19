@@ -36,6 +36,7 @@
 
 #include "tiltStrokes.h"
 #include "mapColorStrokes.h"
+#include "decimateStrokes.h"
 #include "scribbleStrokes.h"
 #include "strokeMutator.h"
 
@@ -460,6 +461,9 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("mapColorStrokes", mapColorStrokes::id, mapColorStrokes::creator,
 							 mapColorStrokes::initialize);
 	mser;
+	st = plugin.registerNode("decimateStrokes", decimateStrokes::id, decimateStrokes::creator,
+							 decimateStrokes::initialize);
+	mser;
 
 	st = plugin.registerNode("scribbleStrokes", scribbleStrokes::id, scribbleStrokes::creator,
 							 scribbleStrokes::initialize);
@@ -625,6 +629,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(scribbleStrokes::id);
+	mser;
+
+	st = plugin.deregisterNode(decimateStrokes::id);
 	mser;
 
 	st = plugin.deregisterNode(mapColorStrokes::id);

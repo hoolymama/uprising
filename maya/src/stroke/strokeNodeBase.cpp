@@ -259,6 +259,27 @@ void strokeNodeBase::getTargetPoints(
   }
 }
 
+void strokeNodeBase::getSpanPoints(
+    const std::vector<Stroke> *geom,
+    MFloatPointArray &result) const
+{
+  for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter !=  geom->end(); iter++)
+  {
+    const std::vector<Target> targets = iter->targets();
+    MFloatPoint lastPos = targets[0].position();
+
+    std::vector<Target>::const_iterator targetIter = std::next(targets.begin());
+    for (; targetIter != targets.end(); targetIter++)
+    {
+      MFloatPoint thisPos = targetIter->position();
+      result.append( (thisPos + lastPos) /2.0f  );
+      lastPos = thisPos;
+    }
+  }
+}
+
+
+
 bool strokeNodeBase::setFilterMapColor(std::vector<Stroke> *geom) const
 {
   MStatus st;

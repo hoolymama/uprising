@@ -34,6 +34,11 @@ protected:
       const std::vector<Stroke> *geom,
       MFloatPointArray &result) const;
 
+  void getSpanPoints(
+      const std::vector<Stroke> *geom,
+      MFloatPointArray &result) const;
+
+
   void cullStartEnd(MDataBlock &data, std::vector<Stroke> *geom) const;
 
   static MObject aStrokeSortKey;
