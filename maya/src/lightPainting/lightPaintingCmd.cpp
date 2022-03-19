@@ -100,9 +100,6 @@ MStatus lightPaintingCmd::doIt(const MArgList &args)
 
 	std::vector<Stroke> *pStrokes = ptd->strokes();
 
-	cerr << "pStrokes->size():" << pStrokes->size() << endl;
-	// Brush *pBrush = ptd->brush();
-
 	if (!(pStrokes && pStrokes->size()))
 	{
 		displayError("No valid painting strokes geometry.");
@@ -151,10 +148,11 @@ MStatus lightPaintingCmd::doIt(const MArgList &args)
 	if (argData.isFlagSet(kStrokeColorsFlag))
 	{
 		MPlug colorGainPlug = paintingFn.findPlug("colorGain", true, &st);
-		MPlug whiteGainPlug = paintingFn.findPlug("waitGain", true, &st);
+		MPlug whiteGainPlug = paintingFn.findPlug("whiteGain", true, &st);
 		float colorGain, whiteGain;
 		colorGainPlug.getValue(colorGain);
 		whiteGainPlug.getValue(whiteGain);
+
 		return handleStrokeColorsFlag(*pStrokes, argData, colorGain, whiteGain);
 	}
 
@@ -408,7 +406,7 @@ MStatus lightPaintingCmd::handleStrokeColorsFlag(
 	for (size_t i = 0; i < colors.length(); i++)
 	{
 		MColor &c = colors[i];
-		c = MColor(c.r * colorGain, c.g * colorGain, c.b * colorGain, c.a * whiteGain);
+		colors[i] = MColor(c.r * colorGain, c.g * colorGain, c.b * colorGain, c.a * whiteGain);
 	}
 	MDoubleArray result;
 	CmdUtils::flatten(colors, result);
