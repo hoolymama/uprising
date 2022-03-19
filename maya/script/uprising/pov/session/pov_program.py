@@ -73,4 +73,4 @@ class PovProgram(Program):
             self.program.addMoveJ(robo.home_approach)
             # To allow the camera to send the image to the computer, we wait 30 seconds before
             # starting another painting. This may not be needed.
-            self.program.pause(30000)
+            self.program.Pause(30000)
