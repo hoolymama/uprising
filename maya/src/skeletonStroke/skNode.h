@@ -92,8 +92,8 @@ public:
 
 typedef std::vector < skNode *> TWIG;
 typedef std::vector < TWIG  > TWIG_CLUSTER;
-typedef std::map <   skNode *, TWIG_CLUSTER >
-CLUSTERS; // skNode * is the junction these twigs meet at
+typedef std::map <   skNode *, TWIG_CLUSTER > CLUSTERS; 
+// skNode * is the junction these twigs meet at
 
 
 #endif
