@@ -232,6 +232,9 @@ MObject pearlNode::aMaxWidth;
 MObject pearlNode::aMaxStampWidth;
 MObject pearlNode::aOffsetWidth;
 
+MObject pearlNode::aLongestChain;
+
+
 // Display
 MObject pearlNode::aPointSize;
 MObject pearlNode::aColor1;
@@ -349,6 +352,17 @@ MStatus pearlNode::initialize()
   st = addAttribute(aPointSize);
   mser;
 
+
+  // Display
+  aLongestChain = nAttr.create("longestChain", "lch", MFnNumericData::kBoolean);
+  nAttr.setDefault(false);
+  nAttr.setKeyable(true);
+  st = addAttribute(aLongestChain);
+  mser;
+
+
+
+
   aColor1 = nAttr.createColor("drawColor1", "dc1");
   nAttr.setStorable(true);
   nAttr.setKeyable(true);
@@ -411,6 +425,7 @@ MStatus pearlNode::initialize()
   attributeAffects(aMaxWidth, aOutput);
   attributeAffects(aOffsetWidth, aOutput);
   attributeAffects(aMaxStampWidth, aOutput);
+  attributeAffects(aLongestChain, aOutput);
 
   attributeAffects(aImage, aOutputImage);
   attributeAffects(aMaxIterations, aOutputImage);
@@ -420,6 +435,7 @@ MStatus pearlNode::initialize()
   attributeAffects(aMaxWidth, aOutputImage);
   attributeAffects(aOffsetWidth, aOutputImage);
   attributeAffects(aMaxStampWidth, aOutputImage);
+  attributeAffects(aLongestChain, aOutputImage);
 
   return (MS::kSuccess);
 }
@@ -496,19 +512,11 @@ MStatus pearlNode::generate(
 
   pInkImage->assign(pImage->get_norm().normalize(0, 1));
 
-  st = generateFillerChains(data, geom, pInkImage);
+  // st = generateFillerChains(data, geom, pInkImage);
 
-  return MS::kSuccess;
-}
 
-MStatus pearlNode::generateFillerChains(
-    MDataBlock &data,
-    std::vector<pearlChain> *geom,
-    CImg<unsigned char> *pInkImage) const
-{
-
-  int w = pInkImage->width();
-  int h = pInkImage->height();
+  // int w = pInkImage->width();
+  // int h = pInkImage->height();
 
   // float pixelsToCm = 1.0 / w;
 
@@ -528,6 +536,8 @@ MStatus pearlNode::generateFillerChains(
 
   float radiusOffsetPixels = int(data.inputValue(aOffsetWidth).asFloat() * 0.5 * w);
   int maxIterations = data.inputValue(aMaxIterations).asInt();
+
+  bool longestChain = data.inputValue(aLongestChain).asBool();
 
   int lastNumNewChains = 999999;
   for (int i = 0; i < maxIterations; ++i)
@@ -549,17 +559,21 @@ MStatus pearlNode::generateFillerChains(
     skGraph g(mat); // build
     // now we have the Medial Axis Transform (mat) and (image)
 
-    g.prune(minBranchLengthPixels);
-    g.removeLooseTwigs(minLooseTwigLengthPixels);
+    if (longestChain) {
+      g.trimToLongestChain();
+      g.prune(minBranchLengthPixels);
+      g.removeLooseTwigs(minLooseTwigLengthPixels);
+    } else {
+      g.prune(minBranchLengthPixels);
+      g.removeLooseTwigs(minLooseTwigLengthPixels);
+      g.adjustRadius(radiusOffsetPixels, maxRadiusPixels);
+      g.detachBranches();
+    }
 
     if (!g.numNodes())
     {
       break;
     }
-
-    g.adjustRadius(radiusOffsetPixels, maxRadiusPixels);
-
-    g.detachBranches();
 
     int nChainsBefore = geom->size();
     int numAdded = g.getChains(*geom, spanPixels);
@@ -602,8 +616,19 @@ MStatus pearlNode::generateFillerChains(
     }
   }
 
+
   return MS::kSuccess;
 }
+
+// MStatus pearlNode::generateFillerChains(
+//     MDataBlock &data,
+//     std::vector<pearlChain> *geom,
+//     CImg<unsigned char> *pInkImage) const
+// {
+
+
+//   return MS::kSuccess;
+// }
 
 MFloatMatrix pearlNode::imageTransform(int w, int h) const
 {

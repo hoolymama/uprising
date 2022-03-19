@@ -35,6 +35,7 @@ public:
     void getRadius(MDoubleArray &result) const;
     bool hasJunctions() const;
 
+
     int getChains(const MFloatMatrix &projection,
                    std::vector<skChain> &chains,
                    int step);
@@ -58,6 +59,8 @@ public:
 
     void prune(int minBranchLength);
     void detachBranches();
+
+    void  trimToLongestChain();
 
     void verify() const;
     void betterPrune(int minBranchLength);

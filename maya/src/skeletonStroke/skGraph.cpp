@@ -48,6 +48,7 @@ skGraph::skGraph(const CImg<float> &inImage) : m_nodes(),
     kernel.push_back(coord(1, -1));
     kernel.push_back(coord(0, -1));
 
+    // Black and white image
     CImg<bool> image = inImage.get_threshold(0.5);
 
     int nWhitePixels = image.sum();
@@ -55,6 +56,7 @@ skGraph::skGraph(const CImg<float> &inImage) : m_nodes(),
     float radius;
     while (nWhitePixels > 0)
     {
+        // march through the image looking for white
         coord whitePixel = findWhitePixel(start, image);
         if (!whitePixel.valid(m_width, m_height))
         {
@@ -96,7 +98,6 @@ skGraph::skGraph(const CImg<float> &inImage) : m_nodes(),
         start = whitePixel;
     }
 }
-
 
 skGraph::~skGraph()
 {
@@ -152,7 +153,6 @@ void skGraph::draw(CImg<unsigned char> &image, float maxStampRadiusPixels, int s
     }
 }
 
-
 void skGraph::adjustRadius(float offset, float maxRadius)
 {
     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
@@ -160,10 +160,9 @@ void skGraph::adjustRadius(float offset, float maxRadius)
          iter++)
     {
         skNode *node = iter->second;
-        node->radius = std::max(0.0f, std::min(node->radius+offset, maxRadius));
+        node->radius = std::max(0.0f, std::min(node->radius + offset, maxRadius));
     }
 }
-
 
 skNode *skGraph::_addNode(int x, int y, int z, float radius)
 {
@@ -343,6 +342,7 @@ void skGraph::_splitOff(skNode *node, skNode *a, skNode *b, int z)
     _connect(newCoord, b->c);
 }
 
+ 
 void skGraph::_deleteNode(skNode *node)
 {
     std::map<coord, skNode *>::iterator neighborIt, meIt;
@@ -392,19 +392,18 @@ bool skGraph::hasJunctions() const
 int skGraph::getChains(
     const MFloatMatrix &projection,
     std::vector<skChain> &chains,
-    int span
-    )
+    int span)
 
 {
     if (span < 1)
     {
         span = 1;
     }
- 
+
     float pixelWidth = projection[0][0] * 2.0 / float(m_width);
 
     MFloatVector half(m_width * 0.5, m_height * 0.5);
- 
+
     MFloatMatrix norm;
     norm.setToIdentity();
     norm[0][0] = half.x;
@@ -413,7 +412,7 @@ int skGraph::getChains(
     norm[3][1] = half.y;
 
     int added = 0;
- 
+
     MFloatMatrix transformation = norm.inverse() * projection;
     /*
     Loop through nodes, looking for endpoints that we havent seen yet.
@@ -442,7 +441,8 @@ int skGraph::getChains(
                 auto neighbor_iter = std::find_if(
                     curr->neighbors.begin(),
                     curr->neighbors.end(),
-                    [](const std::pair<coord, skNode *> &p) -> bool {
+                    [](const std::pair<coord, skNode *> &p) -> bool
+                    {
                         return p.second->seen == false;
                     });
 
@@ -470,22 +470,20 @@ int skGraph::getChains(
     return added;
 }
 
-
 int skGraph::getChains(
     std::vector<pearlChain> &chains,
-    int span
-    )
+    int span)
 
 {
     if (span < 1)
     {
         span = 1;
     }
- 
+
     float pixelWidth = 2.0 / float(m_width);
 
     MFloatVector half(m_width * 0.5, m_height * 0.5);
- 
+
     MFloatMatrix norm;
     norm.setToIdentity();
     norm[0][0] = half.x;
@@ -494,7 +492,7 @@ int skGraph::getChains(
     norm[3][1] = half.y;
 
     int added = 0;
- 
+
     MFloatMatrix transformation = norm.inverse();
     /*
     Loop through nodes, looking for endpoints that we havent seen yet.
@@ -523,7 +521,8 @@ int skGraph::getChains(
                 auto neighbor_iter = std::find_if(
                     curr->neighbors.begin(),
                     curr->neighbors.end(),
-                    [](const std::pair<coord, skNode *> &p) -> bool {
+                    [](const std::pair<coord, skNode *> &p) -> bool
+                    {
                         return p.second->seen == false;
                     });
 
@@ -550,7 +549,6 @@ int skGraph::getChains(
     _resetSeen();
     return added;
 }
-
 
 bool _compareTwigLength(const TWIG &a, const TWIG &b)
 {
@@ -589,24 +587,6 @@ void skGraph::prune(int minBranchLength)
     }
 }
 
-void skGraph::_pruneTwig(TWIG &twig, skNode *junction)
-{
-    /*
-        The twig we want to be deleted maybe connected to a junction
-    */
-    if (junction)
-    {
-        _disconnect(junction, twig.back());
-    }
-    std::map<coord, skNode *>::iterator it;
-    for (TWIG::iterator twigiter = twig.begin(); twigiter != twig.end(); twigiter++)
-    {
-        it = m_nodes.find((*twigiter)->c);
-        delete it->second;
-        m_nodes.erase(it);
-    }
-}
-
 void skGraph::_getTwigClusters(int minBranchLength, CLUSTERS &twigClusters)
 {
     for (std::map<coord, skNode *>::const_iterator mapiter = m_nodes.begin();
@@ -633,7 +613,8 @@ void skGraph::_getTwigClusters(int minBranchLength, CLUSTERS &twigClusters)
                 auto nextNodeIt = std::find_if(
                     curr->neighbors.begin(),
                     curr->neighbors.end(),
-                    [](const std::pair<coord, skNode *> &p) -> bool { return p.second->seen == false; });
+                    [](const std::pair<coord, skNode *> &p) -> bool
+                    { return p.second->seen == false; });
                 //////////////////////////////////////////
 
                 //////////////// OTHER END /////////////////////
@@ -651,6 +632,104 @@ void skGraph::_getTwigClusters(int minBranchLength, CLUSTERS &twigClusters)
     }
     _resetSeen();
 }
+
+void skGraph::trimToLongestChain()
+{
+   
+    TWIG_CLUSTER walks;
+
+    // Initialize the TWIGS with all the ends nodes.
+    for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
+         iter != m_nodes.end();
+         iter++)
+    {
+        if (iter->second->isEnd())
+        {
+            TWIG walk;
+            iter->second->seen = true;
+            walk.push_back(iter->second); // The end node pointer.
+            walks.push_back(walk);
+        }
+    }
+
+    // Now itrate all twigs from the ends in parallel.
+    while (true) {
+
+        bool finished = true;
+        // Walk all twigs
+        for( TWIG_CLUSTER::iterator pTwig = walks.begin(); pTwig !=  walks.end(); pTwig++)
+        {
+            if (pTwig->size() < 1) {
+                // It's been emptied - ignore;
+                continue;
+            }
+            finished = false;
+        
+            skNode * pCurr = pTwig->back();
+            pCurr->seen = true;
+            
+            std::vector<skNode *> currNeighbors;
+            pCurr->getUnseenNeighbors(currNeighbors);
+            // Should be 1 or 0 unseen neighbors.
+            int numNeighbors = currNeighbors.size();
+            if (numNeighbors == 0) 
+            {
+                // We hit the end, which is to say, we hit another twig coming the other way. 
+                // Clear this twig but don't prune from the map. 
+                pTwig->clear();
+            } else if  (numNeighbors == 1)
+            {
+                // There is a neighbor to look at
+                // If it is a junction, then we are not one of the last two to arrive here, since all
+                // previous arrivals would have deleted themselves.
+                skNode * pNext = currNeighbors[0];
+                int degree = pNext->neighbors.size();
+                if (degree > 2)
+                { 
+                    // Its a junction, so prune and clear 
+                    _pruneTwig(*pTwig, pNext);
+                    pTwig->clear();
+                } else {
+                    // move one step along 
+                    pNext->seen = true;
+                    pTwig->push_back(pNext);
+                }
+            } else 
+            {
+                cerr << "WE SHOULD NOT BE HERE" << endl;
+                finished = true;
+            }
+        }
+
+        if (finished) 
+        {
+            break;
+        }
+    }
+    _resetSeen();
+
+}
+
+void skGraph::_pruneTwig(TWIG &twig, skNode *junction)
+{
+    /*
+        The twig we want to be deleted maybe connected to a junction
+    */
+    if (junction)
+    {
+        _disconnect(junction, twig.back());
+    }
+    std::map<coord, skNode *>::iterator it;
+    for (TWIG::iterator twigiter = twig.begin(); twigiter != twig.end(); twigiter++)
+    {
+        it = m_nodes.find((*twigiter)->c);
+        delete it->second;
+        m_nodes.erase(it);
+    }
+}
+
+
+
 
 void skGraph::removeLooseTwigs(int minTwigLength)
 {
@@ -683,7 +762,8 @@ void skGraph::removeLooseTwigs(int minTwigLength)
                 auto nextNodeIt = std::find_if(
                     curr->neighbors.begin(),
                     curr->neighbors.end(),
-                    [](const std::pair<coord, skNode *> &p) -> bool { return p.second->seen == false; });
+                    [](const std::pair<coord, skNode *> &p) -> bool
+                    { return p.second->seen == false; });
 
                 if (nextNodeIt == curr->neighbors.end())
                 {
