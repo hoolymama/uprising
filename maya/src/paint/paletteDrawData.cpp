@@ -2,8 +2,7 @@
 
 
 
-PaletteDrawData::PaletteDrawData()
-	: MUserData(false) {}
+PaletteDrawData::PaletteDrawData() {}
 
 PaletteDrawData::~PaletteDrawData() {}
 

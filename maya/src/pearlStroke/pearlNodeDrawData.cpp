@@ -2,8 +2,7 @@
 
 
 
-pearlNodeDrawData::pearlNodeDrawData()
-	: MUserData(false) {}
+pearlNodeDrawData::pearlNodeDrawData(){}
 
 pearlNodeDrawData::~pearlNodeDrawData() {}
 

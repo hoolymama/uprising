@@ -2,8 +2,7 @@
 
 
 
-PaintingDrawData::PaintingDrawData()
-	: MUserData(false) {}
+PaintingDrawData::PaintingDrawData() {}
 
 PaintingDrawData::~PaintingDrawData() {}
 

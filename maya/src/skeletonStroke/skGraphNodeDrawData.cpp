@@ -2,8 +2,8 @@
 
 
 
-skGraphNodeDrawData::skGraphNodeDrawData()
-	: MUserData(false) {}
+skGraphNodeDrawData::skGraphNodeDrawData() {}
 
 skGraphNodeDrawData::~skGraphNodeDrawData() {}
+
 
