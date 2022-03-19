@@ -31,7 +31,7 @@ def on_split_outputs():
         chain_skel_pairs = utils.get_chain_skel_pairs()
         chains.chunkify_skels(chain_skel_pairs, max_chains)
         return
-    print "Operation cancelled."
+    print("Operation cancelled.")
 
 
 def on_reset():

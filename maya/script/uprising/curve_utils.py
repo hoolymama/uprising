@@ -1,13 +1,13 @@
 
 import pymel.core as pm
-import stroke_factory_utils as sfu
-from brush import Brush
+from uprising import stroke_factory_utils as sfu
+from uprising.brush import Brush
 import re
 import math
 import random
 import logging
 from uprising.sequence import Sequence
-from wrandom import StepRandomizer
+from uprising.wrandom import StepRandomizer
 
 
 logger = logging.getLogger('uprising')
@@ -75,13 +75,13 @@ def get_strokes_destination(curve):
         d=True,
         s=False,
         type="curveStroke")
-    print "curveStrokes"
-    print conns
+    print("curveStrokes")
+    print(conns)
     conns = pm.listConnections(
         conns[0].attr("output"), d=True, s=False, type=[
             "painting", "collectStrokes"])
-    print "destinations"
-    print conns
+    print("destinations")
+    print(conns)
     return conns[0]
 
 
@@ -302,7 +302,7 @@ def delete_strokes_from(nodes):
 
 
 def remove_unconnected_curve_plugs(painting):
-    print "remove_unconnected_curve_plugs %s" % painting
+    print("remove_unconnected_curve_plugs %s" % painting)
     stroke_curves = pm.listConnections(
         painting, s=True, d=False, type="curveStroke")
     for sc in stroke_curves:
@@ -316,13 +316,13 @@ def remove_unconnected_curve_plugs(painting):
             conn[0] // conn[1]
 
     for i in painting.attr("strokes").getArrayIndices():
-        print "index %s" % i
+        print("index %s" % i)
         plug = painting.attr("strokes[%d]" % i)
         conns = pm.listConnections(plug, s=True, d=False)
-        print "conns"
-        print conns
+        print("conns")
+        print(conns)
         if not len(conns):
-            print "removing %s" % plug
+            print("removing %s" % plug)
             pm.removeMultiInstance(plug, b=True)
         else:
             sc = conns[0]
@@ -408,7 +408,7 @@ def do_random_existing(
 
     randomizer = StepRandomizer(steps, power)
 
-    curve_packs = zip(curves, orig_ids)
+    curve_packs = list(zip(curves, orig_ids))
 
     for c in curve_packs:
         curve, orig_index = c
@@ -534,7 +534,7 @@ def _randomize(
         brush_ids,
         do_keys):
 
-    curves, brush_ids, paint_ids = zip(*curve_packs)
+    curves, brush_ids, paint_ids = list(zip(*curve_packs))
 
     if random_paint_params:
         _assign_random_resource(
@@ -793,7 +793,7 @@ def curve_vis_active_connection(curves, connect=True):
             else:
                 curve.attr("visibility") // stroke_curve.attr("active")
         except BaseException as ex:
-            print ex
+            print(ex)
 
 
 def hide_objects(obs):

@@ -56,13 +56,13 @@ def _resolve_frames(*args):
                 if step < 1:
                     raise ValueError("Spec must have positive step values")
                 first, last = sorted([first, last])
-                frames += range(first, last + 1, step)
+                frames += list(range(first, last + 1, step))
     else:  # args are inclusive range
         first, last = sorted([int(n) for n in [args[0], args[1]]])
         step = int(args[2]) if len(args) == 3 else 1
         if step < 1:
             raise ValueError("Step arg must be positive")
-        frames = range(first, last + 1, step)
+        frames = list(range(first, last + 1, step))
     return sorted(set(frames))
 
 
@@ -87,9 +87,9 @@ class Sequence(object):
     @staticmethod
     def permutations(template, **kw):
         for vals in itertools.product(
-            *(iter(Sequence.create(spec)) for spec in kw.values())
+            *(iter(Sequence.create(spec)) for spec in list(kw.values()))
         ):
-            subs = dict(zip(kw, vals))
+            subs = dict(list(zip(kw, vals)))
             yield template % subs
 
     @classmethod
@@ -452,7 +452,7 @@ class Sequence(object):
 
 class Progression(Sequence):
     def __init__(self, _shield, start, end, step, **kw):
-        self._iterable = range(start, end + 1, step)
+        self._iterable = list(range(start, end + 1, step))
         self.chunk_size = kw.get("chunk_size", -1)
         self._chunk_strategy = kw.get("chunk_strategy", "linear")
 

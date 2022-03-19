@@ -1,7 +1,7 @@
 import pymel.core as pm
 import re
 
-import utils as uutl
+from uprising import utils as uutl
 import robodk as rdk
 from uprising import robo
 from robolink import (ITEM_TYPE_ROBOT)

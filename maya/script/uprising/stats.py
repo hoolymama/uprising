@@ -1,6 +1,6 @@
 import pymel.core as pm
-from paint import Paint
-from brush import Brush
+from uprising.paint import Paint
+from uprising.brush import Brush
 
 
 def _used_paints(painting_node):
@@ -33,7 +33,7 @@ def used_pots_paints_and_brushes(painting_node):
     _used_paints = [paints[_id] for _id in paintids]
     _used_brushes = [brushes[_id] for _id in bids]
 
-    return zip(_used_brushes, _used_paints, _used_pots)
+    return list(zip(_used_brushes, _used_paints, _used_pots))
 
 
 def painting_stats(node):

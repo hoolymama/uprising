@@ -3,6 +3,7 @@ from robolink import (
     Robolink,
     ITEM_TYPE_ROBOT
 )
+import importlib
 
 RL = Robolink()
 # Move a robot along a line given a start and end point by steps
@@ -64,7 +65,7 @@ RL.Render(False)
 
 # Automatically delete previously generated items (Auto tag)
 list_items = RL.ItemList()  # list all names
-print list_items
+print(list_items)
 for item in list_items:
     if item.Name().startswith('Auto'):
         # RL.Item(item_name).Delete()
@@ -90,7 +91,7 @@ robot.setPoseFrame(reference)
 # get the current orientation of the robot (with respect to the active
 # reference frame and tool frame)
 pose_ref = robot.Pose()
-print(Pose_2_TxyzRxyz(pose_ref))
+print((Pose_2_TxyzRxyz(pose_ref)))
 # a pose can also be defined as xyzwpr / xyzABC
 #pose_ref = TxyzRxyz_2_Pose([100,200,300,0,0,pi])
 
@@ -121,7 +122,7 @@ for i in range(len(POINTS)):
 
     # Add the target as a Linear/Joint move in the new program
 
-    print ti
+    print(ti)
     prog.addMoveL(ti)
 
 # Hide the target items from the tree: it each movement still keeps its own target.
@@ -161,9 +162,9 @@ ROBODK_PATH = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/MacOS/RoboDK")
 _link = Robolink(robodk_path=ROBODK_PATH)
 _robot = _link.Item("", ITEM_TYPE_ROBOT)
 prog =  _link.Item("", ITEM_TYPE_PROGRAM)
-print prog.Name()
+print(prog.Name())
 update_result = prog.Update(COLLISION_OFF)
-print update_result
+print(update_result)
 
 ##################
 
@@ -172,7 +173,7 @@ from uprising import (utils, robo, progress)
 from uprising.bot.session import configurator
 from uprising.bot.session.bot_program import BotProgram, BotRetryProgram
 
-reload (configurator)
+importlib.reload (configurator)
 
 robo.new()
 robo.show()
@@ -183,7 +184,7 @@ with uutl.prep_for_output():
     program.configure()
     program.send()
     path_result = program.validate_path() 
-    print path_result
+    print(path_result)
 
 
 import pymel.core as pm

@@ -1,5 +1,5 @@
 import pymel.core as pm
-from brush import Brush
+from uprising.brush import Brush
 
 
 def connect_skels(painting, skels):

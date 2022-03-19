@@ -29,7 +29,7 @@ class PovProgram(Program):
     def send(self, chunk_id, chunk_length):
         if not self.painting.strokes:
             return
-        print("SEND....", chunk_id)
+        print(("SEND....", chunk_id))
         self.bump_program_name(chunk_id)
         super(PovProgram, self).send()
 

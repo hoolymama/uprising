@@ -127,4 +127,4 @@ class KeysTab(gui.FormLayout):
         _activate_all_nodes(nodes)
 
         for val in vals:
-            print "frame:%d parent:%d brush:%d" % tuple(val)
+            print("frame:%d parent:%d brush:%d" % tuple(val))

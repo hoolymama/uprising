@@ -47,24 +47,24 @@ class Session(object):
         """
         Write lines into a program to tell it to include the ghiven subprograms.
         """
-        print "Writing Externals", subprograms
+        print("Writing Externals", subprograms)
         func = os.path.splitext(os.path.basename(src_filename))[0]
         func = "DEF {}".format(func)
         ext_lines = ["EXT {}()".format(s) for s in subprograms]
         search = True
         for line in fileinput.FileInput(src_filename, inplace=1):
-            print line,
+            print(line, end=' ')
             if search and line.startswith(func):
                 search = False
                 for ext in ext_lines:
-                    print ext
+                    print(ext)
 
     @staticmethod
     def save_program(directory, program_name):
         src = os.path.join(directory, "src")
         uutl.mkdir_p(src)
         src_filename = robo.write_program(src, program_name)
-        print "Wrote src: {}".format(program_name)
+        print("Wrote src: {}".format(program_name))
         return src_filename
 
     @staticmethod
@@ -72,7 +72,7 @@ class Session(object):
         rdk = os.path.join(directory, "rdk")
         uutl.mkdir_p(rdk)
         rdk_fn = robo.write_station(rdk, program_name)
-        print "Wrote rdk: {}".format(program_name)
+        print("Wrote rdk: {}".format(program_name))
         return rdk_fn
 
     @staticmethod
@@ -117,7 +117,7 @@ class Session(object):
             for program in programs:
                 ofile.write("{}( )\n".format(program))
             ofile.write("END\n")
-        print "Wrote orchestrator file: {}".format(orchestrator_file)
+        print("Wrote orchestrator file: {}".format(orchestrator_file))
 
     @staticmethod
     def json_report(directory, name, data):

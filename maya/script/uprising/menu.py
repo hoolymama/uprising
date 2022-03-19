@@ -4,6 +4,7 @@ import os
 import glob
 
 from uprising import window
+import importlib
 
 MAYA_PARENT_WINDOW = "MayaWindow"
 HOOLY_MENU = "HoolyMenu"
@@ -52,7 +53,7 @@ class UprisingMenu(object):
 
 
 def show_robot_window():
-    reload(window)
+    importlib.reload(window)
     window.RobotWindow()
 
 

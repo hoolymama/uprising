@@ -1,7 +1,7 @@
 import pymel.core as pm
 import uprising.maya_util as mutil
 import robodk as rdk
-import robo
+from uprising import robo
 
 from robolink import ITEM_TYPE_TARGET
 
@@ -115,7 +115,4 @@ def send_tool(transform):
         shape.setColor(list(color))
         tool_item.AddGeometry(shape, rdk.eye())
         shape.Delete()
-        # shape.setParent(parent)
-        # shape.setName(name)
-        # shape.setVisible(True, visible_frame=False)
-
+ 

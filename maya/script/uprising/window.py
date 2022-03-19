@@ -2,7 +2,8 @@ import pymel.core.uitypes as gui
 import pymel.core as pm
 
 from uprising import reloader
-reload(reloader)
+import importlib
+importlib.reload(reloader)
 
 
 from uprising import (

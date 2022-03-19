@@ -1,8 +1,8 @@
 import sys
 import json
 import pymel.core as pm
-import utils as uutl
-import curve_utils as cutl
+from uprising import utils as uutl
+from uprising import curve_utils as cutl
 import pymel.core.uitypes as gui
 
 
@@ -145,7 +145,7 @@ class probesTab(gui.FormLayout):
         self.attachForm(go_but, "bottom", 2)
 
     def on_focus(self, which, index):
-        print "on_focus", which, index
+        print("on_focus", which, index)
 
     def on_spare(self):
         pass

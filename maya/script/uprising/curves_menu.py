@@ -1,7 +1,7 @@
 
 import pymel.core as pm
 
-import curve_utils as cutl
+from uprising import curve_utils as cutl
 
 
 def create():
@@ -189,8 +189,8 @@ def reverse_connection_order():
     for conn in painting_conns:
         conn[0] // conn[1]
 
-    c1, c2 = zip(*painting_conns)
-    painting_conns = zip(list(c1), reversed(list(c2)))
+    c1, c2 = list(zip(*painting_conns))
+    painting_conns = list(zip(list(c1), reversed(list(c2))))
 
     for conn in painting_conns:
         conn[0] >> conn[1]
@@ -226,7 +226,6 @@ def on_connect_curve_vis_active():
         leaf=True,
         type="nurbsCurve",
         ni=True), parent=True)
-    print curves_xfs
     cutl.curve_vis_active_connection(curves_xfs, True)
 
 

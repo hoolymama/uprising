@@ -1,6 +1,6 @@
  
-import brush_utils as butl
-import curve_utils as cutl
+from uprising import brush_utils as butl
+from uprising import curve_utils as cutl
 import pymel.core as pm
 import pymel.core.uitypes as gui
 
@@ -121,7 +121,6 @@ class PaintingTab(gui.FormLayout):
             leaf=True,
             type="nurbsCurve",
             ni=True), parent=True)
-        print curves_xfs
         cutl.curve_vis_active_connection(curves_xfs, True)
 
     def on_disconnect_curve_vis_active(self):

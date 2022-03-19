@@ -39,8 +39,8 @@ class PovStroke(Stroke):
                     result.append(tg)
                 target = PovTarget(i, (p * 10), r, c, w)
             except utils.StrokeError:
-                print("Target Position:", p)
-                print("StrokeId:", stroke_id)
+                print(("Target Position:", p))
+                print(("StrokeId:", stroke_id))
                 raise
 
             result.append(target)
@@ -57,7 +57,7 @@ class PovStroke(Stroke):
             program.setSpeedJoints(self.angular_speed)
             program.setRounding(self.approximation_distance)
 
-        print("Sending stroke {}".format(stroke_name))
+        print(("Sending stroke {}".format(stroke_name)))
         for i, t in enumerate(self.targets):
             t.send(stroke_name, program, frame, last_color, run_on_robot)
             last_color = t.color

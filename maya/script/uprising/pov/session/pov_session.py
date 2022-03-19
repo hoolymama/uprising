@@ -31,7 +31,7 @@ class PovSession(Session):
         end_frame,
         program_prefix="pv"):
 
-        self.frame_range=range(start_frame, end_frame+1)
+        self.frame_range=list(range(start_frame, end_frame+1))
         self.program_prefix = program_prefix
         self.stroke_chunk_size = stroke_chunk_size
 
@@ -175,11 +175,11 @@ class PovTestSession(Session):
             )
         except utils.StrokeError:
             return
-        print("Making Frame for", PROGRAM_NAME)
+        print(("Making Frame for", PROGRAM_NAME))
         frame = robo.create_frame("POV_frame")
-        print("Making Program for", PROGRAM_NAME)
+        print(("Making Program for", PROGRAM_NAME))
         program = robo.create_program(PROGRAM_NAME)
-        print("Made Program for", PROGRAM_NAME)
+        print(("Made Program for", PROGRAM_NAME))
 
         self.brush.send()
         t.configure("001")

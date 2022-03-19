@@ -77,14 +77,14 @@ class CalibrationProgram(Program):
         return subprograms
 
     def send_pick_probe_home(self):
-        print "send_pick_probe_home PickAtHomeProgram"
+        print("send_pick_probe_home PickAtHomeProgram")
         pick_program_name = PickAtHomeProgram.generate_program_name(0)
         self.program.RunInstruction(
             pick_program_name, INSTRUCTION_CALL_PROGRAM)
         return pick_program_name
 
     def send_place_probe_home(self):
-        print "send_place_probe_home PlaceAtHomeProgram"
+        print("send_place_probe_home PlaceAtHomeProgram")
         place_program_name = PlaceAtHomeProgram.generate_program_name(0)
         self.program.RunInstruction(
             place_program_name, INSTRUCTION_CALL_PROGRAM)

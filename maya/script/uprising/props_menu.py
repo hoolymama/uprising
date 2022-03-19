@@ -2,7 +2,7 @@
 from uprising import props
 import pymel.core as pm
 from uprising import robo
-from brush import Brush
+from uprising.brush import Brush
 
 
 def create():
@@ -46,7 +46,7 @@ def send_selected_brushes_session(brush_att):
 def send_selected_objects_session():
 
     clean = pm.menuItem("clean_kr8_toggle_item", query=True, checkBox=True)
-    print "Is Clean:", clean
+
     robo.new()
     if clean:
         robo.clean("kr8")

@@ -1,5 +1,5 @@
 import pymel.core as pm
-import palette_utils as putl
+from uprising import palette_utils as putl
 
 
 def create():

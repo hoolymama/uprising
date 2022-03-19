@@ -1,7 +1,7 @@
 
 import pymel.core as pm
 import pymel.core.uitypes as gui
-import utils as uutl
+from uprising import utils as uutl
 from uprising.session.brush_hang_session import BrushHangSession
 
 

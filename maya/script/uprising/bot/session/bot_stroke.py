@@ -44,8 +44,8 @@ class BotStroke(Stroke):
             try:
                 target = target_type(i, (p * 10), r)
             except utils.StrokeError:
-                print("Target Position:", p)
-                print("StrokeId:", stroke_id)
+                print(("Target Position:", p))
+                print(("StrokeId:", stroke_id))
                 raise
 
             result.append(target)

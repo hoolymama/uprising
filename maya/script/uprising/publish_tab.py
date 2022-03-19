@@ -1,7 +1,7 @@
 
 import os
 from contextlib import contextmanager
-import progress
+from uprising import progress
 import pymel.core as pm
 import pymel.core.uitypes as gui
 
@@ -360,63 +360,3 @@ def _get_active_skel_batches():
         result[name].append(skel)
     return result
 
-
-# batch_export(4, 1, 0.25, 0.25, False, "batch")
-
-# def batch_export(
-#     xrepeat, 
-#     yrepeat, 
-#     x_offset, 
-#     y_offset, 
-#     do_subprograms, 
-#     dirname, 
-#     dry_run, 
-#     return_to_start, 
-#     animation=True):
-#     if not dry_run:
-#         robo.new()
-#     crop_node = pm.PyNode("cImgCropMainLow")
-#     skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
-#     directory = os.path.join("/Volumes/xtr/gd/venus/export", dirname)
-
-#     identifiers = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J","K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
-#     i = 0
-#     x_start = crop_node.attr("extraOffsetX").get()
-#     y_start = crop_node.attr("extraOffsetY").get()
-
-#     timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M")
-#     for y in range(yrepeat):
-#         crop_node.attr("extraOffsetX").set(x_start)
-#         for x in range(xrepeat):
-#             identifier = identifiers[i]
-#             if animation:
-#                 pm.currentTime(i+1)
-#             pm.refresh()
-#             if not dry_run:
-#                 pm.select(cl=True)
-#                 utils.reset_skels(utils.get_chain_skel_pairs(*skels))
-
-#                 utils.mkdir_p(directory)
-
-#                 robo.new()
-#                 robo.hide()
-#                 retries_session = RetriesSession( 20, None, False, directory)
-#                 retries_session.run()
-#                 # retries_session.write_results()
-
-#                 prefix = "{}_px".format(identifier)
-#                 painting_session = BotPaintingSession(100, directory, do_subprograms, program_prefix=prefix)
-#                 painting_session.run()
-#                 # painting_session.write_stats()
-
-#             i += 1
-#             crop_node.attr("extraOffsetX").set(crop_node.attr("extraOffsetX").get()+x_offset)
-#         crop_node.attr("extraOffsetY").set(crop_node.attr("extraOffsetY").get()+y_offset)
-
-#     crop_node.attr("extraOffsetX").set(x_start)
-#     if return_to_start:
-#         crop_node.attr("extraOffsetY").set(y_start)
-
-#     if not dry_run:
-#         BotPaintingSession.write_maya_scene(directory, "scene")
-#         robo.show()

@@ -71,7 +71,7 @@ def deleteAllStations():
         for station in _link.getOpenStations():
             station.Delete()
     except BaseException:
-        print "No stations to empty"
+        print("No stations to empty")
 
 
 def close():
@@ -81,7 +81,7 @@ def close():
     try:
         _link.Disconnect()
     except BaseException:
-        print "Not connected"
+        print("Not connected")
     _link = None
     _robot = None
 
@@ -339,7 +339,7 @@ def linear_test(brushname, *names):
     # brush.send()
     brush = link().Item(brushname)
     if not brush.Valid():
-         print  "Invalid brush: {}. Abort".format(brushname)
+         print("Invalid brush: {}. Abort".format(brushname))
          return
 
     robot().setPoseTool(brush)  
@@ -348,13 +348,13 @@ def linear_test(brushname, *names):
         t0 = link().Item(names[i-1])
         t1 = link().Item(names[i])
         if not t0.Valid() and t1.Valid():
-            print  "Skipping invalid pair: {} <> {}".format(names[i-1], names[i])
+            print("Skipping invalid pair: {} <> {}".format(names[i-1], names[i]))
             continue
-        print "testing lin move between {} and {}".format(names[i-1], names[i])
+        print("testing lin move between {} and {}".format(names[i-1], names[i]))
 
         robot().MoveJ(t0.Pose())
         joints = robot().Joints()
         fail = robot().MoveL_Test(joints, t1.Pose())
 
-        print "FAIL" if fail else "SUCCESS"
+        print("FAIL" if fail else "SUCCESS")
 

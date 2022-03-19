@@ -1,6 +1,6 @@
 import os
 import pymel.core as pm
-import images
+from uprising import images
 
 
 def create():

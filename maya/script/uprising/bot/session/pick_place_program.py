@@ -38,7 +38,7 @@ class PickPlaceProgram(Program):
         existing_brush = link.Item(self.brush.name)
         if existing_brush.Valid():
             return
-        print "self.brush.name", self.brush.name
+        print("self.brush.name", self.brush.name)
         tool_item = robot.AddTool(self.brush.matrix, self.brush.name)
         triangles = props.mesh_triangles(pm.PyNode("GRIPPER"))
         shape = link.AddShape(triangles)

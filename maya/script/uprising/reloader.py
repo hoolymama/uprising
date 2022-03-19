@@ -100,130 +100,131 @@ from uprising import (
     online
     
 )
+import importlib
 
 
 ####################
-reload(pov_lights)
-reload(configurator)
-reload(pov_configurator)
+importlib.reload(pov_lights)
+importlib.reload(configurator)
+importlib.reload(pov_configurator)
 
-reload(brush)
-reload(paint)
-reload(target)
-reload(bot_target)
-reload(pov_target)
-reload(stroke)
-reload(bot_stroke)
-reload(pov_stroke)
-reload(cluster)
-reload(painting)
-reload(bot_painting)
-reload(pov_painting)
+importlib.reload(brush)
+importlib.reload(paint)
+importlib.reload(target)
+importlib.reload(bot_target)
+importlib.reload(pov_target)
+importlib.reload(stroke)
+importlib.reload(bot_stroke)
+importlib.reload(pov_stroke)
+importlib.reload(cluster)
+importlib.reload(painting)
+importlib.reload(bot_painting)
+importlib.reload(pov_painting)
 
-reload(chains)
+importlib.reload(chains)
 ####################
 
 
 
 ####################
-reload(program)
-reload(cluster_test_program)
-reload(bot_program)
-reload(pov_program)
+importlib.reload(program)
+importlib.reload(cluster_test_program)
+importlib.reload(bot_program)
+importlib.reload(pov_program)
 
 
-reload(calibration_program)
-reload(board_calibration_program)
-reload(holder_calibration_program)
-reload(pot_calibration_program)
-reload(rack_calibration_program)
-reload(handle_calibration_program)
+importlib.reload(calibration_program)
+importlib.reload(board_calibration_program)
+importlib.reload(holder_calibration_program)
+importlib.reload(pot_calibration_program)
+importlib.reload(rack_calibration_program)
+importlib.reload(handle_calibration_program)
 
-reload(kr8_track_program)
+importlib.reload(kr8_track_program)
 
-reload(brush_hang_program)
-reload(dip_wipe_exercise_program)
-reload(dip_wipe_program)
+importlib.reload(brush_hang_program)
+importlib.reload(dip_wipe_exercise_program)
+importlib.reload(dip_wipe_program)
 
-reload(manual_probe_program)
-reload(pick_place_exercise_program)
-reload(pick_place_program)
-####################
-
-
-####################
-reload(session)
-
-reload(calibration_session)
-reload(holder_calibration_session)
-reload(board_calibration_session)
-reload(pot_calibration_session)
-reload(rack_calibration_session)
-reload(handle_calibration_session)
-
-reload(kr8_track_session)
-
-reload(bot_painting_session)
-reload(pov_session)
-reload(dip_wipe_exercise_session)
-reload(pick_place_exercise_session)
-
-reload(brush_hang_session)
-reload(dip_wipe_exercise_session)
-reload(gamut_session)
-reload(manual_probe_session)
-reload(pick_place_exercise_session)
-reload(retries_session)
+importlib.reload(manual_probe_program)
+importlib.reload(pick_place_exercise_program)
+importlib.reload(pick_place_program)
 ####################
 
 
 ####################
-reload(brush_assign_tab)
-reload(brush_hang_tab)
-reload(connector_tab)
-reload(brush_test_tab)
-reload(gamut_tab)
-reload(painting_tab)
-reload(phex_tab)
-reload(probes_tab)
-reload(publish_tab)
-reload(rings_design_tab)
-reload(rings_setup_tab)
-reload(pov_publish_tab)
+importlib.reload(session)
+
+importlib.reload(calibration_session)
+importlib.reload(holder_calibration_session)
+importlib.reload(board_calibration_session)
+importlib.reload(pot_calibration_session)
+importlib.reload(rack_calibration_session)
+importlib.reload(handle_calibration_session)
+
+importlib.reload(kr8_track_session)
+
+importlib.reload(bot_painting_session)
+importlib.reload(pov_session)
+importlib.reload(dip_wipe_exercise_session)
+importlib.reload(pick_place_exercise_session)
+
+importlib.reload(brush_hang_session)
+importlib.reload(dip_wipe_exercise_session)
+importlib.reload(gamut_session)
+importlib.reload(manual_probe_session)
+importlib.reload(pick_place_exercise_session)
+importlib.reload(retries_session)
+####################
+
+
+####################
+importlib.reload(brush_assign_tab)
+importlib.reload(brush_hang_tab)
+importlib.reload(connector_tab)
+importlib.reload(brush_test_tab)
+importlib.reload(gamut_tab)
+importlib.reload(painting_tab)
+importlib.reload(phex_tab)
+importlib.reload(probes_tab)
+importlib.reload(publish_tab)
+importlib.reload(rings_design_tab)
+importlib.reload(rings_setup_tab)
+importlib.reload(pov_publish_tab)
 
 
 ####################
 
 ####################
-reload(calibration_menu)
-reload(chain_menu)
-reload(curves_menu)
-reload(images_menu)
-reload(select_menu)
-reload(tools_menu)
-reload(props_menu)
-reload(kr8_menu)
+importlib.reload(calibration_menu)
+importlib.reload(chain_menu)
+importlib.reload(curves_menu)
+importlib.reload(images_menu)
+importlib.reload(select_menu)
+importlib.reload(tools_menu)
+importlib.reload(props_menu)
+importlib.reload(kr8_menu)
 ####################
 
 ####################
-reload(calibration)
-reload(const)
-reload(images)
-reload(progress)
-reload(props)
-reload(robo)
-reload(sequence)
-reload(stats)
+importlib.reload(calibration)
+importlib.reload(const)
+importlib.reload(images)
+importlib.reload(progress)
+importlib.reload(props)
+importlib.reload(robo)
+importlib.reload(sequence)
+importlib.reload(stats)
 ####################
 
 ####################
-reload(brush_utils)
-reload(curve_utils)
-reload(maya_util)
-reload(palette_utils)
-reload(stroke_factory_utils)
-reload(utils)
+importlib.reload(brush_utils)
+importlib.reload(curve_utils)
+importlib.reload(maya_util)
+importlib.reload(palette_utils)
+importlib.reload(stroke_factory_utils)
+importlib.reload(utils)
 ####################
 
 
-reload(online)
+importlib.reload(online)

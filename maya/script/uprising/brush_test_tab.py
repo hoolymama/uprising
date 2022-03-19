@@ -1,6 +1,6 @@
 import pymel.core as pm
-from brush import Brush
-import curve_utils as cutl
+from .brush import Brush
+from uprising import curve_utils as cutl
 import pymel.core.uitypes as gui
 
 
@@ -89,8 +89,6 @@ Gap is the offset from one curve to the next. If you want to line strokes up nex
         direction = pm.dt.Vector(offset[0], offset[1], 0).normal()
         offset_length = pm.dt.Vector(offset[0], offset[1], 0).length()
 
-        print offset
-        print use_widths
 
         curves = pm.ls(
             selection=True,

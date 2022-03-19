@@ -109,7 +109,7 @@ class RetriesSession(Session):
             plug_ids = (
                 [self.plug_index]
                 if self.plug_index is not None
-                else range(chain.attr("outputCount").get())
+                else list(range(chain.attr("outputCount").get()))
             )
 
             for plug_index in plug_ids:
@@ -154,7 +154,7 @@ class RetriesSession(Session):
             try:
                 program = BotRetryProgram("retry")
             except BaseException as ex:
-                print("BaseException", str(ex)) 
+                print(("BaseException", str(ex))) 
                 break
             if not (program and program.painting and program.painting.clusters):
                 break
@@ -180,7 +180,7 @@ class RetriesSession(Session):
             angle = pm.strokeQuery(skel, maxCoil=True)
             next_val = min(angle, value) - self.delta
 
-            print "split - next_val", next_val
+            print("split - next_val", next_val)
             if next_val <= 0:
                 break
             split_angle_plug.set(next_val)

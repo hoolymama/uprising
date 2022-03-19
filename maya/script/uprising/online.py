@@ -9,7 +9,7 @@ def test():
 
     success = robo.robot().Connect()
     status, status_msg = robo.robot().ConnectedState()
-    print(status, status_msg)
+    print((status, status_msg))
 
 
 

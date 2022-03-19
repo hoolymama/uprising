@@ -66,14 +66,14 @@ def on_connect_brushids_to_skeleton():
 
 
 def _bake_first_paint_id(painting, curve):
-    print "Baking curve"
+    print("Baking curve")
     cc = pm.paintingQuery(painting, cc=True)
     if cc:
         sc = pm.paintingQuery(painting, ci=0, sc=True)
         if sc:
             paint_id = pm.paintingQuery(
                 painting, ci=0, si=0, clusterPaintId=True)
-            print "paint id is %d" % paint_id
+            print("paint id is %d" % paint_id)
             stroke_curve = cutl.get_stroke_node(curve)
             stroke_curve.attr("paintId").set(paint_id)
 
@@ -83,7 +83,7 @@ def on_bake_paint_ids():
     curves = cutl.get_curves_from_painting(painting)
     visible_curves = [
         curve for curve in curves if curve.getParent().attr("visibility").get()]
-    print "on_bake_paint_ids"
+    print("on_bake_paint_ids")
 
     for curve in curves:
         cutl.hide_objects(visible_curves)
@@ -131,7 +131,7 @@ def on_print_stats_per_brush():
 
 def on_print_paint_pot_and_brush_stats(fmt="json"):
     painting_node = pm.PyNode("mainPaintingShape")
-    brushes, paints, pots = zip(*(stats.used_pots_paints_and_brushes(painting_node)))
+    brushes, paints, pots = list(zip(*(stats.used_pots_paints_and_brushes(painting_node))))
 
     result = {"brushes": [], "paints": [], "pots": pots}
     
@@ -194,7 +194,7 @@ def on_print_painting_flow_ss():
     num_continuous_strokes = -1
     header = ["","Red","Green","Blue","","Brush id", "Paint id", "Pot id", "Stroke count"]
     tab = "\t"
-    print(tab.join(header))
+    print((tab.join(header)))
 
     palette = Paint.paints()
     data=[]
@@ -212,11 +212,11 @@ def on_print_painting_flow_ss():
         
             if num_continuous_strokes > -1:
                 data.append(str(num_continuous_strokes))
-                print(tab.join(data))
+                print((tab.join(data)))
             data = [str(s) for s in ["",int(col[0]*255),int(col[1]*255),int(col[2]*255),"",brush_id, paint_id, pot_id]]
             num_continuous_strokes = num_strokes
         else:
             num_continuous_strokes += num_strokes
     data.append(str(num_continuous_strokes))
-    print tab.join(data)
+    print(tab.join(data))
             

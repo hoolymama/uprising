@@ -18,4 +18,4 @@ class PovPainting(Painting):
         self.num_strokes = pm.lightPaintingQuery(self.node, strokeCount=True)
         self.strokes = [PovStroke(self, i) for i in range(self.num_strokes)]
 
-        print("POV PAINTING INIT: ", self.node)
+        print(("POV PAINTING INIT: ", self.node))

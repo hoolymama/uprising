@@ -3,8 +3,7 @@ from uprising import palette_utils
 import pymel.core as pm
 import pymel.core.uitypes as gui
 from uprising import robo
-
-import utils as uutl
+from uprising import utils as uutl
 
 from uprising.bot.session.dip_wipe_exercise_session import DipWipeExerciseSession
 
@@ -91,10 +90,10 @@ class phexTab(gui.FormLayout):
         self.attachForm(go_but, "bottom", 2)
 
     def on_isolate(self):
-        print "ISOLATE"
+
         data = self.get_pot_handle_exercise_data()
         combinations = data["combinations"]
-        print "combinations", combinations
+
         if not combinations:
             pm.displayWarning("No combinations")
             return
@@ -109,7 +108,7 @@ class phexTab(gui.FormLayout):
 
         for combo in combinations:
             for painting in pm.ls("ptg_*_b{:02d}_p{:02d}".format( combo["brush"], combo["pot"])):
-                print "painting", painting
+
                 painting.attr("visibility").set(True)
 
                 

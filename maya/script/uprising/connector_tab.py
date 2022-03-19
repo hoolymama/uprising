@@ -185,12 +185,12 @@ class ConnectorTab(gui.FormLayout):
 
     def on_go(self):
         for pair in self.get_connection_pairs():
-            print(pair[0], ">>", pair[1])
+            print("{} >> {}".format(pair[0],pair[1]))
             pair[0] >> pair[1]
 
     def on_dry(self):
         for pair in self.get_connection_pairs():
-            print(pair[0], ">>", pair[1])
+            print("{} >> {}".format(pair[0],pair[1]))
 
     @staticmethod
     def get_attribute_templates(node):

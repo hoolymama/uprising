@@ -1,9 +1,9 @@
 # from typing import Set
 import pymel.core as pm
-import stroke_factory_utils as sfu
+from uprising import stroke_factory_utils as sfu
 
-from paint import Paint
-from brush import Brush
+from uprising.paint import Paint
+from uprising.brush import Brush
  
 
 
@@ -26,10 +26,10 @@ def brush_paint_combination_ids():
 
 
 def get_pot_handle_pairs():
-    return zip(
+    return list(zip(
         pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*"),
         pm.ls("rack|holes|holeRot*|holeTrans|wipe_loc|handle"),
-    )
+    ))
 
 
 def get_used_pot_handle_pairs():
@@ -39,11 +39,11 @@ def get_used_pot_handle_pairs():
 
 
 def get_used_pots():
-    return zip(*get_used_pot_handle_pairs())[0]
+    return list(zip(*get_used_pot_handle_pairs()))[0]
 
 
 def get_pots():
-    return zip(*get_pot_handle_pairs())[0]
+    return list(zip(*get_pot_handle_pairs()))[0]
 
 
 def select_used_pots():
@@ -55,11 +55,11 @@ def select_pots():
 
 
 def get_used_handles():
-    return zip(*get_used_pot_handle_pairs())[1]
+    return list(zip(*get_used_pot_handle_pairs()))[1]
 
 
 def get_handles():
-    return zip(*get_pot_handle_pairs())[1]
+    return list(zip(*get_pot_handle_pairs()))[1]
 
 
 def select_used_handles():
@@ -70,15 +70,6 @@ def select_handles():
     pm.select(get_handles())
 
 
-# def clean_palette():
-#     painting_node = pm.PyNode("mainPaintingShape")
-#     delete_paints(painting_node)
-#     for painting in pm.ls(
-#         "rack|holes|holeRot*|holeTrans", dag=True, leaf=True, type="painting"
-#     ):
-#         pm.delete(painting.getParent())
-#     for pot in pm.ls("rack|holes|holeRot*|holeTrans|dip_loc|pot*"):
-#         pot.rename("pot")
 
 
 def delete_shaders():
@@ -86,10 +77,6 @@ def delete_shaders():
         pm.delete("sx_*")
 
 
-# def delete_paints(node):
-#     indices = node.attr("paints").getArrayIndices()
-#     for i in indices:
-#         pm.removeMultiInstance(node.attr("paints[%d]" % i), b=True)
 
 
 def connect_paint_to_node(pot, node, connect_to="next_available"):

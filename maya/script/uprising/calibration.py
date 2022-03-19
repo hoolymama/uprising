@@ -100,10 +100,10 @@ def read_calibration(which):
 
 def data_matrix(content):
     result = []
-    rows = list(filter(None, content.split("\n")))
+    rows = list([_f for _f in content.split("\n") if _f])
 
     for row in rows:
-        cells = list(filter(None, row.split()))
+        cells = list([_f for _f in row.split() if _f])
 
         result.append(cells)
     return result
@@ -117,7 +117,7 @@ def verify(data, nrows=-1, ncolumns=-1):
     if ncolumns != -1:
         for row in data:
             if len(row) != ncolumns:
-                print len(row)
+                print(len(row))
                 raise ValueError(
                     "Wrong number of columns. Should be {}".format(ncolumns))
 
@@ -134,7 +134,7 @@ def _read_any_triangulation(content):
             node.rename(loc_name)
 
         vals = [uutl.numeric(x) * 0.1 for x in row[1:4]]
-        print "{} - set {} {} {}".format(node, vals[0], vals[1], vals[2])
+        print("{} - set {} {} {}".format(node, vals[0], vals[1], vals[2]))
         node.attr("translate").set(*vals)
         try:
             pm.addAttr(node, ln='originalTranslate', type='double3', k=1)
@@ -160,7 +160,7 @@ def _read_board_calibration(content):
 
     verify(data, len(verts), 1)
 
-    for val, vtx in zip(zip(*data)[0], verts):
+    for val, vtx in zip(list(zip(*data))[0], verts):
         pos = vtx.getPosition(space="object")
         pos.z = (uutl.numeric(val) * 0.1) - 1.0
         vtx.setPosition(pos, space="object")
@@ -189,44 +189,13 @@ def _read_board_calibration(content):
     
     # figure out displacement direction
     normal = ((v_tr - v_tl) ^  (v_bl -  v_tl)).normal()
-    print("NORMAL IS", normal)
-    print("OFFSETS ARE", tl_offset, tr_offset, bl_offset)
-    
+
     # offset the triangulation (compensate by pushing it back if vertex z is positive )
     tl_att.set(v_tl +(tl_offset*normal) )
     tr_att.set(v_tr +(tr_offset*normal) )
     bl_att.set(v_bl +(bl_offset*normal) )
     
 
-    print("tl_att ARE", tl_att.get())
-    print("tr_att ARE", tr_att.get())
-    print("bl_att ARE", bl_att.get())
-    
-
-
-
-
-    # borders_map = {
-    #     6:[5,0,1],
-    #     7:[2],
-    #     8:[3,4,9],
-    #     13:[14],
-    #     18:[19],
-    #     23:[24,29,28],
-    #     22:[27],
-    #     21:[26,25,20],
-    #     16:[15],
-    #     11:[10]
-    #     }
-
-    # node = verts[0].node()
-    # for vert_id in borders_map:
-    #     pos = node.vtx[vert_id].getPosition(space="object")
-    #     z = pos.z
-    #     for border_id in borders_map[vert_id]:
-    #         pos = node.vtx[border_id].getPosition(space="object")
-    #         pos.z = z 
-    #         node.vtx[border_id].setPosition(pos, space="object")
 
 def _read_pot_calibration(content):
 

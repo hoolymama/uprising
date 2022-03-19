@@ -75,7 +75,7 @@ def _get_closest_pose(joint_poses, to_pose):
     for jp in joint_poses:
         differences.append([abs(jp[i] - tp[i]) for i in range(6)])
 
-    combined = zip(joint_poses, differences)
+    combined = list(zip(joint_poses, differences))
     combined.sort(cmp=compare)
     return combined[0][0]
 
@@ -131,12 +131,6 @@ def _solve_single_joint_pose(flange_pose, last_joint_pose, config):
     key = config_key(jcfg)
     if key == config:
         return joint_pose
-
-
-
-
-#############################
-# CONFIGURE LINKAGES
 
 
 

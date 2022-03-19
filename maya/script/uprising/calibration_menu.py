@@ -1,6 +1,6 @@
 import pymel.core as pm
 import uprising.utils as uutl
-import calibration as cal
+from uprising import calibration as cal
 
 
 def create():
