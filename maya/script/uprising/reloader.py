@@ -97,9 +97,12 @@ from uprising import (
     utils,
     kr8_menu,
     pov_publish_tab,
-    online
+    online,
+    persist_ui
     
 )
+
+ 
 import importlib
 
 
@@ -224,7 +227,9 @@ importlib.reload(maya_util)
 importlib.reload(palette_utils)
 importlib.reload(stroke_factory_utils)
 importlib.reload(utils)
+importlib.reload(persist_ui)
 ####################
+
 
 
 importlib.reload(online)

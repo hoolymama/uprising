@@ -18,31 +18,41 @@ from uprising.pov.session.pov_target import PovTarget
 import maya.api.OpenMaya as om
 from uprising.brush import Brush
 
+RUNMODE_OFF=1
+RUNMODE_OFFLINE=2
+RUNMODE_ROBOT=3
+
 logger = logging.getLogger("uprising")
 
 
 class PovSession(Session):
-    def __init__(self, 
-        stroke_chunk_size, 
-        run_on_robot, 
-        save_rdk, 
+    def __init__(
+        self,
+        stroke_chunk_size,
+        run_mode,
+        save_rdk,
         save_src,
-        start_frame, 
+        save_maya_scene,
+        save_snapshots,
+        start_frame,
         end_frame,
-        program_prefix="pv"):
+        program_prefix="pv",
+    ):
 
-        self.frame_range=list(range(start_frame, end_frame+1))
+        self.frame_range = list(range(start_frame, end_frame + 1))
         self.program_prefix = program_prefix
         self.stroke_chunk_size = stroke_chunk_size
 
-        self.run_on_robot = run_on_robot
-        self.save_rdk = save_rdk
-        self.save_src = save_src
+        self.run_mode = run_mode
+        self.save_rdk = save_rdk and run_mode==RUNMODE_OFFLINE
+        self.save_src = save_src and run_mode==RUNMODE_OFFLINE
+        self.save_maya_scene = save_maya_scene
+        self.save_snapshots = save_snapshots
 
         self.directory = None
-        if self.save_rdk or self.save_src:
+        if self.save_rdk or self.save_src or self.save_maya_scene or self.save_snapshots:
             self.directory = self.choose_session_dir()
-            if not self.directory: 
+            if not self.directory:
                 print("No file chosen. Aborted")
                 raise ValueError("No valid directory chosen.")
 
@@ -52,31 +62,41 @@ class PovSession(Session):
 
     def run(self):
         timer_start = time.time()
-
         all_program_names = []
-        
-        for f in self.frame_range:
-            pm.currentTime(f)
+        if self.save_maya_scene:
+            self.write_maya_scene(self.directory, "scene")
+
+        robo.new()
+        robo.hide()
+        run_on_robot = self.run_mode == RUNMODE_ROBOT
+        for frame in self.frame_range:
+            pm.currentTime(frame)
+            program_prefix = "{}_f{:03d}".format(self.program_prefix, frame)
+            if self.save_snapshots:
+                kwargs={}
+                self.write_snapshot(self.directory, "snapshot", **kwargs)
+
+            if self.run_mode == RUNMODE_OFF:
+                continue
+
             stroke_count = pm.lightPaintingQuery(self.painting_node, sc=True)
             if self.save_rdk or self.save_src:
                 stroke_chunk_size = self.stroke_chunk_size or stroke_count
             else:
                 stroke_chunk_size = stroke_count
 
-            program_prefix = "{}_f{:03d}".format(self.program_prefix, f)
-            robo.new()
             robo.clean("kr8")
-            robo.hide()
-            program = PovProgram(program_prefix, self.run_on_robot)
+            
+            program = PovProgram(program_prefix, run_on_robot)
             if not (program and program.painting and program.painting.strokes):
-                raise ValueError("Invalid bot_program. No painting/clusters")
+                raise ValueError("Invalid pov_program. No painting")
 
             program.configure()
 
             # SEND
             program_names = self.send_and_publish_pov_program(program, stroke_chunk_size)
             all_program_names.extend(program_names)
-            
+
         if len(all_program_names) > 1:
             self.orchestrate(self.directory, all_program_names)
 
@@ -89,8 +109,8 @@ class PovSession(Session):
         )
 
         self.stats = {}
-
-        robo.show()
+        if not self.run_mode == RUNMODE_OFF:
+            robo.show()
 
     def send_and_publish_pov_program(self, program, stroke_chunk_size):
         stroke_count = len(program.painting.strokes)
@@ -119,8 +139,7 @@ class PovSession(Session):
             program_names.append(program.program_name)
 
         return program_names
-            # progress.update(major_progress=num_chunks, major_line="Done")
-
+        # progress.update(major_progress=num_chunks, major_line="Done")
 
     # def init_progress(self):
     #     progress.update(
@@ -141,50 +160,3 @@ class PovSession(Session):
         src_folder = os.path.join(self.directory, "src")
         with tarfile.open("{}.tar.gz".format(src_folder), "w:gz") as tar:
             tar.add(src_folder, arcname=os.path.sep)
-
-
-PROGRAM_NAME = "povtest"
-X = 120
-Y = -5
-Z = 10
-FRONT = pm.dt.Vector(1, 0, 0)
-SIDE = pm.dt.Vector(0, 1, 0)
-UP = pm.dt.Vector(0, 0, -1)
-
-
-class PovTestSession(Session):
-    def __init__(self):
-
-        self.directory = "/Volumes/xtr/gd/pov/export/test"
-        self.brush = Brush(0, pm.PyNode("fbx_0_slot_00_fo1_roundShape").attr("outPaintBrush"))
-
-        robo.new()
-        robo.clean("kr8")
-        robo.hide()
-        _id = "{}_{}_{}".format(X, Y, Z)
-        mat = om.MMatrix([list(UP) + [0], list(SIDE) + [0], list(FRONT) + [0], [X, Y, Z, 1]])
-
-        mtmat = om.MTransformationMatrix(mat)
-
-        position = mtmat.translation(om.MSpace.kWorld)
-        xyz_rotation = mtmat.rotation(False)
-        zyx_rotation = xyz_rotation.reorder(om.MEulerRotation.kZYX)
-        try:
-            t = PovTarget(
-                _id, list(position * 10), list(zyx_rotation), pm.dt.Color(1, 0, 0, 0.5), self.brush
-            )
-        except utils.StrokeError:
-            return
-        print(("Making Frame for", PROGRAM_NAME))
-        frame = robo.create_frame("POV_frame")
-        print(("Making Program for", PROGRAM_NAME))
-        program = robo.create_program(PROGRAM_NAME)
-        print(("Made Program for", PROGRAM_NAME))
-
-        self.brush.send()
-        t.configure("001")
-        t.send("test_", program, frame, None)
-
-        self.save_program(self.directory, PROGRAM_NAME)
-        self.save_station(self.directory, PROGRAM_NAME)
-        robo.show()

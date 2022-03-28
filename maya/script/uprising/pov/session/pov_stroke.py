@@ -10,18 +10,27 @@ from uprising.pov.session import pov_lights
 
 class PovStroke(Stroke):
     def __init__(self, painting, stroke_id):
+        print("PovStroke __init__")
         super(PovStroke, self).__init__(painting, stroke_id)
+        print("PovStroke __init__ DONE")
+
 
     def _build_targets(self):
-
+        print("PovStroke _build_targets")
         positions = self.query_positions()
+        print("PovStroke _build_targets positions")
         rotations = self.query_rotations()
+        print("PovStroke _build_targets rotations")
         colors = self.query_colors()
+        print("PovStroke _build_targets colors")
         waits = self.query_waits()
+        print("PovStroke query_waits")
         self.targets = self._target_factory(positions, rotations, colors, waits, self.id)
-
+        print("PovStroke _build_targets DONE")
+        
     @classmethod
     def _target_factory(cls, positions, rotations, colors, waits, stroke_id):
+        print("PovStroke _target_factory")
         result = []
         num_targets = len(positions)
         if not (
@@ -31,6 +40,7 @@ class PovStroke(Stroke):
         ):
             raise utils.StrokeError("Length mismatch: positions, rotations, colors, waits")
 
+        print("enumerate _target_factory")
         for i, (p, r, c, w) in enumerate(zip(positions, rotations, colors, waits)):
             try:
                 if i == 0:
@@ -44,6 +54,7 @@ class PovStroke(Stroke):
                 raise
 
             result.append(target)
+        print("enumerate _target_factory DONE")
         return result
 
     def send(self, prefix, program, frame, run_on_robot):

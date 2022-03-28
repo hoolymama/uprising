@@ -13,7 +13,7 @@ class PovProgram(Program):
         super(PovProgram, self).__init__(name)
         print("INITIALIZE PovProgram")
         self.painting = PovPainting()
-
+        print("GOT PovPainting")
         self.run_on_robot = run_on_robot
 
     def configure(self):

@@ -10,7 +10,7 @@ import pymel.core as pm
 from uprising import stats
 from uprising import utils
 from uprising.brush import Brush
-from uprising.pov.session.pov_session import PovTestSession
+# from uprising.pov.session.pov_session import PovTestSession
 from uprising.paint import Paint 
 
 def create():
@@ -45,16 +45,7 @@ def create():
         label="Print Painting Flow SS",
         command=pm.Callback(on_print_painting_flow_ss))
 
-    pm.menuItem(
-        label="Test light robot session",
-        command=pm.Callback(
-            on_test_light_robot_session))
-
     return menu
-
-
-def on_test_light_robot_session():
-    PovTestSession()
 
 
 def on_connect_brushids_to_skeleton():

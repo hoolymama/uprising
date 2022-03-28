@@ -1,13 +1,13 @@
 
 #ifndef _pearlNode_H
 #define _pearlNode_H
+#define cimg_display 0
 
 #include <maya/MPxLocatorNode.h>
 #include <maya/MFloatPointArray.h>
 
 #include "pearlChainData.h"
 #include "pearlChain.h"
-
 #include "CImg.h"
 
 

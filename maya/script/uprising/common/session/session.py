@@ -6,7 +6,7 @@ from uprising import robo
 import datetime
 import json
 import pymel.core as pm
-import uprising.utils as uutl
+from uprising import utils
 
 
 class SessionError(Exception):
@@ -62,7 +62,7 @@ class Session(object):
     @staticmethod
     def save_program(directory, program_name):
         src = os.path.join(directory, "src")
-        uutl.mkdir_p(src)
+        utils.mkdir_p(src)
         src_filename = robo.write_program(src, program_name)
         print("Wrote src: {}".format(program_name))
         return src_filename
@@ -70,7 +70,7 @@ class Session(object):
     @staticmethod
     def save_station(directory, program_name):
         rdk = os.path.join(directory, "rdk")
-        uutl.mkdir_p(rdk)
+        utils.mkdir_p(rdk)
         rdk_fn = robo.write_station(rdk, program_name)
         print("Wrote rdk: {}".format(program_name))
         return rdk_fn
@@ -89,7 +89,7 @@ class Session(object):
         directory = os.path.join(entries[0], timestamp)
         if suffix:
             directory = "{}_{}".format(directory, suffix)
-        uutl.mkdir_p(directory)
+        utils.mkdir_p(directory)
         return directory
 
     @staticmethod
@@ -105,7 +105,7 @@ class Session(object):
 
 
         """
-        uutl.mkdir_p(directory)
+        utils.mkdir_p(directory)
         orchestrator_file = os.path.join(directory, "src", "main.src")
         with open(orchestrator_file, "w") as ofile:
             ofile.write("&ACCESS RVP\n")
@@ -121,7 +121,7 @@ class Session(object):
 
     @staticmethod
     def json_report(directory, name, data):
-        uutl.mkdir_p(directory)
+        utils.mkdir_p(directory)
         json_file = os.path.join(directory, "{}.json".format(name))
         with open(json_file, "w") as outfile:
             json.dump(data, outfile, indent=4)
@@ -132,3 +132,31 @@ class Session(object):
         orig_sn = pm.sceneName()
         pm.saveAs(new_name)
         pm.renameFile(orig_sn)
+
+    
+    @staticmethod
+    def write_snapshot(directory, name):
+        filename = os.path.join(directory, name)
+        frame = int(pm.currentTime(q=True))
+
+
+        editor = pm.playblast(activeEditor=True)
+        pm.modelEditor(editor, e=True, camera="cameraShape1")
+
+        with utils.at_value(pm.PyNode("cameraShape1").attr("overscan"), 0.460):
+            pm.playblast(
+                startTime=frame,
+                endTime=frame,
+                format="image",
+                filename=filename,
+                sequenceTime=0,
+                clearCache=True,
+                viewer=False,
+                showOrnaments=False,
+                offScreen=True,
+                framePadding=4,
+                percent=100,
+                compression="png",
+                quality=100,
+                widthHeight=(1024, 1024))
+

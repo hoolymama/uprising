@@ -1,10 +1,11 @@
 
+from operator import ge
 from uprising import progress
 import pymel.core as pm
 import pymel.core.uitypes as gui
-from uprising import utils
+from uprising import utils, persist_ui
 
-from uprising.pov.session.pov_session import PovSession
+from uprising.pov.session.pov_session import PovSession, RUNMODE_OFF, RUNMODE_OFFLINE, RUNMODE_ROBOT
 
 
 class PovPublishTab(gui.FormLayout):
@@ -20,8 +21,19 @@ class PovPublishTab(gui.FormLayout):
         pm.setParent(self)
         self.go_but = self.create_action_buttons()
 
+
+        prefix =  "upov_pov"
+        self.persistentWidgets = [
+            persist_ui.factory(self, "stroke_chunk_if", prefix, default_value=600),
+            persist_ui.factory(self, "anim_cb", prefix, default_value=[False]),
+            persist_ui.factory(self, "sim_options_rb", prefix, default_value=RUNMODE_OFFLINE),
+            persist_ui.factory(self, "robot_file_options_cb", prefix, default_value=[False, True]),
+            persist_ui.factory(self, "maya_file_options_cb", prefix, default_value=[True, True])
+        ]
+
         self.populate()
         self.on_ops_change()
+
 
 
     def create_export_frame(self):
@@ -32,21 +44,39 @@ class PovPublishTab(gui.FormLayout):
             height=30,
             label="Max strokes/file",
             annotation="Max number of strokes per painting partial program",
-            numberOfFields=1,
-            value1=500,
+            numberOfFields=1
         )
+
         self.anim_cb =  pm.checkBoxGrp(
             numberOfCheckBoxes=1,
             label="Animated",
             changeCommand=pm.Callback(self.on_ops_change)
         )
 
+        self.sim_options_rb = pm.radioButtonGrp(
+            label='Simulation', sl=RUNMODE_OFFLINE,
+            labelArray3=[
+                "Off",
+                "Offline Sim",
+                "Run on Robot"
+                ],
+            numberOfRadioButtons=3,
+            changeCommand=pm.Callback(self.on_ops_change)
+        )
 
-        self.options_cb =  pm.checkBoxGrp(
-            numberOfCheckBoxes=3,
-            label1="Run on Robot",
-            label2="Save RDK",
-            label3="Save SRC",
+        self.robot_file_options_cb =  pm.checkBoxGrp(
+            numberOfCheckBoxes=2,
+            label="Save Sim",
+            label1="RDK",
+            label2="SRC",
+            changeCommand=pm.Callback(self.on_ops_change)
+        )
+        
+        self.maya_file_options_cb =  pm.checkBoxGrp(
+            numberOfCheckBoxes=2,
+            label="Save Maya",
+            label1="Scene file",
+            label2="Snapshots",
             changeCommand=pm.Callback(self.on_ops_change)
         )
 
@@ -87,13 +117,10 @@ class PovPublishTab(gui.FormLayout):
     ##############################################################
 
     def on_ops_change(self):
-        pass
-        # save_rdk = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
-        # save_src = pm.checkBoxGrp(self.options_cb, q=True , value3=True)
 
-        # pm.intFieldGrp(
-        #     self.stroke_chunk_if, edit=True, en=(save_src or save_rdk)
-        # )
+        run_mode = pm.radioButtonGrp(self.sim_options_rb, q=True , sl=True)
+        # 1=0ff, 2=offline, 3=robot
+        pm.checkBoxGrp(self.robot_file_options_cb, e=True, en=run_mode==RUNMODE_OFFLINE)
 
     def on_go(self):
         self.save()
@@ -103,23 +130,33 @@ class PovPublishTab(gui.FormLayout):
             start_frame = int(pm.playbackOptions(q=True, min=True))
             end_frame = int(pm.playbackOptions(q=True, max=True))
         else:
-            start_frame = pm.currentTime(q=True)
+            start_frame = int(pm.currentTime(q=True))
             end_frame = start_frame
+
 
 
         stroke_chunk_size = pm.intFieldGrp(
             self.stroke_chunk_if, query=True, value1=True
         )
-        run_on_robot = pm.checkBoxGrp(self.options_cb, q=True , value1=True)
-        save_rdk = pm.checkBoxGrp(self.options_cb, q=True , value2=True)
-        save_src = pm.checkBoxGrp(self.options_cb, q=True , value3=True)
+
+        run_mode = pm.radioButtonGrp(self.sim_options_rb, q=True , sl=True)
+
+
+        save_rdk = pm.checkBoxGrp(self.robot_file_options_cb, q=True , value1=True)
+        save_src = pm.checkBoxGrp(self.robot_file_options_cb, q=True , value2=True)
+
+        save_maya_scene = pm.checkBoxGrp(self.maya_file_options_cb, q=True , value1=True)
+        save_snapshots = pm.checkBoxGrp(self.maya_file_options_cb, q=True , value2=True)
+
 
         try:
             pov_session = PovSession(
                 stroke_chunk_size, 
-                run_on_robot, 
+                run_mode, 
                 save_rdk, 
                 save_src,
+                save_maya_scene,
+                save_snapshots,
                 start_frame, 
                 end_frame,
                 program_prefix="pv")
@@ -129,65 +166,10 @@ class PovPublishTab(gui.FormLayout):
             raise
 
     def populate(self):
-
-        var = ("upov_pov_pub_options", 0, 1, 1)
-        vals = pm.optionVar.get(var[0], var[1:])
-        if len(vals) != (len(var)-1):
-            vals =  var[1:]
-        pm.checkBoxGrp(
-            self.options_cb,
-            e=True,
-            valueArray3=vals)
-
-        var = ("upov_pov_anim_options", 0)
-        try:
-            val = pm.optionVar.get(var[0], var[1])
-        except:
-            val =  var[1]
-        pm.checkBoxGrp(
-            self.anim_cb,
-            e=True,
-            value1=val)
-
-        var = ("upov_pov_pub_chunk_ctl", 500)
-        pm.intFieldGrp(
-            self.stroke_chunk_if,
-            e=True,
-            value1=pm.optionVar.get(var[0],var[1]))
-
+        for persister in self.persistentWidgets:
+            persister.populate()
 
     def save(self):
-        # board
-
-        var = "upov_pov_pub_options"
-        pm.optionVar[var] = pm.checkBoxGrp(self.options_cb, q=True, valueArray3=True)
-
-        var = "upov_pov_anim_options"
-        pm.optionVar[var] = pm.checkBoxGrp(self.anim_cb, q=True, value1=True)
-
-        var = "upov_pov_pub_chunk_ctl"
-        pm.optionVar[var] = pm.intFieldGrp(
-            self.stroke_chunk_if, q=True, value1=True)
-
-
-def find_contributing_stroke_nodes():
-    pass
-    # painting_node = pm.PyNode("mainPaintingShape")
-    # all_skels = pm.ls(type="skeletonStroke")
-
-    # result = [n for n in pm.ls(sl=True) if n.type() == "skeletonStroke"]
-    # if result:
-    #     return result
-
-    # for node in all_skels:
-    #     with isolate_nodes([node], all_skels):
-    #         try:
-    #             pm.paintingQuery(painting_node, cc=True)
-    #         except RuntimeError:
-    #             continue
-    #     result.append(node)
-    # print "{} of {} skeleton nodes contributing".format(
-    #     len(result), len(all_skels))
-    # return result
-
+        for persister in self.persistentWidgets:
+            persister.save()
 

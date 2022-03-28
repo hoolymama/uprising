@@ -175,7 +175,7 @@ def to_vector_array(arr):
     if not arr:
         return []
     in_len = len(arr)
-    out_len = in_len / 3
+    out_len = in_len // 3
     if out_len * 3 != in_len:
         raise ValueError("Input array must be multiple of 3")
     result = []
@@ -190,7 +190,7 @@ def to_point_array(arr):
     if not arr:
         return []
     in_len = len(arr)
-    out_len = in_len / 3
+    out_len = in_len // 3
     if out_len * 3 != in_len:
         raise ValueError("Input array must be multiple of 3")
     result = []
@@ -205,7 +205,7 @@ def to_rgba_array(arr):
     if not arr:
         return []
     in_len = len(arr)
-    out_len = in_len / 4
+    out_len = in_len // 4
     if out_len * 4 != in_len:
         raise ValueError("Input array must be multiple of 4")
     result = []

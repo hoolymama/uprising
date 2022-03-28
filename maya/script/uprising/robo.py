@@ -66,9 +66,8 @@ def get_license_file():
 
 
 def deleteAllStations():
-    global _link
     try:
-        for station in _link.getOpenStations():
+        for station in link().getOpenStations():
             station.Delete()
     except BaseException:
         print("No stations to empty")

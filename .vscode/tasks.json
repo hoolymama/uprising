@@ -11,6 +11,14 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "rake clobber",
+            "type": "shell",
+            "command": "rake clobber",
+            "group": {
+                "kind": "build"
+            }
         }
     ]
 }

@@ -24,8 +24,8 @@ class UprisingMenu(object):
 
         self.hooly_menu = ensure_hooly_menu()
         pm.setParent(self.hooly_menu, menu=True)
+        pm.menuItem(divider=True, dividerLabel="Uprising")
         pm.menuItem(label="Robot Window", command=pm.Callback(show_robot_window))
-        pm.menuItem(divider=True)
 
         pm.menuItem(label="Tumbler", subMenu=True)
 
