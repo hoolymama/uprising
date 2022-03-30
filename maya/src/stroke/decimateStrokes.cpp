@@ -100,6 +100,8 @@ MStatus decimateStrokes::mutate(
   srand48(seedVal);
   int smooth = data.inputValue( aSmooth).asInt()  ;
   
+  
+  float density =  data.inputValue( aDensity).asFloat()  ;
 
   MFloatArray densities;
 
