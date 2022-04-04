@@ -202,6 +202,11 @@ MStatus mapColorStrokes::mutate(
 
   bool pivotSampleOnly = data.inputValue(aPivotSampleOnly).asBool();
 
+  MFloatVector rgbDummy = data.inputValue(aRGB).asFloatVector();
+  float whiteDummy = data.inputValue(aWhite).asFloat();
+  float waitDummy = data.inputValue(aWait).asFloat();
+
+
   MFloatPointArray points;
   if (pivotSampleOnly)
   {
