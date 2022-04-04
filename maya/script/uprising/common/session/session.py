@@ -133,7 +133,13 @@ class Session(object):
         pm.saveAs(new_name)
         pm.renameFile(orig_sn)
 
-    
+    @staticmethod
+    def write_text(directory, name, data):
+        utils.mkdir_p(directory)
+        text_file = os.path.join(directory, name)
+        with open(text_file, "w") as outfile:
+            outfile.write(data)
+
     @staticmethod
     def write_snapshot(directory, name):
         filename = os.path.join(directory, name)

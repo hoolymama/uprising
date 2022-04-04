@@ -34,20 +34,24 @@ class PovSession(Session):
         save_src,
         save_maya_scene,
         save_snapshots,
+        notes,
         start_frame,
         end_frame,
+        pause,
         program_prefix="pv",
     ):
 
         self.frame_range = list(range(start_frame, end_frame + 1))
         self.program_prefix = program_prefix
         self.stroke_chunk_size = stroke_chunk_size
+        self.pause = pause
 
         self.run_mode = run_mode
         self.save_rdk = save_rdk and run_mode==RUNMODE_OFFLINE
         self.save_src = save_src and run_mode==RUNMODE_OFFLINE
         self.save_maya_scene = save_maya_scene
         self.save_snapshots = save_snapshots
+        self.notes = notes
 
         self.directory = None
         if self.save_rdk or self.save_src or self.save_maya_scene or self.save_snapshots:
@@ -65,9 +69,13 @@ class PovSession(Session):
         all_program_names = []
         if self.save_maya_scene:
             self.write_maya_scene(self.directory, "scene")
+        if self.notes:
+            self.write_text(self.directory, "notes", self.notes)
+            
 
-        robo.new()
-        robo.hide()
+        if  self.run_mode != RUNMODE_OFF:
+            robo.new()
+            robo.hide()
         run_on_robot = self.run_mode == RUNMODE_ROBOT
         for frame in self.frame_range:
             pm.currentTime(frame)
@@ -87,7 +95,7 @@ class PovSession(Session):
 
             robo.clean("kr8")
             
-            program = PovProgram(program_prefix, run_on_robot)
+            program = PovProgram(program_prefix, run_on_robot, self.pause)
             if not (program and program.painting and program.painting.strokes):
                 raise ValueError("Invalid pov_program. No painting")
 

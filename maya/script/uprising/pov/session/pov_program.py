@@ -9,12 +9,13 @@ PAINTING_NAME = "lightPaintingShape"
 
 
 class PovProgram(Program):
-    def __init__(self, name, run_on_robot):
+    def __init__(self, name, run_on_robot, pause_at_end):
         super(PovProgram, self).__init__(name)
         print("INITIALIZE PovProgram")
         self.painting = PovPainting()
         print("GOT PovPainting")
         self.run_on_robot = run_on_robot
+        self.pause_at_end = pause_at_end
 
     def configure(self):
         print("configure....")
@@ -71,6 +72,7 @@ class PovProgram(Program):
         if is_last_chunk:
             pov_lights.send_shutter(self.program, self.run_on_robot)
             self.program.addMoveJ(robo.home_approach)
-            # To allow the camera to send the image to the computer, we wait 30 seconds before
-            # starting another painting. This may not be needed.
-            self.program.Pause(30000)
+            # To allow the camera to send the image to the computer, we wait some time before
+            # starting another painting. -1 means indefinite pause.
+            if self.pause_at_end != 0:
+                self.program.Pause(self.pause_at_end)

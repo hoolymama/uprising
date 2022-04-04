@@ -50,6 +50,14 @@ class PersistentIntFieldGrp(PersistentWidget):
 
         pm.intFieldGrp(self.control, e=True,value=val)
 
+class PersistentScrollField(PersistentWidget):
+
+    def save(self):
+        pm.optionVar[self.var_name] = pm.scrollField(self.control, q=True, text=True)
+        
+    def populate(self):
+        val=pm.optionVar.get(self.var_name, self.default_value)
+        pm.scrollField(self.control, e=True,text=val)
 
 def factory( owner, control_name, ov_prefix, default_value=None):
 
@@ -63,4 +71,6 @@ def factory( owner, control_name, ov_prefix, default_value=None):
         return PersistentRadioButtonGrp(control,var_name, default_value=default_value)
     elif widget_type == 'IntFieldGrp':
         return PersistentIntFieldGrp(control,var_name, default_value=default_value)
+    elif widget_type == 'ScrollField':
+        return PersistentScrollField(control,var_name, default_value=default_value)
  

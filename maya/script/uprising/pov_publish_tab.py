@@ -16,6 +16,7 @@ class PovPublishTab(gui.FormLayout):
         self.column.adjustableColumn(True)
 
         self.export_frame = self.create_export_frame()
+        
         self.progress_frame = self.create_progress_frame()
 
         pm.setParent(self)
@@ -28,13 +29,15 @@ class PovPublishTab(gui.FormLayout):
             persist_ui.factory(self, "anim_cb", prefix, default_value=[False]),
             persist_ui.factory(self, "sim_options_rb", prefix, default_value=RUNMODE_OFFLINE),
             persist_ui.factory(self, "robot_file_options_cb", prefix, default_value=[False, True]),
-            persist_ui.factory(self, "maya_file_options_cb", prefix, default_value=[True, True])
+            persist_ui.factory(self, "maya_file_options_cb", prefix, default_value=[True, True]),
+            persist_ui.factory(self, "description_tf", prefix, default_value="")
         ]
+
+        pm.setParent(self)
+
 
         self.populate()
         self.on_ops_change()
-
-
 
     def create_export_frame(self):
 
@@ -64,6 +67,18 @@ class PovPublishTab(gui.FormLayout):
             changeCommand=pm.Callback(self.on_ops_change)
         )
 
+        self.pause_options_rb = pm.radioButtonGrp(
+            label='Pause after frame', sl=2,
+            labelArray3=[
+                "Off",
+                "30 seconds",
+                "Indefinite"
+                ],
+            numberOfRadioButtons=3,
+            changeCommand=pm.Callback(self.on_ops_change)
+        )
+
+
         self.robot_file_options_cb =  pm.checkBoxGrp(
             numberOfCheckBoxes=2,
             label="Save Sim",
@@ -79,6 +94,9 @@ class PovPublishTab(gui.FormLayout):
             label2="Snapshots",
             changeCommand=pm.Callback(self.on_ops_change)
         )
+
+        self.description_tf = pm.scrollField(
+            nl=5, wordWrap=True, text="")
 
         pm.setParent("..")
         return frame
@@ -120,9 +138,16 @@ class PovPublishTab(gui.FormLayout):
 
         run_mode = pm.radioButtonGrp(self.sim_options_rb, q=True , sl=True)
         # 1=0ff, 2=offline, 3=robot
+
         pm.checkBoxGrp(self.robot_file_options_cb, e=True, en=run_mode==RUNMODE_OFFLINE)
 
+        do_anim = pm.checkBoxGrp(self.anim_cb, q=True, value1=True)
+        pm.radioButtonGrp(self.pause_options_rb, e=True , en=(do_anim and (run_mode!=RUNMODE_OFF)))
+
     def on_go(self):
+
+
+
         self.save()
         do_anim = pm.checkBoxGrp(self.anim_cb, q=True, value1=True)
 
@@ -141,12 +166,21 @@ class PovPublishTab(gui.FormLayout):
 
         run_mode = pm.radioButtonGrp(self.sim_options_rb, q=True , sl=True)
 
+        pause_index = 0
+        if do_anim:
+            pause_index = pm.radioButtonGrp(self.pause_options_rb, q=True , sl=True) -1
+        pause = [0, 30000, -1][pause_index]
+
 
         save_rdk = pm.checkBoxGrp(self.robot_file_options_cb, q=True , value1=True)
         save_src = pm.checkBoxGrp(self.robot_file_options_cb, q=True , value2=True)
 
         save_maya_scene = pm.checkBoxGrp(self.maya_file_options_cb, q=True , value1=True)
         save_snapshots = pm.checkBoxGrp(self.maya_file_options_cb, q=True , value2=True)
+
+        notes = pm.scrollField(self.description_tf, query=True, text=True)
+        if (len(notes) < 6) and (save_rdk or save_src or save_maya_scene or save_snapshots):
+            raise ValueError("You must enter some notes if you are saving any files.")
 
 
         try:
@@ -157,13 +191,17 @@ class PovPublishTab(gui.FormLayout):
                 save_src,
                 save_maya_scene,
                 save_snapshots,
-                start_frame, 
+                notes,
+                start_frame,
                 end_frame,
+                pause,
                 program_prefix="pv")
             pov_session.run()
         except ValueError:
             print("PovSession aborted")
             raise
+
+        
 
     def populate(self):
         for persister in self.persistentWidgets:
