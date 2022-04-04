@@ -87,7 +87,6 @@ MStatus lightPainting::initialize()
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
   nAttr.setDefault(1.0);
-  nAttr.setMax(10.0);
   st = addAttribute(aWaitGain);
 
   aOutput = tAttr.create("output", "out", lightPaintingData::id);
