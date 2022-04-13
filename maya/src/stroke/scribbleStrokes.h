@@ -102,6 +102,10 @@ private:
   static MObject aBank;
   static MObject aTwist;
 
+  static MObject aProjectToPlane;
+  static MObject aProjectionPlaneMatrix;
+  
+
   static MObject aTiltMap;
   static MObject aBankMap;
   static MObject aTwistMap;

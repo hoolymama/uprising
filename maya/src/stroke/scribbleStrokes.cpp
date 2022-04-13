@@ -48,6 +48,9 @@ MObject scribbleStrokes::aTiltMap;
 MObject scribbleStrokes::aBankMap;
 MObject scribbleStrokes::aTwistMap;
 
+MObject scribbleStrokes::aProjectToPlane;
+MObject scribbleStrokes::aProjectionPlaneMatrix;
+
 MObject scribbleStrokes::aRotateOrder;
 
 MObject scribbleStrokes::aColorPropagation;
@@ -182,6 +185,21 @@ MStatus scribbleStrokes::initialize()
   eAttr.setKeyable(true);
   st = addAttribute(aRotateOrder);
 
+  aProjectToPlane = nAttr.create("projectToPlane", "ptp",  MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setWritable(true);
+  nAttr.setDefault(true);
+  addAttribute(aProjectToPlane);
+
+  aProjectionPlaneMatrix = mAttr.create("projectionPlaneMatrix", "ppm", MFnMatrixAttribute::kDouble);
+  mAttr.setStorable(true);
+  mAttr.setHidden(false);
+  mAttr.setKeyable(true);
+  addAttribute(aProjectionPlaneMatrix);
+
+
   aColorPropagation = eAttr.create("ColorPropagation", "cpr", scribbleStrokes::kOverride);
   eAttr.addField("interpolate", scribbleStrokes::kInterpolate);
   eAttr.addField("kOverride", scribbleStrokes::kOverride);
@@ -211,7 +229,6 @@ MStatus scribbleStrokes::initialize()
   attributeAffects(aPointDensity, aOutput);
   attributeAffects(aMinimumPoints, aOutput);
 
-
   attributeAffects(aAngle, aOutput);
   attributeAffects(aRadiusOffset, aOutput);
   attributeAffects(aRadiusGain, aOutput);
@@ -223,6 +240,9 @@ MStatus scribbleStrokes::initialize()
   attributeAffects(aBankMap, aOutput);
   attributeAffects(aTwistMap, aOutput);
   attributeAffects(aRotateOrder, aOutput);
+
+  attributeAffects(aProjectToPlane, aOutput);
+  attributeAffects(aProjectionPlaneMatrix, aOutput);
 
   attributeAffects(aColorPropagation, aOutput);
   attributeAffects(aColorOverride, aOutput);
@@ -252,9 +272,10 @@ MStatus scribbleStrokes::mutate(
   getMappedValues(scribbleStrokes::aRadiusGain, data, points, radiusGain);
   getMappedValues(scribbleStrokes::aRadiusOffset, data, points, radiusOffset);
 
+  bool projectToPlane = data.inputValue(aProjectToPlane).asBool();
+  MMatrix projectionMatrix = data.inputValue(aProjectionPlaneMatrix).asMatrix();
+  MMatrix projectionMatrixInverse = projectionMatrix.inverse();
 
-  attributeAffects(aRadiusOffset, aOutput);
-  attributeAffects(aRadiusGain, aOutput);
   float dummy1 = data.inputValue(aRadiusOffset).asFloat();
   float dummy2 =  data.inputValue(aRadiusGain).asFloat();
 
@@ -330,6 +351,17 @@ MStatus scribbleStrokes::mutate(
       MQuaternion q(angle, z);
       editPoints.set((titer->position() + (tangent * radius).rotateBy(q)), t);
     }
+
+    if (projectToPlane) {
+      for (int k = 0; k < editPoints.length(); k++)
+      {
+        const MPoint & ep = editPoints[k];
+        MPoint epLocal = ep * projectionMatrixInverse;
+        epLocal.z = 0;
+        editPoints[k] = epLocal * projectionMatrix;
+      }
+    }
+
 
     Stroke stroke;
     if (doInterp)
