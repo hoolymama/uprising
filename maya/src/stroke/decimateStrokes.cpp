@@ -28,9 +28,9 @@
 const float PI = 3.14159265359;
 
 MObject decimateStrokes::aDensity;
-MObject decimateStrokes::aSeed;  
+MObject decimateStrokes::aSeed;
 MObject decimateStrokes::aSmooth;
-   
+
 MTypeId decimateStrokes::id(k_decimateStrokes);
 
 decimateStrokes::decimateStrokes() {}
@@ -75,15 +75,12 @@ MStatus decimateStrokes::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(0);
-  
-  addAttribute(aSmooth);
 
-  
+  addAttribute(aSmooth);
 
   attributeAffects(aSmooth, aOutput);
   attributeAffects(aSeed, aOutput);
   attributeAffects(aDensity, aOutput);
-
 
   return (MS::kSuccess);
 }
@@ -95,13 +92,11 @@ MStatus decimateStrokes::mutate(
 {
   MStatus st;
 
-
-  int seedVal = data.inputValue( aSeed).asInt()  ;
+  int seedVal = data.inputValue(aSeed).asInt();
   srand48(seedVal);
-  int smooth = data.inputValue( aSmooth).asInt()  ;
-  
-  
-  float density =  data.inputValue( aDensity).asFloat()  ;
+  int smooth = data.inputValue(aSmooth).asInt();
+
+  float density = data.inputValue(aDensity).asFloat();
 
   MFloatArray densities;
 
@@ -110,8 +105,7 @@ MStatus decimateStrokes::mutate(
   getDensities(data, points, densities);
 
   MIntArray spanMask;
-  dither( smooth, densities, spanMask);
-
+  dither(smooth, densities, spanMask);
 
   removeSpans(strokes, spanMask);
 
@@ -153,39 +147,36 @@ void decimateStrokes::getDensities(
   }
 }
 
-
-void decimateStrokes::dither( int smooth, const MFloatArray &densities, MIntArray &spanMask) const
+void decimateStrokes::dither(int smooth, const MFloatArray &densities, MIntArray &spanMask) const
 {
   int count = densities.length();
   spanMask.setLength(count);
   if (smooth < 1)
-	{
+  {
     for (int i = 0; i < count; i++)
     {
-      spanMask[i] = int( drand48() < densities[i]);
+      spanMask[i] = int(drand48() < densities[i]);
     }
-		return;
-	}
- 
-  
+    return;
+  }
+
   MFloatArray buffer = MFloatArray(count);
   for (int i = 0; i < count; i++)
   {
-    buffer[i] = float( drand48() < densities[i]);
+    buffer[i] = float(drand48() < densities[i]);
   }
-
 
   for (int i = 0; i < count; i++)
   {
-		int fromStart = i;
-		int fromEnd = (count - 1) - i;
+    int fromStart = i;
+    int fromEnd = (count - 1) - i;
     int n = std::min(smooth, std::min(fromStart, fromEnd));
-	  if (n < 1)
-		{
-			continue;
-		}
+    if (n < 1)
+    {
+      continue;
+    }
     float denom = (2 * n) + 1;
-    
+
     float mean = 0.0;
     for (int j = i - n; j < i + n + 1; j++)
     {
@@ -196,13 +187,10 @@ void decimateStrokes::dither( int smooth, const MFloatArray &densities, MIntArra
   }
 }
 
-
-
 void decimateStrokes::removeSpans(
     std::vector<Stroke> *strokes,
     const MIntArray &spanMask) const
 {
-
 
   std::vector<Stroke> sourceStrokes(*strokes);
   strokes->clear();
@@ -213,40 +201,49 @@ void decimateStrokes::removeSpans(
   std::vector<Stroke>::iterator iter = sourceStrokes.begin();
   std::vector<Stroke>::iterator enditer = sourceStrokes.end();
 
-
   for (; iter != enditer; iter++)
   {
 
     unsigned origLength = iter->targets().size();
     unsigned startPeg = 0;
     unsigned endPeg = 0;
- 
+
     bool prevDoSpan = false;
 
     const std::vector<Target> targets = iter->targets();
     std::vector<Target>::const_iterator targetIter = std::next(targets.begin());
-    for (int localSpanId = 0; targetIter != targets.end(); targetIter++, maskId++, localSpanId++) 
+    for (int localSpanId = 0; targetIter != targets.end(); targetIter++, maskId++, localSpanId++)
     {
       bool doSpan = spanMask[maskId];
-      if (doSpan) {
-        if (prevDoSpan) {
-          if ( targetIter == std::prev(targets.end())) {
-            // last target and 
-            endPeg = localSpanId +1;
-            unsigned targetCount = (endPeg - startPeg) +1;
+      if (doSpan)
+      {
+        if (prevDoSpan)
+        {
+          if (targetIter == std::prev(targets.end()))
+          {
+            // last target and
+            endPeg = localSpanId + 1;
+            unsigned targetCount = (endPeg - startPeg) + 1;
             strokes->push_back(Stroke(*iter, startPeg, targetCount));
           }
-        } else {
+        }
+        else
+        {
           startPeg = localSpanId;
         }
 
         // int targetCount = (i - startPeg) + 1;
-      } else { // cut this span
-        if (prevDoSpan) { // ending a sequence of spans
+      }
+      else
+      { // cut this span
+        if (prevDoSpan)
+        { // ending a sequence of spans
           endPeg = localSpanId;
-          unsigned targetCount = (endPeg - startPeg) +1;
+          unsigned targetCount = (endPeg - startPeg) + 1;
           strokes->push_back(Stroke(*iter, startPeg, targetCount));
-        } else {
+        }
+        else
+        {
           // do nothing
         }
       }

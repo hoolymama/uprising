@@ -276,8 +276,13 @@ MStatus scribbleStrokes::mutate(
   MMatrix projectionMatrix = data.inputValue(aProjectionPlaneMatrix).asMatrix();
   MMatrix projectionMatrixInverse = projectionMatrix.inverse();
 
-  float dummy1 = data.inputValue(aRadiusOffset).asFloat();
+  float dummy1 =  data.inputValue(aRadiusOffset).asFloat();
   float dummy2 =  data.inputValue(aRadiusGain).asFloat();
+  float dummy3 =  data.inputValue(aTiltMap).asFloat();
+  float dummy4 =  data.inputValue(aBankMap).asFloat();
+  float dummy5 =  data.inputValue(aTwistMap).asFloat();
+
+
 
   float tilt = float(data.inputValue(aTilt).asAngle().asRadians());
   float bank = float(data.inputValue(aBank).asAngle().asRadians());
