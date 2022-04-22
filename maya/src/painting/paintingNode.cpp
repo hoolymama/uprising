@@ -48,7 +48,7 @@ MObject painting::aApproachDistanceEnd;
 MObject painting::aApproachDistance;
 
 MObject painting::aCanvasMatrix;
-MObject painting::aBrushes;
+// MObject painting::aBrushes;
 
 MObject painting::aPalette;
 
@@ -114,14 +114,6 @@ MStatus painting::initialize()
   nAttr.setReadable(true);
   addAttribute(aApproachDistance);
 
-  aBrushes = tAttr.create("brushes", "bsh", brushData::id);
-  tAttr.setReadable(false);
-  tAttr.setStorable(false);
-  tAttr.setArray(true);
-  tAttr.setKeyable(true);
-  tAttr.setIndexMatters(true);
-  tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-  addAttribute(aBrushes);
 
   aPalette = tAttr.create("palette", "plt", paletteData::id);
   tAttr.setReadable(false);
@@ -206,50 +198,50 @@ MStatus painting::initialize()
 
   st = attributeAffects(aStrokes, aOutput);
   st = attributeAffects(aCanvasMatrix, aOutput);
-
   st = attributeAffects(aMaxPointToPointDistance, aOutput);
   st = attributeAffects(aApproachDistance, aOutput);
-  st = attributeAffects(aBrushes, aOutput);
   st = attributeAffects(aPalette, aOutput);
   st = attributeAffects(aReassignParentId, aOutput);
+
+  st = attributeAffects(paintingBase::aBrushes, aOutput);
 
   return (MS::kSuccess);
 }
 
-MStatus painting::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes)
-{
-  MStatus st;
-  MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
-  msert;
+// MStatus painting::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes)
+// {
+//   MStatus st;
+//   MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
+//   msert;
 
-  brushes[-1] = Brush();
+//   brushes[-1] = Brush();
 
-  unsigned nPlugs = ha.elementCount();
-  for (unsigned i = 0; i < nPlugs; i++, ha.next())
-  {
-    int index = ha.elementIndex(&st);
-    if (st.error())
-    {
-      continue;
-    }
-    MDataHandle h = ha.inputValue(&st);
-    if (st.error())
-    {
-      continue;
-    }
+//   unsigned nPlugs = ha.elementCount();
+//   for (unsigned i = 0; i < nPlugs; i++, ha.next())
+//   {
+//     int index = ha.elementIndex(&st);
+//     if (st.error())
+//     {
+//       continue;
+//     }
+//     MDataHandle h = ha.inputValue(&st);
+//     if (st.error())
+//     {
+//       continue;
+//     }
 
-    MObject d = h.data();
-    MFnPluginData fnP(d, &st);
-    if (st.error())
-    {
-      continue;
-    }
-    brushData *bData = (brushData *)fnP.data();
+//     MObject d = h.data();
+//     MFnPluginData fnP(d, &st);
+//     if (st.error())
+//     {
+//       continue;
+//     }
+//     brushData *bData = (brushData *)fnP.data();
 
-    brushes[index] = *(bData->fGeometry);
-  }
-  return MS::kSuccess;
-}
+//     brushes[index] = *(bData->fGeometry);
+//   }
+//   return MS::kSuccess;
+// }
 
 MStatus painting::getPalette(MDataBlock &data, std::map<int, Paint> &palette) const
 {
@@ -292,7 +284,7 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
   // cerr << "painting::compute ptpThresh: "<< ptpThresh << endl;
   std::map<int, Brush> brushes;
   std::map<int, Paint> palette;
-  collectBrushes(data, brushes);
+  paintingBase::collectBrushes(data, brushes);
   st = getPalette(data, palette);
   if (st.error())
   {

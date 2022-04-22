@@ -7,6 +7,7 @@
 #include <maya/MDGModifier.h>
 
 #include <maya/MFnMatrixData.h>
+#include <map>
 
 class paintingBase : public MPxLocatorNode
 {
@@ -34,7 +35,12 @@ public:
 
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
 
+  virtual MStatus collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes);
+
+
   static MTypeId id;
+
+  static MObject aBrushes;
 
   static MObject aReassignParentId;
   static MObject aPointSize;

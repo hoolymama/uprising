@@ -1,5 +1,5 @@
 #include <maya/MIOStream.h>
-
+#include <maya/MFnPluginData.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MMatrix.h>
 #include <maya/MFnUnitAttribute.h>
@@ -13,7 +13,7 @@
 #include <jMayaIds.h>
 #include "mayaMath.h"
 #include "errorMacros.h"
-
+#include "brushData.h"
 
 MTypeId paintingBase::id(k_paintingBase);
 
@@ -33,6 +33,7 @@ MObject paintingBase::aAngularSpeed;          // per sec
 MObject paintingBase::aApproximationDistance; // cm
 
 MObject paintingBase::aReassignParentId;
+MObject paintingBase::aBrushes;
 
 MObject paintingBase::aPointSize;
 MObject paintingBase::aLineLength;
@@ -138,6 +139,17 @@ MStatus paintingBase::initialize()
   nAttr.setDefault(5.0f);
   addAttribute(aArrowheadSize);
 
+  aBrushes = tAttr.create("brushes", "bsh", brushData::id);
+  tAttr.setReadable(false);
+  tAttr.setStorable(false);
+  tAttr.setArray(true);
+  tAttr.setKeyable(true);
+  tAttr.setIndexMatters(true);
+  tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
+  addAttribute(aBrushes);
+
+
+
   aDisplayTargets = eAttr.create("displayTargets", "dtg");
   eAttr.addField("none", PaintingEnums::kTargetsNone);
   eAttr.addField("point", PaintingEnums::kTargetsPoint);
@@ -194,6 +206,7 @@ MStatus paintingBase::initialize()
 	st = addAttribute(aWireColor);
 	mser;
 
+
   return (MS::kSuccess);
 }
 
@@ -218,6 +231,42 @@ bool paintingBase::isBounded() const
 MBoundingBox paintingBase::boundingBox() const
 {
   return MBoundingBox();
+}
+
+
+MStatus paintingBase::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes)
+{
+  MStatus st;
+  MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
+  msert;
+
+  brushes[-1] = Brush();
+
+  unsigned nPlugs = ha.elementCount();
+  for (unsigned i = 0; i < nPlugs; i++, ha.next())
+  {
+    int index = ha.elementIndex(&st);
+    if (st.error())
+    {
+      continue;
+    }
+    MDataHandle h = ha.inputValue(&st);
+    if (st.error())
+    {
+      continue;
+    }
+
+    MObject d = h.data();
+    MFnPluginData fnP(d, &st);
+    if (st.error())
+    {
+      continue;
+    }
+    brushData *bData = (brushData *)fnP.data();
+
+    brushes[index] = *(bData->fGeometry);
+  }
+  return MS::kSuccess;
 }
 
 void paintingBase::postConstructor(){}

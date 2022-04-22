@@ -34,7 +34,8 @@ void *lightPainting::creator()
   return new lightPainting();
 }
 
-MObject lightPainting::aBrush;
+MObject lightPainting::aBrush; // DEPRECATE
+
 MObject lightPainting::aDisplayTargetColors;
 MObject lightPainting::aViewMatrix;
 
@@ -63,6 +64,7 @@ MStatus lightPainting::initialize()
   mAttr.setKeyable(true);
   addAttribute(aViewMatrix);
 
+  // DEPRECATE
   aBrush = tAttr.create("brush", "bsh", brushData::id);
   tAttr.setHidden(false);
   tAttr.setStorable(false);
@@ -105,13 +107,14 @@ MStatus lightPainting::initialize()
   eAttr.setDefault(PaintingEnums::kTargetColorsRGB);
   addAttribute(aDisplayTargetColors);
 
+
   st = attributeAffects(aStrokes, aOutput);
+  st = attributeAffects(aBrush, aOutput); // DEPRECATE
+  st = attributeAffects(aReassignParentId, aOutput);
+  st = attributeAffects(paintingBase::aBrushes, aOutput);
+
 
   // st = attributeAffects(aViewMatrix, aOutput);
-
-  st = attributeAffects(aBrush, aOutput);
-  st = attributeAffects(aReassignParentId, aOutput);
-
   // st = attributeAffects(aLinearSpeed, aOutput);
   // st = attributeAffects(aAngularSpeed, aOutput);
   // st = attributeAffects(aApproximationDistance, aOutput);
@@ -130,19 +133,21 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
 
   MMatrix wm = NodeUtils::firstWorldMatrix(thisMObject());
 
+
+  std::map<int, Brush> brushes;
+  paintingBase::collectBrushes(data, brushes);
+
+
   m_pd->create();
 
   MDataHandle hBrush = data.inputValue(aBrush, &st);
-  msert;
-
+  mser;
   MObject dBrush = hBrush.data();
   MFnPluginData fnBrush(dBrush, &st);
-  msert;
+  mser;
 
   brushData *bData = (brushData *)fnBrush.data();
-
   Brush *outBrush = m_pd->brush();
-
   *outBrush = *(bData->fGeometry);
 
   std::vector<Stroke> *outStrokeGeom = m_pd->strokes();
