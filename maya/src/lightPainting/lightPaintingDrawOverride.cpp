@@ -102,6 +102,8 @@ MUserData *lightPaintingDrawOverride::prepareForDraw(
 
 	data->strokes = ptd->strokes();
 	data->brush = ptd->brush();
+	// data->brushes = ptd->brushes();
+	
 
 	short colorsMode;
 	MPlug(paintingObj, lightPainting::aDisplayTargetColors).getValue(colorsMode);
@@ -195,15 +197,28 @@ void lightPaintingDrawOverride::drawShaded(
 	drawManager.beginDrawable();
 	// float stackHeight = 0.0f;
 	bool done = false;
-	const Brush &brush = *(cdata->brush);
+	Brush brush = *(cdata->brush);
+
+	// const std::map<int, Brush> &brushes = *(cdata->brushes);
+	
 
 	drawManager.setDepthPriority(5);
 
+	// std::map<int, Brush>::const_iterator brushFinder;
 
 	for (auto stroke : *(cdata->strokes))
 	{
 		///////// Calculate how many segments to draw
 		// REFACTOR !!!
+		// int brush_id = stroke.brushId();
+		
+		// brushFinder = brushes.find(brush_id);
+
+		// if (brushFinder != brushes.end())
+		// {
+		// 	brush = brushFinder->second;
+		// }
+ 
 		int this_stroke_segments =  stroke.size() -1;
 		float last_param = num_visited_segments / float(total_segments);
 		int next_accum_segments = num_visited_segments + this_stroke_segments;

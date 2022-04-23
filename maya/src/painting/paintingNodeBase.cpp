@@ -237,7 +237,7 @@ MBoundingBox paintingBase::boundingBox() const
 MStatus paintingBase::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes)
 {
   MStatus st;
-  MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
+  MArrayDataHandle ha = data.inputArrayValue(paintingBase::aBrushes, &st);
   msert;
 
   brushes[-1] = Brush();

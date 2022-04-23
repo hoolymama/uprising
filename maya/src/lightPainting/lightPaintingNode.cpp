@@ -130,32 +130,53 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
   {
     return (MS::kUnknownParameter);
   }
-
+  JPMDBG;
   MMatrix wm = NodeUtils::firstWorldMatrix(thisMObject());
-
-
+  JPMDBG;
+  m_pd->create();
+  JPMDBG;
+  // ///////////////// Brush
+  MDataHandle hBrush = data.inputValue(aBrush, &st);
+  msert;
+    JPMDBG;
+  MObject dBrush = hBrush.data();
+    JPMDBG;
+  MFnPluginData fnBrush(dBrush, &st);
+    JPMDBG;
+  msert;
+  brushData *bData = (brushData *)fnBrush.data();
+    JPMDBG;
+  Brush *outBrush = m_pd->brush();
+    JPMDBG;
+  *outBrush = *(bData->fGeometry);
+  JPMDBG;
+  // ///////////////// Brushes
+    JPMDBG;
   std::map<int, Brush> brushes;
   paintingBase::collectBrushes(data, brushes);
 
+  JPMDBG;
 
-  m_pd->create();
+	std::map<int, Brush>::const_iterator iter = brushes.begin();
+  JPMDBG;
 
-  MDataHandle hBrush = data.inputValue(aBrush, &st);
-  mser;
-  MObject dBrush = hBrush.data();
-  MFnPluginData fnBrush(dBrush, &st);
-  mser;
+  for(; iter!= brushes.end(); iter++) 
+	{
+     cerr << "Brushes:" <<  (iter->second) << endl;
+ 
+	}
+  JPMDBG;
 
-  brushData *bData = (brushData *)fnBrush.data();
-  Brush *outBrush = m_pd->brush();
-  *outBrush = *(bData->fGeometry);
-
+  std::map<int, Brush>  *outBrushes = m_pd->brushes();
+  *outBrushes = brushes;
+  JPMDBG;
   std::vector<Stroke> *outStrokeGeom = m_pd->strokes();
-
   addStrokes(data, outStrokeGeom);
+  JPMDBG;
 
   MFnPluginData fnOut;
   MTypeId kdid(lightPaintingData::id);
+  JPMDBG;
 
   MObject dOut = fnOut.create(kdid, &st);
   msert;
@@ -165,6 +186,7 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
   {
     *outGeometryData = (*m_pd); // assignment
   }
+  JPMDBG;
 
   MDataHandle outputHandle = data.outputValue(aOutput, &st);
   msert;

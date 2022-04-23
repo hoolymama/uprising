@@ -3,16 +3,10 @@
 #ifndef lightPaintingDrawData_H
 #define lightPaintingDrawData_H
 
-// #include <maya/MPxDrawOverride.h>
 #include <maya/MFloatVector.h>
 #include <maya/MUserData.h>
 #include <vector>
-// #include <maya/MDrawRegistry.h>
-// #include <maya/MViewport2Renderer.h>
-// #include <maya/MMatrix.h>
-// #include <maya/MColor.h>
-// #include <maya/MStringArray.h>
-// #include "lightPaintingGeom.h"
+#include <map>
 #include "enums.h"
 #include "brush.h"
 #include "stroke.h"
@@ -44,6 +38,7 @@ public:
 	MFloatVector idDisplayOffset;
 
 	std::vector<Stroke> *strokes;
+	// std::map<int, Brush> *brushes;
 	Brush *brush; 
 };
 

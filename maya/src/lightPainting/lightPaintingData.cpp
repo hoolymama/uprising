@@ -2,6 +2,8 @@
 #include "lightPaintingData.h"
 #include <jMayaIds.h>
 
+
+
 #include <maya/MDataBlock.h>
 #include <maya/MArrayDataHandle.h>
 #include <maya/MFnPluginData.h>
@@ -13,7 +15,7 @@
 const MTypeId lightPaintingData::id(k_lightPaintingData);
 const MString lightPaintingData::typeName("lightPaintingData");
 
-lightPaintingData::lightPaintingData() : m_pStrokes(0), m_pBrush(0) {}
+lightPaintingData::lightPaintingData() :  m_pStrokes(0), m_pBrush(0),  m_pBrushes(0) {}
 lightPaintingData::~lightPaintingData() {}
 
 std::vector<Stroke> *lightPaintingData::strokes() const
@@ -24,6 +26,11 @@ Brush *lightPaintingData::brush() const
 {
 	return m_pBrush;
 }
+std::map<int, Brush> *lightPaintingData::brushes() const
+{
+	return m_pBrushes;
+}
+
 
 // clean up
 void lightPaintingData::clear()
@@ -41,6 +48,11 @@ void lightPaintingData::clear()
 		// cerr << "YES m_pBrush " << m_pBrush << endl;
 		delete m_pBrush;
 		m_pBrush = 0;
+	}
+	if (m_pBrushes)
+	{
+		delete m_pBrushes;
+		m_pBrushes = 0;
 	}
 }
 
@@ -65,6 +77,13 @@ MStatus lightPaintingData::create()
 		return MS::kFailure;
 	}
 
+	m_pBrushes = new std::map<int, Brush>();
+	if (!m_pBrushes)
+	{
+		clear();
+		return MS::kFailure;
+	}
+
 	return MS::kSuccess;
 }
 
@@ -72,6 +91,7 @@ void lightPaintingData::copy(const MPxData &otherData)
 {
 	m_pStrokes = ((const lightPaintingData &)otherData).strokes();
 	m_pBrush = ((const lightPaintingData &)otherData).brush();
+	m_pBrushes = ((const lightPaintingData &)otherData).brushes();
 }
 
 lightPaintingData &lightPaintingData::operator=(const lightPaintingData &otherData)
@@ -80,6 +100,8 @@ lightPaintingData &lightPaintingData::operator=(const lightPaintingData &otherDa
 	{
 		m_pStrokes = otherData.strokes();
 		m_pBrush = otherData.brush();
+		m_pBrushes = otherData.brushes();
+		
 	}
 	return *this;
 }

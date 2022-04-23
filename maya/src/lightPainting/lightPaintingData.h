@@ -2,6 +2,7 @@
 #define _lightPaintingData
 
 #include <vector>
+#include <map>
 
 #include <maya/MPxData.h>
 #include <maya/MTypeId.h>
@@ -26,6 +27,7 @@ public:
 	lightPaintingData &operator=(const lightPaintingData &otherData ) ;
 	
 	std::vector<Stroke>	*strokes() const ;
+	std::map<int, Brush> *brushes() const;
 	Brush *brush() const ;
 
 	
@@ -41,6 +43,7 @@ public:
 	static const MTypeId id;
 
 	std::vector<Stroke> *m_pStrokes;
+	std::map<int, Brush> *m_pBrushes;
 	Brush *m_pBrush;
 	
 };

@@ -5,7 +5,7 @@
 #include <maya/MPxLocatorNode.h>
 #include <maya/MDGMessage.h>
 #include <maya/MDGModifier.h>
-
+#include "brush.h"
 #include <maya/MFnMatrixData.h>
 #include <map>
 
