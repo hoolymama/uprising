@@ -58,7 +58,7 @@ MHWRender::DrawAPI lightPaintingDrawOverride::supportedDrawAPIs() const
 }
 
 bool lightPaintingDrawOverride::isBounded(const MDagPath &objPath,
-									 const MDagPath &cameraPath) const
+										  const MDagPath &cameraPath) const
 {
 	return false;
 }
@@ -101,7 +101,8 @@ MUserData *lightPaintingDrawOverride::prepareForDraw(
 	}
 
 	data->strokes = ptd->strokes();
-	data->brush = ptd->brush();
+	data->brushes = ptd->brushes();
+	// data->brush = ptd->brush();
 
 	short colorsMode;
 	MPlug(paintingObj, lightPainting::aDisplayTargetColors).getValue(colorsMode);
@@ -109,8 +110,10 @@ MUserData *lightPaintingDrawOverride::prepareForDraw(
 
 	MObject dViewMatrix;
 	MPlug(paintingObj, lightPainting::aViewMatrix).getValue(dViewMatrix);
-	MFnMatrixData fnMatrix(dViewMatrix,&st);mser;
-	const MMatrix & mat = fnMatrix.matrix(&st) ;mser;
+	MFnMatrixData fnMatrix(dViewMatrix, &st);
+	mser;
+	const MMatrix &mat = fnMatrix.matrix(&st);
+	mser;
 
 	// vector coming into the camera
 	data->drawingNormal = MFloatVector(MVector::zAxis * mat).normal();
@@ -123,6 +126,7 @@ MUserData *lightPaintingDrawOverride::prepareForDraw(
 	// MPlug(paintingObj, lightPainting::aDisplayPivots).getValue(data->displayPivots);
 	MPlug(paintingObj, lightPainting::aDisplayIds).getValue(data->displayIds);
 	MPlug(paintingObj, lightPainting::aDisplayParentIds).getValue(data->displayParentIds);
+	MPlug(paintingObj, lightPainting::aDisplayBrushIds).getValue(data->displayBrushIds);
 	MPlug(paintingObj, lightPainting::aDisplayLayerIds).getValue(data->displayLayerIds);
 	MPlug(paintingObj, lightPainting::aArrowheadSize).getValue(data->arrowheadSize);
 	MPlug(paintingObj, lightPainting::aDrawParam).getValue(data->drawParam);
@@ -132,9 +136,6 @@ MUserData *lightPaintingDrawOverride::prepareForDraw(
 	offPlug.child(0).getValue(data->idDisplayOffset[0]);
 	offPlug.child(1).getValue(data->idDisplayOffset[1]);
 	offPlug.child(2).getValue(data->idDisplayOffset[2]);
-
-
- 
 
 	return data;
 }
@@ -158,8 +159,8 @@ void lightPaintingDrawOverride::addUIDrawables(
 
 	const unsigned int displayStyle = context.getDisplayStyle();
 
-	if ((displayStyle & MHWRender::MFrameContext::kGouraudShaded) || 
-		 (displayStyle & MHWRender::MFrameContext::kFlatShaded))
+	if ((displayStyle & MHWRender::MFrameContext::kGouraudShaded) ||
+		(displayStyle & MHWRender::MFrameContext::kFlatShaded))
 	{
 		drawShaded(drawManager, cdata);
 	}
@@ -172,53 +173,64 @@ void lightPaintingDrawOverride::addUIDrawables(
 
 void lightPaintingDrawOverride::drawShaded(
 	MHWRender::MUIDrawManager &drawManager,
-	const LightPaintingDrawData *cdata
-	)
+	const LightPaintingDrawData *cdata)
 {
 
 	// PaintingEnums::TargetColorsDisplay targetDisplayMode = PaintingEnums::TargetColorsDisplay(cdata->displayTargetColors);
 
-
 	// TODO: Split function based on draw param.
 	int total_segments = 0;
 
-	for (auto stroke :  *(cdata->strokes) )
+	for (auto stroke : *(cdata->strokes))
 	{
-		total_segments += stroke.size() -1;
+		total_segments += stroke.size() - 1;
 	}
 
 	int num_visited_segments = 0;
 	int segments = -1;
 
-	float drawParam =  cdata->drawParam;
+	float drawParam = cdata->drawParam;
 
 	drawManager.beginDrawable();
 	// float stackHeight = 0.0f;
 	bool done = false;
-	const Brush &brush = *(cdata->brush);
+	// const Brush &brush = *(cdata->brush);
 
 	drawManager.setDepthPriority(5);
 
-
+	// cerr << "cdata->brushes->size()" << cdata->brushes->size() << endl;
+	std::map<int, Brush>::const_iterator brushIter;
+	Brush brush;
 	for (auto stroke : *(cdata->strokes))
 	{
 		///////// Calculate how many segments to draw
 		// REFACTOR !!!
-		int this_stroke_segments =  stroke.size() -1;
+		const int &brushId = stroke.brushId();
+
+		brushIter = cdata->brushes->find(brushId);
+		if (brushIter != cdata->brushes->end())
+		{
+			brush = brushIter->second;
+		}
+		else
+		{
+			brush = cdata->brushes->find(-1)->second;
+		}
+
+		int this_stroke_segments = stroke.size() - 1;
 		float last_param = num_visited_segments / float(total_segments);
 		int next_accum_segments = num_visited_segments + this_stroke_segments;
 		float next_param = next_accum_segments / float(total_segments);
 
-		if (next_param > drawParam) {
-			segments = (int)(
-				((drawParam - last_param) / (next_param - last_param)) * this_stroke_segments
-				);
+		if (next_param > drawParam)
+		{
+			segments = (int)(((drawParam - last_param) / (next_param - last_param)) * this_stroke_segments);
 			done = true;
 		}
 
 		// stackHeight += cdata->stackGap;
 		MFloatPointArray triangles;
-		stroke.getTriangleStrip(cdata->drawingNormal, brush,  triangles, false, segments);
+		stroke.getTriangleStrip(cdata->drawingNormal, brush, triangles, false, segments);
 
 		MColorArray colors;
 		stroke.getTargetBorderColors(colors, segments, cdata->targetDisplayMode);
@@ -226,7 +238,8 @@ void lightPaintingDrawOverride::drawShaded(
 		drawManager.mesh(MHWRender::MUIDrawManager::kTriStrip, triangles, 0, &colors);
 
 		num_visited_segments = next_accum_segments;
-		if (done){
+		if (done)
+		{
 			break;
 		}
 	}
@@ -268,7 +281,7 @@ void lightPaintingDrawOverride::drawWireframeTargetsPoint(
 	MHWRender::MUIDrawManager &drawManager,
 	const LightPaintingDrawData *cdata)
 {
- 
+
 	drawManager.beginDrawable();
 	drawManager.setPointSize(cdata->pointSize);
 	for (auto stroke : *(cdata->strokes))
@@ -278,7 +291,7 @@ void lightPaintingDrawOverride::drawWireframeTargetsPoint(
 		drawManager.mesh(
 			MHWRender::MUIDrawManager::kPoints, points);
 	}
-	
+
 	drawManager.endDrawable();
 }
 
@@ -291,7 +304,7 @@ void lightPaintingDrawOverride::drawWireframeTargetsLine(
 	drawManager.setColor(MColor(0.0, 0.0, 1.0));
 
 	drawManager.setLineWidth(cdata->lineThickness);
- 
+
 	for (auto stroke : *(cdata->strokes))
 	{
 
@@ -301,7 +314,7 @@ void lightPaintingDrawOverride::drawWireframeTargetsLine(
 		stroke.getZAxes(ends);
 		drawLines(drawManager, starts, ends, cdata->lineLength);
 	}
- 
+
 	drawManager.endDrawable();
 }
 
@@ -314,10 +327,10 @@ void lightPaintingDrawOverride::drawWireframeTargetsMatrix(
 	drawManager.beginDrawable();
 
 	drawManager.setLineWidth(cdata->lineThickness);
- 
+
 	for (auto stroke : *(cdata->strokes))
 	{
- 
+
 		MFloatPointArray starts;
 		stroke.getPoints(starts);
 		MFloatVectorArray xends, yends, zends;
@@ -339,17 +352,37 @@ void lightPaintingDrawOverride::drawWireframeBorders(
 {
 	drawManager.beginDrawable();
 	drawManager.setLineWidth(cdata->lineThickness);
+
+
+
+	// cerr << "drawWireframeBorders cdata->brushes->size()" << cdata->brushes->size() << endl;
+	std::map<int, Brush>::const_iterator brushIter;
+	Brush brush;
+
+ 
 	
 
-	const Brush &brush = *(cdata->brush);
+
+	// const Brush &brush = *(cdata->brush);
 	for (auto stroke : *(cdata->strokes))
 	{
- 
+		const int &brushId = stroke.brushId();
+
+		brushIter = cdata->brushes->find(brushId);
+		if (brushIter != cdata->brushes->end())
+		{
+			brush = brushIter->second;
+		}
+		else
+		{
+			brush = cdata->brushes->find(-1)->second;
+		}
+
 		MFloatPointArray lineLoop;
 		stroke.getBorderLoop(
-			cdata->drawingNormal, 
-			brush, 
-			lineLoop, 
+			cdata->drawingNormal,
+			brush,
+			lineLoop,
 			false);
 		drawManager.mesh(
 			MHWRender::MUIDrawManager::kClosedLine, lineLoop);
@@ -357,9 +390,8 @@ void lightPaintingDrawOverride::drawWireframeBorders(
 	drawManager.endDrawable();
 }
 
- 
 void lightPaintingDrawOverride::drawWireframeArrows(
-	MHWRender::MUIDrawManager &drawManager, 
+	MHWRender::MUIDrawManager &drawManager,
 	const LightPaintingDrawData *cdata)
 {
 
@@ -376,12 +408,12 @@ void lightPaintingDrawOverride::drawWireframeArrows(
 
 	for (auto stroke : *(cdata->strokes))
 	{
-		const std::vector<Target> & targets =  stroke.targets();
+		const std::vector<Target> &targets = stroke.targets();
 		std::vector<Target>::const_iterator citer;
 		for (citer = targets.begin(); citer != targets.end(); citer++)
 		{
 			MFloatMatrix mat = citer->viewMatrix(cdata->drawingNormal);
- 
+
 			MFloatPointArray linestrip;
 			linestrip.append(MFloatPoint(mat[3][0], mat[3][1], mat[3][2]));
 			linestrip.append(head * mat);
@@ -395,14 +427,13 @@ void lightPaintingDrawOverride::drawWireframeArrows(
 	drawManager.endDrawable();
 }
 
-
 void lightPaintingDrawOverride::drawIds(
 	MHWRender::MUIDrawManager &drawManager, const LightPaintingDrawData *cdata)
 {
 
 	if (!(cdata->displayIds ||
-			cdata->displayParentIds ||
-			cdata->displayLayerIds))
+		  cdata->displayParentIds ||
+		  cdata->displayLayerIds))
 	{
 		return;
 	}
@@ -412,10 +443,9 @@ void lightPaintingDrawOverride::drawIds(
 	drawManager.setColor(textColor);
 	drawManager.setFontSize(MHWRender::MUIDrawManager::kSmallFontSize);
 
-  
-	for (auto stroke :  *(cdata->strokes))
+	for (auto stroke : *(cdata->strokes))
 	{
- 
+
 		MString text("");
 
 		if (cdata->displayIds)
@@ -430,18 +460,21 @@ void lightPaintingDrawOverride::drawIds(
 		{
 			text = text + "Lay:" + stroke.layerId() + "\n";
 		}
+		if (cdata->displayBrushIds)
+		{
+			text = text + "Br:" + stroke.brushId() + "\n";
+		}
 
 		MPoint textPos = stroke.getHead(cdata->drawingNormal) + MFloatVector(cdata->idDisplayOffset);
 		drawManager.text(textPos, text, MHWRender::MUIDrawManager::kLeft);
-	
 	}
 	drawManager.endDrawable();
 }
 
 void lightPaintingDrawOverride::drawLines(MHWRender::MUIDrawManager &drawManager,
-									 const MFloatPointArray &starts,
-									 const MFloatVectorArray &directions,
-									 float length)
+										  const MFloatPointArray &starts,
+										  const MFloatVectorArray &directions,
+										  float length)
 {
 	MFloatPointArray lines;
 	for (int i = 0; i < starts.length(); ++i)
@@ -454,10 +487,10 @@ void lightPaintingDrawOverride::drawLines(MHWRender::MUIDrawManager &drawManager
 }
 
 void lightPaintingDrawOverride::drawLines(MHWRender::MUIDrawManager &drawManager,
-									 const MFloatPointArray &starts,
-									 const MFloatVectorArray &directions, 
-									 float length,
-									 const MColor &color)
+										  const MFloatPointArray &starts,
+										  const MFloatVectorArray &directions,
+										  float length,
+										  const MColor &color)
 {
 	MFloatPointArray lines;
 	for (int i = 0; i < starts.length(); ++i)

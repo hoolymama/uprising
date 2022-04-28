@@ -17,6 +17,8 @@ class Stroke(object):
         self.angular_speed = self.query_angular_speed()
         self.approximation_distance = self.query_approximation_distance()
         self.layerId = self.query_layer_id()
+        self.brushId = self.query_brush_id()
+        
 
         # TODO: Check - should this be OR
         self.override_path_parameters =  (
@@ -51,6 +53,9 @@ class Stroke(object):
         raise NotImplementedError
 
     def query_layer_id(self):
+        raise NotImplementedError
+
+    def query_brush_id(self):
         raise NotImplementedError
 
     def configure(self):

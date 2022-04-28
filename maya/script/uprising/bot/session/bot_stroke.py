@@ -207,3 +207,6 @@ class BotStroke(Stroke):
             strokeIndex=self.id,
             strokeLayerId=True,
         )
+
+    def query_brush_id(self):
+        return self.cluster.brush.id

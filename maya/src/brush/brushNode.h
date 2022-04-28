@@ -69,6 +69,8 @@ private:
   static MObject aLineLength;
   static MObject aLineThickness;
 
+  static MObject aDmx;
+
   static MObject aOutPaintBrush;
   static MObject aOutDipBrush;
   static MObject aOutWipeBrush;

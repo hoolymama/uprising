@@ -79,7 +79,10 @@
         "random": "cpp",
         "__bits": "cpp",
         "forward_list": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "variant": "cpp"
     },
     "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7",
     "python.linting.pylintEnabled": false,

@@ -1,7 +1,7 @@
 from robolink import INSTRUCTION_INSERT_CODE
 
 
-def send_lights_off(program, run_on_robot):
+def send_lights_off(program, dmx, run_on_robot):
     """Trigger a lights-off instruction.
     """
     _send_light(program, 1, 0.0, run_on_robot, False)
@@ -10,21 +10,31 @@ def send_lights_off(program, run_on_robot):
     _send_light(program, 4, 0.0, run_on_robot, False)
 
 
-def send_lights( program, run_on_robot,color,  last_color=None):
+def send_lights( program, dmx, run_on_robot, color,  last_color=None):
+    """Send RGBA color to a DMX box.
+
+    Args:
+        program: RoboDK program
+        dmx: ID of the DMX box (0-5)
+        run_on_robot: Whether to run through the robot driver, or write an offline program
+        color: RGBA color
+        last_color: Previous color - no need to set color for a bulb that doesn't change. Defaults to None.
+    """
     if not last_color or last_color.r != color.r:
-        _send_light(program, 1, color.r, run_on_robot)
+        _send_light(program, dmx, 1, color.r, run_on_robot)
 
     if not last_color or last_color.g != color.g:
-        _send_light(program, 2, color.g, run_on_robot)
+        _send_light(program, dmx, 2, color.g, run_on_robot)
 
     if not last_color or last_color.b != color.b:
-        _send_light(program, 3, color.b, run_on_robot)
+        _send_light(program, dmx, 3, color.b, run_on_robot)
 
     if not last_color or last_color.a != color.a:
-        _send_light(program, 4, color.a, run_on_robot)
+        _send_light(program, dmx, 4, color.a, run_on_robot)
 
 
-def _send_light(program, channel, value, run_on_robot, trigger=True):
+def _send_light(program, dmx, channel, value, run_on_robot, trigger=True):
+    # NOTE: NEED TO REWRITE FOR RUN ON ROBOT!!!
     if run_on_robot:
         if trigger:
             channel = channel+10
@@ -32,6 +42,8 @@ def _send_light(program, channel, value, run_on_robot, trigger=True):
             channel = channel+5
         program.setDO(channel, value)
         return
+
+    channel = channel + (dmx*4)
 
     if trigger:
         program.RunInstruction(

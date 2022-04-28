@@ -40,17 +40,16 @@ MSyntax lightPaintingCmd::newSyntax()
 
 	syn.addFlag(kStrokeLayerIdFlag, kStrokeLayerIdFlagL);
 
+	syn.addFlag(kStrokeBrushIdFlag, kStrokeBrushIdFlagL);
+
 	syn.addFlag(kStrokePositionsFlag, kStrokePositionsFlagL);
 
 	syn.addFlag(kStrokeRotationsFlag, kStrokeRotationsFlagL);
 
-	// syn.addFlag(kStrokeTangentsFlag, kStrokeTangentsFlagL);
-
 	syn.addFlag(kStrokeColorsFlag, kStrokeColorsFlagL);
+
 	syn.addFlag(kStrokeWaitsFlag, kStrokeWaitsFlagL);
-
-	// syn.addFlag(kStrokeBackstrokeFlag, kStrokeBackstrokeFlagL);
-
+ 
 	syn.addFlag(kStrokeArcLengthFlag, kStrokeArcLengthFlagL);
 
 	syn.addFlag(kStrokeParentIndexFlag, kStrokeParentIndexFlagL);
@@ -130,6 +129,12 @@ MStatus lightPaintingCmd::doIt(const MArgList &args)
 	{
 		return handleStrokeLayerIdFlag(*pStrokes, argData);
 	}
+	
+	if (argData.isFlagSet(kStrokeBrushIdFlag))
+	{
+		return handleStrokeBrushIdFlag(*pStrokes, argData);
+	}
+
 
 	if (argData.isFlagSet(kStrokePositionsFlag))
 	{
@@ -349,6 +354,21 @@ MStatus lightPaintingCmd::handleStrokeLayerIdFlag(const std::vector<Stroke> &str
 	setResult(strokes[strokeId].layerId());
 	return MS::kSuccess;
 }
+
+MStatus lightPaintingCmd::handleStrokeBrushIdFlag(const std::vector<Stroke> &strokes,
+												  MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(strokes, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+
+	setResult(strokes[strokeId].brushId());
+	return MS::kSuccess;
+}
+
 
 MStatus lightPaintingCmd::handleStrokePositionsFlag(const std::vector<Stroke> &strokes,
 													MArgDatabase &argData, const MFloatMatrix &worldMatrix)

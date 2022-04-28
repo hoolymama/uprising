@@ -39,6 +39,7 @@ class Brush(object):
             self.param = self.node.attr("paintingParam").get()
        
         self.active_bristle = self.bristleHeight * self.param
+        self.dmx_id = self.node.attr("dmxId").get()
         
     def __str__(self):
         # Override to print a readable string
@@ -82,15 +83,15 @@ class Brush(object):
             shape.Delete()
         robot.setPoseTool(tool_item)
 
-    @classmethod
-    def send_used_brush_sets(cls):
-        painting = pm.PyNode("mainPaintingShape")
-        tc = pm.paintingQuery(painting, toolCombinations=True)
-        bids = sorted(set(tc[::3]))
-        for bid in bids:
-            brush_set = Brush.brush_set_at_index(bid)
-            for key in brush_set:
-                brush_set[key].send()
+    # @classmethod
+    # def send_used_brush_sets(cls):
+    #     painting = pm.PyNode("mainPaintingShape")
+    #     tc = pm.paintingQuery(painting, toolCombinations=True)
+    #     bids = sorted(set(tc[::3]))
+    #     for bid in bids:
+    #         brush_set = Brush.brush_set_at_index(bid)
+    #         for key in brush_set:
+    #             brush_set[key].send()
 
     @classmethod
     def send_connected_brushes(cls):
@@ -163,14 +164,11 @@ class Brush(object):
     def used_brushes(cls, node):
         result = {}
         try:
-            tc = pm.paintingQuery(node, toolCombinations=True)
-            bids = sorted(set(tc[::3]))
-            for brush_id in bids:
-                result[brush_id] = Brush.brush_at_index(node, brush_id)
+            indices = node.attr("brushes").get(multiIndices=True)
+            for id in node.attr("brushes").get(multiIndices=True):
+                result[id] = Brush.brush_at_index(node, id)
             return result
         except (RuntimeError, AttributeError):
-
             plug = pm.PyNode(node).attr("brush")
             brush_plug = plug.connections(source=True, destination=False, plugs=True)[0]
             return {"00": Brush(0, brush_plug)}
- 

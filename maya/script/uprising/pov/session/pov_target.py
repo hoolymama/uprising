@@ -12,7 +12,7 @@ class PovTarget(Target):
         self.wait = wait
         self.linear = True
 
-    def send(self, prefix, program, frame, last_color, run_on_robot):
+    def send(self, prefix, program, frame, dmx_id, last_color, run_on_robot):
         link = robo.link()
         robot = robo.robot()
         target_name = self.name(prefix)
@@ -20,7 +20,7 @@ class PovTarget(Target):
         rdk_target.setPose(self.tool_pose)
         rdk_target.setJoints(self.joint_pose)
 
-        pov_lights.send_lights(program,run_on_robot, self.color, last_color)
+        pov_lights.send_lights(program, dmx_id, run_on_robot, self.color, last_color)
         if self.linear:
             program.addMoveL(rdk_target)
         else:

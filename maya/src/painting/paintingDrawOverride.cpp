@@ -595,7 +595,7 @@ void paintingDrawOverride::drawIds(
 
 	for (auto cluster : cdata->geom->clusters())
 	{
-		// const Brush &brush = geom.brushFromId(cluster.brushId());
+
 		for (auto stroke : cluster.strokes())
 		{
  

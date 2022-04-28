@@ -34,7 +34,9 @@ void *lightPainting::creator()
   return new lightPainting();
 }
 
-MObject lightPainting::aBrush;
+// MObject lightPainting::aBrush;
+// MObject lightPainting::aBrushes;
+
 MObject lightPainting::aDisplayTargetColors;
 MObject lightPainting::aViewMatrix;
 
@@ -63,11 +65,20 @@ MStatus lightPainting::initialize()
   mAttr.setKeyable(true);
   addAttribute(aViewMatrix);
 
-  aBrush = tAttr.create("brush", "bsh", brushData::id);
-  tAttr.setHidden(false);
-  tAttr.setStorable(false);
-  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-  addAttribute(aBrush);
+  // aBrush = tAttr.create("brush", "bsh", brushData::id);
+  // tAttr.setHidden(false);
+  // tAttr.setStorable(false);
+  // tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+  // addAttribute(aBrush);
+
+  // aBrushes = tAttr.create("brushes", "bshs", brushData::id);
+  // tAttr.setReadable(false);
+  // tAttr.setStorable(false);
+  // tAttr.setArray(true);
+  // tAttr.setKeyable(true);
+  // tAttr.setIndexMatters(true);
+  // tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
+  // addAttribute(aBrushes);
 
   aColorGain = nAttr.create("colorGain", "clg", MFnNumericData::kFloat);
   nAttr.setHidden(false);
@@ -106,11 +117,13 @@ MStatus lightPainting::initialize()
   addAttribute(aDisplayTargetColors);
 
   st = attributeAffects(aStrokes, aOutput);
+  st = attributeAffects(aBrushes, aOutput);
+  st = attributeAffects(aReassignParentId, aOutput);
 
   // st = attributeAffects(aViewMatrix, aOutput);
 
-  st = attributeAffects(aBrush, aOutput);
-  st = attributeAffects(aReassignParentId, aOutput);
+  // st = attributeAffects(aBrush, aOutput);
+  
 
   // st = attributeAffects(aLinearSpeed, aOutput);
   // st = attributeAffects(aAngularSpeed, aOutput);
@@ -118,6 +131,44 @@ MStatus lightPainting::initialize()
 
   return (MS::kSuccess);
 }
+
+// MStatus lightPainting::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes)
+// {
+//   MStatus st;
+//   MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
+//   msert;
+//   JPMDBG;
+//   brushes[-1] = Brush();
+//   JPMDBG;
+//   unsigned nPlugs = ha.elementCount();
+//   JPMDBG;
+//   for (unsigned i = 0; i < nPlugs; i++, ha.next())
+//   {
+//     int index = ha.elementIndex(&st);
+//     if (st.error())
+//     {
+//       continue;
+//     }
+//     MDataHandle h = ha.inputValue(&st);
+//     if (st.error())
+//     {
+//       continue;
+//     }
+
+//     MObject d = h.data();
+//     MFnPluginData fnP(d, &st);
+//     if (st.error())
+//     {
+//       continue;
+//     }
+//     brushData *bData = (brushData *)fnP.data();
+
+//     brushes[index] = *(bData->fGeometry);
+//   }
+//   JPMDBG;
+//   return MS::kSuccess;
+// }
+
 
 MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
 {
@@ -130,24 +181,31 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
 
   MMatrix wm = NodeUtils::firstWorldMatrix(thisMObject());
 
+
+
+
+  // MDataHandle hBrush = data.inputValue(aBrush, &st);
+  // msert;
+  // MObject dBrush = hBrush.data();
+  // MFnPluginData fnBrush(dBrush, &st);
+  // msert;
+
+  // brushData *bData = (brushData *)fnBrush.data();
+  // Brush *outBrush = m_pd->brush();
+  // *outBrush = *(bData->fGeometry);
   m_pd->create();
 
-  MDataHandle hBrush = data.inputValue(aBrush, &st);
-  msert;
-
-  MObject dBrush = hBrush.data();
-  MFnPluginData fnBrush(dBrush, &st);
-  msert;
-
-  brushData *bData = (brushData *)fnBrush.data();
-
-  Brush *outBrush = m_pd->brush();
-
-  *outBrush = *(bData->fGeometry);
-
   std::vector<Stroke> *outStrokeGeom = m_pd->strokes();
-
   addStrokes(data, outStrokeGeom);
+
+
+  // std::map<int, Brush> brushes;
+
+  std::map<int, Brush> *outBrushes = m_pd->brushes();
+  // *outBrushes = brushes;
+  collectBrushes(data, *outBrushes);
+
+
 
   MFnPluginData fnOut;
   MTypeId kdid(lightPaintingData::id);

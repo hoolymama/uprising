@@ -7,6 +7,7 @@
 #include <maya/MFloatVector.h>
 #include <maya/MUserData.h>
 #include <vector>
+#include <map>
 // #include <maya/MDrawRegistry.h>
 // #include <maya/MViewport2Renderer.h>
 // #include <maya/MMatrix.h>
@@ -27,6 +28,7 @@ public:
 	bool displayPivots;
 	bool displayIds;
 	bool displayParentIds;
+	bool displayBrushIds;
 	bool displayLayerIds;
 
 	float pointSize;
@@ -44,6 +46,8 @@ public:
 	MFloatVector idDisplayOffset;
 
 	std::vector<Stroke> *strokes;
+	std::map<int, Brush> *brushes;
+	
 	Brush *brush; 
 };
 

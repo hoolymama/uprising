@@ -17,7 +17,8 @@
             "type": "shell",
             "command": "rake clobber",
             "group": {
-                "kind": "build"
+                "kind": "build",
+                "isDefault": true
             }
         }
     ]

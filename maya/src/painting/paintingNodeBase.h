@@ -2,9 +2,11 @@
 #ifndef _paintingBaseNODE_H
 #define _paintingBaseNODE_H
 
+#include <map>
 #include <maya/MPxLocatorNode.h>
 #include <maya/MDGMessage.h>
 #include <maya/MDGModifier.h>
+#include "brush.h"
 
 #include <maya/MFnMatrixData.h>
 
@@ -12,7 +14,6 @@ class paintingBase : public MPxLocatorNode
 {
 public:
   paintingBase();
-  
 
   virtual ~paintingBase();
   virtual bool isAbstractClass() const { return true; }
@@ -44,6 +45,7 @@ public:
 
   static MObject aDisplayIds;
   static MObject aDisplayParentIds;
+  static MObject aDisplayBrushIds;
   static MObject aDisplayLayerIds;
 
   static MObject aWireColor; 
@@ -54,12 +56,14 @@ public:
 
 protected:
 
+  virtual void collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes) const;
+
   static MObject aStrokes;
+  static MObject aBrushes;
+
   static MObject aLinearSpeed;             // cm/sec
   static MObject aAngularSpeed;            // per sec
   static MObject aApproximationDistance;   // cm
-
- 
 
 };
  

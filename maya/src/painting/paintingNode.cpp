@@ -13,7 +13,6 @@
 #include "paintingNode.h"
 #include <jMayaIds.h>
 #include "errorMacros.h"
-#include "brushData.h"
 #include "paletteData.h"
 #include "nodeUtils.h"
 
@@ -48,7 +47,6 @@ MObject painting::aApproachDistanceEnd;
 MObject painting::aApproachDistance;
 
 MObject painting::aCanvasMatrix;
-MObject painting::aBrushes;
 
 MObject painting::aPalette;
 
@@ -59,7 +57,6 @@ MObject painting::aDisplayPivots;
 
 MObject painting::aDisplayContactWidth;
 
-MObject painting::aDisplayBrushIds;
 MObject painting::aDisplayPaintIds;
 MObject painting::aDisplayRepeatIds;
 
@@ -114,15 +111,6 @@ MStatus painting::initialize()
   nAttr.setReadable(true);
   addAttribute(aApproachDistance);
 
-  aBrushes = tAttr.create("brushes", "bsh", brushData::id);
-  tAttr.setReadable(false);
-  tAttr.setStorable(false);
-  tAttr.setArray(true);
-  tAttr.setKeyable(true);
-  tAttr.setIndexMatters(true);
-  tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-  addAttribute(aBrushes);
-
   aPalette = tAttr.create("palette", "plt", paletteData::id);
   tAttr.setReadable(false);
   tAttr.setStorable(false);
@@ -167,13 +155,6 @@ MStatus painting::initialize()
   nAttr.setDefault(true);
   addAttribute(aDisplayPivots);
 
-  aDisplayBrushIds = nAttr.create("displayBrushIds", "dbid",
-                                  MFnNumericData::kBoolean);
-  nAttr.setHidden(false);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
-  nAttr.setDefault(true);
-  addAttribute(aDisplayBrushIds);
 
   aDisplayPaintIds = nAttr.create("displayPaintIds", "dptid",
                                   MFnNumericData::kBoolean);
@@ -205,6 +186,8 @@ MStatus painting::initialize()
   addAttribute(aStackGap);
 
   st = attributeAffects(aStrokes, aOutput);
+  st = attributeAffects(aBrushes, aOutput);
+  
   st = attributeAffects(aCanvasMatrix, aOutput);
 
   st = attributeAffects(aMaxPointToPointDistance, aOutput);
@@ -214,41 +197,6 @@ MStatus painting::initialize()
   st = attributeAffects(aReassignParentId, aOutput);
 
   return (MS::kSuccess);
-}
-
-MStatus painting::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes)
-{
-  MStatus st;
-  MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
-  msert;
-
-  brushes[-1] = Brush();
-
-  unsigned nPlugs = ha.elementCount();
-  for (unsigned i = 0; i < nPlugs; i++, ha.next())
-  {
-    int index = ha.elementIndex(&st);
-    if (st.error())
-    {
-      continue;
-    }
-    MDataHandle h = ha.inputValue(&st);
-    if (st.error())
-    {
-      continue;
-    }
-
-    MObject d = h.data();
-    MFnPluginData fnP(d, &st);
-    if (st.error())
-    {
-      continue;
-    }
-    brushData *bData = (brushData *)fnP.data();
-
-    brushes[index] = *(bData->fGeometry);
-  }
-  return MS::kSuccess;
 }
 
 MStatus painting::getPalette(MDataBlock &data, std::map<int, Paint> &palette) const
@@ -289,10 +237,10 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
   {
     ptpThresh = 3.0;
   }
-  // cerr << "painting::compute ptpThresh: "<< ptpThresh << endl;
+
   std::map<int, Brush> brushes;
   std::map<int, Paint> palette;
-  collectBrushes(data, brushes);
+  paintingBase::collectBrushes(data, brushes);
   st = getPalette(data, palette);
   if (st.error())
   {

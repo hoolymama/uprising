@@ -102,6 +102,9 @@ MObject brushNode::aWipeBarPosition;
 
 MObject brushNode::aLineLength;
 MObject brushNode::aLineThickness;
+MObject brushNode::aDmx;
+
+
 
 MObject brushNode::aOutPaintBrush;
 MObject brushNode::aOutDipBrush;
@@ -227,6 +230,17 @@ MStatus brushNode::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   addAttribute(aInitialDips);
+
+  
+  aDmx = nAttr.create("dmxId", "dmx", MFnNumericData::kInt);
+  nAttr.setMin(0);
+  nAttr.setMax(5);
+  nAttr.setDefault(0);
+  nAttr.setReadable(true);
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aDmx);
+
 
   aRetardant = nAttr.create("retardant", "rtd", MFnNumericData::kBoolean);
   nAttr.setDefault(true);

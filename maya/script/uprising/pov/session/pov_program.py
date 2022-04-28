@@ -20,14 +20,18 @@ class PovProgram(Program):
     def configure(self):
         print("configure....")
         for stroke in self.painting.strokes:
+            brush = self.brushes.get(self.stroke.brush_id)
+            if not brush:
+                raise ("Invalid brush ID: {}".format(self.stroke.brush_id))
+
             try:
-                pov_configurator.solve(stroke, self.painting.brush)
+                pov_configurator.solve(stroke, brush)
             except BaseException:
                 stroke.ignore = True
                 pm.warning("IGNORING IMPOSSIBLE STROKE {}".format(stroke.name("stk")))
         print("DONE configure")
 
-    def send(self, chunk_id, chunk_length):
+    def send(self, chunk_id, chunk_length, with_brush_geo=False):
         if not self.painting.strokes:
             return
         print(("SEND....", chunk_id))
@@ -47,10 +51,11 @@ class PovProgram(Program):
         # )
 
         if chunk_id == 0:
-            pov_lights.send_lights_off(self.program, self.run_on_robot)
+            for brush in self.painting.brushes:
+                pov_lights.send_lights_off(self.program, brush.dmx_id, self.run_on_robot)
             pov_lights.send_shutter(self.program, self.run_on_robot)
 
-        self.painting.send_brushes()
+        self.painting.send_brushes(with_brush_geo)
 
         if self.run_on_robot:
             robo.link().setRunMode(RUNMODE_RUN_ROBOT) 
@@ -60,13 +65,17 @@ class PovProgram(Program):
         self.program.setSpeed(self.painting.linear_speed)
         self.program.setSpeedJoints(self.painting.angular_speed)
 
+        
         link = robo.link()
-        tool = link.Item(self.painting.brush.name)
-        self.program.setPoseTool(tool)
+        # tool = link.Item(self.painting.brush.name)
+        # self.program.setPoseTool(tool)
 
         prefix = "stk"
         for stroke in self.painting.strokes[start:end]:
             if not stroke.ignore:
+                brush_name = self.brushes.get(self.stroke.brush_id).name
+                tool = link.Item(brush_name)
+                self.program.setPoseTool(tool)
                 stroke.send(prefix, self.program, self.frame, self.run_on_robot)
 
         if is_last_chunk:

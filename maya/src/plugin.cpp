@@ -120,6 +120,9 @@
 #include "pearlChainData.h"
 #include "pearlNode.h"
 
+#include "strokeMesh.h"
+
+
 #include "pearlNodeDrawOverride.h"
  
 
@@ -555,6 +558,12 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("tumbler", tumbler::id, tumbler::creator, tumbler::initialize);
 	mser;
 
+	st = plugin.registerNode("strokeMesh", strokeMesh::id, strokeMesh::creator,
+							 strokeMesh::initialize);
+	msert;
+
+
+
 	return st;
 }
 
@@ -565,7 +574,8 @@ MStatus uninitializePlugin(MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin(obj);
-
+	st = plugin.deregisterCommand("strokeMesh");
+	mser;
 	st = plugin.deregisterCommand("tumbler");
 	mser;
 	st = plugin.deregisterCommand("projectToPlanePP");

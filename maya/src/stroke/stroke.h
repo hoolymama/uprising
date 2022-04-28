@@ -361,6 +361,10 @@ public:
 
 	void smoothTargets(int neighbors, bool doPositions, bool doWeights);
 
+	// void calculateTubeMatrices(const MMatrix&initialMatrix ,const  MVector & initialTangent, MMatrixArray & tubeMatrices) const ;
+
+
+
 	friend bool operator<(const Stroke &a, const Stroke &b);
 	friend ostream &operator<<(ostream &os, const Stroke &s);
 

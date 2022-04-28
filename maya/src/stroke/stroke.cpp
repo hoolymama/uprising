@@ -2,6 +2,7 @@
 #include <maya/MTransformationMatrix.h>
 #include <maya/MFnNurbsCurveData.h>
 #include <maya/MAngle.h>
+#include <maya/MMatrixArray.h>
 #include <maya/MQuaternion.h>
 #include <algorithm>
 #include <vector>
@@ -19,6 +20,7 @@ Stroke::Stroke()
 	  m_parentId(0),
 	  m_repeatId(0),
 	  m_layerId(0),
+	  m_brushId(0),
 	  m_sortColor(),
 	  m_filterColor(),
 	  m_sortStack(),
@@ -1226,6 +1228,34 @@ void Stroke::reverseArray(MDoubleArray &arr)
 		j++;
 	}
 }
+
+// void Stroke::calculateTubeMatrices(const MMatrix&initialMatrix ,const  MVector & initialTangent, MMatrixArray & tubeMatrices) const {
+
+// 	MVector lastTangent = initialTangent;
+// 	MMatrix rMatrix;
+// 	rMatrix[3][0] = 0.0;
+// 	rMatrix[3][1] = 0.0;
+// 	rMatrix[3][2] = 0.0;
+
+// 	std::vector<Target>::const_iterator citer;
+// 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
+// 	{
+// 		const MVector &tangent = citer->drawTangent();
+// 		MMatrix deltaRotation = MQuaternion(lastTangent, tangent).asMatrix();
+// 		rMatrix *= deltaRotation;
+
+// 		MMatrix tf(rMatrix); // copy
+
+// 		const MFloatMatrix &targetMatrix = citer->matrix();
+// 		tf[3][0] = targetMatrix[3][0];
+// 		tf[3][1] = targetMatrix[3][1];
+// 		tf[3][2] = targetMatrix[3][2];
+// 		tubeMatrices.append(tf);
+// 		lastTangent = tangent;
+// 	}
+// }
+
+
 
 ostream &operator<<(ostream &os, const Stroke &s)
 {

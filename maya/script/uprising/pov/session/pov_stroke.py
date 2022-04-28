@@ -10,23 +10,18 @@ from uprising.pov.session import pov_lights
 
 class PovStroke(Stroke):
     def __init__(self, painting, stroke_id):
-        print("PovStroke __init__")
+        
         super(PovStroke, self).__init__(painting, stroke_id)
-        print("PovStroke __init__ DONE")
+        self.brush_id = self.query_brush_id()
 
 
     def _build_targets(self):
-        print("PovStroke _build_targets")
+        
         positions = self.query_positions()
-        print("PovStroke _build_targets positions")
         rotations = self.query_rotations()
-        print("PovStroke _build_targets rotations")
         colors = self.query_colors()
-        print("PovStroke _build_targets colors")
         waits = self.query_waits()
-        print("PovStroke query_waits")
         self.targets = self._target_factory(positions, rotations, colors, waits, self.id)
-        print("PovStroke _build_targets DONE")
         
     @classmethod
     def _target_factory(cls, positions, rotations, colors, waits, stroke_id):
@@ -60,6 +55,8 @@ class PovStroke(Stroke):
     def send(self, prefix, program, frame, run_on_robot):
 
         stroke_name = self.name(prefix)
+        dmx_id = self.painting.brushes[self.brush_id].dmx_id
+
         program.RunInstruction("Stroke {}".format(stroke_name), INSTRUCTION_COMMENT)
         last_color = None
 
@@ -70,7 +67,7 @@ class PovStroke(Stroke):
 
         print(("Sending stroke {}".format(stroke_name)))
         for i, t in enumerate(self.targets):
-            t.send(stroke_name, program, frame, last_color, run_on_robot)
+            t.send(stroke_name, program, frame, dmx_id, last_color, run_on_robot)
             last_color = t.color
 
         if self.override_path_parameters:
@@ -78,7 +75,8 @@ class PovStroke(Stroke):
             program.setSpeedJoints(self.painting.angular_speed)
             program.setRounding(self.painting.rounding)
 
-        pov_lights.send_lights_off(program, run_on_robot)
+
+        pov_lights.send_lights_off(program, dmx_id, run_on_robot)
 
     def query_arc_length(self):
         return pm.lightPaintingQuery(
@@ -141,6 +139,10 @@ class PovStroke(Stroke):
 
     def query_layer_id(self):
         return pm.lightPaintingQuery(self.painting.node, strokeIndex=self.id, strokeLayerId=True)
+
+    def query_brush_id(self):
+        return pm.lightPaintingQuery(self.painting.node, strokeIndex=self.id, strokeBrushId=True)
+
 
     def query_waits(self):
         return pm.lightPaintingQuery(self.painting.node, strokeIndex=self.id, strokeWaits=True)

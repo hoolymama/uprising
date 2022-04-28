@@ -32,7 +32,7 @@ public:
   static MObject aDisplayClusterPath;
   static MObject aDisplayPivots;
 
-  static MObject aDisplayBrushIds;
+
   static MObject aDisplayPaintIds;
   static MObject aDisplayRepeatIds;
 
@@ -46,11 +46,10 @@ private:
 
 
   MStatus  getPalette(MDataBlock &data, std::map<int, Paint> &palette) const;
-  MStatus collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes);
-
+ 
   MStatus addStrokes(MDataBlock &data, paintingGeom *pGeom);
 
-  static MObject aBrushes;
+
 
   static MObject aApproachDistanceStart;
   static MObject aApproachDistanceMid;

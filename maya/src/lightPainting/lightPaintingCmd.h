@@ -34,6 +34,9 @@
 #define kStrokeLayerIdFlag "-lid"
 #define kStrokeLayerIdFlagL "-strokeLayerId"
 
+#define kStrokeBrushIdFlag "-bid"
+#define kStrokeBrushIdFlagL "-strokeBrushId"
+
 #define kStrokeApproxDistFlag "-sad"
 #define kStrokeApproxDistFlagL "-strokeApoproximationDistance"
 
@@ -75,6 +78,7 @@ private:
 	MStatus handleStrokeApproxDistFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
 
 	MStatus handleStrokeLayerIdFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
+	MStatus handleStrokeBrushIdFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
 
 	MStatus handleStrokePositionsFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData,
 									  const MFloatMatrix &worldMatrix);

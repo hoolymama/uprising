@@ -2,6 +2,7 @@
 #ifndef _lightPaintingNODE_H
 #define _lightPaintingNODE_H
 
+#include <map>
 #include <maya/MTypeId.h>
 #include "paintingNodeBase.h"
 #include "lightPaintingData.h"
@@ -34,8 +35,10 @@ public:
 
 private:
   MStatus addStrokes(MDataBlock &data, std::vector<Stroke> *outStrokeGeom);
+  // MStatus collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes);
 
-  static MObject aBrush;
+  // static MObject aBrush;
+  // static MObject aBrushes;
   static MObject aColorGain;
   static MObject aWhiteGain;
   static MObject aWaitGain;

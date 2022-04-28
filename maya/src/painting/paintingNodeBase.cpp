@@ -1,5 +1,6 @@
 #include <maya/MIOStream.h>
 
+#include <maya/MFnPluginData.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MMatrix.h>
 #include <maya/MFnUnitAttribute.h>
@@ -13,7 +14,7 @@
 #include <jMayaIds.h>
 #include "mayaMath.h"
 #include "errorMacros.h"
-
+#include "brushData.h"
 
 MTypeId paintingBase::id(k_paintingBase);
 
@@ -28,6 +29,8 @@ void *paintingBase::creator()
 
 
 MObject paintingBase::aStrokes;
+MObject paintingBase::aBrushes;
+
 MObject paintingBase::aLinearSpeed;           // cm/sec
 MObject paintingBase::aAngularSpeed;          // per sec
 MObject paintingBase::aApproximationDistance; // cm
@@ -42,6 +45,7 @@ MObject paintingBase::aWireColor;
 
 MObject paintingBase::aDisplayIds;
 MObject paintingBase::aDisplayParentIds;
+MObject paintingBase::aDisplayBrushIds;
 MObject paintingBase::aDisplayLayerIds;
 MObject paintingBase::aIdDisplayOffset;
 MObject paintingBase::aArrowheadSize;
@@ -98,6 +102,17 @@ MStatus paintingBase::initialize()
   tAttr.setKeyable(true);
   tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   addAttribute(aStrokes);
+
+  aBrushes = tAttr.create("brushes", "bsh", brushData::id);
+  tAttr.setReadable(false);
+  tAttr.setStorable(false);
+  tAttr.setArray(true);
+  tAttr.setKeyable(true);
+  tAttr.setIndexMatters(true);
+  tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
+  addAttribute(aBrushes);
+
+
   aReassignParentId = nAttr.create("reassignParentId", "rpi",
                                    MFnNumericData::kBoolean);
   nAttr.setHidden(false);
@@ -173,6 +188,15 @@ MStatus paintingBase::initialize()
   nAttr.setDefault(true);
   addAttribute(aDisplayLayerIds);
 
+
+  aDisplayBrushIds = nAttr.create("displayBrushIds", "dbid",
+                                  MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayBrushIds);
+  
   aIdDisplayOffset = nAttr.create("idDisplayOffset", "iddo", MFnNumericData::k3Float);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -221,3 +245,38 @@ MBoundingBox paintingBase::boundingBox() const
 }
 
 void paintingBase::postConstructor(){}
+
+
+void paintingBase::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes) const
+{
+  MStatus st;
+  MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
+  // msert;
+
+  brushes[-1] = Brush();
+
+  unsigned nPlugs = ha.elementCount();
+  for (unsigned i = 0; i < nPlugs; i++, ha.next())
+  {
+    int index = ha.elementIndex(&st);
+    if (st.error())
+    {
+      continue;
+    }
+    MDataHandle h = ha.inputValue(&st);
+    if (st.error())
+    {
+      continue;
+    }
+
+    MObject d = h.data();
+    MFnPluginData fnP(d, &st);
+    if (st.error())
+    {
+      continue;
+    }
+    brushData *bData = (brushData *)fnP.data();
+
+    brushes[index] = *(bData->fGeometry);
+  }
+}
