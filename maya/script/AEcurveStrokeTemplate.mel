@@ -15,6 +15,9 @@ global proc AEcurveStrokeTemplate ( string $nodeName )
 	editorTemplate -addControl "splitTestInterval";
 	editorTemplate -endLayout;
 
+	editorTemplate -cl 0 -beginLayout "Pivot attributes";
+	editorTemplate -addControl "pivot";
+	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Brush attributes";
 	editorTemplate -addControl "brushId";

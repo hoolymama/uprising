@@ -7,6 +7,7 @@
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnUnitAttribute.h>
+#include <maya/MFnEnumAttribute.h>
 
 #include <maya/MFnPluginData.h>
 #include <maya/MFnNurbsCurveData.h>
@@ -23,6 +24,7 @@ MObject curveStrokeNode::aCurves;
 MObject curveStrokeNode::aBrushId;
 MObject curveStrokeNode::aBrush;
 MObject curveStrokeNode::aSplitAngle;
+MObject curveStrokeNode::aPivot;
 
 MTypeId curveStrokeNode::id(k_curveStrokeNode);
 
@@ -42,6 +44,7 @@ MStatus curveStrokeNode::initialize()
     MFnNumericAttribute nAttr;
     MFnTypedAttribute tAttr;
     MFnUnitAttribute uAttr;
+    MFnEnumAttribute eAttr;
     inheritAttributesFrom("paintStrokeCreator");
 
     aCurves = tAttr.create("curves", "crvs", MFnNurbsCurveData::kNurbsCurve);
@@ -77,10 +80,18 @@ MStatus curveStrokeNode::initialize()
     st = addAttribute(aSplitAngle);
     mser;
 
+    aPivot = eAttr.create("pivot", "pvt", curveStrokeNode::kFirstTarget);
+    eAttr.addField("firstTarget", curveStrokeNode::kFirstTarget);
+    eAttr.addField("curveStart", curveStrokeNode::kCurveStart);
+    eAttr.setHidden(false);
+    eAttr.setKeyable(true);
+    st = addAttribute(aPivot);
+
     attributeAffects(aSplitAngle, aOutput);
     attributeAffects(aCurves, aOutput);
     attributeAffects(aBrushId, aOutput);
     attributeAffects(aBrush, aOutput);
+    attributeAffects(aPivot, aOutput);
 
     return (MS::kSuccess);
 }
@@ -122,6 +133,10 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
     float minimumStrokeAdvance = data.inputValue(aMinimumStrokeAdvance).asFloat();
     float overlap = data.inputValue(aOverlap).asFloat();
+
+    curveStrokeNode::Pivot pivot =
+        (curveStrokeNode::Pivot)data.inputValue(aPivot).asShort();
+
     MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
 
     //////////////////////////////////////////////////////////////
@@ -186,10 +201,20 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             splitTestInterval,
             boundaries);
 
+        // cerr << "num boundaries: " << num << endl;
         if (!num)
         {
             return MS::kUnknownParameter;
         }
+
+        MPoint curveStart;
+
+        st = curveFn.getPointAtParam (0.0, curveStart);
+        mser;
+        MFloatPoint fCurveStart(curveStart);
+        // cerr << "fCurveStart" << fCurveStart << endl;
+
+
 
         for (int i = 0; i < num; ++i)
         {
@@ -221,6 +246,11 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             {
                 stroke.setParentId(0);
                 stroke.setCoil(coil);
+                if (pivot == curveStrokeNode::kCurveStart)
+                {
+                    // cerr << "set pivot to curveStart" << endl;
+                    stroke.setPivotPosition(fCurveStart);
+                }
                 pOutStrokes->push_back(stroke);
             }
         }

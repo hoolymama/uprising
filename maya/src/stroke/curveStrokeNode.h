@@ -26,6 +26,15 @@ private:
   static MObject aBrushId;
   static MObject aBrush;
   static MObject aSplitAngle;
+  static MObject aPivot;
+  
+
+  enum Pivot
+  {
+    kFirstTarget,
+    kCurveStart
+  };
+
 
   unsigned createStrokeData(
       const MObject &dCurve,
