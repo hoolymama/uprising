@@ -432,6 +432,7 @@ void lightPaintingDrawOverride::drawIds(
 {
 
 	if (!(cdata->displayIds ||
+	 		cdata->displayBrushIds ||
 		  cdata->displayParentIds ||
 		  cdata->displayLayerIds))
 	{
