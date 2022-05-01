@@ -194,6 +194,7 @@ public:
 	const float &paintFlow() const;
 
 	const Target &pivot() const;
+	void setPivotPosition(const MFloatPoint &rhs);
 
 	int strokeId() const;
 	int parentId() const;

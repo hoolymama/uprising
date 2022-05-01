@@ -146,7 +146,7 @@ Stroke::Stroke(
 	{
 		m_targets.push_back(Target(*iter));
 	}
-	m_pivot = Target(m_targets[0]);
+	m_pivot = instroke.pivot();
 	resetTangents(); // because the end tangents will change.
 }
 
@@ -492,6 +492,12 @@ float Stroke::coil() const
 const Target &Stroke::pivot() const
 {
 	return m_pivot;
+}
+
+
+void Stroke::setPivotPosition(const MFloatPoint &rhs)
+{
+	m_pivot.setPosition(rhs);
 }
 
 Stroke::~Stroke() {}
