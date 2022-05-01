@@ -20,9 +20,9 @@ class PovProgram(Program):
     def configure(self):
         print("configure....")
         for stroke in self.painting.strokes:
-            brush = self.brushes.get(self.stroke.brush_id)
+            brush = self.painting.brushes.get(stroke.brush_id)
             if not brush:
-                raise ("Invalid brush ID: {}".format(self.stroke.brush_id))
+                raise ("Invalid brush ID: {}".format(stroke.brush_id))
 
             try:
                 pov_configurator.solve(stroke, brush)
@@ -37,7 +37,7 @@ class PovProgram(Program):
         print(("SEND....", chunk_id))
         self.bump_program_name(chunk_id)
         super(PovProgram, self).send()
-
+        
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
         num_strokes = len(self.painting.strokes)
@@ -52,7 +52,9 @@ class PovProgram(Program):
 
         if chunk_id == 0:
             for brush in self.painting.brushes:
-                pov_lights.send_lights_off(self.program, brush.dmx_id, self.run_on_robot)
+                dmx_id =  self.painting.brushes[brush].dmx_id
+                
+                pov_lights.send_lights_off(self.program, dmx_id, self.run_on_robot)
             pov_lights.send_shutter(self.program, self.run_on_robot)
 
         self.painting.send_brushes(with_brush_geo)
@@ -73,7 +75,7 @@ class PovProgram(Program):
         prefix = "stk"
         for stroke in self.painting.strokes[start:end]:
             if not stroke.ignore:
-                brush_name = self.brushes.get(self.stroke.brush_id).name
+                brush_name = self.painting.brushes.get(stroke.brush_id).name
                 tool = link.Item(brush_name)
                 self.program.setPoseTool(tool)
                 stroke.send(prefix, self.program, self.frame, self.run_on_robot)

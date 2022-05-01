@@ -2,15 +2,14 @@ from robolink import INSTRUCTION_INSERT_CODE
 
 
 def send_lights_off(program, dmx, run_on_robot):
-    """Trigger a lights-off instruction.
-    """
-    _send_light(program, 1, 0.0, run_on_robot, False)
-    _send_light(program, 2, 0.0, run_on_robot, False)
-    _send_light(program, 3, 0.0, run_on_robot, False)
-    _send_light(program, 4, 0.0, run_on_robot, False)
+    """Trigger a lights-off instruction."""
+    _send_light(program, dmx, 1, 0.0, run_on_robot, False)
+    _send_light(program, dmx, 2, 0.0, run_on_robot, False)
+    _send_light(program, dmx, 3, 0.0, run_on_robot, False)
+    _send_light(program, dmx, 4, 0.0, run_on_robot, False)
 
 
-def send_lights( program, dmx, run_on_robot, color,  last_color=None):
+def send_lights(program, dmx, run_on_robot, color, last_color=None):
     """Send RGBA color to a DMX box.
 
     Args:
@@ -37,30 +36,30 @@ def _send_light(program, dmx, channel, value, run_on_robot, trigger=True):
     # NOTE: NEED TO REWRITE FOR RUN ON ROBOT!!!
     if run_on_robot:
         if trigger:
-            channel = channel+10
+            channel = channel + 10
         else:
-            channel = channel+5
+            channel = channel + 5
         program.setDO(channel, value)
         return
 
-    channel = channel + (dmx*4)
+    channel = channel + (dmx * 4)
 
     if trigger:
         program.RunInstruction(
-            "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[{:d}]={:.3f}".format(channel, value), 
-            INSTRUCTION_INSERT_CODE
+            "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[{:d}]={:.3f}".format(channel, value),
+            INSTRUCTION_INSERT_CODE,
         )
     else:
         program.RunInstruction(
-            "$ANOUT[{:d}]={:.3f}".format(channel, value), 
-            INSTRUCTION_INSERT_CODE
+            "$ANOUT[{:d}]={:.3f}".format(channel, value), INSTRUCTION_INSERT_CODE
         )
+
 
 def send_shutter(program, run_on_robot):
     """
     Send a shutter instruction.
 
-    Shutter behaves like a toggle. If it's open, it closes, and vice versa. 
+    Shutter behaves like a toggle. If it's open, it closes, and vice versa.
     """
     if run_on_robot:
         program.setDO(1, 1.0)
@@ -71,5 +70,3 @@ def send_shutter(program, run_on_robot):
     program.setDO(1, "TRUE")
     program.Pause(1000)
     program.setDO(1, "FALSE")
-
- 
