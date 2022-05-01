@@ -61,6 +61,7 @@
 #include "cImgGradField.h"
 #include "gridableField.h"
 
+#include "mapIdStrokes.h"
 
 #include "gateRamp.h"
 #include "stepRamp.h"
@@ -122,9 +123,7 @@
 
 #include "strokeMesh.h"
 
-
 #include "pearlNodeDrawOverride.h"
- 
 
 static const MString sRegistrantId("cImgPlugin");
 
@@ -149,10 +148,6 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerData("cImgFloatData", cImgFloatData::id,
 							 cImgFloatData::creator);
 	mser;
-
-
-
-
 
 	st = plugin.registerNode("cImgConstant", cImgConstant::id, cImgConstant::creator,
 							 cImgConstant::initialize);
@@ -292,7 +287,6 @@ MStatus initializePlugin(MObject obj)
 							 pearlChainData::creator);
 	mser;
 
-
 	st = plugin.registerData("particleTrailsData", particleTrailsData::id,
 							 particleTrailsData::creator);
 	mser;
@@ -321,8 +315,6 @@ MStatus initializePlugin(MObject obj)
 							 gridableField::initialize,
 							 MPxNode::kFieldNode);
 	mser;
-
-
 
 	st = plugin.registerNode("cImgGradField", cImgGradField::id,
 							 cImgGradField::creator,
@@ -359,13 +351,6 @@ MStatus initializePlugin(MObject obj)
 		lightPainting::drawRegistrantId,
 		lightPaintingDrawOverride::Creator);
 	mser;
-
-
-
- 
-
-
-
 
 	st = plugin.registerNode("skGraph", skGraphNode::id, skGraphNode::creator,
 							 skGraphNode::initialize, MPxNode::kLocatorNode,
@@ -435,13 +420,10 @@ MStatus initializePlugin(MObject obj)
 							 particleStrokeNode::initialize);
 	msert;
 
-
 	st = plugin.registerNode("pearlStroke", pearlStrokeNode::id,
 							 pearlStrokeNode::creator,
 							 pearlStrokeNode::initialize);
 	msert;
-
-
 
 	st = plugin.registerNode("meshStroke", meshStrokeNode::id,
 							 meshStrokeNode::creator,
@@ -464,6 +446,11 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("mapColorStrokes", mapColorStrokes::id, mapColorStrokes::creator,
 							 mapColorStrokes::initialize);
 	mser;
+
+	st = plugin.registerNode("mapIdStrokes", mapIdStrokes::id, mapIdStrokes::creator,
+							 mapIdStrokes::initialize);
+	mser;
+
 	st = plugin.registerNode("decimateStrokes", decimateStrokes::id, decimateStrokes::creator,
 							 decimateStrokes::initialize);
 	mser;
@@ -507,7 +494,6 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("stepRamp", stepRamp::id, stepRamp::creator,
 							 stepRamp::initialize);
 	msert;
-	
 
 	st = plugin.registerNode("imagePoints", imagePoints::id, imagePoints::creator,
 							 imagePoints::initialize, MPxNode::kLocatorNode,
@@ -562,8 +548,6 @@ MStatus initializePlugin(MObject obj)
 							 strokeMesh::initialize);
 	msert;
 
-
-
 	return st;
 }
 
@@ -613,7 +597,7 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterNode(stepRamp::id);
 	mser;
-	
+
 	st = plugin.deregisterNode(gateRamp::id);
 	mser;
 
@@ -644,10 +628,13 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(decimateStrokes::id);
 	mser;
 
+	st = plugin.deregisterNode(mapIdStrokes::id);
+	mser;
+
 	st = plugin.deregisterNode(mapColorStrokes::id);
 	mser;
-	st = plugin.deregisterNode(strokeMutator::id);
 
+	st = plugin.deregisterNode(strokeMutator::id);
 	msert;
 
 	st = plugin.deregisterNode(curveStrokeNode::id);
@@ -697,7 +684,6 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(pearlNode::id);
 	mser;
 
-
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
 		paletteNode::drawDbClassification,
 		paletteNode::drawRegistrantId);
@@ -740,7 +726,6 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterNode(gridableField::id);
 	mser;
-
 
 	st = plugin.deregisterData(paintingData::id);
 	mser;
