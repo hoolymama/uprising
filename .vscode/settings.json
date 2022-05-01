@@ -88,5 +88,12 @@
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "black",
+    "github.copilot.enable": {
+    
+        "*": true,
+        "yaml": false,
+        "plaintext": false,
+        "markdown": false
+    }
 }
