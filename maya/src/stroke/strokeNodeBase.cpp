@@ -190,10 +190,10 @@ MStatus strokeNodeBase::generateStrokeGeometry(
     MDataBlock &data,
     std::vector<Stroke> *geom)
 {
-    setStrokeIds(geom);
-    filterStrokes(data, geom);
-    sortStrokes(data, geom);
-    cullStartEnd(data, geom);
+  setStrokeIds(geom);
+  filterStrokes(data, geom);
+  sortStrokes(data, geom);
+  cullStartEnd(data, geom);
 
   return MS::kSuccess;
 }
@@ -237,10 +237,19 @@ void strokeNodeBase::setStrokeIds(std::vector<Stroke> *geom) const
 
 void strokeNodeBase::getPivotPoints(const std::vector<Stroke> *geom, MFloatPointArray &result) const
 {
-  MObject thisObj = thisMObject();
   for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
   {
     result.append(iter->pivot().position());
+  }
+}
+
+void strokeNodeBase::getFirstTargetPoints(
+    const std::vector<Stroke> *geom,
+    MFloatPointArray &result) const
+{
+  for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
+  {
+    result.append(iter->targets()[0].position());
   }
 }
 
@@ -263,7 +272,7 @@ void strokeNodeBase::getSpanPoints(
     const std::vector<Stroke> *geom,
     MFloatPointArray &result) const
 {
-  for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter !=  geom->end(); iter++)
+  for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
   {
     const std::vector<Target> targets = iter->targets();
     MFloatPoint lastPos = targets[0].position();
@@ -272,13 +281,11 @@ void strokeNodeBase::getSpanPoints(
     for (; targetIter != targets.end(); targetIter++)
     {
       MFloatPoint thisPos = targetIter->position();
-      result.append( (thisPos + lastPos) /2.0f  );
+      result.append((thisPos + lastPos) / 2.0f);
       lastPos = thisPos;
     }
   }
 }
-
-
 
 bool strokeNodeBase::setFilterMapColor(std::vector<Stroke> *geom) const
 {
@@ -390,52 +397,62 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
 
     case Stroke::kStrokeId:
       new_end = std::remove_if(geom->begin(), geom->end(),
-                               [op, value](const Stroke &stroke) { return stroke.testStrokeId(op, value) == false; });
+                               [op, value](const Stroke &stroke)
+                               { return stroke.testStrokeId(op, value) == false; });
       break;
     case Stroke::kBrushId:
       new_end = std::remove_if(geom->begin(), geom->end(),
-                               [op, value](const Stroke &stroke) { return stroke.testBrushId(op, value) == false; });
+                               [op, value](const Stroke &stroke)
+                               { return stroke.testBrushId(op, value) == false; });
       break;
     case Stroke::kPaintId:
       new_end = std::remove_if(geom->begin(), geom->end(),
-                               [op, value](const Stroke &stroke) { return stroke.testPaintId(op, value) == false; });
+                               [op, value](const Stroke &stroke)
+                               { return stroke.testPaintId(op, value) == false; });
       break;
     case Stroke::kRepeatId:
       new_end = std::remove_if(geom->begin(), geom->end(),
-                               [op, value](const Stroke &stroke) { return stroke.testRepeatId(op, value) == false; });
+                               [op, value](const Stroke &stroke)
+                               { return stroke.testRepeatId(op, value) == false; });
       break;
     case Stroke::kTargetCount:
       new_end = std::remove_if(geom->begin(), geom->end(),
-                               [op, value](const Stroke &stroke) { return stroke.testTargetCount(op, value) == false; });
+                               [op, value](const Stroke &stroke)
+                               { return stroke.testTargetCount(op, value) == false; });
       break;
     case Stroke::kLayerId:
       new_end = std::remove_if(geom->begin(), geom->end(),
-                               [op, value](const Stroke &stroke) { return stroke.testLayerId(op, value) == false; });
+                               [op, value](const Stroke &stroke)
+                               { return stroke.testLayerId(op, value) == false; });
       break;
     case Stroke::kParentId:
       new_end = std::remove_if(geom->begin(), geom->end(),
-                               [op, value](const Stroke &stroke) { return stroke.testParentId(op, value) == false; });
+                               [op, value](const Stroke &stroke)
+                               { return stroke.testParentId(op, value) == false; });
       break;
 
     case Stroke::kMapRed:
       if (useFilterMap)
       {
         new_end = std::remove_if(geom->begin(), geom->end(),
-                                 [op, value](const Stroke &stroke) { return stroke.testMapRedId(op, value) == false; });
+                                 [op, value](const Stroke &stroke)
+                                 { return stroke.testMapRedId(op, value) == false; });
       }
       break;
     case Stroke::kMapGreen:
       if (useFilterMap)
       {
         new_end = std::remove_if(geom->begin(), geom->end(),
-                                 [op, value](const Stroke &stroke) { return stroke.testMapGreenId(op, value) == false; });
+                                 [op, value](const Stroke &stroke)
+                                 { return stroke.testMapGreenId(op, value) == false; });
       }
       break;
     case Stroke::kMapBlue:
       if (useFilterMap)
       {
         new_end = std::remove_if(geom->begin(), geom->end(),
-                                 [op, value](const Stroke &stroke) { return stroke.testMapBlueId(op, value) == false; });
+                                 [op, value](const Stroke &stroke)
+                                 { return stroke.testMapBlueId(op, value) == false; });
       }
 
       break;
@@ -467,9 +484,10 @@ void strokeNodeBase::cullStartEnd(MDataBlock &data, std::vector<Stroke> *geom) c
 
     // This is probably inefficient - but at least it doesn't crash.
     new_end = std::remove_if(geom->begin(), geom->end(),
-                             [startFrom, endAt](const Stroke &stroke) {
-                               int sid = stroke.strokeId(); 
-                               return (sid < startFrom ||  sid >= endAt);
+                             [startFrom, endAt](const Stroke &stroke)
+                             {
+                               int sid = stroke.strokeId();
+                               return (sid < startFrom || sid >= endAt);
                              });
     geom->erase(new_end, geom->end());
   }

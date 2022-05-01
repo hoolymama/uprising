@@ -30,6 +30,10 @@ protected:
       const std::vector<Stroke> *geom,
       MFloatPointArray &result) const;
 
+  void getFirstTargetPoints(
+      const std::vector<Stroke> *geom,
+      MFloatPointArray &result) const;
+
   void getTargetPoints(
       const std::vector<Stroke> *geom,
       MFloatPointArray &result) const;
