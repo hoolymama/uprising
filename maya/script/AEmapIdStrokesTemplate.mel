@@ -1,0 +1,24 @@
+source "AEsortFilterInclude";
+source "AEstrokeCreatorInclude";
+
+
+global proc AEmapIdStrokesTemplate ( string $nodeName )
+{
+
+
+
+
+	editorTemplate -beginScrollLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "General attributes";		
+	editorTemplate -addControl "brushIdMap" ;
+	editorTemplate -addControl "numberOfBrushes";
+	editorTemplate -addControl "sampleAt" ;
+	editorTemplate -endLayout;
+	
+	AEsortFilterInclude($nodeName);
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

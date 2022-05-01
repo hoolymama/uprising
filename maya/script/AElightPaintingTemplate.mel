@@ -8,8 +8,6 @@ source "AEpaintingStrokes";
 
  	editorTemplate -beginScrollLayout;
 
-
-
 	editorTemplate -cl 0 -beginLayout "Path Attributes";
 	editorTemplate -addControl "linearSpeed";
 	editorTemplate -addControl "angularSpeed";
@@ -41,11 +39,15 @@ source "AEpaintingStrokes";
 	editorTemplate -addControl "displayIds";
 	editorTemplate -addControl "displayParentIds";
 	editorTemplate -addControl "displayLayerIds";
+	editorTemplate -addControl "displayBrushIds";
 	editorTemplate -addControl "idDisplayOffset";
 	editorTemplate -endNoOptimize;
   	editorTemplate -endLayout;
 
-
+	editorTemplate -cl 0 -beginLayout "Brushes";
+ 	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
+ 	editorTemplate -endLayout;
+	 
 	editorTemplate -cl 0 -beginLayout "Strokes";
  	editorTemplate -callCustom "AEpaintingStrokesNew" "AEpaintingStrokesReplace" "strokes";
  	editorTemplate -endLayout;
@@ -53,10 +55,6 @@ source "AEpaintingStrokes";
 	editorTemplate -cl 0 -beginLayout "Matrix";
  	editorTemplate -addControl "viewMatrix"; 
  	editorTemplate -endLayout;
-
-	editorTemplate -cl 0 -beginLayout "Light Painting Attributes";
-	editorTemplate -addControl "brush";
-	editorTemplate -endLayout;
 
 	AElocatorInclude $nodeName;
 	
