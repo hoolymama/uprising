@@ -25,6 +25,7 @@ MSyntax strokeCmd::newSyntax()
 	syn.addFlag(kMaxCoilFlag, kMaxCoilFlagL);
 
 	syn.addFlag(kWeightFlag, kWeightFlagL);
+	syn.addFlag(kPivotPositionFlag, kPivotPositionFlagL);
 
 	syn.setObjectType(MSyntax::kSelectionList, 1, 1);
 
@@ -95,6 +96,10 @@ MStatus strokeCmd::doIt(const MArgList &args)
 	if (argData.isFlagSet(kWeightFlag))
 	{
 		return handleWeightFlag(*pStrokes, strokeId);
+	}
+	if (argData.isFlagSet(kPivotPositionFlag))
+	{
+		return handlePivotPositionFlag(*pStrokes, strokeId);
 	}
 
 	// setResult(paintStrokeCreatorNode->maxCoil());
@@ -176,6 +181,25 @@ MStatus strokeCmd::handleWeightFlag(const std::vector<Stroke> &strokes, int stro
 	setResult(result);
 	return MS::kSuccess;
 }
+
+
+MStatus strokeCmd::handlePivotPositionFlag(const std::vector<Stroke> &strokes, int strokeId)
+{
+
+	if (strokeId < 0 || strokeId >= strokes.size())
+	{
+		MGlobal::displayError("Invalid stroke index");
+		return MS::kUnknownParameter;
+	}
+	MFloatPoint piv = strokes[strokeId].pivot().position();
+	MDoubleArray result;
+	result.append(piv.x);
+	result.append(piv.y);
+	result.append(piv.z);
+	setResult(result);
+	return MS::kSuccess;
+}
+
 
 int strokeCmd::getStrokeId(const std::vector<Stroke> &strokes, MArgDatabase &argData,
 						   MStatus *status)

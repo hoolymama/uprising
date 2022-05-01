@@ -22,6 +22,10 @@
 #define kStrokeCountFlag "-sc"
 #define kStrokeCountFlagL "-strokeCount"
 
+#define kPivotPositionFlag "-pvp"
+#define kPivotPositionFlagL "-pivotPosition"
+
+
 
 class strokeCmd : public MPxCommand
 
@@ -40,6 +44,8 @@ public:
 	MStatus handleCoilFlag(const std::vector<Stroke> &strokes, int strokeId);
 	MStatus handleMaxCoilFlag(const std::vector<Stroke> &strokes);
 	MStatus handleWeightFlag(const std::vector<Stroke> &strokes, int strokeId);
+	MStatus handlePivotPositionFlag(const std::vector<Stroke> &strokes, int strokeId);
+	
 	int getStrokeId(const std::vector<Stroke> &strokes, MArgDatabase &argData,
 						MStatus *status);
 
