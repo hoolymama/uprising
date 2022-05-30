@@ -27,6 +27,8 @@ public:
 	float height;
 	bool displayId;
 	bool displayName;
+	bool displayRGB;
+	
 	
  
 };

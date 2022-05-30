@@ -109,6 +109,8 @@ MUserData *PaletteDrawOverride::prepareForDraw(
 
 	MPlug(paletteNodeObj, paletteNode::aDisplayId).getValue(data->displayId);
 	MPlug(paletteNodeObj, paletteNode::aDisplayName).getValue(data->displayName);
+	MPlug(paletteNodeObj, paletteNode::aDisplayRGB).getValue(data->displayRGB);
+	
 
 	return data;
 }
@@ -187,10 +189,19 @@ void PaletteDrawOverride::drawShaded(
 		drawManager.rect2d(center, MVector::yAxis, fScaleX, fScaleY, true);
 		y = y + fScaleY + fScaleY+4;
 
-		if (cdata->displayId || cdata->displayName) {
+		if (cdata->displayId || cdata->displayName|| cdata->displayRGB) {
 			int red = c.r *255;
 			int green = c.g *255;
 			int blue = c.b *255;
+
+
+
+			p.color().get(MColor::kHSV,h,s,v);
+			textColor = v > 0.68 ? MColor(0,0,0) : MColor(1,1,1);
+			MPoint textPos(center + MVector(-fScaleX,0,-0.1));
+			MPoint colorPos(center + MVector(fScaleX,-fScaleY+2,-0.1));
+			
+			drawManager.setColor(textColor);
 
 			MString txt = "";
 			if (cdata->displayId) {
@@ -200,23 +211,17 @@ void PaletteDrawOverride::drawShaded(
 			if (cdata->displayName) {
 				txt+=p.name() ;
 			}
-			p.color().get(MColor::kHSV,h,s,v);
-			textColor = v > 0.68 ? MColor(0,0,0) : MColor(1,1,1);
-			MPoint textPos(center + MVector(-fScaleX,0,-0.1));
-			MPoint colorPos(center + MVector(fScaleX,-fScaleY+2,-0.1));
-			
-			MString coltx = "(";
-			coltx+=red;coltx+=",";
-			coltx+=green;coltx+=",";
-			coltx+=blue;coltx+=")";
+			if (txt != "") {
+				drawManager.text2d(textPos, txt, MUIDrawManager::kRight);
+			}
 
-
-			drawManager.setColor(textColor);
-			drawManager.text2d(textPos,txt)	;
-			drawManager.text2d(colorPos,coltx, MUIDrawManager::kRight)	;
-
-
-
+			if (cdata->displayRGB) {
+				MString coltx = "(";
+				coltx+=red;coltx+=",";
+				coltx+=green;coltx+=",";
+				coltx+=blue;coltx+=")";
+				drawManager.text2d(colorPos,coltx, MUIDrawManager::kRight)	;
+			}
 		}
     }
 

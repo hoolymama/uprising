@@ -47,6 +47,7 @@ public:
 
   static MObject aDisplayId;
   static MObject aDisplayName;
+  static MObject aDisplayRGB;
   
   
 

@@ -45,6 +45,7 @@ MObject paletteNode::aXPos;
 MObject paletteNode::aYPos;
 MObject paletteNode::aDisplayId;
 MObject paletteNode::aDisplayName;
+MObject paletteNode::aDisplayRGB;
 
 MObject paletteNode::aOutput;
   
@@ -131,6 +132,14 @@ MStatus paletteNode::initialize()
   nAttr.setReadable(true);
   nAttr.setDefault(true);
   addAttribute(aDisplayName);
+
+  aDisplayRGB= nAttr.create("displayRGB", "drgb",
+                                  MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayRGB);
 
 
   aOutput = tAttr.create("output", "owb", paletteData::id);
