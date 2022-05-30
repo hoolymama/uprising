@@ -1,0 +1,36 @@
+global proc AEcImgFileSplitTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+	
+ 
+
+	editorTemplate -cl 0  -beginLayout "Image attributes";
+ 	editorTemplate -addControl "imageFilename";
+ 	editorTemplate -addControl "resize";
+
+	editorTemplate -addControl "resizeResolution";
+	editorTemplate -addControl "resizeResolution";
+	editorTemplate -addControl "maxOutputs";
+	editorTemplate -addControl "applyCrop";
+	editorTemplate -addControl "cropCorner";
+	editorTemplate -addControl "cropResolution";
+
+	editorTemplate -endLayout;	
+
+
+	editorTemplate -cl 0  -beginLayout "Out attributes";
+	editorTemplate -addControl "outputCount";
+	editorTemplate -addControl "outputCropFactor";
+	editorTemplate -addControl "outputOffsetFactorX";
+	editorTemplate -addControl "outputOffsetFactorY";
+	editorTemplate -endLayout;	
+
+
+ 	editorTemplate -suppress "output";
+
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
