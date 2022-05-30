@@ -260,18 +260,6 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 		outimage->draw_image(xOffset, yOffset, 0, 0, image);
 	}
 
- 
-
-
-
-
-
-	// cerr << "cImgFileCrop: ------" << endl;
-	// cerr << "w: " <<  outimage->width() << endl;
-	// cerr << "h: " <<  outimage->height() << endl;
-	// cerr << "s: " <<  outimage->spectrum() << endl;
-	// cerr << "d: " <<  outimage->depth() << endl;
-
 
 	MDataHandle hOutputCropFactor = data.outputValue(aOutputCropFactor);
 	hOutputCropFactor.set(cropFactor);

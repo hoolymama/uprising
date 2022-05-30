@@ -110,17 +110,11 @@ MStatus cImgFileSplit::initialize()
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);
 	tAttr.setKeyable(false);
-	// tAttr.setArray(true);
-	// tAttr.setUsesArrayDataBuilder(true);
-	// addAttribute(aOutputImage);
 
 	aOutputColor = nAttr.createColor("outputColor", "outc");
 	nAttr.setReadable(true);
 	nAttr.setStorable(false);
 	nAttr.setKeyable(false);
-	// nAttr.setArray(true);
-	// nAttr.setUsesArrayDataBuilder(true);
-	// addAttribute(aOutputColor);
 
 	aOutput = cAttr.create("output", "out");
 	cAttr.setKeyable(true);
@@ -225,6 +219,8 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 	{
 		return (MS::kUnknownParameter);
 	}
+
+	cerr << "cImgFileSplit::compute() PLUG:"<<  plug.name() << endl;
 
 	MPlug outputPlug(thisObj, aOutput);
 
@@ -382,6 +378,8 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 	hOutputOffsetFactorY.set(offsetFactorY);
 	hOutputOffsetFactorY.setClean();
 	
+	hOutputArray.set(bOutput);
+
 	hOutputArray.setAllClean();
 
 	return MS::kSuccess;
