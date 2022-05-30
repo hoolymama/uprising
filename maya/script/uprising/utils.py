@@ -292,6 +292,11 @@ def get_chain_skel_pairs(*skels):
             if n.attr("nodeState").get() == 0
         ]
     for skel in skels:
-        chain = skel.attr("inputData[0].chains").connections(s=True, d=False)[0]
+        try:
+            chain = skel.attr("inputData[0].chains").connections(s=True, d=False)[0]
+        except IndexError:
+            print("Skel name {}, error on plug [0]".format(skel))
+
         result.append((chain, skel))
     return result
+

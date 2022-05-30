@@ -184,7 +184,7 @@ importlib.reload(retries_session)
 ####################
 importlib.reload(brush_assign_tab)
 importlib.reload(brush_hang_tab)
-importlib.reload(connector_tab)
+# importlib.reload(connector_tab)
 importlib.reload(brush_test_tab)
 importlib.reload(gamut_tab)
 importlib.reload(painting_tab)
