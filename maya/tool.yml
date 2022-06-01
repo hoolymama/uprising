@@ -62,3 +62,4 @@ source_files:
 - src/shader/*.cpp
 - src/cimg/*.cpp
 - src/mesh/*.cpp
+- src/canvas/*.cpp
