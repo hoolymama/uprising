@@ -44,14 +44,20 @@
 #include "paintStrokeCreator.h"
 #include "skChainData.h"
 #include "skChainNode.h"
+
 #include "imagePoints.h"
+#include "imagePointsDrawOverride.h"
+
+#include "diptych.h"
+#include "diptychDrawOverride.h"
+
+
 
 #include "skGraphNode.h"
 #include "skGraphNodeDrawOverride.h"
 
 #include "paintingDrawOverride.h"
 #include "lightPaintingDrawOverride.h"
-#include "imagePointsDrawOverride.h"
 
 #include "paletteData.h"
 #include "paletteNode.h"
@@ -505,6 +511,16 @@ MStatus initializePlugin(MObject obj)
 		imagePointsDrawOverride::Creator);
 	mser;
 
+	st = plugin.registerNode("diptych", diptych::id, diptych::creator,
+							 diptych::initialize, MPxNode::kLocatorNode,
+							 &diptych::drawDbClassification);
+
+	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+		diptych::drawDbClassification,
+		diptych::drawRegistrantId,
+		diptychDrawOverride::Creator);
+	mser;
+
 	st = plugin.registerCommand("lightPaintingQuery", lightPaintingCmd::creator,
 								lightPaintingCmd::newSyntax);
 	mser;
@@ -586,6 +602,15 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterCommand("lightPaintingCmd");
 	mser;
+
+	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+		diptych::drawDbClassification,
+		diptych::drawRegistrantId);
+	mser;
+
+	st = plugin.deregisterNode(diptych::id);
+	mser;
+
 
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
 		imagePoints::drawDbClassification,
