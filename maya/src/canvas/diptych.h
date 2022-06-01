@@ -45,22 +45,33 @@ private:
   static MObject aCropResolution;
   static MObject aImageResolution;
 
-public:
-  static MObject aOutBoardOffset;
-  static MObject aOutBoardSize;
+  static MObject aPinOffset;
 
-  static MObject aOutSquareOffset;
-  static MObject aOutSquareSize;
+  static MObject aPin0;
+  static MObject aPinX;
+  static MObject aPinY;
+  static MObject aPinPainting;
+  
+
+  
+
+
+
+public:
 
   static MObject aOutSquareMatrix;
+  static MObject aOutBoardMatrix;
+  static MObject aOutPinMatrix;
+  static MObject aOutPaintingMatrix;
+
+  
  
-
-
-  // static MObject aOutCropFactor;
-  // static MObject aOutCropOffsetFactor;
   static MObject aBoardColor;
   static MObject aSquareColor;
+  static MObject aPinColor;
+    
   static MObject aMirror;
 };
 
 #endif
+

@@ -45,21 +45,24 @@ MObject diptych::aCropCorner;
 MObject diptych::aCropResolution;
 MObject diptych::aImageResolution;
 
-MObject diptych::aOutBoardOffset;
-MObject diptych::aOutBoardSize;
+MObject diptych::aPinOffset;
 
-MObject diptych::aOutSquareOffset;
-MObject diptych::aOutSquareSize;
+MObject diptych::aPin0;
+MObject diptych::aPinX;
+MObject diptych::aPinY;
+MObject diptych::aPinPainting;
 
-// MObject diptych::aOutCropFactor;
-// MObject diptych::aOutCropOffsetFactor;
 
 MObject diptych::aSquareColor;
 MObject diptych::aBoardColor;
+MObject diptych::aPinColor;
 MObject diptych::aMirror;
 
 
 MObject diptych::aOutSquareMatrix;
+MObject diptych::aOutBoardMatrix;
+MObject diptych::aOutPinMatrix;
+MObject diptych::aOutPaintingMatrix;
 
 
 MTypeId diptych::id(k_diptych);
@@ -98,6 +101,8 @@ MStatus diptych::initialize()
 	nAttr.setKeyable(true);
 	st = addAttribute(aGap);
 
+
+
 	aApplyCrop = nAttr.create("applyCrop", "apc", MFnNumericData::kBoolean);
 	nAttr.setHidden(false);
 	nAttr.setStorable(true);
@@ -121,62 +126,65 @@ MStatus diptych::initialize()
 	nAttr.setKeyable(true);
 	st = addAttribute(aImageResolution);
 
-	// OUT
+	aPinOffset = nAttr.create("pinOffset", "pof", MFnNumericData::k2Float);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aPinOffset);
 
-	aOutBoardOffset = nAttr.create("outBoardOffset", "obo", MFnNumericData::kFloat);
-	nAttr.setHidden(false);
-	nAttr.setStorable(false);
+
+	aPin0 = nAttr.createPoint("pin0", "pn0");
+	nAttr.setStorable(true);
 	nAttr.setReadable(true);
-	nAttr.setWritable(false);
-	nAttr.setKeyable(false);
-	st = addAttribute(aOutBoardOffset);
+	nAttr.setKeyable(true);
+	addAttribute(aPin0);
 
-	aOutBoardSize = nAttr.create("outBoardSize", "obs", MFnNumericData::k2Float);
-	nAttr.setHidden(false);
-	nAttr.setStorable(false);
+	aPinX = nAttr.createPoint("pinX", "pnx");
+	nAttr.setStorable(true);
 	nAttr.setReadable(true);
-	nAttr.setWritable(false);
-	nAttr.setKeyable(false);
-	st = addAttribute(aOutBoardSize);
+	nAttr.setKeyable(true);
+	addAttribute(aPinX);
 
-	aOutSquareOffset = nAttr.create("outSquareOffset", "oso", MFnNumericData::k2Float);
-	nAttr.setHidden(false);
-	nAttr.setStorable(false);
+	aPinY = nAttr.createPoint("pinY", "pny");
+	nAttr.setStorable(true);
 	nAttr.setReadable(true);
-	nAttr.setWritable(false);
-	nAttr.setKeyable(false);
-	st = addAttribute(aOutSquareOffset);
+	nAttr.setKeyable(true);
+	addAttribute(aPinY);
 
-	aOutSquareSize = nAttr.create("outSquareSize", "oss", MFnNumericData::kFloat);
-	nAttr.setHidden(false);
-	nAttr.setStorable(false);
+	aPinPainting = nAttr.create("pinPainting", "ppt", MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
 	nAttr.setReadable(true);
-	nAttr.setWritable(false);
-	nAttr.setKeyable(false);
-	st = addAttribute(aOutSquareSize);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(false);
+	addAttribute(aPinPainting);
 
-  	aOutSquareMatrix = mAttr.create( "outSquareMatrix", "osm",  MFnMatrixAttribute::kFloat );
+ 
+
+
+	// OUTPUTS
+  	aOutSquareMatrix = mAttr.create( "squareMatrix", "sqmt",  MFnMatrixAttribute::kDouble );
+	mAttr.setStorable( false );
+	addAttribute(aOutSquareMatrix);
+	mAttr.setHidden( false );
+	mAttr.setReadable( true );
+
+  	aOutBoardMatrix = mAttr.create( "boardMatrix", "bdmt",  MFnMatrixAttribute::kDouble );
 	mAttr.setStorable( false );
 	mAttr.setHidden( false );
 	mAttr.setReadable( true );
-	addAttribute(aOutSquareMatrix);
+	addAttribute(aOutBoardMatrix);
 
+  	aOutPinMatrix = mAttr.create( "pinMatrix", "pnmt",  MFnMatrixAttribute::kDouble );
+	mAttr.setStorable( false );
+	mAttr.setHidden( false );
+	mAttr.setReadable( true );
+	addAttribute(aOutPinMatrix);
 
-	// aOutCropFactor = nAttr.create("outCropFactor", "ocf", MFnNumericData::kFloat);
-	// nAttr.setHidden(false);
-	// nAttr.setStorable(false);
-	// nAttr.setReadable(true);
-	// nAttr.setWritable(false);
-	// nAttr.setKeyable(false);
-	// st = addAttribute(aOutCropFactor);
+  	aOutPaintingMatrix = mAttr.create( "paintingMatrix", "ptmt",  MFnMatrixAttribute::kDouble );
+	mAttr.setStorable( false );
+	mAttr.setHidden( false );
+	mAttr.setReadable( true );
+	addAttribute(aOutPaintingMatrix);
 
-	// aOutCropOffsetFactor = nAttr.create("outCropOffsetFactor", "oof", MFnNumericData::kFloat);
-	// nAttr.setHidden(false);
-	// nAttr.setStorable(false);
-	// nAttr.setReadable(true);
-	// nAttr.setWritable(false);
-	// nAttr.setKeyable(false);
-	// st = addAttribute(aOutCropOffsetFactor);
 
 	// DRAW
 
@@ -184,13 +192,19 @@ MStatus diptych::initialize()
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	st = addAttribute(aSquareColor);
-	mser;
+
 
 	aBoardColor = nAttr.createColor("boardColor", "bc");
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	st = addAttribute(aBoardColor);
-	mser;
+
+
+	aPinColor = nAttr.createColor("pinColor", "pc");
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aPinColor);
+
 
 	aMirror = nAttr.create("mirror", "mir", MFnNumericData::kBoolean);
 	nAttr.setHidden(false);
@@ -199,27 +213,10 @@ MStatus diptych::initialize()
 	nAttr.setDefault(true);
 	st = addAttribute(aMirror);
 
-	st = attributeAffects(aBoardHeight, aOutBoardOffset);
-	st = attributeAffects(aGap, aOutBoardOffset);
-	st = attributeAffects(aImageResolution, aOutBoardOffset);
 
-	st = attributeAffects(aBoardHeight, aOutBoardSize);
-	st = attributeAffects(aImageResolution, aOutBoardSize);
-
-	st = attributeAffects(aBoardHeight, aOutSquareOffset);
-	st = attributeAffects(aGap, aOutSquareOffset);
-	st = attributeAffects(aImageResolution, aOutSquareOffset);
-	st = attributeAffects(aApplyCrop, aOutSquareOffset);
-	st = attributeAffects(aCropCorner, aOutSquareOffset);
-	st = attributeAffects(aCropResolution, aOutSquareOffset);
-	st = attributeAffects(aImageResolution, aOutSquareOffset);
-
-	st = attributeAffects(aBoardHeight, aOutSquareSize);
-	st = attributeAffects(aImageResolution, aOutSquareSize);
-	st = attributeAffects(aApplyCrop, aOutSquareSize);
-	st = attributeAffects(aCropCorner, aOutSquareSize);
-	st = attributeAffects(aCropResolution, aOutSquareSize);
-	st = attributeAffects(aImageResolution, aOutSquareSize);
+	st = attributeAffects(aBoardHeight, aOutBoardMatrix);
+	st = attributeAffects(aGap, aOutBoardMatrix);
+	st = attributeAffects(aImageResolution, aOutBoardMatrix);
 
 	st = attributeAffects(aBoardHeight, aOutSquareMatrix);
 	st = attributeAffects(aGap, aOutSquareMatrix);
@@ -229,18 +226,18 @@ MStatus diptych::initialize()
 	st = attributeAffects(aCropResolution, aOutSquareMatrix);
 	st = attributeAffects(aImageResolution, aOutSquareMatrix);
 
- 
- 
+	st = attributeAffects(aBoardHeight, aOutPinMatrix);
+	st = attributeAffects(aGap, aOutPinMatrix);
+	st = attributeAffects(aImageResolution, aOutPinMatrix);
+	st = attributeAffects(aPinOffset, aOutPinMatrix);
 
-	// st = attributeAffects(aApplyCrop, aOutCropFactor);
-	// st = attributeAffects(aCropCorner, aOutCropFactor);
-	// st = attributeAffects(aCropResolution, aOutCropFactor);
-	// st = attributeAffects(aImageResolution, aOutCropFactor);
+	st = attributeAffects(aPin0 , aOutPaintingMatrix);
+	st = attributeAffects(aPinX , aOutPaintingMatrix);
+	st = attributeAffects(aPinY , aOutPaintingMatrix);
+	st = attributeAffects(aPinPainting , aOutPaintingMatrix);
 
-	// st = attributeAffects(aApplyCrop, aOutCropOffsetFactor);
-	// st = attributeAffects(aCropCorner, aOutCropOffsetFactor);
-	// st = attributeAffects(aCropResolution, aOutCropOffsetFactor);
-	// st = attributeAffects(aImageResolution, aOutCropOffsetFactor);
+
+
 
 	return (MS::kSuccess);
 }
@@ -250,16 +247,10 @@ MStatus diptych::compute(const MPlug &plug, MDataBlock &data)
 
 	MStatus st;
 	if (!(
-			plug == aOutBoardOffset ||
-			plug == aOutBoardSize ||
-			plug.parent() == aOutBoardSize ||
-			plug == aOutSquareOffset ||
-			plug.parent() == aOutSquareOffset ||
-			plug == aOutSquareSize ||
-			plug == aOutSquareMatrix
-			// plug == aOutCropFactor ||
-			// plug == aOutCropOffsetFactor ||
-			// plug.parent() == aOutCropOffsetFactor
+			plug == aOutSquareMatrix ||
+			plug == aOutBoardMatrix ||
+			plug == aOutPinMatrix ||
+			plug == aOutPaintingMatrix
 			))
 	{
 		return (MS::kUnknownParameter);
@@ -284,6 +275,8 @@ MStatus diptych::compute(const MPlug &plug, MDataBlock &data)
 	float outSquareOffsetX = outBoardOffset;
 	float outSquareOffsetY = 0.0f;
 
+	float halfGap = gap * 0.5;
+
 	if (data.inputValue(aApplyCrop).asBool())
 	{
 
@@ -295,7 +288,6 @@ MStatus diptych::compute(const MPlug &plug, MDataBlock &data)
 		float letterBoxPad = (yres - xres) * 0.5;
 		outSquareSize = (cropResolution * boardHeight * 0.5f) / yres;
 
-		float halfGap = gap * 0.5;
 		float halfCropRes = cropResolution * 0.5;
 
 		outSquareOffsetX = halfGap + (boardScale * ((halfCropRes + cropCorner[0])));
@@ -306,39 +298,87 @@ MStatus diptych::compute(const MPlug &plug, MDataBlock &data)
 	}
 
 
-	MFloatMatrix squareMat;
+	const float2 &pinOffset = data.inputValue(aPinOffset).asFloat2();
+	float xPinOff = pinOffset[0];
+	float yPinOff = pinOffset[1];
+
+
+	MMatrix pinMat;
+	pinMat.setToIdentity();
+	pinMat[0][0] = double(outBoardSizeX + outBoardSizeX + xPinOff + halfGap); 
+	pinMat[1][1] = double(outBoardSizeY + yPinOff);
+
+	//// calculate painting matrix
+	MMatrix paintingMat;
+	paintingMat.setToIdentity();
+	bool pinPainting = data.inputValue(aPinPainting).asBool();
+
+	if (pinPainting)
+	{
+		MFloatVector pin0 = data.inputValue(aPin0).asFloatVector();
+		MFloatVector pinX = data.inputValue(aPinX).asFloatVector();
+		MFloatVector pinY = data.inputValue(aPinY).asFloatVector();
+
+		MFloatVector nx = (pinX - pin0).normal();
+		MFloatVector ny = (pinY - pin0).normal();
+
+		if ( ! (nx.isEquivalent(MVector::zero) || ny.isEquivalent(MVector::zero) || nx.isParallel(ny)))
+		{
+
+			MMatrix cornerPinMatrix;
+
+			MVector nz = (nx ^ ny).normal();
+			nx = ny ^ nz;
+			cornerPinMatrix[0][0] = nx.x;
+			cornerPinMatrix[0][1] = nx.y;
+			cornerPinMatrix[0][2] = nx.z;
+			cornerPinMatrix[1][0] = ny.x;
+			cornerPinMatrix[1][1] = ny.y;
+			cornerPinMatrix[1][2] = ny.z;
+			cornerPinMatrix[2][0] = nz.x;
+			cornerPinMatrix[2][1] = nz.y;
+			cornerPinMatrix[2][2] = nz.z;
+			cornerPinMatrix[3][0] = pin0.x;
+			cornerPinMatrix[3][1] = pin0.y;
+			cornerPinMatrix[3][2] = pin0.z;	
+
+			paintingMat[3][0] = pinMat[0][0];
+			paintingMat[3][1] = pinMat[1][1];
+			paintingMat *= cornerPinMatrix;
+			
+		}
+	}
+
+
+	MMatrix squareMat;
 	squareMat.setToIdentity();
-	squareMat[0][0] = outSquareSize; 
-	squareMat[1][1] = outSquareSize;
-	squareMat[3][0] = outSquareOffsetX;
-	squareMat[3][1] = outSquareOffsetY;
+	squareMat[0][0] = double(outSquareSize); 
+	squareMat[1][1] = double(outSquareSize);
+	squareMat[3][0] = double(outSquareOffsetX);
+	squareMat[3][1] = double(outSquareOffsetY);
 	
+	MMatrix boardMat;
+	boardMat.setToIdentity();
+	boardMat[0][0] = double(outBoardSizeX); 
+	boardMat[1][1] = double(outBoardSizeY);
+	boardMat[3][0] = double(outBoardOffset);
+
+
 	MDataHandle hOutSquareMatrix = data.outputValue(aOutSquareMatrix);
 	hOutSquareMatrix.set(squareMat);
 	hOutSquareMatrix.setClean();
 
+	MDataHandle hOutBoardMatrix = data.outputValue(aOutBoardMatrix);
+	hOutBoardMatrix.set(boardMat);
+	hOutBoardMatrix.setClean();
 
-	MDataHandle hBoardOffset = data.outputValue(aOutBoardOffset);
+	MDataHandle hOutPinMatrix = data.outputValue(aOutPinMatrix);
+	hOutPinMatrix.set(pinMat);
+	hOutPinMatrix.setClean();
 
-	hBoardOffset.set(outBoardOffset);
-
-	hBoardOffset.setClean();
-
-	MDataHandle hBoardSize = data.outputValue(aOutBoardSize);
-	float2 &outBoardSize = hBoardSize.asFloat2();
-	outBoardSize[0] = outBoardSizeX;
-	outBoardSize[1] = outBoardSizeY;
-	hBoardSize.setClean();
-
-	MDataHandle hSquareOffset = data.outputValue(aOutSquareOffset);
-	float2 &outSquareOffset = hSquareOffset.asFloat2();
-	outSquareOffset[0] = outSquareOffsetX;
-	outSquareOffset[1] = outSquareOffsetY;
-	hSquareOffset.setClean();
-
-	MDataHandle hSquareSize = data.outputValue(aOutSquareSize);
-	hSquareSize.set(outSquareSize);
-	hSquareSize.setClean();
+	MDataHandle hOutPaintingMatrix = data.outputValue(aOutPaintingMatrix);
+	hOutPaintingMatrix.set(paintingMat);
+	hOutPaintingMatrix.setClean();
 
 	return MS::kSuccess;
 }

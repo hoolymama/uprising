@@ -18,20 +18,19 @@ class diptychDrawData : public MUserData
 public:
 	diptychDrawData();
 	virtual ~diptychDrawData();
+ 
 
-	float boardOffset;
+	MMatrix squareMatrix;
+	MMatrix boardMatrix;
+	MMatrix pinMatrix;
+	MMatrix paintingMatrix;
 
-	float boardSizeX;
-	float boardSizeY;
 	MColor boardColor;
-
-	float squareOffsetX;
-	float squareOffsetY;
-
-	float squareSize;
 	MColor squareColor;
+	MColor pinColor;
 
 	bool mirror;
 };
 
 #endif
+

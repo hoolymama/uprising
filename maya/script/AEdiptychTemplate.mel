@@ -3,30 +3,47 @@ global proc AEdiptychTemplate ( string $nodeName )
 
 	editorTemplate -beginScrollLayout;
 	
-	editorTemplate -cl 0  -beginLayout "Geometry attributes";
- 	editorTemplate -addControl"boardHeight";
- 	editorTemplate -addControl"gap";
+	editorTemplate -cl 0  -beginLayout "Board attributes";
+ 	editorTemplate -addControl "boardHeight";
+ 	editorTemplate -addControl "gap";
+	editorTemplate -endLayout;	
+
+
+	editorTemplate -cl 0  -beginLayout "Crop attributes";
  	editorTemplate -addControl"applyCrop";
 	editorTemplate -addControl"cropCorner";
 	editorTemplate -addControl"cropResolution";
 	editorTemplate -addControl"imageResolution";
 	editorTemplate -endLayout;	
 
-
-	editorTemplate -cl 0  -beginLayout "Display attributes";
-	editorTemplate -addControl"squareColor";
-	editorTemplate -addControl"boardColor";
-	editorTemplate -addControl"mirror";
+	editorTemplate -cl 0  -beginLayout "Pin attributes";
+	editorTemplate -addControl "pinOffset";
+	editorTemplate -addControl "pin0";
+	editorTemplate -addControl "pinX";
+	editorTemplate -addControl "pinY";
+	editorTemplate -addControl "pinPainting";
 	editorTemplate -endLayout;	
 
-	editorTemplate -cl 0  -beginLayout "Output attributes";		
-	editorTemplate -addControl "outBoardOffset" ;
-	editorTemplate -addControl "outBoardSize" ;
-	editorTemplate -addControl "outSquareOffset" ;
-	editorTemplate -addControl "outSquareSize" ;
-	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Display attributes";
+	editorTemplate -addControl"mirror";
+	editorTemplate -addControl"squareColor";
+	editorTemplate -addControl"boardColor";
+	editorTemplate -addControl"pinColor";
+	editorTemplate -endLayout;	
+
+
 
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;
 	
 }
+
+
+
+
+	
+	
+	
+	
