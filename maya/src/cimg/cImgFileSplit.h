@@ -25,17 +25,17 @@ public:
 		MColorArray &palette
 		) const;
 
-	virtual MStatus setDependentsDirty(
-        const MPlug &plugBeingDirtied,
-        MPlugArray &affectedPlugs );
+	// virtual MStatus setDependentsDirty(
+    //     const MPlug &plugBeingDirtied,
+    //     MPlugArray &affectedPlugs );
 
 
 	static  void		*creator();
 
 	static MStatus initialize();
 	static MObject aImageFilename;
-	static MObject aResize;
-	static MObject aResizeResolution;
+	// static MObject aResize;
+	// static MObject aResizeResolution;
 	static MObject aMaxOutputs;
 
 	static MObject aInputPalette;
@@ -44,6 +44,10 @@ public:
 	static MObject aCropCorner;
 	static MObject aCropResolution;
 	
+	static MObject aXResolution;
+	static MObject aYResolution;
+
+
 	static MObject aOutputImage;
 	static MObject aOutputColor; 
 	static MObject aOutput;

@@ -17,14 +17,13 @@
 MTypeId cImgFileSplit::id(k_cImgFileSplit);
 
 MObject cImgFileSplit::aImageFilename;
-MObject cImgFileSplit::aResize;
-MObject cImgFileSplit::aResizeResolution;
+// MObject cImgFileSplit::aResize;
+// MObject cImgFileSplit::aResizeResolution;
 MObject cImgFileSplit::aMaxOutputs;
-// MObject cImgFileSplit::aMakeSquare;
+
 MObject cImgFileSplit::aApplyCrop;
 MObject cImgFileSplit::aCropCorner;
 MObject cImgFileSplit::aCropResolution;
-// MObject cImgFileSplit::aExcludeColor;
 
 MObject cImgFileSplit::aInputPalette;
 
@@ -37,6 +36,8 @@ MObject cImgFileSplit::aOutputCropFactor;
 MObject cImgFileSplit::aOutputOffsetFactorX;
 MObject cImgFileSplit::aOutputOffsetFactorY;
 
+MObject cImgFileSplit::aXResolution;
+MObject cImgFileSplit::aYResolution;
 
 cImgFileSplit::cImgFileSplit() {}
 
@@ -60,20 +61,20 @@ MStatus cImgFileSplit::initialize()
 	tAttr.setUsedAsFilename(true);
 	addAttribute(aImageFilename);
 
-	aResize = nAttr.create("resize", "rsz", MFnNumericData::kBoolean);
-	nAttr.setHidden(false);
-	nAttr.setStorable(true);
-	nAttr.setReadable(true);
-	nAttr.setKeyable(true);
-	nAttr.setDefault(false);
-	st = addAttribute(aResize);
+	// aResize = nAttr.create("resize", "rsz", MFnNumericData::kBoolean);
+	// nAttr.setHidden(false);
+	// nAttr.setStorable(true);
+	// nAttr.setReadable(true);
+	// nAttr.setKeyable(true);
+	// nAttr.setDefault(false);
+	// st = addAttribute(aResize);
 
-	aResizeResolution = nAttr.create("resizeResolution", "rrs", MFnNumericData::kInt);
-	nAttr.setHidden(false);
-	nAttr.setStorable(true);
-	nAttr.setReadable(true);
-	nAttr.setKeyable(true);
-	st = addAttribute(aResizeResolution);
+	// aResizeResolution = nAttr.create("resizeResolution", "rrs", MFnNumericData::kInt);
+	// nAttr.setHidden(false);
+	// nAttr.setStorable(true);
+	// nAttr.setReadable(true);
+	// nAttr.setKeyable(true);
+	// st = addAttribute(aResizeResolution);
 
 	aMaxOutputs = nAttr.create("maxOutputs", "mxo", MFnNumericData::kInt);
 	nAttr.setStorable(true);
@@ -150,7 +151,7 @@ MStatus cImgFileSplit::initialize()
 	nAttr.setKeyable(false);
 	st = addAttribute(aOutputOffsetFactorX);
 
-	aOutputOffsetFactorY= nAttr.create("outputOffsetFactorY", "oofy", MFnNumericData::kFloat);
+	aOutputOffsetFactorY = nAttr.create("outputOffsetFactorY", "oofy", MFnNumericData::kFloat);
 	nAttr.setHidden(false);
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
@@ -158,45 +159,56 @@ MStatus cImgFileSplit::initialize()
 	nAttr.setKeyable(false);
 	st = addAttribute(aOutputOffsetFactorY);
 
-	
-	attributeAffects(aMaxOutputs, aOutputImage);
-	attributeAffects(aImageFilename, aOutputImage);
-	attributeAffects(aInputPalette, aOutputImage);
-	attributeAffects(aResize, aOutputImage);
-	attributeAffects(aResizeResolution, aOutputImage);
-	attributeAffects(aApplyCrop, aOutputImage);
+	aXResolution = nAttr.create("xResolution", "xres", MFnNumericData::kInt);
+	nAttr.setHidden(false);
+	nAttr.setStorable(false);
+	nAttr.setReadable(true);
+	nAttr.setWritable(false);
+	nAttr.setKeyable(false);
+	addAttribute(aXResolution);
+
+	aYResolution = nAttr.create("yResolution", "yres", MFnNumericData::kInt);
+	nAttr.setHidden(false);
+	nAttr.setStorable(false);
+	nAttr.setReadable(true);
+	nAttr.setWritable(false);
+	nAttr.setKeyable(false);
+	addAttribute(aYResolution);
 
 	attributeAffects(aMaxOutputs, aOutputColor);
 	attributeAffects(aImageFilename, aOutputColor);
 	attributeAffects(aInputPalette, aOutputColor);
 
+	attributeAffects(aMaxOutputs, aOutputImage);
+	attributeAffects(aImageFilename, aOutputImage);
+	attributeAffects(aInputPalette, aOutputImage);
+	attributeAffects(aApplyCrop, aOutputImage);
+	attributeAffects(aCropCorner, aOutputImage);
+	attributeAffects(aCropResolution, aOutputImage);
+
 	attributeAffects(aMaxOutputs, aOutputCount);
 	attributeAffects(aImageFilename, aOutputCount);
 	attributeAffects(aInputPalette, aOutputCount);
 
-	attributeAffects(aMaxOutputs, aOutput);
-	attributeAffects(aImageFilename, aOutput);
-	attributeAffects(aInputPalette, aOutput);
-	attributeAffects(aResize, aOutput);
-	attributeAffects(aResizeResolution, aOutput);
-	attributeAffects(aApplyCrop, aOutput);
-
-	// attributeAffects(aMaxOutputs, aOutputCropFactor);
 	attributeAffects(aImageFilename, aOutputCropFactor);
-	attributeAffects(aResize, aOutputCropFactor);
-	attributeAffects(aResizeResolution, aOutputCropFactor);
 	attributeAffects(aApplyCrop, aOutputCropFactor);
+	attributeAffects(aCropCorner, aOutputCropFactor);
+	attributeAffects(aCropResolution, aOutputCropFactor);
 
-	// attributeAffects(aMaxOutputs, aOutputOffsetFactor);
 	attributeAffects(aImageFilename, aOutputOffsetFactorX);
-	attributeAffects(aResize, aOutputOffsetFactorX);
-	attributeAffects(aResizeResolution, aOutputOffsetFactorX);
+
 	attributeAffects(aApplyCrop, aOutputOffsetFactorX);
+	attributeAffects(aCropCorner, aOutputOffsetFactorX);
+	attributeAffects(aCropResolution, aOutputOffsetFactorX);
 
 	attributeAffects(aImageFilename, aOutputOffsetFactorY);
-	attributeAffects(aResize, aOutputOffsetFactorY);
-	attributeAffects(aResizeResolution, aOutputOffsetFactorY);
+
 	attributeAffects(aApplyCrop, aOutputOffsetFactorY);
+	attributeAffects(aCropCorner, aOutputOffsetFactorY);
+	attributeAffects(aCropResolution, aOutputOffsetFactorY);
+
+	attributeAffects(aImageFilename, aXResolution);
+	attributeAffects(aImageFilename, aYResolution);
 
 	return MS::kSuccess;
 }
@@ -212,26 +224,24 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 			|| (plug == aOutputColor) 
 			|| (plug.parent() == aOutputColor) 
 			|| (plug == aOutputCount) 
-			|| (plug == aOutputCropFactor)
-			|| (plug == aOutputOffsetFactorX)
-			|| (plug == aOutputOffsetFactorY)
-			))
+			|| (plug == aOutputCropFactor) 
+			|| (plug == aOutputOffsetFactorX) 
+			|| (plug == aOutputOffsetFactorY) 
+			|| (plug == aXResolution) 
+			|| (plug == aYResolution)))
 	{
 		return (MS::kUnknownParameter);
 	}
 
-	cerr << "cImgFileSplit::compute() PLUG:"<<  plug.name() << endl;
-
 	MPlug outputPlug(thisObj, aOutput);
 
 	MStatus st = MS::kSuccess;
-	bool resize = data.inputValue(aResize).asBool();
+	// bool resize = data.inputValue(aResize).asBool();
 	bool applyCrop = data.inputValue(aApplyCrop).asBool();
 
 	float cropFactor = 1.0f;
 	float offsetFactorX = 0.0f;
 	float offsetFactorY = 0.0f;
-	
 
 	MString imageFilename = data.inputValue(aImageFilename).asString();
 	CImg<unsigned char> image(imageFilename.asChar());
@@ -243,29 +253,12 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 		return (MS::kUnknownParameter);
 	}
 
-	// resize the max axis to the resolution value
-	// resize other axis accordingly
-	// Very important that we use nearest neighbor, because  we don't want to introduce extra colors.
-	if (resize)
-	{
-		int resolution = data.inputValue(aResizeResolution).asInt();
-		resolution = std::min(std::max(2, resolution), 4096);
 
-		if (xres > yres)
-		{
-			yres = int((yres * resolution) / float(xres));
-			xres = resolution;
-		} else  {
-			xres = int((xres * resolution) / float(yres));
-			yres = resolution;
-		}
-		image.resize(xres, yres, -100, -100, 1);
-	}
-
-
+	// PALETTE ///////////////////////////////////////////////////////////////
 	MColorArray palette;
 	calculate_pallete(data, image, palette);
 	int paletteLength = palette.length();
+	/////////////////////////////////////////////////////////////////
 
 	int fullSquareRes = std::max(xres, yres);
 
@@ -275,7 +268,6 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 	mser;
 	MFnPluginData fnOut;
 	MTypeId kdid(cImgData::id);
-
 	int xSquareOffset = (fullSquareRes - xres) / 2;
 	int ySquareOffset = (fullSquareRes - yres) / 2;
 
@@ -299,9 +291,8 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 		float fFullSquareRes = float(fullSquareRes);
 
 		cropFactor = spriteResX / fFullSquareRes;
-		offsetFactorX = (spriteX+xSquareOffset) / fFullSquareRes;
-		offsetFactorY = (spriteY+ySquareOffset) / fFullSquareRes;
-		
+		offsetFactorX = (spriteX + xSquareOffset) / fFullSquareRes;
+		offsetFactorY = (spriteY + ySquareOffset) / fFullSquareRes;
 	}
 
 	for (int i = 0; i < paletteLength; i++)
@@ -377,7 +368,16 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 	MDataHandle hOutputOffsetFactorY = data.outputValue(aOutputOffsetFactorY);
 	hOutputOffsetFactorY.set(offsetFactorY);
 	hOutputOffsetFactorY.setClean();
-	
+
+
+	MDataHandle hXResolution = data.outputValue(aXResolution);
+	hXResolution.set(xres); 
+	hXResolution.setClean();
+
+	MDataHandle hYResolution = data.outputValue(aYResolution);
+	hYResolution.set(yres);
+	hYResolution.setClean();
+
 	hOutputArray.set(bOutput);
 
 	hOutputArray.setAllClean();
@@ -386,28 +386,29 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 }
 
 void cImgFileSplit::calculate_pallete(
-	MDataBlock&data,
+	MDataBlock &data,
 	const CImg<unsigned char> &image,
-	MColorArray &palette
-	) const
+	MColorArray &palette) const
 {
 	MStatus st;
 	int maxPaletteSize = data.inputValue(aMaxOutputs).asInt();
 	maxPaletteSize = std::max(maxPaletteSize, 1);
 
 	MArrayDataHandle hInputPalette = data.inputArrayValue(aInputPalette, &st);
-	if (! st.error()) {
+	if (!st.error())
+	{
 		unsigned nInputs = hInputPalette.elementCount();
-		if (nInputs > 0) {
+		if (nInputs > 0)
+		{
 			for (unsigned i = 0; i < nInputs; i++, hInputPalette.next())
 			{
-				const MFloatVector& color = hInputPalette.inputValue().asFloatVector();
-				palette.append(MColor(color.x, color.y,color.z));
+				const MFloatVector &color = hInputPalette.inputValue().asFloatVector();
+				palette.append(MColor(color.x, color.y, color.z));
 			}
 			return;
 		}
 	}
- 
+
 	int lastIndex = -1;
 	bool started = false;
 	cimg_forXY(image, x, y)
@@ -456,53 +457,51 @@ void cImgFileSplit::calculate_pallete(
 	}
 }
 
-MStatus cImgFileSplit::setDependentsDirty(
-	const MPlug &plugBeingDirtied,
-	MPlugArray &affectedPlugs)
-{
+// MStatus cImgFileSplit::setDependentsDirty(
+// 	const MPlug &plugBeingDirtied,
+// 	MPlugArray &affectedPlugs)
+// {
 
-	MObject thisNode = thisMObject();
-	const MString &affectorName = plugBeingDirtied.partialName();
+// 	MObject thisNode = thisMObject();
+// 	const MString &affectorName = plugBeingDirtied.partialName();
 
-	MPlug outArrayPlug = MPlug(thisNode, cImgFileSplit::aOutput);
-	// Attribite affects for crop attributes only when
-	// applyCrop is on.
-	// cerr << "affectorName" << affectorName<< endl;
-	if (affectorName == "ccr0" ||
-		affectorName == "ccr1" ||
-		affectorName == "ccr" ||
-		affectorName == "crs")
-	{
-		bool apply;
-		MPlug(thisNode, cImgFileSplit::aApplyCrop).getValue(apply);
+// 	MPlug outArrayPlug = MPlug(thisNode, cImgFileSplit::aOutput);
+// 	// Attribite affects for crop attributes only when
+// 	// applyCrop is on.
+// 	// cerr << "affectorName" << affectorName<< endl;
+// 	if (affectorName == "ccr0" ||
+// 		affectorName == "ccr1" ||
+// 		affectorName == "ccr" ||
+// 		affectorName == "crs")
+// 	{
+// 		bool apply;
+// 		MPlug(thisNode, cImgFileSplit::aApplyCrop).getValue(apply);
 
-		if (apply)
-		{
-			// cerr << "apply: " << apply << "adding plugs" << endl;
-			for (unsigned i = 0; i < outArrayPlug.numElements(); i++)
-			{
-				MPlug elementPlug = outArrayPlug[i];
-				affectedPlugs.append(elementPlug);
-				affectedPlugs.append(elementPlug.child(cImgFileSplit::aOutputImage));
-				affectedPlugs.append(elementPlug.child(cImgFileSplit::aOutputColor));
-			}
+// 		if (apply)
+// 		{
+// 			// cerr << "apply: " << apply << "adding plugs" << endl;
+// 			for (unsigned i = 0; i < outArrayPlug.numElements(); i++)
+// 			{
+// 				MPlug elementPlug = outArrayPlug[i];
+// 				affectedPlugs.append(elementPlug);
+// 				affectedPlugs.append(elementPlug.child(cImgFileSplit::aOutputImage));
+// 				affectedPlugs.append(elementPlug.child(cImgFileSplit::aOutputColor));
+// 			}
 
-			affectedPlugs.append(
-				MPlug(thisNode, cImgFileSplit::aOutputCropFactor));
-			affectedPlugs.append(
-				MPlug(thisNode, cImgFileSplit::aOutputOffsetFactorX));
-			affectedPlugs.append(
-				MPlug(thisNode, cImgFileSplit::aOutputOffsetFactorY));
-			affectedPlugs.append(
-				MPlug(thisNode, cImgFileSplit::aOutputImage));
-			affectedPlugs.append(
-				MPlug(thisNode, cImgFileSplit::aOutputCount));
-			affectedPlugs.append(
-				MPlug(thisNode, cImgFileSplit::aOutputColor));
-		}
-	}
+// 			affectedPlugs.append(
+// 				MPlug(thisNode, cImgFileSplit::aOutputCropFactor));
+// 			affectedPlugs.append(
+// 				MPlug(thisNode, cImgFileSplit::aOutputOffsetFactorX));
+// 			affectedPlugs.append(
+// 				MPlug(thisNode, cImgFileSplit::aOutputOffsetFactorY));
+// 			affectedPlugs.append(
+// 				MPlug(thisNode, cImgFileSplit::aOutputImage));
+// 			affectedPlugs.append(
+// 				MPlug(thisNode, cImgFileSplit::aOutputCount));
+// 			affectedPlugs.append(
+// 				MPlug(thisNode, cImgFileSplit::aOutputColor));
+// 		}
+// 	}
 
-	return MS::kSuccess;
-}
-
- 
+// 	return MS::kSuccess;
+// }
