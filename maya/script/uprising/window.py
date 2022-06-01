@@ -8,7 +8,6 @@ importlib.reload(reloader)
 
 from uprising import (
     brush_assign_tab,
-    # connector_tab,
     brush_hang_tab,
     brush_test_tab,
     gamut_tab,
@@ -63,11 +62,7 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.brush_assign_tab = brush_assign_tab.BrushAssignTab()
         self.tabs.setTabLabel((self.brush_assign_tab, "Assign brushes"))
-
-        # pm.setParent(self.tabs)
-        # self.connector_tab = connector_tab.ConnectorTab()
-        # self.tabs.setTabLabel((self.connector_tab, "Connectify"))
-
+ 
         pm.setParent(self.tabs)
         self.painting_tab = painting_tab.PaintingTab()
         self.tabs.setTabLabel((self.painting_tab, "Painting"))
