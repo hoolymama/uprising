@@ -1,6 +1,6 @@
 
-#ifndef _projectionPoints_H
-#define _projectionPoints_H
+#ifndef _imagePoints_H
+#define _imagePoints_H
 
 #define cimg_display 0
 
