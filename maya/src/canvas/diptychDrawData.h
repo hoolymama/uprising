@@ -30,6 +30,17 @@ public:
 	MColor pinColor;
 
 	bool mirror;
+	float paintingLocatorSize;
+
+
+
+	bool displaySquareMatrix;
+	bool displayBoardMatrix;
+	bool displayPinMatrix;
+	bool displayPaintingMatrix;
+
+
+
 };
 
 #endif

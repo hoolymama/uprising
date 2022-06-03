@@ -71,6 +71,15 @@ public:
   static MObject aPinColor;
     
   static MObject aMirror;
+  static MObject aPaintingLocatorSize;
+
+  static MObject aDisplaySquareMatrix;
+  static MObject aDisplayBoardMatrix;
+  static MObject aDisplayPinMatrix;
+  static MObject aDisplayPaintingMatrix;
+
+
+
 };
 
 #endif

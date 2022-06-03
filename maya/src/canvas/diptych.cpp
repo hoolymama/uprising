@@ -57,6 +57,13 @@ MObject diptych::aSquareColor;
 MObject diptych::aBoardColor;
 MObject diptych::aPinColor;
 MObject diptych::aMirror;
+MObject diptych::aPaintingLocatorSize;
+
+MObject diptych::aDisplaySquareMatrix;
+MObject diptych::aDisplayBoardMatrix;
+MObject diptych::aDisplayPinMatrix;
+MObject diptych::aDisplayPaintingMatrix;
+
 
 
 MObject diptych::aOutSquareMatrix;
@@ -212,6 +219,45 @@ MStatus diptych::initialize()
 	nAttr.setKeyable(true);
 	nAttr.setDefault(true);
 	st = addAttribute(aMirror);
+
+	aPaintingLocatorSize = nAttr.create("paintingLocatorSize", "ps", MFnNumericData::kFloat);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(1.0f);
+	st = addAttribute(aPaintingLocatorSize);
+
+
+	aDisplaySquareMatrix= nAttr.create("displaySquareMatrix", "dsq", MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	st = addAttribute(aDisplaySquareMatrix);
+
+	aDisplayBoardMatrix= nAttr.create("displayBoardMatrix", "dbo", MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	st = addAttribute(aDisplayBoardMatrix);
+
+	aDisplayPinMatrix= nAttr.create("displayPinMatrix", "dpi", MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	st = addAttribute(aDisplayPinMatrix);
+
+	aDisplayPaintingMatrix= nAttr.create("displayPaintingMatrix", "dpa", MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	st = addAttribute(aDisplayPaintingMatrix);
+
+
+
 
 
 	st = attributeAffects(aBoardHeight, aOutBoardMatrix);

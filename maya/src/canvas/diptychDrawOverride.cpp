@@ -96,6 +96,13 @@ MUserData *diptychDrawOverride::prepareForDraw(
 
 	MPlug(diptychObj, diptych::aMirror).getValue(data->mirror);
 
+	MPlug(diptychObj, diptych::aDisplaySquareMatrix).getValue(data->displaySquareMatrix);
+	MPlug(diptychObj, diptych::aDisplayBoardMatrix).getValue(data->displayBoardMatrix);
+	MPlug(diptychObj, diptych::aDisplayPinMatrix).getValue(data->displayPinMatrix);
+	MPlug(diptychObj, diptych::aDisplayPaintingMatrix).getValue(data->displayPaintingMatrix);
+
+	MPlug(diptychObj, diptych::aPaintingLocatorSize).getValue(data->paintingLocatorSize);
+
 
 	MFnMatrixData fnMatrixData;
    	MObject matObj;
@@ -150,40 +157,45 @@ void diptychDrawOverride::addUIDrawables(
 	drawManager.beginDrawable();
 
 	MUIDrawManager::LineStyle style = MUIDrawManager::kSolid;
-	drawManager.setLineStyle(style);
-	drawManager.setColor(cdata->boardColor);
-	drawManager.rect(MPoint(cdata->boardMatrix[3][0], 0, 0), MVector::yAxis, MVector::zAxis, cdata->boardMatrix[0][0], cdata->boardMatrix[1][1]);
-	if (cdata->mirror)
-	{
-		drawManager.rect(MPoint(-(cdata->boardMatrix[3][0]), 0, 0), MVector::yAxis, MVector::zAxis, cdata->boardMatrix[0][0], cdata->boardMatrix[1][1]);
+	if (cdata->displayBoardMatrix){
+		drawManager.setLineStyle(style);
+		drawManager.setColor(cdata->boardColor);
+		drawManager.rect(MPoint(cdata->boardMatrix[3][0], 0, 0), MVector::yAxis, MVector::zAxis, cdata->boardMatrix[0][0], cdata->boardMatrix[1][1]);
+		if (cdata->mirror)
+		{
+			drawManager.rect(MPoint(-(cdata->boardMatrix[3][0]), 0, 0), MVector::yAxis, MVector::zAxis, cdata->boardMatrix[0][0], cdata->boardMatrix[1][1]);
+		}
 	}
-
  
 	drawManager.setLineStyle(MUIDrawManager::kDashed);
-	drawManager.setColor(cdata->squareColor);
-	drawManager.rect(MPoint(cdata->squareMatrix[3][0], cdata->squareMatrix[3][1], 0), MVector::yAxis, MVector::zAxis, cdata->squareMatrix[0][0], cdata->squareMatrix[1][1]);
-	if (cdata->mirror)
-	{
-		drawManager.rect(MPoint(-(cdata->squareMatrix[3][0]), cdata->squareMatrix[3][1], 0), MVector::yAxis, MVector::zAxis, cdata->squareMatrix[0][0], cdata->squareMatrix[1][1]);
+	if (cdata->displaySquareMatrix){
+		drawManager.setColor(cdata->squareColor);
+		drawManager.rect(MPoint(cdata->squareMatrix[3][0], cdata->squareMatrix[3][1], 0), MVector::yAxis, MVector::zAxis, cdata->squareMatrix[0][0], cdata->squareMatrix[1][1]);
+		if (cdata->mirror)
+		{
+			drawManager.rect(MPoint(-(cdata->squareMatrix[3][0]), cdata->squareMatrix[3][1], 0), MVector::yAxis, MVector::zAxis, cdata->squareMatrix[0][0], cdata->squareMatrix[1][1]);
+		}
 	}
 
-	drawManager.setColor(cdata->pinColor);
-	drawManager.rect(MPoint::origin, MVector::yAxis, MVector::zAxis, cdata->pinMatrix[0][0], cdata->pinMatrix[1][1]);
+	if (cdata->displayPinMatrix){
+		drawManager.setColor(cdata->pinColor);
+		drawManager.rect(MPoint::origin, MVector::yAxis, MVector::zAxis, cdata->pinMatrix[0][0], cdata->pinMatrix[1][1]);
+	}
  
 	drawManager.setLineStyle(MUIDrawManager::kSolid);
-
-	MPoint p0 = MPoint::origin * cdata->paintingMatrix;
-	MPoint pX = MPoint(1.0, 0.0, 0.0) * cdata->paintingMatrix;
-	MPoint pY = MPoint(0.0, 1.0, 0.0) * cdata->paintingMatrix;
-	MPoint pZ = MPoint(0.0, 0.0, 1.0) * cdata->paintingMatrix;
-	
-
-	drawManager.setColor(MColor(1.0, 0.0, 0.0));
-	drawManager.line(p0, pX);
-	drawManager.setColor(MColor(0.0, 1.0, 0.0));
-	drawManager.line(p0, pY);
-	drawManager.setColor(MColor(0.0, 0.0, 1.0));
-	drawManager.line(p0, pZ);
+	if (cdata->displayPaintingMatrix){
+		MPoint p0 = MPoint::origin * cdata->paintingMatrix;
+		MPoint pX = MPoint(cdata->paintingLocatorSize, 0.0, 0.0) * cdata->paintingMatrix;
+		MPoint pY = MPoint(0.0, cdata->paintingLocatorSize, 0.0) * cdata->paintingMatrix;
+		MPoint pZ = MPoint(0.0, 0.0, cdata->paintingLocatorSize) * cdata->paintingMatrix;
+		
+		drawManager.setColor(MColor(1.0, 0.0, 0.0));
+		drawManager.line(p0, pX);
+		drawManager.setColor(MColor(0.0, 1.0, 0.0));
+		drawManager.line(p0, pY);
+		drawManager.setColor(MColor(0.0, 0.0, 1.0));
+		drawManager.line(p0, pZ);
+	}
 
 	drawManager.endDrawable();
 }

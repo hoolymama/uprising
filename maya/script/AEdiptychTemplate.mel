@@ -27,10 +27,22 @@ global proc AEdiptychTemplate ( string $nodeName )
 
 
 	editorTemplate -cl 0  -beginLayout "Display attributes";
-	editorTemplate -addControl"mirror";
-	editorTemplate -addControl"squareColor";
-	editorTemplate -addControl"boardColor";
-	editorTemplate -addControl"pinColor";
+	editorTemplate -addControl "mirror";
+	editorTemplate -addControl "squareColor";
+	editorTemplate -addControl "boardColor";
+	editorTemplate -addControl "pinColor";
+	editorTemplate -addSeparator;
+
+	editorTemplate -beginNoOptimize;
+	editorTemplate -addControl "displaySquareMatrix";
+	editorTemplate -addControl "displayBoardMatrix";
+	editorTemplate -addControl "displayPinMatrix";
+	editorTemplate -addControl "displayPaintingMatrix";
+	editorTemplate -endNoOptimize;
+	
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "paintingLocatorSize";
+
 	editorTemplate -endLayout;	
 
 

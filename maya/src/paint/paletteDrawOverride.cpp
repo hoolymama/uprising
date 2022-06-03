@@ -204,15 +204,16 @@ void PaletteDrawOverride::drawShaded(
 			drawManager.setColor(textColor);
 
 			MString txt = "";
-			if (cdata->displayId) {
-				txt+=paintId;
-				txt+=" ";
-			}
 			if (cdata->displayName) {
 				txt+=p.name() ;
+				txt+=" ";
+			}
+			if (cdata->displayId) {
+				txt+=paintId;
+			
 			}
 			if (txt != "") {
-				drawManager.text2d(textPos, txt, MUIDrawManager::kRight);
+				drawManager.text2d(textPos, txt, MUIDrawManager::kLeft);
 			}
 
 			if (cdata->displayRGB) {
