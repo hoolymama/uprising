@@ -1,4 +1,3 @@
-
 #ifndef _stroke_
 #define _stroke_
 
@@ -195,6 +194,7 @@ public:
 
 	const Target &pivot() const;
 	void setPivotPosition(const MFloatPoint &rhs);
+	void setPivotMatrix(const MFloatMatrix &rhs);
 
 	int strokeId() const;
 	int parentId() const;

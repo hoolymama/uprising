@@ -500,6 +500,14 @@ void Stroke::setPivotPosition(const MFloatPoint &rhs)
 	m_pivot.setPosition(rhs);
 }
 
+
+void Stroke::setPivotMatrix(const MFloatMatrix &rhs)
+{
+	m_pivot.setMatrix(rhs);
+}
+
+
+
 Stroke::~Stroke() {}
 
 // bool Stroke::backstroke() const

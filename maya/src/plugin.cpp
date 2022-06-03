@@ -31,6 +31,8 @@
 #include "brushNode.h"
 
 #include "aimStrokes.h"
+#include "mirrorStrokes.h"
+
 #include "displaceStrokes.h"
 #include "brushLifter.h"
 
@@ -469,6 +471,11 @@ MStatus initializePlugin(MObject obj)
 							 aimStrokes::initialize);
 	mser;
 
+	st = plugin.registerNode("mirrorStrokes", mirrorStrokes::id, mirrorStrokes::creator,
+							 mirrorStrokes::initialize);
+	mser;
+
+
 	st = plugin.registerNode("tiltStrokes", tiltStrokes::id, tiltStrokes::creator,
 							 tiltStrokes::initialize);
 	mser;
@@ -642,6 +649,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(tiltStrokes::id);
+	mser;
+
+	st = plugin.deregisterNode(mirrorStrokes::id);
 	mser;
 
 	st = plugin.deregisterNode(aimStrokes::id);
