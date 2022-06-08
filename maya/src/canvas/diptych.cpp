@@ -16,8 +16,7 @@
 #include <maya/MFnTypedAttribute.h>
 
 #include <maya/MPlugArray.h>
-#include <maya/MRenderUtil.h>
-
+ 
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnMatrixArrayData.h>
 
@@ -33,10 +32,6 @@
 
 #include "mayaMath.h"
 
-#include "dotData.h"
-#include "dotTree.h"
-#include "cImgData.h"
-#include "cImgUtils.h"
 #include "nodeUtils.h"
 
 MObject diptych::aBoardHeight;

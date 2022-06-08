@@ -64,18 +64,7 @@ public:
 		cerr << "diptychDrawOverride: " << message.asChar() << endl;
 	}
 
-private:
-	void drawPoints(MHWRender::MUIDrawManager &drawManager,
-					const diptychDrawData *cdata);
-
-	void drawBorder(MHWRender::MUIDrawManager &drawManager,
-					const diptychDrawData *cdata);
-
-	void drawCircles(MHWRender::MUIDrawManager &drawManager,
-					 const diptychDrawData *cdata);
-
-	void drawOrder(MHWRender::MUIDrawManager &drawManager,
-				   const diptychDrawData *cdata);
+private: 
 
 	diptychDrawOverride(const MObject &obj);
 

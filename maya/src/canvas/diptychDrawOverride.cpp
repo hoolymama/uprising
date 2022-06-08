@@ -64,7 +64,7 @@ MHWRender::DrawAPI diptychDrawOverride::supportedDrawAPIs() const
 
 bool diptychDrawOverride::isBounded(const MDagPath &objPath,
 									const MDagPath &cameraPath) const
-{   
+{
 	return false;
 }
 
@@ -102,11 +102,9 @@ MUserData *diptychDrawOverride::prepareForDraw(
 	MPlug(diptychObj, diptych::aDisplayPinMatrix).getValue(data->displayPinMatrix);
 	MPlug(diptychObj, diptych::aDisplayPaintingMatrix).getValue(data->displayPaintingMatrix);
 	MPlug(diptychObj, diptych::aDisplayProbes).getValue(data->displayProbes);
-	
-	
+
 	double probeBorder;
 	MPlug(diptychObj, diptych::aProbeBorder).getValue(probeBorder);
-
 
 	double paintingLocatorSize;
 	MPlug(diptychObj, diptych::aPaintingLocatorSize).getValue(paintingLocatorSize);
@@ -152,7 +150,6 @@ MUserData *diptychDrawOverride::prepareForDraw(
 	data->boardScaleX = boardMatrix[0][0];
 	data->boardScaleY = boardMatrix[1][1];
 
-
 	// SQUARE RECTANGLE
 	double squareX = squareMatrix[3][0];
 	double squareY = squareMatrix[3][1];
@@ -170,7 +167,6 @@ MUserData *diptychDrawOverride::prepareForDraw(
 	data->paintingYAxis = MPoint(0.0, paintingLocatorSize, 0.0) * paintingMatrix;
 	data->paintingZAxis = MPoint(0.0, 0.0, paintingLocatorSize) * paintingMatrix;
 
-
 	// PROBE POINTS
 	////////////////////////////////////////////////////////////////////////////////
 	data->probePoints.clear();
@@ -183,22 +179,22 @@ MUserData *diptychDrawOverride::prepareForDraw(
 	MMatrix centerMatrix = MMatrix::identity;
 	centerMatrix[3][0] = -1.0;
 	centerMatrix[3][1] = -1.0;
-	centerMatrix[0][0] = 2.0 ; 
-	centerMatrix[1][1] = 2.0 ; 
+	centerMatrix[0][0] = 2.0;
+	centerMatrix[1][1] = 2.0;
 
 	MMatrix shrinkMatrix = MMatrix::identity;
 	shrinkMatrix[0][0] = 1.0 - probeBorder;
 	shrinkMatrix[1][1] = 1.0 - probeBorder;
- 
+
 	MMatrix mirrorMatrix = MMatrix::identity;
 	mirrorMatrix[3][0] = boardMatrix[3][0] * -2.0;
- 
+
 	MMatrix rightMatrix = centerMatrix * shrinkMatrix * boardMatrix * paintingMatrix;
 	MMatrix leftMatrix = centerMatrix * shrinkMatrix * boardMatrix * mirrorMatrix * paintingMatrix;
 	MMatrixArray mats;
 	mats.append(rightMatrix);
 	mats.append(leftMatrix);
-	for (int k = 0; k <mats.length(); k++)
+	for (int k = 0; k < mats.length(); k++)
 	{
 		for (int j = 0; j < numProbesY; j++)
 		{
@@ -230,7 +226,6 @@ MUserData *diptychDrawOverride::prepareForDraw(
 	MPlug(diptychObj, diptych::aProbeColor).child(0).getValue(data->probeColor[0]);
 	MPlug(diptychObj, diptych::aProbeColor).child(1).getValue(data->probeColor[1]);
 	MPlug(diptychObj, diptych::aProbeColor).child(2).getValue(data->probeColor[2]);
-
 
 	return data;
 }
@@ -330,6 +325,22 @@ void diptychDrawOverride::addUIDrawables(
 		drawManager.points(cdata->probePoints, false);
 	}
 
+	// Some primitives
+
+	drawManager.setPaintStyle	(MUIDrawManager::kShaded);	
+
+
+	drawManager.setColor(cdata->probeColor);
+
+	drawManager.box(
+		MPoint(0.0, 0.0, 10.0),
+		MVector::zAxis,
+		MVector::xAxis, 1.0, 1.0, 1.0, true);
+
+	drawManager.setColor(cdata->pinColor);
+
+
+	drawManager.sphere(MPoint(0.0, 0.0, 6.0), 0.5, true);
 
 
 	drawManager.endDrawable();

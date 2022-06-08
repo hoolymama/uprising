@@ -11,11 +11,6 @@
 #include <maya/MObject.h>
 #include <maya/MPxNode.h>
 
-// #include "dotData.h"
-// #include "CImg.h"
-
-// using namespace cimg_library;
-
 class diptych : public MPxLocatorNode
 {
 public:
@@ -26,7 +21,6 @@ public:
   virtual void postConstructor();
 
   virtual bool isBounded() const;
-
   virtual MBoundingBox boundingBox() const;
 
   MStatus compute(const MPlug &plug, MDataBlock &data);
