@@ -15,7 +15,7 @@ from uprising.session.rack_calibration_session import RackCalibrationSession
 from uprising.session.manual_probe_session import ManualProbeSession
 from uprising.session.kr8_track_session import Kr8TrackSession
 
-
+DIPTYCH = "DIPTYCHShape"
 def _dismiss():
     pm.layoutDialog(dismiss="abort")
 
@@ -124,78 +124,34 @@ def verify(data, nrows=-1, ncolumns=-1):
 def _read_any_triangulation(content):
     data = data_matrix(content)
     verify(data, 3, 4)
-
+    
     for row in data:
-        loc_name = row[0]
-        try:
-            node = pm.PyNode(loc_name)
-        except pm.MayaNodeError:
-            node = pm.spaceLocator()
-            node.rename(loc_name)
-
+        attr = pm.Attribute(row[0])
         vals = [uutl.numeric(x) * 0.1 for x in row[1:4]]
-        print("{} - set {} {} {}".format(node, vals[0], vals[1], vals[2]))
-        node.attr("translate").set(*vals)
-        try:
-            pm.addAttr(node, ln='originalTranslate', type='double3', k=1)
-        except RuntimeError:
-            pass
-        node.attr("originalTranslate").set(*vals)
+        print("{} - set {} {} {}".format(attr, vals[0], vals[1], vals[2]))
+        attr.set(*vals)
+        # try:
+        #     pm.addAttr(node, ln='originalTranslate', type='double3', k=1)
+        # except RuntimeError:
+        #     pass
+        # node.attr("originalTranslate").set(*vals)
 
 
 
 def _read_board_calibration(content):
     print("_read_board_calibration")
     # First zero the mesh
-    mesh = pm.PyNode(pm.sets("probePointsSet", q=True)[0])
-    for v in mesh.vtx:
-        pos = v.getPosition(space="object")
-        pos.z = 0
-        v.setPosition(pos, space="object")
+    node = pm.PyNode(DIPTYCH)
+    for plug in node.attr("displacement"):
+        pm.removeMultiInstance(plug, b=True)
 
     data = data_matrix(content)
-
-    verts = [item for sublist in pm.sets(
-        "probePointsSet", q=True) for item in sublist]
-
-    verify(data, len(verts), 1)
-
-    for val, vtx in zip(list(zip(*data))[0], verts):
-        pos = vtx.getPosition(space="object")
-        pos.z = (uutl.numeric(val) * 0.1) - 1.0
-        vtx.setPosition(pos, space="object")
-
-    # If the three corner points are not zero in z, we need to correct the triangulation.
-    tl_offset =  mesh.vtx[49].getPosition(space="object").z
-    tr_offset =  mesh.vtx[54].getPosition(space="object").z
-    bl_offset =  mesh.vtx[9].getPosition(space="object").z
-
-    # get board translate atts
-    # originalTranslate was set when the triangulation was read. 
-    # We use originalTranslate because if we run this
-    # function twice and simply use translate, it will accumulate.
-    tl_orig_att = pm.PyNode("board_TL").attr("originalTranslate")
-    tr_orig_att = pm.PyNode("board_TR").attr("originalTranslate")
-    bl_orig_att = pm.PyNode("board_BL").attr("originalTranslate")
-
-    tl_att = pm.PyNode("board_TL").attr("t")
-    tr_att = pm.PyNode("board_TR").attr("t")
-    bl_att = pm.PyNode("board_BL").attr("t")
-
-    # get their values
-    v_tl = tl_orig_att.get()
-    v_tr = tr_orig_att.get()
-    v_bl = bl_orig_att.get()
-    
-    # figure out displacement direction
-    normal = ((v_tr - v_tl) ^  (v_bl -  v_tl)).normal()
-
-    # offset the triangulation (compensate by pushing it back if vertex z is positive )
-    tl_att.set(v_tl +(tl_offset*normal) )
-    tr_att.set(v_tr +(tr_offset*normal) )
-    bl_att.set(v_bl +(bl_offset*normal) )
-    
-
+    x,y = node.attr("numProbes").get()
+    datalength = x*y*2
+    verify(data, datalength, 1)
+    for i, val in enumerate(data):
+        disp = (uutl.numeric(val[0]) * 0.1) - 1.0
+        node.attr("displacement")[i].set(disp)
 
 def _read_pot_calibration(content):
 

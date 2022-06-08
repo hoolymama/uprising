@@ -1,7 +1,7 @@
 import pymel.core as pm
 import uprising.const as k
 from uprising.session.calibration_program import CalibrationProgram
-import uprising.utils as uutl
+from uprising import utils
 from robolink import (
     INSTRUCTION_COMMENT,
     INSTRUCTION_SHOW_MESSAGE
@@ -12,24 +12,20 @@ CAL_SHEET_FIRST_ROW = 6
 
 CAL_APPROACH_HEIGHT = 20
 
+DIPTYCH = "DIPTYCHShape"
+
+PROBES_PARENT = "|mainPaintingGroup|probes"
 
 class BoardCalibrationProgram(CalibrationProgram):
     def __init__(self, name):
         super(BoardCalibrationProgram, self).__init__(name)
         self.packs = self.get_packs()
 
-        # Make sure the board locs are at their original (uncompensated) calibration.
-        pm.PyNode("board_TL").attr("t").set(pm.PyNode("board_TL").attr("originalTranslate").get())
-        pm.PyNode("board_TR").attr("t").set(pm.PyNode("board_TR").attr("originalTranslate").get())
-        pm.PyNode("board_BL").attr("t").set(pm.PyNode("board_BL").attr("originalTranslate").get())
-
-
-
     def send_locator_packs(self):
 
         last = None
 
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             for pack in self.packs:
                 self._send_stops(
                     last, pack["approach_loc"], k.FACING_BOARD_JOINTS)
@@ -40,8 +36,6 @@ class BoardCalibrationProgram(CalibrationProgram):
                 last = pack["approach_loc"]
 
     def _send_one_probe(self, pack):
-
-        row = CAL_SHEET_FIRST_ROW + pack["id"]
 
         base_target = self._create_a_target(
             pack["base_loc"].attr("worldMatrix[0]").get(),
@@ -59,7 +53,7 @@ class BoardCalibrationProgram(CalibrationProgram):
         self.program.addMoveL(base_target)
         self.program.Pause()
         self.program.RunInstruction(
-            "Enter {} in cell {}B".format(pack["name"], row),
+            "Enter {} in next cell".format(pack["name"]),
             INSTRUCTION_SHOW_MESSAGE,
         )
         self.program.addMoveL(approach_target)
@@ -67,21 +61,23 @@ class BoardCalibrationProgram(CalibrationProgram):
     @staticmethod
     def get_packs():
         packs = []
-        with uutl.zero_position(pm.PyNode("mainPaintingShape")):
-            verts = [
-                item for sublist in pm.sets("probePointsSet", q=True) for item in sublist
-            ]
-            parent = pm.PyNode("|mainPaintingGroup|jpos|probes")
+        with utils.zero_painting():
+            verts = pm.PyNode(DIPTYCH).attr("outProbePoints").get()
+
+            parent = pm.PyNode(PROBES_PARENT)
+            junk = pm.listRelatives(parent, children=True, type="transform")
+            if junk:
+                pm.delete(junk)
+
             rot = pm.dt.Vector(180, 0, -90)
-            for i, v in enumerate(verts):
-                index = int(str(v).split("[")[1].split("]")[0])
-                px, py, _ = v.getPosition(space="world")
-                name = "board_cal_{:02}".format(index)
+            for i, vec in enumerate(verts):
+
+                name = "board_cal_{:02}".format(i)
                 pack = {"name": name, "id": i}
                 pack["base_loc"] = CalibrationProgram._make_locator(
                     parent,
                     "base_{}".format(name),
-                    pm.dt.Vector(px, py, 0.0),
+                    vec,
                     relative=False,
                     rotation=rot
                 )
@@ -89,7 +85,7 @@ class BoardCalibrationProgram(CalibrationProgram):
                 pack["approach_loc"] = CalibrationProgram._make_locator(
                     parent,
                     "approach_{}".format(name),
-                    pm.dt.Vector(px, py, CAL_APPROACH_HEIGHT),
+                    vec + pm.dt.Vector(0,0, CAL_APPROACH_HEIGHT),
                     relative=False,
                     rotation=rot
                 )

@@ -9,8 +9,8 @@
 #include <maya/MViewport2Renderer.h>
 
 #include <maya/MColor.h>
-#include <maya/MPointArray.h>
-#include <maya/MDoubleArray.h>
+#include <maya/MPoint.h>
+#include <maya/MVector.h>
 
 class diptychDrawData : public MUserData
 {
@@ -20,25 +20,49 @@ public:
 	virtual ~diptychDrawData();
  
 
-	MMatrix squareMatrix;
-	MMatrix boardMatrix;
-	MMatrix pinMatrix;
-	MMatrix paintingMatrix;
-
 	MColor boardColor;
 	MColor squareColor;
 	MColor pinColor;
+	MColor probeColor;
+	
 
 	bool mirror;
-	float paintingLocatorSize;
-
-
+	// float paintingLocatorSize;
 
 	bool displaySquareMatrix;
 	bool displayBoardMatrix;
 	bool displayPinMatrix;
 	bool displayPaintingMatrix;
+	bool displayProbes;
 
+	MPointArray probePoints;
+	float probePointSize;
+
+	MVector up;
+	MVector normal;
+	MPoint origin;
+
+	MPoint squareCenter;
+	MPoint squareCenterMirror;
+
+	double squareScaleX;
+	double squareScaleY;
+
+	MPoint boardCenter;
+	MPoint boardCenterMirror;
+
+	double boardScaleX;
+	double boardScaleY;
+	
+
+	double pinScaleX;
+	double pinScaleY;
+
+	MPoint paintingXAxis;
+	MPoint paintingYAxis;
+	MPoint paintingZAxis;
+	
+	
 
 
 };

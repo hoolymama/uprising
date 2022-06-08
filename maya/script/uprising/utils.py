@@ -6,6 +6,7 @@ from contextlib import contextmanager
 import pymel.core as pm
 
 PI = 3.14159265359
+DIPTYCH = "DIPTYCHShape"
 
 
 @contextmanager
@@ -58,6 +59,26 @@ def at_position(node, x, y, z):
     finally:
         node.attr("t").set(old)
 
+@contextmanager
+def zero_painting():
+    node = pm.PyNode(DIPTYCH)
+    old = node.attr("pinPainting").get()
+    node.attr("pinPainting").set(0)
+    try:
+        yield
+    finally:
+        node.attr("pinPainting").set(old)
+
+@contextmanager
+def pin_painting():
+    node = pm.PyNode(DIPTYCH)
+    old = node.attr("pinPainting").get()
+    node.attr("pinPainting").set(1)
+    try:
+        yield
+    finally:
+        node.attr("pinPainting").set(old)
+
 
 # @contextmanager
 # def final_position(*nodes):
@@ -87,27 +108,31 @@ def zero_position(node):
 def prep_for_output():
     pm.select(cl=True)
 
-    painting_zero_val = pm.PyNode("mainPaintingGroup").attr("zeroPosition").get()
+    diptych_orig_val = pm.PyNode(DIPTYCH).attr("pinPainting").get()
     rack_zero_val =   pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").get()
-    apply_brush_bias_val = pm.PyNode("canvasTransform").attr("applyBrushBias").get()
+    
+    # apply_brush_bias_val = pm.PyNode("canvasTransform").attr("applyBrushBias").get()
+    apply_brush_bias_val  = pm.PyNode("mainPaintingGroup").attr("applyBrushBias").get()
     brush_lifter_ns_val = pm.PyNode("brushLifter").attr("nodeState").get()
-    displacer_ns_val = pm.PyNode("displacer").attr("nodeState").get()
+    # displacer_ns_val = pm.PyNode("displacer").attr("nodeState").get()
     
 
-    pm.PyNode("mainPaintingGroup").attr("zeroPosition").set(False)
+    pm.PyNode(DIPTYCH).attr("pinPainting").set(True)
     pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").set(False)
-    pm.PyNode("canvasTransform").attr("applyBrushBias").set(True)
+    # pm.PyNode("canvasTransform").attr("applyBrushBias").set(True)
+    pm.PyNode("mainPaintingGroup").attr("applyBrushBias").set(True)
     pm.PyNode("brushLifter").attr("nodeState").set(0)
-    pm.PyNode("displacer").attr("nodeState").set(0)
+    # pm.PyNode("displacer").attr("nodeState").set(0)
     try:
         yield
     finally:
  
-        pm.PyNode("mainPaintingGroup").attr("zeroPosition").set(painting_zero_val)
+        pm.PyNode(DIPTYCH).attr("pinPainting").set(diptych_orig_val)
         pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").set(rack_zero_val)
-        pm.PyNode("canvasTransform").attr("applyBrushBias").set(apply_brush_bias_val)
+        # pm.PyNode("canvasTransform").attr("applyBrushBias").set(apply_brush_bias_val)
+        pm.PyNode("mainPaintingGroup").attr("applyBrushBias").set(apply_brush_bias_val)
         pm.PyNode("brushLifter").attr("nodeState").set(brush_lifter_ns_val)
-        pm.PyNode("displacer").attr("nodeState").set(displacer_ns_val)
+        # pm.PyNode("displacer").attr("nodeState").set(displacer_ns_val)
 
         skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
 

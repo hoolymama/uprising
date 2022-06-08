@@ -42,8 +42,16 @@ global proc AEdiptychTemplate ( string $nodeName )
 	
 	editorTemplate -addSeparator;
 	editorTemplate -addControl "paintingLocatorSize";
-
 	editorTemplate -endLayout;	
+
+	editorTemplate -cl 0  -beginLayout "Probe attributes";
+	editorTemplate -addControl "numProbes";
+	editorTemplate -addControl "probeBorder";
+	editorTemplate -addControl "displayProbes";
+	editorTemplate -addControl "probePointSize";
+	editorTemplate -addControl "probeColor";
+	editorTemplate -endLayout;	
+
 
 
 
