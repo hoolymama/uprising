@@ -17,27 +17,28 @@ class brushNode : public MPxLocatorNode
 {
 public:
   brushNode();
-
   virtual ~brushNode();
-
   static void *creator();
-
   static MStatus initialize();
-
   virtual void postConstructor();
 
   virtual bool isBounded() const;
-
   virtual MBoundingBox boundingBox() const;
 
-  virtual void draw(M3dView &view,
-                    const MDagPath &path,
-                    M3dView::DisplayStyle style,
-                    M3dView::DisplayStatus status);
-
   virtual MStatus compute(const MPlug &plug, MDataBlock &data);
-
+ 
   static MTypeId id;
+  static MString drawDbClassification;
+  static MString drawRegistrantId;
+
+
+  static MObject aWidth;
+  static MObject aTip;
+  static MObject aBristleHeight;
+  static MObject aPaintingParam;
+  static MObject aDipParam;
+  static MObject aWipeParam;
+  static MObject aShape;
 
 private:
   MStatus getBrush(MObject &attribute, Brush &brush);
@@ -46,14 +47,7 @@ private:
 
   // static MObject aId;
   static MObject aPhysicalId;
-  static MObject aWidth;
-  static MObject aTip;
-  static MObject aBristleHeight;
-  static MObject aPaintingParam;
-  static MObject aDipParam;
-  static MObject aWipeParam;
   static MObject aRetention;
-  static MObject aShape;
   static MObject aTransHeightParam;
   static MObject aContactPower;
   static MObject aForwardBias;
@@ -77,7 +71,5 @@ private:
 
   static MObject aModel;
 };
-
-
 
 #endif

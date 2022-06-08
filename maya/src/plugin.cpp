@@ -29,6 +29,8 @@
 #include "strokeCmd.h"
 
 #include "brushNode.h"
+#include "brushDrawOverride.h"
+
 
 #include "aimStrokes.h"
 #include "mirrorStrokes.h"
@@ -404,8 +406,22 @@ MStatus initializePlugin(MObject obj)
 	msert;
 
 	st = plugin.registerNode("brushNode", brushNode::id, brushNode::creator,
-							 brushNode::initialize, MPxNode::kLocatorNode);
+							 brushNode::initialize, MPxNode::kLocatorNode,  &brushNode::drawDbClassification);
 	msert;
+
+	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+		brushNode::drawDbClassification,
+		brushNode::drawRegistrantId,
+		brushDrawOverride::Creator);
+	mser;
+
+
+
+
+
+
+
+
 
 	st = plugin.registerNode("strokeNodeBase", strokeNodeBase::id, strokeNodeBase::creator,
 							 strokeNodeBase::initialize);
@@ -698,6 +714,12 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterNode(strokeNodeBase::id);
 	mser;
+
+	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+		brushNode::drawDbClassification,
+		brushNode::drawRegistrantId);
+	mser;
+
 
 	st = plugin.deregisterNode(brushNode::id);
 	mser;

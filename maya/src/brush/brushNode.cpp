@@ -39,11 +39,7 @@
 #include <maya/MFnMatrixAttribute.h>
 
 #include <maya/MFnEnumAttribute.h>
-
-// #include "paintingGeom.h"
-// #include "strokeData.h"
-// #include "paintingNode.h"
-
+ 
 #include <jMayaIds.h>
 #include "mayaMath.h"
 #include "errorMacros.h"
@@ -51,32 +47,6 @@
 #include "brushData.h"
 #include "brushNode.h"
 #include "nodeUtils.h"
-
-const double rad_to_deg = (180 / 3.1415927);
-
-const int LEAD_COLOR = 18;
-const int ACTIVE_COLOR = 15;
-const int ACTIVE_AFFECTED_COLOR = 8;
-const int DORMANT_COLOR = 4;
-const int HILITE_COLOR = 17;
-const int RED_COLOR = 12;
-
-MTypeId brushNode::id(k_brushNode);
-
-brushNode::brushNode()
-{
-}
-
-brushNode::~brushNode()
-{
-}
-
-void *brushNode::creator()
-{
-  return new brushNode();
-}
-
-const double epsilon = 0.0001;
 
 MObject brushNode::aPhysicalId;
 MObject brushNode::aWidth;
@@ -104,15 +74,31 @@ MObject brushNode::aLineLength;
 MObject brushNode::aLineThickness;
 MObject brushNode::aDmx;
 
-
-
 MObject brushNode::aOutPaintBrush;
 MObject brushNode::aOutDipBrush;
 MObject brushNode::aOutWipeBrush;
 
-// MObject brushNode::aCustomId;
-
 MObject brushNode::aModel;
+
+MTypeId brushNode::id(k_brushNode);
+MString brushNode::drawDbClassification("drawdb/geometry/brushNode");
+MString brushNode::drawRegistrantId("brushNodePlugin");
+
+brushNode::brushNode()
+{
+}
+
+brushNode::~brushNode()
+{
+}
+
+void *brushNode::creator()
+{
+  return new brushNode();
+}
+
+const double epsilon = 0.0001;
+
 
 MStatus brushNode::initialize()
 {
@@ -464,13 +450,7 @@ MStatus brushNode::getBrush(MObject &attribute, Brush &brush)
   return MS::kSuccess;
 }
 
-void brushNode::draw(M3dView &view,
-                     const MDagPath &path,
-                     M3dView::DisplayStyle style,
-                     M3dView::DisplayStatus status)
-{
-}
-
+ 
 bool brushNode::isBounded() const
 {
   return false;
