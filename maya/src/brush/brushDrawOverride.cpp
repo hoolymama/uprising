@@ -11,7 +11,6 @@
 #include <maya/MFnDependencyNode.h>
 #include <maya/MFnMatrixData.h>
 
-
 #include <maya/MUintArray.h>
 
 #include "brushNode.h"
@@ -19,15 +18,11 @@
 
 #include "brushDrawOverride.h"
 
-
-
 const float PI = 3.141592653;
 
 const float RAD_TO_DEG = (180 / PI);
 
 const float TAU = 2.0 * PI;
-
-
 
 brushDrawOverride::brushDrawOverride(const MObject &obj)
 	: MHWRender::MPxDrawOverride(obj, NULL, false)
@@ -78,7 +73,7 @@ MHWRender::DrawAPI brushDrawOverride::supportedDrawAPIs() const
 }
 
 bool brushDrawOverride::isBounded(const MDagPath &objPath,
-									const MDagPath &cameraPath) const
+								  const MDagPath &cameraPath) const
 {
 	return false;
 }
@@ -116,8 +111,8 @@ MUserData *brushDrawOverride::prepareForDraw(
 	for (int i = 0; i < circleVertexCount; i++)
 	{
 		float angle = gap * i;
-		float x = cos(angle) *0.5f;
-		float y = sin(angle) *0.5f;
+		float x = cos(angle) * 0.5f;
+		float y = sin(angle) * 0.5f;
 		circleVertices.append(MFloatPoint(x, y, 0.0f));
 	}
 
@@ -135,43 +130,46 @@ MUserData *brushDrawOverride::prepareForDraw(
 	MPlug(brushObj, brushNode::aTip).child(0).getValue(tipx);
 	MPlug(brushObj, brushNode::aTip).child(1).getValue(tipy);
 	MPlug(brushObj, brushNode::aTip).child(2).getValue(tipz);
-	
+
 	MPlug(brushObj, brushNode::aBristleHeight).getValue(bristleHeight);
 	MPlug(brushObj, brushNode::aPaintingParam).getValue(paintingParam);
 	MPlug(brushObj, brushNode::aDipParam).getValue(dipParam);
 	MPlug(brushObj, brushNode::aWipeParam).getValue(wipeParam);
 	MPlug(brushObj, brushNode::aShape).getValue(shape);
 
-	data->color = MColor(1.0f,1.0f,1.0f);
+	MPlug(brushObj, brushNode::aTcpScale).getValue(data->coneScale);
 
 	float baseLevel = 0.0f;
 	float tipLevel = tipz;
 	float bristleLevel = tipz - bristleHeight;
-	float ferruleLevel = bristleLevel - 1.0f ;
+	float ferruleLevel = bristleLevel - 1.0f;
 	float taperLevel = bristleLevel + (bristleHeight * 0.5);
 
 	data->points.clear();
+	data->normals.clear();
+	data->colors.clear();
+	data->indices.clear();
+
+	MFloatPointArray ringPoints;
 	MFloatMatrix baseMatrix;
 	baseMatrix[3][0] = tipx;
 	baseMatrix[3][1] = tipy;
-	
+
 	MFloatMatrix mat;
 	// BASE
 	mat = baseMatrix;
 	for (size_t i = 0; i < circleVertexCount; i++)
 	{
-		//data->points.append(circleVertices[i] * mat);
-		data->points.append(circleVertices[i]);
-		
+		ringPoints.append(circleVertices[i] * mat);
 	}
 	// FERRULE
 	MFloatMatrix ferruleMatrix;
 	ferruleMatrix[3][2] = ferruleLevel;
-	mat = ferruleMatrix;// * baseMatrix;
+	mat = ferruleMatrix * baseMatrix;
 	for (size_t i = 0; i < circleVertexCount; i++)
 	{
 		MFloatPoint point = circleVertices[i] * mat;
-		data->points.append(point);
+		ringPoints.append(point);
 	}
 
 	// BRISTLE LEVEL
@@ -179,23 +177,23 @@ MUserData *brushDrawOverride::prepareForDraw(
 	bristleMatrix[3][2] = bristleLevel;
 	bristleMatrix[0][0] = width;
 	bristleMatrix[1][1] = shape ? width : 0.1f;
-	mat = bristleMatrix;// * baseMatrix;
+	mat = bristleMatrix * baseMatrix;
 	for (size_t i = 0; i < circleVertexCount; i++)
 	{
 		MFloatPoint point = circleVertices[i] * mat;
-		data->points.append(point);
+		ringPoints.append(point);
 	}
-	
+
 	// TAPER LEVEL
 	MFloatMatrix taperMatrix;
 	taperMatrix[3][2] = taperLevel;
 	taperMatrix[0][0] = width;
 	taperMatrix[1][1] = shape ? width : 0.1f;
-	mat = taperMatrix;// * baseMatrix;
+	mat = taperMatrix * baseMatrix;
 	for (size_t i = 0; i < circleVertexCount; i++)
 	{
 		MFloatPoint point = circleVertices[i] * mat;
-		data->points.append(point);
+		ringPoints.append(point);
 	}
 
 	// TIP LEVEL
@@ -203,43 +201,97 @@ MUserData *brushDrawOverride::prepareForDraw(
 	tipMatrix[3][2] = tipLevel;
 	tipMatrix[0][0] = shape ? 0.1 : width;
 	tipMatrix[1][1] = 0.1f;
-	mat = tipMatrix;// * baseMatrix;
+	mat = tipMatrix * baseMatrix;
 	for (size_t i = 0; i < circleVertexCount; i++)
 	{
 		MFloatPoint point = circleVertices[i] * mat;
-		data->points.append(point);
+		ringPoints.append(point);
 	}
 
-	int len = data->points.length();
-	int levels = len / circleVertexCount;
-	
-	data->indices.clear();
-	for (int i = 0; i < levels-1; i++)
+	int len = ringPoints.length();
+	int levels = 4;
+
+	MColorArray levelColors;
+	levelColors.setLength(levels);
+	levelColors[0] = MColor(0.3f, 0.3f, 0.3f);
+	levelColors[1] = MColor(0.6f, 0.6f, 0.2f);
+	levelColors[2] = MColor(0.2f, 0.4f, 0.6f);
+	levelColors[3] = levelColors[2];
+	int quadId=0;
+	for (int i = 0; i < levels; i++)
 	{
-		int offset = i * circleVertexCount;
-		for (int j = 0; j < circleVertexCount-1; j++)
+		int levelOffset = i * circleVertexCount;
+		for (int j = 0; j < circleVertexCount; j++)
 		{
-			data->indices.append(offset+j);
-			data->indices.append(offset+j+1);
-			data->indices.append(offset+j+circleVertexCount);
+			// make a quad
+			int columnOffset = 1;
+			if (j == circleVertexCount - 1)
+			{
+				// last quad
+				columnOffset = 1 - circleVertexCount;
+			}
 
-			data->indices.append(offset+j+1);
-			data->indices.append(offset+j+circleVertexCount);
-			data->indices.append(offset+j+circleVertexCount+1);
+			addQuad(
+				quadId,
+				ringPoints[levelOffset + j],
+				ringPoints[levelOffset + j + columnOffset],
+				ringPoints[levelOffset + j + circleVertexCount + columnOffset],
+				ringPoints[levelOffset + j + circleVertexCount],
+				levelColors[i],
+				data->points,
+				data->normals,
+				data->colors,
+				data->indices);
+			quadId++;
 		}
-		// last
-		int j = circleVertexCount-1;
-		data->indices.append(offset+j);
-		data->indices.append(offset+j+1-circleVertexCount);
-		data->indices.append(offset+j+circleVertexCount);
-
-		data->indices.append(offset+j+1-circleVertexCount);
-		data->indices.append(offset+j+circleVertexCount);
-		data->indices.append(offset+j+1);
 	}
+
+	// cone
+	data->coneBase = MPoint(tipx, tipy, tipz-(bristleHeight*paintingParam));
+	
+	
 
 
 	return data;
+}
+
+void brushDrawOverride::addQuad(
+	int id,
+	const MFloatPoint &p0,
+	const MFloatPoint &p1,
+	const MFloatPoint &p2,
+	const MFloatPoint &p3,
+	const MColor &color,
+	MFloatPointArray &points,
+	MFloatVectorArray &normals,
+	MColorArray &colors,
+	MUintArray &indices)
+{
+	int pointId = id * 4;
+	// we get the points in CCW order
+	points.append(p0);
+	points.append(p1);
+	points.append(p2);
+	points.append(p3);
+
+	MFloatVector n = (p1 - p0) ^ (p2 - p0).normal();
+	normals.append(n);
+	normals.append(n);
+	normals.append(n);
+	normals.append(n);
+
+	colors.append(color);
+	colors.append(color);
+	colors.append(color);
+	colors.append(color);
+
+	indices.append(pointId);
+	indices.append(pointId + 1);
+	indices.append(pointId + 2);
+	indices.append(pointId);
+	indices.append(pointId + 2);
+	indices.append(pointId + 3);
+
 }
 
 void brushDrawOverride::addUIDrawables(
@@ -254,22 +306,42 @@ void brushDrawOverride::addUIDrawables(
 		return;
 	}
 
+
+	// const unsigned int displayStyle = context.getDisplayStyle();
+
+	// bool filled=false;
+	// if (
+	// 	(displayStyle & MHWRender::MFrameContext::kGouraudShaded) ||
+	// 	 (displayStyle & MHWRender::MFrameContext::kFlatShaded)
+	// )
+	// {
+	// 	filled=true;
+	// }
+
 	drawManager.beginDrawable();
 
-	drawManager.setPaintStyle(MUIDrawManager::kShaded);	
+	drawManager.setPaintStyle(MUIDrawManager::kShaded);
 
-	drawManager.setColor(cdata->color);
+	// drawManager.setColor(cdata->color);
 
-	drawManager.mesh( 
-		MHWRender::MUIDrawManager::kTriangles, 
-		cdata->points, 
-		0,
-		0, 
-		&(cdata->indices), 
+	drawManager.mesh(
+		MHWRender::MUIDrawManager::kTriangles,
+		cdata->points,
+		&(cdata->normals),
+		&(cdata->colors),
+		&(cdata->indices),
 		0);
 
+	drawManager.setColor(MColor(1.0f, 0.0f, 0.0f));
+	drawManager.cone(cdata->coneBase,MVector::xAxis, 0.25,cdata->coneScale, true );
+	drawManager.setColor(MColor(0.0f, 1.0f, 0.0f));
+	drawManager.cone(cdata->coneBase,MVector::yAxis, 0.25,cdata->coneScale, true );
+	drawManager.setColor(MColor(0.0f, 0.0f, 1.0f));
+	drawManager.cone(cdata->coneBase,MVector::zAxis, 0.25,cdata->coneScale, true );
+	
 
 
+	             
 
 	drawManager.endDrawable();
 }

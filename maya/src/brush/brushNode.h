@@ -39,7 +39,7 @@ public:
   static MObject aDipParam;
   static MObject aWipeParam;
   static MObject aShape;
-
+  static MObject aTcpScale;
 private:
   MStatus getBrush(MObject &attribute, Brush &brush);
 
@@ -70,6 +70,9 @@ private:
   static MObject aOutWipeBrush;
 
   static MObject aModel;
+
+
+
 };
 
 #endif

@@ -80,6 +80,8 @@ MObject brushNode::aOutWipeBrush;
 
 MObject brushNode::aModel;
 
+MObject brushNode::aTcpScale;
+
 MTypeId brushNode::id(k_brushNode);
 MString brushNode::drawDbClassification("drawdb/geometry/brushNode");
 MString brushNode::drawRegistrantId("brushNodePlugin");
@@ -133,7 +135,6 @@ MStatus brushNode::initialize()
   aBristleHeight = nAttr.create("bristleHeight", "bht", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-
   nAttr.setKeyable(true);
   addAttribute(aBristleHeight);
 
@@ -282,6 +283,15 @@ MStatus brushNode::initialize()
   tAttr.setStorable(true);
   tAttr.setKeyable(true);
   addAttribute(aModel);
+
+  aTcpScale = nAttr.create("tcpScale", "tcps", MFnNumericData::kDouble);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(3.0);
+  
+  addAttribute(aTcpScale);
+
 
   ////////////
 

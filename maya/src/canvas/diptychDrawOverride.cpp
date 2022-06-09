@@ -325,22 +325,6 @@ void diptychDrawOverride::addUIDrawables(
 		drawManager.points(cdata->probePoints, false);
 	}
 
-	// Some primitives
-
-	drawManager.setPaintStyle	(MUIDrawManager::kShaded);	
-
-
-	drawManager.setColor(cdata->probeColor);
-
-	drawManager.box(
-		MPoint(0.0, 0.0, 10.0),
-		MVector::zAxis,
-		MVector::xAxis, 1.0, 1.0, 1.0, true);
-
-	drawManager.setColor(cdata->pinColor);
-
-
-	drawManager.sphere(MPoint(0.0, 0.0, 6.0), 0.5, true);
 
 
 	drawManager.endDrawable();

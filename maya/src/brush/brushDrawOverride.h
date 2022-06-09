@@ -65,10 +65,21 @@ public:
 	}
 
 private:
-
 	brushDrawOverride(const MObject &obj);
 
 	static void markDirty(void *clientData);
+
+	void addQuad(
+		int id,
+		const MFloatPoint &p0,
+		const MFloatPoint &p1,
+		const MFloatPoint &p2,
+		const MFloatPoint &p3,
+		const MColor &color,
+		MFloatPointArray &points,
+		MFloatVectorArray &normals,
+		MColorArray &colors,
+		MUintArray &indices);
 
 	brushNode *fNode;
 
