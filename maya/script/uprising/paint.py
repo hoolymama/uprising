@@ -1,7 +1,7 @@
 import pymel.core as pm
 # import uprising.maya_util as mutil
 # import robo
-
+from uprising import const as k
 
 class Paint(object):
     def __init__(self, the_id, name, color, opacity, travel):
@@ -13,7 +13,7 @@ class Paint(object):
 
     @classmethod
     def paints(cls):
-        paletteNode = pm.PyNode("paletteShape")
+        paletteNode = pm.PyNode(k.PALETTE)
         result = {}
         for att in paletteNode.attr("input"):
             _id = att.index()

@@ -5,6 +5,8 @@ import pymel.core as pm
 
 import uprising.utils as uutl
 from uprising import robo
+from uprising import const as k
+
 
 from uprising.bot.session.pick_place_exercise_session import PickPlaceExerciseSession
 from uprising.session.pot_calibration_session import PotCalibrationSession
@@ -15,7 +17,7 @@ from uprising.session.rack_calibration_session import RackCalibrationSession
 from uprising.session.manual_probe_session import ManualProbeSession
 from uprising.session.kr8_track_session import Kr8TrackSession
 
-DIPTYCH = "DIPTYCHShape"
+
 def _dismiss():
     pm.layoutDialog(dismiss="abort")
 
@@ -141,7 +143,7 @@ def _read_any_triangulation(content):
 def _read_board_calibration(content):
     print("_read_board_calibration")
     # First zero the mesh
-    node = pm.PyNode(DIPTYCH)
+    node = pm.PyNode(k.DIPTYCH)
     for plug in node.attr("displacement"):
         pm.removeMultiInstance(plug, b=True)
 
