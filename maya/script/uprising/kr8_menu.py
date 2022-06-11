@@ -4,6 +4,7 @@ import pymel.core as pm
 from uprising import props, online
 import pymel.core as pm
 from uprising import robo
+from uprising import const as k
  
 
 def create():
@@ -35,13 +36,15 @@ def _remove_unconnected_curve_plugs(node):
 
 
 def add_curve_groups():
-    subject_group = pm.PyNode("SUBJECT")
+    subject_group = pm.PyNode(k.SUBJECT_GROUP)
     group_nodes = pm.ls(sl=True)
     for gn in group_nodes:
         if not pm.PyNode(gn).getParent() == subject_group: 
             pm.parent(gn, subject_group, relative=True)
+            gn.attr("t").set(0.0,0.0,-154.0)
 
-    curve_stroke = pm.PyNode("curveStrokeSubject_01")
+
+    curve_stroke = pm.PyNode(k.SUBJECT_STROKES_NODE)
     _remove_unconnected_curve_plugs(curve_stroke)
 
     curves = pm.ls(group_nodes, dag=True, shapes=True, v=True, ni=True)
@@ -53,7 +56,7 @@ def add_curve_groups():
 
 def disconnect_curve_groups():
     curves = pm.ls(sl=True, dag=True, shapes=True, v=True, ni=True)
-    curve_stroke = pm.PyNode("curveStrokeSubject_01")
+    curve_stroke = pm.PyNode(k.SUBJECT_STROKES_NODE)
     skipped = []
 
     conns = pm.listConnections(curves, d=True, s=False, p=True, c=True )
