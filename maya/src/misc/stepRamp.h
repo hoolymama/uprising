@@ -1,3 +1,7 @@
+
+#ifndef stepRamp_H
+#define stepRamp_H
+
 #include <maya/MPxNode.h>
 
 class stepRamp: public MPxNode {
@@ -23,3 +27,6 @@ private:
 	static MObject aOutput;
 
 };
+
+#endif
+

@@ -36,12 +36,6 @@ source_files:
 - ../../kettle/src/maya/mayaMath.cpp
 - ../../kettle/src/maya/texUtils.cpp
 
-- src/plugin.cpp
-- src/cmdUtils.cpp
-- src/nodeUtils.cpp
-
-
-# - src/texUtils.cpp
 - src/toonGraph/*.cpp
 - src/skeletonStroke/*.cpp
 - src/particleStroke/*.cpp
@@ -54,7 +48,7 @@ source_files:
 - src/paint/*.cpp
 
 - src/stroke/*.cpp
-- src/utils/*.cpp
+- src/misc/*.cpp
 - src/pointGen/*.cpp
 
 - src/shader/*.cpp

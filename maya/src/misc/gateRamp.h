@@ -1,3 +1,7 @@
+
+#ifndef gateRamp_H
+#define gateRamp_H
+
 #include <maya/MPxNode.h>
 
 class gateRamp: public MPxNode {
@@ -28,3 +32,5 @@ private:
 	static MObject aOutput;
 
 };
+
+#endif

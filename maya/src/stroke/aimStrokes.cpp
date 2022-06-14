@@ -9,9 +9,8 @@
 const double rad_to_deg = (180 / 3.1415927);
 const double deg_to_rad = (3.1415927 / 180);
 
-// MObject aimStrokes::aStrokes;
+
 MObject aimStrokes::aPoint;
-// MObject aimStrokes::aOutput;
 
 MTypeId aimStrokes::id(k_aimStrokes);
 

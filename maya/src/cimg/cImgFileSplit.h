@@ -49,7 +49,7 @@ public:
 
 
 	static MObject aOutputImage;
-	static MObject aOutputColor; 
+	static MObject aOutputColor;
 	static MObject aOutput;
 	static MObject aOutputCount;
 	static MObject aOutputCropFactor;

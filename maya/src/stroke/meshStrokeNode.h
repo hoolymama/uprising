@@ -7,8 +7,8 @@
 #include <strokeCreator.h>
 #include "stroke.h"
 
-#include "toonGraph/tNode.h"
-#include "toonGraph/tGraph.h"
+#include "tNode.h"
+#include "tGraph.h"
 
 /**
  * @brief A node to generatestrokes from the features of a mesh.

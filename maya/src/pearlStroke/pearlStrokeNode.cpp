@@ -20,8 +20,8 @@
 
 #include "pearlStrokeNode.h"
 #include "stroke.h"
-#include "strokeRotationSpec.h"
-#include "strokeRepeatSpec.h"
+// #include "strokeRotationSpec.h"
+// #include "strokeRepeatSpec.h"
 #include "brushData.h"
 
 #include <jMayaIds.h>

@@ -90,7 +90,7 @@
 #include "cImgData.h"
 #include "cImgFloatData.h"
 #include "imageMeasureCmd.h"
-#include "shader/cImgShader.h"
+#include "cImgShader.h"
 #include "cImgFile.h"
 #include "cImgFileSplit.h"
 #include "cImgConstant.h"
@@ -134,6 +134,9 @@
 #include "strokeMesh.h"
 
 #include "pearlNodeDrawOverride.h"
+#include "paletteOrder.h"
+
+
 
 static const MString sRegistrantId("cImgPlugin");
 
@@ -372,6 +375,11 @@ MStatus initializePlugin(MObject obj)
 		skGraphNode::drawRegistrantId,
 		skGraphNodeDrawOverride::Creator);
 	mser;
+
+
+
+	st = plugin.registerNode("paletteOrder", paletteOrder::id, paletteOrder::creator, paletteOrder::initialize);
+
 
 	st = plugin.registerNode("palette", paletteNode::id, paletteNode::creator,
 							 paletteNode::initialize, MPxNode::kLocatorNode,
@@ -747,6 +755,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(paletteNode::id);
+	mser;
+
+	st = plugin.deregisterNode(paletteOrder::id);
 	mser;
 
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(

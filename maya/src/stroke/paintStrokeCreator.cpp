@@ -16,8 +16,8 @@
 
 #include "paintStrokeCreator.h"
 #include "stroke.h"
-#include "strokeRotationSpec.h"
-#include "strokeRepeatSpec.h"
+// #include "strokeRotationSpec.h"
+// #include "strokeRepeatSpec.h"
 
 #include "cImgFloatData.h"
 #include "cImgData.h"

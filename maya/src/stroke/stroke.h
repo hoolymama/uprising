@@ -14,8 +14,8 @@
 #include <mayaMath.h>
 #include <attrUtils.h>
 
-#include "strokeRotationSpec.h"
-#include "strokeRepeatSpec.h"
+// #include "strokeRotationSpec.h"
+// #include "strokeRepeatSpec.h"
 
 #include "brush.h"
 #include "paint.h"
