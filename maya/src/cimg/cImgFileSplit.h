@@ -5,13 +5,21 @@
 #include <maya/MPxNode.h>
 #include <maya/MTypeId.h>
 #include <maya/MTime.h>
-
+#include <maya/MColor.h>
+#include <math.h> 
 
 #include "cImgData.h"
 
 class cImgFileSplit : public MPxNode
 {
 public:
+
+	enum Method
+	{
+		kNone,
+		kHSPAscending,
+		kHSPDescending
+	};
 
 	cImgFileSplit();
 
@@ -47,6 +55,7 @@ public:
 	static MObject aXResolution;
 	static MObject aYResolution;
 
+	static MObject aSortMethod;
 
 	static MObject aOutputImage;
 	static MObject aOutputColor;
@@ -58,9 +67,28 @@ public:
 	
 	static MTypeId	id;
 
+	static bool compareHSP(const MColor &c1, const MColor &c2);
+
+    static float calculateHSP(const MColor &color);
 
 private:
 
 };
+
+
+inline float cImgFileSplit::calculateHSP(const MColor &color)
+{
+	// return  sqrt( 0.299*color.r*color.r + 0.587*color.g*color.g + 0.114*color.b*color.b );
+	// Don't need sqrt for a sort
+	return  0.299*color.r*color.r + 0.587*color.g*color.g + 0.114*color.b*color.b ;
+	
+}
+
+
+inline bool cImgFileSplit::compareHSP(const MColor &c1, const MColor &c2)
+{
+	return cImgFileSplit::calculateHSP(c1) < cImgFileSplit::calculateHSP(c2);
+}
+
 
 #endif

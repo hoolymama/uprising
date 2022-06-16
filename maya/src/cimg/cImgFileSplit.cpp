@@ -1,7 +1,10 @@
+#include <vector>
+
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnCompoundAttribute.h>
 
+#include <maya/MFnEnumAttribute.h>
 #include <maya/MFnPluginData.h>
 #include <maya/MFloatVectorArray.h>
 #include <maya/MArrayDataBuilder.h>
@@ -38,6 +41,7 @@ MObject cImgFileSplit::aOutputOffsetFactorY;
 
 MObject cImgFileSplit::aXResolution;
 MObject cImgFileSplit::aYResolution;
+MObject cImgFileSplit::aSortMethod;
 
 cImgFileSplit::cImgFileSplit() {}
 
@@ -55,6 +59,7 @@ MStatus cImgFileSplit::initialize()
 	MFnNumericAttribute nAttr;
 	MFnTypedAttribute tAttr;
 	MFnCompoundAttribute cAttr;
+	MFnEnumAttribute eAttr;
 
 	aImageFilename = tAttr.create("imageFilename", "im", MFnData::kString);
 	tAttr.setStorable(true);
@@ -106,6 +111,18 @@ MStatus cImgFileSplit::initialize()
 	nAttr.setArray(true);
 	nAttr.setDisconnectBehavior(MFnAttribute::kDelete);
 	st = addAttribute(aInputPalette);
+
+
+
+	aSortMethod = eAttr.create("sortMethod", "mth", cImgFileSplit::kNone);
+	eAttr.addField("None", cImgFileSplit::kNone);
+	eAttr.addField("HSPAscending", cImgFileSplit::kHSPAscending);
+	eAttr.addField("HSPDescending", cImgFileSplit::kHSPDescending);
+	eAttr.setKeyable(true);
+	eAttr.setHidden(false);
+	st = addAttribute(aSortMethod);
+
+
 
 	aOutputImage = tAttr.create("outputImage", "outi", cImgData::id);
 	tAttr.setReadable(true);
@@ -175,9 +192,12 @@ MStatus cImgFileSplit::initialize()
 	nAttr.setKeyable(false);
 	addAttribute(aYResolution);
 
+
+
 	attributeAffects(aMaxOutputs, aOutputColor);
 	attributeAffects(aImageFilename, aOutputColor);
 	attributeAffects(aInputPalette, aOutputColor);
+	attributeAffects(aSortMethod, aOutputColor);
 
 	attributeAffects(aMaxOutputs, aOutputImage);
 	attributeAffects(aImageFilename, aOutputImage);
@@ -185,6 +205,7 @@ MStatus cImgFileSplit::initialize()
 	attributeAffects(aApplyCrop, aOutputImage);
 	attributeAffects(aCropCorner, aOutputImage);
 	attributeAffects(aCropResolution, aOutputImage);
+	attributeAffects(aSortMethod, aOutputImage);
 
 	attributeAffects(aMaxOutputs, aOutputCount);
 	attributeAffects(aImageFilename, aOutputCount);
@@ -409,6 +430,9 @@ void cImgFileSplit::calculate_pallete(
 		}
 	}
 
+
+	std::vector<MColor> colors;
+
 	int lastIndex = -1;
 	bool started = false;
 	cimg_forXY(image, x, y)
@@ -421,23 +445,24 @@ void cImgFileSplit::calculate_pallete(
 
 		if (!started)
 		{
-			palette.append(color);
+			colors.push_back(color);
+			// palette.append(color);
 			started = true;
 			lastIndex = 0;
 		}
 		else
 		{
 			// Check the last index first as its the most likely.
-			if (color == palette[lastIndex])
+			if (color == colors[lastIndex])
 			{
 				continue;
 			}
 			else
 			{
 				bool found = false;
-				for (size_t i = 0; i < palette.length(); i++)
+				for (size_t i = 0; i < colors.size(); i++)
 				{
-					if (color == palette[i])
+					if (color == colors[i])
 					{
 						lastIndex = i;
 						found = true;
@@ -446,15 +471,34 @@ void cImgFileSplit::calculate_pallete(
 				}
 				if (!found)
 				{
-					if (palette.length() == maxPaletteSize)
+					if (colors.size() == maxPaletteSize)
 					{
 						break;
 					}
-					palette.append(color);
+					colors.push_back(color);
 				}
 			}
 		}
 	}
+
+	cImgFileSplit::Method method = cImgFileSplit::Method(data.inputValue(aSortMethod).asShort());
+	if (method != cImgFileSplit::kNone) {
+		std::sort(colors.begin(), colors.end(), cImgFileSplit::compareHSP);
+		if (method == cImgFileSplit::kHSPDescending) {
+			std::reverse(colors.begin(), colors.end());
+		}
+	}
+
+	std::vector<MColor>::const_iterator it = colors.begin();
+	for (; it != colors.end(); it++)
+	{
+		palette.append(*it);
+	}
+
+
+
+
+
 }
 
 // MStatus cImgFileSplit::setDependentsDirty(
