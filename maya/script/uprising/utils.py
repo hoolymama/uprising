@@ -81,18 +81,42 @@ def pin_painting():
 
 
 # @contextmanager
-# def final_position(*nodes):
-#     remember = []
-#     for node in nodes:
-#         asy = assembly(node)
-#         remember.append([asy, asy.attr("zeroPosition").get()])
-#         asy.attr("zeroPosition").set(False)
-#     try:
-#         yield
-#     finally:
-#         for asy, rem in remember:
-#             asy.attr("zeroPosition").set(rem)
+def each_image():
 
+    images = [
+    "antibe_market", 
+    "bar_colombe", 
+    "billionaires_bay", 
+    "calder_colombe", 
+    "dappled_light_colombe", 
+    "dog_colombe", 
+    "doves_mas_de_pierre", 
+    "fake_money_cove", 
+    "hotel_du_cap", 
+    "orange_tree_saint_paul", 
+    "pool_colombe", 
+    "saint_paul_cemetery", 
+    "saint_paul_de_vence", 
+    "saint_paul_flowers", 
+    "stairs_colombe", 
+    "villa_eilenroc" 
+    ]
+
+    current_main = pm.Attribute("cImgFileSplit_m.imageFilename").get()
+    current_under = pm.Attribute("cImgFileSplit_u.imageFilename").get()
+
+    try:
+        for image in images:
+            main = "sourceimages/diptych_m/{}.png".format(image)
+            under =  "sourceimages/diptych_u/{}.png".format(image)
+
+            pm.Attribute("cImgFileSplit_m.imageFilename").set(main)
+            pm.Attribute("cImgFileSplit_u.imageFilename").set(under)
+        
+            yield image
+    finally:
+        pm.Attribute("cImgFileSplit_m.imageFilename").set(current_main)
+        pm.Attribute("cImgFileSplit_u.imageFilename").set(current_under)
 
 @contextmanager
 def zero_position(node):
