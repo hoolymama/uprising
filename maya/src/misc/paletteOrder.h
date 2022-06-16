@@ -34,6 +34,7 @@ private:
 
 	static MObject aInput;
 	static MObject aMethod;
+	static MObject aOffset;
 	static MObject aOutput;
 
 };
@@ -41,7 +42,7 @@ private:
 
 inline float paletteOrder::calculateHSP(const MColor &color)
 {
-	return  sqrt( 0.299*color.r*color.r + .587*color.g*color.g + .114*color.b*color.b );
+	return 0.299*color.r*color.r + 0.587*color.g*color.g + 0.114*color.b*color.b;
 }
 
 

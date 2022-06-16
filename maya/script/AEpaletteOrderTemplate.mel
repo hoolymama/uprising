@@ -1,0 +1,19 @@
+global proc AEpaletteOrderTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+
+ 	editorTemplate -cl 0  -beginLayout "General attributes";
+	editorTemplate -addControl "method";
+	editorTemplate -addControl "offset";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Output attributes";
+	editorTemplate -addControl "output";
+	editorTemplate -endLayout;
+ 
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;	
+}
+

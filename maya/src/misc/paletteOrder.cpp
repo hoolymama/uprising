@@ -26,6 +26,7 @@ MTypeId paletteOrder::id(k_paletteOrder);
 
 MObject paletteOrder::aInput;
 MObject paletteOrder::aMethod;
+MObject paletteOrder::aOffset;
 MObject paletteOrder::aOutput;
 
 
@@ -57,6 +58,13 @@ MStatus paletteOrder::initialize () {
 	eAttr.setHidden(false);
 	st = addAttribute(aMethod);
 
+
+	aOffset = nAttr.create("offset", "off", MFnNumericData::kInt);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(0);
+	addAttribute(aOffset);
+
 	aOutput = nAttr.create("output", "out", MFnNumericData::kInt);
 	nAttr.setReadable(true);
 	nAttr.setStorable(false);
@@ -65,6 +73,7 @@ MStatus paletteOrder::initialize () {
 	nAttr.setUsesArrayDataBuilder(true);
 	addAttribute(aOutput);
 
+	attributeAffects (aOffset, aOutput);
 	attributeAffects (aInput, aOutput);
 	attributeAffects (aMethod, aOutput);
 
@@ -83,7 +92,7 @@ bool compareHSP(std::tuple<int, MColor , int> c1, std::tuple<int, MColor , int> 
 	if (brightness1 < brightness2) {
 		return true;
 	} else  if (brightness1 > brightness2) {
-		return true;
+		return false;
 	}
 	return std::get<0>(c1) < std::get<0>(c2);
 }
@@ -104,6 +113,7 @@ MStatus paletteOrder::compute (const MPlug &plug, MDataBlock &data)
 
 	MStatus st;
 
+	int offset = data.inputValue(aOffset).asInt();
 	MArrayDataHandle ha = data.inputArrayValue(aInput);
 	unsigned nInputs = ha.elementCount();
 
@@ -131,21 +141,24 @@ MStatus paletteOrder::compute (const MPlug &plug, MDataBlock &data)
 	}
 
 	// sort on brightness
-	sort(colors.begin(), colors.end(), compareHSP);
+	std::sort(colors.begin(), colors.end(), compareHSP);
+	// reverse (maybe)
 	if (method == paletteOrder::kHSPDescending) {
 		std::reverse(colors.begin(), colors.end());
 	}
 
-	// Add the new order to the array
-	std::vector<std::tuple<int, MColor , int> >::iterator it = colors.begin();
-	for (unsigned i=0; it != colors.end(); it++, i++)
+	// Add the new order number (with offset) to the tuples
+	std::vector<std::tuple<int, MColor , int> >::iterator it;
+	it = colors.begin();
+	for (unsigned i=offset; it != colors.end(); it++, i++)
 	{
 		std::get<2>(*it) = i;
 	}
 
 	// Re-sort on the original index
-	sort(colors.begin(), colors.end(), compareOrigIndex);
+	std::sort(colors.begin(), colors.end(), compareOrigIndex);
 
+	// Put the order into the output.
 	it = colors.begin();
 	for (unsigned i=0; it != colors.end(); it++, i++)
 	{
