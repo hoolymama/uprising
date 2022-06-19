@@ -80,9 +80,6 @@ MStatus strokeMutator::generateStrokeGeometry(
   MStatus st;
 
   short int nodeState = data.inputValue( state).asShort();
-  if (nodeState == 2) { // blocking
-      return MS::kUnknownParameter;
-  }
 
   // Pull on the trigger plug
   //////////////////////////////////////////////////

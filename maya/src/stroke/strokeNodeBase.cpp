@@ -216,8 +216,6 @@ MStatus strokeNodeBase::compute(const MPlug &plug, MDataBlock &data)
 
   std::vector<Stroke> *geom = newData->fGeometry;
 
-  short int nodeState = data.inputValue(state).asShort();
-
   st = generateStrokeGeometry(plug, data, geom);
 
   hOutput.set(newData);
