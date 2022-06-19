@@ -125,7 +125,7 @@ MStatus paletteOrder::compute (const MPlug &plug, MDataBlock &data)
 	if (method == paletteOrder::kNone) {
 		for (unsigned i = 0; i < nInputs; i++) {
 			MDataHandle hOut = bOutput.addElement(i);
-			hOut.set(int(i));
+			hOut.set(int(i+offset));
 		}
 		hOutput.set(bOutput);
 		hOutput.setAllClean();
@@ -157,6 +157,11 @@ MStatus paletteOrder::compute (const MPlug &plug, MDataBlock &data)
 
 	// Re-sort on the original index
 	std::sort(colors.begin(), colors.end(), compareOrigIndex);
+
+	
+
+
+
 
 	// Put the order into the output.
 	it = colors.begin();
