@@ -4,13 +4,12 @@ from uprising.paint import Paint
 from uprising.bot.session.cluster import Cluster
 from uprising import progress
 from uprising.common.session.painting import Painting
-
-PAINTING_NAME = "mainPaintingShape"
+from uprising  import const as k
 
 
 class BotPainting(Painting):
     def __init__(self):
-        super(BotPainting, self).__init__(pm.PyNode(PAINTING_NAME))
+        super(BotPainting, self).__init__(pm.PyNode(k.PAINTING_NAME))
         self.paints = Paint.paints()
 
         self.num_clusters = pm.paintingQuery(self.node, clusterCount=True)

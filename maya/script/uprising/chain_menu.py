@@ -1,6 +1,8 @@
 import pymel.core as pm
 from uprising import chains
 from uprising import utils
+from uprising import const as k
+
 
 def create():
 
@@ -35,7 +37,7 @@ def on_split_outputs():
 
 
 def on_reset():
-    skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+    skels = pm.PyNode(k.PAINTING_NAME).listHistory(type="skeletonStroke")
     utils.reset_skels(utils.get_chain_skel_pairs(*skels))
 
 def create_skgraphs():

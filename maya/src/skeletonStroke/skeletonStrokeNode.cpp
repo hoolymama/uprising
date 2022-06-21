@@ -74,6 +74,7 @@ MStatus skeletonStrokeNode::initialize()
     //////////////////
     MAngle fullCircle(360.0, MAngle::kDegrees);
 
+
     aSplitAngle = uAttr.create("splitAngle", "span", MFnUnitAttribute::kAngle);
     uAttr.setHidden(false);
     uAttr.setKeyable(true);
@@ -87,6 +88,7 @@ MStatus skeletonStrokeNode::initialize()
     mser;
 
     aActive = nAttr.create("active", "act", MFnNumericData::kBoolean);
+    nAttr.setKeyable(true);
     nAttr.setHidden(false);
     nAttr.setStorable(true);
     nAttr.setReadable(true);
@@ -126,6 +128,7 @@ MStatus skeletonStrokeNode::initialize()
     addAttribute(aGoalPoint);
 
     aAwayFromGoal = nAttr.create("awayFromGoal", "afg", MFnNumericData::kBoolean);
+    nAttr.setKeyable(true);
     nAttr.setHidden(false);
     nAttr.setStorable(true);
     nAttr.setReadable(true);

@@ -93,6 +93,7 @@ MStatus strokeNodeBase::initialize()
   addAttribute(aStrokeSortTexture);
 
   aApplySort = nAttr.create("applySort", "apst", MFnNumericData::kBoolean);
+  nAttr.setKeyable(true);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -145,6 +146,7 @@ MStatus strokeNodeBase::initialize()
   addAttribute(aStrokeFilterTexture);
 
   aApplyFilters = nAttr.create("applyFilters", "apfl", MFnNumericData::kBoolean);
+  nAttr.setKeyable(true);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
   nAttr.setReadable(true);

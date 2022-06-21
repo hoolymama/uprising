@@ -2,12 +2,12 @@ import errno
 import json
 import os
 from contextlib import contextmanager
-# from uprising import chains
+from uprising import const as k
+
 import pymel.core as pm
 
 PI = 3.14159265359
-DIPTYCH = "DIPTYCHShape"
-
+ 
 
 @contextmanager
 def at_value(attr, value):
@@ -61,7 +61,7 @@ def at_position(node, x, y, z):
 
 @contextmanager
 def zero_painting():
-    node = pm.PyNode(DIPTYCH)
+    node = pm.PyNode(k.DIPTYCH)
     old = node.attr("pinPainting").get()
     node.attr("pinPainting").set(0)
     try:
@@ -71,7 +71,7 @@ def zero_painting():
 
 @contextmanager
 def pin_painting():
-    node = pm.PyNode(DIPTYCH)
+    node = pm.PyNode(k.DIPTYCH)
     old = node.attr("pinPainting").get()
     node.attr("pinPainting").set(1)
     try:
@@ -118,47 +118,45 @@ def each_image():
         pm.Attribute("cImgFileSplit_m.imageFilename").set(current_main)
         pm.Attribute("cImgFileSplit_u.imageFilename").set(current_under)
 
-@contextmanager
-def zero_position(node):
-    asy = assembly(node)
-    zpos = asy.attr("zeroPosition").get()
-    asy.attr("zeroPosition").set(True)
-    try:
-        yield
-    finally:
-        asy.attr("zeroPosition").set(zpos)
+# @contextmanager
+# def zero_position(node):
+#     asy = assembly(node)
+#     zpos = asy.attr("zeroPosition").get()
+#     asy.attr("zeroPosition").set(True)
+#     try:
+#         yield
+#     finally:
+#         asy.attr("zeroPosition").set(zpos)
 
 @contextmanager
 def prep_for_output():
     pm.select(cl=True)
 
-    diptych_orig_val = pm.PyNode(DIPTYCH).attr("pinPainting").get()
+    diptych_orig_val = pm.PyNode(k.DIPTYCH).attr("pinPainting").get()
     rack_zero_val =   pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").get()
-    
-    # apply_brush_bias_val = pm.PyNode("canvasTransform").attr("applyBrushBias").get()
     apply_brush_bias_val  = pm.PyNode("mainPaintingGroup").attr("applyBrushBias").get()
     brush_lifter_ns_val = pm.PyNode("brushLifter").attr("nodeState").get()
-    # displacer_ns_val = pm.PyNode("displacer").attr("nodeState").get()
+    displacer_node_state_val = pm.PyNode("displacer").attr("nodeState").get()
     
 
-    pm.PyNode(DIPTYCH).attr("pinPainting").set(True)
+    pm.PyNode(k.DIPTYCH).attr("pinPainting").set(True)
     pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").set(False)
-    # pm.PyNode("canvasTransform").attr("applyBrushBias").set(True)
+
     pm.PyNode("mainPaintingGroup").attr("applyBrushBias").set(True)
     pm.PyNode("brushLifter").attr("nodeState").set(0)
-    # pm.PyNode("displacer").attr("nodeState").set(0)
+    pm.PyNode("displacer").attr("nodeState").set(0)
     try:
         yield
     finally:
  
-        pm.PyNode(DIPTYCH).attr("pinPainting").set(diptych_orig_val)
+        pm.PyNode(k.DIPTYCH).attr("pinPainting").set(diptych_orig_val)
         pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").set(rack_zero_val)
-        # pm.PyNode("canvasTransform").attr("applyBrushBias").set(apply_brush_bias_val)
+
         pm.PyNode("mainPaintingGroup").attr("applyBrushBias").set(apply_brush_bias_val)
         pm.PyNode("brushLifter").attr("nodeState").set(brush_lifter_ns_val)
-        # pm.PyNode("displacer").attr("nodeState").set(displacer_ns_val)
+        pm.PyNode("displacer").attr("nodeState").set(displacer_node_state_val)
 
-        skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+        skels = pm.PyNode(k.PAINTING_NAME).listHistory(type="skeletonStroke")
 
 
 @contextmanager
@@ -315,7 +313,7 @@ def reset_skels(chain_skel_pairs):
                     src // dest
                 except RuntimeError:
                     pass
-        # remove all inactive muklti instances
+        # remove all inactive multi instances
         for plug in skel.attr("inputData"):
             if not plug.chains.isConnected():
                 pm.removeMultiInstance(plug, b=True)
@@ -337,7 +335,7 @@ def get_chain_skel_pairs(*skels):
     if not skels:
         skels = [
             n
-            for n in pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+            for n in pm.PyNode(k.PAINTING_NAME).listHistory(type="skeletonStroke")
             if n.attr("nodeState").get() == 0
         ]
     for skel in skels:

@@ -42,6 +42,8 @@ RETARDANT_POT_ID = 19
 
 GRIPPER_OPEN_CLOSE_PAUSE = 200  # ms
 
+PAINTING_NAME = "mainPaintingSh ape"
+LIGHT_PAINTING_NAME = "lightPaintingShape"
 
 PALETTE = "PALETTEShape"
 DIPTYCH = "DIPTYCHShape"

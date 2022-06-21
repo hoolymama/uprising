@@ -3,7 +3,9 @@ from uprising import palette_utils
 import pymel.core as pm
 import pymel.core.uitypes as gui
 from uprising import robo
-from uprising import utils as uutl
+from uprising import utils as utils
+from uprising import const as k
+
 
 from uprising.bot.session.dip_wipe_exercise_session import DipWipeExerciseSession
 
@@ -116,7 +118,7 @@ class phexTab(gui.FormLayout):
 
     def on_show(self):
         data = self.get_pot_handle_exercise_data()
-        uutl.show_in_window(data, title="Pot/holder  exercise stats")
+        utils.show_in_window(data, title="Pot/holder  exercise stats")
 
     def on_go(self):
 
@@ -138,7 +140,7 @@ class phexTab(gui.FormLayout):
         self._load_brush_nodes(brushes)
 
     def on_load_all_brushes(self):
-        brushes = pm.PyNode("mainPaintingShape").attr("brushes").connections(s=True)
+        brushes = pm.PyNode(k.PAINTING_NAME).attr("brushes").connections(s=True)
         self._load_brush_nodes(brushes)
 
     def on_clear_brushes(self):
@@ -146,7 +148,7 @@ class phexTab(gui.FormLayout):
 
     def _get_main_painting_connection_id(self, brush):
         conns = pm.PyNode(brush).attr("outPaintBrush").connections(p=True)
-        return [p.logicalIndex() for p in conns if p.node() == "mainPaintingShape"][0]
+        return [p.logicalIndex() for p in conns if p.node() == k.PAINTING_NAME][0]
 
     def _load_brush_nodes(self, brushes):
         self._clear_entries()

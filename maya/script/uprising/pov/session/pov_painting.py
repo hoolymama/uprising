@@ -2,15 +2,14 @@ import pymel.core as pm
 from uprising.common.session.painting import Painting
 from uprising.pov.session.pov_stroke import PovStroke
 
-# from uprising import progress
+from uprising import const as k
 
-PAINTING_NAME = "lightPaintingShape"
 
 
 class PovPainting(Painting):
     def __init__(self):
         
-        super(PovPainting, self).__init__(pm.PyNode(PAINTING_NAME))
+        super(PovPainting, self).__init__(pm.PyNode(k.LIGHT_PAINTING_NAME))
         
         # self.brush = [self.brushes[brush] for brush in self.brushes][0]
         

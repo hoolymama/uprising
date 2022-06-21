@@ -4,8 +4,9 @@ from uprising.common.session.program import Program
 from uprising.pov.session.pov_painting import PovPainting
 from uprising.pov.session import pov_configurator, pov_lights
 from robolink import PROGRAM_RUN_ON_ROBOT, RUNMODE_RUN_ROBOT
+ 
 
-PAINTING_NAME = "lightPaintingShape"
+
 
 
 class PovProgram(Program):

@@ -2,6 +2,8 @@ import pymel.core as pm
 from .brush import Brush
 from uprising import curve_utils as cutl
 import pymel.core.uitypes as gui
+from uprising import const as k
+
 
 
 class BrushTestTab(gui.FormLayout):
@@ -74,7 +76,7 @@ Gap is the offset from one curve to the next. If you want to line strokes up nex
 
     def on_go(self):
 
-        painting = pm.PyNode("mainPaintingShape")
+        painting = pm.PyNode(k.PAINTING_NAME)
 
         offset = pm.floatFieldGrp(self.offset_ctl, query=True, value=True)
         use_widths = pm.checkBoxGrp(

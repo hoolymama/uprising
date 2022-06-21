@@ -40,16 +40,6 @@ MStatus mirrorStrokes::initialize()
 
 	inheritAttributesFrom("strokeMutator");
 
-  // MFnNumericAttribute nAttr;
-
-  // aPoint = nAttr.createPoint("point", "pt");
-  // nAttr.setStorable(true);
-  // nAttr.setReadable(true);
-  // nAttr.setKeyable(true);
-  // addAttribute(aPoint);
-
-  // st = attributeAffects(aPoint, aOutput);
-
   return (MS::kSuccess);
 }
 
@@ -57,8 +47,6 @@ MStatus mirrorStrokes::initialize()
 MStatus mirrorStrokes::mutate(
   const MPlug &plug, MDataBlock &data, std::vector<Stroke> *strokes) const 
 {
-  // float3 & fpoint = data.inputValue(aPoint).asFloat3();
-  // MFloatPoint point(fpoint[0], fpoint[1], fpoint[2]);
 
   MFloatMatrix globalMirror;
   globalMirror.setToIdentity();
@@ -83,6 +71,10 @@ MStatus mirrorStrokes::mutate(
       MFloatMatrix result  = localMirror * mat * globalMirror;
       titer->setMatrix(result);
     }
+
+    const MFloatMatrix & pivotMat =  siter->pivot().matrix();
+    MFloatMatrix pivotResult  = localMirror * pivotMat * globalMirror;
+    siter->setPivotMatrix(pivotResult);
 
     siter->resetTangents();
   }

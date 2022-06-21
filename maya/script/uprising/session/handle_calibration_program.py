@@ -2,7 +2,7 @@
 import logging
 import pymel.core as pm
 from uprising import robo
-import uprising.utils as uutl
+from uprising import utils
 from uprising.brush import Brush
 from uprising.common.session.program import Program, ProgramError
 from uprising.bot.session.pick_place_program import PickProgram, PlaceProgram
@@ -14,7 +14,7 @@ from robolink import (
 )
 from uprising import const as k
 
-import uprising.utils as uutl
+from uprising import utils
 
 P2P_SPAN = 30.0
 LINEAR_SPEED = 300  # mm
@@ -30,7 +30,7 @@ class HandleCalibrationProgram(Program):
         super(HandleCalibrationProgram, self).__init__(name)
     
         node = pm.PyNode("bpx_00_slot_00_davinci2_roundShape")
-        with uutl.at_value(node.attr("dipParam"), 0.0):
+        with utils.at_value(node.attr("dipParam"), 0.0):
             self.brush = Brush.brush_set_at_index(0)["outDipBrush"]
 
 
@@ -78,7 +78,7 @@ class HandleCalibrationProgram(Program):
 
     def _send_hangs(self, packs):
 
-        with uutl.at_value(pm.PyNode("RACK1_CONTEXT|j1|rack|holes").attr("calibrationHandleHeight"), 4.7):
+        with utils.at_value(pm.PyNode("RACK1_CONTEXT|j1|rack|holes").attr("calibrationHandleHeight"), 4.7):
             for pack in packs:
                 self.program.RunInstruction(
                         "Moving to {}".format(pack["name"]), INSTRUCTION_COMMENT

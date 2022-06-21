@@ -3,7 +3,7 @@ import os
 import pymel.core as pm
 from uprising.session.handle_calibration_program import HandleCalibrationProgram
 from uprising import robo
-import uprising.utils as uutl
+from uprising import utils
 from uprising.common.session.session import Session
 from uprising.bot.session.pick_place_program import PickPlaceCollection
 import datetime
@@ -17,12 +17,12 @@ class HandleCalibrationSession(Session):
  
         robo.new()
         robo.clean("kr30", infrastructure=True)
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             self.pick_place_collection = PickPlaceCollection([0])
             self.program = HandleCalibrationProgram(self.PROGRAM_NAME)
  
     def run(self):
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             self.program.send()
             self.pick_place_collection.send()
             self.send_rack_geo()

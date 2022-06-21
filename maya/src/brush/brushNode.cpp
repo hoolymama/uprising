@@ -81,6 +81,9 @@ MObject brushNode::aOutWipeBrush;
 MObject brushNode::aModel;
 
 MObject brushNode::aTcpScale;
+MObject brushNode::aBaseMatrix;
+
+
 
 MTypeId brushNode::id(k_brushNode);
 MString brushNode::drawDbClassification("drawdb/geometry/brushNode");
@@ -117,6 +120,13 @@ MStatus brushNode::initialize()
 
   MFloatMatrix identity;
   identity.setToIdentity();
+
+  aBaseMatrix = mAttr.create("baseMatrix", "bmat", MFnMatrixAttribute::kFloat);
+  mAttr.setStorable(false);
+  mAttr.setHidden(false);
+  mAttr.setKeyable(true);
+  addAttribute(aBaseMatrix);
+
 
   aPhysicalId = nAttr.create("physicalId", "pid", MFnNumericData::kInt);
   nAttr.setHidden(false);
@@ -295,6 +305,7 @@ MStatus brushNode::initialize()
 
   ////////////
 
+  attributeAffects(aBaseMatrix, aOutPaintBrush);
   attributeAffects(aPhysicalId, aOutPaintBrush);
   attributeAffects(aWidth, aOutPaintBrush);
   attributeAffects(aTip, aOutPaintBrush);
@@ -311,6 +322,7 @@ MStatus brushNode::initialize()
 
 
 
+  attributeAffects(aBaseMatrix, aOutDipBrush);
   attributeAffects(aPhysicalId, aOutDipBrush);
   attributeAffects(aWidth, aOutDipBrush);
   attributeAffects(aTip, aOutDipBrush);
@@ -325,6 +337,7 @@ MStatus brushNode::initialize()
 
   
 
+  attributeAffects(aBaseMatrix, aOutWipeBrush);
   attributeAffects(aPhysicalId, aOutWipeBrush);
   attributeAffects(aWidth, aOutWipeBrush);
   attributeAffects(aTip, aOutWipeBrush);
@@ -394,9 +407,9 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
 
   float gravityBias0 = gravityBias[0];
   float gravityBias1 = gravityBias[1];
-
-  MFloatMatrix fmat =  MFloatMatrix(NodeUtils::firstWorldMatrix(thisMObject()).matrix);
-
+ 
+	MFloatMatrix fmat = data.inputValue(brushNode::aBaseMatrix).asFloatMatrix();
+ 
   Brush paintingBrush(fmat,
                       physicalId,
                       tip,

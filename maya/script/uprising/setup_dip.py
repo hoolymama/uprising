@@ -11,7 +11,7 @@
 
 
 # def get_brush_ranks():
-#     node = pm.PyNode("mainPaintingShape")
+#     node = pm.PyNode(k.PAINTING_NAME)
 #     ranks = {}
 #     for brush_id in node.attr("brushes").getArrayIndices():
 #         brush = Brush.brush_at_index(node, brush_id)
@@ -24,7 +24,7 @@
 
 # def doit(**kw):
 
-#     node = pm.PyNode("mainPaintingShape")
+#     node = pm.PyNode(k.PAINTING_NAME)
 #     paints = Paint.paints(node)
 
 #     _delete_setup_nodes("RACK1_CONTEXT|j1|rack")

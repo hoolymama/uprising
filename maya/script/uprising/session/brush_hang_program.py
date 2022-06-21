@@ -2,7 +2,7 @@
 import logging
 import pymel.core as pm
 from uprising import robo
-import uprising.utils as uutl
+from uprising import utils
 from uprising.brush import Brush
 from uprising.common.session.program import Program, ProgramError
 from uprising.bot.session.pick_place_program import PickProgram, PlaceProgram
@@ -30,7 +30,7 @@ class BrushHangProgram(Program):
         result = []
         for b in data:
             node = pm.PyNode(b["brush"])
-            with uutl.at_value(node.attr("dipParam"), 0.0):
+            with utils.at_value(node.attr("dipParam"), 0.0):
                 result.append({
                     "brush": Brush.brush_set_at_index(b["id"])["outDipBrush"],
                     "twist": b["twist"],

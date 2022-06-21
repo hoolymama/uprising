@@ -12,11 +12,13 @@ from uprising.common.session.session import Session
 
 from uprising.bot.session.bot_program import BotProgram, BotRetryProgram
 from uprising import chains
+from uprising import const as k
+
 
 
 @contextmanager
 def disable_all_skels():
-    all_skels = pm.PyNode("mainPaintingShape").listHistory(type="skeletonStroke")
+    all_skels = pm.PyNode(k.PAINTING_NAME).listHistory(type="skeletonStroke")
     all_vals = [n.attr("nodeState").get() for n in all_skels]
     for i, n in enumerate(all_skels):
         n.attr("nodeState").set(1)
@@ -46,7 +48,7 @@ class RetriesSession(Session):
         self.directory = directory
         self.delta = coil_delta
         # self.chain_chunk_size = chain_chunk_size
-        self.painting_node = pm.PyNode("mainPaintingShape")
+        self.painting_node = pm.PyNode(k.PAINTING_NAME)
 
         self.start_time = None
         self.total_num_plugs = 0

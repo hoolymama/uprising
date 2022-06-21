@@ -1,5 +1,7 @@
 import pymel.core as pm
 import pymel.core.uitypes as gui
+from uprising import const as k
+
 
 
 class BrushAssignTab(gui.FormLayout):
@@ -32,7 +34,7 @@ class BrushAssignTab(gui.FormLayout):
 
     def reload(self):
         try:
-            painting = pm.PyNode("mainPaintingShape")
+            painting = pm.PyNode(k.PAINTING_NAME)
         except pm.MayaNodeError:
             return
         connected_indices = self._connected_brush_indices(painting)
@@ -76,7 +78,7 @@ class BrushAssignTab(gui.FormLayout):
     def on_go(self):
 
         all_brushes = {}
-        painting = pm.PyNode("mainPaintingShape")
+        painting = pm.PyNode(k.PAINTING_NAME)
         conns = painting.attr("brushes").connections(s=True, c=True)
         for conn in painting.attr("brushes").connections(s=True, c=True):
             all_brushes[conn[0].logicalIndex()] = conn[1]

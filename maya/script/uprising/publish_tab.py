@@ -9,7 +9,17 @@ import datetime
 from uprising.common.session.session import Session
 from uprising.bot.session.bot_painting_session import BotPaintingSession
 from uprising.bot.session.retries_session import RetriesSession
-from uprising import (chains, robo, utils)
+from uprising import (chains, robo, utils, persist_ui)
+from uprising import const as k
+
+
+import logging
+logger = logging.getLogger(__name__)  
+
+
+ONE_PROGRAM=1
+BATCHED=2
+
 
 @contextmanager
 def isolate_batch(batch_name, batches):
@@ -34,7 +44,7 @@ class PublishTab(gui.FormLayout):
         self.setNumberOfDivisions(100)
         pm.setParent(self)
         try:
-            pm.PyNode("mainPaintingShape")
+            pm.PyNode(k.PAINTING_NAME)
         except pm.MayaNodeError:
             return
 
@@ -48,32 +58,47 @@ class PublishTab(gui.FormLayout):
 
         pm.setParent(self)
         self.go_but = self.create_action_buttons()
+
+        prefix =  "upov_botpub"
+        self.persistentWidgets = [
+            persist_ui.factory(self, "do_components_cb", prefix, default_value=[True, True]),
+            persist_ui.factory(self, "do_save_rb", prefix, default_value=ONE_PROGRAM),
+            persist_ui.factory(self, "suffix_tf", prefix, default_value=""),
+            persist_ui.factory(self, "coil_delta_ff", prefix, default_value=20.0),
+            persist_ui.factory(self, "single_active_checkbox", prefix, default_value=False),
+            persist_ui.factory(self, "single_plug_index_if", prefix, default_value=0),
+            persist_ui.factory(self, "do_separate_subprograms_cb", prefix, default_value=[True]),
+            persist_ui.factory(self, "cluster_chunk_if", prefix, default_value=100)
+        ]
+
+
+
+
+        self.populate()
         self.on_ops_change()
 
     def create_header(self):
-        pm.rowLayout(numberOfColumns=3,
-            adjustableColumn=1,
-            columnAlign=(1, "right"),
-            columnAttach=[(1, "both", 2), (2, "both", 2), (3, "both", 2)],
-        )
+ 
+        pm.columnLayout(adjustableColumn=True)
         self.do_components_cb = pm.checkBoxGrp(
             numberOfCheckBoxes=2,
             cw1=0,
             label="",
-            valueArray2=(1, 1),
+            height=30,
             labelArray2=("Do Retries", "Do Painting"),
             changeCommand=pm.Callback(self.on_ops_change)
         )
         self.do_save_rb = pm.radioButtonGrp(
             label='Save', 
-            sl=2,
+            ann="Split the painting into multiple paintings based on the value of the batchName attribute of each skeletonStroke node",
+            height=30,
             labelArray2=[
                 'One program',
                 'Batched'],
             numberOfRadioButtons=2,
             changeCommand=pm.Callback(self.on_ops_change))
 
-        self.suffix_tf = pm.textFieldGrp(label="Suffix", columnWidth2=(50, 140))
+        self.suffix_tf = pm.textFieldGrp(label="Folder Suffix", height=30)
 
         pm.setParent("..")
 
@@ -82,7 +107,9 @@ class PublishTab(gui.FormLayout):
         frame = pm.frameLayout(label="Retries", bv=True)
 
         self.coil_delta_ff = pm.floatFieldGrp(
-            numberOfFields=1, label="Coil retries delta", value1=20
+            numberOfFields=1, 
+            label="Coil retries delta"
+            # , value1=20
         )
 
         with utils.activatable(state=False) as self.single_active_checkbox:
@@ -95,15 +122,17 @@ class PublishTab(gui.FormLayout):
                 columnAttach=[(1, "both", 2), (2, "both", 2), (3, "both", 2)],
             )
 
-            all_skels = pm.PyNode("mainPaintingShape").listHistory(
-                type="skeletonStroke")
             self.single_skel_menu = pm.optionMenuGrp(
                 label="Single plug",
+                
                 changeCommand=pm.Callback(self.configure_single_selector)
             )
+
+            # TODO: This code goes somewhere else
+            all_skels = pm.PyNode(k.PAINTING_NAME).listHistory(
+                type="skeletonStroke")
             found = None
             for node in all_skels:
-
                 pm.menuItem(label=node)
                 if (not found ) and (node.attr("nodeState").get() == 0):
                     found=node
@@ -118,7 +147,7 @@ class PublishTab(gui.FormLayout):
                 field=True,
                 minValue=-1, fieldMinValue=-1,
                 maxValue=0, fieldMaxValue=0,
-                value=0
+                # value=0
             )
 
             pm.button(label="Split now",
@@ -139,7 +168,7 @@ class PublishTab(gui.FormLayout):
         self.do_separate_subprograms_cb = pm.checkBoxGrp(
             numberOfCheckBoxes=1,
             label="Separate subprograms",
-            value1=1,
+            # value1=1,
             changeCommand=pm.Callback(self.on_ops_change)
         )
 
@@ -148,7 +177,7 @@ class PublishTab(gui.FormLayout):
             label="Max clusters/file",
             annotation="Max number of clusters per painting partial program",
             numberOfFields=1,
-            value1=100,
+            # value1=100,
         )
 
         pm.setParent("..")
@@ -183,18 +212,27 @@ class PublishTab(gui.FormLayout):
     def create_action_buttons(self):
         pm.setParent(self)  # form
 
+        save_but = pm.button(label='Save', command=pm.Callback(self.save))
         go_but = pm.button(label="Go", command=pm.Callback(self.on_go))
 
         self.attachForm(self.column, "left", 2)
         self.attachForm(self.column, "right", 2)
         self.attachForm(self.column, "top", 2)
-        self.attachControl(self.column, "bottom", 2, go_but)
+        self.attachControl(self.column, "bottom", 2, save_but)
+
+
+        self.attachNone(save_but, 'top')
+        self.attachForm(save_but, 'left', 2)
+        self.attachPosition(save_but, 'right', 2, 50)
+        self.attachForm(save_but, 'bottom', 2)
+
 
         self.attachNone(go_but, "top")
         self.attachForm(go_but, "right", 2)
-        self.attachForm(go_but, "left", 2)
+        self.attachPosition(go_but, 'left', 2, 50)
         self.attachForm(go_but, "bottom", 2)
         return go_but
+
 
     ##############################################################
 
@@ -203,15 +241,13 @@ class PublishTab(gui.FormLayout):
         node = pm.PyNode(pm.optionMenuGrp(
             self.single_skel_menu, query=True, value=True))
 
- 
         chain_skel_pairs = utils.get_chain_skel_pairs(node)
-
         chains.chunkify_skels( chain_skel_pairs, 1 )
-
         self.configure_single_selector()
 
     def configure_single_selector(self):
-
+        """Attach the int control to the selector attribute of the current skeleton"""
+        
         node = pm.optionMenuGrp(
             self.single_skel_menu, query=True, value=True)
 
@@ -230,20 +266,22 @@ class PublishTab(gui.FormLayout):
             fieldMaxValue=(numPlugs-1), fieldMinValue=-1)
 
     def on_go(self):
-
+        self.save()
         do_single = pm.checkBox(self.single_active_checkbox, q=True, v=True)
         if do_single:
             self.do_single_retry()
             return
 
         do_batch = pm.radioButtonGrp(
-            self.do_save_rb, query=True, sl=True) == 2
+            self.do_save_rb, 
+            query=True, 
+            sl=True) == 2
 
         if do_batch:
             self.do_batch_programs()
             return
 
-        self.do_one_program()
+        self.do_export_one_program()
 
     def _get_ui_params(self):
         coil_delta = pm.floatFieldGrp(
@@ -260,11 +298,17 @@ class PublishTab(gui.FormLayout):
             self.do_components_cb, query=True, valueArray2=True
         )
 
-        return (do_retries, do_painting, coil_delta, cluster_chunk_size, do_separate_subprograms, suffix, directory)
+        return (
+            do_retries, 
+            do_painting, 
+            coil_delta, 
+            cluster_chunk_size, 
+            do_separate_subprograms, 
+            directory)
 
 
     def do_batch_programs(self):
-        do_retries, do_painting, coil_delta, cluster_chunk_size, do_separate_subprograms, suffix, directory = self._get_ui_params()
+        do_retries, do_painting, coil_delta, cluster_chunk_size, do_separate_subprograms, directory = self._get_ui_params()
         if not directory:
             print("No directory - Aborted")
             return
@@ -298,22 +342,24 @@ class PublishTab(gui.FormLayout):
 
 
 
-    def do_one_program_export(self):
-        do_retries, do_painting, coil_delta, cluster_chunk_size, do_separate_subprograms, suffix, directory = self._get_ui_params()
+    def do_export_one_program(self):
+        do_retries, do_painting, coil_delta, cluster_chunk_size, do_separate_subprograms, directory = self._get_ui_params()
         if not directory:
-            print("No directory - Aborted")
+            logger.warning("No directory - Aborted")
             return
         robo.new()
         robo.hide()
-
+        
+        logger.info("Exporting to %s", directory)
         if do_retries:
             retries_session = RetriesSession(
                 coil_delta,
                 None,
                 False,
                 directory)
-
+            logger.debug("retries_session.run()")
             retries_session.run()
+            logger.debug("Ran retries_session")
             retries_session.show_results()
             retries_session.write_results()
 
@@ -346,17 +392,32 @@ class PublishTab(gui.FormLayout):
         retries_session.run()
         retries_session.show_results()
 
+    def populate(self):
+        for persister in self.persistentWidgets:
+            persister.populate()
+
+    def save(self):
+        for persister in self.persistentWidgets:
+            persister.save()
+
+
 
 
 def _get_active_skel_batches():
+    """Collect names of all active batches.
+
+    Returns: dict of batch names to list of skeletons.
+    """
     skels = [s for s in pm.ls(type="skeletonStroke") if s.attr("nodeState").get() == 0]
-    result = {}
+    result =  {}
     for skel in skels:
-        name = skel.attr("batchName").get()
-        if not name:
+        try:
+            name = skel.attr("batchName").get() or "noname"
+        except pm.AttributeError:
             name = "noname"
         if name not in result:
             result[name] = []
         result[name].append(skel)
     return result
+
 

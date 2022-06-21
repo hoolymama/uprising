@@ -1,7 +1,7 @@
 
 import pymel.core as pm
 from uprising import curve_utils as cutl
-from uprising import utils as uutl
+from uprising import utils as utils
 
 
 import pymel.core.uitypes as gui
@@ -21,7 +21,7 @@ class RingsSetupTab(gui.FormLayout):
     def create_buttons(self):
         pm.setParent(self.column)
 
-        with uutl.activatable(state=False):
+        with utils.activatable(state=False):
             self.distribution_frame = pm.frameLayout(
                 borderVisible=True,
                 collapsable=False,
@@ -55,14 +55,14 @@ class RingsSetupTab(gui.FormLayout):
                 value=4.0)
             pm.setParent("..")
 
-        with uutl.activatable(state=False):
+        with utils.activatable(state=False):
             self.subcurve_ctl = pm.floatFieldGrp(
                 numberOfFields=1,
                 label='Lift above curve',
                 ann="Set subcurve min so that entry lift starts on the curve",
                 value1=1.0)
 
-        with uutl.activatable(state=False):
+        with utils.activatable(state=False):
             self.lift_ctl = pm.floatFieldGrp(
                 numberOfFields=3,
                 label='Tip relative lift l/h/b',
@@ -71,7 +71,7 @@ class RingsSetupTab(gui.FormLayout):
                 value2=1.3,
                 value3=0)
 
-        with uutl.activatable(state=False):
+        with utils.activatable(state=False):
             self.twist_row = pm.rowLayout(
                 numberOfColumns=2, columnWidth2=(
                     350, 150), columnAlign=(
@@ -88,19 +88,19 @@ class RingsSetupTab(gui.FormLayout):
 
             pm.setParent("..")
 
-        with uutl.activatable(state=False):
+        with utils.activatable(state=False):
             self.profile_ctl = pm.floatFieldGrp(
                 numberOfFields=2,
                 label='Profile h-ratio/dist',
                 value1=1.0, value2=1)
 
-        with uutl.activatable(state=False):
+        with utils.activatable(state=False):
             self.rand_rotation_ctl = pm.floatFieldGrp(
                 numberOfFields=2,
                 label='Random rotation min/max',
                 value1=0.0, value2=360)
 
-        with uutl.activatable(state=False):
+        with utils.activatable(state=False):
             self.density_frame = pm.frameLayout(
                 borderVisible=True,
                 collapsable=False,
@@ -231,7 +231,7 @@ class RingsSetupTab(gui.FormLayout):
             en=pm.optionVar.get(
                 var[0],
                 var[1]))
-        uutl.conform_activatable_checkbox(self.distribution_frame)
+        utils.conform_activatable_checkbox(self.distribution_frame)
 
         var = ("upov_min_strokes_ctl", 1)
         pm.intSliderGrp(
@@ -264,7 +264,7 @@ class RingsSetupTab(gui.FormLayout):
             en=pm.optionVar.get(
                 var[0],
                 var[1]))
-        uutl.conform_activatable_checkbox(self.subcurve_ctl)
+        utils.conform_activatable_checkbox(self.subcurve_ctl)
 
         var = ("upov_subcurve_ctl", 1)
         pm.floatFieldGrp(
@@ -281,7 +281,7 @@ class RingsSetupTab(gui.FormLayout):
             en=pm.optionVar.get(
                 var[0],
                 var[1]))
-        uutl.conform_activatable_checkbox(self.lift_ctl)
+        utils.conform_activatable_checkbox(self.lift_ctl)
 
         var = ("upov_lift_ctl", 1.3, 1.3, 0.0)
         vals = pm.optionVar.get(var[0], var[1:])
@@ -299,7 +299,7 @@ class RingsSetupTab(gui.FormLayout):
             en=pm.optionVar.get(
                 var[0],
                 var[1]))
-        uutl.conform_activatable_checkbox(self.twist_row)
+        utils.conform_activatable_checkbox(self.twist_row)
 
         var = ("upov_twist_ctl", 0, 1)
         vals = pm.optionVar.get(var[0], var[1:])
@@ -324,7 +324,7 @@ class RingsSetupTab(gui.FormLayout):
             en=pm.optionVar.get(
                 var[0],
                 var[1]))
-        uutl.conform_activatable_checkbox(self.profile_ctl)
+        utils.conform_activatable_checkbox(self.profile_ctl)
 
         var = ("upov_profile_ctl", 0, 1)
         vals = pm.optionVar.get(var[0], var[1:])
@@ -341,7 +341,7 @@ class RingsSetupTab(gui.FormLayout):
             en=pm.optionVar.get(
                 var[0],
                 var[1]))
-        uutl.conform_activatable_checkbox(self.rand_rotation_ctl)
+        utils.conform_activatable_checkbox(self.rand_rotation_ctl)
 
         var = ("upov_rand_rotation_ctl", 0, 1)
         vals = pm.optionVar.get(var[0], var[1:])
@@ -358,7 +358,7 @@ class RingsSetupTab(gui.FormLayout):
             en=pm.optionVar.get(
                 var[0],
                 var[1]))
-        uutl.conform_activatable_checkbox(self.density_frame)
+        utils.conform_activatable_checkbox(self.density_frame)
 
         var = ("upov_density_min_ctl", 1, 2)
         vals = pm.optionVar.get(var[0], var[1:])

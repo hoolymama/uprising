@@ -22,6 +22,7 @@ class PovPublishTab(gui.FormLayout):
         pm.setParent(self)
         self.go_but = self.create_action_buttons()
 
+        pm.setParent(self)
 
         prefix =  "upov_pov"
         self.persistentWidgets = [
@@ -33,7 +34,7 @@ class PovPublishTab(gui.FormLayout):
             persist_ui.factory(self, "description_tf", prefix, default_value="")
         ]
 
-        pm.setParent(self)
+       
 
 
         self.populate()

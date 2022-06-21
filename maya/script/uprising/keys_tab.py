@@ -3,6 +3,8 @@ import pymel.core as pm
 
 
 import pymel.core.uitypes as gui
+from uprising import const as k
+
 
 
 def _deactivate_all_nodes(nodes):
@@ -94,7 +96,7 @@ class KeysTab(gui.FormLayout):
             query=True,
             value1=True)
 
-        painting_node = pm.PyNode("mainPaintingShape")
+        painting_node = pm.PyNode(k.PAINTING_NAME)
         painting_node.attr("applyFilters").set(0)
 
         vals = []

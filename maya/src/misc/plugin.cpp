@@ -415,6 +415,10 @@ MStatus initializePlugin(MObject obj)
 
 	st = plugin.registerNode("brushNode", brushNode::id, brushNode::creator,
 							 brushNode::initialize, MPxNode::kLocatorNode,  &brushNode::drawDbClassification);
+
+	brushNodeCallback::id = MDGMessage::addNodeAddedCallback ( 
+		brushNodeCallback::makeDefaultConnections, "brushNode", NULL);
+
 	msert;
 
 	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(

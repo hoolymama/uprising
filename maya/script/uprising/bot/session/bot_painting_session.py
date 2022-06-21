@@ -12,6 +12,8 @@ from uprising import progress
 from uprising.common.session.session import Session
 from uprising.bot.session.bot_program import BotProgram
 from uprising.bot.session.cluster_test_program import ClusterTestProgram
+from uprising import const as k
+
 
 from uprising.bot.session.pick_place_program import PickPlaceCollection
 from uprising.bot.session.dip_wipe_program import (
@@ -26,7 +28,7 @@ class BotPaintingSession(Session):
         self.program = None
         self.do_separate_subprograms = do_separate_subprograms
         self.directory = directory
-        self.painting_node = pm.PyNode("mainPaintingShape")
+        self.painting_node = pm.PyNode(k.PAINTING_NAME)
         self.program_names = []
         self.program_prefix = program_prefix
 

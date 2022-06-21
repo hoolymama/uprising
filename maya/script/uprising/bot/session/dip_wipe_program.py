@@ -6,6 +6,8 @@ from uprising.bot.session.bot_painting import BotPainting
 from uprising import progress
 from robolink import INSTRUCTION_COMMENT
 from uprising.bot.session import configurator
+from uprising import const as k
+
 
 WATER_POT_ID = 9
 RETARDANT_POT_ID = 19
@@ -127,7 +129,7 @@ class RetardantProgram(WashProgram):
 
 class RackCollection(object):
     def __init__(self):
-        self.painting_node = pm.PyNode("mainPaintingShape")
+        self.painting_node = pm.PyNode(k.PAINTING_NAME)
         self._resolve_combination_ids()
         self.packs = self.get_packs()
         self.programs = self._build()

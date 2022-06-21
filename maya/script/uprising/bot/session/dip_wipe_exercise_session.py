@@ -5,9 +5,10 @@
 import logging
 import os
 import pymel.core as pm
-import uprising.utils as uutl
 import datetime
 from uprising import robo
+from uprising import utils
+
 
 from uprising.common.session.session import Session
 
@@ -30,7 +31,7 @@ class DipWipeExerciseSession(Session):
         brush_ids = list(set([c["brush"] for c in combinations]))
         robo.clean("kr30")
 
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             pm.displayInfo("Creating pick_place_collection")
             self.pick_place_collection = PickPlaceCollection(brush_ids)
             pm.displayInfo("Creating dip_wipe_ex_collection")
@@ -44,7 +45,7 @@ class DipWipeExerciseSession(Session):
         for program in self.dip_wipe_ex_collection.programs:
             program.configure()
 
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             # send programs
             pm.displayInfo("Sending dip_wipe_ex_collection")
             self.dip_wipe_ex_collection.send()

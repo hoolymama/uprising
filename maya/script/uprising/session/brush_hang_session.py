@@ -1,7 +1,7 @@
 
 import os
 import pymel.core as pm
-import uprising.utils as uutl
+from uprising import utils
 import datetime
 from uprising import robo
 
@@ -20,13 +20,13 @@ class BrushHangSession(Session):
 
         robo.new()
         robo.clean("kr30", infrastructure=True)
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             self.pick_place_collection = PickPlaceCollection(brush_ids)
             self.program = BrushHangProgram(self.PROGRAM_NAME, data)
 
 
     def run(self):
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             self.program.send()
             self.pick_place_collection.send()
             self.send_rack_geo()

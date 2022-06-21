@@ -1,10 +1,12 @@
 import pymel.core as pm
 import re
 
-from uprising import utils as uutl
+from uprising import utils as utils
 import robodk as rdk
 from uprising import robo
 from robolink import (ITEM_TYPE_ROBOT)
+from uprising import const as k
+
 
 class Brush(object):
     def __init__(self, index, plug):
@@ -75,7 +77,7 @@ class Brush(object):
             pm.warning("No Robot. Use robo.clean() to load a RoboDK scene with a robot.")
             raise
         if with_geo:
-            triangles = uutl.to_vector_array(
+            triangles = utils.to_vector_array(
                 pm.brushQuery(self.plug, tri=True))
             triangles = [[t.x * 10, t.y * 10, t.z * 10] for t in triangles]
             shape = link.AddShape(triangles)
@@ -85,7 +87,7 @@ class Brush(object):
 
     # @classmethod
     # def send_used_brush_sets(cls):
-    #     painting = pm.PyNode("mainPaintingShape")
+    #     painting = pm.PyNode(k.PAINTING_NAME)
     #     tc = pm.paintingQuery(painting, toolCombinations=True)
     #     bids = sorted(set(tc[::3]))
     #     for bid in bids:
@@ -95,7 +97,7 @@ class Brush(object):
 
     @classmethod
     def send_connected_brushes(cls):
-        painting = pm.PyNode("mainPaintingShape")
+        painting = pm.PyNode(k.PAINTING_NAME)
         brushes = Brush.brushes(painting)
         for brush in brushes:
             brushes[brush].send()
@@ -129,7 +131,7 @@ class Brush(object):
 
             Always use the painting node
         """
-        node = pm.PyNode("mainPaintingShape")
+        node = pm.PyNode(k.PAINTING_NAME)
 
         brush_node = node.attr("brushes[%d]" % index).connections(
             source=True, destination=False

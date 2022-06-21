@@ -40,6 +40,7 @@ public:
   static MObject aWipeParam;
   static MObject aShape;
   static MObject aTcpScale;
+  static MObject aBaseMatrix;
 private:
   MStatus getBrush(MObject &attribute, Brush &brush);
 
@@ -73,6 +74,28 @@ private:
 
 
 
+
 };
+
+
+namespace brushNodeCallback
+{
+	static 	MCallbackId	id;
+
+	static void makeDefaultConnections(  MObject & node, void* clientData )
+	{
+
+		MPlug wmPlugmulti( node, brushNode::worldMatrix );
+		MPlug wm( wmPlugmulti.elementByLogicalIndex( 0 ) );
+		MPlug mt( node, brushNode::aBaseMatrix );
+
+		MDGModifier mod;	
+		mod.connect( wm, mt );
+		MStatus stat = mod.doIt();
+		// if (stat != MS::kSuccess)
+		// 	stat.perror("spiral ERROR :: callback unable to make matrix connections");		
+	}
+}
+
 
 #endif

@@ -1,7 +1,7 @@
 
 import pymel.core as pm
 from uprising import curve_utils as cutl
-from uprising import utils as uutl
+from uprising import utils as utils
 import pymel.core.uitypes as gui
 
 
@@ -31,7 +31,7 @@ class RingsDesignTab(gui.FormLayout):
 
     def random_res_control(self, label, default_text):
 
-        with uutl.activatable():
+        with utils.activatable():
             row = pm.rowLayout(numberOfColumns=3,
                                columnWidth3=(250, 90, 90),
                                columnAlign=(1, 'right'))
@@ -54,7 +54,7 @@ class RingsDesignTab(gui.FormLayout):
     def create_buttons(self):
         pm.setParent(self.column)
 
-        with uutl.activatable():
+        with utils.activatable():
             self.spacing_row = pm.rowLayout(
                 numberOfColumns=2, columnWidth2=(
                     350, 150), columnAlign=(
@@ -73,7 +73,7 @@ class RingsDesignTab(gui.FormLayout):
                 numberOfFields=1, value1=1, pre=2, extraLabel='cm')
             pm.setParent("..")
 
-        with uutl.activatable():
+        with utils.activatable():
             self.max_extent_ctrl = pm.floatFieldGrp(
                 label='Max extent',
                 value1=50
@@ -207,7 +207,7 @@ class RingsDesignTab(gui.FormLayout):
             en=pm.optionVar.get(
                 var[0],
                 var[1]))
-        uutl.conform_activatable_checkbox(self.spacing_row)
+        utils.conform_activatable_checkbox(self.spacing_row)
 
         var = ("upov_spacing_type_ctl", 2)
         pm.radioButtonGrp(
@@ -232,7 +232,7 @@ class RingsDesignTab(gui.FormLayout):
             en=pm.optionVar.get(
                 var[0],
                 var[1]))
-        uutl.conform_activatable_checkbox(self.max_extent_ctrl)
+        utils.conform_activatable_checkbox(self.max_extent_ctrl)
 
         var = ("upov_max_extent_ctrl", 57)
         pm.floatFieldGrp(

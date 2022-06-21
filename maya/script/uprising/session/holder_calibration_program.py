@@ -2,7 +2,7 @@
 import pymel.core as pm
 import uprising.const as k
 from uprising.session.calibration_program import CalibrationProgram
-import uprising.utils as uutl
+from uprising import utils
 from uprising.bot.session.pick_place_program import PickPlaceCollection
 from robolink import (
     INSTRUCTION_COMMENT,
@@ -24,7 +24,7 @@ class HolderCalibrationProgram(CalibrationProgram):
         bids = sorted(self.packs.keys())
         for bid in bids:
             pack = self.packs[bid]
-            with uutl.at_position(
+            with utils.at_position(
                 pack["trans_node"], RACK_HOLDER_DISTANCE, 0, RACK_HOLDER_HEIGHT
             ):
                 self._send_one_probe(self.packs[bid])

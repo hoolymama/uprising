@@ -5,7 +5,7 @@ import math
 
 from uprising.brush import Brush
 
-import uprising.utils as uutl
+from uprising import utils
 
 
 from uprising.bot.session.pick_place_program import PickAtHomeProgram, PlaceAtHomeProgram
@@ -96,7 +96,7 @@ class CalibrationProgram(Program):
     @staticmethod
     def _get_probe_brush():
         geo = pm.PyNode("bpx_0_utility_B0_probe_roundShape")
-        with uutl.at_value(geo.attr("paintingParam"), 0.4):
+        with utils.at_value(geo.attr("paintingParam"), 0.4):
             tool = Brush(0, geo.attr("outPaintBrush"))
         return tool
 

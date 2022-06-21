@@ -7,7 +7,7 @@ from uprising.bot.session.dip_wipe_program import DipWipeProgram, WaterProgram, 
 
 from uprising import progress
 from uprising.bot.session import configurator
-
+from uprising import const as k
 from robolink import (
     INSTRUCTION_COMMENT,
     INSTRUCTION_CALL_PROGRAM,
@@ -204,7 +204,7 @@ class BotProgram(Program):
 class BotRetryProgram(Program):
     def __init__(self, name):
         super(BotRetryProgram, self).__init__(name)
-        self.painting = BotPainting(pm.PyNode(PAINTING_NAME))
+        self.painting = BotPainting(pm.PyNode(k.PAINTING_NAME))
 
     def configure(self):
         for cluster in self.painting.clusters:

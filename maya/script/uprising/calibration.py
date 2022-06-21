@@ -3,7 +3,7 @@ from uprising import palette_utils as putl
 
 import pymel.core as pm
 
-import uprising.utils as uutl
+from uprising import utils
 from uprising import robo
 from uprising import const as k
 
@@ -129,7 +129,7 @@ def _read_any_triangulation(content):
     
     for row in data:
         attr = pm.Attribute(row[0])
-        vals = [uutl.numeric(x) * 0.1 for x in row[1:4]]
+        vals = [utils.numeric(x) * 0.1 for x in row[1:4]]
         print("{} - set {} {} {}".format(attr, vals[0], vals[1], vals[2]))
         attr.set(*vals)
         # try:
@@ -152,7 +152,7 @@ def _read_board_calibration(content):
     datalength = x*y*2
     verify(data, datalength, 1)
     for i, val in enumerate(data):
-        disp = (uutl.numeric(val[0]) * 0.1) - 1.0
+        disp = (utils.numeric(val[0]) * 0.1) - 1.0
         node.attr("displacement")[i].set(disp)
 
 def _read_pot_calibration(content):
@@ -174,7 +174,7 @@ def _read_pot_calibration(content):
         "calibrationHandleHeight").get()
     handle_posx = pm.PyNode("rack|holes").attr("calibrationHandlePosX").get()
 
-    flat = [uutl.numeric(row[0]) for row in data]
+    flat = [utils.numeric(row[0]) for row in data]
     potvals = flat[0:potslen]
     handlevals = flat[potslen:potslen*2]
     facevals = flat[potslen*2:datalen]
@@ -205,7 +205,7 @@ def _read_handle_height_calibration(content):
     handle_height = pm.PyNode("rack|holes").attr(
         "calibrationHandleHeight").get()
 
-    flat = [uutl.numeric(row[0]) for row in data]
+    flat = [utils.numeric(row[0]) for row in data]
     handlevals = flat[0:datalen]
 
     for i in range(datalen):
@@ -227,10 +227,10 @@ def _read_holder_calibration(content):
 
     for i, row in enumerate(data):
         holders[i].attr("tz").set(
-            holder_height + (uutl.numeric(row[0]) * 0.1) - 1.0)
-        holders[i].attr("ty").set(uutl.numeric(row[1]) * 0.1)
+            holder_height + (utils.numeric(row[0]) * 0.1) - 1.0)
+        holders[i].attr("ty").set(utils.numeric(row[1]) * 0.1)
         holders[i].attr("tx").set(
-            (uutl.numeric(row[2]) * 0.1) + holder_distance)
+            (utils.numeric(row[2]) * 0.1) + holder_distance)
 
 
 def _read_perspex_calibration(content):
@@ -246,7 +246,7 @@ def _read_perspex_calibration(content):
         if not val.startswith("X"):
             dup = pm.duplicate(pack["base"])
             dup = dup[0]
-            _set_precise(dup, uutl.numeric(val), 0)
+            _set_precise(dup, utils.numeric(val), 0)
             dup.rename("Calib_{}".format(pack["name"]))
             pm.parent(dup, world=True)
 

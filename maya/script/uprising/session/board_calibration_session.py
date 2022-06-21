@@ -1,7 +1,7 @@
 
 
 import pymel.core as pm
-import uprising.utils as uutl
+from uprising import utils
 
 from uprising.session.calibration_session import CalibrationSession
 
@@ -17,5 +17,5 @@ class BoardCalibrationSession(CalibrationSession):
         self.program = BoardCalibrationProgram(self.PROGRAM_NAME)
 
     def send_props(self):
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             self.send_board_geo()

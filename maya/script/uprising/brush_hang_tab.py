@@ -1,8 +1,10 @@
 
 import pymel.core as pm
 import pymel.core.uitypes as gui
-from uprising import utils as uutl
+from uprising import utils as utils
 from uprising.session.brush_hang_session import BrushHangSession
+from uprising import const as k
+
 
 
 class brushHangTab(gui.FormLayout):
@@ -80,7 +82,7 @@ class brushHangTab(gui.FormLayout):
 
     def on_show(self):
         data = self.get_brush_twist_data()
-        uutl.show_in_window(
+        utils.show_in_window(
             [
                 {"brush": str(b["brush"]), "id": b["id"], "twist": b["twist"]}
                 for b in data
@@ -104,7 +106,7 @@ class brushHangTab(gui.FormLayout):
     def on_load_brushes(self):
         brushes = pm.ls(selection=True, dag=True, leaf=True, type="brushNode")
         if not brushes:
-            brushes = pm.PyNode("mainPaintingShape").attr(
+            brushes = pm.PyNode(k.PAINTING_NAME).attr(
                 "brushes").connections(s=True)
         self._load_brush_nodes(brushes)
 
@@ -113,7 +115,7 @@ class brushHangTab(gui.FormLayout):
 
     def _get_main_painting_connection_id(self, brush):
         conns = pm.PyNode(brush).attr("outPaintBrush").connections(p=True)
-        return [p.logicalIndex() for p in conns if p.node() == "mainPaintingShape"][0]
+        return [p.logicalIndex() for p in conns if p.node() == k.PAINTING_NAME][0]
 
     def _load_brush_nodes(self, brushes):
         self._clear_entries()

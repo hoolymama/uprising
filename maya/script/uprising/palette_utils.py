@@ -4,12 +4,13 @@ from uprising import stroke_factory_utils as sfu
 
 from uprising.paint import Paint
 from uprising.brush import Brush
- 
+from uprising import const as k
+
 
 
 
 def brush_pot_combination_ids():
-    painting_node = pm.PyNode("mainPaintingShape")
+    painting_node = pm.PyNode(k.PAINTING_NAME)
     combos = pm.paintingQuery(painting_node, toolCombinations=True) or []
     s=set()
     for i in range(0, len(combos), 3):
@@ -17,7 +18,7 @@ def brush_pot_combination_ids():
     return sorted([{"brush":b,"pot":p} for (b,p) in s], key=lambda k: (k["brush"], k["pot"]))
 
 def brush_paint_combination_ids():
-    painting_node = pm.PyNode("mainPaintingShape")
+    painting_node = pm.PyNode(k.PAINTING_NAME)
     combos = pm.paintingQuery(painting_node, toolCombinations=True) or []
     s=set()
     for i in range(0, len(combos), 3):

@@ -12,6 +12,8 @@ from uprising import utils
 from uprising.brush import Brush
 # from uprising.pov.session.pov_session import PovTestSession
 from uprising.paint import Paint 
+from uprising import const as k
+
 
 def create():
     menu = pm.menu(label="Tools", tearOff=True)
@@ -49,7 +51,7 @@ def create():
 
 
 def on_connect_brushids_to_skeleton():
-    painting = pm.PyNode("mainPaintingShape")
+    painting = pm.PyNode(k.PAINTING_NAME)
     skels = pm.ls(selection=True, type="skeletonStroke")
     if not skels:
         skels = pm.ls(type="skeletonStroke")
@@ -70,7 +72,7 @@ def _bake_first_paint_id(painting, curve):
 
 
 def on_bake_paint_ids():
-    painting = pm.PyNode("mainPaintingShape")
+    painting = pm.PyNode(k.PAINTING_NAME)
     curves = cutl.get_curves_from_painting(painting)
     visible_curves = [
         curve for curve in curves if curve.getParent().attr("visibility").get()]
@@ -85,7 +87,7 @@ def on_bake_paint_ids():
 
 
 def zero_disp_mesh():
-    painting_node = pm.PyNode("mainPaintingShape")
+    painting_node = pm.PyNode(k.PAINTING_NAME)
     displace = painting_node.listHistory(type="displaceStrokes")[0]
     
     mesh = pm.listConnections(displace.attr("mesh"), s=True, d=False)[0]
@@ -121,7 +123,7 @@ def on_print_stats_per_brush():
 
 
 def on_print_paint_pot_and_brush_stats(fmt="json"):
-    painting_node = pm.PyNode("mainPaintingShape")
+    painting_node = pm.PyNode(k.PAINTING_NAME)
     brushes, paints, pots = list(zip(*(stats.used_pots_paints_and_brushes(painting_node))))
 
     result = {"brushes": [], "paints": [], "pots": pots}
@@ -164,7 +166,7 @@ def randomize_dips():
         "rack|holes|holeRot*|holeTrans|wipe_loc|*", dag=True, leaf=True, type="painting"),
     wipe_paintings = pm.listRelatives(wipe_paintings, parent=True)
 
-    main_painting_node = pm.PyNode("mainPaintingShape")
+    main_painting_node = pm.PyNode(k.PAINTING_NAME)
 
     for p in wipe_paintings:
         brush_id = int(p.split("|")[-1][1:])
@@ -179,7 +181,7 @@ def randomize_dips():
 
 def on_print_painting_flow_ss():
 
-    ptg = pm.PyNode("mainPaintingShape")
+    ptg = pm.PyNode(k.PAINTING_NAME)
     num_clusters = pm.paintingQuery(ptg, cc=True)
 
     num_continuous_strokes = -1

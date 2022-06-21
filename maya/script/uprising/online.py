@@ -1,5 +1,5 @@
  
-import uprising.utils as uutl
+from uprising import utils
 from uprising import robo
 
 def test():

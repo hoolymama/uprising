@@ -5,7 +5,7 @@ import robodk as rdk
 from uprising import robo
 from uprising.brush import Brush
 from uprising.common.session.program import Program, ProgramError
-import uprising.utils as uutl
+from uprising import utils
 
 from robolink import (
     INSTRUCTION_COMMENT,

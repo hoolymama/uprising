@@ -1,4 +1,4 @@
-import uprising.utils as uutl
+from uprising import utils
 
 from uprising.session.calibration_session import CalibrationSession
 
@@ -11,9 +11,9 @@ class RackCalibrationSession(CalibrationSession):
 
     def __init__(self):
         super(RackCalibrationSession, self).__init__()
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             self.program = RackCalibrationProgram(self.PROGRAM_NAME)
 
     def send_props(self):
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             self.send_rack_geo()

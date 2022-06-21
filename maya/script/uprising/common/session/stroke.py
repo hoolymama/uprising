@@ -131,7 +131,7 @@ class Stroke(object):
     #         return
     #     tool_item = robot.AddTool(self.matrix, self.name)
     #     if with_geo:
-    #         triangles = uutl.to_vector_array(
+    #         triangles = utils.to_vector_array(
     #             pm.brushQuery(self.plug, tri=True))
     #         triangles = [[t.x * 10, t.y * 10, t.z * 10] for t in triangles]
     #         shape = link.AddShape(triangles)

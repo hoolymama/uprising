@@ -4,7 +4,7 @@ import os
 import pymel.core as pm
 import datetime
 from uprising import robo
-import uprising.utils as uutl
+from uprising import utils
 from uprising.common.session.session import Session
 
 
@@ -23,7 +23,7 @@ class CalibrationSession(Session):
         self.program = None
 
     def run(self):
-        with uutl.prep_for_output():
+        with utils.prep_for_output():
             robo.new()
             robo.clean("kr30")
             self.program.send()

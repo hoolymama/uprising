@@ -1,5 +1,5 @@
 import pymel.core as pm
-import uprising.utils as uutl
+from uprising import utils
 from uprising import calibration as cal
 
 

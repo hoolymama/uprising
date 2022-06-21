@@ -1,6 +1,8 @@
 import pymel.core as pm
 from uprising.paint import Paint
 from uprising.brush import Brush
+from uprising import const as k
+
 
 
 def _used_paints(painting_node):
@@ -62,8 +64,8 @@ def painting_stats(node):
         "tcp_only_changes": reason_result["tcp"],
         "total_stroke_travel": total_travel,
         "avg_stroke_travel_per_cluster": avg_travel_per_cluster,
-        "linear_speed": pm.PyNode("mainPaintingShape").attr("linearSpeed").get(),
-        "angular_speed": pm.PyNode("mainPaintingShape").attr("angularSpeed").get(),
+        "linear_speed": pm.PyNode(k.PAINTING_NAME).attr("linearSpeed").get(),
+        "angular_speed": pm.PyNode(k.PAINTING_NAME).attr("angularSpeed").get(),
     }
     return result
 
@@ -98,7 +100,7 @@ def stats():
         result["light_painting_node"] = light_painting_stats(painting_node)
         return result
 
-    painting_node = pm.PyNode("mainPaintingShape")
+    painting_node = pm.PyNode(k.PAINTING_NAME)
 
     result["brush_paint_pairs"] = []
     for brush, paint, pot_id in used_pots_paints_and_brushes(painting_node):
@@ -141,7 +143,7 @@ def stats():
 def stats_per_brush():
     result = {}
 
-    painting_node = pm.PyNode("mainPaintingShape")
+    painting_node = pm.PyNode(k.PAINTING_NAME)
     collector_node = pm.PyNode("collectStrokesMain")
 
     brush_operator = collector_node.attr("strokeFilterList[3].strokeFilterOperator").get()

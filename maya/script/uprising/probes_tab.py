@@ -1,7 +1,7 @@
 import sys
 import json
 import pymel.core as pm
-from uprising import utils as uutl
+from uprising import utils as utils
 from uprising import curve_utils as cutl
 import pymel.core.uitypes as gui
 
@@ -111,7 +111,7 @@ class probesTab(gui.FormLayout):
         vert_positions = []
         for val, vtx in zip(values, verts):
             pos = vtx.getPosition(space="world")
-            pos.z = (uutl.numeric(val) * 0.1) - 1.0
+            pos.z = (utils.numeric(val) * 0.1) - 1.0
             vtx.setPosition(pos, space="world")
             vert_positions.append(pos.z)
 
