@@ -140,25 +140,25 @@ def stats():
 
     
 
-def stats_per_brush():
-    result = {}
+# def stats_per_brush():
+#     result = {}
 
-    painting_node = pm.PyNode(k.PAINTING_NAME)
-    collector_node = pm.PyNode("collectStrokesMain")
+#     painting_node = pm.PyNode(k.PAINTING_NAME)
+#     collector_node = pm.PyNode("collectStrokesMain")
 
-    brush_operator = collector_node.attr("strokeFilterList[3].strokeFilterOperator").get()
-    brush_operand = collector_node.attr("strokeFilterList[3].strokeFilterOperand").get()
+#     brush_operator = collector_node.attr("strokeFilterList[3].strokeFilterOperator").get()
+#     brush_operand = collector_node.attr("strokeFilterList[3].strokeFilterOperand").get()
 
-    collector_node.attr("strokeFilterList[3].strokeFilterOperator").set(2)
+#     collector_node.attr("strokeFilterList[3].strokeFilterOperator").set(2)
 
-    brushes = painting_node.attr("brushes").connections(s=True, d=False)
-    for i, brush in enumerate(brushes):
-        collector_node.attr("strokeFilterList[3].strokeFilterOperand").set(i)
-        brush_stats = painting_stats(painting_node)
-        if brush_stats:
-            result[str(brush)] = brush_stats
+#     brushes = painting_node.attr("brushes").connections(s=True, d=False)
+#     for i, brush in enumerate(brushes):
+#         collector_node.attr("strokeFilterList[3].strokeFilterOperand").set(i)
+#         brush_stats = painting_stats(painting_node)
+#         if brush_stats:
+#             result[str(brush)] = brush_stats
 
-    collector_node.attr("strokeFilterList[3].strokeFilterOperator").set(brush_operator)
-    collector_node.attr("strokeFilterList[3].strokeFilterOperand").set(brush_operand)
+#     collector_node.attr("strokeFilterList[3].strokeFilterOperator").set(brush_operator)
+#     collector_node.attr("strokeFilterList[3].strokeFilterOperand").set(brush_operand)
 
-    return result
+#     return result

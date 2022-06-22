@@ -7,6 +7,7 @@ The targets must all have the same configuration.
 from uprising.utils import StrokeError
 from uprising import robo
 from uprising import const
+import functools
 
 
 PAINTING_START_JOINTS = [0, -90, 120, 0, -30, 0]
@@ -54,7 +55,7 @@ def _get_closest_pose(joint_poses, to_pose):
         differences.append([abs(jp[i] - tp[i]) for i in range(6)])
 
     combined = list(zip(joint_poses, differences))
-    combined.sort(cmp=compare)
+    combined.sort(key=functools.cmp_to_key(compare))
     return combined[0][0]
 
 

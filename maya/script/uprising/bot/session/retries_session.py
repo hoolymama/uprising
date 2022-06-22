@@ -13,6 +13,9 @@ from uprising.common.session.session import Session
 from uprising.bot.session.bot_program import BotProgram, BotRetryProgram
 from uprising import chains
 from uprising import const as k
+import logging
+logger = logging.getLogger(__name__)  
+
 
 
 
@@ -55,6 +58,7 @@ class RetriesSession(Session):
         self.current_run_id = 0
         self.plug_index = None
         if selector_plug:
+            logger.debug("RetriesSession selector_plug: {}".format(selector_plug))
             self.chain_skel_pairs = utils.get_chain_skel_pairs(selector_plug.node())
 
             plug_index = selector_plug.get()
@@ -63,9 +67,10 @@ class RetriesSession(Session):
         else:
             # Get all skel pairs where the skel has normal nodestate
             self.chain_skel_pairs = utils.get_chain_skel_pairs()
+            logger.debug("RetriesSession chain_skel_pairs: {}".format(self.chain_skel_pairs))
 
         if not len(self.chain_skel_pairs):
-            pm.error("No skel nodes. Aborting!")
+            logger.error("RetriesSession NO chain_skel_pairs: Aborting")
 
         self.result_data = {"plug_runs": [], "success": False, "timer": 0}
 
@@ -157,6 +162,7 @@ class RetriesSession(Session):
                 program = BotRetryProgram("retry")
             except BaseException as ex:
                 print(("BaseException", str(ex))) 
+                # raise
                 break
             if not (program and program.painting and program.painting.clusters):
                 break

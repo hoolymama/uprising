@@ -2,14 +2,37 @@ import logging
 import os
 import sys
 
-# set up logging to file
-logging.basicConfig(
-     stream=sys.stdout,
-     level=logging.DEBUG, 
-     format= '[%(asctime)s][%(name)s:%(lineno)d][%(levelname)s] - %(message)s',
-     datefmt='%H:%M:%S'
- )
+ 
+LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default_formatter': {
+            'format': '[%(levelname)s:%(name)s] %(message)s'
+        },
+    },
 
-logger = logging.getLogger(__name__)  
+    'handlers': {
+        'stream_handler': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'default_formatter',
+        },
+    },
+    'loggers': {
+        'my_logger': {
+            'handlers': ['stream_handler'],
+            'level': 'DEBUG',
+            'propagate': False
+        }
+    }
+}
 
+# logging.config.dictConfig(LOGGING_CONFIG)
+
+logger = logging.getLogger(__name__)
 logger.info('Logging has been set up')
+
+
+
+
+

@@ -8,8 +8,8 @@ from uprising  import const as k
 
 
 class BotPainting(Painting):
-    def __init__(self):
-        super(BotPainting, self).__init__(pm.PyNode(k.PAINTING_NAME))
+    def __init__(self, node):
+        super(BotPainting, self).__init__(node)
         self.paints = Paint.paints()
 
         self.num_clusters = pm.paintingQuery(self.node, clusterCount=True)

@@ -83,7 +83,7 @@ class BotPaintingSession(Session):
             minor_progress=0,
         )
 
-        self.stats = {"painting_stats": stats.stats(), "per_brush_stats": stats.stats_per_brush()}
+        self.stats = {"painting_stats": stats.stats()}
         print(("EVENT LOG -- {}".format(os.path.basename(self.directory))))
         print((self.program.event_log))
 

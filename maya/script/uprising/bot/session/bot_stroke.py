@@ -12,8 +12,8 @@ from uprising import const as k
 
 class BotStroke(Stroke):
     def __init__(self, cluster, stroke_index):
-        super(BotStroke, self).__init__(cluster.painting, stroke_index)
         self.cluster = cluster
+        super(BotStroke, self).__init__(cluster.painting, stroke_index)
         self.global_stroke_id = self.query_stroke_id()
 
     def _build_targets(self):

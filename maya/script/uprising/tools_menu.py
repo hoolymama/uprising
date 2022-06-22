@@ -32,9 +32,7 @@ def create():
 
     pm.menuItem(label="Print stats", command=pm.Callback(on_print_stats))
     
-    pm.menuItem(label="Print stats per brush",
-                command=pm.Callback(on_print_stats_per_brush))
-
+ 
 
     pm.menuItem(
         label="Print paint and brush csv",
@@ -116,10 +114,7 @@ def on_print_stats():
     utils.show_in_window(stats.stats(), title="Painting stats")
 
 
-def on_print_stats_per_brush():
-    utils.show_in_window(stats.stats_per_brush(), title="Per-brush stats")
-
-
+ 
 
 
 def on_print_paint_pot_and_brush_stats(fmt="json"):

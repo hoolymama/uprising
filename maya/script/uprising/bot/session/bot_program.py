@@ -23,7 +23,7 @@ def _log_line(*vals):
 class BotProgram(Program):
     def __init__(self, name, **kw):
         super(BotProgram, self).__init__(name)
-        self.painting = BotPainting()
+        self.painting = BotPainting(pm.PyNode(k.PAINTING_NAME))
         self.event_log = _log_line(
             "ClusterId", "Red", "Green", "Blue", "", "Brush Id", "Paint Id", "Pot Id"
         )
@@ -199,6 +199,12 @@ class BotProgram(Program):
             paintid,
             potid,
         )
+        
+    def send_open_gripper(self):
+        self.program.RunInstruction("Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
+        self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
+        self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
 
 
 class BotRetryProgram(Program):
@@ -206,6 +212,7 @@ class BotRetryProgram(Program):
         super(BotRetryProgram, self).__init__(name)
         self.painting = BotPainting(pm.PyNode(k.PAINTING_NAME))
 
+        
     def configure(self):
         for cluster in self.painting.clusters:
             for stroke in cluster.strokes:
@@ -228,8 +235,3 @@ class BotRetryProgram(Program):
         for cluster in self.painting.clusters:
             cluster.send(self.program, self.frame)
 
-    def send_open_gripper(self):
-        self.program.RunInstruction("Gripper opens here", INSTRUCTION_SHOW_MESSAGE)
-        self.program.RunInstruction("$OUT[2]=FALSE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("$OUT[1]=TRUE", INSTRUCTION_INSERT_CODE)
-        self.program.RunInstruction("WAIT FOR ($IN[2])", INSTRUCTION_INSERT_CODE)
