@@ -10,6 +10,7 @@ from uprising.common.session.stroke import Stroke
 from uprising import const as k
 
 
+
 class BotStroke(Stroke):
     def __init__(self, cluster, stroke_index):
         self.cluster = cluster
@@ -51,6 +52,8 @@ class BotStroke(Stroke):
             result.append(target)
         return result
 
+
+
     def send(self, prefix, program, frame):
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
@@ -58,21 +61,13 @@ class BotStroke(Stroke):
         for t in self.arrivals:
             t.send(stroke_name, program, frame)
 
-        if self.override_path_parameters:
-            program.setRounding(self.approximation_distance)
-            program.setSpeed(self.linear_speed)
-            program.setSpeedJoints(self.angular_speed)
-
-        if self.ignore:
-            self.departure.linear = False
-        else:
-            for t in self.targets:
-                t.send(stroke_name, program, frame)
-
-        if self.override_path_parameters:
-            program.setSpeed(self.painting.linear_speed)
-            program.setRounding(self.painting.rounding)
-            program.setSpeedJoints(self.painting.angular_speed)
+        with self.speed_override(program):
+ 
+            if self.ignore:
+                self.departure.linear = False
+            else:
+                for t in self.targets:
+                    t.send(stroke_name, program, frame)
 
         self.departure.send(stroke_name, program, frame)
 

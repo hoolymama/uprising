@@ -3,6 +3,8 @@ EPSILON = 0.000001
 import pymel.core as pm
 from uprising import robo
 from uprising import utils
+from contextlib import contextmanager
+
 
 
 class Stroke(object):
@@ -22,7 +24,7 @@ class Stroke(object):
 
         # TODO: Check - should this be OR
         self.override_path_parameters =  (
-            self.approximation_distance > EPSILON and 
+            self.approximation_distance > EPSILON and  
             self.linear_speed > EPSILON and 
             self.angular_speed > EPSILON
             )
@@ -30,6 +32,27 @@ class Stroke(object):
         self.config = None
         self.ignore = False
         self._build_targets()
+
+    @contextmanager
+    def speed_override(self, program):
+
+        if not self.override_path_parameters:
+            yield
+            return
+
+        program.setRounding(self.approximation_distance)
+        program.setSpeed(self.linear_speed)
+        program.setSpeedJoints(self.angular_speed)
+
+        try:
+            yield
+        finally:
+            program.setSpeed(self.painting.linear_speed)
+            program.setRounding(self.painting.rounding)
+            program.setSpeedJoints(self.painting.angular_speed)
+
+
+
 
     def name(self, prefix):
         return "{}_p{}_s{}".format(prefix, self.parent_id, self.id)
