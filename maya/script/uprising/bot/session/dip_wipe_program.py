@@ -53,15 +53,11 @@ class DipWipeProgram(Program):
             INSTRUCTION_COMMENT,
         )
         if self.do_dip:
-            self.program.setRounding(self.dip_painting.rounding)
-            self.program.setSpeed(self.dip_painting.linear_speed)
-            self.program.setSpeedJoints(self.dip_painting.angular_speed)
+            self.dip_painting.send_speeds(self.program)
             for cluster in self.dip_painting.clusters:
                 cluster.send(self.program, robo.dips_frame)
         if self.do_wipe:
-            self.program.setRounding(self.wipe_painting.rounding)
-            self.program.setSpeed(self.wipe_painting.linear_speed)
-            self.program.setSpeedJoints(self.wipe_painting.angular_speed)
+            self.wipe_painting.send_speeds(self.program)
             for cluster in self.wipe_painting.clusters:
                 cluster.send(self.program, robo.dips_frame)
 
@@ -104,9 +100,11 @@ class WashProgram(Program):
             INSTRUCTION_COMMENT,
         )
         if self.do_dip:
+            self.dip_painting.send_speeds(self.program)
             for cluster in self.dip_painting.clusters:
                 cluster.send(self.program, robo.wash_frame)
         if self.do_wipe:
+            self.wipe_painting.send_speeds(self.program)
             for repeat in range(self.repeats):
                 for cluster in self.wipe_painting.clusters:
                     cluster.send(self.program, robo.wash_frame)

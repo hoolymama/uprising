@@ -15,3 +15,9 @@ class Painting(object):
     def send_brushes(self, with_geo=False):
         for brush in self.brushes:
             self.brushes[brush].send(with_geo)
+
+    def send_speeds(self, program):
+        program.setRounding(self.rounding)
+        program.setSpeed(self.linear_speed)
+        program.setSpeedJoints(self.angular_speed)
+        

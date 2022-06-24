@@ -13,6 +13,7 @@ class BotPainting(Painting):
         self.paints = Paint.paints()
 
         self.num_clusters = pm.paintingQuery(self.node, clusterCount=True)
+
         self.clusters = self._create_clusters()
 
     def _create_clusters(self):

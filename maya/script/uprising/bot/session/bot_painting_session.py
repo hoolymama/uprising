@@ -31,6 +31,7 @@ class BotPaintingSession(Session):
         self.painting_node = pm.PyNode(k.PAINTING_NAME)
         self.program_names = []
         self.program_prefix = program_prefix
+        self.stats = None
 
         self.cluster_count = pm.paintingQuery(self.painting_node, cc=True)
         self.cluster_chunk_size = min(cluster_chunk_size, self.cluster_count)

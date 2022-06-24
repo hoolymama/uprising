@@ -62,11 +62,8 @@ class BotProgram(Program):
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
 
         self.painting.send_brushes(with_brush_geo)
-
-        self.program.setRounding(self.painting.rounding)
-        self.program.setSpeed(self.painting.linear_speed)
-        self.program.setSpeedJoints(self.painting.angular_speed)
-
+        self.painting.send_speeds(self.program)
+        
         last_cluster = None if start == 0 else self.painting.clusters[(start - 1)]
 
         if is_first_chunk:
