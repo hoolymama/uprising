@@ -7,13 +7,18 @@ global proc AEcImgFileSplitTemplate ( string $nodeName )
 
 	editorTemplate -cl 0  -beginLayout "Image attributes";
  	editorTemplate -addControl "imageFilename";
-
 	editorTemplate -addControl "maxOutputs";
+	editorTemplate -endLayout;	
+
+	editorTemplate -cl 0  -beginLayout "Index image attributes";		
+	editorTemplate -addControl "indexScale" ;
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Crop attributes";		
 	editorTemplate -addControl "applyCrop";
 	editorTemplate -addControl "cropCorner";
 	editorTemplate -addControl "cropResolution";
-	editorTemplate -endLayout;	
-
+	editorTemplate -endLayout;
 
 	editorTemplate -cl 0  -beginLayout "Out attributes";
 	editorTemplate -addControl "outputCount";

@@ -131,8 +131,13 @@ def get_swatches_for_selected():
                 atts += atts[0].iterDescendants(None, True)
             except BaseException:
                 pass
-
+            
             for d in atts:
+                try:
+                    d.type()
+                except BaseException:
+                    continue
+                
                 if d.type() == "cImgData":
                     pack = {
                         "attr": d,

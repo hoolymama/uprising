@@ -11,14 +11,41 @@ global proc AEmapIdStrokesTemplate ( string $nodeName )
 	editorTemplate -beginScrollLayout;
 
 
-	editorTemplate -cl 0  -beginLayout "General attributes";		
-	editorTemplate -addControl "brushIdMap" ;
-	editorTemplate -addControl "numberOfBrushes";
-	editorTemplate -addControl "sampleAt" ;
+	editorTemplate -cl 0  -beginLayout "Range attributes";		
+	editorTemplate -addControl "setRange"  "AEmapIdStrokesOnSetRange";
+	editorTemplate -addControl "numberOfValues";
 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Id attributes";		
+	editorTemplate -addControl "idProperty" ;
+	editorTemplate -addControl "idMap";
+	editorTemplate -addControl "idOffset";
 	
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0  -beginLayout "Sample attributes";		
+	editorTemplate -addControl "sampleAt"  "AEmapIdStrokesOnSampleAt";;
+	editorTemplate -addControl "strokeParam" ;
+	editorTemplate -endLayout;
+
 	AEsortFilterInclude($nodeName);
 
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;
 }
+
+
+global proc AEmapIdStrokesOnSetRange( string $nodeName )
+{
+    int $dim = ! `getAttr ($nodeName+".setRange")`;
+    editorTemplate -dimControl $nodeName "numberOfValues" $dim;
+}
+
+
+global proc AEmapIdStrokesOnSampleAt( string $nodeName )
+{
+    int $dim = `getAttr ($nodeName+".sampleAt")`;
+    editorTemplate -dimControl $nodeName "strokeParam" $dim;
+}
+
