@@ -435,6 +435,37 @@ void Stroke::calculateParams(MFloatArray &result) const
 	}
 }
 
+void Stroke::getPointAtParam(float param, MFloatPoint &result) const
+{
+	param = std::max(0.0f, std::min(param, 1.0f));
+
+	if (param ==0.0f)
+	{
+		result = m_targets.front().position();
+		return;
+	}
+	if (param == 1.0f)
+	{
+		result = m_targets.back().position();
+		return;
+	}
+
+	MFloatArray params;
+	calculateParams(params);
+	for (int i = 0; i < params.length() - 1; i++)
+	{
+		if (param >= params[i] && param <= params[i+1])
+		{
+			float t = (param - params[i]) / (params[i+1] - params[i]);
+			MPoint p0 = m_targets[i].position();
+			MPoint p1 = m_targets[i+1].position();
+			result = p0 + (p1 - p0) * t;
+			return;
+		}
+	}
+}
+	
+
 void Stroke::smoothTargets(int neighbors, bool doPositions, bool doWeights)
 {
 	if (neighbors < 1)

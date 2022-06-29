@@ -190,6 +190,8 @@ public:
 	void calculateParams(MFloatArray &result) const;
 	
 
+	void getPointAtParam(float param, MFloatPoint &result) const;
+
 	const float &paintFlow() const;
 
 	const Target &pivot() const;
@@ -401,6 +403,14 @@ private:
 	float m_approximationDistance;
 
 	float m_coil;
+
+	
+
+
+
+
+
+
 };
 
 inline float Stroke::interpFloat(const MFloatArray &values, float param)
