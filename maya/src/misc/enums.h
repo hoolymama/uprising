@@ -2,7 +2,7 @@
 
 #ifndef PaintingEnums_H
 #define PaintingEnums_H
- 
+
 class PaintingEnums
 {
 
@@ -22,6 +22,16 @@ public:
         kTargetColorsRGB,
         kTargetColorsBlend,
         kTargetColorsWait
+    };
+
+    enum BrushRotateOrder
+    {
+        kTwistTiltBank,
+        kTiltBankTwist,
+        kBankTwistTilt,
+        kTiltTwistBank,
+        kTwistBankTilt,
+        kBankTiltTwist,
     };
 };
 

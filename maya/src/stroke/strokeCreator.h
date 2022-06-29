@@ -14,15 +14,6 @@
 class strokeCreator : public strokeNodeBase
 {
 public:
-  enum BrushRotateOrder
-  {
-    kTwistTiltBank,
-    kTiltBankTwist,
-    kBankTwistTilt,
-    kTiltTwistBank,
-    kTwistBankTilt,
-    kBankTiltTwist,
-  };
 
   strokeCreator();
   virtual ~strokeCreator();
@@ -48,9 +39,9 @@ protected:
   void applySpeeds(MDataBlock &data, std::vector<Stroke> *geom) const;
 
   static MObject aCoats;
-
-  static MObject aLayerId;
   static MObject aPointDensity; ///< The minimum number of targets per centimeter.
+  static MObject aLayerId;
+
   static MObject aBrushTiltStart;
   static MObject aBrushTiltEnd;
   static MObject aBrushTilt;
@@ -61,6 +52,7 @@ protected:
   static MObject aBrushBankEnd;
   static MObject aBrushBank;
   static MObject aBrushRotateOrder;
+
 
   static MObject aLinearSpeed;           // cm/sec
   static MObject aAngularSpeed;          // per sec

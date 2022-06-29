@@ -165,13 +165,13 @@ MStatus strokeCreator::initialize()
   st = addAttribute(aBrushBank);
   mser;
 
-  aBrushRotateOrder = eAttr.create("brushRotateOrder", "bro", strokeCreator::kTwistTiltBank);
-  eAttr.addField("twistTiltBank", strokeCreator::kTwistTiltBank);
-  eAttr.addField("tiltBankTwist", strokeCreator::kTiltBankTwist);
-  eAttr.addField("bankTwistTilt", strokeCreator::kBankTwistTilt);
-  eAttr.addField("tiltTwistBank", strokeCreator::kTiltTwistBank);
-  eAttr.addField("twistBankTilt", strokeCreator::kTwistBankTilt);
-  eAttr.addField("bankTiltTwist", strokeCreator::kBankTiltTwist);
+  aBrushRotateOrder = eAttr.create("brushRotateOrder", "bro", PaintingEnums::kTwistTiltBank);
+  eAttr.addField("twistTiltBank", PaintingEnums::kTwistTiltBank);
+  eAttr.addField("tiltBankTwist", PaintingEnums::kTiltBankTwist);
+  eAttr.addField("bankTwistTilt", PaintingEnums::kBankTwistTilt);
+  eAttr.addField("tiltTwistBank", PaintingEnums::kTiltTwistBank);
+  eAttr.addField("twistBankTilt", PaintingEnums::kTwistBankTilt);
+  eAttr.addField("bankTiltTwist", PaintingEnums::kBankTiltTwist);
   eAttr.setHidden(false);
   eAttr.setKeyable(true);
   st = addAttribute(aBrushRotateOrder);
@@ -347,12 +347,12 @@ void strokeCreator::applyRotations(
   float twistStart = float(hTwist.child(aBrushTwistStart).asAngle().asRadians());
   float twistEnd = float(hTwist.child(aBrushTwistEnd).asAngle().asRadians());
   
-  BrushRotateOrder order = BrushRotateOrder(data.inputValue(aBrushRotateOrder).asShort());
+  PaintingEnums::BrushRotateOrder order =   PaintingEnums::BrushRotateOrder(data.inputValue(aBrushRotateOrder).asShort());
   
 
   switch (order)
   {
-  case strokeCreator::kTwistTiltBank:
+  case PaintingEnums::kTwistTiltBank:
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
       MFloatArray params;
@@ -373,7 +373,7 @@ void strokeCreator::applyRotations(
       }
     }
     break;
-  case strokeCreator::kTiltBankTwist:
+  case PaintingEnums::kTiltBankTwist:
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
       MFloatArray params;
@@ -394,7 +394,7 @@ void strokeCreator::applyRotations(
       }
     }
     break;
-  case strokeCreator::kBankTwistTilt:
+  case PaintingEnums::kBankTwistTilt:
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
       MFloatArray params;
@@ -415,7 +415,7 @@ void strokeCreator::applyRotations(
       }
     }
     break;
-  case strokeCreator::kTiltTwistBank:
+  case PaintingEnums::kTiltTwistBank:
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
       MFloatArray params;
@@ -436,7 +436,7 @@ void strokeCreator::applyRotations(
       }
     }
     break;
-  case strokeCreator::kTwistBankTilt:
+  case PaintingEnums::kTwistBankTilt:
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
       MFloatArray params;

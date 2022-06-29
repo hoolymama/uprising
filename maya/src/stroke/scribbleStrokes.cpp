@@ -28,6 +28,8 @@
 
 #include "errorMacros.h"
 #include "texUtils.h"
+#include "enums.h"
+
 
 const float PI = 3.14159265359;
 
@@ -174,13 +176,13 @@ MStatus scribbleStrokes::initialize()
   nAttr.setDefault(1.0f);
   addAttribute(aTwistMap);
 
-  aRotateOrder = eAttr.create("rotateOrder", "ro", scribbleStrokes::kTwistTiltBank);
-  eAttr.addField("twistTiltBank", scribbleStrokes::kTwistTiltBank);
-  eAttr.addField("tiltBankTwist", scribbleStrokes::kTiltBankTwist);
-  eAttr.addField("bankTwistTilt", scribbleStrokes::kBankTwistTilt);
-  eAttr.addField("tiltTwistBank", scribbleStrokes::kTiltTwistBank);
-  eAttr.addField("twistBankTilt", scribbleStrokes::kTwistBankTilt);
-  eAttr.addField("bankTiltTwist", scribbleStrokes::kBankTiltTwist);
+  aRotateOrder = eAttr.create("rotateOrder", "ro", PaintingEnums::kTwistTiltBank);
+  eAttr.addField("twistTiltBank", PaintingEnums::kTwistTiltBank);
+  eAttr.addField("tiltBankTwist", PaintingEnums::kTiltBankTwist);
+  eAttr.addField("bankTwistTilt", PaintingEnums::kBankTwistTilt);
+  eAttr.addField("tiltTwistBank", PaintingEnums::kTiltTwistBank);
+  eAttr.addField("twistBankTilt", PaintingEnums::kTwistBankTilt);
+  eAttr.addField("bankTiltTwist", PaintingEnums::kBankTiltTwist);
   eAttr.setHidden(false);
   eAttr.setKeyable(true);
   st = addAttribute(aRotateOrder);
@@ -480,7 +482,7 @@ void scribbleStrokes::calculateScribbleTransforms(
 
   switch (order)
   {
-  case scribbleStrokes::kTwistTiltBank:
+  case PaintingEnums::kTwistTiltBank:
     for (unsigned m = mapIndex, i = 0; titer != tenditer; titer++, m++, i++)
     {
       MFloatMatrix mat;
@@ -497,7 +499,7 @@ void scribbleStrokes::calculateScribbleTransforms(
     }
 
     break;
-  case scribbleStrokes::kTiltBankTwist:
+  case PaintingEnums::kTiltBankTwist:
     for (unsigned m = mapIndex; titer != tenditer; titer++, m++)
     {
       MFloatMatrix mat;
@@ -513,7 +515,7 @@ void scribbleStrokes::calculateScribbleTransforms(
     }
 
     break;
-  case scribbleStrokes::kBankTwistTilt:
+  case PaintingEnums::kBankTwistTilt:
     for (unsigned m = mapIndex; titer != tenditer; titer++, m++)
     {
       MFloatMatrix mat;
@@ -530,7 +532,7 @@ void scribbleStrokes::calculateScribbleTransforms(
     }
 
     break;
-  case scribbleStrokes::kTiltTwistBank:
+  case PaintingEnums::kTiltTwistBank:
     for (unsigned m = mapIndex; titer != tenditer; titer++, m++)
     {
       MFloatMatrix mat;
@@ -546,7 +548,7 @@ void scribbleStrokes::calculateScribbleTransforms(
     }
 
     break;
-  case scribbleStrokes::kTwistBankTilt:
+  case PaintingEnums::kTwistBankTilt:
     for (unsigned m = mapIndex; titer != tenditer; titer++, m++)
     {
       MFloatMatrix mat;
