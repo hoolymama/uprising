@@ -60,6 +60,14 @@ public:
 	static MObject aOutputImage;
 	static MObject aOutputColor;
 	static MObject aOutput;
+	static MObject aOutputIndex;
+	static MObject aIndexScale;
+	
+    static MObject aHueRotate;
+    static MObject aSaturationRangeRemap;
+    static MObject aValueRangeRemap;
+
+	
 	static MObject aOutputCount;
 	static MObject aOutputCropFactor;
 	static MObject aOutputOffsetFactorX;

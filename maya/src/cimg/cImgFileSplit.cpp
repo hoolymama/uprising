@@ -12,6 +12,7 @@
 #include <maya/MColorArray.h>
 #include <maya/MPlugArray.h>
 
+#include "mayaMath.h"
 #include "errorMacros.h"
 #include "cImgData.h"
 #include "cImgFileSplit.h"
@@ -34,6 +35,10 @@ MObject cImgFileSplit::aOutputImage;
 MObject cImgFileSplit::aOutputColor;
 
 MObject cImgFileSplit::aOutput;
+MObject cImgFileSplit::aOutputIndex;
+MObject cImgFileSplit::aIndexScale;
+
+
 MObject cImgFileSplit::aOutputCount;
 MObject cImgFileSplit::aOutputCropFactor;
 MObject cImgFileSplit::aOutputOffsetFactorX;
@@ -42,6 +47,11 @@ MObject cImgFileSplit::aOutputOffsetFactorY;
 MObject cImgFileSplit::aXResolution;
 MObject cImgFileSplit::aYResolution;
 MObject cImgFileSplit::aSortMethod;
+
+MObject cImgFileSplit::aHueRotate;
+MObject cImgFileSplit::aSaturationRangeRemap;
+MObject cImgFileSplit::aValueRangeRemap;
+
 
 cImgFileSplit::cImgFileSplit() {}
 
@@ -87,6 +97,12 @@ MStatus cImgFileSplit::initialize()
 	nAttr.setDefault(18);
 	st = addAttribute(aMaxOutputs);
 
+	aIndexScale = nAttr.create("indexScale", "ixs", MFnNumericData::kInt);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(18);
+	st = addAttribute(aIndexScale);
+
 	aApplyCrop = nAttr.create("applyCrop", "apc", MFnNumericData::kBoolean);
 	nAttr.setHidden(false);
 	nAttr.setStorable(true);
@@ -122,6 +138,37 @@ MStatus cImgFileSplit::initialize()
 	eAttr.setHidden(false);
 	st = addAttribute(aSortMethod);
 
+	
+	// color correction
+	aHueRotate = nAttr.create("hueRotate", "hro", MFnNumericData::kFloat);
+	nAttr.setHidden(false);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(0.0f);
+	addAttribute(aHueRotate);
+
+
+	aSaturationRangeRemap = nAttr.create("saturationRangeRemap", "srrp", MFnNumericData::k2Float);
+	nAttr.setStorable(true);
+	nAttr.setReadable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(0.0f, 1.0f);
+	addAttribute(aSaturationRangeRemap);
+	
+	aValueRangeRemap = nAttr.create("valueRangeRemap", "vrrp", MFnNumericData::k2Float);
+	nAttr.setStorable(true);
+	nAttr.setReadable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(0.0f, 1.0f);
+	addAttribute(aValueRangeRemap);
+ 
+
+
+
+	aOutputIndex = tAttr.create("outputIndex", "outx", cImgData::id);
+	tAttr.setReadable(true);
+	tAttr.setStorable(false);
+	tAttr.setKeyable(false);
+	addAttribute(aOutputIndex);
 
 
 	aOutputImage = tAttr.create("outputImage", "outi", cImgData::id);
@@ -143,6 +190,8 @@ MStatus cImgFileSplit::initialize()
 	cAttr.setArray(true);
 	cAttr.setUsesArrayDataBuilder(true);
 	addAttribute(aOutput);
+
+
 
 	aOutputCount = nAttr.create("outputCount", "opc", MFnNumericData::kInt);
 	nAttr.setHidden(false);
@@ -194,6 +243,9 @@ MStatus cImgFileSplit::initialize()
 
 
 
+	attributeAffects(aHueRotate,aOutputColor);
+	attributeAffects(aSaturationRangeRemap,aOutputColor);
+	attributeAffects(aValueRangeRemap,aOutputColor);
 	attributeAffects(aMaxOutputs, aOutputColor);
 	attributeAffects(aImageFilename, aOutputColor);
 	attributeAffects(aInputPalette, aOutputColor);
@@ -206,6 +258,19 @@ MStatus cImgFileSplit::initialize()
 	attributeAffects(aCropCorner, aOutputImage);
 	attributeAffects(aCropResolution, aOutputImage);
 	attributeAffects(aSortMethod, aOutputImage);
+
+
+	attributeAffects(aMaxOutputs, aOutputIndex);
+	attributeAffects(aImageFilename, aOutputIndex);
+	attributeAffects(aInputPalette, aOutputIndex);
+	attributeAffects(aApplyCrop, aOutputIndex);
+	attributeAffects(aCropCorner, aOutputIndex);
+	attributeAffects(aCropResolution, aOutputIndex);
+	attributeAffects(aSortMethod, aOutputIndex);
+	attributeAffects(aIndexScale, aOutputIndex);
+
+
+
 
 	attributeAffects(aMaxOutputs, aOutputCount);
 	attributeAffects(aImageFilename, aOutputCount);
@@ -244,6 +309,7 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 			|| (plug == aOutputImage) 
 			|| (plug == aOutputColor) 
 			|| (plug.parent() == aOutputColor) 
+			|| (plug == aOutputIndex) 
 			|| (plug == aOutputCount) 
 			|| (plug == aOutputCropFactor) 
 			|| (plug == aOutputOffsetFactorX) 
@@ -259,6 +325,9 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 	MStatus st = MS::kSuccess;
 	// bool resize = data.inputValue(aResize).asBool();
 	bool applyCrop = data.inputValue(aApplyCrop).asBool();
+
+	int indexScale = data.inputValue(aIndexScale).asInt();
+	indexScale = std::max(1, std::min(255,indexScale));
 
 	float cropFactor = 1.0f;
 	float offsetFactorX = 0.0f;
@@ -316,10 +385,24 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 		offsetFactorY = (spriteY + ySquareOffset) / fFullSquareRes;
 	}
 
+
+	float hueRotate = data.inputValue(aHueRotate).asFloat();
+	const float2 &saturationRangeRemap = data.inputValue(aSaturationRangeRemap).asFloat2();
+	const float2 &valueRangeRemap = data.inputValue(aValueRangeRemap).asFloat2();
+	bool doHue = hueRotate != 0.0f;
+	bool doSaturation = (!(saturationRangeRemap[0] == 0.0f && saturationRangeRemap[1] == 1.0f));
+	bool doValue = (!(valueRangeRemap[0] == 0.0f && valueRangeRemap[1] == 1.0f));
+
+
+
+
+	CImg<unsigned char> indexSprite(spriteResX, spriteResY, 1, 1, 0);
+	/////////
+
 	for (int i = 0; i < paletteLength; i++)
 	{
 
-		const MColor &color = palette[i];
+		MColor color = palette[i];
 
 		MDataHandle hOutput = bOutput.addElement(i, &st);
 		mser;
@@ -346,7 +429,8 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 				(image)(imgX, imgY, 2));
 			if (pixelColor == color)
 			{
-				(sprite)(x, y) = 255;
+				sprite(x, y) = 255;
+				indexSprite(x, y) = std::min((i*indexScale),255);
 			}
 		}
 
@@ -363,6 +447,28 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 		hOutputImage.set(newData);
 
 		float3 &outColor = hOutputColor.asFloat3();
+
+		 if (doHue || doSaturation || doValue)
+		{
+			MColor hsv;
+			mayaMath::rgbToHsv(color, hsv);
+			if (doHue)
+			{
+				hsv[0] =  fmod(hsv[0] + hueRotate +360.0f, 360.0f);
+			}
+			if (doSaturation)
+			{
+				hsv[1] =  saturationRangeRemap[0] + (hsv[1]  * (saturationRangeRemap[1] - saturationRangeRemap[0]));
+			}
+			if (doValue)
+			{
+				hsv[2] = valueRangeRemap[0] + (hsv[2]  * (valueRangeRemap[1] - valueRangeRemap[0]));
+			}
+		 
+			mayaMath::hsvToRgb(hsv, color);
+		}
+
+
 		outColor[0] = color.r;
 		outColor[1] = color.g;
 		outColor[2] = color.b;
@@ -373,6 +479,29 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 		outImgPlug.setMDataHandle(hOutputImage);
 		outColPlug.setMDataHandle(hOutputColor);
 	}
+
+	// Index image //////////////////////////////
+	MDataHandle hOutputIndex = data.outputValue(aOutputIndex, &st);mser;
+	MFnPluginData fnOutIndex;
+	MObject dOutIndex = fnOutIndex.create(kdid, &st);
+	mser;
+	cImgData *newIndexData = (cImgData *)fnOutIndex.data(&st);
+	CImg<unsigned char> *outIndex = newIndexData->fImg;
+	if (applyCrop)
+	{
+		outIndex->assign(indexSprite);
+	}
+	else
+	{
+		outIndex->assign(fullSquareRes, fullSquareRes, 1, 1, 0);
+		outIndex->draw_image(xSquareOffset + spriteX, ySquareOffset + spriteY, 0, 0, indexSprite);
+	}
+	hOutputIndex.set(newIndexData);
+	hOutputIndex.setClean();
+	////////////////////////////////////////
+
+
+
 
 	MDataHandle hOutputCount = data.outputValue(aOutputCount);
 	hOutputCount.set(paletteLength);
@@ -494,11 +623,6 @@ void cImgFileSplit::calculate_pallete(
 	{
 		palette.append(*it);
 	}
-
-
-
-
-
 }
 
 // MStatus cImgFileSplit::setDependentsDirty(
