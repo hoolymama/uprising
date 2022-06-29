@@ -58,8 +58,14 @@ private:
   static MObject aColor;
   static MObject aOpacity;
   static MObject aTravel;
+  static MObject aPotId;
+  static MObject aBrushId;
+  
+  
   static MObject aName;
   static MObject aInput;
+
+
   
 };
 

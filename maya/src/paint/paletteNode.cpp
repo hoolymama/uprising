@@ -7,12 +7,13 @@
 #include <maya/MFnCompoundAttribute.h>
 
 #include <jMayaIds.h>
-#include "mayaMath.h"
+// #include "mayaMath.h"
 #include "errorMacros.h"
 
 #include "paletteData.h"
 #include "paletteNode.h"
- 
+// #include "colorUtils.h"
+
 MTypeId paletteNode::id(k_paletteNode);
 MString paletteNode::drawDbClassification("drawdb/geometry/paletteNode");
 MString paletteNode::drawRegistrantId("paletteNodePlugin");
@@ -36,8 +37,17 @@ MObject paletteNode::aColor;
 MObject paletteNode::aOpacity;
 MObject paletteNode::aTravel;
 MObject paletteNode::aName;
+MObject paletteNode::aPotId;
+MObject paletteNode::aBrushId;
 
 MObject paletteNode::aInput;
+
+
+// MObject paletteNode::aHueRotate;
+// MObject paletteNode::aSaturationRangeRemap;
+// MObject paletteNode::aValueRangeRemap;
+  
+
 
 MObject paletteNode::aWidth;
 MObject paletteNode::aHeight;
@@ -83,6 +93,22 @@ MStatus paletteNode::initialize()
   
   aName = tAttr.create("name", "nm", MFnData::kString);
 
+
+  aPotId =  nAttr.create("potId", "pid", MFnNumericData::kInt);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(0);
+  addAttribute(aPotId);
+
+  aBrushId =  nAttr.create("brushId", "bid", MFnNumericData::kInt);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(0);
+  addAttribute(aBrushId);
+
+
   aInput = cAttr.create("input", "in");
   cAttr.addChild(aColor);
   cAttr.addChild(aOpacity);
@@ -92,6 +118,31 @@ MStatus paletteNode::initialize()
   cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   cAttr.setReadable(false);
   st = addAttribute(aInput);
+
+
+
+
+  // aHueRotate = nAttr.create("hueRotate", "hro", MFnNumericData::kFloat);
+  // nAttr.setHidden(false);
+  // nAttr.setKeyable(true);
+  // nAttr.setDefault(0.0f);
+  // addAttribute(aHueRotate);
+
+
+  // aSaturationRangeRemap = nAttr.create("saturationRangeRemap", "srrp", MFnNumericData::k2Float);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // nAttr.setKeyable(true);
+  // nAttr.setDefault(0.0f, 1.0f);
+  // addAttribute(aSaturationRangeRemap);
+ 
+  // aValueRangeRemap = nAttr.create("valueRangeRemap", "vrrp", MFnNumericData::k2Float);
+  // nAttr.setStorable(true);
+  // nAttr.setReadable(true);
+  // nAttr.setKeyable(true);
+  // nAttr.setDefault(0.0f, 1.0f);
+  // addAttribute(aValueRangeRemap);
+ 
 
   aWidth = nAttr.create("Width", "wid", MFnNumericData::kFloat);
   nAttr.setHidden(false);
@@ -147,6 +198,14 @@ MStatus paletteNode::initialize()
   tAttr.setStorable(false);
   addAttribute(aOutput);
 
+  // attributeAffects(aHueRotate, aOutput);
+  // attributeAffects(aSaturationRangeRemap, aOutput);
+  // attributeAffects(aValueRangeRemap, aOutput);
+
+
+
+  attributeAffects(aPotId, aOutput);
+  attributeAffects(aBrushId, aOutput);
   attributeAffects(aColor,aOutput);
   attributeAffects(aName,aOutput);
   attributeAffects(aOpacity,aOutput);
@@ -182,6 +241,15 @@ MStatus paletteNode::compute(const MPlug &plug, MDataBlock &data)
   // (*palette)[-1] =  Paint();
   //////////
 
+
+  // float hueRotate = data.inputValue(aHueRotate).asFloat();
+  // const float2 &saturationRangeRemap = data.inputValue(aSaturationRangeRemap).asFloat2();
+  // const float2 &valueRangeRemap = data.inputValue(aValueRangeRemap).asFloat2();
+  // bool doHue = hueRotate != 0.0f;
+  // bool doSaturation = (!(saturationRangeRemap[0] == 0.0f && saturationRangeRemap[1] == 1.0f));
+  // bool doValue = (!(valueRangeRemap[0] == 0.0f && valueRangeRemap[1] == 1.0f));
+
+ 
   unsigned nInputs = hInput.elementCount();
   for (unsigned i = 0; i < nInputs; i++, hInput.next())
   {
@@ -192,13 +260,37 @@ MStatus paletteNode::compute(const MPlug &plug, MDataBlock &data)
       continue;
     }
 
-    MFloatVector color = hPaintInput.child(aColor).asFloatVector();
+    MFloatVector fcolor = hPaintInput.child(aColor).asFloatVector();
+    // if (doHue || doSaturation || doValue)
+    // {
+    //     MColor color(fcolor.x, fcolor.y, fcolor.z);
+    //     MColor hsv;
+    //     mayaMath::rgbToHsv(color, hsv);
+    //     if (doHue)
+    //     {
+    //         hsv[0] =  fmod(hsv[0] + hueRotate +360.0f, 360.0f);
+    //     }
+    //     if (doSaturation)
+    //     {
+    //         hsv[1] =  saturationRangeRemap[0] + (hsv[1]  * (saturationRangeRemap[1] - saturationRangeRemap[0]));
+    //     }
+    //     if (doValue)
+    //     {
+    //         hsv[2] = valueRangeRemap[0] + (hsv[2]  * (valueRangeRemap[1] - valueRangeRemap[0]));
+    //     }
+    //     MColor rgb;
+    //     mayaMath::hsvToRgb(hsv, rgb);
+    //     fcolor = MFloatVector(rgb.r, rgb.g, rgb.b);
+    // }
+
+
+
     // int pot =  hPaintInput.child(aPot).asInt();
     float opacity = hPaintInput.child(aOpacity).asFloat();
     float travel = hPaintInput.child(aTravel).asFloat();
     MString name = hPaintInput.child(aName).asString();
  
-    (*palette)[paintId] = Paint(color, opacity , travel, name);
+    (*palette)[paintId] = Paint(fcolor, opacity , travel, name);
   }
 
   hOutput.set(newData);

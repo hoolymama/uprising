@@ -26,9 +26,14 @@
 #include "errorMacros.h"
 #include "texUtils.h"
 
-MObject mapIdStrokes::aBrushId;
-MObject mapIdStrokes::aNumberOfBrushes;
+
+MObject mapIdStrokes::aNormalize;  
+MObject mapIdStrokes::aNumberOfValues; /// normalize
+MObject mapIdStrokes::aIdProperty;
+MObject mapIdStrokes::aIdMap;         ///> The solid texture whose red channel will be mapped to the chosen Id property of strokes.
 MObject mapIdStrokes::aSampleAt;
+MObject mapIdStrokes::aStrokeParam;
+MObject mapIdStrokes::aIdOffset;
 
 MTypeId mapIdStrokes::id(k_mapIdStrokes);
 
@@ -59,29 +64,60 @@ MStatus mapIdStrokes::initialize()
   MFnTypedAttribute tAttr;
   MFnEnumAttribute eAttr;
 
-  aBrushId = nAttr.create("brushIdMap", "bid", MFnNumericData::kFloat);
-  nAttr.setStorable(true);
-  nAttr.setReadable(true);
+  aNormalize = nAttr.create("setRange", "srn", MFnNumericData::kBoolean);
   nAttr.setKeyable(true);
-  addAttribute(aBrushId);
+  nAttr.setStorable(true);
+  nAttr.setDefault(true);
+  addAttribute(aNormalize);
 
-  aNumberOfBrushes = nAttr.create("numberOfBrushes", "nb", MFnNumericData::kInt);
+  aNumberOfValues = nAttr.create("numberOfValues", "nvl", MFnNumericData::kInt);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setDefault(0.0f);
-  addAttribute(aNumberOfBrushes);
+  addAttribute(aNumberOfValues);
 
-  aSampleAt = eAttr.create("sampleAt", "sa", mapIdStrokes::kFirstTarget);
-  eAttr.addField("firstTarget", mapIdStrokes::kFirstTarget);
-  eAttr.addField("curveStart", mapIdStrokes::kPivot);
+  aIdProperty = eAttr.create("idProperty", "idp", mapIdStrokes::kBrushId);
+  eAttr.addField("brushId", mapIdStrokes::kBrushId);
+  eAttr.addField("paintId", mapIdStrokes::kPaintId);
+  eAttr.addField("layerId", mapIdStrokes::kLayerId);
+  eAttr.setHidden(false);
+  eAttr.setKeyable(true);
+  addAttribute(aIdProperty);
+
+  aIdMap = nAttr.create("idMap", "ids", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  addAttribute(aIdMap);
+
+  aIdOffset = nAttr.create("idOffset", "ido", MFnNumericData::kInt);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setDefault(0.0f);
+  addAttribute(aIdOffset);
+
+
+  aSampleAt = eAttr.create("sampleAt", "sa", mapIdStrokes::kStrokeParam);
+  eAttr.addField("strokeParam", mapIdStrokes::kStrokeParam);
+  eAttr.addField("pivot", mapIdStrokes::kPivot);
   eAttr.setHidden(false);
   eAttr.setKeyable(true);
   addAttribute(aSampleAt);
 
-  attributeAffects(aBrushId, aOutput);
-  attributeAffects(aNumberOfBrushes, aOutput);
-  attributeAffects(aSampleAt, aOutput);
+  aStrokeParam = nAttr.create("strokeParam", "skp", MFnNumericData::kFloat);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setDefault(0.0f);
+  addAttribute(aStrokeParam);
 
+  attributeAffects(aNormalize, aOutput);
+  attributeAffects(aNumberOfValues, aOutput);
+  attributeAffects(aIdProperty, aOutput);
+  attributeAffects(aIdOffset, aOutput);
+  attributeAffects(aIdMap, aOutput);
+  attributeAffects(aSampleAt, aOutput);
+  attributeAffects(aStrokeParam, aOutput);
+ 
   return (MS::kSuccess);
 }
 
@@ -92,73 +128,84 @@ MStatus mapIdStrokes::mutate(
 {
   MStatus st;
 
-  MIntArray brushIds;
-  float dummy = data.inputValue(aBrushId).asFloat();
-  int numBrushes = data.inputValue(aNumberOfBrushes).asInt();
+  MIntArray ids;
+  int idOffset = data.inputValue(aIdOffset).asInt();
+
+  float dummy = data.inputValue(aIdMap).asFloat();
+  int numValues = data.inputValue(aNumberOfValues).asInt();
+  float strokeParam = data.inputValue(aStrokeParam).asFloat();
+  bool normalize = data.inputValue(aNormalize).asBool();
+  MObject thisObj = thisMObject();
+
   MFloatPointArray points;
 
   mapIdStrokes::SampleAt sampleAt = (mapIdStrokes::SampleAt)data.inputValue(aSampleAt).asShort();
-  if (sampleAt == mapIdStrokes::kFirstTarget)
-  {
-    getFirstTargetPoints(strokes, points);
-  }
-  else
+  mapIdStrokes::Property idProperty = (mapIdStrokes::Property)data.inputValue(aIdProperty).asShort();
+
+  if (sampleAt == mapIdStrokes::kPivot)
   {
     getPivotPoints(strokes, points);
   }
+  else
+  {
+    getStrokeParamPoints(strokes, strokeParam, points );
+  }
 
-  getBrushIds(data, points, numBrushes, brushIds);
-  applyBrushIds(strokes, brushIds);
+  int quantizeLevels = normalize ? numValues : 256; 
+ 
+  // GET IDS
+  TexUtils::sampleSolidTexture(
+        thisObj,
+        mapIdStrokes::aIdMap,
+        quantizeLevels,
+        points,
+        ids);
+
+  for (unsigned int i = 0; i < ids.length(); i++)
+  {
+    ids[i] += idOffset;
+  }
+
+  applyIds(strokes, ids, idProperty);
   return MS::kSuccess;
 }
 
-void mapIdStrokes::getBrushIds(
-    MDataBlock &data,
-    MFloatPointArray &points,
-    int numBrushes,
-    MIntArray &brushIds) const
-{
 
-  MStatus st;
-  MObject thisObj = thisMObject();
-
-  unsigned len = points.length();
-  bool isMapped = false;
-
-  if (TexUtils::hasTexture(thisObj, mapIdStrokes::aBrushId))
-  {
-    st = TexUtils::sampleSolidTexture(
-        thisObj,
-        mapIdStrokes::aBrushId,
-        numBrushes,
-        points,
-        brushIds);
-
-    if (!st.error())
-    {
-      isMapped = true;
-    }
-  }
-  if (!isMapped)
-  {
-    float val = data.inputValue(aBrushId).asFloat();
-    int clampedVal = fmax(0, fmin( ((val * numBrushes) + 0.5), numBrushes-1) );
-    brushIds = MIntArray(len, clampedVal);
-  }
-}
-
-void mapIdStrokes::applyBrushIds(
+void mapIdStrokes::applyIds(
     std::vector<Stroke> *strokes,
-    const MIntArray &brushIds) const
+    const MIntArray &ids,
+    mapIdStrokes::Property idProperty) const
 {
-  if (brushIds.length() != strokes->size())
+  if (ids.length() != strokes->size())
   {
     return;
   }
   std::vector<Stroke>::iterator siter = strokes->begin();
   unsigned index = 0;
-  for (unsigned i = 0; siter != strokes->end(); siter++, i++)
+
+  if (idProperty == mapIdStrokes::kBrushId)
   {
-    siter->setBrushId(brushIds[i]);
+    for (; siter != strokes->end(); ++siter, ++index)
+    {
+       siter->setBrushId(ids[index]);
+    }
+    return;
+  }
+
+  if (idProperty == mapIdStrokes::kPaintId)
+  {
+    for (; siter != strokes->end(); ++siter, ++index)
+    {
+      siter->setPaintId(ids[index]);
+    }
+    return;
+  }
+  if (idProperty == mapIdStrokes::kLayerId)
+  {
+    for (; siter != strokes->end(); ++siter, ++index)
+    {
+      siter->setLayerId(ids[index]);
+    }
+    return;
   }
 }

@@ -32,24 +32,38 @@ private:
 
   enum SampleAt
   {
-    kFirstTarget,
+    kStrokeParam,
     kPivot
   };
 
+  enum Property {
+    kBrushId,
+    kPaintId,
+    kLayerId
+  };
+  
 
-  void getBrushIds(
+  void getIds(
       MDataBlock &data,
       MFloatPointArray &points,
-      int numBrushes,
-      MIntArray &brushIds) const;
+      int quantizeLevels,
+      MIntArray &resultIds) const;
 
-  void applyBrushIds(
+  void applyIds(
       std::vector<Stroke> *strokes,
-      const MIntArray &brushIds) const;
+      const MIntArray &ids,
+       mapIdStrokes::Property idProperty) const;
+ 
+  static MObject aNormalize;  
+  static MObject aNumberOfValues; /// normalize
 
-  static MObject aBrushId;         ///> The solid texture whose red channel will be mapped to the brushId property of strokes.
-  static MObject aNumberOfBrushes; /// normalize
+  static MObject aIdProperty;
+
+  static MObject aIdMap;         ///> The solid texture whose red channel will be mapped to the chosen Id property of strokes.
   static MObject aSampleAt;
+  static MObject aStrokeParam;
+  static MObject aIdOffset;
+  
   
 };
 
