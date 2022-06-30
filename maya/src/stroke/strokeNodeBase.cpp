@@ -243,6 +243,17 @@ void strokeNodeBase::getPivotPoints(const std::vector<Stroke> *geom, MFloatPoint
   }
 }
 
+void strokeNodeBase::getStrokeParamPoints( const std::vector<Stroke> *geom, float strokeParam,  MFloatPointArray &result ) const
+{
+  result.clear();
+  result.setLength(geom->size());
+  int i = 0;
+  for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++, i++)
+  {
+    iter->getPointAtParam(strokeParam, result[i]);
+  }
+}
+
 void strokeNodeBase::getFirstTargetPoints(
     const std::vector<Stroke> *geom,
     MFloatPointArray &result) const

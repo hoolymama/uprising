@@ -22,13 +22,18 @@ public:
 
 protected:
   virtual MStatus generateStrokeGeometry(
-    const MPlug &plug,
+      const MPlug &plug,
       MDataBlock &data,
       std::vector<Stroke> *geom);
 
   void getPivotPoints(
       const std::vector<Stroke> *geom,
       MFloatPointArray &result) const;
+
+  void getStrokeParamPoints(
+    const std::vector<Stroke> *geom, 
+    float strokeParam, 
+    MFloatPointArray &result) const;
 
   void getFirstTargetPoints(
       const std::vector<Stroke> *geom,
@@ -41,7 +46,6 @@ protected:
   void getSpanPoints(
       const std::vector<Stroke> *geom,
       MFloatPointArray &result) const;
-
 
   void cullStartEnd(MDataBlock &data, std::vector<Stroke> *geom) const;
 
