@@ -302,7 +302,7 @@ MStatus scribbleStrokes::mutate(
 
   float angleCm = float(data.inputValue(aAngle).asAngle().asRadians());
 
-  scribbleStrokes::RotateOrder order = scribbleStrokes::RotateOrder(data.inputValue(aRotateOrder).asShort());
+  PaintingEnums::BrushRotateOrder order =  PaintingEnums::BrushRotateOrder(data.inputValue(aRotateOrder).asShort());
   scribbleStrokes::ColorPropagation propagation = scribbleStrokes::ColorPropagation(data.inputValue(aColorPropagation).asShort());
 
   MFloatVector rgbOverride = data.inputValue(aColorOverride).asFloatVector();
@@ -474,7 +474,7 @@ void scribbleStrokes::calculateScribbleTransforms(
     const MFloatArray &tilts,
     const MFloatArray &banks,
     const MFloatArray &twists,
-    scribbleStrokes::RotateOrder order,
+    PaintingEnums::BrushRotateOrder order,
     std::vector<MFloatMatrix> &scribbleTransforms) const
 {
   std::vector<Target>::const_iterator titer = stroke.targets().begin();

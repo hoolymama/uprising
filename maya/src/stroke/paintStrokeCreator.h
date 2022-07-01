@@ -28,6 +28,10 @@ public:
     static MTypeId id;
 
 
+void applyBrushStrokeSpec(
+    MDataBlock &data,
+    std::vector<Stroke> *pOutStrokes) const;
+
 protected:
 
 

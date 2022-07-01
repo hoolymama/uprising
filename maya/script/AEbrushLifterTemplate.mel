@@ -7,6 +7,9 @@ global proc AEbrushLifterTemplate ( string $nodeName )
 	editorTemplate -beginScrollLayout;
 
 	editorTemplate -cl 0 -beginLayout "Brushes";
+	editorTemplate -addControl "applyBias" ;
+	editorTemplate -addControl "applyLift" ;
+ 
  	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
  	editorTemplate -endLayout;
 

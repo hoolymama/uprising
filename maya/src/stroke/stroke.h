@@ -15,7 +15,7 @@
 #include <attrUtils.h>
 
 // #include "strokeRotationSpec.h"
-// #include "strokeRepeatSpec.h"
+#include "brushStrokeSpec.h"
 
 #include "brush.h"
 #include "paint.h"
@@ -86,19 +86,18 @@ public:
 
 	static float interpFloat(const MFloatArray &values, float param);
 	static MColor interpColor(const MColorArray &colors, float param);
-	
 
 	Stroke();
 
 	/**
  * @brief Construct a new Stroke object with an artray of points and an initial
- * rotation matrix. 
- 
+ * rotation matrix.
+
  All targets will have this matrix initially.
  View tangents will be calculated from points.
  *
  * @param points An array of points.
- * @param rotationMat A matrix, which is expected to be unit scale. 
+ * @param rotationMat A matrix, which is expected to be unit scale.
  */
 	Stroke(
 		const MFloatPointArray &points,
@@ -117,15 +116,13 @@ public:
 		const MColorArray &colors,
 		const MFloatMatrix &rotationMat);
 
-
-
 	Stroke(
 		const std::vector<MFloatMatrix> &matrices,
 		const MFloatArray &weights);
 
 	/**
 	 * @brief Construct a new Stroke from a subsection of the input stroke.
-	 * 
+	 *
 	 * @param instroke The stroke to create a new stroke from.
 	 * @param start The target index to start at
 	 * @param count The number of targets.
@@ -136,26 +133,25 @@ public:
 		unsigned count);
 
 	Stroke(
-	const MPointArray & editPoints,
-	MFloatArray radii,
-	float resampleDensity,
-	int minimumPoints,
-	const MFloatMatrix &rotationMat);
+		const MPointArray &editPoints,
+		MFloatArray radii,
+		float resampleDensity,
+		int minimumPoints,
+		const MFloatMatrix &rotationMat);
 
 	Stroke(
-	const MPointArray & editPoints,
-	float resampleDensity,
-	int minimumPoints,
-	const MFloatMatrix &rotationMat);
-	
+		const MPointArray &editPoints,
+		float resampleDensity,
+		int minimumPoints,
+		const MFloatMatrix &rotationMat);
 
 	Stroke(
-	const MPointArray &editPoints,
-	const MFloatArray &originalWeights,
-	const MColorArray &originalColors,
-	float resampleDensity,
-	int minimumPoints,
-	const MFloatMatrix &rotationMat);
+		const MPointArray &editPoints,
+		const MFloatArray &originalWeights,
+		const MColorArray &originalColors,
+		float resampleDensity,
+		int minimumPoints,
+		const MFloatMatrix &rotationMat);
 
 	~Stroke();
 
@@ -188,10 +184,10 @@ public:
 	float calculateArcLength() const;
 
 	void calculateParams(MFloatArray &result) const;
-	
 
 	void getPointAtParam(float param, MFloatPoint &result) const;
-
+	void setBrushStrokeSpec(const BrushStrokeSpec &rhs);
+	const BrushStrokeSpec & brushStrokeSpec() const;
 	const float &paintFlow() const;
 
 	const Target &pivot() const;
@@ -303,6 +299,7 @@ public:
 		const MFloatMatrix &space,
 		MFloatPointArray &result) const;
 
+
 	void rotations(
 		const MFloatMatrix &space,
 		MTransformationMatrix::RotationOrder order,
@@ -315,7 +312,6 @@ public:
 
 	void drawTangents(
 		MFloatVectorArray &result) const;
-
 
 	void colors(MColorArray &result) const;
 
@@ -360,13 +356,9 @@ public:
 	float approximationDistance() const;
 	void setApproximationDistance(float val);
 
-	
-
 	void smoothTargets(int neighbors, bool doPositions, bool doWeights);
 
 	// void calculateTubeMatrices(const MMatrix&initialMatrix ,const  MVector & initialTangent, MMatrixArray & tubeMatrices) const ;
-
-
 
 	friend bool operator<(const Stroke &a, const Stroke &b);
 	friend ostream &operator<<(ostream &os, const Stroke &s);
@@ -404,19 +396,14 @@ private:
 
 	float m_coil;
 
-	
-
-
-
-
-
-
+	BrushStrokeSpec m_brushStrokeSpec;
 };
 
 inline float Stroke::interpFloat(const MFloatArray &values, float param)
 {
 	int len = values.length();
-	if (len < 2) {
+	if (len < 2)
+	{
 		return 1.0;
 	}
 	int last = (len - 1);
@@ -437,8 +424,9 @@ inline float Stroke::interpFloat(const MFloatArray &values, float param)
 inline MColor Stroke::interpColor(const MColorArray &colors, float param)
 {
 	int len = colors.length();
-	if (len < 2) {
-		return MColor(1.0f,1.0f,1.0f,1.0f);
+	if (len < 2)
+	{
+		return MColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	int last = (len - 1);
 	if (param >= 1.0f)

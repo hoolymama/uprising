@@ -29,7 +29,8 @@ Stroke::Stroke()
 	  m_linearSpeed(0.0),
 	  m_angularSpeed(0.0),
 	  m_approximationDistance(0.0),
-	  m_coil(0.0f)
+	  m_coil(0.0f),
+	  m_brushStrokeSpec()
 {
 }
 
@@ -465,6 +466,17 @@ void Stroke::getPointAtParam(float param, MFloatPoint &result) const
 	}
 }
 	
+	void Stroke::setBrushStrokeSpec(const BrushStrokeSpec &rhs)
+	{
+		m_brushStrokeSpec = rhs;
+	}
+	
+	const BrushStrokeSpec &  Stroke::brushStrokeSpec() const
+	{
+		return m_brushStrokeSpec  ;
+	}
+	
+
 
 void Stroke::smoothTargets(int neighbors, bool doPositions, bool doWeights)
 {
@@ -1076,6 +1088,10 @@ void Stroke::positions(
 		result.append(citer->position(space));
 	}
 }
+
+
+
+
 
 void Stroke::rotations(
 	const MFloatMatrix &space,

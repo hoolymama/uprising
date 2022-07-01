@@ -322,6 +322,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     }
 
     strokeCreator::applyRotations(data, pOutStrokes);
+    paintStrokeCreator::applyBrushStrokeSpec(data, pOutStrokes);
 
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
@@ -626,6 +627,11 @@ Stroke skeletonStrokeNode::createStroke(
         weights.append(weight);
     }
     Stroke stroke(brushTransforms, weights);
+    Stroke::target_iterator it = stroke.targets_begin();
+    for (unsigned i = 0; it != stroke.targets_end(); i++, it++)
+    {
+        it->setRadius(strokeRadii[i]);
+    }
     stroke.setBrushId(brushId);
     return stroke;
 }

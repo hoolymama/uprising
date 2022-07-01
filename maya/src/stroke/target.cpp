@@ -7,6 +7,7 @@ const double rad_to_deg = (180 / 3.1415927);
 Target::Target() : m_matrix(),
 				   m_drawTangent(),
 				   m_weight(1.0f),
+				   m_radius(0.0f),
 				   m_color(0.0, 0.0, 0.0, 0.0),
 				   m_wait(0.0f)
 {
@@ -95,6 +96,42 @@ void Target::applyTwist(float angle)
 	applyAxisAngleRotation(axis, angle);
 }
 
+void Target::applyTiltBankTwist(float tilt, float bank, float twist, PaintingEnums::BrushRotateOrder order)
+{
+	switch (order)
+	{
+	case PaintingEnums::kTiltBankTwist:
+		applyTilt(tilt);
+		applyBank(bank);
+		applyTwist(twist);
+		break;
+	case PaintingEnums::kTiltTwistBank:
+		applyTilt(tilt);
+		applyTwist(twist);
+		applyBank(bank);
+		break;
+	case PaintingEnums::kTwistBankTilt:
+		applyTwist(twist);
+		applyBank(bank);
+		applyTilt(tilt);
+		break;
+	case PaintingEnums::kTwistTiltBank:
+		applyTwist(twist);
+		applyTilt(tilt);
+		applyBank(bank);
+		break;
+	case PaintingEnums::kBankTiltTwist:
+		applyBank(bank);
+		applyTilt(tilt);
+		applyTwist(twist);
+		break;
+	case PaintingEnums::kBankTwistTilt:
+		applyBank(bank);
+		applyTwist(twist);
+		applyTilt(tilt);
+	}
+}
+
 float Target::distanceTo(const Target &other) const
 {
 	MFloatMatrix otherMat = other.matrix();
@@ -170,6 +207,9 @@ MFloatPoint Target::position() const
 {
 	return MFloatPoint(m_matrix[3][0], m_matrix[3][1], m_matrix[3][2]);
 }
+
+
+
 
 void Target::setPosition(const MFloatPoint &rhs)
 {
@@ -260,6 +300,25 @@ const float & Target::weight() const
 	return m_weight;
 }
  
+
+void Target::setRadius(float radius)
+{
+	if (radius < 0.0f)
+	{
+		m_radius = 0.0f;
+	}
+	else
+	{
+		m_radius = radius;
+	}
+}
+
+const float & Target::radius() const
+{
+	return m_radius;
+}
+ 
+
 void Target::setWait(float wait)
 {
 	m_wait = fmax(wait, 0.0f);
