@@ -18,8 +18,6 @@
 
 #include "skeletonStrokeNode.h"
 #include "stroke.h"
-// #include "strokeRotationSpec.h"
-// #include "strokeRepeatSpec.h"
 
 #include "cImgFloatData.h"
 #include "cImgData.h"
@@ -34,7 +32,6 @@
 
 const double rad_to_deg = (180 / 3.1415927);
 
-MObject skeletonStrokeNode::aBrushes;
 MObject skeletonStrokeNode::aSplitAngle;
 MObject skeletonStrokeNode::aActive;
 MObject skeletonStrokeNode::aChains;
@@ -74,7 +71,6 @@ MStatus skeletonStrokeNode::initialize()
     //////////////////
     MAngle fullCircle(360.0, MAngle::kDegrees);
 
-
     aSplitAngle = uAttr.create("splitAngle", "span", MFnUnitAttribute::kAngle);
     uAttr.setHidden(false);
     uAttr.setKeyable(true);
@@ -105,15 +101,6 @@ MStatus skeletonStrokeNode::initialize()
     st = addAttribute(aInputData);
     mser;
 
-    aBrushes = tAttr.create("brushes", "bsh", brushData::id);
-    tAttr.setReadable(false);
-    tAttr.setStorable(false);
-    tAttr.setConnectable(true);
-    tAttr.setArray(true);
-    tAttr.setIndexMatters(true);
-    tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-    st = addAttribute(aBrushes);
-
     aSelector = nAttr.create("selector", "slc", MFnNumericData::kInt);
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
@@ -142,14 +129,12 @@ MStatus skeletonStrokeNode::initialize()
     nAttr.setDefault(-1);
     st = addAttribute(aSmoothNeighbors);
 
-
     aSmoothPositions = nAttr.create("smoothPositions", "smps", MFnNumericData::kBoolean);
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
     nAttr.setStorable(true);
     nAttr.setDefault(false);
     st = addAttribute(aSmoothPositions);
-
 
     aSmoothWeights = nAttr.create("smoothWeights", "swts", MFnNumericData::kBoolean);
     nAttr.setHidden(false);
@@ -162,7 +147,7 @@ MStatus skeletonStrokeNode::initialize()
     attributeAffects(aActive, aOutput);
     attributeAffects(aSplitAngle, aOutput);
     attributeAffects(aChains, aOutput);
-    attributeAffects(aBrushes, aOutput);
+
     attributeAffects(aInputData, aOutput);
     attributeAffects(aSelector, aOutput);
     attributeAffects(aGoalPoint, aOutput);
@@ -205,13 +190,14 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
     bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
     int layerId = data.inputValue(aLayerId).asInt();
+    int brushId = data.inputValue(aBrushId).asInt();
+
     int paintId = data.inputValue(aPaintId).asInt();
     int potId = data.inputValue(aPotId).asInt();
 
     int smoothNeighbors = data.inputValue(aSmoothNeighbors).asInt();
     bool smoothPositions = data.inputValue(aSmoothPositions).asBool();
     bool smoothWeights = data.inputValue(aSmoothWeights).asBool();
-
 
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
@@ -229,32 +215,26 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     goalPoint *= canvasMatrix;
     bool awayFromGoal = data.inputValue(aAwayFromGoal).asBool();
 
-    std::vector<std::pair<int, Brush> > brushes;
-    st = collectBrushes(data, brushes);
-    if (!brushes.size())
-    {
-        MGlobal::displayWarning("No brushes: " + nodeName);
-        return MS::kUnknownParameter;
-    }
-
     MArrayDataHandle hInputData = data.inputArrayValue(aInputData, &st);
     unsigned nInputs = hInputData.elementCount();
 
-
-    int start; 
-    int end  ;
-     if (selector  < 0 )
-     {
+    int start;
+    int end;
+    if (selector < 0)
+    {
         start = 0;
         end = nInputs;
-     } else if (selector  <nInputs) {
+    }
+    else if (selector < nInputs)
+    {
         start = selector;
-        end = selector+1;
-     } else {
-         start = 0;
-         end = 0;
-
-     }
+        end = selector + 1;
+    }
+    else
+    {
+        start = 0;
+        end = 0;
+    }
 
     for (unsigned i = start; i < end; i++)
     {
@@ -294,22 +274,17 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         const std::vector<skChain> *geom = scData->fGeometry;
 
         std::vector<skChain>::const_iterator current_chain;
-
+        
         for (current_chain = geom->begin(); current_chain != geom->end(); current_chain++)
         {
             unsigned count = createStrokesForChain(
                 *current_chain,
-                brushes,
                 canvasNormal,
                 goalPoint,
                 awayFromGoal,
                 elIndex,
                 minimumPoints,
-                followStroke,
-                applyBrushBias,
                 pointDensity,
-                entryTransitionLength,
-                exitTransitionLength,
                 extendEntry,
                 extendExit,
                 strokeLength,
@@ -319,6 +294,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 splitTestInterval,
                 pOutStrokes);
         }
+        
     }
 
     strokeCreator::applyRotations(data, pOutStrokes);
@@ -329,38 +305,32 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         curr_stroke->setPaintId(paintId);
         curr_stroke->setPotId(potId);
         curr_stroke->setLayerId(layerId);
+        curr_stroke->setBrushId(brushId);
     }
 
-
-    if ((smoothPositions || smoothWeights) &&  smoothNeighbors > 0)
+    if ((smoothPositions || smoothWeights) && smoothNeighbors > 0)
     {
 
         for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
         {
-            curr_stroke->smoothTargets(smoothNeighbors, smoothPositions , smoothWeights);
+            curr_stroke->smoothTargets(smoothNeighbors, smoothPositions, smoothWeights);
         }
     }
 
-    paintStrokeCreator::generateStrokeGeometry(plug,data,pOutStrokes);
+    paintStrokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);
 
     return MS::kSuccess;
 }
- 
-
 
 unsigned skeletonStrokeNode::createStrokesForChain(
     const skChain &current_chain,
-    const std::vector<std::pair<int, Brush> > &brushes,
+
     const MFloatVector &canvasNormal,
     const MFloatPoint &goalPoint,
     bool awayFromGoal,
     unsigned parentId,
     int minimumPoints,
-    bool followStroke,
-    bool applyBrushBias,
     float pointDensity,
-    float entryTransitionLength,
-    float exitTransitionLength,
     float extendEntry,
     float extendExit,
     float strokeLength,
@@ -375,6 +345,8 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     MFloatArray radii;
     getChainPointsAndRadii(current_chain, extendEntry, extendExit, editPoints, radii);
 
+    
+
     // Curve for the whole chain.
     ////////////////////////////
     MFnNurbsCurve curveFn;
@@ -382,7 +354,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     MObject curveData = dataCreator.create(&st);
     MObject dChainCurve = curveFn.createWithEditPoints(
         editPoints, 3, MFnNurbsCurve::kOpen, true, false, false, curveData, &st);
-
+    
     if (st.error())
         return 0;
     MDoubleArray knotVals;
@@ -396,7 +368,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     curveFn.setKnots(knotVals, 0, (numKnots - 1));
 
     ////////////////////////////
-
+    
     MFloatVectorArray boundaries;
     unsigned num = getStrokeBoundaries(
         dChainCurve,
@@ -414,6 +386,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     {
         return 0;
     }
+    
     for (int i = 0; i < num; ++i)
     {
         const float &startDist = boundaries[i].x;
@@ -435,8 +408,6 @@ unsigned skeletonStrokeNode::createStrokesForChain(
             strokeRadii,
             maxRadius);
 
-        const std::pair<int, Brush> selectedBrushPair = selectBrush(maxRadius, brushes);
-
         bool doReverse = false;
         MPoint startPoint, endPoint;
         double param;
@@ -447,12 +418,12 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         st = curveFn.getPointAtParam(param, endPoint, MSpace::kObject);
         mser;
 
-        // cerr << "GOALPOINT" << goalPoint << endl;/
         if (startPoint.distanceTo(goalPoint) < endPoint.distanceTo(goalPoint))
         {
-            doReverse =  true;
+            doReverse = true;
         }
-        if (awayFromGoal) {
+        if (awayFromGoal)
+        {
             doReverse = !doReverse;
         }
 
@@ -461,25 +432,15 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         {
             stroke = createReverseStroke(
                 dChainCurve,
-                selectedBrushPair,
                 curveParams,
-                strokeRadii,
-                followStroke,
-                applyBrushBias,
-                entryTransitionLength,
-                exitTransitionLength);
+                strokeRadii);
         }
         else
         {
             stroke = createStroke(
                 dChainCurve,
-                selectedBrushPair,
                 curveParams,
-                strokeRadii,
-                followStroke,
-                applyBrushBias,
-                entryTransitionLength,
-                exitTransitionLength);
+                strokeRadii);
         }
 
         if (stroke.valid())
@@ -489,6 +450,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
             pOutStrokes->push_back(stroke);
         }
     }
+    
     return num;
 }
 
@@ -525,13 +487,8 @@ unsigned skeletonStrokeNode::createStrokeData(
 
 Stroke skeletonStrokeNode::createStroke(
     const MObject &dCurve,
-    const std::pair<int, Brush> &brushPair,
     const MDoubleArray &curveParams,
-    const MFloatArray &strokeRadii,
-    bool followStroke,
-    bool applyBrushBias,
-    float entryTransitionLength,
-    float exitTransitionLength) const
+    const MFloatArray &strokeRadii) const
 {
     MStatus st;
     const double epsilon = 0.0001;
@@ -540,83 +497,27 @@ Stroke skeletonStrokeNode::createStroke(
     {
         return Stroke();
     }
-    const int &brushId = brushPair.first;
-    const Brush &brush = brushPair.second;
 
     MFnNurbsCurve curveFn(dCurve);
     double curveLength = curveFn.length(epsilon);
 
-    float brushWidth = fmax(brush.width(), 0.01);
-
-    // MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
-    const MFloatMatrix &brushMatrix = brush.matrix();
-
-    float forwardBias0 = 0.0;
-    float forwardBias1 = 0.0;
-
-    if (applyBrushBias)
-    {
-        forwardBias0 = fmax(0.0, brush.forwardBias0());
-        forwardBias1 = fmax(0.0, brush.forwardBias1());
-    }
-
     MFloatPointArray points;
-    MFloatArray weights;
+
     std::vector<MFloatMatrix> brushTransforms;
 
     double entryDistance = curveFn.findLengthFromParam(curveParams[0]);
     double exitDistance = curveFn.findLengthFromParam(curveParams[(len - 1)]);
-    double totalLength = exitDistance - entryDistance;
-
-    entryTransitionLength = fmax(entryTransitionLength, 0.0);
-    exitTransitionLength = fmax(exitTransitionLength, 0.0);
-    float totalTransitionLength = exitTransitionLength + entryTransitionLength;
-    if (totalTransitionLength > totalLength)
-    {
-        float mult = totalLength / totalTransitionLength;
-        exitTransitionLength *= mult;
-        entryTransitionLength *= mult;
-    }
-
-    double entryTransitionDistance = entryDistance + entryTransitionLength;
-    double exitTransitionDistance = exitDistance - exitTransitionLength;
-
+    float maxRadius = 0.0f;
     for (unsigned i = 0; i < len; i++)
     {
         const double &curveParam = curveParams[i];
         const float &radius = strokeRadii[i];
-        double distanceOnCurve = curveFn.findLengthFromParam(curveParam, &st);
-
-        float weight = calculateTargetWeight(
-            distanceOnCurve, entryDistance, exitDistance,
-            entryTransitionDistance, exitTransitionDistance,
-            entryTransitionLength, exitTransitionLength,
-            radius, brushWidth);
-
-        /////////////////////////////////// calcuate biased point
-        float forwardBias = (forwardBias1 * weight) + (forwardBias0 * (1.0f - weight));
-        mser;
-        double biasedDist = distanceOnCurve + forwardBias;
-        double biasedCurveParam = curveFn.findParamFromLength(biasedDist, &st);
 
         MPoint point;
-        st = curveFn.getPointAtParam(biasedCurveParam, point, MSpace::kObject);
-        mser;
-        // tangent will possibly be used for followStroke
-        MVector tangent = curveFn.tangent(biasedCurveParam);
+        st = curveFn.getPointAtParam(curveParam, point, MSpace::kObject);
 
-        float extraDist = biasedDist - curveLength;
-        if (extraDist > 0.0)
-        {
-            point += tangent.normal() * extraDist;
-        }
-        /////////////////////////////////// calcuate matrix
-        MFloatMatrix mat(brushMatrix);
-        if (followStroke)
-        {
-            MFloatVector front = MFloatVector::yNegAxis * mat;
-            mat *= MFloatMatrix(MQuaternion(front, tangent).asMatrix().matrix);
-        }
+        MFloatMatrix mat;
+
         mat[3][0] = point.x;
         mat[3][1] = point.y;
         mat[3][2] = point.z;
@@ -624,27 +525,25 @@ Stroke skeletonStrokeNode::createStroke(
         ///////////////////////////////////
 
         brushTransforms.push_back(mat);
-        weights.append(weight);
+        maxRadius = fmax(maxRadius, radius);
     }
-    Stroke stroke(brushTransforms, weights);
+
+    Stroke stroke(brushTransforms);
+    stroke.setMaxRadius(maxRadius);
+
     Stroke::target_iterator it = stroke.targets_begin();
     for (unsigned i = 0; it != stroke.targets_end(); i++, it++)
     {
         it->setRadius(strokeRadii[i]);
     }
-    stroke.setBrushId(brushId);
+    // stroke.setBrushId(brushId);
     return stroke;
 }
 
 Stroke skeletonStrokeNode::createReverseStroke(
     const MObject &dCurve,
-    const std::pair<int, Brush> &brushPair,
     const MDoubleArray &curveParams,
-    const MFloatArray &strokeRadii,
-    bool followStroke,
-    bool applyBrushBias,
-    float entryTransitionLength,
-    float exitTransitionLength) const
+    const MFloatArray &strokeRadii) const
 {
     MStatus st;
     const double epsilon = 0.0001;
@@ -654,207 +553,37 @@ Stroke skeletonStrokeNode::createReverseStroke(
         return Stroke();
     }
 
-    const int &brushId = brushPair.first;
-    const Brush &brush = brushPair.second;
-
     MFnNurbsCurve curveFn(dCurve);
     double curveLength = curveFn.length(epsilon);
 
-    float brushWidth = fmax(brush.width(), 0.01);
-
-    const MFloatMatrix &brushMatrix = brush.matrix();
-
-    float forwardBias0 = 0.0;
-    float forwardBias1 = 0.0;
-
-    if (applyBrushBias)
-    {
-        forwardBias0 = fmax(0.0, brush.forwardBias0());
-        forwardBias1 = fmax(0.0, brush.forwardBias1());
-    }
-
     MFloatPointArray points;
-    MFloatArray weights;
+
     std::vector<MFloatMatrix> brushTransforms;
-
-    // !!REVERSED
-    double entryDistance = curveFn.findLengthFromParam(curveParams[(len - 1)]);
-    double exitDistance = curveFn.findLengthFromParam(curveParams[0]);
-    double totalLength = entryDistance - exitDistance;
-
-
-    entryTransitionLength = fmax(entryTransitionLength, 0.0);
-    exitTransitionLength = fmax(exitTransitionLength, 0.0);
-
-    float totalTransitionLength = exitTransitionLength + entryTransitionLength;
-    if (totalTransitionLength > totalLength)
-    {
-        float mult = totalLength / totalTransitionLength;
-        exitTransitionLength *= mult;
-        entryTransitionLength *= mult;
-    }
-
-    // !!REVERSED
-    double entryTransitionDistance = entryDistance - entryTransitionLength;
-    double exitTransitionDistance = exitDistance + exitTransitionLength;
-
-
+    float maxRadius = 0.0f;
     for (unsigned j = 0; j < len; j++)
     {
-        // JPMDBG;
         int i = len - (j + 1);
-        // cerr << "i and j : " << i<<", "<< j << endl;
         const double &curveParam = curveParams[i];
         const float &radius = strokeRadii[i];
-        double distanceOnCurve = curveFn.findLengthFromParam(curveParam, &st);
-        // cerr << "i" << i <<"/"<< len << "CP:"<< endl;
-        // JPMDBG;
-        // !!REVERSED
-        float weight = calculateTargetWeight(
-            distanceOnCurve,
-            exitDistance,
-            entryDistance,
-            exitTransitionDistance,
-            entryTransitionDistance,
-            exitTransitionLength,
-            entryTransitionLength,
-            radius, brushWidth);
-        // JPMDBG;
-        /////////////////////////////////// calcuate biased point
-        float forwardBias = (forwardBias1 * weight) + (forwardBias0 * (1.0f - weight));
-        mser;
-        // !!REVERSED
-        double biasedDist = distanceOnCurve - forwardBias;
-        double biasedCurveParam = curveFn.findParamFromLength(biasedDist, &st);
-        // JPMDBG;
         MPoint point;
-        st = curveFn.getPointAtParam(biasedCurveParam, point, MSpace::kObject);
+        st = curveFn.getPointAtParam(curveParam, point, MSpace::kObject);
         mser;
-        // tangent will possibly be used for followStroke
-        MVector tangent = curveFn.tangent(biasedCurveParam);
-        // JPMDBG;
-
-        float extraDist = biasedDist;
-        // !!REVERSED
-        if (extraDist < 0.0)
-        {
-            point += tangent.normal() * extraDist;
-        }
-        // JPMDBG;
-        /////////////////////////////////// calcuate matrix
-        MFloatMatrix mat(brushMatrix);
-        if (followStroke)
-        {
-            MFloatVector front = MFloatVector::yNegAxis * mat;
-            mat *= MFloatMatrix(MQuaternion(front, -tangent).asMatrix().matrix);
-        }
-        // JPMDBG;
+        MFloatMatrix mat;
         mat[3][0] = point.x;
         mat[3][1] = point.y;
         mat[3][2] = point.z;
-
-        ///////////////////////////////////
-
         brushTransforms.push_back(mat);
-        weights.append(weight);
+        maxRadius = fmax(maxRadius, radius);
     }
-    // JPMDBG;
-    Stroke stroke(brushTransforms, weights);
-    stroke.setBrushId(brushId);
+    Stroke stroke(brushTransforms);
+    stroke.setMaxRadius(maxRadius);
+    Stroke::target_iterator it = stroke.targets_begin();
+    for (unsigned i = 0; it != stroke.targets_end(); i++, it++)
+    {
+        it->setRadius(strokeRadii[i]);
+    }
+
     return stroke;
-}
-
-MStatus skeletonStrokeNode::collectBrushes(
-    MDataBlock &data,
-    std::vector<std::pair<int, Brush> > &brushes) const
-{
-
-    /*
-        Brushes, sorted by width, starting with largest.
-    */
-
-    MStatus st;
-    MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
-    msert;
-    unsigned nPlugs = ha.elementCount();
-
-    for (unsigned i = 0; i < nPlugs; i++, ha.next())
-    {
-        int index = ha.elementIndex(&st);
-        if (st.error())
-        {
-            continue;
-        }
-        MDataHandle h = ha.inputValue(&st);
-        if (st.error())
-        {
-            continue;
-        }
-        MObject d = h.data();
-        MFnPluginData fnP(d, &st);
-        if (st.error())
-        {
-            continue;
-        }
-        brushData *bData = (brushData *)fnP.data();
-
-        const Brush *pBrush = bData->fGeometry;
-        brushes.push_back(std::make_pair(index, *pBrush));
-        // if (pBrush->matches(filter))
-        // // {
-        // //     brushes.push_back(std::make_pair(index, *pBrush));
-        // // }
-    }
-
-    /*
-    Sort from largest to smallest. This is to help us select the best available brush.
-
-    */
-    // TODO: Get rid of map indices. Just use Physical ID.
-
-    std::sort(brushes.begin(), brushes.end(),
-              [](const std::pair<int, Brush> &a, const std::pair<int, Brush> &b) -> bool
-              {
-                  return a.second.width() > b.second.width();
-              });
-    return MS::kSuccess;
-}
-
-const std::pair<int, Brush> skeletonStrokeNode::selectBrush(
-    float radius,
-    const std::vector<std::pair<int, Brush> > &brushes) const
-{
-    /*
-    The brushes are already sorted widest to finest. We test each brush in turn to
-    see if it is big enough for the stroke. When we come across the first brush that
-    is too small, we select the previous brush. It will in theory be the best suited.
-    If the first brush (the biggest brush) is too small for the stroke, we're just
-    going to have to use it.
-
-    If there are no brushes (should never happen!!),
-    then we return a pair with key -1.
-    */
-    if (!brushes.size())
-    {
-        return std::pair<int, Brush>();
-    }
-    std::pair<int, Brush> result;
-
-    std::vector<std::pair<int, Brush> >::const_iterator brushIter;
-    for (brushIter = brushes.begin(); brushIter != brushes.end(); brushIter++)
-    {
-        float brushRad = brushIter->second.width() * 0.5;
-        if (brushRad <= radius)
-        {
-            if (brushIter == brushes.begin())
-            {
-                result = *brushIter;
-            }
-            break;
-        }
-        result = *brushIter;
-    }
-    return result;
 }
 
 void skeletonStrokeNode::getChainPointsAndRadii(
@@ -913,28 +642,3 @@ void skeletonStrokeNode::postConstructor()
     setExistWithoutInConnections(false);
     setExistWithoutOutConnections(true);
 }
-
-// MStatus skeletonStrokeNode::connectionBroken(
-//     const MPlug &plug,
-//     const MPlug &otherPlug,
-//     bool asSrc)
-// {
-
-//     MStatus st;
-
-//     MString method("skeletonStrokeNode::connectionBroken");
-//     unsigned int el;
-
-//     if (plug == aChains)
-//     {
-//         MDataBlock data = forceCache();
-//         MArrayDataHandle hInData = data.inputArrayValue(aInputData, &st);
-//         msert;
-//         MArrayDataBuilder bInData = hInData.builder(&st);
-//         msert;
-//         el = plug.parent().logicalIndex();
-//         st = bInData.removeElement(el);
-//         msert;
-//     }
-//     return MS::kSuccess;
-// }

@@ -76,6 +76,7 @@ public:
 		kMapRed,
 		kMapGreen,
 		kMapBlue,
+		kMaxRadius
 	};
 
 	enum SortDirection
@@ -197,9 +198,12 @@ public:
 	int strokeId() const;
 	int parentId() const;
 	int repeatId() const;
+	float maxRadius() const;
 
 	void setParentId(int parentId);
 	void setRepeatId(int rhs);
+
+	void setMaxRadius(float rhs);
 
 	const MIntArray &sortStack() const;
 
@@ -234,6 +238,7 @@ public:
 
 	void appendRepeatIdToSortStack(bool ascending);
 	void appendTargetCountToSortStack(bool ascending);
+	void appendMaxRadiusToSortStack(bool ascending);
 
 	// void appendCustomBrushIdToSortStack(bool ascending);
 
@@ -250,6 +255,8 @@ public:
 	bool testLayerId(FilterOperator op, int value) const;
 	bool testRepeatId(FilterOperator op, int value) const;
 	bool testTargetCount(FilterOperator op, int value) const;
+	bool testMaxRadius(FilterOperator op, int value) const;
+	
 
 	bool testMapRedId(FilterOperator op, int value) const;
 	bool testMapGreenId(FilterOperator op, int value) const;
@@ -387,6 +394,7 @@ private:
 	int m_parentId;
 	int m_customBrushId;
 	int m_repeatId;
+	float m_maxRadius;
 	MFloatVector m_sortColor;
 	MFloatVector m_filterColor;
 	MIntArray m_sortStack;

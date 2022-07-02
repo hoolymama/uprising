@@ -70,7 +70,7 @@ Stroke::Stroke(
 	const std::vector<MFloatMatrix> &matrices)
 	: Stroke()
 {
-
+	
 	MStatus st;
 	unsigned i = 0;
 	std::vector<MFloatMatrix>::const_iterator current_matrix = matrices.begin();
@@ -82,6 +82,7 @@ Stroke::Stroke(
 
 	m_pivot = Target(m_targets[0]);
 	resetTangents();
+	
 }
 
 Stroke::Stroke(
@@ -641,6 +642,12 @@ int Stroke::parentId() const
 	return m_parentId;
 }
 
+float Stroke::maxRadius() const
+{
+	return m_maxRadius;
+}
+
+
 void Stroke::setParentId(int parentId)
 {
 	m_parentId = parentId;
@@ -650,6 +657,12 @@ void Stroke::setRepeatId(int rhs)
 {
 	m_repeatId = rhs;
 }
+
+void Stroke::setMaxRadius(float rhs)
+{
+	m_maxRadius = rhs;
+}
+
 
 void Stroke::setLayerId(int rhs)
 {
@@ -761,6 +774,13 @@ void Stroke::appendTargetCountToSortStack(bool ascending)
 	m_sortStack.append(val);
 }
 
+void Stroke::appendMaxRadiusToSortStack(bool ascending)
+{
+	float val = int(m_maxRadius*10000);
+	val = ascending ? val : -val;
+	m_sortStack.append(val);
+}
+
 void Stroke::appendMapRedIdToSortStack(bool ascending)
 {
 	int val = ascending ? int(m_sortColor.x * 256) : -int(m_sortColor.x * 256);
@@ -827,7 +847,13 @@ bool Stroke::testRepeatId(FilterOperator op, int value) const
 bool Stroke::testTargetCount(FilterOperator op, int value) const
 {
 	return testAgainstValue(m_targets.size(), op, value);
+}	
+
+bool Stroke::testMaxRadius(FilterOperator op, int value) const
+{
+	return testAgainstValue(int(m_maxRadius*1000), op, value);
 }
+	
 
 // bool Stroke::testCustomBrushId(FilterOperator op, int value) const
 // {

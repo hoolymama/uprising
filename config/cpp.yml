@@ -43,6 +43,7 @@ os_linux64:
         compiler_options:
         -                   '-g3'
         -                   '-O0'
+        # -                   '-ggdb'
     configuration_release:
         compiler_options:
         -                   '-O3'

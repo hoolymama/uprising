@@ -407,11 +407,14 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
 
   float gravityBias0 = gravityBias[0];
   float gravityBias1 = gravityBias[1];
+
+  MString model = data.inputValue(aModel).asString();
  
 	MFloatMatrix fmat = data.inputValue(brushNode::aBaseMatrix).asFloatMatrix();
  
   Brush paintingBrush(fmat,
                       physicalId,
+                      model,
                       tip,
                       bristleHeight,
                       paintingParam,
@@ -426,6 +429,7 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
                       gravityBias1);
 
   Brush dipBrush(fmat, physicalId,
+                 model,
                  tip,
                  bristleHeight,
                  dipParam,
@@ -438,6 +442,7 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
                  0.0, 0.0);
 
   Brush wipeBrush(fmat, physicalId,
+                  model,
                   tip,
                   bristleHeight,
                   wipeParam,

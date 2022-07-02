@@ -19,7 +19,7 @@ public:
     static MStatus initialize();
     virtual void postConstructor();
     virtual bool isAbstractClass() const { return false; }
-	// virtual MStatus	connectionBroken ( const MPlug & plug, const MPlug & otherPlug, bool asSrc );
+
 	
     virtual MStatus generateStrokeGeometry(
         const MPlug &plug,
@@ -29,23 +29,18 @@ public:
     static MTypeId id;
 
 private:
-    MStatus collectBrushes(
-        MDataBlock &data,
-        std::vector<std::pair<int, Brush> > &brushes) const;
 
     unsigned createStrokesForChain(
         const skChain &current_chain,
-        const std::vector<std::pair<int, Brush> > &brushes,
+
         const MFloatVector &canvasNormal,
         const MFloatPoint &goalPoint,
         bool awayFromGoal,
         unsigned parentIndex,
         int minimumPoints,
-        bool followStroke,
-        bool applyBrushBias,
+  
         float pointDensity,
-        float entryTransitionLength,
-        float exitTransitionLength,
+  
         float extendEntry,
         float extendExit,
         float strokeLength,
@@ -62,10 +57,7 @@ private:
         MPointArray &points,
         MFloatArray &radii) const;
 
-    const std::pair<int, Brush> selectBrush(
-        float radius,
-        const std::vector<std::pair<int, Brush> > &brushes) const;
-
+	
 
     unsigned createStrokeData(
         const MObject &dCurve,
@@ -80,28 +72,22 @@ private:
 
     Stroke createStroke(
         const MObject &dCurve,
-        const std::pair<int, Brush> &brushPair,
         const MDoubleArray &curveParams,
-        const MFloatArray &strokeRadii,
-        bool followStroke,
-        bool applyBrushBias,
-        float entryTransitionLength,
-        float exitTransitionLength) const;
+        const MFloatArray &strokeRadii
+
+        ) const;
 
     Stroke createReverseStroke(
         const MObject &dCurve,
-        const std::pair<int, Brush> &brushPair,
+
         const MDoubleArray &curveParams,
-        const MFloatArray &strokeRadii,
-        bool followStroke,
-        bool applyBrushBias,
-        float entryTransitionLength,
-        float exitTransitionLength) const;
+        const MFloatArray &strokeRadii
+        ) const;
 
 
     static MObject aChains;
     static MObject aActive;
-    static MObject aBrushes;
+
     static MObject aInputData;
     static MObject aSplitAngle;
     static MObject aSelector;

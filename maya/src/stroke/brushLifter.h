@@ -38,6 +38,9 @@ private:
   
   static MObject aBrushes; ///> The list of available brushes. 
 
+  void assignBrushes(const std::map<int, Brush> &brushes, std::vector<Stroke> *strokes) const;
+
+
   MStatus collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes) const;
   MStatus createCurve(const Stroke *stroke, MObject &curveData) const;
   void getTangents(const MObject& curveObject, MVectorArray&tangents) const;

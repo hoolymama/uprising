@@ -3,6 +3,8 @@
 #define _brush_
 
 #include <maya/MFloatMatrix.h>
+#include <maya/MString.h>
+
 #include "mayaMath.h"
 
 class Brush
@@ -20,7 +22,7 @@ public:
 	Brush(
 		const MFloatMatrix &matrix,
 		int physicalId,
-	
+		const MString &model,
 		const MFloatVector &tip,
 		float bristleHeight,
 		float tcpParam,
@@ -70,6 +72,8 @@ public:
 
 	bool isFlat() const;
 
+	const MString & model() const;
+
 	friend ostream &operator<<(ostream &os, const Brush &b);
 
 private:
@@ -87,6 +91,7 @@ private:
 	float m_forwardBias1; //> The distance to move along the stroke to compensate for brush bend at weight=1
 	float m_gravityBias0;
 	float m_gravityBias1;
+	MString m_model;
 };
 
 

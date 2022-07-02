@@ -69,6 +69,7 @@ MStatus strokeNodeBase::initialize()
   eAttr.addField("Layer Id", Stroke::kLayerId);
   eAttr.addField("Parent Id", Stroke::kParentId);
   eAttr.addField("Target Count", Stroke::kTargetCount);
+  eAttr.addField("Max Radius", Stroke::kMaxRadius);
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
@@ -108,6 +109,7 @@ MStatus strokeNodeBase::initialize()
   eAttr.addField("Layer Id", Stroke::kLayerId);
   eAttr.addField("Parent Id", Stroke::kParentId);
   eAttr.addField("Target Count", Stroke::kTargetCount);
+  eAttr.addField("Max Radius", Stroke::kMaxRadius);
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
@@ -235,6 +237,7 @@ void strokeNodeBase::setStrokeIds(std::vector<Stroke> *geom) const
   }
 }
 
+// TODO: Remove the concept of a pivot point. Instead, generate them as needed - see getStrokeParamPoints.
 void strokeNodeBase::getPivotPoints(const std::vector<Stroke> *geom, MFloatPointArray &result) const
 {
   for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
@@ -387,7 +390,7 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
   {
     useFilterMap = setFilterMapColor(geom);
   }
-
+  /* Loop through the filters*/
   for (auto filteriter = filterDefinition.begin(); filteriter != filterDefinition.end();
        filteriter++)
 
@@ -440,6 +443,12 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
       new_end = std::remove_if(geom->begin(), geom->end(),
                                [op, value](const Stroke &stroke)
                                { return stroke.testParentId(op, value) == false; });
+      break;
+
+    case Stroke::kMaxRadius:
+      new_end = std::remove_if(geom->begin(), geom->end(),
+                               [op, value](const Stroke &stroke)
+                               { return stroke.testMaxRadius(op, value) == false; });
       break;
 
     case Stroke::kMapRed:
@@ -594,7 +603,12 @@ void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) co
         iter->appendTargetCountToSortStack(ascending);
       }
       break;
-
+    case Stroke::kMaxRadius:
+      for (iter = geom->begin(); iter != geom->end(); iter++)
+      {
+        iter->appendMaxRadiusToSortStack(ascending);
+      }
+      break;
     case Stroke::kMapRed:
       if (useSortMap)
       {

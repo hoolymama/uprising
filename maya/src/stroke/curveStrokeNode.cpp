@@ -21,7 +21,7 @@
 #include "errorMacros.h"
 
 MObject curveStrokeNode::aCurves;
-MObject curveStrokeNode::aBrushId;
+
 MObject curveStrokeNode::aBrush;
 MObject curveStrokeNode::aSplitAngle;
 MObject curveStrokeNode::aPivot;
@@ -56,15 +56,6 @@ MStatus curveStrokeNode::initialize()
     st = addAttribute(aCurves);
     mser;
 
-    aBrushId = nAttr.create("brushId", "brid", MFnNumericData::kInt);
-    mser;
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setWritable(true);
-    st = addAttribute(aBrushId);
-    mser;
-
     aBrush = tAttr.create("brush", "bsh", brushData::id);
     tAttr.setReadable(false);
     tAttr.setStorable(false);
@@ -89,7 +80,6 @@ MStatus curveStrokeNode::initialize()
 
     attributeAffects(aSplitAngle, aOutput);
     attributeAffects(aCurves, aOutput);
-    attributeAffects(aBrushId, aOutput);
     attributeAffects(aBrush, aOutput);
     attributeAffects(aPivot, aOutput);
 

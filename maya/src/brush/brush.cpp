@@ -4,13 +4,15 @@
 #include "brush.h"
 
 
-Brush::Brush() :  m_matrix(),
+Brush::Brush() :  
+m_matrix(),
 m_physicalId(-1),
 				//  m_customId(-1),
 				 m_width(1.0f),
 				 m_bristleHeight(0.0f),
 				 m_retention(1.0f),
 				 m_tip(),
+				 m_model(),
 				 m_tcpParam(0.0f),
 				 m_shape(Brush::kRound),
 				 m_transHeightParam(1.0),
@@ -25,6 +27,7 @@ m_physicalId(-1),
 Brush::Brush(
 	const MFloatMatrix &matrix,
 	int physicalId,
+	const MString &model,
 	const MFloatVector &tip,
 	float bristleHeight,
 	float tcpParam,
@@ -40,6 +43,7 @@ Brush::Brush(
 	:m_matrix(matrix),
 	 m_physicalId(physicalId),
 	  m_tip(tip),
+	  m_model(model),
 	  m_bristleHeight(bristleHeight),
 	  m_tcpParam(tcpParam),
 	  m_width(width),
@@ -273,10 +277,10 @@ int Brush::physicalId() const
 	return m_physicalId;
 }
 
-// int Brush::customId() const
-// {
-// 	return m_customId;
-// }
+const MString & Brush::model() const
+{
+	return m_model;
+}
 
 const float &Brush::width() const
 {

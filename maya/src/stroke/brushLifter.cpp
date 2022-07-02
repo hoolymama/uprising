@@ -80,12 +80,23 @@ MStatus brushLifter::initialize()
   return (MS::kSuccess);
 }
 
+/**
+ * Manage the mutation
+ *
+ * Start off by assigning a brush to every stroke. 
+ * Then for each stroke:
+ *    Set weights from radius
+ *    Apply forward bias
+ *    Apply rotation
+ *    Apply lift 
+ *  
+ */
 MStatus brushLifter::mutate(
     const MPlug &plug,
     MDataBlock &data,
     std::vector<Stroke> *strokes) const
 {
-
+  
   MStatus st;
   if (strokes->size() == 0)
   {
@@ -97,6 +108,10 @@ MStatus brushLifter::mutate(
 
   bool shouldApplyLift = data.inputValue(aApplyLift).asBool();
   bool shouldApplyBias = data.inputValue(aApplyBias).asBool();
+
+  assignBrushes(brushes, strokes );
+
+
 
   std::map<int, Brush>::const_iterator brushIter;
   std::vector<Stroke>::iterator currentStroke = strokes->begin();
@@ -130,14 +145,25 @@ MStatus brushLifter::mutate(
 
     applyRotation(brush, curveObject, tangents, stroke);
 
+    currentStroke->resetTangents();
+
     if (shouldApplyLift)
     {
       applyLift(brush, stroke);
     }
   }
+  
   return MS::kSuccess;
 }
 
+void brushLifter::assignBrushes(const std::map<int, Brush> &brushes, std::vector<Stroke> *strokes) const
+{
+  // std::vector<Stroke>::iterator currentStroke = strokes->begin();
+  // for (; currentStroke != strokes->end(); currentStroke++)
+  // {
+  //   // currentStroke->setBrushId(currentStroke->brushId());
+  // }
+}
 void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Stroke *stroke) const
 {
   MFnNurbsCurve curveFn(curveObject);
@@ -150,12 +176,20 @@ void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Str
   float brushRadius = fmax(brush.width(), 0.01) * 0.5;
 
   const BrushStrokeSpec &spec = stroke->brushStrokeSpec();
-  const float &entryTransition = spec.entryTransition;
-  const float &exitTransition = spec.exitTransition;
+  float entryTransition = spec.entryTransition;
+  float exitTransition = spec.exitTransition;
+  float totalTransition = entryTransition + exitTransition;
+  if (totalTransition > curveLength)
+  {
+    float shrinkBy = curveLength / totalTransition;
+    entryTransition *= shrinkBy;
+    exitTransition *= shrinkBy;
+  }
 
   Stroke::target_iterator target = stroke->targets_begin();
   for (int k = 2; target != stroke->targets_end(); target++, k++)
   {
+
     float transitionWeight = 1.0;
     const double &param = knotVals[k];
     float brushWeight = target->radius() / brushRadius;

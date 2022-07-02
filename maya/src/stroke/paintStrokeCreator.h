@@ -118,6 +118,7 @@ protected:
     static MObject aMinimumStrokeAdvance;
     static MObject aOverlap;
     static MObject aPaintId;
+    static MObject aBrushId;
     static MObject aPotId;
     
     static MObject aBrushFollowStroke;
@@ -129,6 +130,7 @@ protected:
     static MObject aExtendExit;
     static MObject aMinimumPoints;
     static MObject aApplyBrushBias;
+    static MObject aBrushShape;
 
 
 };

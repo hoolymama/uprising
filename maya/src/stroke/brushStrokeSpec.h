@@ -4,12 +4,15 @@
 #include <maya/MObject.h>
 #include <maya/MAngle.h>
 #include "enums.h"
+#include "brush.h"
+
+
 
 class BrushStrokeSpec {
 public:
 
-	BrushStrokeSpec() {};
-	~BrushStrokeSpec() {};
+	BrushStrokeSpec();
+	~BrushStrokeSpec();
 
     float tiltStart;
     float tiltEnd;
@@ -21,8 +24,7 @@ public:
 	bool follow;
     float entryTransition;
     float exitTransition;
-    
-    
+    Brush::Shape shapeMask;
 
 };
 #endif

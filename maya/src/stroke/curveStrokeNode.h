@@ -23,7 +23,6 @@ public:
 
 private:
   static MObject aCurves;
-  static MObject aBrushId;
   static MObject aBrush;
   static MObject aSplitAngle;
   static MObject aPivot;
@@ -47,7 +46,6 @@ private:
   Stroke createStroke(
       const MObject &dCurve,
       const std::pair<int, Brush> &brushPair,
-      // const MFloatMatrix &canvasMatrix,
       const MDoubleArray &curveParams,
       bool followStroke,
       bool applyBrushBias,
