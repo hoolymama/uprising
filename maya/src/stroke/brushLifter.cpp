@@ -170,7 +170,7 @@ void brushLifter::assignBrushes(const std::map<int, Brush> &brushes, std::vector
   std::vector<Stroke>::iterator stroke = strokes->begin();
   for (; stroke != strokes->end(); stroke++)
   {
-    float width = stroke->maxRadius()*2;
+    float width = stroke->maxRadius()*2.0f;
     Brush::Shape shapeMask = stroke->brushStrokeSpec().shapeMask;
     int paintId = stroke->paintId();
     int brushId = rack.getBrushId(width, shapeMask, paintId);

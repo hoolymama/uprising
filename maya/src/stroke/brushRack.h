@@ -20,6 +20,9 @@ const float epsilon = 0.0001;
 class BrushModelKey
 {
 public:
+
+    BrushModelKey() : name("none"), width(0), shape(Brush::kAll) {}
+
     BrushModelKey(const std::string &n, float w, Brush::Shape s) : name(n), width(w), shape(s) {}
 
     ~BrushModelKey() {}
@@ -66,6 +69,9 @@ public:
     Brush::Shape shape;
 };
 
+
+
+
 class BrushRack
 {
 public:
@@ -82,10 +88,16 @@ public:
 
     friend ostream &operator<<(ostream &os, const BrushRack &rack);
 
-    int getBrushId(float width, Brush::Shape shapeMask, int paintId) const;
+    int getBrushId(float width, Brush::Shape shapeMask, int paintId) ;
 
 private:
 
     std::map<BrushModelKey, BrushModel> m_brushModels;
+
+
+    BrushModelKey m_lastBrushModelKey;
+    int m_lastPaintId;
+
+
 };
 #endif
