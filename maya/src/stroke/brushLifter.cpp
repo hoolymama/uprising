@@ -9,7 +9,6 @@
 #include "brushLifter.h"
 #include <jMayaIds.h>
 #include "errorMacros.h"
-// #include "texUtils.h"
 
 #include "brushData.h"
 #include "brushRack.h"
@@ -49,6 +48,16 @@ MStatus brushLifter::initialize()
   MFnNumericAttribute nAttr;
   MFnEnumAttribute eAttr;
 
+  aReassignBrushIds = nAttr.create("reassignBrushIds", "rbi", MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(true);
+  st = addAttribute(aReassignBrushIds);
+  mser;
+
+
   aApplyBias = nAttr.create("applyBias", "abs", MFnNumericData::kBoolean);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
@@ -76,6 +85,7 @@ MStatus brushLifter::initialize()
   addAttribute(aBrushes);
 
   st = attributeAffects(aBrushes, aOutput);
+  st = attributeAffects(aReassignBrushIds, aOutput);
   st = attributeAffects(aApplyBias, aOutput);
   st = attributeAffects(aApplyLift, aOutput);
 
@@ -85,7 +95,7 @@ MStatus brushLifter::initialize()
 /**
  * Manage the mutation
  *
- * Start off by assigning a brush to every stroke. 
+ * Start off by selecting the best brush for every stroke. 
  * Then for each stroke:
  *    Set weights from radius
  *    Apply forward bias
@@ -108,13 +118,11 @@ MStatus brushLifter::mutate(
   st = collectBrushes(data, brushes);
   msert;
 
-  bool shouldApplyLift = data.inputValue(aApplyLift).asBool();
-  bool shouldApplyBias = data.inputValue(aApplyBias).asBool();
 
   assignBrushes(brushes, strokes );
 
-
-
+  bool shouldApplyLift = data.inputValue(aApplyLift).asBool();
+  bool shouldApplyBias = data.inputValue(aApplyBias).asBool();
   std::map<int, Brush>::const_iterator brushIter;
   std::vector<Stroke>::iterator currentStroke = strokes->begin();
 
@@ -160,40 +168,63 @@ MStatus brushLifter::mutate(
 
 void brushLifter::assignBrushes(const std::map<int, Brush> &brushes, std::vector<Stroke> *strokes) const
 {
- // Make a data structure that will allow us to arrange brushes by model.
-  // std::map<MString, std::vector<Brush *> > modelBrushes;
-  BrushRack rack(brushes);
+ /* 
+  Make a data structure that will allow us to arrange brushes by model.
 
-  cerr << "BrushRack: " << rack << endl; 
+  A brushShop is a map of brushRacks. Currenly only two racks (flat brushes, round brushes)
+  Each brushRack is a map of brushModels. (davinci30, davinci22, etc)
+  Each brushModel contains a list of brushes of that model. (e.g. davinci30 has 3 brushes, davinci22 has 2 brushes)
+  */
 
+  std::map<Brush::Shape, BrushRack>  brushShop;
+  brushShop.insert(std::make_pair(Brush::kFlat,  BrushRack(brushes, Brush::kFlat)));
+  brushShop.insert(std::make_pair(Brush::kRound, BrushRack(brushes, Brush::kRound)));
+ 
+  // std::map<Brush::Shape, BrushRack>::const_iterator citer = brushShop.begin();
+  // for (;citer!=brushShop.end(); citer++)
+  // {
+  //   cerr << citer->second << endl;;
+  // }
 
   std::vector<Stroke>::iterator stroke = strokes->begin();
   for (; stroke != strokes->end(); stroke++)
   {
+    // Get the atts we need.
     float width = stroke->maxRadius()*2.0f;
-    Brush::Shape shapeMask = stroke->brushStrokeSpec().shapeMask;
     int paintId = stroke->paintId();
-    int brushId = rack.getBrushId(width, shapeMask, paintId);
+    Brush::Shape shape = stroke->brushStrokeSpec().shape;
+
+  // Loop over strokes and assign a brush to each.
+    std::map<Brush::Shape, BrushRack>::iterator iter = brushShop.find(shape);
+    if (iter == brushShop.end())
+    {
+      // Ignore the stroke with an invalid shape. (should be impossible anyway)
+      continue;
+    }
+    BrushRack &rack = iter->second;
+    int brushId = rack.getBrushId(width, paintId);
+    if (brushId == -1)
+    {
+      // No brush found for this stroke.
+      continue;
+    }
     stroke->setBrushId(brushId);
-    
-
-    // stroke->setBrushId(stroke->brushId());
   }
-
-
-
-
-
-
-
 }
 
 void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Stroke *stroke) const
 {
+  /*
+  Set the weights for each target of this stroke.
+
+  The weights are based on the radius of the stroke.
+  We also calculate the entry and exit weights (linear interpolation)
+  The final weight fdor each target is the min value of the two.
+  The maximum weight is 1.0=, since that represents the brush pushing as hard as it can.
+  */
+
   MFnNurbsCurve curveFn(curveObject);
-  // const float epsilon = 0.0001f;
   double curveLength = curveFn.length();
-  // cerr << "curve length: " << curveLength << endl;
 
   MDoubleArray knotVals;
   curveFn.getKnots(knotVals);
@@ -235,6 +266,20 @@ void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Str
 
 void brushLifter::applyBias(const Brush &brush, const MObject& curveObject, Stroke *stroke, MVectorArray &tangents) const
 {
+  /*
+  Apply the forward bias to targets of this stroke.
+ 
+  Forward bioas is the distance we push each target forward along the stroke's path in order to
+  compensate for the fact that if a brush is leaning and pushing down, then the bristles bend, which
+  puts the contact point further back along the stroke.
+  
+  The amount of bias is strongest when the weight is 1.0 because that's when the bristles are
+  bending most. It is weakest if the brush tip is only just touching the stroke. The coefficuents
+  are attributes of ewach brush and were attained by measuring the offset in a brush test.
+  
+  */
+
+
   MStatus st;
   MFnNurbsCurve curveFn(curveObject);
   double curveLength = curveFn.length();
@@ -274,6 +319,9 @@ void brushLifter::applyBias(const Brush &brush, const MObject& curveObject, Stro
 
 void brushLifter::getTangents(const MObject& curveObject, MVectorArray &tangents) const
 {
+  /*
+  Get the tangents for each knot of the curve.
+  */
   MStatus st;
   MFnNurbsCurve curveFn(curveObject);
   double curveLength = curveFn.length();

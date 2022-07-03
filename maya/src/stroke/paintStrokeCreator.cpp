@@ -16,8 +16,6 @@
 
 #include "paintStrokeCreator.h"
 #include "stroke.h"
-// #include "strokeRotationSpec.h"
-// #include "strokeRepeatSpec.h"
 
 #include "cImgFloatData.h"
 #include "cImgData.h"
@@ -128,7 +126,6 @@ MStatus paintStrokeCreator::initialize()
     st = addAttribute(aBrushId);
     mser;
 
-
     aPotId = nAttr.create("potId", "poid", MFnNumericData::kInt);
     mser;
     nAttr.setHidden(false);
@@ -190,15 +187,12 @@ MStatus paintStrokeCreator::initialize()
     st = addAttribute(aExitTransitionLength);
     mser;
 
-
-	aBrushShape = eAttr.create("brushShape", "bshp", Brush::kRound);
-	eAttr.addField("round", Brush::kRound);
+    aBrushShape = eAttr.create("brushShape", "bshp", Brush::kRound);
+    eAttr.addField("round", Brush::kRound);
     eAttr.addField("flat", Brush::kFlat);
-	eAttr.setHidden(false);
-	eAttr.setStorable(true);
-	st = addAttribute(aBrushShape);
-
-
+    eAttr.setHidden(false);
+    eAttr.setStorable(true);
+    st = addAttribute(aBrushShape);
 
     aExtendEntry = nAttr.create("extendEntry", "een", MFnNumericData::kFloat);
     nAttr.setHidden(false);
@@ -234,7 +228,7 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aApplyBrushBias, aOutput);
 
     attributeAffects(aBrushShape, aOutput);
-    
+
     return (MS::kSuccess);
 }
 
@@ -467,7 +461,7 @@ void paintStrokeCreator::applyBrushStrokeSpec(
 
     bool brushFollowsStroke = data.inputValue(paintStrokeCreator::aBrushFollowStroke).asBool();
 
-    Brush::Shape shapeMask = Brush::Shape(data.inputValue(paintStrokeCreator::aBrushShape).asShort());
+    Brush::Shape shape = Brush::Shape(data.inputValue(paintStrokeCreator::aBrushShape).asShort());
 
     BrushStrokeSpec spec;
     spec.tiltStart = tiltStart;
@@ -480,7 +474,7 @@ void paintStrokeCreator::applyBrushStrokeSpec(
     spec.follow = brushFollowsStroke;
     spec.entryTransition = entryTransitionLength;
     spec.exitTransition = exitTransitionLength;
-    spec.shapeMask = shapeMask;
+    spec.shape = shape;
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
         curr_stroke->setBrushStrokeSpec(spec);

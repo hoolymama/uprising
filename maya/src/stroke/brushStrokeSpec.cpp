@@ -12,6 +12,6 @@ order(),
 follow(),
 entryTransition(),
 exitTransition(),
-shapeMask()
+shape()
 {};
 BrushStrokeSpec::~BrushStrokeSpec() {};

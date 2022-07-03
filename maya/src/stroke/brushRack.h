@@ -15,24 +15,19 @@
 #include "brush.h"
 #include "brushModel.h"
 
-const float epsilon = 0.0001;
+const float epsilon = 0.0001; // cm.
 
 class BrushModelKey
 {
 public:
+    BrushModelKey() : name("none"), width(0) {}
 
-    BrushModelKey() : name("none"), width(0), shape(Brush::kNone) {}
-
-    BrushModelKey(const std::string &n, float w, Brush::Shape s) : name(n), width(w), shape(s) {}
+    BrushModelKey(const std::string &n, float w) : name(n), width(w) {}
 
     ~BrushModelKey() {}
 
     bool operator<(const BrushModelKey &other) const
     {
-        if (int(other.shape > int(shape)))
-            return false;
-        if (int(other.shape < int(shape)))
-            return true;
 
         bool different = fabs(width - other.width) > epsilon;
 
@@ -47,35 +42,28 @@ public:
                 return false;
             }
         }
-
+        /// It doesn't matter which way around the name is sorted, just so long as we have a way to
+        /// resolve different models with identical widths, which is very unlikely to happen.
         if (name < other.name)
             return true;
         return false;
     }
 
-    const std::string shapeName() const
-    {
-        return shape == Brush::kFlat ? "Flat" : "Round";
-    }
-    
     friend ostream &operator<<(ostream &os, const BrushModelKey &key)
     {
-        os << "<" <<key.name << ":" << key.shapeName() << ":" << key.width << ">";
+        os << "<model:" << key.name << ", width:" << key.width << ">";
         return os;
     }
 
     std::string name;
     float width;
-    Brush::Shape shape;
 };
-
-
-
 
 class BrushRack
 {
 public:
-    BrushRack(const std::map<int, Brush> &brushes);
+    /// Build a BrushRack from brushes of the given shape. Ignore other shapes.
+    BrushRack(const std::map<int, Brush> &brushes, Brush::Shape shape);
 
     ~BrushRack();
 
@@ -88,16 +76,15 @@ public:
 
     friend ostream &operator<<(ostream &os, const BrushRack &rack);
 
-    int getBrushId(float width, Brush::Shape shapeMask, int paintId) ;
+    int getBrushId(float width, int paintId);
+
+    const std::string shapeName() const;
 
 private:
-
     std::map<BrushModelKey, BrushModel> m_brushModels;
+    Brush::Shape m_shape;
 
-
-    BrushModelKey m_lastBrushModelKey;
+    // BrushModelKey m_lastBrushModelKey;
     int m_lastPaintId;
-
-
 };
 #endif

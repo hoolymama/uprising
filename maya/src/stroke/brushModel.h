@@ -1,11 +1,22 @@
 #ifndef _BrushModel_
 #define _BrushModel_
 
-
 #include <vector>
 #include "brush.h"
- 
-class BrushModel {
+
+/**	@brief	BrushModel is a collection of Brushes of the same model.
+ * 
+ * For example davinci30 or WindsorNewtonFlat100. Brushes of the same model have the same width.
+ *
+ * When a stroke wants to find a brush to use, it queries the brushRack to find the model with the
+ * appropriate width. The brushRack calls selectBrush to find the brush. If the paint color for the
+ * stroke in question is different than the last access, then we select the nexty brush, so that the
+ * brush doesn't get contaminated.
+ */
+
+
+class BrushModel
+{
 public:
 	BrushModel();
 
@@ -13,53 +24,19 @@ public:
 
 	void addBrush(int brushId, const Brush &brush);
 
-	bool operator<(const BrushModel& other ) const;
+	// Note - this function is NOT const, since it can move the peg and update the lastPaintId
+	const std::pair<int, Brush> selectBrush(int paintId);
+
+	bool operator<(const BrushModel &other) const;
 
 	friend ostream &operator<<(ostream &os, const BrushModel &bm);
 
 private:
-
-	std::vector< std::pair<int, Brush > > m_brushes;
+	std::vector<std::pair<int, Brush>> m_brushes;
 
 	int m_peg;
-
+	int m_lastPaintId;
+	int m_count;
 };
 
-
-// std::string m_name;
-// float m_width;
-// Brush::Shape m_shape;
-
-// bool isFlat() const;
-// bool isRound() const;
-// float width() const;
-// std::string name () const;
-// Brush::Shape shape() const;
-
-// class BrushRack {
-// public:
-
-
-// BrushRack(const std::map<int, Brush> &brushes);
-
-// ~BrushRack();
-
-
-// // 	bool hasFilters() const;
-// // 	bool usesMap() const;
-
-// std::vector< BrushModel >::const_iterator begin() const;
-
-// std::vector< BrushModel > ::const_iterator	end() const;
-
-// private:
-// // 	std::vector< std::tuple <Stroke::SortFilterKey, Stroke::FilterOperator, int> >
-// // 	m_definition;
-
-// std::vector< BrushModel > m_brushModels;
-
-
-// // 	bool m_usesMap;
-
-// };
 #endif

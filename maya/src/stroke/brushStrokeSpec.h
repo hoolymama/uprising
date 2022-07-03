@@ -6,13 +6,11 @@
 #include "enums.h"
 #include "brush.h"
 
-
-
-class BrushStrokeSpec {
+class BrushStrokeSpec
+{
 public:
-
-	BrushStrokeSpec();
-	~BrushStrokeSpec();
+    BrushStrokeSpec();
+    ~BrushStrokeSpec();
 
     float tiltStart;
     float tiltEnd;
@@ -21,10 +19,9 @@ public:
     float bankStart;
     float bankEnd;
     PaintingEnums::BrushRotateOrder order;
-	bool follow;
+    bool follow;
     float entryTransition;
     float exitTransition;
-    Brush::Shape shapeMask;
-
+    Brush::Shape shape;
 };
 #endif

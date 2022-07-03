@@ -1,10 +1,10 @@
 
 #include "brushRack.h"
 
-BrushRack::BrushRack(const std::map<int, Brush> &brushes):
+BrushRack::BrushRack(const std::map<int, Brush> &brushes, Brush::Shape shape):
+	m_shape(shape),
 	m_brushModels(),
-	m_lastBrushModelKey(), // Keep tyrack of previous brushModelKey.
-	m_lastPaintId(-1) // Keep track of previous paintId.
+	m_lastPaintId(-1)
 
 {
 
@@ -13,14 +13,16 @@ BrushRack::BrushRack(const std::map<int, Brush> &brushes):
 
 	for (; brushIter != brushes.end(); brushIter++)
 	{
-		int brushId = brushIter->first;
 		const Brush &brush = brushIter->second;
-
+		if (brush.shape() != m_shape)
+		{
+			continue;
+		}
+		int brushId = brushIter->first;
 		const std::string modelName = std::string(brush.model().asChar());
 		float width = brush.width();
-		Brush::Shape shape = brush.shape();
 
-		BrushModelKey modelKey(modelName, width, shape);
+		BrushModelKey modelKey(modelName, width);
 		std::pair<std::map<BrushModelKey, BrushModel>::iterator, bool> brushModelInsertResult;
 		brushModelInsertResult = m_brushModels.insert(std::make_pair(modelKey, BrushModel()));
 
@@ -33,96 +35,35 @@ BrushRack::~BrushRack()
 }
 
 
-int BrushRack::getBrushId(float strokeMaxWidth, Brush::Shape strokeShapeMask, int strokePaintId) 
+int BrushRack::getBrushId(float strokeWidth, int strokePaintId)
 {
-
-
+	
+	std::map<BrushModelKey, BrushModel>::iterator resultIter = m_brushModels.end();
 	std::map<BrushModelKey, BrushModel>::iterator modeliter = m_brushModels.begin();
+	// Select the first brushMoedel that is big enough to paint the stroke
+	// If the stroke width is too large, use the last brushModel (the biggest).
+	for (; modeliter != m_brushModels.end(); modeliter++)
+	{
+		float brushWidth = modeliter->first.width;
+		resultIter = modeliter;
+	    if (brushWidth >= strokeWidth){
+			// This brush can cover it.
+			break;
+		}
+	}
 
-	// std::map<BrushModelKey, BrushModel>::iterator modeliter = m_brushModels.rbegin();
+	if (resultIter == m_brushModels.end())
+	{
+		// If there are no brushes (unlikely).
+		return -1;
+	}
 
-	// std::map<BrushModelKey, BrushModel>::iterator result= m_brushModels.rend();
-
-	// bool started = false;
-	// for (; modeliter != m_brushModels.rend(); modeliter++)
-	// {
-
-	// 	Brush::Shape brushShape = modeliter->second.shape;
-	// 	if (!(strokeShapeMask == Brusk::kAll || strokeShapeMask==brushShape))
-	// 	{
-	// 		// This brush model doesn't match the shape mask.
-	// 		continue;
-	// 	}
-	 
-	// 	float brushWidth = modeliter->second.width;
-    //     if (brushWidth <= strokeMaxWidth){
-	// 		if (! started)
-	// 		{
-	// 			result = modeliter;
-	// 		}
-	// 		break;
-	// 	}
-	// 	result = modeliter;
-	// 	started = true;
-	// }
-
-	// if (result == m_brushModels.rend())
-	// {
-	// 	return -1;
-	// }
-
-	// // Now we have the model.
-
-	return -1;
-
+	// If the paintId changed, then we need to select a new brush.
+	BrushModel & model  = resultIter->second;
+	const std::pair<int, Brush>  brushPair = model.selectBrush(strokePaintId);
+	return brushPair.first;
 
 }
-
-
-// const std::pair<int, Brush> skeletonStrokeNode::selectBrush(
-//     float radius,
-//     const std::vector<std::pair<int, Brush> > &brushes) const
-// {
-//     /*
-//     The brushes are already sorted widest to finest. We test each brush in turn to
-//     see if it is big enough for the stroke. When we come across the first brush that
-//     is too small, we select the previous brush. It will in theory be the best suited.
-//     If the first brush (the biggest brush) is too small for the stroke, we're just
-//     going to have to use it.
-
-//     If there are no brushes (should never happen!!),
-//     then we return a pair with key -1.
-//     */
-//     if (!brushes.size())
-//     {
-//         return std::pair<int, Brush>();
-//     }
-//     std::pair<int, Brush> result;
-
-//     std::vector<std::pair<int, Brush> >::const_iterator brushIter;
-//     for (brushIter = brushes.begin(); brushIter != brushes.end(); brushIter++)
-//     {
-//         float brushRad = brushIter->second.width() * 0.5;
-//         if (brushRad <= radius)
-//         {
-//             if (brushIter == brushes.begin())
-//             {
-//                 result = *brushIter;
-//             }
-//             break;
-//         }
-//         result = *brushIter;
-//     }
-//     return result;
-// }
-
-
-
-
-
-
-
-
 
 std::map<BrushModelKey, BrushModel>::const_iterator BrushRack::find(const BrushModelKey &rhs) const
 {
@@ -139,12 +80,18 @@ std::map<BrushModelKey, BrushModel>::const_iterator BrushRack::end() const
 	return m_brushModels.end();
 }
 
+const std::string BrushRack::shapeName() const
+{
+	return m_shape == Brush::kFlat ? "Flat" : "Round";
+}
+
 ostream &operator<<(ostream &os, const BrushRack &rack)
 {
 	std::map<BrushModelKey, BrushModel>::const_iterator it;
+	os << rack.shapeName() << endl;
 	for (it = rack.begin(); it != rack.end(); it++)
 	{
-		os << it->first << " : " << it->second;
+		os << "[" << it->first << " " << it->second << "]" << endl;
 	}
 	return os;
 }
