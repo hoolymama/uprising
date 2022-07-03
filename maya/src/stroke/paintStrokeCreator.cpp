@@ -194,7 +194,6 @@ MStatus paintStrokeCreator::initialize()
 	aBrushShape = eAttr.create("brushShape", "bshp", Brush::kRound);
 	eAttr.addField("round", Brush::kRound);
     eAttr.addField("flat", Brush::kFlat);
-	eAttr.addField("all", Brush::kAll);
 	eAttr.setHidden(false);
 	eAttr.setStorable(true);
 	st = addAttribute(aBrushShape);

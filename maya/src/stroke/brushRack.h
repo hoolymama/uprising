@@ -21,7 +21,7 @@ class BrushModelKey
 {
 public:
 
-    BrushModelKey() : name("none"), width(0), shape(Brush::kAll) {}
+    BrushModelKey() : name("none"), width(0), shape(Brush::kNone) {}
 
     BrushModelKey(const std::string &n, float w, Brush::Shape s) : name(n), width(w), shape(s) {}
 
