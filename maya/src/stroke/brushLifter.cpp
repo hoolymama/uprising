@@ -15,7 +15,7 @@
 #include "brushRack.h"
 
 
-const float epsilon = 0.0001f;
+
 
 MObject brushLifter::aBrushes;
 MObject brushLifter::aApplyBias;
@@ -178,7 +178,8 @@ void brushLifter::assignBrushes(const std::map<int, Brush> &brushes, std::vector
 void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Stroke *stroke) const
 {
   MFnNurbsCurve curveFn(curveObject);
-  double curveLength = curveFn.length(epsilon);
+  // const float epsilon = 0.0001f;
+  double curveLength = curveFn.length();
   // cerr << "curve length: " << curveLength << endl;
 
   MDoubleArray knotVals;
@@ -223,7 +224,7 @@ void brushLifter::applyBias(const Brush &brush, const MObject& curveObject, Stro
 {
   MStatus st;
   MFnNurbsCurve curveFn(curveObject);
-  double curveLength = curveFn.length(epsilon);
+  double curveLength = curveFn.length();
   tangents.clear();
   MDoubleArray knotVals;
   curveFn.getKnots(knotVals);
@@ -262,7 +263,7 @@ void brushLifter::getTangents(const MObject& curveObject, MVectorArray &tangents
 {
   MStatus st;
   MFnNurbsCurve curveFn(curveObject);
-  double curveLength = curveFn.length(epsilon);
+  double curveLength = curveFn.length();
   tangents.clear();
   MDoubleArray knotVals;
   curveFn.getKnots(knotVals);
@@ -345,7 +346,7 @@ MStatus brushLifter::collectBrushes(MDataBlock &data, std::map<int, Brush> &brus
   MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
   msert;
 
-  brushes[-1] = Brush();
+  // brushes[-1] = Brush();
 
   unsigned nPlugs = ha.elementCount();
   for (unsigned i = 0; i < nPlugs; i++, ha.next())
