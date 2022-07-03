@@ -61,7 +61,6 @@ from uprising.common.session import (
 
 from uprising import (
     brush,
-    brush_assign_tab,
     brush_hang_tab,
     brush_test_tab,
     brush_utils,
@@ -181,7 +180,7 @@ importlib.reload(retries_session)
 
 
 ####################
-importlib.reload(brush_assign_tab)
+# importlib.reload(brush_assign_tab)
 importlib.reload(brush_hang_tab)
 importlib.reload(brush_test_tab)
 importlib.reload(gamut_tab)
