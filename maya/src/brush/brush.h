@@ -14,7 +14,7 @@ public:
 	{
 		kFlat,
 		kRound,
-		kAll
+		kNone
 	};
 
 	Brush();
@@ -64,7 +64,7 @@ public:
 
 	int customId() const;
 
-	bool matches(Shape filter) const;
+	// bool matches(Shape filter) const;
 
 	Brush::Shape shape() const;
 
