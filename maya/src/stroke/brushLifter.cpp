@@ -17,6 +17,7 @@
 
 
 MObject brushLifter::aBrushes;
+MObject brushLifter::aReassignBrushIds;
 MObject brushLifter::aApplyBias;
 MObject brushLifter::aApplyLift;
 
@@ -118,11 +119,14 @@ MStatus brushLifter::mutate(
   st = collectBrushes(data, brushes);
   msert;
 
-
-  assignBrushes(brushes, strokes );
-
   bool shouldApplyLift = data.inputValue(aApplyLift).asBool();
   bool shouldApplyBias = data.inputValue(aApplyBias).asBool();
+  bool shouldReassignBrushIds = data.inputValue(aReassignBrushIds).asBool();
+
+  if (shouldReassignBrushIds) {
+    assignBrushes(brushes, strokes );
+  }
+
   std::map<int, Brush>::const_iterator brushIter;
   std::vector<Stroke>::iterator currentStroke = strokes->begin();
 

@@ -32,7 +32,7 @@ public:
 
 
 private:
-
+  static MObject aReassignBrushIds;
   static MObject aApplyLift;
   static MObject aApplyBias;
   
