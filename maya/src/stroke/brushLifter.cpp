@@ -12,6 +12,8 @@
 // #include "texUtils.h"
 
 #include "brushData.h"
+#include "brushRack.h"
+
 
 const float epsilon = 0.0001f;
 
@@ -158,12 +160,21 @@ MStatus brushLifter::mutate(
 
 void brushLifter::assignBrushes(const std::map<int, Brush> &brushes, std::vector<Stroke> *strokes) const
 {
+ // Make a data structure that will allow us to arrange brushes by model.
+  // std::map<MString, std::vector<Brush *> > modelBrushes;
+  BrushRack rack(brushes);
+
+  cerr << "BrushRack: " << rack << endl; 
+
+
+
   // std::vector<Stroke>::iterator currentStroke = strokes->begin();
   // for (; currentStroke != strokes->end(); currentStroke++)
   // {
   //   // currentStroke->setBrushId(currentStroke->brushId());
   // }
 }
+
 void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Stroke *stroke) const
 {
   MFnNurbsCurve curveFn(curveObject);
