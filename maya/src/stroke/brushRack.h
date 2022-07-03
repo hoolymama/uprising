@@ -82,6 +82,8 @@ public:
 
     friend ostream &operator<<(ostream &os, const BrushRack &rack);
 
+    int getBrushId(float width, Brush::Shape shapeMask, int paintId) const;
+
 private:
 
     std::map<BrushModelKey, BrushModel> m_brushModels;

@@ -167,12 +167,25 @@ void brushLifter::assignBrushes(const std::map<int, Brush> &brushes, std::vector
   cerr << "BrushRack: " << rack << endl; 
 
 
+  std::vector<Stroke>::iterator stroke = strokes->begin();
+  for (; stroke != strokes->end(); stroke++)
+  {
+    float width = stroke->maxRadius()*2;
+    Brush::Shape shapeMask = stroke->brushStrokeSpec().shapeMask;
+    int paintId = stroke->paintId();
+    int brushId = rack.getBrushId(width, shapeMask, paintId);
+    stroke->setBrushId(brushId);
+    
 
-  // std::vector<Stroke>::iterator currentStroke = strokes->begin();
-  // for (; currentStroke != strokes->end(); currentStroke++)
-  // {
-  //   // currentStroke->setBrushId(currentStroke->brushId());
-  // }
+    // stroke->setBrushId(stroke->brushId());
+  }
+
+
+
+
+
+
+
 }
 
 void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Stroke *stroke) const

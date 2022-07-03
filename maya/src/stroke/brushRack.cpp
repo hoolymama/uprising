@@ -28,6 +28,13 @@ BrushRack::~BrushRack()
 {
 }
 
+
+int BrushRack::getBrushId(float width, Brush::Shape shapeMask, int paintId) const
+{
+	return 0;
+}
+    
+
 std::map<BrushModelKey, BrushModel>::const_iterator BrushRack::find(const BrushModelKey &rhs) const
 {
 	return m_brushModels.find(rhs);
