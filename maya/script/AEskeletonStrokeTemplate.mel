@@ -33,9 +33,9 @@ global proc AEskeletonStrokeTemplate ( string $nodeName )
 
 
 
-	editorTemplate -cl 0 -beginLayout "Brushes";
- 	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
- 	editorTemplate -endLayout;
+	// editorTemplate -cl 0 -beginLayout "Brushes";
+ 	// editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
+ 	// editorTemplate -endLayout;
 
  	AEsortFilterInclude($nodeName);
  

@@ -13,9 +13,9 @@ public:
 
 
 	Paint();
-
-	Paint( const MColor &color, float travel, const MString &name);
-	Paint( const MFloatVector &color, float opacity, float travel, const MString &name );
+ 
+	Paint( const MColor &color,int pot, float travel, const MString &name);
+	Paint( const MFloatVector &color, float opacity,int pot, float travel, const MString &name );
 
 	~Paint();
 
@@ -30,6 +30,8 @@ private:
 	MColor m_color;
 	float m_travel;
 	MString m_name;
+	int m_pot;
+
 
 
 	// compat

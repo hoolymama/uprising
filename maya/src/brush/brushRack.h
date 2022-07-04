@@ -15,7 +15,7 @@
 #include "brush.h"
 #include "brushModel.h"
 
-const float epsilon = 0.0001; // cm.
+const float tolerance = 0.0001; // cm.
 
 class BrushModelKey
 {
@@ -29,7 +29,7 @@ public:
     bool operator<(const BrushModelKey &other) const
     {
 
-        bool different = fabs(width - other.width) > epsilon;
+        bool different = fabs(width - other.width) > tolerance;
 
         if (different)
         {

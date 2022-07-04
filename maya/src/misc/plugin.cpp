@@ -13,6 +13,8 @@
 #include "brushCmd.h"
 #include "brushData.h"
 
+#include "brushShopData.h"
+
 #include "paintingNodeBase.h"
 
 #include "paintingNode.h"
@@ -31,6 +33,7 @@
 #include "brushNode.h"
 #include "brushDrawOverride.h"
 
+#include "brushShopNode.h"
 
 #include "aimStrokes.h"
 #include "mirrorStrokes.h"
@@ -312,6 +315,12 @@ MStatus initializePlugin(MObject obj)
 							 brushData::creator);
 	mser;
 
+	st = plugin.registerData("brushShopData", brushShopData::id,
+							 brushShopData::creator);
+	mser;
+
+
+
 	st = plugin.registerData("paletteData", paletteData::id,
 							 paletteData::creator);
 	mser;
@@ -429,6 +438,9 @@ MStatus initializePlugin(MObject obj)
 
 
 
+	st = plugin.registerNode("brushShopNode", brushShopNode::id, brushShopNode::creator,
+							 brushShopNode::initialize);
+	msert;
 
 
 
@@ -727,6 +739,9 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(strokeNodeBase::id);
 	mser;
 
+	st = plugin.deregisterNode(brushShopNode::id);
+	mser;
+
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
 		brushNode::drawDbClassification,
 		brushNode::drawRegistrantId);
@@ -807,6 +822,8 @@ MStatus uninitializePlugin(MObject obj)
 
 	st = plugin.deregisterData(paletteData::id);
 	mser;
+
+	st = plugin.deregisterData(brushShopData::id);
 
 	st = plugin.deregisterData(brushData::id);
 	mser;
