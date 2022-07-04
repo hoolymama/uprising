@@ -5,7 +5,7 @@
 #include "brush.h"
 
 /**	@brief	BrushModel is a collection of Brushes of the same model.
- * 
+ *
  * For example davinci30 or WindsorNewtonFlat100. Brushes of the same model have the same width.
  *
  * When a stroke wants to find a brush to use, it queries the brushRack to find the model with the
@@ -13,7 +13,6 @@
  * stroke in question is different than the last access, then we select the nexty brush, so that the
  * brush doesn't get contaminated.
  */
-
 
 class BrushModel
 {
@@ -30,6 +29,8 @@ public:
 	bool operator<(const BrushModel &other) const;
 
 	friend ostream &operator<<(ostream &os, const BrushModel &bm);
+
+	const std::vector<std::pair<int, Brush>> &brushes() const;
 
 private:
 	std::vector<std::pair<int, Brush>> m_brushes;

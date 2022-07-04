@@ -80,6 +80,8 @@ public:
 
     const std::string shapeName() const;
 
+    const   std::map<BrushModelKey, BrushModel> &  models();
+
 private:
     std::map<BrushModelKey, BrushModel> m_brushModels;
     Brush::Shape m_shape;

@@ -1,10 +1,9 @@
 
 #include "brushRack.h"
 
-BrushRack::BrushRack(const std::map<int, Brush> &brushes, Brush::Shape shape):
-	m_shape(shape),
-	m_brushModels(),
-	m_lastPaintId(-1)
+BrushRack::BrushRack(const std::map<int, Brush> &brushes, Brush::Shape shape) : m_shape(shape),
+																				m_brushModels(),
+																				m_lastPaintId(-1)
 
 {
 
@@ -34,10 +33,9 @@ BrushRack::~BrushRack()
 {
 }
 
-
 int BrushRack::getBrushId(float strokeWidth, int strokePaintId)
 {
-	
+
 	std::map<BrushModelKey, BrushModel>::iterator resultIter = m_brushModels.end();
 	std::map<BrushModelKey, BrushModel>::iterator modeliter = m_brushModels.begin();
 	// Select the first brushMoedel that is big enough to paint the stroke
@@ -46,7 +44,8 @@ int BrushRack::getBrushId(float strokeWidth, int strokePaintId)
 	{
 		float brushWidth = modeliter->first.width;
 		resultIter = modeliter;
-	    if (brushWidth >= strokeWidth){
+		if (brushWidth >= strokeWidth)
+		{
 			// This brush can cover it.
 			break;
 		}
@@ -59,10 +58,9 @@ int BrushRack::getBrushId(float strokeWidth, int strokePaintId)
 	}
 
 	// If the paintId changed, then we need to select a new brush.
-	BrushModel & model  = resultIter->second;
-	const std::pair<int, Brush>  brushPair = model.selectBrush(strokePaintId);
+	BrushModel &model = resultIter->second;
+	const std::pair<int, Brush> brushPair = model.selectBrush(strokePaintId);
 	return brushPair.first;
-
 }
 
 std::map<BrushModelKey, BrushModel>::const_iterator BrushRack::find(const BrushModelKey &rhs) const

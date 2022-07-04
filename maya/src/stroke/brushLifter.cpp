@@ -6,17 +6,14 @@
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MFnNurbsCurveData.h>
 #include <maya/MFnPluginData.h>
-#include "brushLifter.h"
 #include <jMayaIds.h>
 #include "errorMacros.h"
 
+#include "brushLifter.h"
 #include "brushData.h"
-#include "brushRack.h"
+#include "brushShopData.h"
 
-
-
-
-MObject brushLifter::aBrushes;
+MObject brushLifter::aBrushShop;
 MObject brushLifter::aReassignBrushIds;
 MObject brushLifter::aApplyBias;
 MObject brushLifter::aApplyLift;
@@ -58,7 +55,6 @@ MStatus brushLifter::initialize()
   st = addAttribute(aReassignBrushIds);
   mser;
 
-
   aApplyBias = nAttr.create("applyBias", "abs", MFnNumericData::kBoolean);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
@@ -77,15 +73,15 @@ MStatus brushLifter::initialize()
   st = addAttribute(aApplyLift);
   mser;
 
-  aBrushes = tAttr.create("brushes", "bsh", brushData::id);
+  aBrushShop = tAttr.create("brushShop", "shop", brushShopData::id);
   tAttr.setReadable(false);
   tAttr.setStorable(false);
-  tAttr.setArray(true);
-  tAttr.setIndexMatters(true);
-  tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-  addAttribute(aBrushes);
+  tAttr.setKeyable(true);
+  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+  addAttribute(aBrushShop);
 
-  st = attributeAffects(aBrushes, aOutput);
+  // st = attributeAffects(aBrushes, aOutput);
+  st = attributeAffects(aBrushShop, aOutput);
   st = attributeAffects(aReassignBrushIds, aOutput);
   st = attributeAffects(aApplyBias, aOutput);
   st = attributeAffects(aApplyLift, aOutput);
@@ -96,35 +92,48 @@ MStatus brushLifter::initialize()
 /**
  * Manage the mutation
  *
- * Start off by selecting the best brush for every stroke. 
+ * Start off by selecting the best brush for every stroke.
  * Then for each stroke:
  *    Set weights from radius
  *    Apply forward bias
  *    Apply rotation
- *    Apply lift 
- *  
+ *    Apply lift
+ *
  */
 MStatus brushLifter::mutate(
     const MPlug &plug,
     MDataBlock &data,
     std::vector<Stroke> *strokes) const
 {
-  
+
   MStatus st;
   if (strokes->size() == 0)
   {
     return MS::kSuccess;
   }
+
+  // std::map<int, Brush> brushes;
+  // st = collectBrushes(data, brushes);
+  BrushShop brushShop;
+
+  st = getBrushShop(data, brushShop);
   std::map<int, Brush> brushes;
-  st = collectBrushes(data, brushes);
+  brushShop.getBrushes(brushes);
+
+  if (!brushes.size())
+  {
+    return MS::kFailure;
+  }
   msert;
 
   bool shouldApplyLift = data.inputValue(aApplyLift).asBool();
   bool shouldApplyBias = data.inputValue(aApplyBias).asBool();
   bool shouldReassignBrushIds = data.inputValue(aReassignBrushIds).asBool();
 
-  if (shouldReassignBrushIds) {
-    assignBrushes(brushes, strokes );
+  if (shouldReassignBrushIds)
+  {
+
+    assignBrushes(brushShop, strokes);
   }
 
   std::map<int, Brush>::const_iterator brushIter;
@@ -139,7 +148,7 @@ MStatus brushLifter::mutate(
       brushIter = brushes.find(-1);
     }
     const Brush &brush = brushIter->second;
-    
+
     // get a pointer to the current stroke from the iterator.
     Stroke *stroke = &(*currentStroke);
 
@@ -153,7 +162,9 @@ MStatus brushLifter::mutate(
     if (shouldApplyBias)
     {
       applyBias(brush, curveObject, stroke, tangents);
-    } else {
+    }
+    else
+    {
       getTangents(curveObject, tangents);
     }
 
@@ -166,41 +177,35 @@ MStatus brushLifter::mutate(
       applyLift(brush, stroke);
     }
   }
-  
+
   return MS::kSuccess;
 }
 
-void brushLifter::assignBrushes(const std::map<int, Brush> &brushes, std::vector<Stroke> *strokes) const
+void brushLifter::assignBrushes(BrushShop &brushShop, std::vector<Stroke> *strokes) const
 {
- /* 
-  Make a data structure that will allow us to arrange brushes by model.
+  /*
+   Make a data structure that will allow us to arrange brushes by model.
 
-  A brushShop is a map of brushRacks. Currenly only two racks (flat brushes, round brushes)
-  Each brushRack is a map of brushModels. (davinci30, davinci22, etc)
-  Each brushModel contains a list of brushes of that model. (e.g. davinci30 has 3 brushes, davinci22 has 2 brushes)
-  */
+   A brushShop is a map of brushRacks. Currenly only two racks (flat brushes, round brushes)
+   Each brushRack is a map of brushModels. (davinci30, davinci22, etc)
+   Each brushModel contains a list of brushes of that model. (e.g. davinci30 has 3 brushes, davinci22 has 2 brushes)
+   */
 
-  std::map<Brush::Shape, BrushRack>  brushShop;
-  brushShop.insert(std::make_pair(Brush::kFlat,  BrushRack(brushes, Brush::kFlat)));
-  brushShop.insert(std::make_pair(Brush::kRound, BrushRack(brushes, Brush::kRound)));
- 
-  // std::map<Brush::Shape, BrushRack>::const_iterator citer = brushShop.begin();
-  // for (;citer!=brushShop.end(); citer++)
-  // {
-  //   cerr << citer->second << endl;;
-  // }
+  cerr << brushShop << endl;
+  ;
 
   std::vector<Stroke>::iterator stroke = strokes->begin();
   for (; stroke != strokes->end(); stroke++)
   {
     // Get the atts we need.
-    float width = stroke->maxRadius()*2.0f;
+    float width = stroke->maxRadius() * 2.0f;
     int paintId = stroke->paintId();
     Brush::Shape shape = stroke->brushStrokeSpec().shape;
 
-  // Loop over strokes and assign a brush to each.
-    std::map<Brush::Shape, BrushRack>::iterator iter = brushShop.find(shape);
-    if (iter == brushShop.end())
+    // Loop over strokes and assign a brush to each.
+    std::map<Brush::Shape, BrushRack> &racks = brushShop.racks;
+    std::map<Brush::Shape, BrushRack>::iterator iter = racks.find(shape);
+    if (iter == racks.end())
     {
       // Ignore the stroke with an invalid shape. (should be impossible anyway)
       continue;
@@ -263,26 +268,24 @@ void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Str
       transitionWeight = float((curveLength - distance) / exitTransition);
     }
 
-    target->setWeight(fmin(transitionWeight,brushWeight));
+    target->setWeight(fmin(transitionWeight, brushWeight));
   }
 }
 
-
-void brushLifter::applyBias(const Brush &brush, const MObject& curveObject, Stroke *stroke, MVectorArray &tangents) const
+void brushLifter::applyBias(const Brush &brush, const MObject &curveObject, Stroke *stroke, MVectorArray &tangents) const
 {
   /*
   Apply the forward bias to targets of this stroke.
- 
+
   Forward bioas is the distance we push each target forward along the stroke's path in order to
   compensate for the fact that if a brush is leaning and pushing down, then the bristles bend, which
   puts the contact point further back along the stroke.
-  
+
   The amount of bias is strongest when the weight is 1.0 because that's when the bristles are
   bending most. It is weakest if the brush tip is only just touching the stroke. The coefficuents
   are attributes of ewach brush and were attained by measuring the offset in a brush test.
-  
-  */
 
+  */
 
   MStatus st;
   MFnNurbsCurve curveFn(curveObject);
@@ -299,13 +302,13 @@ void brushLifter::applyBias(const Brush &brush, const MObject& curveObject, Stro
   {
     const float &weight = target->weight();
     float forwardBias = (forwardBias1 * weight) + (forwardBias0 * (1.0f - weight));
-    
+
     const double &param = knotVals[k];
     double distanceOnCurve = curveFn.findLengthFromParam(param, &st);
     mser;
     double biasedDist = distanceOnCurve + forwardBias;
     double biasedCurveParam = curveFn.findParamFromLength(biasedDist, &st);
-    
+
     MPoint point;
     st = curveFn.getPointAtParam(biasedCurveParam, point, MSpace::kObject);
 
@@ -321,7 +324,7 @@ void brushLifter::applyBias(const Brush &brush, const MObject& curveObject, Stro
   }
 }
 
-void brushLifter::getTangents(const MObject& curveObject, MVectorArray &tangents) const
+void brushLifter::getTangents(const MObject &curveObject, MVectorArray &tangents) const
 {
   /*
   Get the tangents for each knot of the curve.
@@ -332,14 +335,14 @@ void brushLifter::getTangents(const MObject& curveObject, MVectorArray &tangents
   tangents.clear();
   MDoubleArray knotVals;
   curveFn.getKnots(knotVals);
- 
-  for (int k = 2; k<knotVals.length() -2; k++)
+
+  for (int k = 2; k < knotVals.length() - 2; k++)
   {
-    tangents.append( curveFn.tangent(knotVals[k]).normal());
+    tangents.append(curveFn.tangent(knotVals[k]).normal());
   }
 }
 
-void brushLifter::applyRotation(const Brush &brush, const MObject& curveObject, const MVectorArray &tangents, Stroke *stroke) const
+void brushLifter::applyRotation(const Brush &brush, const MObject &curveObject, const MVectorArray &tangents, Stroke *stroke) const
 {
   MStatus st;
 
@@ -360,17 +363,18 @@ void brushLifter::applyRotation(const Brush &brush, const MObject& curveObject, 
   curveFn.getKnots(knotVals);
 
   Stroke::target_iterator target = stroke->targets_begin();
-  int k=2;
-  for (int i=0; target != stroke->targets_end(); target++, i++, k++)
+  int k = 2;
+  for (int i = 0; target != stroke->targets_end(); target++, i++, k++)
   {
 
     MFloatMatrix mat(brushMatrix);
-    if (follow){
+    if (follow)
+    {
       MFloatVector front = MFloatVector::yNegAxis * mat;
       mat *= MFloatMatrix(MQuaternion(front, tangents[i]).asMatrix().matrix);
     }
 
-    const MFloatMatrix & target_mat = target->matrix();
+    const MFloatMatrix &target_mat = target->matrix();
     mat[3][0] = target_mat[3][0];
     mat[3][1] = target_mat[3][1];
     mat[3][2] = target_mat[3][2];
@@ -382,7 +386,7 @@ void brushLifter::applyRotation(const Brush &brush, const MObject& curveObject, 
     float twistAngle = (twistStart * rparam) + (twistEnd * param);
     float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
     float bankAngle = (bankStart * rparam) + (bankEnd * param);
-    target->applyTiltBankTwist( tiltAngle,  bankAngle, twistAngle, order);
+    target->applyTiltBankTwist(tiltAngle, bankAngle, twistAngle, order);
   }
 }
 
@@ -405,38 +409,26 @@ void brushLifter::applyLift(const Brush &brush, Stroke *stroke) const
   }
 }
 
-MStatus brushLifter::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes) const
+MStatus brushLifter::getBrushShop(
+    MDataBlock &data, BrushShop &brushShop) const
 {
   MStatus st;
-  MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
+  MDataHandle h = data.inputValue(aBrushShop, &st);
   msert;
-
-  // brushes[-1] = Brush();
-
-  unsigned nPlugs = ha.elementCount();
-  for (unsigned i = 0; i < nPlugs; i++, ha.next())
+  MObject d = h.data();
+  MFnPluginData fnP(d, &st);
+  if (st.error())
   {
-    int index = ha.elementIndex(&st);
-    if (st.error())
-    {
-      continue;
-    }
-    MDataHandle h = ha.inputValue(&st);
-    if (st.error())
-    {
-      continue;
-    }
-
-    MObject d = h.data();
-    MFnPluginData fnP(d, &st);
-    if (st.error())
-    {
-      continue;
-    }
-    brushData *bData = (brushData *)fnP.data();
-
-    brushes[index] = *(bData->fGeometry);
+    return st;
   }
+  brushShopData *bData = (brushShopData *)fnP.data(&st);
+  msert;
+  brushShop = *(bData->fGeometry);
+  if (brushShop.racks.size() == 0)
+  {
+    return MS::kFailure;
+  }
+
   return MS::kSuccess;
 }
 

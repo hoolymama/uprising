@@ -30,6 +30,11 @@ const std::pair<int, Brush> BrushModel::selectBrush(int paintId)
     return m_brushes[m_peg];
 }
 
+const std::vector<std::pair<int, Brush>> &BrushModel::brushes() const
+{
+    return m_brushes;
+}
+
 ostream &operator<<(ostream &os, const BrushModel &bm)
 {
     os << "Count: " << bm.m_brushes.size();

@@ -7,38 +7,37 @@
 #include <maya/MArrayDataHandle.h>
 #include <maya/MFnPluginData.h>
 
-
 #include "errorMacros.h"
 
-const MTypeId brushShopData::id( k_brushShopData );
-const MString brushShopData::typeName( "brushShopData" );
+const MTypeId brushShopData::id(k_brushShopData);
+const MString brushShopData::typeName("brushShopData");
 
-brushShopData::brushShopData() : fGeometry( 0 )
+brushShopData::brushShopData() : fGeometry(0)
 {
-	fGeometry = new std::map<Brush::Shape, BrushRack>();
+	fGeometry = new BrushShop();
 }
 brushShopData::~brushShopData()
 {
-	if ( 0 != fGeometry ) {
+	if (0 != fGeometry)
+	{
 		delete fGeometry;
 		fGeometry = 0;
 	}
 }
 
-
-void brushShopData::copy ( const MPxData &other )
+void brushShopData::copy(const MPxData &other)
 {
 	*fGeometry = *(((const brushShopData &)other).fGeometry);
 }
 
-brushShopData &brushShopData::operator=(const brushShopData &otherData ) {
-	if (this != &otherData ) {
+brushShopData &brushShopData::operator=(const brushShopData &otherData)
+{
+	if (this != &otherData)
+	{
 		*fGeometry = *(otherData.fGeometry);
 	}
 	return *this;
 }
-
-
 
 MTypeId brushShopData::typeId() const
 {
