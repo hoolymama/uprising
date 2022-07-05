@@ -23,6 +23,7 @@ Stroke::Stroke()
 	  m_brushId(0),
 	  m_sortColor(),
 	  m_filterColor(),
+	  m_brushModelId(),
 	  m_sortStack(),
 	  m_arrivals(),
 	  m_departure(),
@@ -725,6 +726,16 @@ void Stroke::setFilterColor(const MFloatVector &color)
 	m_filterColor = color;
 }
 
+void Stroke::setBrushModelId(int rhs)
+{
+	m_brushModelId = rhs;
+}
+
+int Stroke::brushModelId() const
+{
+	return m_brushModelId;
+}
+
 void Stroke::appendStrokeIdToSortStack(bool ascending)
 {
 	int val = ascending ? m_strokeId : -m_strokeId;
@@ -774,9 +785,15 @@ void Stroke::appendTargetCountToSortStack(bool ascending)
 	m_sortStack.append(val);
 }
 
-void Stroke::appendMaxRadiusToSortStack(bool ascending)
+void Stroke::appendBrushModelIdToSortStack(bool ascending)
 {
-	float val = int(m_maxRadius*10000);
+	int val = ascending ? m_brushModelId : -m_brushModelId;
+	m_sortStack.append(val);
+}
+
+void Stroke::appendBrushShapeToSortStack(bool ascending)
+{
+	int val = int(m_brushStrokeSpec.shape);
 	val = ascending ? val : -val;
 	m_sortStack.append(val);
 }
@@ -827,10 +844,7 @@ bool Stroke::testBrushId(FilterOperator op, int value) const
 	return testAgainstValue(m_brushId, op, value);
 }
 
-// bool Stroke::testCustomBrushId(FilterOperator op, int value) const
-// {
-// 	return testAgainstValue(m_customBrushId, op, value);
-// }
+
 
 bool Stroke::testPaintId(FilterOperator op, int value) const
 {
@@ -849,20 +863,17 @@ bool Stroke::testTargetCount(FilterOperator op, int value) const
 	return testAgainstValue(m_targets.size(), op, value);
 }	
 
-bool Stroke::testMaxRadius(FilterOperator op, int value) const
+bool Stroke::testBrushModelId(FilterOperator op, int value) const
 {
-	return testAgainstValue(int(m_maxRadius*1000), op, value);
+	return testAgainstValue(m_brushModelId, op, value);
 }
-	
 
-// bool Stroke::testCustomBrushId(FilterOperator op, int value) const
-// {
-// 	return  testAgainstValue(int(m_customBrushId), op, value);
-// }
-// bool Stroke::testCustomPaintId(FilterOperator op, int value) const
-// {
-// 	return  testAgainstValue(int(m_customPaintId), op, value);
-// }
+bool Stroke::testBrushShape(FilterOperator op, int value) const
+{
+	return testAgainstValue(int(m_brushStrokeSpec.shape), op, value);
+}
+
+
 bool Stroke::testMapRedId(FilterOperator op, int value) const
 {
 	return testAgainstValue(int(m_filterColor.x * 256), op, value);

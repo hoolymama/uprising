@@ -59,6 +59,7 @@ MObject painting::aDisplayContactWidth;
 
 MObject painting::aDisplayPaintIds;
 MObject painting::aDisplayRepeatIds;
+MObject painting::aDisplayBrushModelIds;
 
 MObject painting::aClusterPathColor;
 MObject painting::aStackGap;
@@ -172,6 +173,15 @@ MStatus painting::initialize()
   nAttr.setDefault(true);
   addAttribute(aDisplayRepeatIds);
 
+  aDisplayBrushModelIds = nAttr.create("displayBrushModelIds", "dbmid",
+                                   MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDisplayBrushModelIds);
+
+
   aClusterPathColor = nAttr.createColor("clusterPathColor", "cpcol");
   nAttr.setStorable(true);
   nAttr.setKeyable(true);
@@ -239,8 +249,8 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
   }
 
   std::map<int, Brush> brushes;
-  std::map<int, Paint> palette;
   paintingBase::collectBrushes(data, brushes);
+  std::map<int, Paint> palette;
   st = getPalette(data, palette);
   if (st.error())
   {

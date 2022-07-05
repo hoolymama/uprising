@@ -33,13 +33,44 @@ BrushRack::~BrushRack()
 {
 }
 
-int BrushRack::getBrushId(float strokeWidth, int strokePaintId)
-{
 
+int BrushRack::findBrushId(float strokeWidth, int strokePaintId, MStatus *st)
+{
+	std::map<BrushModelKey, BrushModel>::iterator resultIter = findModel(strokeWidth);
+	if (resultIter == m_brushModels.end())
+	{
+		if (st)
+		{
+			*st = MS::kFailure;
+		}
+		return -1;
+	}
+	// If the paintId changed, then we need to select a new brush.
+	BrushModel &model = resultIter->second;
+	const std::pair<int, Brush> brushPair = model.selectBrush(strokePaintId);
+	return brushPair.first;
+}
+
+int BrushRack::findModelId(float strokeWidth, MStatus *st)
+{
+	std::map<BrushModelKey, BrushModel>::iterator resultIter = findModel(strokeWidth);
+	if (resultIter == m_brushModels.end())
+	{
+		if (st)
+		{
+			*st = MS::kFailure;
+		}
+		return -1;
+	}
+
+	return std::distance(m_brushModels.begin(), resultIter);
+}
+
+
+std::map<BrushModelKey, BrushModel>::iterator BrushRack::findModel(float strokeWidth)
+{
 	std::map<BrushModelKey, BrushModel>::iterator resultIter = m_brushModels.end();
 	std::map<BrushModelKey, BrushModel>::iterator modeliter = m_brushModels.begin();
-	// Select the first brushMoedel that is big enough to paint the stroke
-	// If the stroke width is too large, use the last brushModel (the biggest).
 	for (; modeliter != m_brushModels.end(); modeliter++)
 	{
 		float brushWidth = modeliter->first.width;
@@ -50,18 +81,9 @@ int BrushRack::getBrushId(float strokeWidth, int strokePaintId)
 			break;
 		}
 	}
-
-	if (resultIter == m_brushModels.end())
-	{
-		// If there are no brushes (unlikely).
-		return -1;
-	}
-
-	// If the paintId changed, then we need to select a new brush.
-	BrushModel &model = resultIter->second;
-	const std::pair<int, Brush> brushPair = model.selectBrush(strokePaintId);
-	return brushPair.first;
+	return resultIter;
 }
+
 
 std::map<BrushModelKey, BrushModel>::const_iterator BrushRack::find(const BrushModelKey &rhs) const
 {

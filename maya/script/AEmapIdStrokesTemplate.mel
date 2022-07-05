@@ -1,32 +1,23 @@
 source "AEsortFilterInclude";
 source "AEstrokeCreatorInclude";
 
-
 global proc AEmapIdStrokesTemplate ( string $nodeName )
 {
-
-
-
-
 	editorTemplate -beginScrollLayout;
-
-
-	editorTemplate -cl 0  -beginLayout "Range attributes";		
-	editorTemplate -addControl "setRange"  "AEmapIdStrokesOnSetRange";
-	editorTemplate -addControl "numberOfValues";
+	editorTemplate -cl 0  -beginLayout "Paint mapping attributes";		
+	editorTemplate -addControl "doPaintId" "AEmapIdStrokesOnDoPaint";
+	editorTemplate -addControl "sampleParam" ;
+	editorTemplate -addControl "paintIdMapQuantizeLevel";
+	editorTemplate -addControl "paintIdOffset" ;
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "paintIdMap";
+	editorTemplate -addControl "palette";
 	editorTemplate -endLayout;
 
-	editorTemplate -cl 0  -beginLayout "Id attributes";		
-	editorTemplate -addControl "idProperty" ;
-	editorTemplate -addControl "idMap";
-	editorTemplate -addControl "idOffset";
-	
-	editorTemplate -endLayout;
-
-
-	editorTemplate -cl 0  -beginLayout "Sample attributes";		
-	editorTemplate -addControl "sampleAt"  "AEmapIdStrokesOnSampleAt";;
-	editorTemplate -addControl "strokeParam" ;
+	editorTemplate -cl 0  -beginLayout "Brush model attributes";		
+	editorTemplate -addControl "doBrushModelId" "AEmapIdStrokesOnDoBrushModelId";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "brushShop";
 	editorTemplate -endLayout;
 
 	AEsortFilterInclude($nodeName);
@@ -35,17 +26,21 @@ global proc AEmapIdStrokesTemplate ( string $nodeName )
 	editorTemplate -endScrollLayout;
 }
 
-
-global proc AEmapIdStrokesOnSetRange( string $nodeName )
+global proc AEmapIdStrokesOnDoPaint( string $nodeName )
 {
-    int $dim = ! `getAttr ($nodeName+".setRange")`;
-    editorTemplate -dimControl $nodeName "numberOfValues" $dim;
+    int $dim = ! `getAttr ($nodeName+".doPaintId")`;
+    editorTemplate -dimControl $nodeName "sampleParam" $dim;
+	editorTemplate -dimControl $nodeName "paintIdMapQuantizeLevel" $dim;
+	editorTemplate -dimControl $nodeName "paintIdOffset" $dim;
+	editorTemplate -dimControl $nodeName "paintIdMap" $dim;
+	editorTemplate -dimControl $nodeName "palette" $dim;
+	
 }
 
-
-global proc AEmapIdStrokesOnSampleAt( string $nodeName )
+global proc AEmapIdStrokesOnDoBrushModelId( string $nodeName )
 {
-    int $dim = `getAttr ($nodeName+".sampleAt")`;
-    editorTemplate -dimControl $nodeName "strokeParam" $dim;
+    int $dim = ! `getAttr ($nodeName+".doBrushModelId")`;
+    editorTemplate -dimControl $nodeName "brushShop" $dim;
+	
 }
 

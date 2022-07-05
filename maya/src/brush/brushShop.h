@@ -23,14 +23,15 @@ public:
 	std::map<Brush::Shape, BrushRack> racks;
 
     void insertRack(const std::pair<Brush::Shape, BrushRack> &rack );
-    
 
     friend ostream &operator<<(ostream &os, const BrushShop &shop);
  
     void getBrushes(std::map<int, Brush> & brushes) const;
 
+    int findModelId(float strokeWidth, Brush::Shape shape, MStatus *st=0);
+
+    int findBrushId(float strokeWidth,int strokePaintId, Brush::Shape shape, MStatus *st=0);
  
-    
 
 private:
 

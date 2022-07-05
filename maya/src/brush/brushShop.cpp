@@ -34,6 +34,36 @@ void BrushShop::getBrushes(std::map<int, Brush> &brushes) const
     }
 }
 
+int BrushShop::findModelId(float strokeWidth, Brush::Shape shape, MStatus *st)
+{
+    std::map<Brush::Shape, BrushRack>::iterator rackIter = racks.find(shape);
+    if (rackIter == racks.end())
+    {
+        if (st)
+        {
+            *st = MS::kFailure;
+        }
+        return -1;
+    }
+    BrushRack &rack = rackIter->second;
+    return rack.findModelId(strokeWidth);
+}
+
+int BrushShop::findBrushId(float strokeWidth, int strokePaintId, Brush::Shape shape, MStatus *st)
+{
+  std::map<Brush::Shape, BrushRack>::iterator rackIter = racks.find(shape);
+    if (rackIter == racks.end())
+    {
+        if (st)
+        {
+            *st = MS::kFailure;
+        }
+        return -1;
+    }
+    BrushRack &rack = rackIter->second;
+    return rack.findBrushId(strokeWidth, strokePaintId, st);
+}
+
 ostream &operator<<(ostream &os, const BrushShop &shop)
 {
     std::map<Brush::Shape, BrushRack>::const_iterator it;

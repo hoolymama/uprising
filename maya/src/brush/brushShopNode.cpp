@@ -71,8 +71,8 @@ MStatus brushShopNode::compute(const MPlug &plug, MDataBlock &data)
 
   BrushShop shop;
 
-  shop.insertRack(std::make_pair(Brush::kFlat, BrushRack(brushes, Brush::kFlat)));
   shop.insertRack(std::make_pair(Brush::kRound, BrushRack(brushes, Brush::kRound)));
+  shop.insertRack(std::make_pair(Brush::kFlat, BrushRack(brushes, Brush::kFlat)));
 
   cerr << "shop: " << shop << endl;
 

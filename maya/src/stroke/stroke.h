@@ -76,7 +76,9 @@ public:
 		kMapRed,
 		kMapGreen,
 		kMapBlue,
-		kMaxRadius
+		kBrushModelId,
+		kBrushShape
+		
 	};
 
 	enum SortDirection
@@ -218,7 +220,9 @@ public:
 
 	void setBrushId(int val);
 	// void setCustomBrushId(int val);
-
+	void setBrushModelId(int rhs);
+ 	int brushModelId() const;
+	
 	void setPaintId(int val);
 
 	int potId() const;
@@ -229,16 +233,14 @@ public:
 
 	void appendStrokeIdToSortStack(bool ascending);
 	void appendParentIdToSortStack(bool ascending);
-
 	void appendBrushIdToSortStack(bool ascending);
-
 	void appendPaintIdToSortStack(bool ascending);
-
 	void appendLayerIdToSortStack(bool ascending);
-
 	void appendRepeatIdToSortStack(bool ascending);
 	void appendTargetCountToSortStack(bool ascending);
-	void appendMaxRadiusToSortStack(bool ascending);
+	void appendBrushModelIdToSortStack(bool ascending);
+	void appendBrushShapeToSortStack(bool ascending);
+	
 
 	// void appendCustomBrushIdToSortStack(bool ascending);
 
@@ -255,7 +257,10 @@ public:
 	bool testLayerId(FilterOperator op, int value) const;
 	bool testRepeatId(FilterOperator op, int value) const;
 	bool testTargetCount(FilterOperator op, int value) const;
-	bool testMaxRadius(FilterOperator op, int value) const;
+	bool testBrushModelId(FilterOperator op, int value) const;
+	bool testBrushShape(FilterOperator op, int value) const;
+	
+
 	
 
 	bool testMapRedId(FilterOperator op, int value) const;
@@ -394,6 +399,7 @@ private:
 	int m_parentId;
 	int m_customBrushId;
 	int m_repeatId;
+	int m_brushModelId;
 	float m_maxRadius;
 	MFloatVector m_sortColor;
 	MFloatVector m_filterColor;

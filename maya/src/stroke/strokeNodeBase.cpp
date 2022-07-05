@@ -14,6 +14,7 @@
 
 #include <jMayaIds.h>
 #include "texUtils.h"
+#include "brushShopData.h"
 
 const double rad_to_deg = (180 / 3.1415927);
 const double deg_to_rad = (3.1415927 / 180);
@@ -69,7 +70,8 @@ MStatus strokeNodeBase::initialize()
   eAttr.addField("Layer Id", Stroke::kLayerId);
   eAttr.addField("Parent Id", Stroke::kParentId);
   eAttr.addField("Target Count", Stroke::kTargetCount);
-  eAttr.addField("Max Radius", Stroke::kMaxRadius);
+  eAttr.addField("Brush Model Id", Stroke::kBrushModelId);
+  eAttr.addField("Brush Shape", Stroke::kBrushShape);
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
@@ -109,7 +111,8 @@ MStatus strokeNodeBase::initialize()
   eAttr.addField("Layer Id", Stroke::kLayerId);
   eAttr.addField("Parent Id", Stroke::kParentId);
   eAttr.addField("Target Count", Stroke::kTargetCount);
-  eAttr.addField("Max Radius", Stroke::kMaxRadius);
+  eAttr.addField("Brush Model Id", Stroke::kBrushModelId);
+  eAttr.addField("Brush Shape", Stroke::kBrushShape);
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
@@ -253,6 +256,7 @@ void strokeNodeBase::getStrokeParamPoints( const std::vector<Stroke> *geom, floa
   int i = 0;
   for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++, i++)
   {
+
     iter->getPointAtParam(strokeParam, result[i]);
   }
 }
@@ -355,6 +359,7 @@ bool strokeNodeBase::setSortMapColor(std::vector<Stroke> *geom) const
   }
   return true;
 }
+ 
 
 void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) const
 
@@ -445,10 +450,16 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
                                { return stroke.testParentId(op, value) == false; });
       break;
 
-    case Stroke::kMaxRadius:
+    case Stroke::kBrushModelId:
       new_end = std::remove_if(geom->begin(), geom->end(),
                                [op, value](const Stroke &stroke)
-                               { return stroke.testMaxRadius(op, value) == false; });
+                               { return stroke.testBrushModelId(op, value) == false; });
+      break;
+
+    case Stroke::kBrushShape:
+      new_end = std::remove_if(geom->begin(), geom->end(),
+                               [op, value](const Stroke &stroke)
+                               { return stroke.testBrushShape(op, value) == false; });
       break;
 
     case Stroke::kMapRed:
@@ -603,10 +614,16 @@ void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) co
         iter->appendTargetCountToSortStack(ascending);
       }
       break;
-    case Stroke::kMaxRadius:
+    case Stroke::kBrushModelId:
       for (iter = geom->begin(); iter != geom->end(); iter++)
       {
-        iter->appendMaxRadiusToSortStack(ascending);
+        iter->appendBrushModelIdToSortStack(ascending);
+      }
+      break;
+    case Stroke::kBrushShape:
+      for (iter = geom->begin(); iter != geom->end(); iter++)
+      {
+        iter->appendBrushShapeToSortStack(ascending);
       }
       break;
     case Stroke::kMapRed:

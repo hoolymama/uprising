@@ -14,7 +14,7 @@ public:
 
 	Paint();
  
-	Paint( const MColor &color,int pot, float travel, const MString &name);
+	Paint( const MColor &color, int pot, float travel, const MString &name);
 	Paint( const MFloatVector &color, float opacity,int pot, float travel, const MString &name );
 
 	~Paint();

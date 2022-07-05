@@ -21,19 +21,21 @@
 #include "strokeData.h"
 #include "mapIdStrokes.h"
 #include "stroke.h"
+#include "paletteData.h"
+#include "brushShopData.h"
 #include <jMayaIds.h>
 
 #include "errorMacros.h"
 #include "texUtils.h"
 
-
-MObject mapIdStrokes::aNormalize;  
-MObject mapIdStrokes::aNumberOfValues; /// normalize
-MObject mapIdStrokes::aIdProperty;
-MObject mapIdStrokes::aIdMap;         ///> The solid texture whose red channel will be mapped to the chosen Id property of strokes.
-MObject mapIdStrokes::aSampleAt;
-MObject mapIdStrokes::aStrokeParam;
-MObject mapIdStrokes::aIdOffset;
+MObject mapIdStrokes::aSampleParam;
+MObject mapIdStrokes::aDoPaintId;
+MObject mapIdStrokes::aPaintIdMap;
+MObject mapIdStrokes::aPaintIdMapQuantizeLevel; // 256 is normal
+MObject mapIdStrokes::aPaintIdOffset;
+MObject mapIdStrokes::aPalette;
+MObject mapIdStrokes::aDoBrushModelId;
+MObject mapIdStrokes::aBrushShop;
 
 MTypeId mapIdStrokes::id(k_mapIdStrokes);
 
@@ -64,60 +66,65 @@ MStatus mapIdStrokes::initialize()
   MFnTypedAttribute tAttr;
   MFnEnumAttribute eAttr;
 
-  aNormalize = nAttr.create("setRange", "srn", MFnNumericData::kBoolean);
+  aSampleParam = nAttr.create("sampleParam", "smp", MFnNumericData::kFloat);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setDefault(0.0f);
+  addAttribute(aSampleParam);
+
+  aDoPaintId = nAttr.create("doPaintId", "ptid", MFnNumericData::kBoolean);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setDefault(true);
-  addAttribute(aNormalize);
+  addAttribute(aDoPaintId);
 
-  aNumberOfValues = nAttr.create("numberOfValues", "nvl", MFnNumericData::kInt);
-  nAttr.setKeyable(true);
-  nAttr.setStorable(true);
-  nAttr.setDefault(0.0f);
-  addAttribute(aNumberOfValues);
-
-  aIdProperty = eAttr.create("idProperty", "idp", mapIdStrokes::kBrushId);
-  eAttr.addField("brushId", mapIdStrokes::kBrushId);
-  eAttr.addField("paintId", mapIdStrokes::kPaintId);
-  eAttr.addField("layerId", mapIdStrokes::kLayerId);
-  eAttr.setHidden(false);
-  eAttr.setKeyable(true);
-  addAttribute(aIdProperty);
-
-  aIdMap = nAttr.create("idMap", "ids", MFnNumericData::kFloat);
+  aPaintIdMap = nAttr.create("paintIdMap", "pmap", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
-  addAttribute(aIdMap);
+  addAttribute(aPaintIdMap);
 
-  aIdOffset = nAttr.create("idOffset", "ido", MFnNumericData::kInt);
+  aPaintIdMapQuantizeLevel = nAttr.create("paintIdMapQuantizeLevel", "pql", MFnNumericData::kInt);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setDefault(0.0f);
-  addAttribute(aIdOffset);
+  addAttribute(aPaintIdMapQuantizeLevel);
 
-
-  aSampleAt = eAttr.create("sampleAt", "sa", mapIdStrokes::kStrokeParam);
-  eAttr.addField("strokeParam", mapIdStrokes::kStrokeParam);
-  eAttr.addField("pivot", mapIdStrokes::kPivot);
-  eAttr.setHidden(false);
-  eAttr.setKeyable(true);
-  addAttribute(aSampleAt);
-
-  aStrokeParam = nAttr.create("strokeParam", "skp", MFnNumericData::kFloat);
+  aPaintIdOffset = nAttr.create("paintIdOffset", "pof", MFnNumericData::kInt);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setDefault(0.0f);
-  addAttribute(aStrokeParam);
+  addAttribute(aPaintIdOffset);
 
-  attributeAffects(aNormalize, aOutput);
-  attributeAffects(aNumberOfValues, aOutput);
-  attributeAffects(aIdProperty, aOutput);
-  attributeAffects(aIdOffset, aOutput);
-  attributeAffects(aIdMap, aOutput);
-  attributeAffects(aSampleAt, aOutput);
-  attributeAffects(aStrokeParam, aOutput);
- 
+  aPalette = tAttr.create("palette", "plt", paletteData::id);
+  tAttr.setReadable(false);
+  tAttr.setStorable(false);
+  tAttr.setKeyable(true);
+  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+  addAttribute(aPalette);
+
+  aDoBrushModelId = nAttr.create("doBrushModelId", "bmid", MFnNumericData::kBoolean);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setDefault(true);
+  addAttribute(aDoBrushModelId);
+
+  aBrushShop = tAttr.create("brushShop", "shop", brushShopData::id);
+  tAttr.setReadable(false);
+  tAttr.setStorable(false);
+  tAttr.setKeyable(true);
+  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+  addAttribute(aBrushShop);
+
+  attributeAffects(aSampleParam, aOutput);
+  attributeAffects(aDoPaintId, aOutput);
+  attributeAffects(aPaintIdMap, aOutput);
+  attributeAffects(aPaintIdMapQuantizeLevel, aOutput);
+  attributeAffects(aPaintIdOffset, aOutput);
+  attributeAffects(aPalette, aOutput);
+  attributeAffects(aDoBrushModelId, aOutput);
+  attributeAffects(aBrushShop, aOutput);
+
   return (MS::kSuccess);
 }
 
@@ -128,84 +135,129 @@ MStatus mapIdStrokes::mutate(
 {
   MStatus st;
 
-  MIntArray ids;
-  int idOffset = data.inputValue(aIdOffset).asInt();
-
-  float dummy = data.inputValue(aIdMap).asFloat();
-  int numValues = data.inputValue(aNumberOfValues).asInt();
-  float strokeParam = data.inputValue(aStrokeParam).asFloat();
-  bool normalize = data.inputValue(aNormalize).asBool();
-  MObject thisObj = thisMObject();
-
-  MFloatPointArray points;
-
-  mapIdStrokes::SampleAt sampleAt = (mapIdStrokes::SampleAt)data.inputValue(aSampleAt).asShort();
-  mapIdStrokes::Property idProperty = (mapIdStrokes::Property)data.inputValue(aIdProperty).asShort();
-
-  if (sampleAt == mapIdStrokes::kPivot)
+  // FOR PAINTS
+  bool doPaintId = data.inputValue(aDoPaintId).asBool();
+  bool doBrushModelId = data.inputValue(aDoBrushModelId).asBool();
+  if (doPaintId)
   {
-    getPivotPoints(strokes, points);
+    st = assignPaintAndPotIds(data, strokes);
   }
-  else
+  if (doBrushModelId)
   {
-    getStrokeParamPoints(strokes, strokeParam, points );
+    st = assignBrushModelAndShapeIds(data, strokes);
   }
 
-  int quantizeLevels = normalize ? numValues : 256; 
- 
-  // GET IDS
-  TexUtils::sampleSolidTexture(
-        thisObj,
-        mapIdStrokes::aIdMap,
-        quantizeLevels,
-        points,
-        ids);
-
-  for (unsigned int i = 0; i < ids.length(); i++)
-  {
-    ids[i] += idOffset;
-  }
-
-  applyIds(strokes, ids, idProperty);
   return MS::kSuccess;
 }
 
-
-void mapIdStrokes::applyIds(
-    std::vector<Stroke> *strokes,
-    const MIntArray &ids,
-    mapIdStrokes::Property idProperty) const
+MStatus mapIdStrokes::assignPaintAndPotIds(MDataBlock &data,
+                                           std::vector<Stroke> *strokes) const
 {
-  if (ids.length() != strokes->size())
-  {
-    return;
-  }
+  MStatus st;
+  int numStrokes = strokes->size();
+  float sampleParam = data.inputValue(aSampleParam).asFloat();
+  float paintIdMap = data.inputValue(aPaintIdMap).asFloat();
+  int quantizeLevels = data.inputValue(aPaintIdMapQuantizeLevel).asInt();
+  int paintIdOffset = data.inputValue(aPaintIdOffset).asInt();
+  std::map<int, Paint> palette;
+  st = getPalette(data, palette);
+  msert;
+
+  MIntArray paintIds;
+
+  MObject thisObj = thisMObject();
+  MFloatPointArray points;
+  getStrokeParamPoints(strokes, sampleParam, points);
+
+  // GET IDS FROM TEXTURE
+  TexUtils::sampleSolidTexture(
+      thisObj,
+      mapIdStrokes::aPaintIdMap,
+      quantizeLevels,
+      points,
+      paintIds);
+
+  MIntArray potIds(numStrokes, 0);
+  std::map<int, Paint>::const_iterator paletteIter;
+  std::map<int, Paint>::const_iterator paletteEndIter = palette.end();
   std::vector<Stroke>::iterator siter = strokes->begin();
   unsigned index = 0;
 
-  if (idProperty == mapIdStrokes::kBrushId)
+  for (; siter != strokes->end(); ++siter, ++index)
   {
-    for (; siter != strokes->end(); ++siter, ++index)
+    int &paintId = paintIds[index];
+    int &potId = potIds[index];
+
+    paintId += paintIdOffset;
+    paletteIter = palette.find(paintId);
+    if (paletteIter != paletteEndIter)
     {
-       siter->setBrushId(ids[index]);
+      potId = paletteIter->second.pot();
     }
-    return;
+    siter->setPaintId(paintId);
+    siter->setPotId(potId);
+  }
+  return MS::kSuccess;
+}
+
+MStatus mapIdStrokes::assignBrushModelAndShapeIds(MDataBlock &data,
+                                          std::vector<Stroke> *strokes) const
+{
+  MStatus st;
+  BrushShop brushShop;
+  st = getBrushShop(data, brushShop); msert;
+  std::vector<Stroke>::iterator stroke = strokes->begin();
+  for (; stroke != strokes->end(); stroke++)
+  {
+    // Get the atts we need.
+    float width = stroke->maxRadius() * 2.0f;
+    Brush::Shape shape = stroke->brushStrokeSpec().shape;
+    int modelId = brushShop.findModelId(width, shape, &st) ;
+    stroke->setBrushModelId(modelId);
+  }
+  return MS::kSuccess;
+}
+
+MStatus mapIdStrokes::getPalette(MDataBlock &data, std::map<int, Paint> &palette) const
+{
+  MStatus st;
+  MDataHandle h = data.inputValue(aPalette, &st);
+  msert;
+  MObject d = h.data();
+  MFnPluginData fnP(d, &st);
+  if (st.error())
+  {
+    return st;
+  }
+  paletteData *pData = (paletteData *)fnP.data(&st);
+  msert;
+  palette = *(pData->fGeometry);
+  if (palette.size() == 0)
+  {
+    return MS::kFailure;
+  }
+  return MS::kSuccess;
+}
+
+MStatus mapIdStrokes::getBrushShop(
+    MDataBlock &data, BrushShop &brushShop) const
+{
+  MStatus st;
+  MDataHandle h = data.inputValue(aBrushShop, &st);
+  msert;
+  MObject d = h.data();
+  MFnPluginData fnP(d, &st);
+  if (st.error())
+  {
+    return st;
+  }
+  brushShopData *bData = (brushShopData *)fnP.data(&st);
+  msert;
+  brushShop = *(bData->fGeometry);
+  if (brushShop.racks.size() == 0)
+  {
+    return MS::kFailure;
   }
 
-  if (idProperty == mapIdStrokes::kPaintId)
-  {
-    for (; siter != strokes->end(); ++siter, ++index)
-    {
-      siter->setPaintId(ids[index]);
-    }
-    return;
-  }
-  if (idProperty == mapIdStrokes::kLayerId)
-  {
-    for (; siter != strokes->end(); ++siter, ++index)
-    {
-      siter->setLayerId(ids[index]);
-    }
-    return;
-  }
+  return MS::kSuccess;
 }

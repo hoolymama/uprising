@@ -132,7 +132,6 @@ MStatus brushLifter::mutate(
 
   if (shouldReassignBrushIds)
   {
-
     assignBrushes(brushShop, strokes);
   }
 
@@ -193,7 +192,7 @@ void brushLifter::assignBrushes(BrushShop &brushShop, std::vector<Stroke> *strok
 
   cerr << brushShop << endl;
   ;
-
+  MStatus st;
   std::vector<Stroke>::iterator stroke = strokes->begin();
   for (; stroke != strokes->end(); stroke++)
   {
@@ -202,19 +201,10 @@ void brushLifter::assignBrushes(BrushShop &brushShop, std::vector<Stroke> *strok
     int paintId = stroke->paintId();
     Brush::Shape shape = stroke->brushStrokeSpec().shape;
 
-    // Loop over strokes and assign a brush to each.
-    std::map<Brush::Shape, BrushRack> &racks = brushShop.racks;
-    std::map<Brush::Shape, BrushRack>::iterator iter = racks.find(shape);
-    if (iter == racks.end())
+
+    int brushId = brushShop.findBrushId(width, paintId, shape, &st);
+    if (st.error())
     {
-      // Ignore the stroke with an invalid shape. (should be impossible anyway)
-      continue;
-    }
-    BrushRack &rack = iter->second;
-    int brushId = rack.getBrushId(width, paintId);
-    if (brushId == -1)
-    {
-      // No brush found for this stroke.
       continue;
     }
     stroke->setBrushId(brushId);

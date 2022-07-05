@@ -76,7 +76,11 @@ public:
 
     friend ostream &operator<<(ostream &os, const BrushRack &rack);
 
-    int getBrushId(float width, int paintId);
+    int findBrushId(float strokeWidth, int paintId, MStatus *st=0);
+
+    int findModelId(float strokeWidth, MStatus *st=0);
+
+    std::map<BrushModelKey, BrushModel>::iterator findModel(float wistrokeWidthdth);
 
     const std::string shapeName() const;
 
