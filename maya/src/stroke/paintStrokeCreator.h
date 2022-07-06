@@ -117,9 +117,9 @@ protected:
     static MObject aStrokeLength;
     static MObject aMinimumStrokeAdvance;
     static MObject aOverlap;
-    static MObject aPaintId;
     static MObject aBrushId;
-    static MObject aPotId;
+    // static MObject aPaintId;
+    // static MObject aPotId;
     
     static MObject aBrushFollowStroke;
     static MObject aSplitAngle;

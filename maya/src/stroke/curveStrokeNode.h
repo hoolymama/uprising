@@ -17,23 +17,21 @@ public:
   static MStatus initialize();
   virtual void postConstructor();
   virtual bool isAbstractClass() const { return false; }
-  MStatus generateStrokeGeometry(const MPlug &plug,MDataBlock &data, std::vector<Stroke> *pOutStrokes);
- 
+  MStatus generateStrokeGeometry(const MPlug &plug, MDataBlock &data, std::vector<Stroke> *pOutStrokes);
+
   static MTypeId id;
 
 private:
   static MObject aCurves;
-  static MObject aBrush;
+  static MObject aWidth;
   static MObject aSplitAngle;
   static MObject aPivot;
-  
 
   enum Pivot
   {
     kFirstTarget,
     kCurveStart
   };
-
 
   unsigned createStrokeData(
       const MObject &dCurve,
@@ -45,12 +43,8 @@ private:
 
   Stroke createStroke(
       const MObject &dCurve,
-      const std::pair<int, Brush> &brushPair,
       const MDoubleArray &curveParams,
-      bool followStroke,
-      bool applyBrushBias,
-      float entryTransitionLength,
-      float exitTransitionLength) const;
+      float radius) const;
 };
 
 #endif

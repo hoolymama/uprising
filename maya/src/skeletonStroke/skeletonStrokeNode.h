@@ -20,16 +20,14 @@ public:
     virtual void postConstructor();
     virtual bool isAbstractClass() const { return false; }
 
-	
     virtual MStatus generateStrokeGeometry(
         const MPlug &plug,
-      MDataBlock &data,
-      std::vector<Stroke> *pStrokes);
+        MDataBlock &data,
+        std::vector<Stroke> *pStrokes);
 
     static MTypeId id;
 
 private:
-
     unsigned createStrokesForChain(
         const skChain &current_chain,
 
@@ -38,9 +36,9 @@ private:
         bool awayFromGoal,
         unsigned parentIndex,
         int minimumPoints,
-  
+
         float pointDensity,
-  
+
         float extendEntry,
         float extendExit,
         float strokeLength,
@@ -57,8 +55,6 @@ private:
         MPointArray &points,
         MFloatArray &radii) const;
 
-	
-
     unsigned createStrokeData(
         const MObject &dCurve,
         const MFloatArray &radii,
@@ -67,23 +63,20 @@ private:
         float density,
         int minimumPoints,
         MDoubleArray &curveParams,
-        MFloatArray &strokeRadii,
-        float &maxRadius) const;
+        MFloatArray &strokeRadii) const;
 
     Stroke createStroke(
         const MObject &dCurve,
         const MDoubleArray &curveParams,
         const MFloatArray &strokeRadii
 
-        ) const;
+    ) const;
 
     Stroke createReverseStroke(
         const MObject &dCurve,
 
         const MDoubleArray &curveParams,
-        const MFloatArray &strokeRadii
-        ) const;
-
+        const MFloatArray &strokeRadii) const;
 
     static MObject aChains;
     static MObject aActive;
@@ -94,11 +87,9 @@ private:
     static MObject aGoalPoint;
     static MObject aAwayFromGoal;
     static MObject aSmoothNeighbors;
-    
+
     static MObject aSmoothPositions;
     static MObject aSmoothWeights;
-
 };
-
 
 #endif

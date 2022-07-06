@@ -1,6 +1,6 @@
 source "AEpaintingUtilFuncs";
 // source "AEpaintingPaints";
-source "AEpaintingBrushes";
+// source "AEpaintingBrushes";
 source "AEpaintingStrokes";
 
  global proc     AEpaintingTemplate(string $nodeName)
@@ -22,7 +22,7 @@ source "AEpaintingStrokes";
 	editorTemplate -cl 0 -beginLayout "Parent Id Behaviour";
 	editorTemplate -addControl "reassignParentId";
 	editorTemplate -endLayout;
-
+ 
 
 	editorTemplate -cl 0 -beginLayout "Display Attributes";
 	editorTemplate -addControl "pointSize"; 
@@ -55,9 +55,9 @@ source "AEpaintingStrokes";
   	editorTemplate -endLayout;
 
 
-	editorTemplate -cl 0 -beginLayout "Brushes";
- 	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
- 	editorTemplate -endLayout;
+	// editorTemplate -cl 0 -beginLayout "Brushes";
+ 	// editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
+ 	// editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Strokes";
  	editorTemplate -callCustom "AEpaintingStrokesNew" "AEpaintingStrokesReplace" "strokes";

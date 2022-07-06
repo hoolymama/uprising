@@ -29,6 +29,7 @@ void *brushLifter::creator()
   return new brushLifter();
 }
 
+
 void brushLifter::postConstructor()
 {
   MPxNode::postConstructor();
@@ -136,11 +137,11 @@ MStatus brushLifter::mutate(
   }
 
   std::map<int, Brush>::const_iterator brushIter;
-  std::vector<Stroke>::iterator currentStroke = strokes->begin();
+  std::vector<Stroke>::iterator strokeIter = strokes->begin();
 
-  for (unsigned i = 0; currentStroke != strokes->end(); currentStroke++)
+  for (unsigned i = 0; strokeIter != strokes->end(); strokeIter++)
   {
-    int brushId = currentStroke->brushId();
+    int brushId = strokeIter->brushId();
     brushIter = brushes.find(brushId);
     if (brushIter == brushes.end())
     {
@@ -149,7 +150,7 @@ MStatus brushLifter::mutate(
     const Brush &brush = brushIter->second;
 
     // get a pointer to the current stroke from the iterator.
-    Stroke *stroke = &(*currentStroke);
+    Stroke *stroke = &(*strokeIter);
 
     // Make a nurbs curve to serve as a utility.
     MObject curveObject;
@@ -169,7 +170,7 @@ MStatus brushLifter::mutate(
 
     applyRotation(brush, curveObject, tangents, stroke);
 
-    currentStroke->resetTangents();
+    strokeIter->resetTangents();
 
     if (shouldApplyLift)
     {
@@ -182,16 +183,7 @@ MStatus brushLifter::mutate(
 
 void brushLifter::assignBrushes(BrushShop &brushShop, std::vector<Stroke> *strokes) const
 {
-  /*
-   Make a data structure that will allow us to arrange brushes by model.
 
-   A brushShop is a map of brushRacks. Currenly only two racks (flat brushes, round brushes)
-   Each brushRack is a map of brushModels. (davinci30, davinci22, etc)
-   Each brushModel contains a list of brushes of that model. (e.g. davinci30 has 3 brushes, davinci22 has 2 brushes)
-   */
-
-  cerr << brushShop << endl;
-  ;
   MStatus st;
   std::vector<Stroke>::iterator stroke = strokes->begin();
   for (; stroke != strokes->end(); stroke++)
@@ -218,9 +210,10 @@ void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Str
 
   The weights are based on the radius of the stroke.
   We also calculate the entry and exit weights (linear interpolation)
-  The final weight fdor each target is the min value of the two.
+  The final weight for each target is the min value of the two.
   The maximum weight is 1.0=, since that represents the brush pushing as hard as it can.
   */
+  const double epsilon = 0.001;
 
   MFnNurbsCurve curveFn(curveObject);
   double curveLength = curveFn.length();
@@ -249,16 +242,18 @@ void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Str
     const double &param = knotVals[k];
     float brushWeight = target->radius() / brushRadius;
     double distance = curveFn.findLengthFromParam(param);
-    if (distance < entryTransition)
+    if (distance+epsilon < entryTransition)
     {
       transitionWeight = float(distance / entryTransition);
     }
-    else if (distance > (curveLength - exitTransition))
+    else if ((distance-epsilon) > (curveLength - exitTransition))
     {
+      // cerr << "distance" << distance << " curveLength" << curveLength << " exitTransition" << exitTransition << endl;
+      // cerr << "DOING TAPER = " <<  ((distance-epsilon) > (curveLength - exitTransition)) << endl;
       transitionWeight = float((curveLength - distance) / exitTransition);
     }
 
-    target->setWeight(fmin(transitionWeight, brushWeight));
+    target->setWeight(fmin(transitionWeight, brushWeight ));
   }
 }
 

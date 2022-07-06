@@ -10,7 +10,7 @@
 
 #include "strokeData.h"
 #include "paintingNodeBase.h"
-
+#include "brushShopData.h"
 #include <jMayaIds.h>
 #include "mayaMath.h"
 #include "errorMacros.h"
@@ -18,18 +18,18 @@
 
 MTypeId paintingBase::id(k_paintingBase);
 
-paintingBase::paintingBase(){}
+paintingBase::paintingBase() {}
 
-paintingBase::~paintingBase(){}
+paintingBase::~paintingBase() {}
 
 void *paintingBase::creator()
 {
   return new paintingBase();
 }
 
-
 MObject paintingBase::aStrokes;
 MObject paintingBase::aBrushes;
+MObject paintingBase::aBrushShop;
 
 MObject paintingBase::aLinearSpeed;           // cm/sec
 MObject paintingBase::aAngularSpeed;          // per sec
@@ -41,7 +41,7 @@ MObject paintingBase::aPointSize;
 MObject paintingBase::aLineLength;
 MObject paintingBase::aLineThickness;
 MObject paintingBase::aDisplayTargets;
-MObject paintingBase::aWireColor; 
+MObject paintingBase::aWireColor;
 
 MObject paintingBase::aDisplayIds;
 MObject paintingBase::aDisplayParentIds;
@@ -50,7 +50,7 @@ MObject paintingBase::aDisplayLayerIds;
 MObject paintingBase::aIdDisplayOffset;
 MObject paintingBase::aArrowheadSize;
 MObject paintingBase::aDrawParam;
- 
+
 MStatus paintingBase::initialize()
 {
   MStatus st;
@@ -59,10 +59,10 @@ MStatus paintingBase::initialize()
   MFnNumericAttribute nAttr;
   MFnTypedAttribute tAttr;
   MFnUnitAttribute uAttr;
- 
+
   MFnMatrixAttribute mAttr;
   MFnEnumAttribute eAttr;
- 
+
   MMatrix identity;
   identity.setToIdentity();
 
@@ -81,6 +81,7 @@ MStatus paintingBase::initialize()
   uAttr.setStorable(true);
   uAttr.setReadable(true);
   uAttr.setMin(minAngSpeed);
+  nAttr.setKeyable(true);
   uAttr.setMax((mayaMath::single_pi));
   addAttribute(aAngularSpeed);
 
@@ -112,6 +113,12 @@ MStatus paintingBase::initialize()
   tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
   addAttribute(aBrushes);
 
+  aBrushShop = tAttr.create("brushShop", "shop", brushShopData::id);
+  tAttr.setReadable(false);
+  tAttr.setStorable(false);
+  tAttr.setKeyable(true);
+  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+  addAttribute(aBrushShop);
 
   aReassignParentId = nAttr.create("reassignParentId", "rpi",
                                    MFnNumericData::kBoolean);
@@ -119,6 +126,7 @@ MStatus paintingBase::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(false);
+  nAttr.setKeyable(true);
   addAttribute(aReassignParentId);
 
   aPointSize = nAttr.create("pointSize", "psi", MFnNumericData::kFloat);
@@ -127,6 +135,7 @@ MStatus paintingBase::initialize()
   nAttr.setMin(0.00f);
   nAttr.setSoftMax(20.0f);
   nAttr.setDefault(5.0f);
+  nAttr.setKeyable(true);
   addAttribute(aPointSize);
 
   aLineLength = nAttr.create("lineLength", "lln", MFnNumericData::kFloat);
@@ -135,6 +144,7 @@ MStatus paintingBase::initialize()
   nAttr.setMin(0.00f);
   nAttr.setSoftMax(20.0f);
   nAttr.setDefault(5.0f);
+  nAttr.setKeyable(true);
   addAttribute(aLineLength);
 
   aLineThickness = nAttr.create("lineThickness", "ltk", MFnNumericData::kFloat);
@@ -143,6 +153,7 @@ MStatus paintingBase::initialize()
   nAttr.setMin(0.00f);
   nAttr.setSoftMax(20.0f);
   nAttr.setDefault(5.0f);
+  nAttr.setKeyable(true);
   addAttribute(aLineThickness);
 
   aArrowheadSize = nAttr.create("arrowheadSize", "arsz", MFnNumericData::kFloat);
@@ -151,6 +162,7 @@ MStatus paintingBase::initialize()
   nAttr.setMin(0.00f);
   nAttr.setSoftMax(20.0f);
   nAttr.setDefault(5.0f);
+  nAttr.setKeyable(true);
   addAttribute(aArrowheadSize);
 
   aDisplayTargets = eAttr.create("displayTargets", "dtg");
@@ -161,6 +173,7 @@ MStatus paintingBase::initialize()
   eAttr.setHidden(false);
   eAttr.setStorable(true);
   eAttr.setReadable(true);
+  nAttr.setKeyable(true);
   eAttr.setDefault(PaintingEnums::kTargetsNone);
   addAttribute(aDisplayTargets);
 
@@ -170,6 +183,7 @@ MStatus paintingBase::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+  nAttr.setKeyable(true);
   addAttribute(aDisplayIds);
 
   aDisplayParentIds = nAttr.create("displayParentIds", "dprid",
@@ -178,6 +192,7 @@ MStatus paintingBase::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+  nAttr.setKeyable(true);
   addAttribute(aDisplayParentIds);
 
   aDisplayLayerIds = nAttr.create("displayLayerIds", "dlyid",
@@ -186,8 +201,8 @@ MStatus paintingBase::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+  nAttr.setKeyable(true);
   addAttribute(aDisplayLayerIds);
-
 
   aDisplayBrushIds = nAttr.create("displayBrushIds", "dbid",
                                   MFnNumericData::kBoolean);
@@ -195,8 +210,9 @@ MStatus paintingBase::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+  nAttr.setKeyable(true);
   addAttribute(aDisplayBrushIds);
-  
+
   aIdDisplayOffset = nAttr.create("idDisplayOffset", "iddo", MFnNumericData::k3Float);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -210,13 +226,14 @@ MStatus paintingBase::initialize()
   nAttr.setMin(0.0f);
   nAttr.setSoftMax(1.0f);
   nAttr.setDefault(1.0f);
+  nAttr.setKeyable(true);
   addAttribute(aDrawParam);
 
-	aWireColor = nAttr.createColor("wireframeColor", "wfcol");
-	nAttr.setStorable(true);
-	nAttr.setKeyable(true);
-	st = addAttribute(aWireColor);
-	mser;
+  aWireColor = nAttr.createColor("wireframeColor", "wfcol");
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aWireColor);
+  mser;
 
   return (MS::kSuccess);
 }
@@ -227,9 +244,9 @@ MStatus paintingBase::compute(const MPlug &plug, MDataBlock &data)
 }
 
 void paintingBase::draw(M3dView &view,
-                    const MDagPath &path,
-                    M3dView::DisplayStyle style,
-                    M3dView::DisplayStatus status)
+                        const MDagPath &path,
+                        M3dView::DisplayStyle style,
+                        M3dView::DisplayStatus status)
 {
   return;
 }
@@ -244,8 +261,7 @@ MBoundingBox paintingBase::boundingBox() const
   return MBoundingBox();
 }
 
-void paintingBase::postConstructor(){}
-
+void paintingBase::postConstructor() {}
 
 void paintingBase::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes) const
 {
@@ -279,4 +295,27 @@ void paintingBase::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushe
 
     brushes[index] = *(bData->fGeometry);
   }
+}
+
+MStatus paintingBase::getBrushShop(
+    MDataBlock &data, BrushShop &brushShop) const
+{
+  MStatus st;
+  MDataHandle h = data.inputValue(aBrushShop, &st);
+  msert;
+  MObject d = h.data();
+  MFnPluginData fnP(d, &st);
+  if (st.error())
+  {
+    return st;
+  }
+  brushShopData *bData = (brushShopData *)fnP.data(&st);
+  msert;
+  brushShop = *(bData->fGeometry);
+  if (brushShop.racks.size() == 0)
+  {
+    return MS::kFailure;
+  }
+
+  return MS::kSuccess;
 }

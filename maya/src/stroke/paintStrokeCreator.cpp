@@ -34,9 +34,9 @@ MObject paintStrokeCreator::aCanvasMatrix;
 MObject paintStrokeCreator::aStrokeLength;
 MObject paintStrokeCreator::aMinimumStrokeAdvance;
 MObject paintStrokeCreator::aOverlap;
-MObject paintStrokeCreator::aPaintId;
+// MObject paintStrokeCreator::aPaintId;
 MObject paintStrokeCreator::aBrushId;
-MObject paintStrokeCreator::aPotId;
+// MObject paintStrokeCreator::aPotId;
 
 MObject paintStrokeCreator::aBrushFollowStroke;
 
@@ -46,7 +46,7 @@ MObject paintStrokeCreator::aExitTransitionLength;
 MObject paintStrokeCreator::aExtendEntry;
 MObject paintStrokeCreator::aExtendExit;
 MObject paintStrokeCreator::aMinimumPoints;
-MObject paintStrokeCreator::aApplyBrushBias;
+// MObject paintStrokeCreator::aApplyBrushBias;
 MObject paintStrokeCreator::aBrushShape;
 
 ;
@@ -108,14 +108,14 @@ MStatus paintStrokeCreator::initialize()
     st = addAttribute(aOverlap);
     mser;
 
-    aPaintId = nAttr.create("paintId", "ptid", MFnNumericData::kInt);
-    mser;
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setWritable(true);
-    st = addAttribute(aPaintId);
-    mser;
+    // aPaintId = nAttr.create("paintId", "ptid", MFnNumericData::kInt);
+    // mser;
+    // nAttr.setHidden(false);
+    // nAttr.setKeyable(true);
+    // nAttr.setStorable(true);
+    // nAttr.setWritable(true);
+    // st = addAttribute(aPaintId);
+    // mser;
 
     aBrushId = nAttr.create("brushId", "bid", MFnNumericData::kInt);
     mser;
@@ -126,14 +126,14 @@ MStatus paintStrokeCreator::initialize()
     st = addAttribute(aBrushId);
     mser;
 
-    aPotId = nAttr.create("potId", "poid", MFnNumericData::kInt);
-    mser;
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setWritable(true);
-    st = addAttribute(aPotId);
-    mser;
+    // aPotId = nAttr.create("potId", "poid", MFnNumericData::kInt);
+    // mser;
+    // nAttr.setHidden(false);
+    // nAttr.setKeyable(true);
+    // nAttr.setStorable(true);
+    // nAttr.setWritable(true);
+    // st = addAttribute(aPotId);
+    // mser;
 
     aMinimumPoints = nAttr.create("minimumPoints", "mnpts", MFnNumericData::kInt);
     mser;
@@ -154,14 +154,14 @@ MStatus paintStrokeCreator::initialize()
     st = addAttribute(aBrushFollowStroke);
     mser;
 
-    aApplyBrushBias = nAttr.create("applyBrushBias", "abb", MFnNumericData::kBoolean);
-    nAttr.setHidden(false);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(true);
-    st = addAttribute(aApplyBrushBias);
-    mser;
+    // aApplyBrushBias = nAttr.create("applyBrushBias", "abb", MFnNumericData::kBoolean);
+    // nAttr.setHidden(false);
+    // nAttr.setStorable(true);
+    // nAttr.setReadable(true);
+    // nAttr.setKeyable(true);
+    // nAttr.setDefault(true);
+    // st = addAttribute(aApplyBrushBias);
+    // mser;
 
     aSplitTestInterval = nAttr.create("splitTestInterval", "spti", MFnNumericData::kFloat);
     nAttr.setHidden(false);
@@ -212,9 +212,9 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aStrokeLength, aOutput);
     attributeAffects(aMinimumStrokeAdvance, aOutput);
     attributeAffects(aOverlap, aOutput);
-    attributeAffects(aPaintId, aOutput);
+    // attributeAffects(aPaintId, aOutput);
     attributeAffects(aBrushId, aOutput);
-    attributeAffects(aPotId, aOutput);
+    // attributeAffects(aPotId, aOutput);
 
     attributeAffects(aBrushFollowStroke, aOutput);
 
@@ -225,7 +225,7 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aExtendExit, aOutput);
     attributeAffects(aCanvasMatrix, aOutput);
     attributeAffects(aMinimumPoints, aOutput);
-    attributeAffects(aApplyBrushBias, aOutput);
+    // attributeAffects(aApplyBrushBias, aOutput);
 
     attributeAffects(aBrushShape, aOutput);
 

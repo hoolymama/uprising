@@ -34,7 +34,7 @@ protected:
   void subsample(const MFloatPointArray &inPoints, float density, MFloatPointArray &outPoints) const;
   void subsample(const MFloatPointArray &inPoints, const MColorArray &inColors, float density, MFloatPointArray &outPoints, MColorArray &outColors) const;
 
-  void applyRotations(MDataBlock &data, std::vector<Stroke> *pOutStrokes) const;
+  // void applyRotations(MDataBlock &data, std::vector<Stroke> *pOutStrokes) const;
   void applyCoats(MDataBlock &data, std::vector<Stroke> *geom) const;
   void applySpeeds(MDataBlock &data, std::vector<Stroke> *geom) const;
 

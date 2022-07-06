@@ -31,6 +31,7 @@ Stroke::Stroke()
 	  m_angularSpeed(0.0),
 	  m_approximationDistance(0.0),
 	  m_coil(0.0f),
+	  m_maxRadius(1.0f),
 	  m_brushStrokeSpec()
 {
 }

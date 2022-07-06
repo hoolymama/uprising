@@ -143,7 +143,6 @@ MStatus skeletonStrokeNode::initialize()
     nAttr.setDefault(false);
     st = addAttribute(aSmoothWeights);
 
-
     attributeAffects(aActive, aOutput);
     attributeAffects(aSplitAngle, aOutput);
     attributeAffects(aChains, aOutput);
@@ -188,12 +187,8 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     float extendEntry = data.inputValue(aExtendEntry).asFloat();
     float extendExit = data.inputValue(aExtendExit).asFloat();
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
-    bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
     int layerId = data.inputValue(aLayerId).asInt();
     int brushId = data.inputValue(aBrushId).asInt();
-
-    int paintId = data.inputValue(aPaintId).asInt();
-    int potId = data.inputValue(aPotId).asInt();
 
     int smoothNeighbors = data.inputValue(aSmoothNeighbors).asInt();
     bool smoothPositions = data.inputValue(aSmoothPositions).asBool();
@@ -274,7 +269,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
         const std::vector<skChain> *geom = scData->fGeometry;
 
         std::vector<skChain>::const_iterator current_chain;
-        
+
         for (current_chain = geom->begin(); current_chain != geom->end(); current_chain++)
         {
             unsigned count = createStrokesForChain(
@@ -294,16 +289,12 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 splitTestInterval,
                 pOutStrokes);
         }
-        
     }
 
-    strokeCreator::applyRotations(data, pOutStrokes);
     paintStrokeCreator::applyBrushStrokeSpec(data, pOutStrokes);
 
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
-        curr_stroke->setPaintId(paintId);
-        curr_stroke->setPotId(potId);
         curr_stroke->setLayerId(layerId);
         curr_stroke->setBrushId(brushId);
     }
@@ -345,8 +336,6 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     MFloatArray radii;
     getChainPointsAndRadii(current_chain, extendEntry, extendExit, editPoints, radii);
 
-    
-
     // Curve for the whole chain.
     ////////////////////////////
     MFnNurbsCurve curveFn;
@@ -354,7 +343,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     MObject curveData = dataCreator.create(&st);
     MObject dChainCurve = curveFn.createWithEditPoints(
         editPoints, 3, MFnNurbsCurve::kOpen, true, false, false, curveData, &st);
-    
+
     if (st.error())
         return 0;
     MDoubleArray knotVals;
@@ -368,7 +357,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     curveFn.setKnots(knotVals, 0, (numKnots - 1));
 
     ////////////////////////////
-    
+
     MFloatVectorArray boundaries;
     unsigned num = getStrokeBoundaries(
         dChainCurve,
@@ -386,7 +375,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     {
         return 0;
     }
-    
+
     for (int i = 0; i < num; ++i)
     {
         const float &startDist = boundaries[i].x;
@@ -396,7 +385,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         MFloatArray strokeRadii;
         MDoubleArray curveParams;
 
-        float maxRadius;
+        // float maxRadius;
         unsigned numPoints = createStrokeData(
             dChainCurve,
             radii,
@@ -405,8 +394,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
             pointDensity,
             minimumPoints,
             curveParams,
-            strokeRadii,
-            maxRadius);
+            strokeRadii);
 
         bool doReverse = false;
         MPoint startPoint, endPoint;
@@ -450,7 +438,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
             pOutStrokes->push_back(stroke);
         }
     }
-    
+
     return num;
 }
 
@@ -462,8 +450,7 @@ unsigned skeletonStrokeNode::createStrokeData(
     float density,
     int minimumPoints,
     MDoubleArray &curveParams,
-    MFloatArray &strokeRadii,
-    float &maxRadius) const
+    MFloatArray &strokeRadii) const
 {
     MFnNurbsCurve curveFn(dCurve);
     float strokeRange = endDist - startDist;
@@ -472,7 +459,7 @@ unsigned skeletonStrokeNode::createStrokeData(
     numPoints = std::max(numPoints, minimumPoints);
     float gap = strokeRange / (numPoints - 1);
 
-    maxRadius = 0.0f;
+    // maxRadius = 0.0f;
     for (unsigned i = 0; i < numPoints; i++)
     {
         float curveDist = startDist + (i * gap);
@@ -480,7 +467,7 @@ unsigned skeletonStrokeNode::createStrokeData(
         curveParams.append(uniformParam);
         float radius = Stroke::interpFloat(radii, uniformParam);
         strokeRadii.append(radius);
-        maxRadius = fmax(maxRadius, radius);
+        // maxRadius = fmax(maxRadius, radius);
     }
     return numPoints;
 }
@@ -503,7 +490,7 @@ Stroke skeletonStrokeNode::createStroke(
 
     MFloatPointArray points;
 
-    std::vector<MFloatMatrix> brushTransforms;
+    std::vector<MFloatMatrix> targetTransforms;
 
     double entryDistance = curveFn.findLengthFromParam(curveParams[0]);
     double exitDistance = curveFn.findLengthFromParam(curveParams[(len - 1)]);
@@ -524,11 +511,11 @@ Stroke skeletonStrokeNode::createStroke(
 
         ///////////////////////////////////
 
-        brushTransforms.push_back(mat);
+        targetTransforms.push_back(mat);
         maxRadius = fmax(maxRadius, radius);
     }
 
-    Stroke stroke(brushTransforms);
+    Stroke stroke(targetTransforms);
     stroke.setMaxRadius(maxRadius);
 
     Stroke::target_iterator it = stroke.targets_begin();

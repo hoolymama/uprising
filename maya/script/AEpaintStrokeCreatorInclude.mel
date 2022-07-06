@@ -25,7 +25,7 @@ global proc AEpaintStrokeCreatorInclude (string $nodeName)
 	editorTemplate -cl 0 -beginLayout "Brush attributes";
 	editorTemplate -addControl "brushShape";
 	editorTemplate -addControl "followStroke";
-	editorTemplate -addControl "applyBrushBias";
+	// editorTemplate -addControl "applyBrushBias";
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Matrix attributes";
