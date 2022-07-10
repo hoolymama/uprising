@@ -34,7 +34,7 @@ public:
 	const Brush &brushFromId(int id) const;
 	const Paint &paintFromId(int id) const;
 
-	float travelCutoff(int brushId, int paintId) const;
+	float travelCutoff(const Brush &b, const Paint &p) const;
 
 	void addStroke(const Stroke &stroke, int parentIndex);
 
@@ -51,7 +51,6 @@ public:
 private:
 	Cluster &prepCluster(
 		int brushId,
-		int phisicalId,
 		int paintId);
 
 	std::vector<Cluster> m_clusters;

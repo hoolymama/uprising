@@ -189,6 +189,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
     int layerId = data.inputValue(aLayerId).asInt();
     int brushId = data.inputValue(aBrushId).asInt();
+    int paintId = data.inputValue(aPaintId).asInt();
 
     int smoothNeighbors = data.inputValue(aSmoothNeighbors).asInt();
     bool smoothPositions = data.inputValue(aSmoothPositions).asBool();
@@ -290,13 +291,13 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 pOutStrokes);
         }
     }
-
     paintStrokeCreator::applyBrushStrokeSpec(data, pOutStrokes);
 
     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
     {
         curr_stroke->setLayerId(layerId);
         curr_stroke->setBrushId(brushId);
+        curr_stroke->setPaintId(paintId);
     }
 
     if ((smoothPositions || smoothWeights) && smoothNeighbors > 0)
@@ -376,12 +377,14 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         return 0;
     }
 
+    int counter = 0;
     for (int i = 0; i < num; ++i)
     {
+
         const float &startDist = boundaries[i].x;
         const float &endDist = boundaries[i].y;
         const float &coil = boundaries[i].z;
-
+    
         MFloatArray strokeRadii;
         MDoubleArray curveParams;
 
@@ -395,6 +398,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
             minimumPoints,
             curveParams,
             strokeRadii);
+
 
         bool doReverse = false;
         MPoint startPoint, endPoint;
@@ -430,16 +434,16 @@ unsigned skeletonStrokeNode::createStrokesForChain(
                 curveParams,
                 strokeRadii);
         }
-
+     
         if (stroke.valid())
         {
             stroke.setParentId(parentId);
             stroke.setCoil(coil);
             pOutStrokes->push_back(stroke);
+            counter++;
         }
     }
-
-    return num;
+    return counter;
 }
 
 unsigned skeletonStrokeNode::createStrokeData(

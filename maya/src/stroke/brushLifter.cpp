@@ -222,6 +222,7 @@ void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Str
   curveFn.getKnots(knotVals);
 
   float brushRadius = fmax(brush.width(), 0.01) * 0.5;
+  bool applyFullWeight  = brush.shape() == Brush::kFlat;
 
   const BrushStrokeSpec &spec = stroke->brushStrokeSpec();
   float entryTransition = spec.entryTransition;
@@ -235,12 +236,15 @@ void brushLifter::setWeights(const Brush &brush, const MObject &curveObject, Str
   }
 
   Stroke::target_iterator target = stroke->targets_begin();
+  float brushWeight = 1.0f;
   for (int k = 2; target != stroke->targets_end(); target++, k++)
   {
 
     float transitionWeight = 1.0;
     const double &param = knotVals[k];
-    float brushWeight = target->radius() / brushRadius;
+    if (!applyFullWeight) {
+      brushWeight = target->radius() / brushRadius;
+    }
     double distance = curveFn.findLengthFromParam(param);
     if (distance+epsilon < entryTransition)
     {

@@ -180,7 +180,7 @@ def on_print_painting_flow_ss():
     num_clusters = pm.paintingQuery(ptg, cc=True)
 
     num_continuous_strokes = -1
-    header = ["","Red","Green","Blue","","Brush id", "Paint id", "Pot id", "Stroke count"]
+    header = ["","Red","Green","Blue","","Brush id","Brush Model", "Paint id", "Pot id", "Stroke count"]
     tab = "\t"
     print((tab.join(header)))
 
@@ -195,13 +195,15 @@ def on_print_painting_flow_ss():
             brush_id = pm.paintingQuery(ptg, ci=ci, clusterBrushId=True)
             paint_id = pm.paintingQuery(ptg, ci=ci, clusterPaintId=True)
             pot_id = pm.paintingQuery(ptg,   ci=ci, clusterPotId=True)
-            
+
+            brush_model = Brush.brush_at_index(ptg, brush_id).model
+
             col = palette[paint_id].color
         
             if num_continuous_strokes > -1:
                 data.append(str(num_continuous_strokes))
                 print((tab.join(data)))
-            data = [str(s) for s in ["",int(col[0]*255),int(col[1]*255),int(col[2]*255),"",brush_id, paint_id, pot_id]]
+            data = [str(s) for s in ["",int(col[0]*255),int(col[1]*255),int(col[2]*255),"",brush_id, brush_model, paint_id, pot_id]]
             num_continuous_strokes = num_strokes
         else:
             num_continuous_strokes += num_strokes

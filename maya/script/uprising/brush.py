@@ -116,13 +116,14 @@ class Brush(object):
 
     @classmethod
     def brush_at_index(cls, node, index):
-
-        plug = node.attr("brushes[%d]" % index).connections(
+  
+        brushProvider = cls._brushProvider(node)
+            
+        plug = brushProvider.attr("brushes[%d]" % index).connections(
             source=True, destination=False, plugs=True
         )[0]
 
         return Brush(index, plug)
-
 
 
     @classmethod
@@ -132,8 +133,8 @@ class Brush(object):
             Always use the painting node
         """
         node = pm.PyNode(k.PAINTING_NAME)
-
-        brush_node = node.attr("brushes[%d]" % index).connections(
+        brushProvider = cls._brushProvider(node)
+        brush_node = brushProvider.attr("brushes[%d]" % index).connections(
             source=True, destination=False
         )[0]
 
@@ -145,32 +146,36 @@ class Brush(object):
         return result
 
     @classmethod
-    def find_by_regex(cls, node, regex_string):
-        regex = re.compile(regex_string)
-        for brush_id in node.attr("brushes").getArrayIndices():
-            conns = node.attr("brushes[%d]" % brush_id).connections(
-                source=True, destination=False
-            )
-            name = str(conns[0])
-            if regex.match(name):
-                return Brush.brush_at_index(node, brush_id)
-
-    @classmethod
     def brushes(cls, node):
+        """Get brush objects from a brushShopNode 
+        Args:
+            node: brushShopNode
+
+        Returns:
+            Brush objects
+        """
         result = {}
-        for brush_id in node.attr("brushes").getArrayIndices():
+        brushProvider = cls._brushProvider(node)
+        for brush_id in brushProvider.attr("brushes").getArrayIndices():
             result[brush_id] = Brush.brush_at_index(node, brush_id)
         return result
 
     @classmethod
-    def used_brushes(cls, node):
+    def used_brushes(cls, painting_node):
+        """Get used brush objects from a painting"""
+        combos = pm.paintingQuery(painting_node, toolCombinations=True)
+        bids = list(set(combos[::3]))
         result = {}
+        brushProvider = cls._brushProvider(painting_node)
+        for id in bids:
+            result[id] = Brush.brush_at_index(brushProvider, id)
+        return result
+
+    @staticmethod
+    def _brushProvider(node):
         try:
-            indices = node.attr("brushes").get(multiIndices=True)
-            for id in node.attr("brushes").get(multiIndices=True):
-                result[id] = Brush.brush_at_index(node, id)
-            return result
-        except (RuntimeError, AttributeError):
-            plug = pm.PyNode(node).attr("brush")
-            brush_plug = plug.connections(source=True, destination=False, plugs=True)[0]
-            return {"00": Brush(0, brush_plug)}
+            brushProvider = node.attr("brushShop").connections(source=True, destination=False)[0]
+        except pm.MayaAttributeError:
+            brushProvider = node
+        return brushProvider
+ 

@@ -11,6 +11,7 @@ class BotPainting(Painting):
     def __init__(self, node):
         super(BotPainting, self).__init__(node)
         self.paints = Paint.paints()
+        
 
         self.num_clusters = pm.paintingQuery(self.node, clusterCount=True)
 
@@ -32,6 +33,11 @@ class BotPainting(Painting):
 
             brush_id = pm.paintingQuery(self.node, clusterIndex=id, clusterBrushId=True)
             paint_id = pm.paintingQuery(self.node, clusterIndex=id, clusterPaintId=True)
+
+            print("-----------")
+            print("NODE NAME", self.node.name())
+            print("self.brushes.get(brush_id)", brush_id)
+            print("self.paints.get(paint_id)", paint_id)
 
             brush = self.brushes.get(brush_id)
             paint = self.paints.get(paint_id)

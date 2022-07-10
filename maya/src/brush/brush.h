@@ -21,6 +21,7 @@ public:
 
 	Brush(
 		const MFloatMatrix &matrix,
+		bool inService,
 		int physicalId,
 		const MString &model,
 		const MFloatVector &tip,
@@ -44,6 +45,7 @@ public:
 
 	const float &retention() const;
 	const MFloatMatrix &matrix() const;
+	bool inService() const;
 
 	/**
 	 * @brief Return a value representing how far away the brush should start from the ground.
@@ -78,6 +80,7 @@ public:
 
 private:
 	MFloatMatrix m_matrix;
+	bool m_inService;
 	int m_physicalId;
 	MFloatVector m_tip;
 	float m_width;

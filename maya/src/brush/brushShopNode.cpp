@@ -95,9 +95,7 @@ MStatus brushShopNode::collectBrushes(MDataBlock &data, std::map<int, Brush> &br
   MStatus st;
   MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
   msert;
-
-  // brushes[-1] = Brush();
-
+ 
   unsigned nPlugs = ha.elementCount();
   for (unsigned i = 0; i < nPlugs; i++, ha.next())
   {
@@ -120,7 +118,12 @@ MStatus brushShopNode::collectBrushes(MDataBlock &data, std::map<int, Brush> &br
     }
     brushData *bData = (brushData *)fnP.data();
 
-    brushes[index] = *(bData->fGeometry);
+    Brush b = *(bData->fGeometry);
+    if (b.inService())
+    {
+      brushes[index] = b;
+    }
+    // brushes[index] = *(bData->fGeometry);
   }
   return MS::kSuccess;
 }

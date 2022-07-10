@@ -234,10 +234,10 @@ MStatus painting::getPalette(MDataBlock &data, std::map<int, Paint> &palette) co
   paletteData *pData = (paletteData *)fnP.data(&st);
   msert;
   palette = *(pData->fGeometry);
-  if (palette.size() == 0)
-  {
-    return MS::kFailure;
-  }
+
+ 
+  palette[-1] = Paint();
+
   return MS::kSuccess;
 }
 
@@ -259,8 +259,6 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
     ptpThresh = 3.0;
   }
 
-  // paintingBase::collectBrushes(data, brushes);
-
   BrushShop brushShop;
   st = getBrushShop(data, brushShop); msert;
   std::map<int, Brush> brushes;
@@ -268,10 +266,6 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
 
   std::map<int, Paint> palette;
   st = getPalette(data, palette);
-  if (st.error())
-  {
-    palette[-1] = Paint();
-  }
 
   m_pd->create();
   paintingGeom *pGeom = m_pd->geometry();

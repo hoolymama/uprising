@@ -115,7 +115,9 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     float radius = data.inputValue(aWidth).asFloat() * 0.5;
 
     int layerId = data.inputValue(aLayerId).asInt();
-
+    int brushId = data.inputValue(aBrushId).asInt();
+    int paintId = data.inputValue(aPaintId).asInt();
+    
     float splitAngle = float(data.inputValue(aSplitAngle).asAngle().asRadians());
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
@@ -129,7 +131,6 @@ MStatus curveStrokeNode::generateStrokeGeometry(
 
     //////////////////////////////////////////////////////////////
 
-    int brushId = data.inputValue(aBrushId).asInt();
 
     MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
     MArrayDataHandle hCurves = data.inputArrayValue(aCurves, &st);
@@ -230,6 +231,8 @@ MStatus curveStrokeNode::generateStrokeGeometry(
 
         curr_stroke->setLayerId(layerId);
         curr_stroke->setBrushId(brushId);
+        curr_stroke->setPaintId(paintId);
+        
     }
 
     paintStrokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);

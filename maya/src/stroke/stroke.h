@@ -224,9 +224,7 @@ public:
  	int brushModelId() const;
 	
 	void setPaintId(int val);
-
-	int potId() const;
-	void setPotId(int val);
+ 
 
 	void setSortColor(const MFloatVector &color);
 	void setFilterColor(const MFloatVector &color);
@@ -394,7 +392,6 @@ private:
 	int m_strokeId;
 	int m_brushId;
 	int m_paintId;
-	int m_potId;
 	int m_layerId;
 	int m_parentId;
 	int m_customBrushId;

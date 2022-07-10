@@ -679,15 +679,6 @@ int Stroke::customBrushId() const
 	return m_customBrushId;
 }
 
-int Stroke::potId() const
-{
-	return m_potId;
-}
-void Stroke::setPotId(int val)
-{
-	m_potId = val;
-}
-
 int Stroke::brushId() const
 {
 	return m_brushId;

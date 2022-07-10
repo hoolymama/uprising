@@ -41,11 +41,10 @@ private:
       std::vector<Stroke> *strokes,
       const MIntArray &ids) const;
 
-  MStatus assignPaintAndPotIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
+  MStatus assignPaintIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
 
-  MStatus assignBrushModelAndShapeIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
-
-  MStatus getPalette(MDataBlock &data, std::map<int, Paint> &palette) const;
+  MStatus assignBrushModelIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
+ 
   MStatus getBrushShop(MDataBlock &data, BrushShop &brushShop) const;
 
   static MObject aSampleParam;

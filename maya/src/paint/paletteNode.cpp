@@ -208,7 +208,6 @@ MStatus paletteNode::compute(const MPlug &plug, MDataBlock &data)
   mser;
   std::map<int, Paint> *palette = newData->fGeometry;
 
-  // (*palette)[-1] =  Paint();
   //////////
 
  

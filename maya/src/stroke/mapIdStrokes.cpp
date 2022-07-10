@@ -140,17 +140,17 @@ MStatus mapIdStrokes::mutate(
   bool doBrushModelId = data.inputValue(aDoBrushModelId).asBool();
   if (doPaintId)
   {
-    st = assignPaintAndPotIds(data, strokes);
+    st = assignPaintIds(data, strokes);
   }
   if (doBrushModelId)
   {
-    st = assignBrushModelAndShapeIds(data, strokes);
+    st = assignBrushModelIds(data, strokes);
   }
 
   return MS::kSuccess;
 }
 
-MStatus mapIdStrokes::assignPaintAndPotIds(MDataBlock &data,
+MStatus mapIdStrokes::assignPaintIds(MDataBlock &data,
                                            std::vector<Stroke> *strokes) const
 {
   MStatus st;
@@ -159,8 +159,7 @@ MStatus mapIdStrokes::assignPaintAndPotIds(MDataBlock &data,
   float paintIdMap = data.inputValue(aPaintIdMap).asFloat();
   int quantizeLevels = data.inputValue(aPaintIdMapQuantizeLevel).asInt();
   int paintIdOffset = data.inputValue(aPaintIdOffset).asInt();
-  std::map<int, Paint> palette;
-  st = getPalette(data, palette);
+
   msert;
 
   MIntArray paintIds;
@@ -178,29 +177,22 @@ MStatus mapIdStrokes::assignPaintAndPotIds(MDataBlock &data,
       paintIds);
 
   MIntArray potIds(numStrokes, 0);
-  std::map<int, Paint>::const_iterator paletteIter;
-  std::map<int, Paint>::const_iterator paletteEndIter = palette.end();
   std::vector<Stroke>::iterator siter = strokes->begin();
   unsigned index = 0;
 
   for (; siter != strokes->end(); ++siter, ++index)
   {
     int &paintId = paintIds[index];
-    int &potId = potIds[index];
 
     paintId += paintIdOffset;
-    paletteIter = palette.find(paintId);
-    if (paletteIter != paletteEndIter)
-    {
-      potId = paletteIter->second.pot();
-    }
+
     siter->setPaintId(paintId);
-    siter->setPotId(potId);
+
   }
   return MS::kSuccess;
 }
 
-MStatus mapIdStrokes::assignBrushModelAndShapeIds(MDataBlock &data,
+MStatus mapIdStrokes::assignBrushModelIds(MDataBlock &data,
                                           std::vector<Stroke> *strokes) const
 {
   MStatus st;
@@ -209,32 +201,10 @@ MStatus mapIdStrokes::assignBrushModelAndShapeIds(MDataBlock &data,
   std::vector<Stroke>::iterator stroke = strokes->begin();
   for (; stroke != strokes->end(); stroke++)
   {
-    // Get the atts we need.
     float width = stroke->maxRadius() * 2.0f;
     Brush::Shape shape = stroke->brushStrokeSpec().shape;
-    int modelId = brushShop.findModelId(width, shape, &st) ;
+    int modelId = brushShop.findModelId(width, shape, &st) ;mser;
     stroke->setBrushModelId(modelId);
-  }
-  return MS::kSuccess;
-}
-
-MStatus mapIdStrokes::getPalette(MDataBlock &data, std::map<int, Paint> &palette) const
-{
-  MStatus st;
-  MDataHandle h = data.inputValue(aPalette, &st);
-  msert;
-  MObject d = h.data();
-  MFnPluginData fnP(d, &st);
-  if (st.error())
-  {
-    return st;
-  }
-  paletteData *pData = (paletteData *)fnP.data(&st);
-  msert;
-  palette = *(pData->fGeometry);
-  if (palette.size() == 0)
-  {
-    return MS::kFailure;
   }
   return MS::kSuccess;
 }

@@ -47,6 +47,8 @@ private:
   MStatus outputData(MDataBlock &data, MObject &attribute, const Brush &brush);
 
   // static MObject aId;
+  static MObject aInService;
+  
   static MObject aPhysicalId;
   static MObject aRetention;
   static MObject aTransHeightParam;

@@ -4,6 +4,7 @@ global proc AEbrushNodeTemplate ( string $nodeName )
 	editorTemplate -beginScrollLayout;
 
 	editorTemplate -cl 0 -beginLayout "General attributes";
+	editorTemplate -addControl "inService";
 	editorTemplate -addControl "model";
 	editorTemplate -addControl "shape";
 	editorTemplate -addControl "physicalId";
