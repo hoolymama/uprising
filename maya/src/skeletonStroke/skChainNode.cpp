@@ -384,6 +384,8 @@ MStatus skChainNode::initialize()
   nAttr.setKeyable( true );
   addAttribute(aDoFillerChains);
 
+
+
   aMaxIterations = nAttr.create("maxIterations", "mxi", MFnNumericData::kInt);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
@@ -428,6 +430,16 @@ MStatus skChainNode::initialize()
   nAttr.setKeyable(true);
   st = addAttribute(aMaxStampWidth);
   mser;
+
+
+   
+  aLongestChain = nAttr.create("longestChain", "lch", MFnNumericData::kBoolean);
+  nAttr.setDefault(false);
+  nAttr.setKeyable(true);
+  st = addAttribute(aLongestChain);
+  mser;
+
+
 
   // aRadiusMult = nAttr.create("radiusMult", "rml", MFnNumericData::kFloat);
   // nAttr.setStorable(true);
@@ -521,6 +533,7 @@ MStatus skChainNode::initialize()
   attributeAffects(aDoSeedChains, aOutputs);
   attributeAffects(aDoFillerChains, aOutputs);
   attributeAffects(aTrigger, aOutputs);
+  attributeAffects(aLongestChain, aOutputs);
 
 
   attributeAffects(aImage, aOutputCount);
@@ -547,6 +560,7 @@ MStatus skChainNode::initialize()
   attributeAffects(aDoSeedChains, aOutputCount);
   attributeAffects(aDoFillerChains, aOutputCount);
   attributeAffects(aTrigger, aOutputCount);
+  attributeAffects(aLongestChain, aOutputCount);
 
   attributeAffects(aImage, aOutputImage);
   attributeAffects(aSeedPoints, aOutputImage);
@@ -572,6 +586,7 @@ MStatus skChainNode::initialize()
   attributeAffects(aDoSeedChains, aOutputImage);
   attributeAffects(aDoFillerChains, aOutputImage);
   attributeAffects(aTrigger, aOutputImage);
+  attributeAffects(aLongestChain, aOutputImage);
 
   return (MS::kSuccess);
 }
@@ -754,6 +769,8 @@ MStatus skChainNode::generateFillerChains(
   // float radiusMult = data.inputValue(aRadiusMult).asFloat();
   int maxIterations = data.inputValue(aMaxIterations).asInt();
 
+  bool longestChain = data.inputValue(aLongestChain).asBool();
+
   int lastNumNewChains = 999999;
   for (int i = 0; i < maxIterations; ++i)
   {
@@ -775,8 +792,18 @@ MStatus skChainNode::generateFillerChains(
     skGraph g(mat); // build
     // now we have the Medial Axis Transform (mat) and (image)
 
-    g.prune(minBranchLengthPixels);
-    g.removeLooseTwigs(minLooseTwigLengthPixels);
+    if (longestChain) {
+      g.trimToLongestChain();
+      g.prune(minBranchLengthPixels);
+      g.removeLooseTwigs(minLooseTwigLengthPixels);
+      g.adjustRadius(radiusOffsetPixels, maxRadiusPixels);
+      // Single chain is left, so no need to detach branches
+    } else {
+      g.prune(minBranchLengthPixels);
+      g.removeLooseTwigs(minLooseTwigLengthPixels);
+      g.adjustRadius(radiusOffsetPixels, maxRadiusPixels);
+      g.detachBranches();
+    }
 
     if (!g.numNodes())
     {
@@ -785,9 +812,8 @@ MStatus skChainNode::generateFillerChains(
     // limit brush size
     // g.clampRadius(maxRadiusPixels);
 
-    g.adjustRadius( radiusOffsetPixels, maxRadiusPixels);
-
-    g.detachBranches();
+    // g.adjustRadius( radiusOffsetPixels, maxRadiusPixels);
+    // g.detachBranches();
 
     //////////////////
     MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();

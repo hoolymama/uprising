@@ -71,6 +71,7 @@ int  getFields(MObjectArray &result) const;
   static MObject aSeedChainStampWidth;
   static MObject aSeedChainWidth;
  
+  static MObject aLongestChain;
   static MObject aForceThreshold;
   static MObject aFlowRotation;
 

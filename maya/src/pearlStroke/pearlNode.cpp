@@ -353,7 +353,6 @@ MStatus pearlNode::initialize()
   mser;
 
 
-  // Display
   aLongestChain = nAttr.create("longestChain", "lch", MFnNumericData::kBoolean);
   nAttr.setDefault(false);
   nAttr.setKeyable(true);
@@ -361,6 +360,7 @@ MStatus pearlNode::initialize()
   mser;
 
 
+  // Display
 
 
   aColor1 = nAttr.createColor("drawColor1", "dc1");
