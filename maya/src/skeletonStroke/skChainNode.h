@@ -93,6 +93,8 @@ int  getFields(MObjectArray &result) const;
 
   static MObject aProjectionMatrix;
 
+  static MObject aExtendLeavesAmount;
+  static MObject aExtendLeavesAccuracy;
  
   static MObject aTrigger;
   static MObject aMaxChainsPerOutput;

@@ -25,9 +25,13 @@ global proc AEskChainNodeTemplate ( string $nodeName )
  	editorTemplate -addControl "offsetWidth";
 
 	editorTemplate -addControl "maxIterations";
+	editorTemplate -addControl "longestChain";
 	editorTemplate -addControl "minBranchTwigLength";
 	editorTemplate -addControl "minLooseTwigLength";
 	editorTemplate -addControl "span";
+
+	editorTemplate -addControl "extendLeavesAmount";
+	editorTemplate -addControl "extendLeavesAccuracy";
 
  	editorTemplate -endLayout;
 

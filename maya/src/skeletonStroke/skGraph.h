@@ -6,7 +6,7 @@
 #include <string>
 #include <maya/MVectorArray.h>
 #include <maya/MDoubleArray.h>
-
+#include <maya/MFloatVector.h>
 #define cimg_display 0
 #include "CImg.h"
 
@@ -66,9 +66,16 @@ public:
     void betterPrune(int minBranchLength);
     void removeLooseTwigs(int minTwigLength);
 
+    void extendLeaves(float amount, int accuracy);
+
     int numNodes() const;
 
 private:
+    MFloatVector _getEndDirection( skNode *node,  int accuracy) const ;
+    
+    void generateTwig(const skNode *node, const coord &endCoord, TWIG &twig);
+    void bresenham(const skNode *node, const coord &endCoord, TWIG &twig);
+
     void _pruneTwig(TWIG &twig, skNode *junction = 0);
 
     void _getTwigClusters(int maxNodes, CLUSTERS &result);
@@ -82,6 +89,7 @@ private:
     void _deleteNode(skNode *node);
 
     void _connect(coord from, coord to);
+    // void _connect(skNode * from, skNode * to);
 
     void _detatchStraightest(skNode *node, int z);
     void _splitOff(skNode *node, skNode *first, skNode *second, int z);
