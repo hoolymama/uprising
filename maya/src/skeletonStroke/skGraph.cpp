@@ -153,14 +153,14 @@ void skGraph::draw(CImg<unsigned char> &image, float maxStampRadiusPixels, int s
     }
 }
 
-void skGraph::adjustRadius(float offset, float maxRadius)
+void skGraph::adjustRadius(float offset, float maxRadius, float minRadius)
 {
     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
          iter != m_nodes.end();
          iter++)
     {
         skNode *node = iter->second;
-        node->radius = std::max(0.0f, std::min(node->radius + offset, maxRadius));
+        node->radius = std::max(minRadius, std::min(node->radius + offset, maxRadius));
     }
 }
 
@@ -740,22 +740,16 @@ void skGraph::extendLeaves(float amount, int accuracy)
                 continue;
             }
             extension *= (amount * node->radius);
+            cerr << "amount:" << amount << " radius:" << node->radius << " extension:" << extension << endl;
             coord endCoord = startCoord + coord(round(extension.x), round(extension.y), 0);
+            cerr << "Create Twig from: " << startCoord << " to: " << endCoord << endl;
 
             TWIG twig;
-            // generateTwig(node, endCoord, twig);
-            bresenham(node, endCoord, twig);
+            int zIndex = 4;
+            
+            bresenhamline(startCoord, endCoord,zIndex,node->radius, twig);
+  
             twigMap[node] = twig;
-            // add nodes to the twig until we are beyond the length defined by node radius*amount.
-
-            // // MFloatVector direction = iter->second->getEndDirection();
-            // for (int i = 0; i < accuracy; i++)
-            // {
-            //     // iter->second->addEndPoint(direction * amount);
-            //     iter->second->addEndPoint(amount);
-            // }
-
-            // iter->second->extendLeaf(amˆount,accuracy);
         }
     }
 
@@ -764,8 +758,6 @@ void skGraph::extendLeaves(float amount, int accuracy)
         skNode *lastNode = miter->first;
 
         TWIG twig = miter->second;
-        cerr <<  "----------------------";
-        cerr <<  twig.size() << " twig connections for " << miter->first->c << endl;
         for (TWIG::iterator viter = twig.begin(); viter != twig.end(); viter++)
         {
             cerr <<  (*viter)->c << endl;
@@ -776,88 +768,47 @@ void skGraph::extendLeaves(float amount, int accuracy)
     _resetSeen();
 }
 
-
-void skGraph::bresenham(const skNode *node, const coord &endCoord, TWIG &twig)
+void skGraph::bresenhamline(const coord &startCoord, const coord &endCoord, int z,float radius,  TWIG &twig)
 {
-    const coord &startCoord = node->c;
-    int x1 = startCoord.x;
-    int y1 = startCoord.y;
+    int x = startCoord.x;
+    int y = startCoord.y;
     int x2 = endCoord.x;
     int y2 = endCoord.y;
-    float radius = node->radius;
-
-   int m_new = 2 * (y2 - y1);
-   int slope_error_new = m_new - (x2 - x1);
-   for (int x = x1, y = y1; x <= x2; x++)
-   {
-        if (!((x == x1) && (y == y1)))
-        {
-            skNode *newNode = _addNode(x, y, 9, radius);
-            twig.push_back(newNode);
+    
+    int w = x2 - x ;
+    int h = y2 - y ;
+    int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
+    if (w<0) dx1 = -1 ; else if (w>0) dx1 = 1 ;
+    if (h<0) dy1 = -1 ; else if (h>0) dy1 = 1 ;
+    if (w<0) dx2 = -1 ; else if (w>0) dx2 = 1 ;
+    int longest = abs(w) ;
+    int shortest = abs(h) ;
+    if (!(longest>shortest)) {
+        longest = abs(h) ;
+        shortest = abs(w) ;
+        if (h<0) dy2 = -1 ; else if (h>0) dy2 = 1 ;
+        dx2 = 0 ;
+    }
+    int numerator = longest >> 1 ;
+    for (int i=0;i<=longest;i++) {
+        if (i>0){
+            coord c(x,y,z);
+            twig.push_back(_addNode(c,radius));
         }
-
-    //   cout << "(" << x << "," << y << ")\n";
-   
-      // Add slope to increment angle formed
-      slope_error_new += m_new;
-   
-      // Slope error reached limit, time to
-      // increment y and update slope error.
-      if (slope_error_new >= 0)
-      {
-         y++;
-         slope_error_new  -= 2 * (x2 - x1);
-      }
-   }
-}
-   
-
-
-// Bressenhams line algorithm
-void skGraph::generateTwig(const skNode *node, const coord &endCoord, TWIG &twig)
-{
-    const coord &startCoord = node->c;
-    int x0 = startCoord.x;
-    int y0 = startCoord.y;
-    int x1 = endCoord.x;
-    int y1 = endCoord.y;
-    float radius = node->radius;
-
-    int dx, dy, p, x, y;
-    dx = x1 - x0;
-    dy = y1 - y0;
-    x = x0;
-    y = y0;
-    p = 2 * dy - dx;
-    // bool started = false;
-
-    while (x <= x1)
-    {
-        // if (x > m_width || y > m_height || x < 0 || y < 0)
-        // {
-        //     break;
-        // }
-
-        // We dont want the x0 and y0 node to be added to the twig because it is the original end node.
-        if (!((x == x0) && (y == y0)))
-        {
-            skNode *newNode = _addNode(x, y, 9, radius);
-            twig.push_back(newNode);
+        // putpixel(x,y,color) ;
+        numerator += shortest ;
+        if (!(numerator<longest)) {
+            numerator -= longest ;
+            x += dx1 ;
+            y += dy1 ;
+        } else {
+            x += dx2 ;
+            y += dy2 ;
         }
-        if (p >= 0)
-        {
-            // putpixel(x, y, 7);
-            y = y + 1;
-            p = p + 2 * dy - 2 * dx;
-        }
-        else
-        {
-            // putpixel(x, y, 7);
-            p = p + 2 * dy;
-        }
-        x = x + 1;
     }
 }
+
+
 
 
 MFloatVector skGraph::_getEndDirection( skNode *node, int steps) const

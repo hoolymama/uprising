@@ -66,6 +66,7 @@ int  getFields(MObjectArray &result) const;
   static MObject aSeedPoints;
   static MObject aFields;
   static MObject aFlowImage;
+
   static MObject aSeedChainMaxSteps;
   static MObject aSeedChainSpan;
   static MObject aSeedChainStampWidth;
@@ -78,12 +79,17 @@ int  getFields(MObjectArray &result) const;
   static MObject aDoSeedChains;
   static MObject aDoFillerChains;
 
-
   static MObject aMaxIterations;
+
+
+  static MObject aZebraImage;
+  static MObject aZebraDilate;
+  // static MObject aZebraThreshold; // Use 128. Get the threshold right on the input,
 
   // static MObject aRadiusMult;
   static MObject aOffsetWidth;
   static MObject aMaxWidth;
+  static MObject aMinWidth;
   static MObject aMaxStampWidth;
 
   static MObject aMinBranchTwigLength;

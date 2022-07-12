@@ -55,7 +55,7 @@ public:
 
     // void clampRadius(float maxRadius);
 
-    void adjustRadius(float offset, float maxRadius);
+    void adjustRadius(float offset, float maxRadius, float minRadius=0.0f);
 
     void prune(int minBranchLength);
     void detachBranches();
@@ -73,8 +73,9 @@ public:
 private:
     MFloatVector _getEndDirection( skNode *node,  int accuracy) const ;
     
-    void generateTwig(const skNode *node, const coord &endCoord, TWIG &twig);
-    void bresenham(const skNode *node, const coord &endCoord, TWIG &twig);
+    // void generateTwig(const skNode *node, const coord &endCoord, TWIG &twig);
+    // void bresenham(const skNode *node, const coord &endCoord, TWIG &twig);
+    void bresenhamline(const coord &startCoord, const coord &endCoord, int z,float radius,  TWIG &twig);
 
     void _pruneTwig(TWIG &twig, skNode *junction = 0);
 

@@ -247,6 +247,7 @@ MObject skChainNode::aDoFillerChains;
 
 MObject skChainNode::aSpan;
 MObject skChainNode::aMaxWidth;
+MObject skChainNode::aMinWidth;
 MObject skChainNode::aMaxStampWidth;
 MObject skChainNode::aProjectionMatrix;
 MObject skChainNode::aLongestChain;
@@ -417,6 +418,15 @@ MStatus skChainNode::initialize()
   st = addAttribute(aMaxWidth);
   mser;
 
+
+  aMinWidth = nAttr.create("mainWidth", "mnwd", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aMinWidth);
+  mser;
+
+
   aMaxStampWidth = nAttr.create("maxStampWidth", "msw",
                                 MFnNumericData::kFloat);
   nAttr.setStorable(true);
@@ -516,6 +526,7 @@ MStatus skChainNode::initialize()
   attributeAffects(aMinLooseTwigLength, aOutputs);
   attributeAffects(aSpan, aOutputs);
   attributeAffects(aMaxWidth, aOutputs);
+  attributeAffects(aMinWidth, aOutputs);
   attributeAffects(aProjectionMatrix, aOutputs);
   attributeAffects(aOffsetWidth, aOutputs);
   attributeAffects(aMaxStampWidth, aOutputs);
@@ -543,6 +554,7 @@ MStatus skChainNode::initialize()
   attributeAffects(aMinLooseTwigLength, aOutputCount);
   attributeAffects(aSpan, aOutputCount);
   attributeAffects(aMaxWidth, aOutputCount);
+  attributeAffects(aMinWidth, aOutputCount);
   attributeAffects(aProjectionMatrix, aOutputCount);
   attributeAffects(aOffsetWidth, aOutputCount);
   attributeAffects(aMaxStampWidth, aOutputCount);
@@ -571,6 +583,7 @@ MStatus skChainNode::initialize()
   attributeAffects(aMinLooseTwigLength, aOutputImage);
   attributeAffects(aSpan, aOutputImage);
   attributeAffects(aMaxWidth, aOutputImage);
+  attributeAffects(aMinWidth, aOutputImage);
   attributeAffects(aProjectionMatrix, aOutputImage);
   attributeAffects(aOffsetWidth, aOutputImage);
   attributeAffects(aMaxStampWidth, aOutputImage);
@@ -757,6 +770,10 @@ MStatus skChainNode::generateFillerChains(
   float maxRadiusPixels = data.inputValue(aMaxWidth).asFloat() * cmToPixels * 0.5f;
   maxRadiusPixels = std::max(maxRadiusPixels, 1.0f);
 
+  float minRadiusPixels = data.inputValue(aMinWidth).asFloat() * cmToPixels * 0.5f;
+  minRadiusPixels = std::max(minRadiusPixels, 0.0f);
+
+
   float maxStampRadius = data.inputValue(aMaxStampWidth).asFloat() * 0.5;
   float maxStampRadiusPixels = data.inputValue(aMaxStampWidth).asFloat() * cmToPixels * 0.5f;
   maxStampRadiusPixels = std::max(maxStampRadiusPixels, 1.0f);
@@ -796,7 +813,7 @@ MStatus skChainNode::generateFillerChains(
       g.trimToLongestChain();
       g.prune(minBranchLengthPixels);
       g.removeLooseTwigs(minLooseTwigLengthPixels);
-      g.adjustRadius(radiusOffsetPixels, maxRadiusPixels);
+      g.adjustRadius(radiusOffsetPixels, maxRadiusPixels, minRadiusPixels);
       g.extendLeaves(extendLeavesAmount, extendLeavesAccuracy);
       // Single chain is left, so no need to detach branches
     }
@@ -804,7 +821,7 @@ MStatus skChainNode::generateFillerChains(
     {
       g.prune(minBranchLengthPixels);
       g.removeLooseTwigs(minLooseTwigLengthPixels);
-      g.adjustRadius(radiusOffsetPixels, maxRadiusPixels);
+      g.adjustRadius(radiusOffsetPixels, maxRadiusPixels, minRadiusPixels); 
       g.detachBranches();
       g.extendLeaves(extendLeavesAmount, extendLeavesAccuracy);
     }
@@ -813,11 +830,6 @@ MStatus skChainNode::generateFillerChains(
     {
       break;
     }
-    // limit brush size
-    // g.clampRadius(maxRadiusPixels);
-
-    // g.adjustRadius( radiusOffsetPixels, maxRadiusPixels);
-    // g.detachBranches();
 
     //////////////////
     MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
