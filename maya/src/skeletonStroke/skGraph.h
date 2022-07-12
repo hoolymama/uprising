@@ -75,7 +75,7 @@ private:
     
     // void generateTwig(const skNode *node, const coord &endCoord, TWIG &twig);
     // void bresenham(const skNode *node, const coord &endCoord, TWIG &twig);
-    void bresenhamline(const coord &startCoord, const coord &endCoord, int z,float radius,  TWIG &twig);
+    void bresenhamline(const coord &startCoord, const coord &endCoord, float radius,  TWIG &twig);
 
     void _pruneTwig(TWIG &twig, skNode *junction = 0);
 

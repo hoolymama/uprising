@@ -740,14 +740,12 @@ void skGraph::extendLeaves(float amount, int accuracy)
                 continue;
             }
             extension *= (amount * node->radius);
-            cerr << "amount:" << amount << " radius:" << node->radius << " extension:" << extension << endl;
+            // cerr << "amount:" << amount << " radius:" << node->radius << " extension:" << extension << endl;
             coord endCoord = startCoord + coord(round(extension.x), round(extension.y), 0);
-            cerr << "Create Twig from: " << startCoord << " to: " << endCoord << endl;
+            // cerr << "Create Twig from: " << startCoord << " to: " << endCoord << endl;
 
             TWIG twig;
-            int zIndex = 4;
-            
-            bresenhamline(startCoord, endCoord,zIndex,node->radius, twig);
+            bresenhamline(startCoord, endCoord,node->radius, twig);
   
             twigMap[node] = twig;
         }
@@ -760,7 +758,7 @@ void skGraph::extendLeaves(float amount, int accuracy)
         TWIG twig = miter->second;
         for (TWIG::iterator viter = twig.begin(); viter != twig.end(); viter++)
         {
-            cerr <<  (*viter)->c << endl;
+            // cerr <<  (*viter)->c << endl;
             _connect((*viter)->c, lastNode->c);
             lastNode = *viter;
         }
@@ -768,7 +766,7 @@ void skGraph::extendLeaves(float amount, int accuracy)
     _resetSeen();
 }
 
-void skGraph::bresenhamline(const coord &startCoord, const coord &endCoord, int z,float radius,  TWIG &twig)
+void skGraph::bresenhamline(const coord &startCoord, const coord &endCoord,float radius,  TWIG &twig)
 {
     int x = startCoord.x;
     int y = startCoord.y;
@@ -792,7 +790,14 @@ void skGraph::bresenhamline(const coord &startCoord, const coord &endCoord, int 
     int numerator = longest >> 1 ;
     for (int i=0;i<=longest;i++) {
         if (i>0){
-            coord c(x,y,z);
+            // Make sure the coord is not taken. If it is, then we need to increment Z.
+            coord c = coord(x,y,0);
+            while (m_nodes.find(c) != m_nodes.end())
+            {
+                c.z++;
+            }
+
+            // coord c(x,y,z);
             twig.push_back(_addNode(c,radius));
         }
         // putpixel(x,y,color) ;
@@ -821,7 +826,7 @@ MFloatVector skGraph::_getEndDirection( skNode *node, int steps) const
     coord currCoord = node->c;
     skNode *currNode = node;
 
-    cerr << "Getting end direction for node " << node->c << endl;
+    // cerr << "Getting end direction for node " << node->c << endl;
     for (int i = 0; i < steps; i++)
     {
         currNode->seen = true;
@@ -836,7 +841,7 @@ MFloatVector skGraph::_getEndDirection( skNode *node, int steps) const
         }
         else
         {
-            cerr << "_getEndDirection: break on step" << i << endl;
+            // cerr << "_getEndDirection: break on step" << i << endl;
             break;
         }
     }
@@ -844,9 +849,7 @@ MFloatVector skGraph::_getEndDirection( skNode *node, int steps) const
     {
         coord diff = node->c - currNode->c;
         result = MFloatVector(diff.x, diff.y, 0).normal();
-        cerr << "Getting end direction for node " << node->c << " -- Direction:" << result << endl;
-    } else {
-        cerr << "Didn't traverse" << endl;
+        // cerr << "Getting end direction for node " << node->c << " -- Direction:" << result << endl;
     }
     return result;
 }
@@ -938,8 +941,8 @@ void skGraph::removeLooseTwigs(int minTwigLength)
 
 void skGraph::verify() const
 {
-    cerr << "m_nodes.size(): " << m_nodes.size() << endl;
-    cerr << "m_width: " << m_width << "  m_height: " << m_height << endl;
+    // cerr << "m_nodes.size(): " << m_nodes.size() << endl;
+    // cerr << "m_width: " << m_width << "  m_height: " << m_height << endl;
     _verifyDegrees();
     _verifyNeighborsExist();
 }
