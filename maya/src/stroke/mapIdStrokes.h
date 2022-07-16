@@ -46,6 +46,7 @@ private:
   MStatus assignBrushModelIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
  
   MStatus getBrushShop(MDataBlock &data, BrushShop &brushShop) const;
+  MStatus assignWidthBandLayerIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
 
   static MObject aSampleParam;
 
@@ -57,6 +58,11 @@ private:
 
   static MObject aDoBrushModelId;
   static MObject aBrushShop;
+
+
+  static MObject aDoWidthBandLayerIds;
+  static MObject aWidthBandLevel;
+
 };
 
 #endif

@@ -37,6 +37,9 @@ MObject mapIdStrokes::aPalette;
 MObject mapIdStrokes::aDoBrushModelId;
 MObject mapIdStrokes::aBrushShop;
 
+MObject mapIdStrokes::aDoWidthBandLayerIds;
+MObject mapIdStrokes::aWidthBandLevel;
+
 MTypeId mapIdStrokes::id(k_mapIdStrokes);
 
 mapIdStrokes::mapIdStrokes() {}
@@ -116,6 +119,21 @@ MStatus mapIdStrokes::initialize()
   tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   addAttribute(aBrushShop);
 
+
+  aDoWidthBandLayerIds = nAttr.create("doWidthBandLayerIds", "wbid", MFnNumericData::kBoolean);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setDefault(false);
+  addAttribute(aDoWidthBandLayerIds);
+ 
+;
+  aWidthBandLevel = nAttr.create("widthBandLevel", "wblv", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setArray(true);
+  addAttribute(aWidthBandLevel);
+
   attributeAffects(aSampleParam, aOutput);
   attributeAffects(aDoPaintId, aOutput);
   attributeAffects(aPaintIdMap, aOutput);
@@ -124,6 +142,12 @@ MStatus mapIdStrokes::initialize()
   attributeAffects(aPalette, aOutput);
   attributeAffects(aDoBrushModelId, aOutput);
   attributeAffects(aBrushShop, aOutput);
+  
+  attributeAffects(aDoWidthBandLayerIds, aOutput);
+  attributeAffects(aWidthBandLevel, aOutput);
+  
+
+
 
   return (MS::kSuccess);
 }
@@ -138,6 +162,8 @@ MStatus mapIdStrokes::mutate(
   // FOR PAINTS
   bool doPaintId = data.inputValue(aDoPaintId).asBool();
   bool doBrushModelId = data.inputValue(aDoBrushModelId).asBool();
+  bool doWidthBandLayerIds = data.inputValue(aDoWidthBandLayerIds).asBool();
+
   if (doPaintId)
   {
     st = assignPaintIds(data, strokes);
@@ -146,9 +172,45 @@ MStatus mapIdStrokes::mutate(
   {
     st = assignBrushModelIds(data, strokes);
   }
-
+  if (doWidthBandLayerIds)
+  {
+    st = assignWidthBandLayerIds(data, strokes);
+  }
   return MS::kSuccess;
 }
+
+MStatus mapIdStrokes::assignWidthBandLayerIds(MDataBlock &data, std::vector<Stroke> *strokes) const
+{
+  MStatus st;
+  MArrayDataHandle ha = data.inputArrayValue(aWidthBandLevel);
+  int numInputs = ha.elementCount();
+  std::vector<float> levels;
+  for (unsigned i=0;  i < numInputs; i++, ha.next())
+  {
+    levels.push_back(ha.inputValue().asFloat());
+  }
+  std::sort(levels.begin(), levels.end(), std::greater<float>());
+
+  std::vector<Stroke>::iterator iter = strokes->begin();
+  for (; iter != strokes->end(); iter++)
+  {
+    int layerId = levels.size(); // possibly 0 if no levels
+    float strokeWidth = iter->maxRadius() *2.0f;
+    std::vector<float>::const_iterator levelIter = levels.begin();
+    for (; levelIter != levels.end(); levelIter++)
+    {
+      if (strokeWidth < *levelIter)
+      {
+        layerId --;
+      } else {
+        break;
+      }
+    }
+    iter->setLayerId(layerId);
+  }
+  return MS::kSuccess;
+}
+
 
 MStatus mapIdStrokes::assignPaintIds(MDataBlock &data,
                                            std::vector<Stroke> *strokes) const
