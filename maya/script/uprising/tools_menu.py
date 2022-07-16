@@ -32,7 +32,11 @@ def create():
 
     pm.menuItem(label="Print stats", command=pm.Callback(on_print_stats))
     
+    pm.menuItem(
+        label="Test Brush/Stroke Angle",
+        command=pm.Callback(on_test_brush_stroke_angle))
  
+
 
     pm.menuItem(
         label="Print paint and brush csv",
@@ -210,3 +214,32 @@ def on_print_painting_flow_ss():
     data.append(str(num_continuous_strokes))
     print(tab.join(data))
             
+
+
+def on_test_brush_stroke_angle():
+    bad_strokes = set()
+    ptg = pm.PyNode(k.PAINTING_NAME)
+    num_clusters = pm.paintingQuery(ptg, cc=True)
+    globalStrokeIndex = 0
+    for ci in range(num_clusters):
+        num_strokes = pm.paintingQuery(ptg, ci=ci, sc=True)
+        for si in range(num_strokes):
+            zAxes = utils.to_vector_array(pm.paintingQuery(ptg,ci=ci, si=si, strokeZAxis=True))
+            positions = utils.to_point_array(pm.paintingQuery(ptg,ci=ci, si=si, strokePositions=True))
+            num_targets = len(positions)
+            for ti in range(num_targets):
+                if ti < num_targets-1:
+                    tan = positions[ti+1]  - positions[ti]
+                else:
+                    tan = positions[ti] - positions[ti-1]
+
+                tan.normalize()
+
+                zAxes[ti].normalize()
+                dot = tan.dot(zAxes[ti])
+                if dot > 0:
+                    print("Bad angle on stroke %d, target %d" % (globalStrokeIndex, ti))
+                    bad_strokes.add(globalStrokeIndex)
+            globalStrokeIndex +=1
+
+    print(sorted(list(bad_strokes)))
