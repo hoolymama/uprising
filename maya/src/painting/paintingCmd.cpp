@@ -59,6 +59,12 @@ MSyntax paintingCmd::newSyntax()
 
 	syn.addFlag(kStrokeRotationsFlag, kStrokeRotationsFlagL);
 
+	syn.addFlag(kStrokeXAxisFlag, kStrokeXAxisFlagL);
+
+	syn.addFlag(kStrokeYAxisFlag, kStrokeYAxisFlagL);
+
+	syn.addFlag(kStrokeZAxisFlag, kStrokeZAxisFlagL);
+
 	syn.addFlag(kStrokeArrivalPositionsFlag, kStrokeArrivalPositionsFlagL);
 
 	syn.addFlag(kStrokeArrivalRotationsFlag, kStrokeArrivalRotationsFlagL);
@@ -209,6 +215,27 @@ MStatus paintingCmd::doIt(const MArgList &args)
 		MFloatMatrix wm = getWorldMatrix(paintingObject, &st);
 		msert;
 		return handleStrokeRotationsFlag(*pGeom, argData, wm);
+	}
+
+	if (argData.isFlagSet(kStrokeXAxisFlag))
+	{
+		MFloatMatrix wm = getWorldMatrix(paintingObject, &st);
+		msert;
+		return handleStrokeXAxisFlag(*pGeom, argData, wm);
+	}
+
+	if (argData.isFlagSet(kStrokeYAxisFlag))
+	{
+		MFloatMatrix wm = getWorldMatrix(paintingObject, &st);
+		msert;
+		return handleStrokeYAxisFlag(*pGeom, argData, wm);
+	}
+
+	if (argData.isFlagSet(kStrokeZAxisFlag))
+	{
+		MFloatMatrix wm = getWorldMatrix(paintingObject, &st);
+		msert;
+		return handleStrokeZAxisFlag(*pGeom, argData, wm);
 	}
 
 	if (argData.isFlagSet(kStrokeArrivalPositionsFlag))
@@ -624,6 +651,70 @@ MStatus paintingCmd::handleStrokeRotationsFlag(const paintingGeom &geom,
 	setResult(result);
 	return MS::kSuccess;
 }
+
+MStatus paintingCmd::handleStrokeXAxisFlag(const paintingGeom &geom,
+											   MArgDatabase &argData, const MFloatMatrix &worldMatrix)
+{
+	return handleStrokeAxisFlag (geom, argData, worldMatrix, 0);
+}
+
+MStatus paintingCmd::handleStrokeYAxisFlag(const paintingGeom &geom,
+											   MArgDatabase &argData, const MFloatMatrix &worldMatrix)
+{
+	return handleStrokeAxisFlag (geom, argData, worldMatrix, 1);
+}
+
+MStatus paintingCmd::handleStrokeZAxisFlag(const paintingGeom &geom,
+											   MArgDatabase &argData, const MFloatMatrix &worldMatrix)
+{
+	return handleStrokeAxisFlag (geom, argData, worldMatrix, 2);
+}
+
+MStatus paintingCmd::handleStrokeAxisFlag(const paintingGeom &geom,
+											   MArgDatabase &argData, const MFloatMatrix &worldMatrix, int axis)
+{
+	MStatus st;
+
+	int strokeId = getStrokeId(geom, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	MFloatVectorArray axes;
+
+	const Stroke &stroke = geom.clusters()[clusterId].strokes()[strokeId];
+	
+	std::vector<Target>::const_iterator titer;
+	const std::vector<Target> &targets = stroke.targets();
+	if (axis == 0) {
+		for (titer = targets.begin(); titer != targets.end(); titer++)
+		{
+			axes.append(titer->xAxis()  * worldMatrix  );
+		}
+	} else if (axis == 1) {
+		for (titer = targets.begin(); titer != targets.end(); titer++)
+		{
+			axes.append(titer->yAxis()  * worldMatrix  );
+		}
+	} else if (axis == 2) {
+		for (titer = targets.begin(); titer != targets.end(); titer++)
+		{
+			axes.append(titer->zAxis()  * worldMatrix  );
+		}
+	} else {
+		return MS::kUnknownParameter;
+	}
+ 
+	MDoubleArray result;
+	CmdUtils::flatten(axes, result);
+	setResult(result);
+	return MS::kSuccess;
+}
+
+
+
+
 
 MStatus paintingCmd::handleStrokeArrivalPositionsFlag(const paintingGeom &geom,
 													  MArgDatabase &argData, const MFloatMatrix &worldMatrix)

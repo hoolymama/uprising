@@ -57,6 +57,15 @@
 #define kStrokeRotationsFlag "-sr"
 #define kStrokeRotationsFlagL "-strokeRotations"
 
+#define kStrokeXAxisFlag "-sxa"
+#define kStrokeXAxisFlagL "-strokeXAxis"
+
+#define kStrokeYAxisFlag "-sya"
+#define kStrokeYAxisFlagL "-strokeYAxis"
+
+#define kStrokeZAxisFlag "-sza"
+#define kStrokeZAxisFlagL "-strokeZAxis"
+
 #define kStrokeSpeedLinearFlag "-ssl"
 #define kStrokeSpeedLinearFlagL "-strokeSpeedLinear"
 
@@ -90,10 +99,8 @@
 #define kStrokeParentIndexFlag "-spi"
 #define kStrokeParentIndexFlagL "-strokeParentIndex"
 
-
 #define kToolCombinationsFlag "-tc"
 #define kToolCombinationsFlagL "-toolCombinations"
-
 
 #define kJsonFlag "-js"
 #define kJsonFlagL "-json"
@@ -134,7 +141,7 @@ private:
 
 	MStatus handleClusterPaintIdFlag(const paintingGeom &geom, MArgDatabase &argData);
 
-	MStatus	handleClusterPotIdFlag(const paintingGeom &geom, MArgDatabase &argData);
+	MStatus handleClusterPotIdFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleClusterBrushIdFlag(const paintingGeom &geom, MArgDatabase &argData);
 
@@ -147,10 +154,10 @@ private:
 	MStatus handleStrokeSpeedAngularFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleStrokeApproxDistFlag(const paintingGeom &geom,
-												  MArgDatabase &argData);
+									   MArgDatabase &argData);
 
 	MStatus handleStrokeLayerIdFlag(const paintingGeom &geom,
-												  MArgDatabase &argData);
+									MArgDatabase &argData);
 
 	MStatus handleStrokePositionsFlag(const paintingGeom &geom, MArgDatabase &argData,
 									  const MFloatMatrix &worldMatrix);
@@ -176,13 +183,20 @@ private:
 
 	MStatus handleStrokeParentIndexFlag(const paintingGeom &geom, MArgDatabase &argData);
 
-	MStatus  handleGlobalStrokeIndexFlag (const paintingGeom &geom, MArgDatabase &argData);
+	MStatus handleGlobalStrokeIndexFlag(const paintingGeom &geom, MArgDatabase &argData);
+
+	MStatus handleStrokeXAxisFlag(const paintingGeom &geom, MArgDatabase &argData, const MFloatMatrix &worldMatrix);
+
+	MStatus handleStrokeYAxisFlag(const paintingGeom &geom, MArgDatabase &argData, const MFloatMatrix &worldMatrix);
+
+	MStatus handleStrokeZAxisFlag(const paintingGeom &geom, MArgDatabase &argData, const MFloatMatrix &worldMatrix);
+
+	MStatus handleStrokeAxisFlag(const paintingGeom &geom, MArgDatabase &argData, const MFloatMatrix &worldMatrix, int axis);
 
 	// MStatus handleDipCombinationsFlag(const paintingGeom &geom);
 
 	// MStatus handlePaintCombinationsFlag(const paintingGeom &geom);
 	MStatus handleToolCombinationsFlag(const paintingGeom &geom);
-	
 
 	MStatus handleJsonFlag(const paintingGeom &geom);
 
