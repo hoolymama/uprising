@@ -81,7 +81,7 @@ int  getFields(MObjectArray &result) const;
 
   static MObject aMaxIterations;
 
-
+  static MObject aDoZebra;
   static MObject aZebraImage;
   static MObject aZebraDilate;
   // static MObject aZebraThreshold; // Use 128. Get the threshold right on the input,
@@ -94,6 +94,7 @@ int  getFields(MObjectArray &result) const;
 
   static MObject aMinBranchTwigLength;
   static MObject aMinLooseTwigLength;
+  static MObject aMinLooseTwigWidth;
 
   static MObject aSpan;
 

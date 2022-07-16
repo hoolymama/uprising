@@ -872,8 +872,10 @@ void skGraph::_pruneTwig(TWIG &twig, skNode *junction)
     }
 }
 
-void skGraph::removeLooseTwigs(int minTwigLength)
+void skGraph::removeLooseTwigs(int minTwigLength, float minRadius)
 {
+
+    // If a twig is really thin and short remove it
 
     // delete isolated linear sections of the graph less than minTwigLength
     TWIG_CLUSTER looseTwigs;
@@ -887,8 +889,15 @@ void skGraph::removeLooseTwigs(int minTwigLength)
 
             bool doDelete = false;
             skNode *curr = mapiter->second;
+            float radius = curr->radius;
             for (int count = 0; count < minTwigLength; count++)
             {
+                if (curr->radius > minRadius)
+                {
+                    // we like fat twigs, so we are done and we dont delete anything
+                    doDelete = false;
+                    break;
+                }
                 if (curr->neighbors.size() > 2)
                 {
                     doDelete = false;

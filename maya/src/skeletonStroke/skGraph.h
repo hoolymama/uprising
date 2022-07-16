@@ -64,7 +64,11 @@ public:
 
     void verify() const;
     void betterPrune(int minBranchLength);
-    void removeLooseTwigs(int minTwigLength);
+    
+    // minRadius means: If a node in the twig has a larger radius than this, don't delete it.
+    // minTwigLength means: If a twig is longer than this, don't delete it.
+    // Only one of the above needs to be true.
+    void removeLooseTwigs(int minTwigLength, float minRadius=99999.0f);
 
     void extendLeaves(float amount, int accuracy);
 

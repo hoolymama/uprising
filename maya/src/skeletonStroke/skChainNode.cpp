@@ -230,6 +230,7 @@ MObject skChainNode::aImage;
 MObject skChainNode::aMaxIterations;
 MObject skChainNode::aMinBranchTwigLength;
 MObject skChainNode::aMinLooseTwigLength;
+MObject skChainNode::aMinLooseTwigWidth;
 
 MObject skChainNode::aSeedPoints;
 MObject skChainNode::aFields;
@@ -258,6 +259,7 @@ MObject skChainNode::aExtendLeavesAccuracy;
 
 MObject skChainNode::aZebraImage;
 MObject skChainNode::aZebraDilate;
+MObject skChainNode::aDoZebra;
 
 MObject skChainNode::aTrigger;
 
@@ -406,6 +408,13 @@ MStatus skChainNode::initialize()
   st = addAttribute(aMinLooseTwigLength);
   mser;
 
+  aMinLooseTwigWidth = nAttr.create("minLooseTwigWidth", "mltw", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aMinLooseTwigWidth);
+  mser;
+
   aSpan = nAttr.create("span", "spn", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -420,7 +429,7 @@ MStatus skChainNode::initialize()
   st = addAttribute(aMaxWidth);
   mser;
 
-  aMinWidth = nAttr.create("mainWidth", "mnwd", MFnNumericData::kFloat);
+  aMinWidth = nAttr.create("minWidth", "mnwd", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
@@ -492,6 +501,14 @@ MStatus skChainNode::initialize()
   nAttr.setDefault(4);
   addAttribute(aExtendLeavesAccuracy);
 
+  aDoZebra = nAttr.create("doZebra", "dzb",
+                               MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(false);
+  addAttribute(aDoZebra);
 
 
   aZebraImage = tAttr.create("zebraImage", "zimg", cImgData::id);
@@ -540,10 +557,12 @@ MStatus skChainNode::initialize()
 
   attributeAffects(aImage, aOutputs);
   attributeAffects(aZebraImage, aOutputs);
+  attributeAffects(aDoZebra, aOutputs);
   attributeAffects(aZebraDilate, aOutputs);
   attributeAffects(aMaxIterations, aOutputs);
   attributeAffects(aMinBranchTwigLength, aOutputs);
   attributeAffects(aMinLooseTwigLength, aOutputs);
+  attributeAffects(aMinLooseTwigWidth, aOutputs);
   attributeAffects(aSpan, aOutputs);
   attributeAffects(aMaxWidth, aOutputs);
   attributeAffects(aMinWidth, aOutputs);
@@ -569,11 +588,13 @@ MStatus skChainNode::initialize()
 
   attributeAffects(aImage, aOutputCount);
   attributeAffects(aZebraImage, aOutputCount);
+  attributeAffects(aDoZebra, aOutputCount);
   attributeAffects(aZebraDilate, aOutputCount);
   attributeAffects(aSeedPoints, aOutputCount);
   attributeAffects(aMaxIterations, aOutputCount);
   attributeAffects(aMinBranchTwigLength, aOutputCount);
   attributeAffects(aMinLooseTwigLength, aOutputCount);
+  attributeAffects(aMinLooseTwigWidth, aOutputCount);
   attributeAffects(aSpan, aOutputCount);
   attributeAffects(aMaxWidth, aOutputCount);
   attributeAffects(aMinWidth, aOutputCount);
@@ -600,11 +621,13 @@ MStatus skChainNode::initialize()
 
   attributeAffects(aImage, aOutputImage);
   attributeAffects(aZebraImage, aOutputImage);
+  attributeAffects(aDoZebra, aOutputImage);
   attributeAffects(aZebraDilate, aOutputImage);
   attributeAffects(aSeedPoints, aOutputImage);
   attributeAffects(aMaxIterations, aOutputImage);
   attributeAffects(aMinBranchTwigLength, aOutputImage);
   attributeAffects(aMinLooseTwigLength, aOutputImage);
+  attributeAffects(aMinLooseTwigWidth, aOutputImage);
   attributeAffects(aSpan, aOutputImage);
   attributeAffects(aMaxWidth, aOutputImage);
   attributeAffects(aMinWidth, aOutputImage);
@@ -742,6 +765,7 @@ MStatus skChainNode::generate(
   MStatus st;
 
   int dilate = data.inputValue(aZebraDilate).asInt();
+  bool doZebra = data.inputValue(aDoZebra).asBool();
   CImg<unsigned char> *pImage = cImgUtils::getImage(data, aImage);
 
   if (!pImage)
@@ -758,46 +782,49 @@ MStatus skChainNode::generate(
   
   pInkImage->assign(pImage->get_norm().normalize(0, 1));
 
-  bool doZebra = false;
-  CImg<unsigned char> *pZebraImage = cImgUtils::getImage(data, aZebraImage);
-  if (pZebraImage)
+  if (doZebra)
   {
-     int zw = pZebraImage->width();
-     int zh = pZebraImage->height();
-    if (zw && zh)
+    doZebra = false; // in case we don't make it through.
+    CImg<unsigned char> *pZebraImage = cImgUtils::getImage(data, aZebraImage);
+    if (pZebraImage)
     {
-      doZebra = true;
-      CImg<unsigned char> zImageA = pZebraImage->get_norm().normalize(0, 1);
- 
-      if (zw != w || zh != h)
+      int zw = pZebraImage->width();
+      int zh = pZebraImage->height();
+      if (zw && zh)
       {
-        zImageA.resize(w, h);
+        doZebra = true;
+        CImg<unsigned char> zImageA = pZebraImage->get_norm().normalize(0, 1);
+  
+        if (zw != w || zh != h)
+        {
+          zImageA.resize(w, h);
+        }
+        CImg<unsigned char> zImageB(zImageA) ;
+        zImageB ^= 1; // invert
+
+
+        // Now we have both images.
+
+        if (dilate < 0)
+        {
+          zImageA.erode(-dilate);
+          zImageB.erode(-dilate);
+        }
+        else if (dilate > 0)
+        {
+          zImageA.dilate(dilate);
+          zImageB.dilate(dilate);
+        }
+
+        zImageA &=(*pInkImage);
+        zImageB &=(*pInkImage);
+        st = generateFillerChains(data, geom, &zImageA);
+        st = generateFillerChains(data, geom, &zImageB);
+
+        pInkImage->assign(zImageA|zImageB);
       }
-      CImg<unsigned char> zImageB(zImageA) ;
-      zImageB ^= 1; // invert
-
-
-      // Now we have both images.
-
-      if (dilate < 0)
-      {
-        zImageA.erode(-dilate);
-        zImageB.erode(-dilate);
-      }
-      else if (dilate > 0)
-      {
-        zImageA.dilate(dilate);
-        zImageB.dilate(dilate);
-      }
-
-      zImageA &=(*pInkImage);
-      zImageB &=(*pInkImage);
-      st = generateFillerChains(data, geom, &zImageA);
-      st = generateFillerChains(data, geom, &zImageB);
-
-      pInkImage->assign(zImageA|zImageB);
-    }
-  } 
+    } 
+  }
 
   if (!doZebra)
   {
@@ -838,6 +865,10 @@ MStatus skChainNode::generateFillerChains(
   int minLooseTwigLengthPixels = int(data.inputValue(aMinLooseTwigLength).asFloat() * cmToPixels);
   minLooseTwigLengthPixels = std::max(minLooseTwigLengthPixels, 1);
 
+
+  float minLooseTwigRadius = data.inputValue(aMinLooseTwigWidth).asFloat() * cmToPixels * 0.5f;
+  minLooseTwigRadius = std::max(minLooseTwigRadius, 0.0f);
+ 
   int spanPixels = int(data.inputValue(aSpan).asFloat() * cmToPixels);
   spanPixels = std::max(spanPixels, 1);
 
@@ -885,7 +916,7 @@ MStatus skChainNode::generateFillerChains(
     {
       g.trimToLongestChain();
       g.prune(minBranchLengthPixels);
-      g.removeLooseTwigs(minLooseTwigLengthPixels);
+      g.removeLooseTwigs(minLooseTwigLengthPixels, minLooseTwigRadius);
       g.adjustRadius(radiusOffsetPixels, maxRadiusPixels, minRadiusPixels);
       g.extendLeaves(extendLeavesAmount, extendLeavesAccuracy);
       // Single chain is left, so no need to detach branches
@@ -893,7 +924,7 @@ MStatus skChainNode::generateFillerChains(
     else
     {
       g.prune(minBranchLengthPixels);
-      g.removeLooseTwigs(minLooseTwigLengthPixels);
+      g.removeLooseTwigs(minLooseTwigLengthPixels, minLooseTwigRadius);
       g.adjustRadius(radiusOffsetPixels, maxRadiusPixels, minRadiusPixels);
       g.detachBranches();
       g.extendLeaves(extendLeavesAmount, extendLeavesAccuracy);
