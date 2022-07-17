@@ -13,11 +13,12 @@ from uprising.common.session.session import Session
 from uprising.bot.session.bot_program import BotProgram, BotRetryProgram
 from uprising import chains
 from uprising import const as k
+
 import logging
-logger = logging.getLogger(__name__)  
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
-
-
+PROGRAM_NAME = "retry"
 
 @contextmanager
 def disable_all_skels():
@@ -78,6 +79,7 @@ class RetriesSession(Session):
         robo.new()
         robo.clean("kr30", infrastructure=False)
 
+        logger.info("Chunkify skels")
         chains.chunkify_skels(self.chain_skel_pairs, 1)
 
         if self.plug_index is None:
@@ -86,6 +88,7 @@ class RetriesSession(Session):
             self.total_num_plugs = 1
 
         with disable_all_skels():
+            logger.info("With disable_all_skels")
             results = []
             progress.update(
                 major_max=self.total_num_plugs,
@@ -111,8 +114,10 @@ class RetriesSession(Session):
     def run_for_node(self, chain_skel_pair):
 
         chain, skel = chain_skel_pair
-
+        logger.debug("run_for_node: Chain:{} Skel:{}".format(*chain_skel_pair))
+        logger.debug("self.current_run_id: {}".format(self.current_run_id))
         with activate_node(skel):
+            logger.debug("Activate skel:{}".format(skel))
             plug_ids = (
                 [self.plug_index]
                 if self.plug_index is not None
@@ -131,6 +136,7 @@ class RetriesSession(Session):
 
 
     def run_for_plug(self, skel, plug_index):
+        logger.debug("run_for_plug: Skel:{} PlugIndex:{}".format(skel, plug_index))
         skel.attr("selector").set(plug_index)
         if self.dry_run:
             return None
@@ -138,7 +144,7 @@ class RetriesSession(Session):
 
         cluster_count = pm.paintingQuery(self.painting_node, cc=True)
         if not cluster_count:
-            pm.displayInfo("Skipping plug: {}".format(split_angle_plug))
+            logger.debug("No clusters: Skipping plug: {}".format(split_angle_plug))
             return None
         result = self.initialize_plug_result(split_angle_plug)
 
@@ -153,29 +159,33 @@ class RetriesSession(Session):
             value = split_angle_plug.get()
             values.append(value)
             pm.refresh()
-
+            logger.debug("Retry attempt#:{}  split_angle_plug:{} value:{}".format(attempt, split_angle_plug, value))
             self.update_progress_for_attempt(attempt, split_angle_plug, values)
 
             ##########
 
             try:
-                program = BotRetryProgram("retry")
+                logger.debug("Create the BotRetryProgram name '{}'".format(PROGRAM_NAME))
+                program = BotRetryProgram(PROGRAM_NAME)
             except BaseException as ex:
-                print(("BaseException", str(ex))) 
+                # print(("BaseException", str(ex))) 
+                logger.error("SKIPPING PLUG:{} Exception while generating program".format(split_angle_plug))
                 # raise
                 break
             if not (program and program.painting and program.painting.clusters):
+                logger.debug("SKIPPING PLUG:{} Empty program/painting/clusters".format(split_angle_plug))
                 break
             program.configure()
-
+            logger.debug("Configured program for:{}".format(split_angle_plug))
             program.send()
+            logger.debug("Sent program for:{}".format(split_angle_plug))
             validation_result = program.validate_path() or {"status": "SUCCESS"}
-   
             path_result = {
                 "status": validation_result["status"],
                 "attempt": attempt, 
                 "value": value
             }
+            logger.debug("path validation result:{}".format(path_result))
 
             result["path_results"].append(path_result)
             if path_result["status"] == "SUCCESS":
@@ -184,16 +194,19 @@ class RetriesSession(Session):
                 break
 
             # Here if we need to try again
-
+            logger.debug("Try again")
             angle = pm.strokeQuery(skel, maxCoil=True)
             next_val = min(angle, value) - self.delta
+            
+            logger.debug("split - next_val: {}".format(next_val))
 
-            print("split - next_val", next_val)
             if next_val <= 0:
+                logger.debug("BREAK next_val: {} <= 0".format(next_val))
                 break
             split_angle_plug.set(next_val)
             cluster_count = pm.paintingQuery(self.painting_node, cc=True)
             if not cluster_count:
+                logger.debug("BREAK: No cluster_count after setting plug {} to: {} <= 0".format(split_angle_plug, next_val))
                 break
 
         result["timer"] = time.time() - run_start

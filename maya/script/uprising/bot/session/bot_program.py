@@ -15,6 +15,9 @@ from robolink import (
     INSTRUCTION_SHOW_MESSAGE,
 )
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 def _log_line(*vals):
     return "{}\n".format("\t".join(vals))
@@ -75,9 +78,9 @@ class BotProgram(Program):
     def _send_program_body(self, start, end, last_cluster, is_last_chunk):
         subprograms = set()
         cluster = None
-
+        logger.debug("BotProgram _send_program_body start: {} end: {}".format(start, end))
         for cluster in self.painting.clusters[start:end]:
-
+            
             (
                 did_change_pot,
                 did_change_paint,
@@ -99,6 +102,7 @@ class BotProgram(Program):
                 subprograms |= self._on_start_tool(cluster)
                 num_dips = max(cluster.brush.initial_dips, 1)
 
+            logger.debug("_write_dip_and_cluster: {}".format(cluster.id))
             subprograms |= self._write_dip_and_cluster(cluster, num_dips)
 
             if did_change_tool:
@@ -229,6 +233,7 @@ class BotRetryProgram(Program):
         self.frame = robo.create_frame("{}_frame".format(self.program_name))
         self.painting.send_brushes()
 
-        for cluster in self.painting.clusters:
+        for i, cluster in enumerate(self.painting.clusters):
+            logger.debug("cluster.send {} of {}".format(i, num_clusters))
             cluster.send(self.program, self.frame)
 

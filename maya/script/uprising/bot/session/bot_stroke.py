@@ -9,6 +9,9 @@ from uprising.common.session.stroke import Stroke
 
 from uprising import const as k
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class BotStroke(Stroke):
@@ -54,6 +57,26 @@ class BotStroke(Stroke):
 
 
 
+    # def send(self, prefix, program, frame):
+    #     stroke_name = self.name(prefix)
+
+    #     if self.ignore:
+    #         program.RunInstruction("IGNORE %s" % stroke_name, INSTRUCTION_COMMENT)
+    #         logger.debug("IGNORE Stroke: {}".format(stroke_name) )
+    #         return
+        
+    #     program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
+
+    #     for t in self.arrivals:
+    #         t.send(stroke_name, program, frame)
+
+    #     with self.speed_override(program):
+    #         self.departure.linear = False
+    #         for t in self.targets:
+    #             t.send(stroke_name, program, frame)
+
+    #     self.departure.send(stroke_name, program, frame)
+
     def send(self, prefix, program, frame):
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
@@ -65,6 +88,7 @@ class BotStroke(Stroke):
  
             if self.ignore:
                 self.departure.linear = False
+
             else:
                 for t in self.targets:
                     t.send(stroke_name, program, frame)

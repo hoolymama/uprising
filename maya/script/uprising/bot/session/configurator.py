@@ -9,6 +9,10 @@ from uprising import robo
 from uprising import const
 import functools
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 PAINTING_START_JOINTS = [0, -90, 120, 0, -30, 0]
 
 PAINTING_START_JOINTS = [10.000000, -70.000000, 120.000000, 0.000000, -30.000000, 0.000000]
@@ -136,3 +140,26 @@ def _solve_single_joint_pose(flange_pose, last_joint_pose, config):
 
 
 
+
+
+# UNUSED - BUT COULD BE COOL
+def try_solve_for_config(stroke, brush, config):
+    last_joint_pose = PAINTING_START_JOINTS
+    for target in [stroke.arrivals[-1]] + stroke.targets + [stroke.departure]:
+        flange_pose = target.flange_pose(brush)
+        pose = _solve_pose(flange_pose, config, last_joint_pose)
+        if not pose:
+            return False
+        last_joint_pose = pose
+        target.joint_pose = pose
+    return True
+
+def solve(stroke, brush):
+
+    # for config in ["000", "001"]:
+    use_stroke = try_solve_for_config(stroke, brush, "000")
+    if not use_stroke:
+        use_stroke = try_solve_for_config(stroke, brush, "001")
+    
+    if not use_stroke:
+        raise StrokeError("Stroke not solvable: {}".format(stroke.name("-")))
