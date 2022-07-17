@@ -11,7 +11,7 @@ from uprising import const as k
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 
 class BotStroke(Stroke):
@@ -82,7 +82,12 @@ class BotStroke(Stroke):
         program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
 
         for t in self.arrivals:
-            t.send(stroke_name, program, frame)
+            try:
+                t.send(stroke_name, program, frame)
+            except ValueError as ex:
+                creator = self.query_creator()
+                logger.error("Offending stroke is: {}".format(creator))
+                raise
 
         with self.speed_override(program):
  
@@ -91,9 +96,19 @@ class BotStroke(Stroke):
 
             else:
                 for t in self.targets:
-                    t.send(stroke_name, program, frame)
+                    try:
+                        t.send(stroke_name, program, frame)
+                    except ValueError as ex:
+                        creator = self.query_creator()
+                        logger.error("Offending stroke is: {}".format(creator))
+                        raise
 
-        self.departure.send(stroke_name, program, frame)
+        try:
+            self.departure.send(stroke_name, program, frame)
+        except ValueError as ex:
+            creator = self.query_creator()
+            logger.error("Offending stroke is: {}".format(creator))
+            raise
 
     # NOTE: NAMING HERE
     # strokeIndex refers to the cluster relative index
@@ -229,3 +244,11 @@ class BotStroke(Stroke):
 
     def query_brush_id(self):
         return self.cluster.brush.id
+
+    def query_creator(self):
+        return pm.paintingQuery(
+            self.painting.node,
+            clusterIndex=self.cluster.id,
+            strokeIndex=self.id,
+            strokeCreator=True,
+        )
