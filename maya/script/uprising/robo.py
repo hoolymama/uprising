@@ -18,6 +18,8 @@ ROBODK_PATH = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/MacOS/RoboDK")
 DIP_TARGET = "dipTarget"
 TOOL_TARGET = "toolChangeTarget"
 HOME_TARGET = "homeTarget"
+CANVAS_TARGET = "canvasTarget"
+
 
 ALL_KR8_CONFIGS = {
     "000": [],
@@ -41,6 +43,8 @@ _link = None
 dip_approach = None
 home_approach = None
 tool_approach = None
+canvas_approach = None
+
 dips_frame = None
 wash_frame = None
 pick_place_frame = None
@@ -318,6 +322,10 @@ def _create_infrastructure():
 
     dip_approach = create_joint_target(
         pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame, ["001"]
+    )
+
+    canvas_approach = create_joint_target(
+        pm.PyNode(CANVAS_TARGET), "canvas_approach", _approaches_frame, ["001"]
     )
 
     # dip_approach = create_cartesian_target(
