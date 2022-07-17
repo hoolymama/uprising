@@ -18,7 +18,7 @@ WATER_REPEATS = 2
 RETARDANT_POT_ID = 19
 
 
-logger = logging.getLogger("uprising")
+logger = logging.getLogger(__name__)
 
 
 class BrushHangProgram(Program):

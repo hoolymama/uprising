@@ -16,7 +16,7 @@ from robolink import (
 from uprising import const as k
 import logging
 
-logger = logging.getLogger("uprising")
+logger = logging.getLogger(__name__)
 
 
 class PickPlaceProgram(Program):
