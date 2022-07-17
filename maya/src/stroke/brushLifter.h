@@ -43,7 +43,7 @@ private:
 
   MStatus getBrushShop(MDataBlock &data, BrushShop &brushShop) const;
   MStatus collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes) const;
-  MStatus createCurve(const Stroke *stroke, MObject &curveData) const;
+  // MStatus createCurve(const Stroke *stroke, MObject &curveData) const;
   void getTangents(const MObject &curveObject, MVectorArray &tangents) const;
   void setWeights(const Brush &brush, const MObject &curveObject, Stroke *stroke) const;
   void applyBias(const Brush &brush, const MObject &curveObject, Stroke *stroke, MVectorArray &tangents) const;

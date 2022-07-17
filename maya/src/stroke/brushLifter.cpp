@@ -12,6 +12,7 @@
 #include "brushLifter.h"
 #include "brushData.h"
 #include "brushShopData.h"
+#include "strokeUtils.h"
 
 MObject brushLifter::aBrushShop;
 MObject brushLifter::aReassignBrushIds;
@@ -154,7 +155,7 @@ MStatus brushLifter::mutate(
 
     // Make a nurbs curve to serve as a utility.
     MObject curveObject;
-    createCurve(stroke, curveObject);
+    StrokeUtils::createCurve(stroke, curveObject);
 
     setWeights(brush, curveObject, stroke);
 
@@ -421,32 +422,32 @@ MStatus brushLifter::getBrushShop(
   return MS::kSuccess;
 }
 
-MStatus brushLifter::createCurve(const Stroke *stroke, MObject &curveData) const
-{
-  MStatus st;
+// MStatus brushLifter::createCurve(const Stroke *stroke, MObject &curveData) const
+// {
+//   MStatus st;
 
-  MPointArray editPoints;
-  Stroke::const_target_iterator ctiter = stroke->targets_begin();
-  for (; ctiter != stroke->targets_end(); ctiter++)
-  {
-    editPoints.append(ctiter->position());
-  }
+//   MPointArray editPoints;
+//   Stroke::const_target_iterator ctiter = stroke->targets_begin();
+//   for (; ctiter != stroke->targets_end(); ctiter++)
+//   {
+//     editPoints.append(ctiter->position());
+//   }
 
-  MFnNurbsCurveData dataCreator;
-  curveData = dataCreator.create(&st);
-  msert;
-  MFnNurbsCurve curveFn;
-  curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen, false, false, false, curveData, &st);
-  msert;
+//   MFnNurbsCurveData dataCreator;
+//   curveData = dataCreator.create(&st);
+//   msert;
+//   MFnNurbsCurve curveFn;
+//   curveFn.createWithEditPoints(editPoints, 3, MFnNurbsCurve::kOpen, false, false, false, curveData, &st);
+//   msert;
 
-  MDoubleArray knotVals;
-  st = curveFn.getKnots(knotVals);
-  int numKnots = knotVals.length();
-  double recip = 1.0 / knotVals[(numKnots - 1)];
-  for (int i = 0; i < numKnots; ++i)
-  {
-    knotVals[i] = knotVals[i] * recip;
-  }
-  curveFn.setKnots(knotVals, 0, (numKnots - 1));
-  return MS::kSuccess;
-}
+//   MDoubleArray knotVals;
+//   st = curveFn.getKnots(knotVals);
+//   int numKnots = knotVals.length();
+//   double recip = 1.0 / knotVals[(numKnots - 1)];
+//   for (int i = 0; i < numKnots; ++i)
+//   {
+//     knotVals[i] = knotVals[i] * recip;
+//   }
+//   curveFn.setKnots(knotVals, 0, (numKnots - 1));
+//   return MS::kSuccess;
+// }
