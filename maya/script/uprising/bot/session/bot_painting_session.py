@@ -24,7 +24,7 @@ from uprising.bot.session.dip_wipe_program import (
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 
 class BotPaintingSession(Session):

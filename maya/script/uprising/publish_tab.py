@@ -14,7 +14,7 @@ from uprising import const as k
 from uprising import tools_menu
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 ONE_PROGRAM=1
 BATCHED=2
@@ -269,6 +269,7 @@ class PublishTab(gui.FormLayout):
         do_single = pm.checkBox(self.single_active_checkbox, q=True, v=True)
         if do_single:
             self.do_single_retry()
+            robo.show()
             return
 
         do_batch = pm.radioButtonGrp(

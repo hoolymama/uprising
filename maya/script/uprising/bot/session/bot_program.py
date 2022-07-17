@@ -6,7 +6,7 @@ from uprising.bot.session.pick_place_program import PickProgram, PlaceProgram
 from uprising.bot.session.dip_wipe_program import DipWipeProgram, WaterProgram, RetardantProgram
 
 from uprising import progress
-from uprising.bot.session import configurator
+from uprising.bot.session import configurator 
 from uprising import const as k
 from robolink import (
     INSTRUCTION_COMMENT,
@@ -215,10 +215,13 @@ class BotRetryProgram(Program):
 
         
     def configure(self):
+        logger.debug("Configuring BotRetryProgram for {} clusters".format(len(self.painting.clusters)))
         for cluster in self.painting.clusters:
+            logger.debug("Configuring cluster {} brush: {}, {} strokes".format(cluster.id,cluster.brush.name, len(cluster.strokes)))
             for stroke in cluster.strokes:
-                # stroke.configure(cluster.brush)
+                logger.debug("Configuring stroke {}".format(stroke.id))
                 configurator.solve(stroke, cluster.brush)
+
 
     def send(self, **kw):
         if not self.painting.clusters:

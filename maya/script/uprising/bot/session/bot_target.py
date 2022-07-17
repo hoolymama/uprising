@@ -8,7 +8,7 @@ from uprising import const
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 class BotTarget(Target):
     def __init__(self, target_id, position, rotation):
@@ -22,7 +22,8 @@ class BotTarget(Target):
         rdk_target = link.AddTarget(target_name, frame, robot)
         rdk_target.setPose(self.tool_pose)
         if not self.joint_pose:
-            logger.critical("No joint pose for target {}".format(target_name))
+            logger.error("No joint pose for target {}".format(target_name))
+            raise ValueError("No joint pose for target {}".format(target_name))
         rdk_target.setJoints(self.joint_pose)
         if self.linear:
             program.addMoveL(rdk_target)
