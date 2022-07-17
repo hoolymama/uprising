@@ -20,14 +20,16 @@ PAINTING_START_JOINTS = [10.000000, -70.000000, 120.000000, 0.000000, -30.000000
 EPSILON = 0.0001
 
 def solve(stroke, brush):
-
+    logger.debug("CONFIGURATOR {}".format(stroke.name("-")))
     for config in ["000", "001"]:
         solved_config = config
         last_joint_pose = PAINTING_START_JOINTS
 
         for target in [stroke.arrivals[-1]] + stroke.targets + [stroke.departure]:
+            
             flange_pose = target.flange_pose(brush)
             pose = _solve_pose(flange_pose, config, last_joint_pose)
+            logger.debug("POSE IS {}".format(pose))
             if not pose:
                 solved_config = False
                 break
@@ -36,8 +38,19 @@ def solve(stroke, brush):
 
         if solved_config:
             break
+    logger.debug("solved_config".format(solved_config))
     if not solved_config:
         raise StrokeError("Stroke not solvable: {}".format(stroke.name("-")))
+
+    logger.debug("SOLVED FOR STROKE: {}".format(stroke.id))
+    for target in [stroke.arrivals[-1]] + stroke.targets + [stroke.departure]:
+        stroke_name = stroke.name("-")
+        target_name = target.name(stroke_name)
+        logger.debug("{}:Joint Pose: {}".format(target_name, target.joint_pose))
+        logger.debug("{}:Flange Pose: {}".format(target_name, target.flange_pose(brush)))
+
+
+
 
     main_solved_config = solved_config
     configs = ["000", "001"] if solved_config == "000" else ["001", "000"]
@@ -142,24 +155,24 @@ def _solve_single_joint_pose(flange_pose, last_joint_pose, config):
 
 
 
-# UNUSED - BUT COULD BE COOL
-def try_solve_for_config(stroke, brush, config):
-    last_joint_pose = PAINTING_START_JOINTS
-    for target in [stroke.arrivals[-1]] + stroke.targets + [stroke.departure]:
-        flange_pose = target.flange_pose(brush)
-        pose = _solve_pose(flange_pose, config, last_joint_pose)
-        if not pose:
-            return False
-        last_joint_pose = pose
-        target.joint_pose = pose
-    return True
+# # UNUSED - BUT COULD BE COOL
+# def try_solve_for_config(stroke, brush, config):
+#     last_joint_pose = PAINTING_START_JOINTS
+#     for target in [stroke.arrivals[-1]] + stroke.targets + [stroke.departure]:
+#         flange_pose = target.flange_pose(brush)
+#         pose = _solve_pose(flange_pose, config, last_joint_pose)
+#         if not pose:
+#             return False
+#         last_joint_pose = pose
+#         target.joint_pose = pose
+#     return True
 
-def solve(stroke, brush):
+# def solve(stroke, brush):
 
-    # for config in ["000", "001"]:
-    use_stroke = try_solve_for_config(stroke, brush, "000")
-    if not use_stroke:
-        use_stroke = try_solve_for_config(stroke, brush, "001")
+#     # for config in ["000", "001"]:
+#     use_stroke = try_solve_for_config(stroke, brush, "000")
+#     if not use_stroke:
+#         use_stroke = try_solve_for_config(stroke, brush, "001")
     
-    if not use_stroke:
-        raise StrokeError("Stroke not solvable: {}".format(stroke.name("-")))
+#     if not use_stroke:
+#         raise StrokeError("Stroke not solvable: {}".format(stroke.name("-")))
