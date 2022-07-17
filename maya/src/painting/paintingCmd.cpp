@@ -23,6 +23,9 @@ MSyntax paintingCmd::newSyntax()
 {
 	MSyntax syn;
 
+ 
+	syn.addFlag(kStrokeCreatorFlag, kStrokeCreatorFlagL);
+
 	syn.addFlag(kClusterCountFlag, kClusterCountFlagL);
 
 	syn.addFlag(kClusterIndexFlag, kClusterIndexFlagL, MSyntax::kLong);
@@ -137,6 +140,10 @@ MStatus paintingCmd::doIt(const MArgList &args)
 		return MS::kUnknownParameter;
 	}
 
+	if (argData.isFlagSet(kStrokeCreatorFlag))
+	{
+		return handleStrokeCreatorFlag(*pGeom, argData);
+	}
 
 	if (argData.isFlagSet(kToolCombinationsFlag))
 	{
@@ -426,6 +433,26 @@ int paintingCmd::getStrokeId(const paintingGeom &geom, MArgDatabase &argData,
 	return strokeId;
 }
 
+
+MStatus paintingCmd::handleStrokeCreatorFlag(const paintingGeom &geom,
+										   MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(geom, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+	int clusterId = getClusterId(geom, argData, &st);
+	const Stroke & stroke = geom.clusters()[clusterId].strokes()[strokeId];
+	const MString creator = stroke.creatorName();
+	int creatorId =  stroke.creatorId();
+	MString result = creator + " " + creatorId;
+	setResult(result);	
+	return MS::kSuccess;
+}
+
+
 MStatus paintingCmd::handleToolCombinationsFlag(const paintingGeom &geom)
 {
 	MIntArray result;
@@ -456,6 +483,8 @@ MStatus paintingCmd::handleStrokeCountFlag(const paintingGeom &geom,
 	setResult(numStrokes);
 	return MS::kSuccess;
 }
+
+
 
 MStatus paintingCmd::handleClusterReasonFlag(const paintingGeom &geom,
 											 MArgDatabase &argData)

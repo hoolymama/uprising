@@ -32,7 +32,9 @@ Stroke::Stroke()
 	  m_approximationDistance(0.0),
 	  m_coil(0.0f),
 	  m_maxRadius(1.0f),
-	  m_brushStrokeSpec()
+	  m_brushStrokeSpec(),
+	  m_creatorName(),
+	  m_creatorId()
 {
 }
 
@@ -380,7 +382,20 @@ Stroke::Stroke(
 	resetTangents();
 }
 
+void Stroke::setCreator(const MString &creatorName, int creatorId)
+{
+	m_creatorName = creatorName;
+	m_creatorId = creatorId;
+}
+const MString & Stroke::creatorName() const
+{
+	return m_creatorName;
+}
 
+int Stroke::creatorId() const
+{
+	return m_creatorId;
+}
 
 void Stroke::resetTangents()
 {

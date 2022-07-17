@@ -204,9 +204,11 @@ MStatus strokeCreator::generateStrokeGeometry(
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes)
 {
-
+  MFnDependencyNode depFn(this->thisMObject());
+  MString name(depFn.name());
   applyCoats(data, pOutStrokes);
   applySpeeds(data, pOutStrokes);
+  applyCreator(name, pOutStrokes);
   strokeNodeBase::generateStrokeGeometry(plug,data,pOutStrokes);
 
   return MS::kSuccess;
@@ -228,6 +230,17 @@ void strokeCreator::applySpeeds(
   }
 }
 
+void strokeCreator::applyCreator(
+  const MString &name,
+  std::vector<Stroke> *geom) const
+{
+  std::vector<Stroke>::iterator iter = geom->begin();
+  int id=0;
+  for (;iter != geom->end() ; iter++, id++)
+  {
+    iter->setCreator(name, id);
+  }
+}
 
 void strokeCreator::applyCoats(
   MDataBlock &data,

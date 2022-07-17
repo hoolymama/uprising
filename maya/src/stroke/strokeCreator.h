@@ -38,6 +38,10 @@ protected:
   void applyCoats(MDataBlock &data, std::vector<Stroke> *geom) const;
   void applySpeeds(MDataBlock &data, std::vector<Stroke> *geom) const;
 
+void applyCreator(
+  const MString &name,
+  std::vector<Stroke> *geom) const;
+
   static MObject aCoats;
   static MObject aPointDensity; ///< The minimum number of targets per centimeter.
   static MObject aLayerId;

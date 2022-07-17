@@ -12,6 +12,9 @@
 #include <maya/MFnDependencyNode.h>
 #include "paintingNode.h"
 
+#define kStrokeCreatorFlag "-scr"
+#define kStrokeCreatorFlagL "-strokeCreator"
+
 #define kClusterCountFlag "-cc"
 #define kClusterCountFlagL "-clusterCount"
 
@@ -124,6 +127,8 @@ public:
 	static MSyntax newSyntax();
 
 private:
+
+
 	MStatus handleClusterCountFlag(const paintingGeom &geom);
 
 	MStatus handleStrokeCountFlag(const paintingGeom &geom,
@@ -134,6 +139,8 @@ private:
 
 	int getStrokeId(const paintingGeom &geom, MArgDatabase &argData,
 					MStatus *status);
+
+	MStatus handleStrokeCreatorFlag(const paintingGeom &geom, MArgDatabase &argData);
 
 	MStatus handleClusterReasonFlag(const paintingGeom &geom, MArgDatabase &argData);
 

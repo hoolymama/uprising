@@ -158,6 +158,10 @@ public:
 
 	~Stroke();
 
+	void setCreator(const MString &creatorName, int creatorId);
+	const MString & creatorName() const;
+	int creatorId() const;
+
 	void setStrokeId(unsigned rhs);
 
 	void resetTangents();
@@ -406,6 +410,11 @@ private:
 	float m_approximationDistance;
 
 	float m_coil;
+
+	MString m_creatorName;
+	int m_creatorId;
+
+	
 
 	BrushStrokeSpec m_brushStrokeSpec;
 };
