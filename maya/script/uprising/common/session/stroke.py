@@ -81,6 +81,9 @@ class Stroke(object):
     def query_brush_id(self):
         raise NotImplementedError
 
+    def query_creator(self):
+        raise NotImplementedError
+
     def configure(self):
         raise NotImplementedError
 
