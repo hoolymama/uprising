@@ -8,7 +8,7 @@ from uprising import const
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.WARNING)
 
 class BotTarget(Target):
     def __init__(self, target_id, position, rotation):

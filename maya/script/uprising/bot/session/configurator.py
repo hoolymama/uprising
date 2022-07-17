@@ -11,7 +11,7 @@ import functools
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 PAINTING_START_JOINTS = [0, -90, 120, 0, -30, 0]
 
@@ -28,13 +28,16 @@ def solve(stroke, brush):
         for target in [stroke.arrivals[-1]] + stroke.targets + [stroke.departure]:
             
             flange_pose = target.flange_pose(brush)
-            pose = _solve_pose(flange_pose, config, last_joint_pose)
-            logger.debug("POSE IS {}".format(pose))
-            if not pose:
+            if not flange_pose:
+                logger.error("No flange pose for target {}".format(target.name("-")))
+            joint_pose = _solve_pose(flange_pose, config, last_joint_pose)
+            logger.debug("JOINT_POSE IS {}".format(joint_pose))
+            if not joint_pose:
+                logger.error("No joint_pose for target {}".format(target.name("-")))
                 solved_config = False
                 break
-            last_joint_pose = pose
-            target.joint_pose = pose
+            last_joint_pose = joint_pose
+            target.joint_pose = joint_pose
 
         if solved_config:
             break

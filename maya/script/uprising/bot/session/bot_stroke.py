@@ -11,7 +11,7 @@ from uprising import const as k
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.WARNING)
 
 
 class BotStroke(Stroke):

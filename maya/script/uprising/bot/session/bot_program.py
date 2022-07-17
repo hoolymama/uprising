@@ -17,7 +17,7 @@ from robolink import (
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 def _log_line(*vals):
     return "{}\n".format("\t".join(vals))
@@ -38,6 +38,12 @@ class BotProgram(Program):
                     configurator.solve(stroke, cluster.brush)
                 except BaseException:
                     stroke.ignore = True
+
+    # The problem I think here is that sometimes it's the arrivals and departures that can't be
+    # solved. But in the configurator, all we do is flag the stroke as "ignore". Then ignored
+    # strokes are not fully ignored, we only ignore the linear targets - the ones that contact the
+    # canvas. We set the departure to be a ptp move. In this way, we still hit the arrivals and
+    # departures.
 
     def send(self, **kw):
         if not self.painting.clusters:

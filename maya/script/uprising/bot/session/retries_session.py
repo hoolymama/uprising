@@ -16,7 +16,7 @@ from uprising import const as k
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 PROGRAM_NAME = "retry"
 

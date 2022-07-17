@@ -14,7 +14,7 @@ from uprising import const as k
 from uprising import tools_menu
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.WARNING)
 
 ONE_PROGRAM=1
 BATCHED=2
