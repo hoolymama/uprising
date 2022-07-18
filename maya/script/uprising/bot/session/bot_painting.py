@@ -7,6 +7,10 @@ from uprising.common.session.painting import Painting
 from uprising  import const as k
 
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 class BotPainting(Painting):
     def __init__(self, node):
         super(BotPainting, self).__init__(node)
@@ -27,9 +31,12 @@ class BotPainting(Painting):
 
         for id in range(self.num_clusters):
 
-            progress.update(
-                minor_line="Cluster {}/{}".format(id + 1, self.num_clusters), minor_progress=id
-            )
+            # progress.update(
+            #     minor_line="Cluster {}/{}".format(id + 1, self.num_clusters), minor_progress=id
+            # )
+            msg = "Creating clusters:{} {}/{}".format(self.node, (id + 1), self.num_clusters)
+            logger.info(msg)
+
 
             brush_id = pm.paintingQuery(self.node, clusterIndex=id, clusterBrushId=True)
             paint_id = pm.paintingQuery(self.node, clusterIndex=id, clusterPaintId=True)
