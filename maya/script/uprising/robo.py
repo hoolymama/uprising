@@ -14,6 +14,10 @@ import pymel.core as pm
 import robodk as rdk
 import copy
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 ROBODK_PATH = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/MacOS/RoboDK")
 DIP_TARGET = "dipTarget"
 TOOL_TARGET = "toolChangeTarget"
@@ -222,8 +226,10 @@ def maya_to_robodk_mat(rhs):
 def create_joint_target(obj, name, frame, configs=["000", "001"]):
     global _link
     global _robot
+    logger.setLevel(logging.DEBUG)
 
     wm = obj.attr("worldMatrix[0]").get()
+    logger.debug("Create joint target:".format(name, wm) )
     mat = maya_to_robodk_mat(wm)
 
     joint_poses = solve_joint_poses(mat)
@@ -237,7 +243,7 @@ def create_joint_target(obj, name, frame, configs=["000", "001"]):
     target.setJoints(joints)
     return target
 
-def create_cartesian_target(obj, name, frame):
+def create_cartesian_target(obj, name, frame, configs=["000", "001"]):
 
     global _link
     global _robot
@@ -251,7 +257,7 @@ def create_cartesian_target(obj, name, frame):
         old_item.Delete()
 
     joint_poses = solve_joint_poses(tool_pose)
-    joints = find_best_pose(joint_poses, ["000", "001"])
+    joints = find_best_pose(joint_poses, configs)
 
     target = _link.AddTarget(name, frame, _robot)
     target.setPose(tool_pose)
@@ -295,6 +301,8 @@ def _create_infrastructure():
     global dip_approach
     global home_approach
     global tool_approach
+    global canvas_approach
+    
     global dips_frame
     global wash_frame
     global pick_place_frame
@@ -324,14 +332,11 @@ def _create_infrastructure():
         pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame, ["001"]
     )
 
-    canvas_approach = create_joint_target(
-        pm.PyNode(CANVAS_TARGET), "canvas_approach", _approaches_frame, ["001"]
+    canvas_approach = create_cartesian_target(
+        pm.PyNode(CANVAS_TARGET), "canvas_approach", _approaches_frame , ["001"]
     )
 
-    # dip_approach = create_cartesian_target(
-    #     pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame
-    # )
-
+ 
 
 def linear_test(brushname, *names):
 
