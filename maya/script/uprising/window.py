@@ -16,6 +16,7 @@ from uprising import (
     images_menu,
     painting_tab,
     phex_tab,
+    segment_tab,
     probes_tab,
     publish_tab,
     select_menu,
@@ -70,6 +71,11 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.phex_tab = phex_tab.phexTab()
         self.tabs.setTabLabel((self.phex_tab, "PHEX"))
+
+
+        pm.setParent(self.tabs)
+        self.segment_tab = segment_tab.segmentTab()
+        self.tabs.setTabLabel((self.segment_tab, "Segments"))
 
         pm.setParent(self.tabs)
         self.brush_hang_tab = brush_hang_tab.brushHangTab()
