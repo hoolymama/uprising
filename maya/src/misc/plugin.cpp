@@ -122,6 +122,7 @@
 #include "cImgDistance.h"
 #include "cImgFloatGate.h"
 #include "cImgSetRange.h"
+#include "cImgMergeDilate.h"
 
 #include "multVectorDoublePP.h"
 #include "multVectorVectorPP.h"
@@ -224,6 +225,11 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("cImgSetRange", cImgSetRange::id,
 							 cImgSetRange::creator,
 							 cImgSetRange::initialize);
+	msert;
+
+	st = plugin.registerNode("cImgMergeDilate", cImgMergeDilate::id,
+							 cImgMergeDilate::creator,
+							 cImgMergeDilate::initialize);
 	msert;
 
 	st = plugin.registerNode("cImgDistance", cImgDistance::id,
@@ -882,6 +888,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(cImgDistance::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgMergeDilate::id);
 	mser;
 
 	st = plugin.deregisterNode(cImgSetRange::id);
