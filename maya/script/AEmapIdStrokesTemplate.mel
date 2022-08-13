@@ -13,6 +13,8 @@ global proc AEmapIdStrokesTemplate ( string $nodeName )
 	editorTemplate -addSeparator;
 	editorTemplate -addControl "paintIdMap";
 	editorTemplate -addControl "palette";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "seed";
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0  -beginLayout "Brush model attributes";		

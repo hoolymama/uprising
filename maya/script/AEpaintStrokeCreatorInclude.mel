@@ -15,10 +15,11 @@ global proc AEpaintStrokeCreatorInclude (string $nodeName)
 
 
 	editorTemplate -cl 0 -beginLayout "Id attributes";
-	editorTemplate -addControl "paintId";
 	editorTemplate -addControl "brushId";
-
 	editorTemplate -addControl "layerId";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "paintId";
+	editorTemplate -addControl "ditherProbability";
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Brush attributes";
