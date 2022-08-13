@@ -36,6 +36,7 @@ MObject mapIdStrokes::aPaintIdOffset;
 MObject mapIdStrokes::aPalette;
 MObject mapIdStrokes::aDoBrushModelId;
 MObject mapIdStrokes::aBrushShop;
+MObject mapIdStrokes::aSeed;
 
 MObject mapIdStrokes::aDoWidthBandLayerIds;
 MObject mapIdStrokes::aWidthBandLevel;
@@ -99,6 +100,13 @@ MStatus mapIdStrokes::initialize()
   nAttr.setDefault(0.0f);
   addAttribute(aPaintIdOffset);
 
+  aSeed = nAttr.create("seed", "sd", MFnNumericData::kInt);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setDefault(0.0f);
+  addAttribute(aSeed);
+
+
   aPalette = tAttr.create("palette", "plt", paletteData::id);
   tAttr.setReadable(false);
   tAttr.setStorable(false);
@@ -134,6 +142,9 @@ MStatus mapIdStrokes::initialize()
   nAttr.setArray(true);
   addAttribute(aWidthBandLevel);
 
+
+
+
   attributeAffects(aSampleParam, aOutput);
   attributeAffects(aDoPaintId, aOutput);
   attributeAffects(aPaintIdMap, aOutput);
@@ -142,6 +153,7 @@ MStatus mapIdStrokes::initialize()
   attributeAffects(aPalette, aOutput);
   attributeAffects(aDoBrushModelId, aOutput);
   attributeAffects(aBrushShop, aOutput);
+  attributeAffects(aSeed, aOutput);
   
   attributeAffects(aDoWidthBandLayerIds, aOutput);
   attributeAffects(aWidthBandLevel, aOutput);
@@ -221,8 +233,9 @@ MStatus mapIdStrokes::assignPaintIds(MDataBlock &data,
   float paintIdMap = data.inputValue(aPaintIdMap).asFloat();
   int quantizeLevels = data.inputValue(aPaintIdMapQuantizeLevel).asInt();
   int paintIdOffset = data.inputValue(aPaintIdOffset).asInt();
-
-  msert;
+  int seedVal = data.inputValue(aSeed).asInt();
+  srand48(seedVal);
+  
 
   MIntArray paintIds;
 
@@ -244,12 +257,14 @@ MStatus mapIdStrokes::assignPaintIds(MDataBlock &data,
 
   for (; siter != strokes->end(); ++siter, ++index)
   {
+    if (float(drand48()) > siter->ditherProbability())
+    {
+      continue;
+    }
+
     int &paintId = paintIds[index];
-
     paintId += paintIdOffset;
-
     siter->setPaintId(paintId);
-
   }
   return MS::kSuccess;
 }

@@ -298,6 +298,7 @@ def write_program(directory, name):
 
 
 def _create_infrastructure():
+    global _model
     global dip_approach
     global home_approach
     global tool_approach
@@ -313,28 +314,29 @@ def _create_infrastructure():
     except:
         pass
 
-    calibration_frame = create_frame("calibration_frame")
-    dips_frame = create_frame("dips_frame")
-    wash_frame = create_frame("wash_frame")
-    pick_place_frame = create_frame("pick_place_frame")
-
     _approaches_frame = create_frame("ax_frame")
-
-    tool_approach = create_joint_target(
-        pm.PyNode(TOOL_TARGET), "tool_approach", _approaches_frame
-    )
 
     home_approach = create_joint_target(
         pm.PyNode(HOME_TARGET), "home_approach", _approaches_frame
     )
 
-    dip_approach = create_joint_target(
-        pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame, ["001"]
-    )
+    if _model == "kr30":
+        calibration_frame = create_frame("calibration_frame")
+        dips_frame = create_frame("dips_frame")
+        wash_frame = create_frame("wash_frame")
+        pick_place_frame = create_frame("pick_place_frame")
+    
+        tool_approach = create_joint_target(
+            pm.PyNode(TOOL_TARGET), "tool_approach", _approaches_frame
+        )
+        dip_approach = create_joint_target(
+            pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame, ["001"]
+        )
 
-    canvas_approach = create_cartesian_target(
-        pm.PyNode(CANVAS_TARGET), "canvas_approach", _approaches_frame , ["001"]
-    )
+        canvas_approach = create_cartesian_target(
+            pm.PyNode(CANVAS_TARGET), "canvas_approach", _approaches_frame , ["001"]
+        )
+
 
  
 

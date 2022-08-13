@@ -7,6 +7,7 @@ import pymel.core.uitypes as gui
 from uprising import utils as utils
 from uprising import const as k
 
+import re
 
 # from uprising.bot.session.dip_wipe_exercise_session import DipWipeExerciseSession
 
@@ -35,11 +36,11 @@ class segmentTab(gui.FormLayout):
         )
 
         self.add_buttons_row = pm.rowLayout(
-            numberOfColumns=4,
-            columnWidth4=(200, 200, 200, 200),
+            numberOfColumns=5,
+            columnWidth5=(150,150,150,150,150),
             adjustableColumn=2,
             columnAlign=(1, "right"),
-            columnAttach=[(1, "both", 2), (2, "both", 2), (2, "both", 2), (2, "both", 2)],
+            columnAttach=[(1, "both", 2), (2, "both", 2), (2, "both", 2), (2, "both", 2), (2, "both", 2)],
         )
         pm.button(label="Load cImgSplit", command=pm.Callback(self.on_load_split_node))
 
@@ -47,6 +48,7 @@ class segmentTab(gui.FormLayout):
 
         pm.button(label="Load cImgMerge nodes", command=pm.Callback(self.on_load_merges))
 
+        pm.button(label="All 1 <-> 1", command=pm.Callback(self.on_one_to_one))
         pm.button(label="Clear", command=pm.Callback(self.on_clear))
 
         pm.setParent("..")
@@ -72,6 +74,7 @@ class segmentTab(gui.FormLayout):
         self.attachForm(go_but, "left", 2)
         self.attachForm(go_but, "bottom", 2)
 
+
     def on_go_all(self):
         for tf in pm.columnLayout(self.merges_column, q=True, ca=True):
             self.on_go_one(tf)
@@ -86,7 +89,7 @@ class segmentTab(gui.FormLayout):
             
 
         val = pm.textFieldButtonGrp(textField, q=True, text=True)
-        indices = [int(i) for i in val.split(",") if i is not None and i.isdigit()]
+        indices = [int(i) for i in re.split('[, ]',val) if i is not None and i.isdigit()]
         for i, index in enumerate(indices):
             src = split.attr("output[{}].outputImage".format(index))
             dest = pm.PyNode(merge_name).attr("input[{}]".format(i))
@@ -123,6 +126,12 @@ class segmentTab(gui.FormLayout):
             self._create_entry(merge, src_indices, frame)
             frame += 1
         pm.setParent(self)  # form
+
+    def on_one_to_one(self):
+        for tf in pm.columnLayout(self.merges_column, q=True, ca=True):
+            name = pm.textFieldButtonGrp(tf, q=True, label=True)
+            index = int(name.rpartition("_")[-1])
+            pm.textFieldButtonGrp(tf, e=True, text=str(index))
 
     def _clear_entries(self):
         children = pm.columnLayout(self.merges_column, q=True, ca=True)

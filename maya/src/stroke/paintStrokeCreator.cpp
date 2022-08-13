@@ -48,6 +48,7 @@ MObject paintStrokeCreator::aMinimumPoints;
 // MObject paintStrokeCreator::aApplyBrushBias;
 MObject paintStrokeCreator::aBrushShape;
 
+MObject paintStrokeCreator::aDitherProbability;
 ;
 
 MTypeId paintStrokeCreator::id(k_paintStrokeCreator);
@@ -189,6 +190,12 @@ MStatus paintStrokeCreator::initialize()
     nAttr.setDefault(0.0f);
     st = addAttribute(aExtendExit);
     mser;
+
+    aDitherProbability = nAttr.create("ditherProbability", "dprb", MFnNumericData::kFloat);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setDefault(1.0f);
+    st = addAttribute(aDitherProbability);
     //////////////
 
     attributeAffects(aStrokeLength, aOutput);
@@ -209,6 +216,9 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aMinimumPoints, aOutput);
 
     attributeAffects(aBrushShape, aOutput);
+    attributeAffects(aDitherProbability, aOutput);
+
+
 
     return (MS::kSuccess);
 }
@@ -218,6 +228,18 @@ MStatus paintStrokeCreator::generateStrokeGeometry(
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes)
 {
+    paintStrokeCreator::applyBrushStrokeSpec(data, pOutStrokes);
+
+    int brushId = data.inputValue(aBrushId).asInt();
+    int paintId = data.inputValue(aPaintId).asInt();
+    float ditherProbability = data.inputValue(aDitherProbability).asFloat();
+    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+    {
+        curr_stroke->setBrushId(brushId);
+        curr_stroke->setPaintId(paintId);
+        curr_stroke->setDitherProbability(ditherProbability);
+    }
+
     strokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);
     return MS::kSuccess;
 }

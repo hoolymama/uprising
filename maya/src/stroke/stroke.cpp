@@ -34,7 +34,8 @@ Stroke::Stroke()
 	  m_maxRadius(1.0f),
 	  m_brushStrokeSpec(),
 	  m_creatorName(),
-	  m_creatorId()
+	  m_creatorId(),
+	  m_ditherProbability(1.0)
 {
 }
 
@@ -395,6 +396,15 @@ const MString & Stroke::creatorName() const
 int Stroke::creatorId() const
 {
 	return m_creatorId;
+}
+
+float Stroke::ditherProbability() const
+{
+	return m_ditherProbability;
+}
+void Stroke::setDitherProbability(float probability)
+{
+	m_ditherProbability = probability;
 }
 
 void Stroke::resetTangents()

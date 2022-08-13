@@ -58,6 +58,7 @@ private:
 
   static MObject aDoBrushModelId;
   static MObject aBrushShop;
+  static MObject aSeed;
 
 
   static MObject aDoWidthBandLayerIds;

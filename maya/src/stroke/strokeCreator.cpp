@@ -208,7 +208,13 @@ MStatus strokeCreator::generateStrokeGeometry(
   MString name(depFn.name());
   applyCoats(data, pOutStrokes);
   applySpeeds(data, pOutStrokes);
+  applyLayerId(data, pOutStrokes);
+  
   applyCreator(name, pOutStrokes);
+ 
+
+
+
   strokeNodeBase::generateStrokeGeometry(plug,data,pOutStrokes);
 
   return MS::kSuccess;
@@ -230,17 +236,32 @@ void strokeCreator::applySpeeds(
   }
 }
 
+void strokeCreator::applyLayerId(
+  MDataBlock &data,
+  std::vector<Stroke> *geom) const
+{
+  int layerId = data.inputValue(aLayerId).asInt();
+  std::vector<Stroke>::iterator iter = geom->begin();
+  for (;iter != geom->end() ; iter++ )
+  {
+    iter->setLayerId(layerId);
+  }
+}
+
+
 void strokeCreator::applyCreator(
   const MString &name,
   std::vector<Stroke> *geom) const
 {
   std::vector<Stroke>::iterator iter = geom->begin();
-  int id=0;
-  for (;iter != geom->end() ; iter++, id++)
+  int cid=0;
+  for (;iter != geom->end() ; iter++, cid++)
   {
-    iter->setCreator(name, id);
+    iter->setCreator(name, cid);
   }
 }
+
+
 
 void strokeCreator::applyCoats(
   MDataBlock &data,

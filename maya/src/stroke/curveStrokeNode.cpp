@@ -114,9 +114,9 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
     float radius = data.inputValue(aWidth).asFloat() * 0.5;
 
-    int layerId = data.inputValue(aLayerId).asInt();
-    int brushId = data.inputValue(aBrushId).asInt();
-    int paintId = data.inputValue(aPaintId).asInt();
+    // int layerId = data.inputValue(aLayerId).asInt();
+    // int brushId = data.inputValue(aBrushId).asInt();
+    // int paintId = data.inputValue(aPaintId).asInt();
     
     float splitAngle = float(data.inputValue(aSplitAngle).asAngle().asRadians());
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
@@ -224,16 +224,16 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             }
         }
     }
-    paintStrokeCreator::applyBrushStrokeSpec(data, pOutStrokes);
+    // paintStrokeCreator::applyBrushStrokeSpec(data, pOutStrokes);
 
-    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-    {
+    // for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+    // {
 
-        curr_stroke->setLayerId(layerId);
-        curr_stroke->setBrushId(brushId);
-        curr_stroke->setPaintId(paintId);
+    //     curr_stroke->setLayerId(layerId);
+    //     curr_stroke->setBrushId(brushId);
+    //     curr_stroke->setPaintId(paintId);
         
-    }
+    // }
 
     paintStrokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);
 

@@ -24,12 +24,12 @@ MObject cImgFileCrop::aBoundary;
 MObject cImgFileCrop::aApplyCrop;
 MObject cImgFileCrop::aCropCorner;
 MObject cImgFileCrop::aCropResolution;
+MObject cImgFileCrop::aLetterbox;
 
 MObject cImgFileCrop::aOutput;
 MObject cImgFileCrop::aOutputCropFactor;
 MObject cImgFileCrop::aOutputOffsetFactorX;
 MObject cImgFileCrop::aOutputOffsetFactorY;
-
 
 cImgFileCrop::cImgFileCrop() {}
 
@@ -48,7 +48,6 @@ MStatus cImgFileCrop::initialize()
 	MFnTypedAttribute tAttr;
 	MFnCompoundAttribute cAttr;
 	MFnEnumAttribute eAttr;
-	
 
 	aImageFilename = tAttr.create("imageFilename", "im", MFnData::kString);
 	tAttr.setStorable(true);
@@ -60,8 +59,19 @@ MStatus cImgFileCrop::initialize()
 	eAttr.addField("neumann", cImgFileCrop::kBoundaryNeumann);
 	eAttr.setHidden(false);
 	eAttr.setStorable(true);
+	eAttr.setStorable(true);
 	st = addAttribute(aBoundary);
-	
+
+	aLetterbox = eAttr.create("letterbox", "lbx", cImgFileCrop::kBlack);
+	eAttr.addField("black", cImgFileCrop::kBlack);
+	eAttr.addField("white", cImgFileCrop::kWhite);
+	eAttr.addField("repeat", cImgFileCrop::kRepeat);
+	eAttr.setHidden(false);
+	eAttr.setStorable(true);
+	eAttr.setKeyable(true);
+
+	st = addAttribute(aLetterbox);
+
 	aResize = nAttr.create("resize", "rsz", MFnNumericData::kBoolean);
 	nAttr.setHidden(false);
 	nAttr.setStorable(true);
@@ -101,7 +111,6 @@ MStatus cImgFileCrop::initialize()
 	tAttr.setKeyable(false);
 	addAttribute(aOutput);
 
-
 	aOutputCropFactor = nAttr.create("outputCropFactor", "ocf", MFnNumericData::kFloat);
 	nAttr.setHidden(false);
 	nAttr.setStorable(false);
@@ -118,7 +127,7 @@ MStatus cImgFileCrop::initialize()
 	nAttr.setKeyable(false);
 	st = addAttribute(aOutputOffsetFactorX);
 
-	aOutputOffsetFactorY= nAttr.create("outputOffsetFactorY", "oofy", MFnNumericData::kFloat);
+	aOutputOffsetFactorY = nAttr.create("outputOffsetFactorY", "oofy", MFnNumericData::kFloat);
 	nAttr.setHidden(false);
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
@@ -126,13 +135,12 @@ MStatus cImgFileCrop::initialize()
 	nAttr.setKeyable(false);
 	st = addAttribute(aOutputOffsetFactorY);
 
-
-
 	attributeAffects(aBoundary, aOutput);
 	attributeAffects(aImageFilename, aOutput);
 	attributeAffects(aResize, aOutput);
 	attributeAffects(aResizeResolution, aOutput);
 	attributeAffects(aApplyCrop, aOutput);
+	attributeAffects(aLetterbox, aOutput);
 
 	attributeAffects(aImageFilename, aOutputCropFactor);
 	attributeAffects(aResize, aOutputCropFactor);
@@ -158,11 +166,7 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	MObject thisObj = thisMObject();
 
 	if (!(
-			(plug == aOutput) 
-			|| (plug == aOutputCropFactor)
-			|| (plug == aOutputOffsetFactorX)
-			|| (plug == aOutputOffsetFactorY)
-			))
+			(plug == aOutput) || (plug == aOutputCropFactor) || (plug == aOutputOffsetFactorX) || (plug == aOutputOffsetFactorY)))
 	{
 		return (MS::kUnknownParameter);
 	}
@@ -174,11 +178,11 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	bool applyCrop = data.inputValue(aApplyCrop).asBool();
 	short boundary = data.inputValue(aBoundary).asShort();
 
+	cImgFileCrop::Letterbox letterbox = (cImgFileCrop::Letterbox)data.inputValue(aLetterbox).asShort();
+
 	float cropFactor = 1.0f;
 	float offsetFactorX = 0.0f;
 	float offsetFactorY = 0.0f;
-	
-
 
 	MString imageFilename = data.inputValue(aImageFilename).asString();
 	CImg<unsigned char> image(imageFilename.asChar());
@@ -201,13 +205,14 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 		{
 			yres = int((yres * resolution) / float(xres));
 			xres = resolution;
-		} else  {
+		}
+		else
+		{
 			xres = int((xres * resolution) / float(yres));
 			yres = resolution;
 		}
 		image.resize(xres, yres, -100, -100, 1);
 	}
-
 
 	MDataHandle hOutput = data.outputValue(aOutput);
 	MFnPluginData fnOut;
@@ -221,7 +226,6 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	int xOffset = (squareRes - xres) / 2;
 	int yOffset = (squareRes - yres) / 2;
 
-
 	if (applyCrop)
 	{
 		const int2 &cropCorner = data.inputValue(aCropCorner).asInt2();
@@ -234,32 +238,42 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 		int cropRes = fmin(cropResX, cropResY);
 
 		;
-		outimage->assign(image.get_crop(cropX, cropY,cropX+cropRes-1,cropY+cropRes-1, boundary ));
-
+		outimage->assign(image.get_crop(cropX, cropY, cropX + cropRes - 1, cropY + cropRes - 1, boundary));
 
 		float fSquareRes = float(squareRes);
 		cropFactor = cropResX / fSquareRes;
-		offsetFactorX = (cropX+xOffset) / fSquareRes;
-		offsetFactorY = (cropY+yOffset) / fSquareRes;
+		offsetFactorX = (cropX + xOffset) / fSquareRes;
+		offsetFactorY = (cropY + yOffset) / fSquareRes;
+	}
+	else
+	{
+		int bg =  (letterbox == Letterbox::kWhite) ? 255 : 0;
+		// if (letterbox == Letterbox::kWhite)
+		// {
+		// 	bg = 255;
+		// }
+		outimage->assign(squareRes, squareRes, 1, 1, bg);
 
-
-	} else {
- 
-		outimage->assign(squareRes, squareRes, 1, 1, 0);
-		if (xOffset > 0) {
-			CImg<unsigned char> leftImg = image.get_crop(0,0,0,yres).resize(xOffset, yres, -100, -100, 1);
-			CImg<unsigned char> rightImg = image.get_crop(xres-1,0, xres-1,yres).resize(xOffset, yres, -100, -100, 1);
-			outimage->draw_image(0, 0, 0, 0, leftImg);
-			outimage->draw_image(xOffset+xres, 0, 0, 0, rightImg);
-		} else if (yOffset > 0) {
-			CImg<unsigned char> topImg = image.get_crop(0,0,xres,0).resize(xres, yOffset, -100, -100, 1);
-			CImg<unsigned char> bottomImg = image.get_crop(0,yres-1, xres,yres-1).resize(xres, yOffset, -100, -100, 1);
-			outimage->draw_image(0, 0, 0, 0, topImg);
-			outimage->draw_image(0, yOffset+yres, 0, 0, bottomImg);
+		if (letterbox == Letterbox::kRepeat)
+		{
+			if (xOffset > 0)
+			{
+				CImg<unsigned char> leftImg = image.get_crop(0, 0, 0, yres).resize(xOffset, yres, -100, -100, 1);
+				CImg<unsigned char> rightImg = image.get_crop(xres - 1, 0, xres - 1, yres).resize(xOffset, yres, -100, -100, 1);
+				outimage->draw_image(0, 0, 0, 0, leftImg);
+				outimage->draw_image(xOffset + xres, 0, 0, 0, rightImg);
+			}
+			else if (yOffset > 0)
+			{
+				CImg<unsigned char> topImg = image.get_crop(0, 0, xres, 0).resize(xres, yOffset, -100, -100, 1);
+				CImg<unsigned char> bottomImg = image.get_crop(0, yres - 1, xres, yres - 1).resize(xres, yOffset, -100, -100, 1);
+				outimage->draw_image(0, 0, 0, 0, topImg);
+				outimage->draw_image(0, yOffset + yres, 0, 0, bottomImg);
+			}
 		}
+
 		outimage->draw_image(xOffset, yOffset, 0, 0, image);
 	}
-
 
 	MDataHandle hOutputCropFactor = data.outputValue(aOutputCropFactor);
 	hOutputCropFactor.set(cropFactor);
@@ -273,13 +287,11 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	hOutputOffsetFactorY.set(offsetFactorY);
 	hOutputOffsetFactorY.setClean();
 
-
 	hOutput.set(newData);
 	data.setClean(plug);
 	return MS::kSuccess;
 }
-
-
+ 
 MStatus cImgFileCrop::setDependentsDirty(
 	const MPlug &plugBeingDirtied,
 	MPlugArray &affectedPlugs)
@@ -303,7 +315,6 @@ MStatus cImgFileCrop::setDependentsDirty(
 				MPlug(thisNode, cImgFileCrop::aOutputOffsetFactorX));
 			affectedPlugs.append(
 				MPlug(thisNode, cImgFileCrop::aOutputOffsetFactorY));
-
 		}
 	}
 	return MS::kSuccess;

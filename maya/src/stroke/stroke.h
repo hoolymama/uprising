@@ -162,6 +162,12 @@ public:
 	const MString & creatorName() const;
 	int creatorId() const;
 
+
+	float ditherProbability() const;
+	void setDitherProbability(float probability);
+
+
+
 	void setStrokeId(unsigned rhs);
 
 	void resetTangents();
@@ -413,6 +419,7 @@ private:
 
 	MString m_creatorName;
 	int m_creatorId;
+	float m_ditherProbability;
 
 	
 
