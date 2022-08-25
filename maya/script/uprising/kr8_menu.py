@@ -20,6 +20,7 @@ def create():
     pm.menuItem(label="Test online", command=pm.Callback(test_online))
 
     pm.menuItem(label="Batch Illustrator", command=pm.Callback(batch_illustrator))
+    pm.menuItem(label="Batch Curve Groups", command=pm.Callback(batch_curve_groups))
 
     return menu
 
@@ -90,9 +91,12 @@ def create_gradient_image_field():
 
     pm.select(field)
 
+def batch_curve_groups():
+    groups = pm.ls(sl=True)
+    do_batch_curve_groups(groups)
 
 def batch_illustrator():
-
+    
     entries = pm.fileDialog2(
         caption="Choose Adobe Illustrator files",
         okCaption="Import",
@@ -105,38 +109,43 @@ def batch_illustrator():
         pm.displayWarning("Nothing Selected")
         return
 
-    # prepare choice node
+    groups = []
+    for i, entry in enumerate(entries):
+        name = os.path.splitext(os.path.basename(entry))[0]
+        node = pm.PyNode(pm.illustratorCurves(ch=False, ifn=entry)[0])
+        node.rename(name)
+        groups.append(node)
+
+    do_batch_curve_groups(groups)
+
+def do_batch_curve_groups(groups):
+
     choice = pm.PyNode(k.SUBJECT_CHOICE)
     conns = pm.listConnections(choice.attr("input"), s=True, d=False)
     for conn in conns:
         pm.delete(conn)
-
     # delete inputs and plugs
     for plug in choice.attr("input"):
         pm.removeMultiInstance(plug, b=True)
 
     directives = []
-    for i, entry in enumerate(entries):
+    for i, node in enumerate(groups):
         frame=i+1
-        name = os.path.splitext(os.path.basename(entry))[0]
-        node = pm.PyNode(pm.illustratorCurves(ch=False, ifn=entry)[0])
-        node.rename("f_{}_{}".format(frame, name))
+        node.rename("f_{}_{}".format(frame, node.name()))
         directives.append("{}.visibility=frame=={};".format(node, frame))
-        # pm.expression(s="{}.visibility=frame=={};".format(frame, node), ae=1, uc="all")
-        curve_stroke = hookup_illustrator_curves(node)
+        curve_stroke = hookup_groups(node)
         curve_stroke.attr("output") >> choice.attr("input")[i]
 
     expression = pm.createNode("expression")
     pm.expression(expression, edit=True, s="\n".join(directives))
-    pm.playbackOptions(e=True, min=1, max=len(entries))
+    pm.playbackOptions(e=True, min=1, max=len(groups))
 
 
-def hookup_illustrator_curves(illustrator_node):
+def hookup_groups(illustrator_node):
 
     max_height = 80
     max_width = 120
     
-
     # Reposition scale and set pivots
     pm.xform(illustrator_node, cpc=True)
     offset = pm.dt.Vector(pm.xform(illustrator_node, q=True, ws=True, rp=True)) * -1

@@ -111,7 +111,7 @@ class Brush(object):
     def brush_at_index(cls, node, index):
 
         brushProvider = cls._brushProvider(node)
-        print("BRUSHPROVIDER:", brushProvider, " INDEX:", index)
+        # print("BRUSHPROVIDER:", brushProvider, " INDEX:", index)
 
         plug = brushProvider.attr("brushes[%d]" % index).connections(
             source=True, destination=False, plugs=True
