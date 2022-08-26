@@ -22,6 +22,7 @@ global proc AEskChainNodeTemplate ( string $nodeName )
 	editorTemplate -addControl "doFillerChains";	
 	editorTemplate -addControl "maxWidth";	
  	editorTemplate -addControl "maxStampWidth";
+ 	editorTemplate -addControl "minWidth";
  	editorTemplate -addControl "offsetWidth";
 
 	editorTemplate -addControl "maxIterations";

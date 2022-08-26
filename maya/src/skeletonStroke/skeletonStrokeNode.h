@@ -32,7 +32,7 @@ private:
         const skChain &current_chain,
 
         const MFloatVector &canvasNormal,
-        const MFloatPoint &goalPoint,
+        const MFloatPointArray &goalPoints,
         bool awayFromGoal,
         unsigned parentIndex,
         int minimumPoints,
@@ -47,6 +47,12 @@ private:
         float splitAngle,
         float splitTestInterval,
         std::vector<Stroke> *pOutStrokes);
+
+    bool shouldReverse(
+        const MPoint &startPoint,
+        const MPoint &endPoint,
+        const MFloatPointArray &goalPoints,
+        bool awayFromGoal) const;
 
     void getChainPointsAndRadii(
         const skChain &chain,
@@ -85,6 +91,8 @@ private:
     static MObject aSplitAngle;
     static MObject aSelector;
     static MObject aGoalPoint;
+    static MObject aGoalPoints;
+
     static MObject aAwayFromGoal;
     static MObject aSmoothNeighbors;
 

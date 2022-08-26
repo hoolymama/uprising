@@ -91,7 +91,7 @@ MStatus bulgeStrokes::mutate(
 		  rampAttr.getValueAtPosition( params[i], weight, &st ); mser;
       weight *= mult;
       
-      titer->setWeight(titer->weight()*weight );
+      titer->setRadius(titer->radius()*weight );
     }
   }
   return MS::kSuccess;

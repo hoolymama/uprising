@@ -13,6 +13,8 @@ global proc AEskeletonStrokeTemplate ( string $nodeName )
 	
 	editorTemplate -cl 0 -beginLayout "Goal attributes";
 	editorTemplate -addControl "goalPoint";
+	
+	editorTemplate -addControl "goalPoints";
 	editorTemplate -addControl "awayFromGoal";
 	editorTemplate -endLayout;
 

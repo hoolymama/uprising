@@ -38,6 +38,8 @@ MObject skeletonStrokeNode::aChains;
 MObject skeletonStrokeNode::aInputData;
 MObject skeletonStrokeNode::aSelector;
 MObject skeletonStrokeNode::aGoalPoint;
+MObject skeletonStrokeNode::aGoalPoints;
+
 MObject skeletonStrokeNode::aAwayFromGoal;
 MObject skeletonStrokeNode::aSmoothNeighbors;
 MObject skeletonStrokeNode::aSmoothPositions;
@@ -114,6 +116,13 @@ MStatus skeletonStrokeNode::initialize()
     nAttr.setKeyable(true);
     addAttribute(aGoalPoint);
 
+    aGoalPoints = nAttr.createPoint("goalPoints", "gpts");
+    nAttr.setStorable(true);
+    nAttr.setReadable(true);
+    nAttr.setKeyable(true);
+    nAttr.setArray(true);
+    addAttribute(aGoalPoints);
+
     aAwayFromGoal = nAttr.create("awayFromGoal", "afg", MFnNumericData::kBoolean);
     nAttr.setKeyable(true);
     nAttr.setHidden(false);
@@ -150,6 +159,8 @@ MStatus skeletonStrokeNode::initialize()
     attributeAffects(aInputData, aOutput);
     attributeAffects(aSelector, aOutput);
     attributeAffects(aGoalPoint, aOutput);
+    attributeAffects(aGoalPoints, aOutput);
+
     attributeAffects(aAwayFromGoal, aOutput);
 
     attributeAffects(aSmoothNeighbors, aOutput);
@@ -202,13 +213,34 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
     MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
     MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
 
-    float3 &fpoint = data.inputValue(aGoalPoint).asFloat3();
-    MFloatPoint goalPoint(fpoint[0], fpoint[1], fpoint[2]);
+    MArrayDataHandle hInputGoalPoints = data.inputArrayValue(aGoalPoints, &st);
+    unsigned nGoalPoints = hInputGoalPoints.elementCount();
+    MFloatPointArray goalPoints;
+    if (nGoalPoints == 0)
+    {
+        float3 &fpoint = data.inputValue(aGoalPoint).asFloat3();
+        goalPoints.append(MFloatPoint(fpoint[0], fpoint[1], fpoint[2]));
+        nGoalPoints = 1;
+    }
+    else
+    {
+        for (unsigned i = 0; i < nGoalPoints; i++)
+        {
+            MDataHandle hInputGoalPoint = hInputGoalPoints.inputValue(&st);
+            float3 &fpoint = hInputGoalPoint.asFloat3();
+            goalPoints.append(MFloatPoint(fpoint[0], fpoint[1], fpoint[2]));
+            hInputGoalPoints.next();
+        }
+    }
+    for (size_t i = 0; i < nGoalPoints; i++)
+    {
+        // flatten the goal point in the canvas plane.
+        MFloatPoint &p = goalPoints[i];
+        p *= canvasMatrix.inverse();
+        p.z = 0.0;
+        p *= canvasMatrix;
+    }
 
-    // flatten the goal point in the canvas plane.
-    goalPoint *= canvasMatrix.inverse();
-    goalPoint.z = 0.0;
-    goalPoint *= canvasMatrix;
     bool awayFromGoal = data.inputValue(aAwayFromGoal).asBool();
 
     MArrayDataHandle hInputData = data.inputArrayValue(aInputData, &st);
@@ -276,7 +308,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
             unsigned count = createStrokesForChain(
                 *current_chain,
                 canvasNormal,
-                goalPoint,
+                goalPoints,
                 awayFromGoal,
                 elIndex,
                 minimumPoints,
@@ -290,7 +322,7 @@ MStatus skeletonStrokeNode::generateStrokeGeometry(
                 splitTestInterval,
                 pOutStrokes);
         }
-      }
+    }
     // paintStrokeCreator::applyBrushStrokeSpec(data, pOutStrokes);
 
     // for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
@@ -318,7 +350,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     const skChain &current_chain,
 
     const MFloatVector &canvasNormal,
-    const MFloatPoint &goalPoint,
+    const MFloatPointArray &goalPoints,
     bool awayFromGoal,
     unsigned parentId,
     int minimumPoints,
@@ -384,7 +416,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         const float &startDist = boundaries[i].x;
         const float &endDist = boundaries[i].y;
         const float &coil = boundaries[i].z;
-    
+
         MFloatArray strokeRadii;
         MDoubleArray curveParams;
 
@@ -399,8 +431,6 @@ unsigned skeletonStrokeNode::createStrokesForChain(
             curveParams,
             strokeRadii);
 
-
-        bool doReverse = false;
         MPoint startPoint, endPoint;
         double param;
         param = curveFn.findParamFromLength(startDist);
@@ -410,14 +440,11 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         st = curveFn.getPointAtParam(param, endPoint, MSpace::kObject);
         mser;
 
-        if (startPoint.distanceTo(goalPoint) < endPoint.distanceTo(goalPoint))
-        {
-            doReverse = true;
-        }
-        if (awayFromGoal)
-        {
-            doReverse = !doReverse;
-        }
+        bool doReverse = shouldReverse(
+            startPoint,
+            endPoint,
+            goalPoints,
+            awayFromGoal);
 
         Stroke stroke;
         if (doReverse)
@@ -434,7 +461,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
                 curveParams,
                 strokeRadii);
         }
-     
+
         if (stroke.valid())
         {
             stroke.setParentId(parentId);
@@ -444,6 +471,38 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         }
     }
     return counter;
+}
+
+bool skeletonStrokeNode::shouldReverse(
+    const MPoint &startPoint,
+    const MPoint &endPoint,
+    const MFloatPointArray &goalPoints,
+    bool awayFromGoal) const
+{
+    // Which goal point is closest to the points?
+    MFloatPoint avgPoint = (startPoint + endPoint) * 0.5;
+    float minDist = FLT_MAX;
+    unsigned minIndex = 0;
+    for (unsigned i = 0; i < goalPoints.length(); ++i)
+    {
+        float dist = avgPoint.distanceTo(goalPoints[i]);
+        if (dist < minDist)
+        {
+            minDist = dist;
+            minIndex = i;
+        }
+    }
+    const MFloatPoint &goalPoint = goalPoints[minIndex];
+    bool doReverse = false;
+    if (startPoint.distanceTo(goalPoint) < endPoint.distanceTo(goalPoint))
+    {
+        doReverse = true;
+    }
+    if (awayFromGoal)
+    {
+        doReverse = !doReverse;
+    }
+    return doReverse;
 }
 
 unsigned skeletonStrokeNode::createStrokeData(

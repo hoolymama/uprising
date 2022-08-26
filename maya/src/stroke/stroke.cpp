@@ -530,10 +530,10 @@ void Stroke::smoothTargets(int neighbors, bool doPositions, bool doWeights)
 			float meanWeight = 0.0;
 			for (int j = i - n; j < i + n + 1; j++)
 			{
-				meanWeight += m_targets[j].weight();
+				meanWeight += m_targets[j].radius();
 			}
 			meanWeight = meanWeight / denom;
-			iter->setWeight(meanWeight);
+			iter->setRadius(meanWeight);
 		}
 
 		if (doPositions)
