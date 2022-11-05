@@ -377,7 +377,7 @@ Stroke::Stroke(
 		mat[3][0] = points[i].x;
 		mat[3][1] = points[i].y;
 		mat[3][2] = points[i].z;
-		m_targets.push_back(Target(mat, weights[i]));
+		m_targets.push_back(Target(mat, weights[i], colors[i]));
 	}
 	m_pivot = Target(m_targets[0]);
 	resetTangents();
