@@ -16,8 +16,6 @@
 
 #include "paintStrokeCreator.h"
 #include "stroke.h"
-// #include "strokeRotationSpec.h"
-// #include "strokeRepeatSpec.h"
 
 #include "cImgFloatData.h"
 #include "cImgData.h"
@@ -37,8 +35,8 @@ MObject paintStrokeCreator::aStrokeLength;
 MObject paintStrokeCreator::aMinimumStrokeAdvance;
 MObject paintStrokeCreator::aOverlap;
 MObject paintStrokeCreator::aPaintId;
-MObject paintStrokeCreator::aPotId;
-    
+MObject paintStrokeCreator::aBrushId;
+ 
 MObject paintStrokeCreator::aBrushFollowStroke;
 
 MObject paintStrokeCreator::aSplitTestInterval;
@@ -47,7 +45,10 @@ MObject paintStrokeCreator::aExitTransitionLength;
 MObject paintStrokeCreator::aExtendEntry;
 MObject paintStrokeCreator::aExtendExit;
 MObject paintStrokeCreator::aMinimumPoints;
-MObject paintStrokeCreator::aApplyBrushBias;
+// MObject paintStrokeCreator::aApplyBrushBias;
+MObject paintStrokeCreator::aBrushShape;
+
+MObject paintStrokeCreator::aDitherProbability;
 ;
 
 MTypeId paintStrokeCreator::id(k_paintStrokeCreator);
@@ -116,15 +117,14 @@ MStatus paintStrokeCreator::initialize()
     st = addAttribute(aPaintId);
     mser;
 
-    aPotId = nAttr.create("potId", "poid", MFnNumericData::kInt);
+    aBrushId = nAttr.create("brushId", "bid", MFnNumericData::kInt);
     mser;
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
     nAttr.setStorable(true);
     nAttr.setWritable(true);
-    st = addAttribute(aPotId);
+    st = addAttribute(aBrushId);
     mser;
-
 
     aMinimumPoints = nAttr.create("minimumPoints", "mnpts", MFnNumericData::kInt);
     mser;
@@ -143,15 +143,6 @@ MStatus paintStrokeCreator::initialize()
     nAttr.setKeyable(true);
     nAttr.setDefault(true);
     st = addAttribute(aBrushFollowStroke);
-    mser;
-
-    aApplyBrushBias = nAttr.create("applyBrushBias", "abb", MFnNumericData::kBoolean);
-    nAttr.setHidden(false);
-    nAttr.setStorable(true);
-    nAttr.setReadable(true);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(true);
-    st = addAttribute(aApplyBrushBias);
     mser;
 
     aSplitTestInterval = nAttr.create("splitTestInterval", "spti", MFnNumericData::kFloat);
@@ -178,6 +169,14 @@ MStatus paintStrokeCreator::initialize()
     st = addAttribute(aExitTransitionLength);
     mser;
 
+    aBrushShape = eAttr.create("brushShape", "bshp", Brush::kRound);
+    eAttr.addField("round", Brush::kRound);
+    eAttr.addField("flat", Brush::kFlat);
+    eAttr.setHidden(false);
+    eAttr.setStorable(true);
+    eAttr.setKeyable(true);
+    st = addAttribute(aBrushShape);
+
     aExtendEntry = nAttr.create("extendEntry", "een", MFnNumericData::kFloat);
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
@@ -191,14 +190,21 @@ MStatus paintStrokeCreator::initialize()
     nAttr.setDefault(0.0f);
     st = addAttribute(aExtendExit);
     mser;
+
+    aDitherProbability = nAttr.create("ditherProbability", "dprb", MFnNumericData::kFloat);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setDefault(1.0f);
+    st = addAttribute(aDitherProbability);
     //////////////
 
     attributeAffects(aStrokeLength, aOutput);
     attributeAffects(aMinimumStrokeAdvance, aOutput);
     attributeAffects(aOverlap, aOutput);
     attributeAffects(aPaintId, aOutput);
-    attributeAffects(aPotId, aOutput);
-    
+    attributeAffects(aBrushId, aOutput);
+ 
+
     attributeAffects(aBrushFollowStroke, aOutput);
 
     attributeAffects(aSplitTestInterval, aOutput);
@@ -208,7 +214,11 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aExtendExit, aOutput);
     attributeAffects(aCanvasMatrix, aOutput);
     attributeAffects(aMinimumPoints, aOutput);
-    attributeAffects(aApplyBrushBias, aOutput);
+
+    attributeAffects(aBrushShape, aOutput);
+    attributeAffects(aDitherProbability, aOutput);
+
+
 
     return (MS::kSuccess);
 }
@@ -218,7 +228,19 @@ MStatus paintStrokeCreator::generateStrokeGeometry(
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes)
 {
-    strokeCreator::generateStrokeGeometry(plug,data,pOutStrokes);
+    paintStrokeCreator::applyBrushStrokeSpec(data, pOutStrokes);
+
+    int brushId = data.inputValue(aBrushId).asInt();
+    int paintId = data.inputValue(aPaintId).asInt();
+    float ditherProbability = data.inputValue(aDitherProbability).asFloat();
+    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+    {
+        curr_stroke->setBrushId(brushId);
+        curr_stroke->setPaintId(paintId);
+        curr_stroke->setDitherProbability(ditherProbability);
+    }
+
+    strokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);
     return MS::kSuccess;
 }
 
@@ -254,10 +276,9 @@ unsigned int paintStrokeCreator::getStrokeBoundaries(
         overlap = 0.0f;
     }
 
-  
     do
     {
- 
+
         MFloatVector boundary;
         bool done = getBoundary(
             dCurve,
@@ -313,7 +334,6 @@ bool paintStrokeCreator::getBoundary(
     {
         return done;
     }
-
 
     float endDist = startDist + extendEntry + strokeLength + extendExit;
 
@@ -416,4 +436,50 @@ void paintStrokeCreator::postConstructor()
 {
     setExistWithoutInConnections(false);
     setExistWithoutOutConnections(true);
+}
+
+void paintStrokeCreator::applyBrushStrokeSpec(
+    MDataBlock &data,
+    std::vector<Stroke> *pOutStrokes) const
+{
+    /*
+    Apply default brush rotation coefficients container to every stroke
+    */
+    float entryTransitionLength = fmax(data.inputValue(aEntryTransitionLength).asFloat(), 0.0);
+    float exitTransitionLength = fmax(data.inputValue(aExitTransitionLength).asFloat(), 0.0);
+
+    MDataHandle hTilt = data.inputValue(strokeCreator::aBrushTilt);
+    float tiltStart = float(hTilt.child(strokeCreator::aBrushTiltStart).asAngle().asRadians());
+    float tiltEnd = float(hTilt.child(strokeCreator::aBrushTiltEnd).asAngle().asRadians());
+
+    MDataHandle hBank = data.inputValue(strokeCreator::aBrushBank);
+    float bankStart = float(hBank.child(strokeCreator::aBrushBankStart).asAngle().asRadians());
+    float bankEnd = float(hBank.child(strokeCreator::aBrushBankEnd).asAngle().asRadians());
+
+    MDataHandle hTwist = data.inputValue(strokeCreator::aBrushTwist);
+    float twistStart = float(hTwist.child(strokeCreator::aBrushTwistStart).asAngle().asRadians());
+    float twistEnd = float(hTwist.child(strokeCreator::aBrushTwistEnd).asAngle().asRadians());
+
+    PaintingEnums::BrushRotateOrder order = PaintingEnums::BrushRotateOrder(data.inputValue(strokeCreator::aBrushRotateOrder).asShort());
+
+    bool brushFollowsStroke = data.inputValue(paintStrokeCreator::aBrushFollowStroke).asBool();
+
+    Brush::Shape shape = Brush::Shape(data.inputValue(paintStrokeCreator::aBrushShape).asShort());
+
+    BrushStrokeSpec spec;
+    spec.tiltStart = tiltStart;
+    spec.tiltEnd = tiltEnd;
+    spec.bankStart = bankStart;
+    spec.bankEnd = bankEnd;
+    spec.twistStart = twistStart;
+    spec.twistEnd = twistEnd;
+    spec.order = order;
+    spec.follow = brushFollowsStroke;
+    spec.entryTransition = entryTransitionLength;
+    spec.exitTransition = exitTransitionLength;
+    spec.shape = shape;
+    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+    {
+        curr_stroke->setBrushStrokeSpec(spec);
+    }
 }

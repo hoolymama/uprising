@@ -21,8 +21,8 @@
 #include "errorMacros.h"
 
 MObject curveStrokeNode::aCurves;
-MObject curveStrokeNode::aBrushId;
-MObject curveStrokeNode::aBrush;
+
+MObject curveStrokeNode::aWidth;
 MObject curveStrokeNode::aSplitAngle;
 MObject curveStrokeNode::aPivot;
 
@@ -56,21 +56,12 @@ MStatus curveStrokeNode::initialize()
     st = addAttribute(aCurves);
     mser;
 
-    aBrushId = nAttr.create("brushId", "brid", MFnNumericData::kInt);
-    mser;
+    aWidth = nAttr.create("width", "wid", MFnNumericData::kFloat);
     nAttr.setHidden(false);
     nAttr.setKeyable(true);
     nAttr.setStorable(true);
-    nAttr.setWritable(true);
-    st = addAttribute(aBrushId);
-    mser;
-
-    aBrush = tAttr.create("brush", "bsh", brushData::id);
-    tAttr.setReadable(false);
-    tAttr.setStorable(false);
-    tAttr.setConnectable(true);
-    tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-    addAttribute(aBrush);
+    nAttr.setDefault(1.0f);
+    st = addAttribute(aWidth);
 
     aSplitAngle = uAttr.create("splitAngle", "span",
                                MFnUnitAttribute::kAngle);
@@ -89,8 +80,7 @@ MStatus curveStrokeNode::initialize()
 
     attributeAffects(aSplitAngle, aOutput);
     attributeAffects(aCurves, aOutput);
-    attributeAffects(aBrushId, aOutput);
-    attributeAffects(aBrush, aOutput);
+    attributeAffects(aWidth, aOutput);
     attributeAffects(aPivot, aOutput);
 
     return (MS::kSuccess);
@@ -122,12 +112,12 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     float extendEntry = data.inputValue(aExtendEntry).asFloat();
     float extendExit = data.inputValue(aExtendExit).asFloat();
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
-    bool applyBrushBias = data.inputValue(aApplyBrushBias).asBool();
+    float radius = data.inputValue(aWidth).asFloat() * 0.5;
 
-    int layerId = data.inputValue(aLayerId).asInt();
-    int paintId = data.inputValue(aPaintId).asInt();
-    int potId = data.inputValue(aPotId).asInt();
-
+    // int layerId = data.inputValue(aLayerId).asInt();
+    // int brushId = data.inputValue(aBrushId).asInt();
+    // int paintId = data.inputValue(aPaintId).asInt();
+    
     float splitAngle = float(data.inputValue(aSplitAngle).asAngle().asRadians());
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
@@ -141,17 +131,6 @@ MStatus curveStrokeNode::generateStrokeGeometry(
 
     //////////////////////////////////////////////////////////////
 
-    int brushId = data.inputValue(aBrushId).asInt();
-
-    MDataHandle hBrush = data.inputValue(aBrush, &st);
-    msert;
-    MObject dBrush = hBrush.data();
-
-    MFnPluginData fnBrush(dBrush, &st);
-    msert;
-
-    brushData *bData = (brushData *)fnBrush.data();
-    std::pair<int, Brush> brushPair = std::make_pair(brushId, *(bData->fGeometry));
 
     MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
     MArrayDataHandle hCurves = data.inputArrayValue(aCurves, &st);
@@ -201,7 +180,6 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             splitTestInterval,
             boundaries);
 
-        // cerr << "num boundaries: " << num << endl;
         if (!num)
         {
             return MS::kUnknownParameter;
@@ -209,12 +187,9 @@ MStatus curveStrokeNode::generateStrokeGeometry(
 
         MPoint curveStart;
 
-        st = curveFn.getPointAtParam (0.0, curveStart);
+        st = curveFn.getPointAtParam(0.0, curveStart);
         mser;
         MFloatPoint fCurveStart(curveStart);
-        // cerr << "fCurveStart" << fCurveStart << endl;
-
-
 
         for (int i = 0; i < num; ++i)
         {
@@ -234,13 +209,8 @@ MStatus curveStrokeNode::generateStrokeGeometry(
 
             Stroke stroke = createStroke(
                 dCurve,
-                brushPair,
-                // canvasMatrix,
                 curveParams,
-                followStroke,
-                applyBrushBias,
-                entryTransitionLength,
-                exitTransitionLength);
+                radius);
 
             if (stroke.valid())
             {
@@ -248,22 +218,22 @@ MStatus curveStrokeNode::generateStrokeGeometry(
                 stroke.setCoil(coil);
                 if (pivot == curveStrokeNode::kCurveStart)
                 {
-                    // cerr << "set pivot to curveStart" << endl;
                     stroke.setPivotPosition(fCurveStart);
                 }
                 pOutStrokes->push_back(stroke);
             }
         }
     }
+    // paintStrokeCreator::applyBrushStrokeSpec(data, pOutStrokes);
 
-    strokeCreator::applyRotations(data, pOutStrokes);
+    // for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+    // {
 
-    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-    {
-        curr_stroke->setPaintId(paintId);
-        curr_stroke->setPotId(potId);
-        curr_stroke->setLayerId(layerId);
-    }
+    //     curr_stroke->setLayerId(layerId);
+    //     curr_stroke->setBrushId(brushId);
+    //     curr_stroke->setPaintId(paintId);
+        
+    // }
 
     paintStrokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);
 
@@ -297,103 +267,44 @@ unsigned curveStrokeNode::createStrokeData(
 
 Stroke curveStrokeNode::createStroke(
     const MObject &dCurve,
-    const std::pair<int, Brush> &brushPair,
-    // const MFloatMatrix &canvasMatrix,
     const MDoubleArray &curveParams,
-    bool followStroke,
-    bool applyBrushBias,
-    float entryTransitionLength,
-    float exitTransitionLength) const
+    float radius
+
+) const
 {
     MStatus st;
     const double epsilon = 0.0001;
     unsigned len = curveParams.length();
 
-    const int &brushId = brushPair.first;
-    const Brush &brush = brushPair.second;
-
     MFnNurbsCurve curveFn(dCurve);
     double curveLength = curveFn.length(epsilon);
 
-    // MFloatMatrix brushMatrix(mayaMath::rotationOnly(brush.matrix() * canvasMatrix));
-    const MFloatMatrix &brushMatrix = brush.matrix();
-
-    float forwardBias0 = 0.0;
-    float forwardBias1 = 0.0;
-
-    if (applyBrushBias)
-    {
-        forwardBias0 = fmax(0.0, brush.forwardBias0());
-        forwardBias1 = fmax(0.0, brush.forwardBias1());
-    }
-
     MFloatPointArray points;
-    MFloatArray weights;
-    std::vector<MFloatMatrix> brushTransforms;
+    std::vector<MFloatMatrix> targetTransforms;
 
     double entryDistance = curveFn.findLengthFromParam(curveParams[0]);
     double exitDistance = curveFn.findLengthFromParam(curveParams[(len - 1)]);
     double totalLength = exitDistance - entryDistance;
 
-    entryTransitionLength = fmax(entryTransitionLength, 0.0);
-    exitTransitionLength = fmax(exitTransitionLength, 0.0);
-    float totalTransitionLength = exitTransitionLength + entryTransitionLength;
-    if (totalTransitionLength > totalLength)
-    {
-        float mult = totalLength / totalTransitionLength;
-        exitTransitionLength *= mult;
-        entryTransitionLength *= mult;
-    }
-
-    double entryTransitionDistance = entryDistance + entryTransitionLength;
-    double exitTransitionDistance = exitDistance - exitTransitionLength;
-
     for (unsigned i = 0; i < len; i++)
     {
         const double &curveParam = curveParams[i];
-        double distanceOnCurve = curveFn.findLengthFromParam(curveParam, &st);
-
-        float weight = calculateTargetWeight(
-            distanceOnCurve, entryDistance, exitDistance,
-            entryTransitionDistance, exitTransitionDistance,
-            entryTransitionLength, exitTransitionLength);
-
-        /////////////////////////////////// calcuate biased point
-        float forwardBias = (forwardBias1 * weight) + (forwardBias0 * (1.0f - weight));
-        mser;
-        double biasedDist = distanceOnCurve + forwardBias;
-        double biasedCurveParam = curveFn.findParamFromLength(biasedDist, &st);
 
         MPoint point;
-        curveFn.getPointAtParam(biasedCurveParam, point, MSpace::kObject);
-        // tangent will possibly be used for followStroke
-        MVector tangent = curveFn.tangent(biasedCurveParam);
-
-        float extraDist = biasedDist - curveLength;
-        if (extraDist > 0.0)
-        {
-            point += tangent.normal() * extraDist;
-        }
-        ///////////////////////////////////
-
-        /////////////////////////////////// calcuate matrix
-        MFloatMatrix mat(brushMatrix);
-        if (followStroke)
-        {
-            MFloatVector front = MFloatVector::yNegAxis * mat;
-            mat *= MFloatMatrix(MQuaternion(front, tangent).asMatrix().matrix);
-        }
+        curveFn.getPointAtParam(curveParam, point, MSpace::kObject);
+        MFloatMatrix mat;
         mat[3][0] = point.x;
         mat[3][1] = point.y;
         mat[3][2] = point.z;
-
-        ///////////////////////////////////
-
-        brushTransforms.push_back(mat);
-        weights.append(weight);
+        targetTransforms.push_back(mat);
     }
-    Stroke stroke(brushTransforms, weights);
-    stroke.setBrushId(brushId);
+    Stroke stroke(targetTransforms);
+    stroke.setMaxRadius(radius);
+    Stroke::target_iterator it = stroke.targets_begin();
+    for (unsigned i = 0; it != stroke.targets_end(); i++, it++)
+    {
+        it->setRadius(radius);
+    }
     return stroke;
 }
 

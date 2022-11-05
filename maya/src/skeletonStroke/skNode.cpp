@@ -32,6 +32,11 @@ bool skNode::isEnd() const {
 	return neighbors.size() == 1;
 }
 
+// MFloatVector skNode::extendLeaf(amount,accuracy)
+// {
+
+// }
+
 int skNode::unseenNeighborCount() const {
 
 	int num_unseen = 0;
@@ -66,6 +71,19 @@ int skNode::getUnseenNeighbors(std::vector<skNode *> &result) const {
 	return result.size();
 }
 
+int skNode::getNeighborsExcluding(const skNode* unwantedNode, std::vector<skNode *> &result) const 
+{
+	result.clear();
+	std::map<coord, skNode *>::const_iterator citer;
+	for (citer = neighbors.begin(); citer != neighbors.end(); citer++)
+	{
+		if (citer->second != unwantedNode)
+		{
+			result.push_back(citer->second);
+		}
+	}
+	return result.size();
+}
 
 
 float skNode::facing(const skNode *other1, const skNode *other2) const

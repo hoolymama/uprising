@@ -28,6 +28,10 @@ public:
     static MTypeId id;
 
 
+void applyBrushStrokeSpec(
+    MDataBlock &data,
+    std::vector<Stroke> *pOutStrokes) const;
+
 protected:
 
 
@@ -113,9 +117,10 @@ protected:
     static MObject aStrokeLength;
     static MObject aMinimumStrokeAdvance;
     static MObject aOverlap;
-    static MObject aPaintId;
-    static MObject aPotId;
     
+    static MObject aBrushId;
+    static MObject aPaintId;
+
     static MObject aBrushFollowStroke;
     static MObject aSplitAngle;
     static MObject aSplitTestInterval;
@@ -125,6 +130,9 @@ protected:
     static MObject aExtendExit;
     static MObject aMinimumPoints;
     static MObject aApplyBrushBias;
+    static MObject aBrushShape;
+    static MObject aDitherProbability;
+    
 
 
 };

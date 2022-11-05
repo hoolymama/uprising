@@ -1,0 +1,19 @@
+
+source "AEpaintingBrushes";
+
+global proc AEbrushShopNodeTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+	editorTemplate -cl 0 -beginLayout "Brushes";
+ 	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
+ 	editorTemplate -endLayout;
+
+	editorTemplate -suppress "output";
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
+
+

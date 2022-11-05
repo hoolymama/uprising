@@ -39,7 +39,7 @@
 #include <maya/MFnMatrixAttribute.h>
 
 #include <maya/MFnEnumAttribute.h>
- 
+
 #include <jMayaIds.h>
 #include "mayaMath.h"
 #include "errorMacros.h"
@@ -48,6 +48,7 @@
 #include "brushNode.h"
 #include "nodeUtils.h"
 
+MObject brushNode::aInService;
 MObject brushNode::aPhysicalId;
 MObject brushNode::aWidth;
 MObject brushNode::aTip;
@@ -83,8 +84,6 @@ MObject brushNode::aModel;
 MObject brushNode::aTcpScale;
 MObject brushNode::aBaseMatrix;
 
-
-
 MTypeId brushNode::id(k_brushNode);
 MString brushNode::drawDbClassification("drawdb/geometry/brushNode");
 MString brushNode::drawRegistrantId("brushNodePlugin");
@@ -103,7 +102,6 @@ void *brushNode::creator()
 }
 
 const double epsilon = 0.0001;
-
 
 MStatus brushNode::initialize()
 {
@@ -127,6 +125,11 @@ MStatus brushNode::initialize()
   mAttr.setKeyable(true);
   addAttribute(aBaseMatrix);
 
+  aInService = nAttr.create("inService", "isv", MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(true);
+  addAttribute(aInService);
 
   aPhysicalId = nAttr.create("physicalId", "pid", MFnNumericData::kInt);
   nAttr.setHidden(false);
@@ -228,7 +231,6 @@ MStatus brushNode::initialize()
   nAttr.setKeyable(true);
   addAttribute(aInitialDips);
 
-  
   aDmx = nAttr.create("dmxId", "dmx", MFnNumericData::kInt);
   nAttr.setMin(0);
   nAttr.setMax(5);
@@ -237,7 +239,6 @@ MStatus brushNode::initialize()
   nAttr.setStorable(true);
   nAttr.setKeyable(true);
   addAttribute(aDmx);
-
 
   aRetardant = nAttr.create("retardant", "rtd", MFnNumericData::kBoolean);
   nAttr.setDefault(true);
@@ -299,13 +300,13 @@ MStatus brushNode::initialize()
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   nAttr.setDefault(3.0);
-  
-  addAttribute(aTcpScale);
 
+  addAttribute(aTcpScale);
 
   ////////////
 
   attributeAffects(aBaseMatrix, aOutPaintBrush);
+  attributeAffects(aInService, aOutPaintBrush);
   attributeAffects(aPhysicalId, aOutPaintBrush);
   attributeAffects(aWidth, aOutPaintBrush);
   attributeAffects(aTip, aOutPaintBrush);
@@ -320,9 +321,8 @@ MStatus brushNode::initialize()
   attributeAffects(aForwardBias, aOutPaintBrush);
   attributeAffects(aGravityBias, aOutPaintBrush);
 
-
-
   attributeAffects(aBaseMatrix, aOutDipBrush);
+  attributeAffects(aInService, aOutDipBrush);
   attributeAffects(aPhysicalId, aOutDipBrush);
   attributeAffects(aWidth, aOutDipBrush);
   attributeAffects(aTip, aOutDipBrush);
@@ -335,9 +335,8 @@ MStatus brushNode::initialize()
   attributeAffects(aTransHeightParam, aOutDipBrush);
   attributeAffects(aContactPower, aOutDipBrush);
 
-  
-
   attributeAffects(aBaseMatrix, aOutWipeBrush);
+  attributeAffects(aInService, aOutWipeBrush);
   attributeAffects(aPhysicalId, aOutWipeBrush);
   attributeAffects(aWidth, aOutWipeBrush);
   attributeAffects(aTip, aOutWipeBrush);
@@ -387,7 +386,7 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
   MFloatVector tip = data.inputValue(aTip).asFloatVector();
 
   int physicalId = data.inputValue(aPhysicalId).asInt();
-
+  bool inService = data.inputValue(aInService).asBool();
   float width = data.inputValue(aWidth).asFloat();
   float bristleHeight = data.inputValue(aBristleHeight).asFloat();
 
@@ -407,11 +406,15 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
 
   float gravityBias0 = gravityBias[0];
   float gravityBias1 = gravityBias[1];
- 
-	MFloatMatrix fmat = data.inputValue(brushNode::aBaseMatrix).asFloatMatrix();
- 
+
+  MString model = data.inputValue(aModel).asString();
+
+  MFloatMatrix fmat = data.inputValue(brushNode::aBaseMatrix).asFloatMatrix();
+
   Brush paintingBrush(fmat,
+                      inService,
                       physicalId,
+                      model,
                       tip,
                       bristleHeight,
                       paintingParam,
@@ -425,7 +428,10 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
                       gravityBias0,
                       gravityBias1);
 
-  Brush dipBrush(fmat, physicalId,
+  Brush dipBrush(fmat,
+                 inService,
+                 physicalId,
+                 model,
                  tip,
                  bristleHeight,
                  dipParam,
@@ -437,7 +443,10 @@ MStatus brushNode::compute(const MPlug &plug, MDataBlock &data)
                  0.0, 0.0,
                  0.0, 0.0);
 
-  Brush wipeBrush(fmat, physicalId,
+  Brush wipeBrush(fmat,
+                  inService,
+                  physicalId,
+                  model,
                   tip,
                   bristleHeight,
                   wipeParam,
@@ -473,7 +482,6 @@ MStatus brushNode::getBrush(MObject &attribute, Brush &brush)
   return MS::kSuccess;
 }
 
- 
 bool brushNode::isBounded() const
 {
   return false;

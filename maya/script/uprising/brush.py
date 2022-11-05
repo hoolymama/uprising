@@ -4,7 +4,7 @@ import re
 from uprising import utils as utils
 import robodk as rdk
 from uprising import robo
-from robolink import (ITEM_TYPE_ROBOT)
+from robolink import ITEM_TYPE_ROBOT
 from uprising import const as k
 
 
@@ -16,9 +16,7 @@ class Brush(object):
         self.node_name = self.node.name()
         self.name = str(plug).replace(".", "_")
 
-        self.matrix = robo.maya_to_robodk_mat(
-            pm.dt.Matrix(pm.brushQuery(plug, tcp=True))
-        )
+        self.matrix = robo.maya_to_robodk_mat(pm.dt.Matrix(pm.brushQuery(plug, tcp=True)))
         self.physical_id = self.node.attr("physicalId").get()
         self.width = self.node.attr("width").get() * 10
         self.shape = self.node.attr("shape").get()
@@ -39,17 +37,14 @@ class Brush(object):
             self.param = self.node.attr("wipeParam").get()
         else:
             self.param = self.node.attr("paintingParam").get()
-       
+
         self.active_bristle = self.bristleHeight * self.param
         self.dmx_id = self.node.attr("dmxId").get()
-        
+
     def __str__(self):
         # Override to print a readable string
         return ", ".join(
-            [
-                "{key}={value}".format(key=key, value=self.__dict__.get(key))
-                for key in self.__dict__
-            ]
+            ["{key}={value}".format(key=key, value=self.__dict__.get(key)) for key in self.__dict__]
         )
 
     def is_round(self):
@@ -62,10 +57,10 @@ class Brush(object):
         link = robo.link()
         robot = robo.robot()
         if not robot:
-            robot = link.Item("", ITEM_TYPE_ROBOT) 
+            robot = link.Item("", ITEM_TYPE_ROBOT)
 
         old_brush = link.Item(self.name)
-     
+
         if old_brush.Valid():
             if force:
                 old_brush.Delete()
@@ -77,8 +72,7 @@ class Brush(object):
             pm.warning("No Robot. Use robo.clean() to load a RoboDK scene with a robot.")
             raise
         if with_geo:
-            triangles = utils.to_vector_array(
-                pm.brushQuery(self.plug, tri=True))
+            triangles = utils.to_vector_array(pm.brushQuery(self.plug, tri=True))
             triangles = [[t.x * 10, t.y * 10, t.z * 10] for t in triangles]
             shape = link.AddShape(triangles)
             tool_item.AddGeometry(shape, rdk.eye())
@@ -104,36 +98,36 @@ class Brush(object):
 
     @classmethod
     def send_selected_brushes(cls, brush_atts=None):
-        brushNodes = pm.ls(selection=True, dag=True,
-                           leaf=True, type="brushNode")
+        brushNodes = pm.ls(selection=True, dag=True, leaf=True, type="brushNode")
 
         if not brush_atts:
             brush_atts = ["outPaintBrush", "outDipBrush", "outWipeBrush"]
         for brush_node in brushNodes:
             for brush_att in brush_atts:
                 plug = brush_node.attr(brush_att)
-                Brush(0, plug).send( with_geo=True, force=True)
+                Brush(0, plug).send(with_geo=True, force=True)
 
     @classmethod
     def brush_at_index(cls, node, index):
 
-        plug = node.attr("brushes[%d]" % index).connections(
+        brushProvider = cls._brushProvider(node)
+        # print("BRUSHPROVIDER:", brushProvider, " INDEX:", index)
+
+        plug = brushProvider.attr("brushes[%d]" % index).connections(
             source=True, destination=False, plugs=True
         )[0]
 
         return Brush(index, plug)
 
-
-
     @classmethod
     def brush_set_at_index(cls, index):
-        """ Get paint, dip, and wipe brushes corresponding to index.
+        """Get paint, dip, and wipe brushes corresponding to index.
 
-            Always use the painting node
+        Always use the painting node
         """
         node = pm.PyNode(k.PAINTING_NAME)
-
-        brush_node = node.attr("brushes[%d]" % index).connections(
+        brushProvider = cls._brushProvider(node)
+        brush_node = brushProvider.attr("brushes[%d]" % index).connections(
             source=True, destination=False
         )[0]
 
@@ -145,32 +139,47 @@ class Brush(object):
         return result
 
     @classmethod
-    def find_by_regex(cls, node, regex_string):
-        regex = re.compile(regex_string)
-        for brush_id in node.attr("brushes").getArrayIndices():
-            conns = node.attr("brushes[%d]" % brush_id).connections(
-                source=True, destination=False
-            )
-            name = str(conns[0])
-            if regex.match(name):
-                return Brush.brush_at_index(node, brush_id)
-
-    @classmethod
     def brushes(cls, node):
+        """Get brush objects from a brushShopNode
+        Args:
+            node: brushShopNode
+
+        Returns:
+            Brush objects
+        """
         result = {}
-        for brush_id in node.attr("brushes").getArrayIndices():
+        brushProvider = cls._brushProvider(node)
+        for brush_id in brushProvider.attr("brushes").getArrayIndices():
             result[brush_id] = Brush.brush_at_index(node, brush_id)
         return result
 
     @classmethod
-    def used_brushes(cls, node):
+    def used_brushes(cls, painting_node):
+        """Get used brush objects from a painting or lightPainting"""
         result = {}
+        if type(painting_node) == pm.nt.LightPainting:
+            try:
+                indices = painting_node.attr("brushes").get(multiIndices=True)
+                for id in painting_node.attr("brushes").get(multiIndices=True):
+                    result[id] = Brush.brush_at_index(painting_node, id)
+                return result
+            except (RuntimeError, AttributeError):
+                plug = pm.PyNode(painting_node).attr("brush")
+                brush_plug = plug.connections(source=True, destination=False, plugs=True)[0]
+                return {"00": Brush(0, brush_plug)}
+
+        # Regular painting node.
+        combos = pm.paintingQuery(painting_node, toolCombinations=True)
+        bids = list(set(combos[::3]))
+        brushProvider = cls._brushProvider(painting_node)
+        for id in bids:
+            result[id] = Brush.brush_at_index(brushProvider, id)
+        return result
+
+    @staticmethod
+    def _brushProvider(node):
         try:
-            indices = node.attr("brushes").get(multiIndices=True)
-            for id in node.attr("brushes").get(multiIndices=True):
-                result[id] = Brush.brush_at_index(node, id)
-            return result
-        except (RuntimeError, AttributeError):
-            plug = pm.PyNode(node).attr("brush")
-            brush_plug = plug.connections(source=True, destination=False, plugs=True)[0]
-            return {"00": Brush(0, brush_plug)}
+            brushProvider = node.attr("brushShop").connections(source=True, destination=False)[0]
+        except (pm.MayaAttributeError, IndexError):
+            brushProvider = node
+        return brushProvider

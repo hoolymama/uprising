@@ -2,8 +2,10 @@
 #ifndef _mapIdStrokes_H
 #define _mapIdStrokes_H
 
+#include <map>
 #include <maya/MRampAttribute.h>
 #include "strokeMutator.h"
+#include "brushShop.h"
 #include "stroke.h"
 
 /**
@@ -29,42 +31,39 @@ public:
   static MTypeId id;
 
 private:
-
-  enum SampleAt
-  {
-    kStrokeParam,
-    kPivot
-  };
-
-  enum Property {
-    kBrushId,
-    kPaintId,
-    kLayerId
-  };
-  
-
   void getIds(
       MDataBlock &data,
       MFloatPointArray &points,
       int quantizeLevels,
       MIntArray &resultIds) const;
 
-  void applyIds(
+  void applyPaintIds(
       std::vector<Stroke> *strokes,
-      const MIntArray &ids,
-       mapIdStrokes::Property idProperty) const;
+      const MIntArray &ids) const;
+
+  MStatus assignPaintIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
+
+  MStatus assignBrushModelIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
  
-  static MObject aNormalize;  
-  static MObject aNumberOfValues; /// normalize
+  MStatus getBrushShop(MDataBlock &data, BrushShop &brushShop) const;
+  MStatus assignWidthBandLayerIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
 
-  static MObject aIdProperty;
+  static MObject aSampleParam;
 
-  static MObject aIdMap;         ///> The solid texture whose red channel will be mapped to the chosen Id property of strokes.
-  static MObject aSampleAt;
-  static MObject aStrokeParam;
-  static MObject aIdOffset;
-  
-  
+  static MObject aDoPaintId;
+  static MObject aPaintIdMap;
+  static MObject aPaintIdMapQuantizeLevel; // 256 is normal
+  static MObject aPaintIdOffset;
+  static MObject aPalette;
+
+  static MObject aDoBrushModelId;
+  static MObject aBrushShop;
+  static MObject aSeed;
+
+
+  static MObject aDoWidthBandLayerIds;
+  static MObject aWidthBandLevel;
+
 };
 
 #endif

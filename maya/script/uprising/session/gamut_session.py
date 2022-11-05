@@ -8,7 +8,7 @@ import pymel.core as pm
 from uprising import robo
 from uprising.common.session.session import Session
 from uprising.brush import Brush
-logger = logging.getLogger("uprising")
+logger = logging.getLogger(__name__)
 
 maya_useNewAPI = True
 

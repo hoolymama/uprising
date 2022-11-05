@@ -95,6 +95,8 @@ global proc AEpaletteTemplate ( string $nodeName )
 	attrControlGrp -attribute ($plug +".color");
  	attrControlGrp -attribute ($plug +".opacity");
  	attrControlGrp -attribute ($plug +".travel");
+	attrControlGrp -attribute ($plug +".potId");
+	
 
  
  	string $removeCmd = ("deleteUI " + $layout+";removeMultiInstance -b 1 "+$plug+";" ) ;

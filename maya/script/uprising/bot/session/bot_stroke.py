@@ -9,6 +9,9 @@ from uprising.common.session.stroke import Stroke
 
 from uprising import const as k
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 
 class BotStroke(Stroke):
@@ -54,22 +57,58 @@ class BotStroke(Stroke):
 
 
 
+    # def send(self, prefix, program, frame):
+    #     stroke_name = self.name(prefix)
+
+    #     if self.ignore:
+    #         program.RunInstruction("IGNORE %s" % stroke_name, INSTRUCTION_COMMENT)
+    #         logger.debug("IGNORE Stroke: {}".format(stroke_name) )
+    #         return
+        
+    #     program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
+
+    #     for t in self.arrivals:
+    #         t.send(stroke_name, program, frame)
+
+    #     with self.speed_override(program):
+    #         self.departure.linear = False
+    #         for t in self.targets:
+    #             t.send(stroke_name, program, frame)
+
+    #     self.departure.send(stroke_name, program, frame)
+
     def send(self, prefix, program, frame):
         stroke_name = self.name(prefix)
         program.RunInstruction("Stroke %s" % stroke_name, INSTRUCTION_COMMENT)
 
         for t in self.arrivals:
-            t.send(stroke_name, program, frame)
+            try:
+                t.send(stroke_name, program, frame)
+            except ValueError as ex:
+                creator = self.query_creator()
+                logger.error("Offending stroke is: {}".format(creator))
+                raise
 
         with self.speed_override(program):
  
             if self.ignore:
                 self.departure.linear = False
+
             else:
                 for t in self.targets:
-                    t.send(stroke_name, program, frame)
+                    try:
+                        t.send(stroke_name, program, frame)
+                    except ValueError as ex:
+                        creator = self.query_creator()
+                        logger.error("Offending stroke is: {}".format(creator))
+                        raise
 
-        self.departure.send(stroke_name, program, frame)
+        try:
+            self.departure.send(stroke_name, program, frame)
+        except ValueError as ex:
+            creator = self.query_creator()
+            logger.error("Offending stroke is: {}".format(creator))
+            raise
 
     # NOTE: NAMING HERE
     # strokeIndex refers to the cluster relative index
@@ -205,3 +244,11 @@ class BotStroke(Stroke):
 
     def query_brush_id(self):
         return self.cluster.brush.id
+
+    def query_creator(self):
+        return pm.paintingQuery(
+            self.painting.node,
+            clusterIndex=self.cluster.id,
+            strokeIndex=self.id,
+            strokeCreator=True,
+        )

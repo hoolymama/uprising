@@ -6,7 +6,7 @@
 #include <string>
 #include <maya/MVectorArray.h>
 #include <maya/MDoubleArray.h>
-
+#include <maya/MFloatVector.h>
 #define cimg_display 0
 #include "CImg.h"
 
@@ -55,7 +55,7 @@ public:
 
     // void clampRadius(float maxRadius);
 
-    void adjustRadius(float offset, float maxRadius);
+    void adjustRadius(float offset, float maxRadius, float minRadius=0.0f);
 
     void prune(int minBranchLength);
     void detachBranches();
@@ -64,11 +64,23 @@ public:
 
     void verify() const;
     void betterPrune(int minBranchLength);
-    void removeLooseTwigs(int minTwigLength);
+    
+    // minRadius means: If a node in the twig has a larger radius than this, don't delete it.
+    // minTwigLength means: If a twig is longer than this, don't delete it.
+    // Only one of the above needs to be true.
+    void removeLooseTwigs(int minTwigLength, float minRadius=99999.0f);
+
+    void extendLeaves(float amount, int accuracy);
 
     int numNodes() const;
 
 private:
+    MFloatVector _getEndDirection( skNode *node,  int accuracy) const ;
+    
+    // void generateTwig(const skNode *node, const coord &endCoord, TWIG &twig);
+    // void bresenham(const skNode *node, const coord &endCoord, TWIG &twig);
+    void bresenhamline(const coord &startCoord, const coord &endCoord, float radius,  TWIG &twig);
+
     void _pruneTwig(TWIG &twig, skNode *junction = 0);
 
     void _getTwigClusters(int maxNodes, CLUSTERS &result);
@@ -82,6 +94,7 @@ private:
     void _deleteNode(skNode *node);
 
     void _connect(coord from, coord to);
+    // void _connect(skNode * from, skNode * to);
 
     void _detatchStraightest(skNode *node, int z);
     void _splitOff(skNode *node, skNode *first, skNode *second, int z);

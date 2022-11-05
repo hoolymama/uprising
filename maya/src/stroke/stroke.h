@@ -15,7 +15,7 @@
 #include <attrUtils.h>
 
 // #include "strokeRotationSpec.h"
-// #include "strokeRepeatSpec.h"
+#include "brushStrokeSpec.h"
 
 #include "brush.h"
 #include "paint.h"
@@ -76,6 +76,9 @@ public:
 		kMapRed,
 		kMapGreen,
 		kMapBlue,
+		kBrushModelId,
+		kBrushShape
+		
 	};
 
 	enum SortDirection
@@ -86,19 +89,18 @@ public:
 
 	static float interpFloat(const MFloatArray &values, float param);
 	static MColor interpColor(const MColorArray &colors, float param);
-	
 
 	Stroke();
 
 	/**
  * @brief Construct a new Stroke object with an artray of points and an initial
- * rotation matrix. 
- 
+ * rotation matrix.
+
  All targets will have this matrix initially.
  View tangents will be calculated from points.
  *
  * @param points An array of points.
- * @param rotationMat A matrix, which is expected to be unit scale. 
+ * @param rotationMat A matrix, which is expected to be unit scale.
  */
 	Stroke(
 		const MFloatPointArray &points,
@@ -117,15 +119,13 @@ public:
 		const MColorArray &colors,
 		const MFloatMatrix &rotationMat);
 
-
-
 	Stroke(
 		const std::vector<MFloatMatrix> &matrices,
 		const MFloatArray &weights);
 
 	/**
 	 * @brief Construct a new Stroke from a subsection of the input stroke.
-	 * 
+	 *
 	 * @param instroke The stroke to create a new stroke from.
 	 * @param start The target index to start at
 	 * @param count The number of targets.
@@ -136,28 +136,37 @@ public:
 		unsigned count);
 
 	Stroke(
-	const MPointArray & editPoints,
-	MFloatArray radii,
-	float resampleDensity,
-	int minimumPoints,
-	const MFloatMatrix &rotationMat);
+		const MPointArray &editPoints,
+		MFloatArray radii,
+		float resampleDensity,
+		int minimumPoints,
+		const MFloatMatrix &rotationMat);
 
 	Stroke(
-	const MPointArray & editPoints,
-	float resampleDensity,
-	int minimumPoints,
-	const MFloatMatrix &rotationMat);
-	
+		const MPointArray &editPoints,
+		float resampleDensity,
+		int minimumPoints,
+		const MFloatMatrix &rotationMat);
 
 	Stroke(
-	const MPointArray &editPoints,
-	const MFloatArray &originalWeights,
-	const MColorArray &originalColors,
-	float resampleDensity,
-	int minimumPoints,
-	const MFloatMatrix &rotationMat);
+		const MPointArray &editPoints,
+		const MFloatArray &originalWeights,
+		const MColorArray &originalColors,
+		float resampleDensity,
+		int minimumPoints,
+		const MFloatMatrix &rotationMat);
 
 	~Stroke();
+
+	void setCreator(const MString &creatorName, int creatorId);
+	const MString & creatorName() const;
+	int creatorId() const;
+
+
+	float ditherProbability() const;
+	void setDitherProbability(float probability);
+
+
 
 	void setStrokeId(unsigned rhs);
 
@@ -188,10 +197,10 @@ public:
 	float calculateArcLength() const;
 
 	void calculateParams(MFloatArray &result) const;
-	
 
 	void getPointAtParam(float param, MFloatPoint &result) const;
-
+	void setBrushStrokeSpec(const BrushStrokeSpec &rhs);
+	const BrushStrokeSpec & brushStrokeSpec() const;
 	const float &paintFlow() const;
 
 	const Target &pivot() const;
@@ -201,9 +210,12 @@ public:
 	int strokeId() const;
 	int parentId() const;
 	int repeatId() const;
+	float maxRadius() const;
 
 	void setParentId(int parentId);
 	void setRepeatId(int rhs);
+
+	void setMaxRadius(float rhs);
 
 	const MIntArray &sortStack() const;
 
@@ -218,26 +230,25 @@ public:
 
 	void setBrushId(int val);
 	// void setCustomBrushId(int val);
-
+	void setBrushModelId(int rhs);
+ 	int brushModelId() const;
+	
 	void setPaintId(int val);
-
-	int potId() const;
-	void setPotId(int val);
+ 
 
 	void setSortColor(const MFloatVector &color);
 	void setFilterColor(const MFloatVector &color);
 
 	void appendStrokeIdToSortStack(bool ascending);
 	void appendParentIdToSortStack(bool ascending);
-
 	void appendBrushIdToSortStack(bool ascending);
-
 	void appendPaintIdToSortStack(bool ascending);
-
 	void appendLayerIdToSortStack(bool ascending);
-
 	void appendRepeatIdToSortStack(bool ascending);
 	void appendTargetCountToSortStack(bool ascending);
+	void appendBrushModelIdToSortStack(bool ascending);
+	void appendBrushShapeToSortStack(bool ascending);
+	
 
 	// void appendCustomBrushIdToSortStack(bool ascending);
 
@@ -254,6 +265,11 @@ public:
 	bool testLayerId(FilterOperator op, int value) const;
 	bool testRepeatId(FilterOperator op, int value) const;
 	bool testTargetCount(FilterOperator op, int value) const;
+	bool testBrushModelId(FilterOperator op, int value) const;
+	bool testBrushShape(FilterOperator op, int value) const;
+	
+
+	
 
 	bool testMapRedId(FilterOperator op, int value) const;
 	bool testMapGreenId(FilterOperator op, int value) const;
@@ -303,6 +319,7 @@ public:
 		const MFloatMatrix &space,
 		MFloatPointArray &result) const;
 
+
 	void rotations(
 		const MFloatMatrix &space,
 		MTransformationMatrix::RotationOrder order,
@@ -315,7 +332,6 @@ public:
 
 	void drawTangents(
 		MFloatVectorArray &result) const;
-
 
 	void colors(MColorArray &result) const;
 
@@ -360,13 +376,9 @@ public:
 	float approximationDistance() const;
 	void setApproximationDistance(float val);
 
-	
-
 	void smoothTargets(int neighbors, bool doPositions, bool doWeights);
 
 	// void calculateTubeMatrices(const MMatrix&initialMatrix ,const  MVector & initialTangent, MMatrixArray & tubeMatrices) const ;
-
-
 
 	friend bool operator<(const Stroke &a, const Stroke &b);
 	friend ostream &operator<<(ostream &os, const Stroke &s);
@@ -390,11 +402,12 @@ private:
 	int m_strokeId;
 	int m_brushId;
 	int m_paintId;
-	int m_potId;
 	int m_layerId;
 	int m_parentId;
 	int m_customBrushId;
 	int m_repeatId;
+	int m_brushModelId;
+	float m_maxRadius;
 	MFloatVector m_sortColor;
 	MFloatVector m_filterColor;
 	MIntArray m_sortStack;
@@ -404,19 +417,20 @@ private:
 
 	float m_coil;
 
+	MString m_creatorName;
+	int m_creatorId;
+	float m_ditherProbability;
+
 	
 
-
-
-
-
-
+	BrushStrokeSpec m_brushStrokeSpec;
 };
 
 inline float Stroke::interpFloat(const MFloatArray &values, float param)
 {
 	int len = values.length();
-	if (len < 2) {
+	if (len < 2)
+	{
 		return 1.0;
 	}
 	int last = (len - 1);
@@ -437,8 +451,9 @@ inline float Stroke::interpFloat(const MFloatArray &values, float param)
 inline MColor Stroke::interpColor(const MColorArray &colors, float param)
 {
 	int len = colors.length();
-	if (len < 2) {
-		return MColor(1.0f,1.0f,1.0f,1.0f);
+	if (len < 2)
+	{
+		return MColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	int last = (len - 1);
 	if (param >= 1.0f)

@@ -1,5 +1,5 @@
 source "AEpaintingUtilFuncs";
-source "AEpaintingBrushes";
+// source "AEpaintingBrushes";
 source "AEsortFilterInclude";
 
 global proc AEdisplaceStrokesTemplate ( string $nodeName )

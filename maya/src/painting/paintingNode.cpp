@@ -59,6 +59,7 @@ MObject painting::aDisplayContactWidth;
 
 MObject painting::aDisplayPaintIds;
 MObject painting::aDisplayRepeatIds;
+MObject painting::aDisplayBrushModelIds;
 
 MObject painting::aClusterPathColor;
 MObject painting::aStackGap;
@@ -129,6 +130,7 @@ MStatus painting::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+    nAttr.setKeyable(true);
   addAttribute(aDisplayApproachTargets);
 
   aDisplayContactWidth = nAttr.create("displayContactWidth", "dcwd",
@@ -137,6 +139,7 @@ MStatus painting::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+  nAttr.setKeyable(true);
   addAttribute(aDisplayContactWidth);
 
   aDisplayClusterPath = nAttr.create("displayClusterPath", "dcpt",
@@ -145,6 +148,7 @@ MStatus painting::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+  nAttr.setKeyable(true);
   addAttribute(aDisplayClusterPath);
 
   aDisplayPivots = nAttr.create("displayPivots", "dsp",
@@ -153,6 +157,7 @@ MStatus painting::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+  nAttr.setKeyable(true);
   addAttribute(aDisplayPivots);
 
 
@@ -162,6 +167,7 @@ MStatus painting::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+  nAttr.setKeyable(true);
   addAttribute(aDisplayPaintIds);
 
   aDisplayRepeatIds = nAttr.create("displayRepeatIds", "drpid",
@@ -170,10 +176,22 @@ MStatus painting::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
+  nAttr.setKeyable(true);
   addAttribute(aDisplayRepeatIds);
+
+  aDisplayBrushModelIds = nAttr.create("displayBrushModelIds", "dbmid",
+                                   MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  nAttr.setKeyable(true);
+  addAttribute(aDisplayBrushModelIds);
+
 
   aClusterPathColor = nAttr.createColor("clusterPathColor", "cpcol");
   nAttr.setStorable(true);
+  nAttr.setKeyable(true);
   nAttr.setKeyable(true);
   addAttribute(aClusterPathColor);
 
@@ -183,10 +201,13 @@ MStatus painting::initialize()
   nAttr.setMin(0.00);
   nAttr.setSoftMax(1);
   nAttr.setDefault(0);
+  nAttr.setKeyable(true);
   addAttribute(aStackGap);
 
   st = attributeAffects(aStrokes, aOutput);
   st = attributeAffects(aBrushes, aOutput);
+  st = attributeAffects(aBrushShop, aOutput);
+  
   
   st = attributeAffects(aCanvasMatrix, aOutput);
 
@@ -213,10 +234,10 @@ MStatus painting::getPalette(MDataBlock &data, std::map<int, Paint> &palette) co
   paletteData *pData = (paletteData *)fnP.data(&st);
   msert;
   palette = *(pData->fGeometry);
-  if (palette.size() == 0)
-  {
-    return MS::kFailure;
-  }
+
+ 
+  palette[-1] = Paint();
+
   return MS::kSuccess;
 }
 
@@ -238,14 +259,13 @@ MStatus painting::compute(const MPlug &plug, MDataBlock &data)
     ptpThresh = 3.0;
   }
 
+  BrushShop brushShop;
+  st = getBrushShop(data, brushShop); msert;
   std::map<int, Brush> brushes;
+  brushShop.getBrushes(brushes);
+
   std::map<int, Paint> palette;
-  paintingBase::collectBrushes(data, brushes);
   st = getPalette(data, palette);
-  if (st.error())
-  {
-    palette[-1] = Paint();
-  }
 
   m_pd->create();
   paintingGeom *pGeom = m_pd->geometry();

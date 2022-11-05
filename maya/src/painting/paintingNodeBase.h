@@ -7,7 +7,7 @@
 #include <maya/MDGMessage.h>
 #include <maya/MDGModifier.h>
 #include "brush.h"
-
+#include "brushShop.h"
 #include <maya/MFnMatrixData.h>
 
 class paintingBase : public MPxLocatorNode
@@ -57,9 +57,12 @@ public:
 protected:
 
   virtual void collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes) const;
+  MStatus getBrushShop(MDataBlock &data, BrushShop &brushShop) const;
 
   static MObject aStrokes;
   static MObject aBrushes;
+  static MObject aBrushShop;
+  
 
   static MObject aLinearSpeed;             // cm/sec
   static MObject aAngularSpeed;            // per sec

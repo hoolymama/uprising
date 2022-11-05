@@ -7,7 +7,7 @@ importlib.reload(reloader)
 
 
 from uprising import (
-    brush_assign_tab,
+    # brush_assign_tab,
     brush_hang_tab,
     brush_test_tab,
     gamut_tab,
@@ -16,6 +16,7 @@ from uprising import (
     images_menu,
     painting_tab,
     phex_tab,
+    segment_tab,
     probes_tab,
     publish_tab,
     select_menu,
@@ -59,9 +60,9 @@ class RobotWindow(gui.Window):
         self.brush_test_tab = brush_test_tab.BrushTestTab()
         self.tabs.setTabLabel((self.brush_test_tab, "Brush test"))
 
-        pm.setParent(self.tabs)
-        self.brush_assign_tab = brush_assign_tab.BrushAssignTab()
-        self.tabs.setTabLabel((self.brush_assign_tab, "Assign brushes"))
+        # pm.setParent(self.tabs)
+        # self.brush_assign_tab = brush_assign_tab.BrushAssignTab()
+        # self.tabs.setTabLabel((self.brush_assign_tab, "Assign brushes"))
  
         pm.setParent(self.tabs)
         self.painting_tab = painting_tab.PaintingTab()
@@ -70,6 +71,11 @@ class RobotWindow(gui.Window):
         pm.setParent(self.tabs)
         self.phex_tab = phex_tab.phexTab()
         self.tabs.setTabLabel((self.phex_tab, "PHEX"))
+
+
+        pm.setParent(self.tabs)
+        self.segment_tab = segment_tab.segmentTab()
+        self.tabs.setTabLabel((self.segment_tab, "Segments"))
 
         pm.setParent(self.tabs)
         self.brush_hang_tab = brush_hang_tab.brushHangTab()

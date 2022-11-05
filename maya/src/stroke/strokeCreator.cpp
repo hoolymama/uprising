@@ -204,9 +204,17 @@ MStatus strokeCreator::generateStrokeGeometry(
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes)
 {
-
+  MFnDependencyNode depFn(this->thisMObject());
+  MString name(depFn.name());
   applyCoats(data, pOutStrokes);
   applySpeeds(data, pOutStrokes);
+  applyLayerId(data, pOutStrokes);
+  
+  applyCreator(name, pOutStrokes);
+ 
+
+
+
   strokeNodeBase::generateStrokeGeometry(plug,data,pOutStrokes);
 
   return MS::kSuccess;
@@ -227,6 +235,32 @@ void strokeCreator::applySpeeds(
     iter->setApproximationDistance(approxDist);
   }
 }
+
+void strokeCreator::applyLayerId(
+  MDataBlock &data,
+  std::vector<Stroke> *geom) const
+{
+  int layerId = data.inputValue(aLayerId).asInt();
+  std::vector<Stroke>::iterator iter = geom->begin();
+  for (;iter != geom->end() ; iter++ )
+  {
+    iter->setLayerId(layerId);
+  }
+}
+
+
+void strokeCreator::applyCreator(
+  const MString &name,
+  std::vector<Stroke> *geom) const
+{
+  std::vector<Stroke>::iterator iter = geom->begin();
+  int cid=0;
+  for (;iter != geom->end() ; iter++, cid++)
+  {
+    iter->setCreator(name, cid);
+  }
+}
+
 
 
 void strokeCreator::applyCoats(
@@ -329,154 +363,154 @@ void strokeCreator::subsample(
 }
 
 
-void strokeCreator::applyRotations(
-    MDataBlock &data,
-    std::vector<Stroke> *pOutStrokes) const
-{
+// void strokeCreator::applyRotations(
+//     MDataBlock &data,
+//     std::vector<Stroke> *pOutStrokes) const
+// {
   
 
-  MDataHandle hTilt = data.inputValue(aBrushTilt);
-  float tiltStart = float(hTilt.child(aBrushTiltStart).asAngle().asRadians());
-  float tiltEnd = float(hTilt.child(aBrushTiltEnd).asAngle().asRadians());
+//   MDataHandle hTilt = data.inputValue(aBrushTilt);
+//   float tiltStart = float(hTilt.child(aBrushTiltStart).asAngle().asRadians());
+//   float tiltEnd = float(hTilt.child(aBrushTiltEnd).asAngle().asRadians());
   
-  MDataHandle hBank = data.inputValue(aBrushBank);
-  float bankStart = float(hBank.child(aBrushBankStart).asAngle().asRadians());
-  float bankEnd = float(hBank.child(aBrushBankEnd).asAngle().asRadians());
+//   MDataHandle hBank = data.inputValue(aBrushBank);
+//   float bankStart = float(hBank.child(aBrushBankStart).asAngle().asRadians());
+//   float bankEnd = float(hBank.child(aBrushBankEnd).asAngle().asRadians());
   
-  MDataHandle hTwist = data.inputValue(aBrushTwist);
-  float twistStart = float(hTwist.child(aBrushTwistStart).asAngle().asRadians());
-  float twistEnd = float(hTwist.child(aBrushTwistEnd).asAngle().asRadians());
+//   MDataHandle hTwist = data.inputValue(aBrushTwist);
+//   float twistStart = float(hTwist.child(aBrushTwistStart).asAngle().asRadians());
+//   float twistEnd = float(hTwist.child(aBrushTwistEnd).asAngle().asRadians());
   
-  PaintingEnums::BrushRotateOrder order =   PaintingEnums::BrushRotateOrder(data.inputValue(aBrushRotateOrder).asShort());
+//   PaintingEnums::BrushRotateOrder order =   PaintingEnums::BrushRotateOrder(data.inputValue(aBrushRotateOrder).asShort());
   
 
-  switch (order)
-  {
-  case PaintingEnums::kTwistTiltBank:
-    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-    {
-      MFloatArray params;
-      curr_stroke->calculateParams(params);
-      unsigned i = 0;
-      Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-      for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-      {
-        const float &param = params[i];
-        float rparam = 1.0 - param;
-        float twistAngle = (twistStart * rparam) + (twistEnd * param);
-        float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-        float bankAngle = (bankStart * rparam) + (bankEnd * param);
+//   switch (order)
+//   {
+//   case PaintingEnums::kTwistTiltBank:
+//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+//     {
+//       MFloatArray params;
+//       curr_stroke->calculateParams(params);
+//       unsigned i = 0;
+//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
+//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
+//       {
+//         const float &param = params[i];
+//         float rparam = 1.0 - param;
+//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
+//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
+//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
 
-        curr_target->applyTwist(twistAngle);
-        curr_target->applyTilt(tiltAngle);
-        curr_target->applyBank(bankAngle);
-      }
-    }
-    break;
-  case PaintingEnums::kTiltBankTwist:
-    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-    {
-      MFloatArray params;
-      curr_stroke->calculateParams(params);
-      unsigned i = 0;
-      Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-      for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-      {
-        const float &param = params[i];
-        float rparam = 1.0 - param;
-        float twistAngle = (twistStart * rparam) + (twistEnd * param);
-        float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-        float bankAngle = (bankStart * rparam) + (bankEnd * param);
+//         curr_target->applyTwist(twistAngle);
+//         curr_target->applyTilt(tiltAngle);
+//         curr_target->applyBank(bankAngle);
+//       }
+//     }
+//     break;
+//   case PaintingEnums::kTiltBankTwist:
+//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+//     {
+//       MFloatArray params;
+//       curr_stroke->calculateParams(params);
+//       unsigned i = 0;
+//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
+//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
+//       {
+//         const float &param = params[i];
+//         float rparam = 1.0 - param;
+//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
+//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
+//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
 
-        curr_target->applyTilt(tiltAngle);
-        curr_target->applyBank(bankAngle);
-        curr_target->applyTwist(twistAngle);
-      }
-    }
-    break;
-  case PaintingEnums::kBankTwistTilt:
-    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-    {
-      MFloatArray params;
-      curr_stroke->calculateParams(params);
-      unsigned i = 0;
-      Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-      for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-      {
-        const float &param = params[i];
-        float rparam = 1.0 - param;
-        float twistAngle = (twistStart * rparam) + (twistEnd * param);
-        float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-        float bankAngle = (bankStart * rparam) + (bankEnd * param);
+//         curr_target->applyTilt(tiltAngle);
+//         curr_target->applyBank(bankAngle);
+//         curr_target->applyTwist(twistAngle);
+//       }
+//     }
+//     break;
+//   case PaintingEnums::kBankTwistTilt:
+//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+//     {
+//       MFloatArray params;
+//       curr_stroke->calculateParams(params);
+//       unsigned i = 0;
+//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
+//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
+//       {
+//         const float &param = params[i];
+//         float rparam = 1.0 - param;
+//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
+//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
+//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
 
-        curr_target->applyBank(bankAngle);
-        curr_target->applyTwist(twistAngle);
-        curr_target->applyTilt(tiltAngle);
-      }
-    }
-    break;
-  case PaintingEnums::kTiltTwistBank:
-    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-    {
-      MFloatArray params;
-      curr_stroke->calculateParams(params);
-      unsigned i = 0;
-      Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-      for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-      {
-        const float &param = params[i];
-        float rparam = 1.0 - param;
-        float twistAngle = (twistStart * rparam) + (twistEnd * param);
-        float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-        float bankAngle = (bankStart * rparam) + (bankEnd * param);
+//         curr_target->applyBank(bankAngle);
+//         curr_target->applyTwist(twistAngle);
+//         curr_target->applyTilt(tiltAngle);
+//       }
+//     }
+//     break;
+//   case PaintingEnums::kTiltTwistBank:
+//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+//     {
+//       MFloatArray params;
+//       curr_stroke->calculateParams(params);
+//       unsigned i = 0;
+//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
+//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
+//       {
+//         const float &param = params[i];
+//         float rparam = 1.0 - param;
+//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
+//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
+//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
 
-        curr_target->applyTilt(tiltAngle);
-        curr_target->applyTwist(twistAngle);
-        curr_target->applyBank(bankAngle);
-      }
-    }
-    break;
-  case PaintingEnums::kTwistBankTilt:
-    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-    {
-      MFloatArray params;
-      curr_stroke->calculateParams(params);
-      unsigned i = 0;
-      Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-      for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-      {
-        const float &param = params[i];
-        float rparam = 1.0 - param;
-        float twistAngle = (twistStart * rparam) + (twistEnd * param);
-        float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-        float bankAngle = (bankStart * rparam) + (bankEnd * param);
+//         curr_target->applyTilt(tiltAngle);
+//         curr_target->applyTwist(twistAngle);
+//         curr_target->applyBank(bankAngle);
+//       }
+//     }
+//     break;
+//   case PaintingEnums::kTwistBankTilt:
+//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+//     {
+//       MFloatArray params;
+//       curr_stroke->calculateParams(params);
+//       unsigned i = 0;
+//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
+//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
+//       {
+//         const float &param = params[i];
+//         float rparam = 1.0 - param;
+//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
+//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
+//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
 
-        curr_target->applyTwist(twistAngle);
-        curr_target->applyBank(bankAngle);
-        curr_target->applyTilt(tiltAngle);
-      }
-    }
-    break;
-  default: // case strokeCreator::kBankTiltTwist:
-    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-    {
-      MFloatArray params;
-      curr_stroke->calculateParams(params);
-      unsigned i = 0;
-      Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-      for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-      {
-        const float &param = params[i];
-        float rparam = 1.0 - param;
-        float twistAngle = (twistStart * rparam) + (twistEnd * param);
-        float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-        float bankAngle = (bankStart * rparam) + (bankEnd * param);
+//         curr_target->applyTwist(twistAngle);
+//         curr_target->applyBank(bankAngle);
+//         curr_target->applyTilt(tiltAngle);
+//       }
+//     }
+//     break;
+//   default: // case strokeCreator::kBankTiltTwist:
+//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
+//     {
+//       MFloatArray params;
+//       curr_stroke->calculateParams(params);
+//       unsigned i = 0;
+//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
+//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
+//       {
+//         const float &param = params[i];
+//         float rparam = 1.0 - param;
+//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
+//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
+//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
 
-        curr_target->applyBank(bankAngle);
-        curr_target->applyTilt(tiltAngle);
-        curr_target->applyTwist(twistAngle);
-      }
-    }
-    break;
-  }
-}
+//         curr_target->applyBank(bankAngle);
+//         curr_target->applyTilt(tiltAngle);
+//         curr_target->applyTwist(twistAngle);
+//       }
+//     }
+//     break;
+//   }
+// }

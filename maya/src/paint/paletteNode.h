@@ -45,8 +45,10 @@ public:
   static MObject aXPos;
   static MObject aYPos;
 
+
   static MObject aDisplayId;
   static MObject aDisplayName;
+  static MObject aDisplayPotId;
   static MObject aDisplayRGB;
   
   
@@ -59,10 +61,9 @@ private:
   static MObject aOpacity;
   static MObject aTravel;
   static MObject aPotId;
-  static MObject aBrushId;
-  
-  
   static MObject aName;
+
+  
   static MObject aInput;
 
 

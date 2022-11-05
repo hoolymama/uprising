@@ -61,7 +61,6 @@ from uprising.common.session import (
 
 from uprising import (
     brush,
-    brush_assign_tab,
     brush_hang_tab,
     brush_test_tab,
     brush_utils,
@@ -80,6 +79,7 @@ from uprising import (
     painting_tab,
     palette_utils,
     phex_tab,
+    segment_tab,
     probes_tab,
     progress,
     props,
@@ -181,12 +181,13 @@ importlib.reload(retries_session)
 
 
 ####################
-importlib.reload(brush_assign_tab)
+# importlib.reload(brush_assign_tab)
 importlib.reload(brush_hang_tab)
 importlib.reload(brush_test_tab)
 importlib.reload(gamut_tab)
 importlib.reload(painting_tab)
 importlib.reload(phex_tab)
+importlib.reload(segment_tab)
 importlib.reload(probes_tab)
 importlib.reload(publish_tab)
 importlib.reload(rings_design_tab)

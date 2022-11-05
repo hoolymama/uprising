@@ -19,33 +19,26 @@ public:
     static MStatus initialize();
     virtual void postConstructor();
     virtual bool isAbstractClass() const { return false; }
-	// virtual MStatus	connectionBroken ( const MPlug & plug, const MPlug & otherPlug, bool asSrc );
-	
+
     virtual MStatus generateStrokeGeometry(
         const MPlug &plug,
-      MDataBlock &data,
-      std::vector<Stroke> *pStrokes);
+        MDataBlock &data,
+        std::vector<Stroke> *pStrokes);
 
     static MTypeId id;
 
 private:
-    MStatus collectBrushes(
-        MDataBlock &data,
-        std::vector<std::pair<int, Brush> > &brushes) const;
-
     unsigned createStrokesForChain(
         const skChain &current_chain,
-        const std::vector<std::pair<int, Brush> > &brushes,
+
         const MFloatVector &canvasNormal,
-        const MFloatPoint &goalPoint,
+        const MFloatPointArray &goalPoints,
         bool awayFromGoal,
         unsigned parentIndex,
         int minimumPoints,
-        bool followStroke,
-        bool applyBrushBias,
+
         float pointDensity,
-        float entryTransitionLength,
-        float exitTransitionLength,
+
         float extendEntry,
         float extendExit,
         float strokeLength,
@@ -55,17 +48,18 @@ private:
         float splitTestInterval,
         std::vector<Stroke> *pOutStrokes);
 
+    bool shouldReverse(
+        const MPoint &startPoint,
+        const MPoint &endPoint,
+        const MFloatPointArray &goalPoints,
+        bool awayFromGoal) const;
+
     void getChainPointsAndRadii(
         const skChain &chain,
         float extendEntry,
         float extendExit,
         MPointArray &points,
         MFloatArray &radii) const;
-
-    const std::pair<int, Brush> selectBrush(
-        float radius,
-        const std::vector<std::pair<int, Brush> > &brushes) const;
-
 
     unsigned createStrokeData(
         const MObject &dCurve,
@@ -75,44 +69,35 @@ private:
         float density,
         int minimumPoints,
         MDoubleArray &curveParams,
-        MFloatArray &strokeRadii,
-        float &maxRadius) const;
+        MFloatArray &strokeRadii) const;
 
     Stroke createStroke(
         const MObject &dCurve,
-        const std::pair<int, Brush> &brushPair,
         const MDoubleArray &curveParams,
-        const MFloatArray &strokeRadii,
-        bool followStroke,
-        bool applyBrushBias,
-        float entryTransitionLength,
-        float exitTransitionLength) const;
+        const MFloatArray &strokeRadii
+
+    ) const;
 
     Stroke createReverseStroke(
         const MObject &dCurve,
-        const std::pair<int, Brush> &brushPair,
-        const MDoubleArray &curveParams,
-        const MFloatArray &strokeRadii,
-        bool followStroke,
-        bool applyBrushBias,
-        float entryTransitionLength,
-        float exitTransitionLength) const;
 
+        const MDoubleArray &curveParams,
+        const MFloatArray &strokeRadii) const;
 
     static MObject aChains;
     static MObject aActive;
-    static MObject aBrushes;
+
     static MObject aInputData;
     static MObject aSplitAngle;
     static MObject aSelector;
     static MObject aGoalPoint;
+    static MObject aGoalPoints;
+
     static MObject aAwayFromGoal;
     static MObject aSmoothNeighbors;
-    
+
     static MObject aSmoothPositions;
     static MObject aSmoothWeights;
-
 };
-
 
 #endif

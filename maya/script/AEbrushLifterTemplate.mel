@@ -1,5 +1,5 @@
 source "AEpaintingUtilFuncs";
-source "AEpaintingBrushes";
+// source "AEpaintingBrushes";
 source "AEsortFilterInclude";
 
 global proc AEbrushLifterTemplate ( string $nodeName )
@@ -7,7 +7,12 @@ global proc AEbrushLifterTemplate ( string $nodeName )
 	editorTemplate -beginScrollLayout;
 
 	editorTemplate -cl 0 -beginLayout "Brushes";
- 	editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
+	editorTemplate -beginNoOptimize;
+	editorTemplate -addControl "reassignBrushIds" ;
+	editorTemplate -addControl "applyBias" ;
+	editorTemplate -addControl "applyLift" ;
+	editorTemplate -endNoOptimize;
+ 	// editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
  	editorTemplate -endLayout;
 
  	AEsortFilterInclude($nodeName);

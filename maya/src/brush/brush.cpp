@@ -4,14 +4,17 @@
 #include "brush.h"
 
 
-Brush::Brush() :  m_matrix(),
+Brush::Brush() :  
+m_matrix(),
+m_inService(false),
 m_physicalId(-1),
 				//  m_customId(-1),
 				 m_width(1.0f),
-				 m_bristleHeight(0.0f),
+				 m_bristleHeight(1.0f),
 				 m_retention(1.0f),
-				 m_tip(),
-				 m_tcpParam(0.0f),
+				 m_tip(MFloatVector::zero),
+				 m_model("None"),
+				 m_tcpParam(1.0f),
 				 m_shape(Brush::kRound),
 				 m_transHeightParam(1.0),
 				 m_contactPower(1.0),
@@ -20,11 +23,14 @@ m_physicalId(-1),
 				 m_gravityBias0(0.0),
 				 m_gravityBias1(0.0)
 {
+	m_matrix.setToIdentity();
 }
 
 Brush::Brush(
 	const MFloatMatrix &matrix,
+	bool inService,
 	int physicalId,
+	const MString &model,
 	const MFloatVector &tip,
 	float bristleHeight,
 	float tcpParam,
@@ -39,7 +45,9 @@ Brush::Brush(
 	float gravityBias1)
 	:m_matrix(matrix),
 	 m_physicalId(physicalId),
+	 m_inService(inService),
 	  m_tip(tip),
+	  m_model(model),
 	  m_bristleHeight(bristleHeight),
 	  m_tcpParam(tcpParam),
 	  m_width(width),
@@ -60,6 +68,11 @@ Brush::~Brush() {}
 const MFloatMatrix &Brush::matrix() const
 {
 	return m_matrix;
+}
+
+bool Brush::inService() const
+{
+	return m_inService;
 }
 
 MFloatMatrix Brush::tcp() const
@@ -273,10 +286,10 @@ int Brush::physicalId() const
 	return m_physicalId;
 }
 
-// int Brush::customId() const
-// {
-// 	return m_customId;
-// }
+const MString & Brush::model() const
+{
+	return m_model;
+}
 
 const float &Brush::width() const
 {
@@ -293,10 +306,10 @@ bool Brush::isFlat() const
 	return m_shape == Brush::kFlat;
 }
 
-bool Brush::matches(Shape filter) const
-{
-	return (filter == m_shape) || (filter == Brush::kAll);
-}
+// bool Brush::matches(Shape filter) const
+// {
+// 	return  filter == m_shape;
+// }
 
 ostream &operator<<(ostream &os, const Brush &b)
 {

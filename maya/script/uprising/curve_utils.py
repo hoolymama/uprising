@@ -10,7 +10,7 @@ from uprising.sequence import Sequence
 from uprising.wrandom import StepRandomizer
 
 
-logger = logging.getLogger('uprising')
+logger = logging.getLogger(__name__)
 
 
 def do_rename_inputs(crv_template, stroke_template, curves):

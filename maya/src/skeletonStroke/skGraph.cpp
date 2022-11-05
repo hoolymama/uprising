@@ -1,5 +1,5 @@
 #include <deque>
-
+#include <cmath>
 #include <maya/MFloatArray.h>
 #include "skGraph.h"
 
@@ -153,14 +153,14 @@ void skGraph::draw(CImg<unsigned char> &image, float maxStampRadiusPixels, int s
     }
 }
 
-void skGraph::adjustRadius(float offset, float maxRadius)
+void skGraph::adjustRadius(float offset, float maxRadius, float minRadius)
 {
     for (std::map<coord, skNode *>::const_iterator iter = m_nodes.begin();
          iter != m_nodes.end();
          iter++)
     {
         skNode *node = iter->second;
-        node->radius = std::max(0.0f, std::min(node->radius + offset, maxRadius));
+        node->radius = std::max(minRadius, std::min(node->radius + offset, maxRadius));
     }
 }
 
@@ -197,6 +197,13 @@ void skGraph::_connect(coord from, coord to)
     fromiter->second->neighbors.insert(*toiter);
     toiter->second->neighbors.insert(*fromiter);
 }
+
+// void skGraph::_connect(skNode * from, skNode * to)
+// {
+//     from->neighbors.insert( std::make_pair(to->c, to) );
+//     to->neighbors.insert(std::make_pair(from->c, from));
+// }
+
 
 void skGraph::_disconnect(skNode *a, skNode *b)
 { // assume they are connected
@@ -342,7 +349,6 @@ void skGraph::_splitOff(skNode *node, skNode *a, skNode *b, int z)
     _connect(newCoord, b->c);
 }
 
- 
 void skGraph::_deleteNode(skNode *node)
 {
     std::map<coord, skNode *>::iterator neighborIt, meIt;
@@ -635,7 +641,7 @@ void skGraph::_getTwigClusters(int minBranchLength, CLUSTERS &twigClusters)
 
 void skGraph::trimToLongestChain()
 {
-   
+
     TWIG_CLUSTER walks;
 
     // Initialize the TWIGS with all the ends nodes.
@@ -653,61 +659,199 @@ void skGraph::trimToLongestChain()
     }
 
     // Now itrate all twigs from the ends in parallel.
-    while (true) {
+    while (true)
+    {
 
         bool finished = true;
         // Walk all twigs
-        for( TWIG_CLUSTER::iterator pTwig = walks.begin(); pTwig !=  walks.end(); pTwig++)
+        for (TWIG_CLUSTER::iterator pTwig = walks.begin(); pTwig != walks.end(); pTwig++)
         {
-            if (pTwig->size() < 1) {
+            if (pTwig->size() < 1)
+            {
                 // It's been emptied - ignore;
                 continue;
             }
             finished = false;
-        
-            skNode * pCurr = pTwig->back();
+
+            skNode *pCurr = pTwig->back();
             pCurr->seen = true;
-            
+
             std::vector<skNode *> currNeighbors;
             pCurr->getUnseenNeighbors(currNeighbors);
             // Should be 1 or 0 unseen neighbors.
             int numNeighbors = currNeighbors.size();
-            if (numNeighbors == 0) 
+            if (numNeighbors == 0)
             {
-                // We hit the end, which is to say, we hit another twig coming the other way. 
-                // Clear this twig but don't prune from the map. 
+                // We hit the end, which is to say, we hit another twig coming the other way.
+                // Clear this twig but don't prune from the map.
                 pTwig->clear();
-            } else if  (numNeighbors == 1)
+            }
+            else if (numNeighbors == 1)
             {
                 // There is a neighbor to look at
                 // If it is a junction, then we are not one of the last two to arrive here, since all
                 // previous arrivals would have deleted themselves.
-                skNode * pNext = currNeighbors[0];
+                skNode *pNext = currNeighbors[0];
                 int degree = pNext->neighbors.size();
                 if (degree > 2)
-                { 
-                    // Its a junction, so prune and clear 
+                {
+                    // Its a junction, so prune and clear
                     _pruneTwig(*pTwig, pNext);
                     pTwig->clear();
-                } else {
-                    // move one step along 
+                }
+                else
+                {
+                    // move one step along
                     pNext->seen = true;
                     pTwig->push_back(pNext);
                 }
-            } else 
+            }
+            else
             {
                 cerr << "WE SHOULD NOT BE HERE" << endl;
                 finished = true;
             }
         }
 
-        if (finished) 
+        if (finished)
         {
             break;
         }
     }
     _resetSeen();
+}
 
+void skGraph::extendLeaves(float amount, int accuracy)
+{
+
+    TWIG_MAP twigMap;
+
+    for (std::map<coord, skNode *>::iterator iter = m_nodes.begin();
+         iter != m_nodes.end();
+         iter++)
+    {
+        if (iter->second->isEnd())
+        {
+            skNode *node = iter->second;
+            const coord &startCoord = iter->first;
+            MFloatVector extension = _getEndDirection(node, accuracy);
+            if (extension.isEquivalent(MVector::zero))
+            {
+                continue;
+            }
+            extension *= (amount * node->radius);
+            // cerr << "amount:" << amount << " radius:" << node->radius << " extension:" << extension << endl;
+            coord endCoord = startCoord + coord(round(extension.x), round(extension.y), 0);
+            // cerr << "Create Twig from: " << startCoord << " to: " << endCoord << endl;
+
+            TWIG twig;
+            bresenhamline(startCoord, endCoord,node->radius, twig);
+  
+            twigMap[node] = twig;
+        }
+    }
+
+    for (TWIG_MAP::iterator miter = twigMap.begin(); miter != twigMap.end(); miter++)
+    {
+        skNode *lastNode = miter->first;
+
+        TWIG twig = miter->second;
+        for (TWIG::iterator viter = twig.begin(); viter != twig.end(); viter++)
+        {
+            // cerr <<  (*viter)->c << endl;
+            _connect((*viter)->c, lastNode->c);
+            lastNode = *viter;
+        }
+    }
+    _resetSeen();
+}
+
+void skGraph::bresenhamline(const coord &startCoord, const coord &endCoord,float radius,  TWIG &twig)
+{
+    int x = startCoord.x;
+    int y = startCoord.y;
+    int x2 = endCoord.x;
+    int y2 = endCoord.y;
+    
+    int w = x2 - x ;
+    int h = y2 - y ;
+    int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
+    if (w<0) dx1 = -1 ; else if (w>0) dx1 = 1 ;
+    if (h<0) dy1 = -1 ; else if (h>0) dy1 = 1 ;
+    if (w<0) dx2 = -1 ; else if (w>0) dx2 = 1 ;
+    int longest = abs(w) ;
+    int shortest = abs(h) ;
+    if (!(longest>shortest)) {
+        longest = abs(h) ;
+        shortest = abs(w) ;
+        if (h<0) dy2 = -1 ; else if (h>0) dy2 = 1 ;
+        dx2 = 0 ;
+    }
+    int numerator = longest >> 1 ;
+    for (int i=0;i<=longest;i++) {
+        if (i>0){
+            // Make sure the coord is not taken. If it is, then we need to increment Z.
+            coord c = coord(x,y,0);
+            while (m_nodes.find(c) != m_nodes.end())
+            {
+                c.z++;
+            }
+
+            // coord c(x,y,z);
+            twig.push_back(_addNode(c,radius));
+        }
+        // putpixel(x,y,color) ;
+        numerator += shortest ;
+        if (!(numerator<longest)) {
+            numerator -= longest ;
+            x += dx1 ;
+            y += dy1 ;
+        } else {
+            x += dx2 ;
+            y += dy2 ;
+        }
+    }
+}
+
+
+
+
+MFloatVector skGraph::_getEndDirection( skNode *node, int steps) const
+{
+    // Walk the given number of steps from the end node, then calculate the difference.
+    // This is the direction of the end of the twig.
+    // Return the normalized direction.
+    MFloatVector result = MFloatVector::zero;
+    const skNode *lastNode = 0;
+    coord currCoord = node->c;
+    skNode *currNode = node;
+
+    // cerr << "Getting end direction for node " << node->c << endl;
+    for (int i = 0; i < steps; i++)
+    {
+        currNode->seen = true;
+        std::vector<skNode *> neighbors;
+        int count = currNode->getUnseenNeighbors(neighbors);
+        // int count = currNode->getNeighborsExcluding(lastNode, neighbors);
+        // lastNode = currNode;
+        if (count == 1)
+        {
+            currNode = neighbors[0];
+            currCoord = currNode->c;
+        }
+        else
+        {
+            // cerr << "_getEndDirection: break on step" << i << endl;
+            break;
+        }
+    }
+    if (currNode != node)
+    {
+        coord diff = node->c - currNode->c;
+        result = MFloatVector(diff.x, diff.y, 0).normal();
+        // cerr << "Getting end direction for node " << node->c << " -- Direction:" << result << endl;
+    }
+    return result;
 }
 
 void skGraph::_pruneTwig(TWIG &twig, skNode *junction)
@@ -728,11 +872,10 @@ void skGraph::_pruneTwig(TWIG &twig, skNode *junction)
     }
 }
 
-
-
-
-void skGraph::removeLooseTwigs(int minTwigLength)
+void skGraph::removeLooseTwigs(int minTwigLength, float minRadius)
 {
+
+    // If a twig is really thin and short remove it
 
     // delete isolated linear sections of the graph less than minTwigLength
     TWIG_CLUSTER looseTwigs;
@@ -746,8 +889,15 @@ void skGraph::removeLooseTwigs(int minTwigLength)
 
             bool doDelete = false;
             skNode *curr = mapiter->second;
+            float radius = curr->radius;
             for (int count = 0; count < minTwigLength; count++)
             {
+                if (curr->radius > minRadius)
+                {
+                    // we like fat twigs, so we are done and we dont delete anything
+                    doDelete = false;
+                    break;
+                }
                 if (curr->neighbors.size() > 2)
                 {
                     doDelete = false;
@@ -800,8 +950,8 @@ void skGraph::removeLooseTwigs(int minTwigLength)
 
 void skGraph::verify() const
 {
-    cerr << "m_nodes.size(): " << m_nodes.size() << endl;
-    cerr << "m_width: " << m_width << "  m_height: " << m_height << endl;
+    // cerr << "m_nodes.size(): " << m_nodes.size() << endl;
+    // cerr << "m_width: " << m_width << "  m_height: " << m_height << endl;
     _verifyDegrees();
     _verifyNeighborsExist();
 }

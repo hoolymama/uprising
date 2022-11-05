@@ -16,7 +16,7 @@ from uprising.bot.session.pick_place_program import PickPlaceCollection
 from uprising.bot.session.dip_wipe_program import DipWipeExerciseCollection
 from uprising.bot.session.dip_wipe_exercise_program import DipWipeExerciseProgram
 
-logger = logging.getLogger("uprising")
+logger = logging.getLogger(__name__)
 
 class DipWipeExerciseSession(Session):
 

@@ -353,7 +353,6 @@ MStatus pearlNode::initialize()
   mser;
 
 
-  // Display
   aLongestChain = nAttr.create("longestChain", "lch", MFnNumericData::kBoolean);
   nAttr.setDefault(false);
   nAttr.setKeyable(true);
@@ -361,6 +360,7 @@ MStatus pearlNode::initialize()
   mser;
 
 
+  // Display
 
 
   aColor1 = nAttr.createColor("drawColor1", "dc1");
@@ -510,15 +510,22 @@ MStatus pearlNode::generate(
     return MS::kUnknownParameter;
   }
 
-  pInkImage->assign(pImage->get_norm().normalize(0, 1));
-
-  // st = generateFillerChains(data, geom, pInkImage);
 
 
-  // int w = pInkImage->width();
-  // int h = pInkImage->height();
+  // Make a black base
+  pInkImage->assign(w, h, 1, 1, 0);
+  // draw the image, offset by 1, effectively makes a pixel black border.
+  pInkImage->draw_image(1, 1, 0, 0, pImage->get_norm().crop(1, 1, 0, 0, w-1, h-1, 0, 0));
+  // Don't normalize, quantize to black and white.
+  // pInkImage->assign(pImage->get_norm().normalize(0, 1));
+  // pInkImage->assign(pImage->get_norm());
+  
+	cimg_forXY((*pInkImage), x, y)
+  {
+    unsigned char &v = (*pInkImage)(x, y, 0);
+    v = (v > 127) ? 1 : 0;
+  }
 
-  // float pixelsToCm = 1.0 / w;
 
   int minBranchLengthPixels = int(data.inputValue(aMinBranchTwigLength).asFloat() * w);
   minBranchLengthPixels = std::max(minBranchLengthPixels, 1);
@@ -563,6 +570,7 @@ MStatus pearlNode::generate(
       g.trimToLongestChain();
       g.prune(minBranchLengthPixels);
       g.removeLooseTwigs(minLooseTwigLengthPixels);
+      g.adjustRadius(radiusOffsetPixels, maxRadiusPixels);
     } else {
       g.prune(minBranchLengthPixels);
       g.removeLooseTwigs(minLooseTwigLengthPixels);
@@ -584,7 +592,7 @@ MStatus pearlNode::generate(
     }
 
     // draw the chains
-    MFloatMatrix transformation = imageTransform(w, h);
+    MFloatMatrix transformation = imageTransform(w+1, h+1);
 
     std::vector<pearlChain>::const_iterator chainIter = geom->begin() + nChainsBefore;
     for (; chainIter != geom->end(); chainIter++)
@@ -615,7 +623,6 @@ MStatus pearlNode::generate(
       }
     }
   }
-
 
   return MS::kSuccess;
 }

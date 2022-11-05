@@ -49,3 +49,6 @@ PALETTE = "PALETTEShape"
 DIPTYCH = "DIPTYCHShape"
 SUBJECT_GROUP = "SUBJECT"
 SUBJECT_STROKES_NODE =  "curveStrokeSubject_01"
+SUBJECT_CHOICE =  "subjectChoice"
+
+TARGET_ROTATION_PLANE="targetRotationPlane"
