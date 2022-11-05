@@ -35,6 +35,17 @@ Target::Target(
 
 Target::Target(
 	const MFloatMatrix &mat,
+	float weight,
+	const MColor &color)
+	: Target()
+{
+	m_matrix = mat;
+	m_weight = weight;
+	m_color = color;
+}
+
+Target::Target(
+	const MFloatMatrix &mat,
 	const MFloatVector &tangent,
 	float weight,
 	const MColor &color)

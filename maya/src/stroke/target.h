@@ -56,6 +56,12 @@ public:
 	Target(
 		 const MFloatMatrix &mat,
 		 float weight = 1.0);
+	
+	Target(
+		const MFloatMatrix &mat,
+		float weight,
+		const MColor &color);
+
 
 /**
  * @brief Construct a new Target object from a Nurbs curve.
