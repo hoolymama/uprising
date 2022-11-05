@@ -147,9 +147,10 @@ class phexTab(gui.FormLayout):
         self._clear_entries()
 
     def _get_main_painting_connection_id(self, brush):
+        brushProvider = pm.PyNode(k.PAINTING_NAME).attr("brushShop").connections(source=True, destination=False)[0]
         conns = pm.PyNode(brush).attr("outPaintBrush").connections(p=True)
-        return [p.logicalIndex() for p in conns if p.node() == k.PAINTING_NAME][0]
-
+        return [p.logicalIndex() for p in conns if p.node() == brushProvider][0]
+        
     def _load_brush_nodes(self, brushes):
         self._clear_entries()
         if not brushes:

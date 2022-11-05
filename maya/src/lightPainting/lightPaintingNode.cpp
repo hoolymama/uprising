@@ -65,21 +65,6 @@ MStatus lightPainting::initialize()
   mAttr.setKeyable(true);
   addAttribute(aViewMatrix);
 
-  // aBrush = tAttr.create("brush", "bsh", brushData::id);
-  // tAttr.setHidden(false);
-  // tAttr.setStorable(false);
-  // tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-  // addAttribute(aBrush);
-
-  // aBrushes = tAttr.create("brushes", "bshs", brushData::id);
-  // tAttr.setReadable(false);
-  // tAttr.setStorable(false);
-  // tAttr.setArray(true);
-  // tAttr.setKeyable(true);
-  // tAttr.setIndexMatters(true);
-  // tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-  // addAttribute(aBrushes);
-
   aColorGain = nAttr.create("colorGain", "clg", MFnNumericData::kFloat);
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
@@ -131,43 +116,6 @@ MStatus lightPainting::initialize()
 
   return (MS::kSuccess);
 }
-
-// MStatus lightPainting::collectBrushes(MDataBlock &data, std::map<int, Brush> &brushes)
-// {
-//   MStatus st;
-//   MArrayDataHandle ha = data.inputArrayValue(aBrushes, &st);
-//   msert;
-//   JPMDBG;
-//   brushes[-1] = Brush();
-//   JPMDBG;
-//   unsigned nPlugs = ha.elementCount();
-//   JPMDBG;
-//   for (unsigned i = 0; i < nPlugs; i++, ha.next())
-//   {
-//     int index = ha.elementIndex(&st);
-//     if (st.error())
-//     {
-//       continue;
-//     }
-//     MDataHandle h = ha.inputValue(&st);
-//     if (st.error())
-//     {
-//       continue;
-//     }
-
-//     MObject d = h.data();
-//     MFnPluginData fnP(d, &st);
-//     if (st.error())
-//     {
-//       continue;
-//     }
-//     brushData *bData = (brushData *)fnP.data();
-
-//     brushes[index] = *(bData->fGeometry);
-//   }
-//   JPMDBG;
-//   return MS::kSuccess;
-// }
 
 
 MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)

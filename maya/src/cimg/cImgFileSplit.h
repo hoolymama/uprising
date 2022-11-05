@@ -23,7 +23,7 @@ public:
 
 	cImgFileSplit();
 
-	virtual				~cImgFileSplit();
+	virtual ~cImgFileSplit();
 
 	virtual MStatus		compute( const MPlug &plug, MDataBlock &data );
 
@@ -67,7 +67,6 @@ public:
     static MObject aSaturationRangeRemap;
     static MObject aValueRangeRemap;
 
-	
 	static MObject aOutputCount;
 	static MObject aOutputCropFactor;
 	static MObject aOutputOffsetFactorX;
@@ -97,6 +96,5 @@ inline bool cImgFileSplit::compareHSP(const MColor &c1, const MColor &c2)
 {
 	return cImgFileSplit::calculateHSP(c1) < cImgFileSplit::calculateHSP(c2);
 }
-
 
 #endif

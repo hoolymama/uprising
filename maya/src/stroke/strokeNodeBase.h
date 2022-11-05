@@ -64,6 +64,7 @@ protected:
 
   static MObject aStartFrom;
   static MObject aEndAt;
+  
 
   static MObject aOutput;
 

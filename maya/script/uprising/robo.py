@@ -14,10 +14,16 @@ import pymel.core as pm
 import robodk as rdk
 import copy
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 ROBODK_PATH = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/MacOS/RoboDK")
 DIP_TARGET = "dipTarget"
 TOOL_TARGET = "toolChangeTarget"
 HOME_TARGET = "homeTarget"
+CANVAS_TARGET = "canvasTarget"
+
 
 ALL_KR8_CONFIGS = {
     "000": [],
@@ -41,6 +47,8 @@ _link = None
 dip_approach = None
 home_approach = None
 tool_approach = None
+canvas_approach = None
+
 dips_frame = None
 wash_frame = None
 pick_place_frame = None
@@ -218,8 +226,10 @@ def maya_to_robodk_mat(rhs):
 def create_joint_target(obj, name, frame, configs=["000", "001"]):
     global _link
     global _robot
+    logger.setLevel(logging.DEBUG)
 
     wm = obj.attr("worldMatrix[0]").get()
+    logger.debug("Create joint target:".format(name, wm) )
     mat = maya_to_robodk_mat(wm)
 
     joint_poses = solve_joint_poses(mat)
@@ -233,7 +243,7 @@ def create_joint_target(obj, name, frame, configs=["000", "001"]):
     target.setJoints(joints)
     return target
 
-def create_cartesian_target(obj, name, frame):
+def create_cartesian_target(obj, name, frame, configs=["000", "001"]):
 
     global _link
     global _robot
@@ -247,7 +257,7 @@ def create_cartesian_target(obj, name, frame):
         old_item.Delete()
 
     joint_poses = solve_joint_poses(tool_pose)
-    joints = find_best_pose(joint_poses, ["000", "001"])
+    joints = find_best_pose(joint_poses, configs)
 
     target = _link.AddTarget(name, frame, _robot)
     target.setPose(tool_pose)
@@ -288,9 +298,12 @@ def write_program(directory, name):
 
 
 def _create_infrastructure():
+    global _model
     global dip_approach
     global home_approach
     global tool_approach
+    global canvas_approach
+    
     global dips_frame
     global wash_frame
     global pick_place_frame
@@ -301,29 +314,31 @@ def _create_infrastructure():
     except:
         pass
 
-    calibration_frame = create_frame("calibration_frame")
-    dips_frame = create_frame("dips_frame")
-    wash_frame = create_frame("wash_frame")
-    pick_place_frame = create_frame("pick_place_frame")
-
     _approaches_frame = create_frame("ax_frame")
-
-    tool_approach = create_joint_target(
-        pm.PyNode(TOOL_TARGET), "tool_approach", _approaches_frame
-    )
 
     home_approach = create_joint_target(
         pm.PyNode(HOME_TARGET), "home_approach", _approaches_frame
     )
 
-    dip_approach = create_joint_target(
-        pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame, ["001"]
-    )
+    if _model == "kr30":
+        calibration_frame = create_frame("calibration_frame")
+        dips_frame = create_frame("dips_frame")
+        wash_frame = create_frame("wash_frame")
+        pick_place_frame = create_frame("pick_place_frame")
+    
+        tool_approach = create_joint_target(
+            pm.PyNode(TOOL_TARGET), "tool_approach", _approaches_frame
+        )
+        dip_approach = create_joint_target(
+            pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame, ["001"]
+        )
 
-    # dip_approach = create_cartesian_target(
-    #     pm.PyNode(DIP_TARGET), "dip_approach", _approaches_frame
-    # )
+        canvas_approach = create_cartesian_target(
+            pm.PyNode(CANVAS_TARGET), "canvas_approach", _approaches_frame , ["001"]
+        )
 
+
+ 
 
 def linear_test(brushname, *names):
 

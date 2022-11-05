@@ -1,0 +1,62 @@
+
+global proc AEbrushNodeTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+	editorTemplate -cl 0 -beginLayout "General attributes";
+	editorTemplate -addControl "inService";
+	editorTemplate -addControl "model";
+	editorTemplate -addControl "shape";
+	editorTemplate -addControl "physicalId";
+	
+	editorTemplate -addControl "tip";
+	editorTemplate -addControl "bristleHeight";
+	editorTemplate -addControl "width";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Transition attributes";
+	editorTemplate -addControl "paintingParam";
+	editorTemplate -addControl "dipParam";
+	editorTemplate -addControl "wipeParam";
+	editorTemplate -addSeparator;
+
+	editorTemplate -addControl "transHeightParam";
+	editorTemplate -addControl "contactPower";
+	editorTemplate -addSeparator;
+
+	editorTemplate -addControl "forwardBias";
+	editorTemplate -addControl "gravityBias";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Wet painting attributes";
+	editorTemplate -addControl "retention";
+	editorTemplate -addControl "initialWait";
+	editorTemplate -addControl "initialWater";
+	editorTemplate -addControl "initialDips";
+	editorTemplate -addControl "retardant";
+	editorTemplate -addControl "wipeBarPosition";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Lightpainting attributes";
+	editorTemplate -addControl "dmxId";
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0 -beginLayout "Display attributes";
+	editorTemplate -addControl "lineLength";
+	editorTemplate -addControl "lineThickness";
+	editorTemplate -addControl "tcpScale";
+	editorTemplate -endLayout;
+
+	editorTemplate -addControl "baseMatrix";
+
+	editorTemplate -suppress "outPaintBrush";
+	editorTemplate -suppress "outDipBrush";
+	editorTemplate -suppress "outWipeBrush";
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
+
+

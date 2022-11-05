@@ -11,11 +11,10 @@ from uprising.bot.session.bot_painting_session import BotPaintingSession
 from uprising.bot.session.retries_session import RetriesSession
 from uprising import (chains, robo, utils, persist_ui)
 from uprising import const as k
-
-
+from uprising import tools_menu
 import logging
-logger = logging.getLogger(__name__)  
-
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 ONE_PROGRAM=1
 BATCHED=2
@@ -270,6 +269,7 @@ class PublishTab(gui.FormLayout):
         do_single = pm.checkBox(self.single_active_checkbox, q=True, v=True)
         if do_single:
             self.do_single_retry()
+            robo.show()
             return
 
         do_batch = pm.radioButtonGrp(
@@ -282,6 +282,8 @@ class PublishTab(gui.FormLayout):
             return
 
         self.do_export_one_program()
+
+        tools_menu.on_print_painting_flow_ss()
 
     def _get_ui_params(self):
         coil_delta = pm.floatFieldGrp(
@@ -350,22 +352,24 @@ class PublishTab(gui.FormLayout):
         robo.new()
         robo.hide()
         
-        logger.info("Exporting to %s", directory)
+        logger.warning("Exporting to %s", directory)
         if do_retries:
             retries_session = RetriesSession(
                 coil_delta,
                 None,
                 False,
                 directory)
-            logger.debug("retries_session.run()")
+            logger.debug("RETRIES_SESSION.run()")
             retries_session.run()
-            logger.debug("Ran retries_session")
+            logger.debug("Ran RETRIES_SESSION")
             retries_session.show_results()
             retries_session.write_results()
 
         if do_painting:
             painting_session = BotPaintingSession(cluster_chunk_size, directory, do_separate_subprograms)
+            logger.debug("PAINTING_SESSION.run()")
             painting_session.run()
+            logger.debug("Ran PAINTING_SESSION")
             painting_session.show_stats()
             painting_session.write_stats()
             painting_session.write_maya_scene(directory, "scene")

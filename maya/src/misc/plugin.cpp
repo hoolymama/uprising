@@ -13,6 +13,8 @@
 #include "brushCmd.h"
 #include "brushData.h"
 
+#include "brushShopData.h"
+
 #include "paintingNodeBase.h"
 
 #include "paintingNode.h"
@@ -31,6 +33,7 @@
 #include "brushNode.h"
 #include "brushDrawOverride.h"
 
+#include "brushShopNode.h"
 
 #include "aimStrokes.h"
 #include "mirrorStrokes.h"
@@ -79,7 +82,7 @@
 #include "rotateTargets.h"
 
 #include "bulgeStrokes.h"
-#include "mapStrokes.h"
+// #include "mapStrokes.h"
 
 #include "particleStrokeNode.h"
 #include "pearlStrokeNode.h"
@@ -119,6 +122,7 @@
 #include "cImgDistance.h"
 #include "cImgFloatGate.h"
 #include "cImgSetRange.h"
+#include "cImgMergeDilate.h"
 
 #include "multVectorDoublePP.h"
 #include "multVectorVectorPP.h"
@@ -223,6 +227,11 @@ MStatus initializePlugin(MObject obj)
 							 cImgSetRange::initialize);
 	msert;
 
+	st = plugin.registerNode("cImgMergeDilate", cImgMergeDilate::id,
+							 cImgMergeDilate::creator,
+							 cImgMergeDilate::initialize);
+	msert;
+
 	st = plugin.registerNode("cImgDistance", cImgDistance::id,
 							 cImgDistance::creator,
 							 cImgDistance::initialize);
@@ -311,6 +320,12 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerData("brushData", brushData::id,
 							 brushData::creator);
 	mser;
+
+	st = plugin.registerData("brushShopData", brushShopData::id,
+							 brushShopData::creator);
+	mser;
+
+
 
 	st = plugin.registerData("paletteData", paletteData::id,
 							 paletteData::creator);
@@ -429,6 +444,9 @@ MStatus initializePlugin(MObject obj)
 
 
 
+	st = plugin.registerNode("brushShopNode", brushShopNode::id, brushShopNode::creator,
+							 brushShopNode::initialize);
+	msert;
 
 
 
@@ -512,9 +530,9 @@ MStatus initializePlugin(MObject obj)
 							 bulgeStrokes::initialize);
 	mser;
 
-	st = plugin.registerNode("mapStrokes", mapStrokes::id, mapStrokes::creator,
-							 mapStrokes::initialize);
-	mser;
+	// st = plugin.registerNode("mapStrokes", mapStrokes::id, mapStrokes::creator,
+	// 						 mapStrokes::initialize);
+	// mser;
 
 	st = plugin.registerNode("rotateTargets", rotateTargets::id, rotateTargets::creator,
 							 rotateTargets::initialize);
@@ -670,8 +688,8 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(rotateTargets::id);
 	mser;
 
-	st = plugin.deregisterNode(mapStrokes::id);
-	mser;
+	// st = plugin.deregisterNode(mapStrokes::id);
+	// mser;
 
 	st = plugin.deregisterNode(bulgeStrokes::id);
 	mser;
@@ -725,6 +743,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(strokeNodeBase::id);
+	mser;
+
+	st = plugin.deregisterNode(brushShopNode::id);
 	mser;
 
 	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
@@ -808,6 +829,8 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterData(paletteData::id);
 	mser;
 
+	st = plugin.deregisterData(brushShopData::id);
+
 	st = plugin.deregisterData(brushData::id);
 	mser;
 
@@ -865,6 +888,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(cImgDistance::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgMergeDilate::id);
 	mser;
 
 	st = plugin.deregisterNode(cImgSetRange::id);

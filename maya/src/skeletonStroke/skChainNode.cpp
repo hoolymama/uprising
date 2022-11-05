@@ -17,14 +17,13 @@
 #include <maya/MFnField.h>
 #include <maya/MAngle.h>
 
-
 #include "cImgUtils.h"
 #include <jMayaIds.h>
 #include "errorMacros.h"
 #include "skGraph.h"
 #include "skChainNode.h"
-#include  "cImgData.h"
-#include  "cImgFloatData.h"
+#include "cImgData.h"
+#include "cImgFloatData.h"
 
 #include <maya/MArrayDataBuilder.h>
 
@@ -104,7 +103,7 @@ struct chainSegment
     // is in progress, but we will return done so that this is the last segment in the chain.
     // However, if this is the first point, then we bail out before drawing anything. We don't start
     // on black.
- 
+
     bool startIsOnBlack = isFirstPoint && isOnBlack(w, h, pOutImage, 0);
 
     if (startIsOnBlack && done)
@@ -231,6 +230,7 @@ MObject skChainNode::aImage;
 MObject skChainNode::aMaxIterations;
 MObject skChainNode::aMinBranchTwigLength;
 MObject skChainNode::aMinLooseTwigLength;
+MObject skChainNode::aMinLooseTwigWidth;
 
 MObject skChainNode::aSeedPoints;
 MObject skChainNode::aFields;
@@ -240,7 +240,6 @@ MObject skChainNode::aSeedChainSpan;
 MObject skChainNode::aSeedChainStampWidth;
 MObject skChainNode::aSeedChainWidth;
 
-
 MObject skChainNode::aForceThreshold;
 MObject skChainNode::aFlowRotation;
 
@@ -249,10 +248,18 @@ MObject skChainNode::aDoFillerChains;
 
 MObject skChainNode::aSpan;
 MObject skChainNode::aMaxWidth;
+MObject skChainNode::aMinWidth;
 MObject skChainNode::aMaxStampWidth;
 MObject skChainNode::aProjectionMatrix;
-// MObject skChainNode::aRadiusMult;
+MObject skChainNode::aLongestChain;
 MObject skChainNode::aOffsetWidth;
+
+MObject skChainNode::aExtendLeavesAmount;
+MObject skChainNode::aExtendLeavesAccuracy;
+
+MObject skChainNode::aZebraImage;
+MObject skChainNode::aZebraDilate;
+MObject skChainNode::aDoZebra;
 
 MObject skChainNode::aTrigger;
 
@@ -260,8 +267,6 @@ MObject skChainNode::aMaxChainsPerOutput;
 MObject skChainNode::aOutputs;
 MObject skChainNode::aOutputImage;
 MObject skChainNode::aOutputCount;
-
-
 MTypeId skChainNode::id(k_skChainNode);
 
 skChainNode::skChainNode() {}
@@ -289,7 +294,6 @@ MStatus skChainNode::initialize()
   MFnMatrixAttribute mAttr;
   MFnMessageAttribute msgAttr;
   MFnUnitAttribute uAttr;
-  
 
   aImage = tAttr.create("image", "img", cImgData::id);
   tAttr.setStorable(false);
@@ -308,13 +312,12 @@ MStatus skChainNode::initialize()
   aFields = msgAttr.create("fields", "flds");
   msgAttr.setArray(true);
   st = addAttribute(aFields);
-  aFlowImage = tAttr.create("flowImage", "fli",  cImgFloatData::id) ; mser;
+  aFlowImage = tAttr.create("flowImage", "fli", cImgFloatData::id);
+  mser;
   tAttr.setStorable(false);
   tAttr.setKeyable(false);
-  
+
   addAttribute(aFlowImage);
-
-
 
   aSeedChainSpan = nAttr.create("seedChainSpan", "sspn", MFnNumericData::kFloat);
   nAttr.setStorable(true);
@@ -343,34 +346,32 @@ MStatus skChainNode::initialize()
   nAttr.setHidden(false);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  nAttr.setKeyable( true );
+  nAttr.setKeyable(true);
   nAttr.setDefault(5);
   st = addAttribute(aSeedChainMaxSteps);
   mser;
 
-
   aForceThreshold = nAttr.create("forceThreshold", "fth",
-                                      MFnNumericData::kFloat);
+                                 MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   st = addAttribute(aForceThreshold);
   mser;
 
-	aFlowRotation = uAttr.create( "flowRotation", "frot",
-	                          MFnUnitAttribute::kAngle );
-	uAttr.setHidden( false );
-	uAttr.setKeyable( true );
-	uAttr.setStorable(true);
-	st = addAttribute(aFlowRotation); mser;
-
-
+  aFlowRotation = uAttr.create("flowRotation", "frot",
+                               MFnUnitAttribute::kAngle);
+  uAttr.setHidden(false);
+  uAttr.setKeyable(true);
+  uAttr.setStorable(true);
+  st = addAttribute(aFlowRotation);
+  mser;
 
   aDoSeedChains = nAttr.create("doSeedChains", "dsc",
                                MFnNumericData::kBoolean);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
-  nAttr.setKeyable( true );
+  nAttr.setKeyable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
   addAttribute(aDoSeedChains);
@@ -381,14 +382,14 @@ MStatus skChainNode::initialize()
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setDefault(true);
-  nAttr.setKeyable( true );
+  nAttr.setKeyable(true);
   addAttribute(aDoFillerChains);
 
   aMaxIterations = nAttr.create("maxIterations", "mxi", MFnNumericData::kInt);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  nAttr.setKeyable( true );
+  nAttr.setKeyable(true);
   nAttr.setDefault(5);
   st = addAttribute(aMaxIterations);
   mser;
@@ -407,6 +408,13 @@ MStatus skChainNode::initialize()
   st = addAttribute(aMinLooseTwigLength);
   mser;
 
+  aMinLooseTwigWidth = nAttr.create("minLooseTwigWidth", "mltw", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aMinLooseTwigWidth);
+  mser;
+
   aSpan = nAttr.create("span", "spn", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -421,12 +429,25 @@ MStatus skChainNode::initialize()
   st = addAttribute(aMaxWidth);
   mser;
 
+  aMinWidth = nAttr.create("minWidth", "mnwd", MFnNumericData::kFloat);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  st = addAttribute(aMinWidth);
+  mser;
+
   aMaxStampWidth = nAttr.create("maxStampWidth", "msw",
                                 MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);
   st = addAttribute(aMaxStampWidth);
+  mser;
+
+  aLongestChain = nAttr.create("longestChain", "lch", MFnNumericData::kBoolean);
+  nAttr.setDefault(false);
+  nAttr.setKeyable(true);
+  st = addAttribute(aLongestChain);
   mser;
 
   // aRadiusMult = nAttr.create("radiusMult", "rml", MFnNumericData::kFloat);
@@ -465,7 +486,46 @@ MStatus skChainNode::initialize()
   st = addAttribute(aMaxChainsPerOutput);
   mser;
 
+  aExtendLeavesAmount = nAttr.create("extendLeavesAmount", "elam", MFnNumericData::kFloat);
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(0.0f);
+  st = addAttribute(aExtendLeavesAmount);
 
+  aExtendLeavesAccuracy = nAttr.create("extendLeavesAccuracy", "elac", MFnNumericData::kInt);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(4);
+  addAttribute(aExtendLeavesAccuracy);
+
+  aDoZebra = nAttr.create("doZebra", "dzb",
+                               MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setKeyable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(false);
+  addAttribute(aDoZebra);
+
+
+  aZebraImage = tAttr.create("zebraImage", "zimg", cImgData::id);
+  tAttr.setStorable(false);
+  tAttr.setKeyable(true);
+  tAttr.setReadable(false);
+  tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+  st = addAttribute(aZebraImage);
+  mser;
+
+  aZebraDilate = nAttr.create("zebraDilate", "zdil", MFnNumericData::kInt);
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(0);
+  st = addAttribute(aZebraDilate);
 
   aTrigger = nAttr.create("trigger", "trg", MFnNumericData::kFloat);
   nAttr.setHidden(false);
@@ -475,10 +535,6 @@ MStatus skChainNode::initialize()
   nAttr.setArray(true);
   nAttr.setIndexMatters(false);
   addAttribute(aTrigger);
-
-
- 
-
 
   aOutputs = tAttr.create("outputs", "outs", skChainData::id);
   tAttr.setReadable(true);
@@ -500,11 +556,16 @@ MStatus skChainNode::initialize()
   addAttribute(aOutputImage);
 
   attributeAffects(aImage, aOutputs);
+  attributeAffects(aZebraImage, aOutputs);
+  attributeAffects(aDoZebra, aOutputs);
+  attributeAffects(aZebraDilate, aOutputs);
   attributeAffects(aMaxIterations, aOutputs);
   attributeAffects(aMinBranchTwigLength, aOutputs);
   attributeAffects(aMinLooseTwigLength, aOutputs);
+  attributeAffects(aMinLooseTwigWidth, aOutputs);
   attributeAffects(aSpan, aOutputs);
   attributeAffects(aMaxWidth, aOutputs);
+  attributeAffects(aMinWidth, aOutputs);
   attributeAffects(aProjectionMatrix, aOutputs);
   attributeAffects(aOffsetWidth, aOutputs);
   attributeAffects(aMaxStampWidth, aOutputs);
@@ -521,15 +582,22 @@ MStatus skChainNode::initialize()
   attributeAffects(aDoSeedChains, aOutputs);
   attributeAffects(aDoFillerChains, aOutputs);
   attributeAffects(aTrigger, aOutputs);
-
+  attributeAffects(aLongestChain, aOutputs);
+  attributeAffects(aExtendLeavesAmount, aOutputs);
+  attributeAffects(aExtendLeavesAccuracy, aOutputs);
 
   attributeAffects(aImage, aOutputCount);
+  attributeAffects(aZebraImage, aOutputCount);
+  attributeAffects(aDoZebra, aOutputCount);
+  attributeAffects(aZebraDilate, aOutputCount);
   attributeAffects(aSeedPoints, aOutputCount);
   attributeAffects(aMaxIterations, aOutputCount);
   attributeAffects(aMinBranchTwigLength, aOutputCount);
   attributeAffects(aMinLooseTwigLength, aOutputCount);
+  attributeAffects(aMinLooseTwigWidth, aOutputCount);
   attributeAffects(aSpan, aOutputCount);
   attributeAffects(aMaxWidth, aOutputCount);
+  attributeAffects(aMinWidth, aOutputCount);
   attributeAffects(aProjectionMatrix, aOutputCount);
   attributeAffects(aOffsetWidth, aOutputCount);
   attributeAffects(aMaxStampWidth, aOutputCount);
@@ -547,14 +615,22 @@ MStatus skChainNode::initialize()
   attributeAffects(aDoSeedChains, aOutputCount);
   attributeAffects(aDoFillerChains, aOutputCount);
   attributeAffects(aTrigger, aOutputCount);
+  attributeAffects(aLongestChain, aOutputCount);
+  attributeAffects(aExtendLeavesAmount, aOutputCount);
+  attributeAffects(aExtendLeavesAccuracy, aOutputCount);
 
   attributeAffects(aImage, aOutputImage);
+  attributeAffects(aZebraImage, aOutputImage);
+  attributeAffects(aDoZebra, aOutputImage);
+  attributeAffects(aZebraDilate, aOutputImage);
   attributeAffects(aSeedPoints, aOutputImage);
   attributeAffects(aMaxIterations, aOutputImage);
   attributeAffects(aMinBranchTwigLength, aOutputImage);
   attributeAffects(aMinLooseTwigLength, aOutputImage);
+  attributeAffects(aMinLooseTwigWidth, aOutputImage);
   attributeAffects(aSpan, aOutputImage);
   attributeAffects(aMaxWidth, aOutputImage);
+  attributeAffects(aMinWidth, aOutputImage);
   attributeAffects(aProjectionMatrix, aOutputImage);
   attributeAffects(aOffsetWidth, aOutputImage);
   attributeAffects(aMaxStampWidth, aOutputImage);
@@ -572,6 +648,9 @@ MStatus skChainNode::initialize()
   attributeAffects(aDoSeedChains, aOutputImage);
   attributeAffects(aDoFillerChains, aOutputImage);
   attributeAffects(aTrigger, aOutputImage);
+  attributeAffects(aLongestChain, aOutputImage);
+  attributeAffects(aExtendLeavesAmount, aOutputImage);
+  attributeAffects(aExtendLeavesAccuracy, aOutputImage);
 
   return (MS::kSuccess);
 }
@@ -594,7 +673,6 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
     hTrigger.inputValue().asFloat();
   }
 
-
   MDataHandle hOutputImage = data.outputValue(aOutputImage);
   MFnPluginData fnOutImage;
   MTypeId kdidImage(cImgData::id);
@@ -603,12 +681,6 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
   cImgData *newImageData = (cImgData *)fnOutImage.data(&st);
   mser;
   CImg<unsigned char> *pOutImage = newImageData->fImg;
-
-
-
-
-
-
 
   int maxChains = data.inputValue(aMaxChainsPerOutput).asInt();
   MFnPluginData fnOut;
@@ -664,8 +736,8 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
     }
     delete allGeom;
   }
- 
-  pOutImage->normalize(0,255);
+
+  // pOutImage->normalize(0, 255);
   hOutputImage.set(newImageData);
 
   MDataHandle hOutputCount = data.outputValue(aOutputCount);
@@ -680,21 +752,22 @@ MStatus skChainNode::compute(const MPlug &plug, MDataBlock &data)
   return MS::kSuccess;
 }
 
-
 /*
 Generate all the chains.
 
 
 */
 MStatus skChainNode::generate(
-  MDataBlock &data, 
-  std::vector<skChain> *geom,
-  CImg<unsigned char> *pInkImage) const
+    MDataBlock &data,
+    std::vector<skChain> *geom,
+    CImg<unsigned char> *pInkImage) const
 {
   MStatus st;
 
+  int dilate = data.inputValue(aZebraDilate).asInt();
+  bool doZebra = data.inputValue(aDoZebra).asBool();
   CImg<unsigned char> *pImage = cImgUtils::getImage(data, aImage);
-  
+
   if (!pImage)
   {
     return MS::kUnknownParameter;
@@ -706,18 +779,70 @@ MStatus skChainNode::generate(
   {
     return MS::kUnknownParameter;
   }
-
+  
   pInkImage->assign(pImage->get_norm().normalize(0, 1));
 
-  if (data.inputValue(aDoSeedChains).asBool())
+  if (doZebra)
   {
-    st = generateSeedChains(data, geom, pInkImage);
+    doZebra = false; // in case we don't make it through.
+    CImg<unsigned char> *pZebraImage = cImgUtils::getImage(data, aZebraImage);
+    if (pZebraImage)
+    {
+      int zw = pZebraImage->width();
+      int zh = pZebraImage->height();
+      if (zw && zh)
+      {
+        doZebra = true;
+        CImg<unsigned char> zImageA = pZebraImage->get_norm().normalize(0, 1);
+  
+        if (zw != w || zh != h)
+        {
+          zImageA.resize(w, h);
+        }
+        CImg<unsigned char> zImageB(zImageA) ;
+        zImageB ^= 1; // invert
+
+
+        // Now we have both images.
+
+        if (dilate < 0)
+        {
+          zImageA.erode(-dilate);
+          zImageB.erode(-dilate);
+        }
+        else if (dilate > 0)
+        {
+          zImageA.dilate(dilate);
+          zImageB.dilate(dilate);
+        }
+
+        zImageA &=(*pInkImage);
+        zImageB &=(*pInkImage);
+        st = generateFillerChains(data, geom, &zImageA);
+        st = generateFillerChains(data, geom, &zImageB);
+
+        pInkImage->assign(zImageA|zImageB);
+      }
+    } 
   }
 
-  if (data.inputValue(aDoFillerChains).asBool())
+  if (!doZebra)
   {
     st = generateFillerChains(data, geom, pInkImage);
   }
+
+  pInkImage->normalize(0, 255);
+  // pInkImage->assign(pImage->get_norm().normalize(0, 1));
+
+  // if (data.inputValue(aDoSeedChains).asBool())
+  // {
+  //   st = generateSeedChains(data, geom, pInkImage);
+  // }
+
+  // if (data.inputValue(aDoFillerChains).asBool())
+  // {
+    // st = generateFillerChains(data, geom, pInkImage);
+  // }
 
   return MS::kSuccess;
 }
@@ -740,19 +865,31 @@ MStatus skChainNode::generateFillerChains(
   int minLooseTwigLengthPixels = int(data.inputValue(aMinLooseTwigLength).asFloat() * cmToPixels);
   minLooseTwigLengthPixels = std::max(minLooseTwigLengthPixels, 1);
 
+
+  float minLooseTwigRadius = data.inputValue(aMinLooseTwigWidth).asFloat() * cmToPixels * 0.5f;
+  minLooseTwigRadius = std::max(minLooseTwigRadius, 0.0f);
+ 
   int spanPixels = int(data.inputValue(aSpan).asFloat() * cmToPixels);
   spanPixels = std::max(spanPixels, 1);
 
   float maxRadiusPixels = data.inputValue(aMaxWidth).asFloat() * cmToPixels * 0.5f;
   maxRadiusPixels = std::max(maxRadiusPixels, 1.0f);
 
+  float minRadiusPixels = data.inputValue(aMinWidth).asFloat() * cmToPixels * 0.5f;
+  minRadiusPixels = std::max(minRadiusPixels, 0.0f);
+
   float maxStampRadius = data.inputValue(aMaxStampWidth).asFloat() * 0.5;
   float maxStampRadiusPixels = data.inputValue(aMaxStampWidth).asFloat() * cmToPixels * 0.5f;
   maxStampRadiusPixels = std::max(maxStampRadiusPixels, 1.0f);
 
-  float radiusOffsetPixels = int(data.inputValue(aOffsetWidth).asFloat()  * 0.5 * cmToPixels);
+  float radiusOffsetPixels = int(data.inputValue(aOffsetWidth).asFloat() * 0.5 * cmToPixels);
   // float radiusMult = data.inputValue(aRadiusMult).asFloat();
   int maxIterations = data.inputValue(aMaxIterations).asInt();
+
+  bool longestChain = data.inputValue(aLongestChain).asBool();
+
+  float extendLeavesAmount = data.inputValue(aExtendLeavesAmount).asFloat();
+  int extendLeavesAccuracy = data.inputValue(aExtendLeavesAccuracy).asInt();
 
   int lastNumNewChains = 999999;
   for (int i = 0; i < maxIterations; ++i)
@@ -772,22 +909,31 @@ MStatus skChainNode::generateFillerChains(
     }
 
     //////////////////
+    // now we have the Medial Axis Transform (mat) and image to stamp pInkImage
     skGraph g(mat); // build
-    // now we have the Medial Axis Transform (mat) and (image)
 
-    g.prune(minBranchLengthPixels);
-    g.removeLooseTwigs(minLooseTwigLengthPixels);
+    if (longestChain)
+    {
+      g.trimToLongestChain();
+      g.prune(minBranchLengthPixels);
+      g.removeLooseTwigs(minLooseTwigLengthPixels, minLooseTwigRadius);
+      g.adjustRadius(radiusOffsetPixels, maxRadiusPixels, minRadiusPixels);
+      g.extendLeaves(extendLeavesAmount, extendLeavesAccuracy);
+      // Single chain is left, so no need to detach branches
+    }
+    else
+    {
+      g.prune(minBranchLengthPixels);
+      g.removeLooseTwigs(minLooseTwigLengthPixels, minLooseTwigRadius);
+      g.adjustRadius(radiusOffsetPixels, maxRadiusPixels, minRadiusPixels);
+      g.detachBranches();
+      g.extendLeaves(extendLeavesAmount, extendLeavesAccuracy);
+    }
 
     if (!g.numNodes())
     {
       break;
     }
-    // limit brush size
-    // g.clampRadius(maxRadiusPixels);
-
-    g.adjustRadius( radiusOffsetPixels, maxRadiusPixels);
-
-    g.detachBranches();
 
     //////////////////
     MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
@@ -857,7 +1003,6 @@ MFloatMatrix skChainNode::getTransformProjToImage(MDataBlock &data, int w, int h
   return projection.inverse() * norm;
 }
 
-
 int skChainNode::getFields(MObjectArray &result) const
 {
   MPlugArray plugArray;
@@ -874,7 +1019,6 @@ int skChainNode::getFields(MObjectArray &result) const
   }
   return result.length();
 }
-
 
 MStatus skChainNode::generateSeedChains(
     MDataBlock &data,
@@ -902,23 +1046,19 @@ MStatus skChainNode::generateSeedChains(
   circleStampRadius = circleStampRadiusPixels * pixelsToCm;
 
   float forceThreshold = data.inputValue(aForceThreshold).asFloat();
-	float angle = float(data.inputValue(aFlowRotation).asAngle().asRadians());
-
-
-
+  float angle = float(data.inputValue(aFlowRotation).asAngle().asRadians());
 
   MFloatMatrix transformation = getTransformProjToImage(data, w, h);
-
 
   CImg<float> *pFlowImage = cImgUtils::getFloatImage(data, aFlowImage);
   MFloatMatrix flowTransformation;
   MFloatMatrix flowTransformationInverse;
-  if (pFlowImage) {
+  if (pFlowImage)
+  {
     MFloatMatrix projection = data.inputValue(aProjectionMatrix).asFloatMatrix();
     int fw = pFlowImage->width();
     int fh = pFlowImage->height();
     flowTransformation = getTransformProjToImage(data, fw, fh);
-
 
     MFloatMatrix rot;
     rot.setToIdentity();
@@ -926,9 +1066,8 @@ MStatus skChainNode::generateSeedChains(
     rot[0][1] = -sin(angle);
     rot[1][0] = sin(angle);
     rot[1][1] = cos(angle);
-    
-    flowTransformationInverse = flowTransformation.inverse() * rot;
 
+    flowTransformationInverse = flowTransformation.inverse() * rot;
   }
 
   MVectorArray seedPoints = MFnVectorArrayData(data.inputValue(aSeedPoints).data()).array();
@@ -954,7 +1093,8 @@ MStatus skChainNode::generateSeedChains(
         pInkImage,
         pFlowImage,
         chain);
-    if (chain.size() > 1) {
+    if (chain.size() > 1)
+    {
       geom->push_back(chain);
     }
   }
@@ -990,7 +1130,7 @@ void skChainNode::propagateAndStamp(
   for (size_t i = 0; i < maxSteps; i++)
   {
 
-    // Initialize segment with first point 
+    // Initialize segment with first point
     chainSegment segment(
         i, currPoint,
         circleRadius,
@@ -1002,7 +1142,8 @@ void skChainNode::propagateAndStamp(
 
     ////////////////////// Force from fields
     int numFields = fields.length();
-    if (numFields > 0) {
+    if (numFields > 0)
+    {
       MVectorArray force;
       MVectorArray velocity(1, MVector::zero);
       MDoubleArray mass(1, 1.0);
@@ -1016,33 +1157,33 @@ void skChainNode::propagateAndStamp(
       }
     }
     //////////////////////
-    
-    
+
     // Now calculate force from the flowField
     //////////////////////
-    if (pFlowImage) {
+    if (pFlowImage)
+    {
       int fw = pFlowImage->width();
       int fh = pFlowImage->height();
       MVector currPointImg = MFloatPoint(currPoint) * flowTransformation;
       int imageCoordX = int(currPointImg.x);
       int imageCoordY = int(currPointImg.y);
-      if ( (imageCoordX >=0) &&
-        (imageCoordY >=0) &&
-        (imageCoordX < fw) &&
-        (imageCoordY < fh) 
-      ) 
+      if ((imageCoordX >= 0) &&
+          (imageCoordY >= 0) &&
+          (imageCoordX < fw) &&
+          (imageCoordY < fh))
       {
-        
+
         float x = (*pFlowImage)(imageCoordX, imageCoordY, 0, 0);
         float y = (*pFlowImage)(imageCoordX, imageCoordY, 0, 1);
-        forceAccumulated +=  MVector((MFloatVector(x,y,0.0) ) * flowTransformationInverse);
+        forceAccumulated += MVector((MFloatVector(x, y, 0.0)) * flowTransformationInverse);
       }
     }
     //////////////////////
 
     // If there was no force, then we are done.
-    forceAccumulated.z=0.0;
-    if (forceAccumulated.length() < forceThreshold){
+    forceAccumulated.z = 0.0;
+    if (forceAccumulated.length() < forceThreshold)
+    {
       return;
     }
 
@@ -1051,7 +1192,7 @@ void skChainNode::propagateAndStamp(
     segment.applyForce(forceAccumulated);
     bool done = segment.stampAndChain(pInkImage, chain);
 
-    // stampAndChain returns true when 
+    // stampAndChain returns true when
     if (done)
     {
       return;

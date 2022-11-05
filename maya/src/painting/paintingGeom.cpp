@@ -62,10 +62,8 @@ const Paint &paintingGeom::paintFromId(int id) const
 	return ((m_paints.find(-1))->second);
 }
 
-float paintingGeom::travelCutoff(int brushId, int paintId) const
+float paintingGeom::travelCutoff(const Brush &b, const Paint &p) const
 {
-	const Brush &b = brushFromId(brushId);
-	const Paint &p = paintFromId(paintId);
 	float cutoff = b.retention() * p.travel();
 	if (cutoff < epsilon)
 	{
@@ -77,26 +75,32 @@ float paintingGeom::travelCutoff(int brushId, int paintId) const
 void paintingGeom::addStroke(const Stroke &stroke, int parentIndex)
 {
 	int brushId = stroke.brushId();
-	int paintId = stroke.paintId();
-	int potId = stroke.potId();
-	
-
 	const Brush &b = brushFromId(brushId);
-	Cluster &g = prepCluster(brushId, paintId, potId);
-	g.pushStroke(stroke, parentIndex);
+	if (! b.inService())
+	{
+		return;
+	}
+
+	int paintId = stroke.paintId();
+	Cluster &cluster = prepCluster(brushId, paintId);
+	cluster.pushStroke(stroke, parentIndex);
 }
 
 Cluster &paintingGeom::prepCluster(
 	int brushId,
-	int paintId,
-	int potId
+	int paintId
 	)
 {
+
+	const Brush &brush = brushFromId(brushId);
+	const Paint &paint = paintFromId(paintId);
+	int potId = paint.pot();
+
 
 	// FIRST CLUSTER
 	if (m_clusters.empty())
 	{
-		float cutoff = travelCutoff(brushId, paintId);
+		float cutoff = travelCutoff(brush, paint);
 		m_clusters.push_back(
 			Cluster(brushId, paintId, potId, cutoff, Cluster::kBrush));
 		return m_clusters.back();
@@ -113,7 +117,7 @@ Cluster &paintingGeom::prepCluster(
 	// CHANGE POT OR BRUSH (tool change)
 	if (!(lastBrushId == brushId && lastPotId == potId  && lastPaintId == paintId))
 	{
-		float cutoff = travelCutoff(brushId, paintId);
+		float cutoff = travelCutoff(brush, paint);
 		m_clusters.push_back(
 			Cluster(brushId, paintId, potId, cutoff, Cluster::kBrush));
 		return m_clusters.back();
@@ -204,7 +208,6 @@ void paintingGeom::toolCombinations(MIntArray &result) const
 		result.append(brushId);
 		result.append(paintId);
 		result.append(potId);
-		
 	}
 }
  

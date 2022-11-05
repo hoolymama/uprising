@@ -10,7 +10,7 @@ from uprising.common.session.session import Session
 
 from uprising.bot.session.pick_place_program import PickPlaceCollection
 
-logger = logging.getLogger("uprising")
+logger = logging.getLogger(__name__)
 
 
 class CalibrationSession(Session):

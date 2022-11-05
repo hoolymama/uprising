@@ -1,33 +1,34 @@
 source "AEsortFilterInclude";
 source "AEstrokeCreatorInclude";
-
+source "AEpaintingUtilFuncs";
 
 global proc AEmapIdStrokesTemplate ( string $nodeName )
 {
-
-
-
-
 	editorTemplate -beginScrollLayout;
-
-
-	editorTemplate -cl 0  -beginLayout "Range attributes";		
-	editorTemplate -addControl "setRange"  "AEmapIdStrokesOnSetRange";
-	editorTemplate -addControl "numberOfValues";
+	editorTemplate -cl 0  -beginLayout "Paint mapping attributes";		
+	editorTemplate -addControl "doPaintId" "AEmapIdStrokesOnDoPaint";
+	editorTemplate -addControl "sampleParam" ;
+	editorTemplate -addControl "paintIdMapQuantizeLevel";
+	editorTemplate -addControl "paintIdOffset" ;
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "paintIdMap";
+	editorTemplate -addControl "palette";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "seed";
 	editorTemplate -endLayout;
 
-	editorTemplate -cl 0  -beginLayout "Id attributes";		
-	editorTemplate -addControl "idProperty" ;
-	editorTemplate -addControl "idMap";
-	editorTemplate -addControl "idOffset";
-	
+	editorTemplate -cl 0  -beginLayout "Brush model attributes";		
+	editorTemplate -addControl "doBrushModelId" "AEmapIdStrokesOnDoBrushModelId";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "brushShop";
 	editorTemplate -endLayout;
 
-
-	editorTemplate -cl 0  -beginLayout "Sample attributes";		
-	editorTemplate -addControl "sampleAt"  "AEmapIdStrokesOnSampleAt";;
-	editorTemplate -addControl "strokeParam" ;
+	editorTemplate -cl 0  -beginLayout "Width band attributes";		
+	editorTemplate -addControl "doWidthBandLayerIds" "AEmapIdStrokesOnDoWidthBandLayerIds";
+	editorTemplate -addSeparator;
+	editorTemplate -callCustom "AEmapIdStrokesLayerIdNew" "AEmapIdStrokesLayerIdReplace" "widthBandLevel";
 	editorTemplate -endLayout;
+
 
 	AEsortFilterInclude($nodeName);
 
@@ -35,17 +36,109 @@ global proc AEmapIdStrokesTemplate ( string $nodeName )
 	editorTemplate -endScrollLayout;
 }
 
-
-global proc AEmapIdStrokesOnSetRange( string $nodeName )
+global proc AEmapIdStrokesOnDoPaint( string $nodeName )
 {
-    int $dim = ! `getAttr ($nodeName+".setRange")`;
-    editorTemplate -dimControl $nodeName "numberOfValues" $dim;
+    int $dim = ! `getAttr ($nodeName+".doPaintId")`;
+    editorTemplate -dimControl $nodeName "sampleParam" $dim;
+	editorTemplate -dimControl $nodeName "paintIdMapQuantizeLevel" $dim;
+	editorTemplate -dimControl $nodeName "paintIdOffset" $dim;
+	editorTemplate -dimControl $nodeName "paintIdMap" $dim;
+	editorTemplate -dimControl $nodeName "palette" $dim;
+	
+}
+
+global proc AEmapIdStrokesOnDoBrushModelId( string $nodeName )
+{
+    int $dim = ! `getAttr ($nodeName+".doBrushModelId")`;
+    editorTemplate -dimControl $nodeName "brushShop" $dim;
+	
+} 
+global proc AEmapIdStrokesOnDoWidthBandLayerIds( string $nodeName )
+{
+    int $dim = ! `getAttr ($nodeName+".doWidthBandLayerIds")`;
+    editorTemplate -dimControl $nodeName "widthBandLevel" $dim;
+	
 }
 
 
-global proc AEmapIdStrokesOnSampleAt( string $nodeName )
-{
-    int $dim = `getAttr ($nodeName+".sampleAt")`;
-    editorTemplate -dimControl $nodeName "strokeParam" $dim;
-}
 
+
+
+
+ global proc AEmapIdStrokesLayerIdNew (string $nodeAttr) {
+ 	setUITemplate -pst attributeEditorTemplate;
+ 	global int $gTextColumnWidthIndex;
+ 	string $col = "AEmapIdStrokesLayerIdCol";
+ 	rowLayout -nc 3  -columnWidth3 $gTextColumnWidthIndex $gTextColumnWidthIndex $gTextColumnWidthIndex;
+ 	text -label "";
+ 	button -width 210 -l "Add" "AEaddLevelBtn";
+ 	text -label "";
+ 	setParent ..;
+
+ 	columnLayout -adj 1 $col ;	
+ 	setParent ..;
+
+
+ 	setUITemplate -ppt;
+ 	AEmapIdStrokesLayerIdReplace($nodeAttr);
+ }
+
+ global proc AEmapIdStrokesLayerIdReplace (string $nodeAttr) {
+
+ 	string $node = nodeFromNodeAttr($nodeAttr);
+ 	string $col = "AEmapIdStrokesLayerIdCol";
+	setParent $col;
+ 	int $numElements = `getAttr -size $nodeAttr`;
+ 	string $controls[] = `layout -q -ca $col`;
+ 	int $numExistingControls = size($controls);
+	
+ 	for ($i = 0;$i<$numExistingControls;$i++) {
+ 		deleteUI $controls[$i];
+ 	}
+
+ 	int $indices[] = `getAttr -mi $nodeAttr`;
+
+ 	for ($i = 0;$i<$numElements;$i++) {
+ 		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
+
+		AEmapIdStrokesLayerIdAddMultiWidget ($plug, $col, $indices[$i]) ;
+		// attrColorSliderGrp -en 0 -at  $plug;
+ 	}
+ 	setParent ..;
+
+	button -e -c ( "onAddLevelEntry(\"" + $nodeAttr +"\")") AEaddLevelBtn;
+
+
+ }
+
+ global proc AEmapIdStrokesLayerIdAddMultiWidget(
+ 	string $plug, 
+ 	string $columnLayout,  
+ 	int $index) 
+{
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+
+ 	string $node = nodeFromNodeAttr($plug);
+	string $label = ("Level: " + $index);
+
+ 	string $layout = `frameLayout -cl 0 -cll 0 -label $label -bv 1`;
+
+
+ 	rowLayout -nc 2 -adjustableColumn 1 -cw2 150 50;
+	attrFieldSliderGrp -min -0.001 -max 20  -at  $plug;
+
+ 	string $removeCmd = ("deleteUI " + $layout+";removeMultiInstance -b 1 "+$plug+";" ) ;
+ 	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
+	setParent ..;
+ 	setParent ..;
+ }
+
+global proc onAddLevelEntry(string $nodeAttr)
+{
+	int $nextIndex = findNextNonExistentIndex($nodeAttr);
+	setAttr  ($nodeAttr+"["+$nextIndex+"]") 1 ;
+	string $node = nodeFromNodeAttr($nodeAttr);
+
+}

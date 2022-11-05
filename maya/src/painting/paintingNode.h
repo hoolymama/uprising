@@ -35,6 +35,7 @@ public:
 
   static MObject aDisplayPaintIds;
   static MObject aDisplayRepeatIds;
+  static MObject aDisplayBrushModelIds;
 
   static MObject aDisplayContactWidth;
   static MObject aClusterPathColor;

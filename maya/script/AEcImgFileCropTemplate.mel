@@ -1,0 +1,37 @@
+global proc AEcImgFileCropTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+	
+ 
+
+	editorTemplate -cl 0  -beginLayout "Image attributes";
+ 	editorTemplate -addControl "imageFilename";
+	editorTemplate -addControl "boundary";
+	editorTemplate -addControl "letterbox";
+	editorTemplate -addControl "resize";
+	editorTemplate -addControl "resizeResolution";
+	editorTemplate -endLayout;	
+
+ 
+	editorTemplate -cl 0  -beginLayout "Crop attributes";		
+	editorTemplate -addControl "applyCrop";
+	editorTemplate -addControl "cropCorner";
+	editorTemplate -addControl "cropResolution";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 0  -beginLayout "Out attributes";
+ 	editorTemplate -addControl "outputCropFactor";
+	editorTemplate -addControl "outputOffsetFactorX";
+	editorTemplate -addControl "outputOffsetFactorY";
+	editorTemplate -endLayout;	
+
+
+ 	editorTemplate -suppress "output";
+
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
+

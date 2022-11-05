@@ -3,6 +3,8 @@
 #define _brush_
 
 #include <maya/MFloatMatrix.h>
+#include <maya/MString.h>
+
 #include "mayaMath.h"
 
 class Brush
@@ -12,15 +14,16 @@ public:
 	{
 		kFlat,
 		kRound,
-		kAll
+		kNone
 	};
 
 	Brush();
 
 	Brush(
 		const MFloatMatrix &matrix,
+		bool inService,
 		int physicalId,
-	
+		const MString &model,
 		const MFloatVector &tip,
 		float bristleHeight,
 		float tcpParam,
@@ -42,6 +45,7 @@ public:
 
 	const float &retention() const;
 	const MFloatMatrix &matrix() const;
+	bool inService() const;
 
 	/**
 	 * @brief Return a value representing how far away the brush should start from the ground.
@@ -62,7 +66,7 @@ public:
 
 	int customId() const;
 
-	bool matches(Shape filter) const;
+	// bool matches(Shape filter) const;
 
 	Brush::Shape shape() const;
 
@@ -70,10 +74,13 @@ public:
 
 	bool isFlat() const;
 
+	const MString & model() const;
+
 	friend ostream &operator<<(ostream &os, const Brush &b);
 
 private:
 	MFloatMatrix m_matrix;
+	bool m_inService;
 	int m_physicalId;
 	MFloatVector m_tip;
 	float m_width;
@@ -87,6 +94,7 @@ private:
 	float m_forwardBias1; //> The distance to move along the stroke to compensate for brush bend at weight=1
 	float m_gravityBias0;
 	float m_gravityBias1;
+	MString m_model;
 };
 
 

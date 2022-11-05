@@ -34,15 +34,6 @@ public:
   static MTypeId id;
 
 private:
-  enum RotateOrder
-  {
-    kTwistTiltBank,
-    kTiltBankTwist,
-    kBankTwistTilt,
-    kTiltTwistBank,
-    kTwistBankTilt,
-    kBankTiltTwist,
-  };
 
   enum ColorPropagation
   {
@@ -82,7 +73,7 @@ private:
       const MFloatArray &tilts,
       const MFloatArray &banks,
       const MFloatArray &twists,
-      scribbleStrokes::RotateOrder order,
+      PaintingEnums::BrushRotateOrder   order,
       std::vector<MFloatMatrix> &scribbleTransforms) const;
 
   void getFollowMatrix(const Target &target, MFloatMatrix &mat) const;

@@ -22,6 +22,10 @@ from uprising.bot.session.dip_wipe_program import (
     RetardantCollection,
 )
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class BotPaintingSession(Session):
     def __init__(self, cluster_chunk_size, directory, do_separate_subprograms, program_prefix="px"):
@@ -39,40 +43,47 @@ class BotPaintingSession(Session):
     def run(self):
         timer_start = time.time()
         with utils.prep_for_output():
-
+            logger.debug("BotPaintingSession Build: {}".format(self.program_prefix))
             # CONFIGURE EVERYTHING
             self.program = self._build_bot_program()
+            logger.debug("BotPaintingSession configure(): {}".format(self.program_prefix))
             self.program.configure()
-
+            logger.debug("BotPaintingSession Configured: {}".format(self.program_prefix))
             # DIPS&WIPES, WATER, RETARDANT
             self.dip_wipe_collection = DipWipeCollection()
             self.water_collection = WaterCollection()
             self.retardant_collection = RetardantCollection()
-
+            logger.debug("Built water, dips, wipes")
             for program in (
                 self.dip_wipe_collection.programs
                 + self.water_collection.programs
                 + self.retardant_collection.programs
             ):
                 program.configure()
-
+            logger.debug("Configured water, dips, wipes")
             # PICK PLACE
+            logger.debug("Getting brushIds")
             tc = pm.paintingQuery(self.painting_node, toolCombinations=True)
             brush_ids = set(tc[::3])
+            logger.info("Creating  pick_place_collection")
             self.pick_place_collection = PickPlaceCollection(brush_ids)
 
             # POST STEP Where we try to make linear moves between strokes and between clusters
             # and the palette.
-
+            logger.info("Run configure_linkages()")
             # print "LINKAGES"
             self.configure_linkages()
-
+            logger.debug("Done linkages")
             # print "SEND"
             if self.do_separate_subprograms:
+                logger.debug("_send_and_publish_bot_program()")
                 self._send_and_publish_bot_program()
+                logger.debug("_send_and_publish_pick_place_programs()")
                 self._send_and_publish_pick_place_programs()
+                logger.debug("_send_and_publish_dip_wipe_wash_programs()")
                 self._send_and_publish_dip_wipe_wash_programs()
             else:
+                logger.debug("_send_and_publish_one_file()")
                 self._send_and_publish_one_file()
         # robo.close()
 
@@ -85,15 +96,16 @@ class BotPaintingSession(Session):
         )
 
         self.stats = {"painting_stats": stats.stats()}
-        print(("EVENT LOG -- {}".format(os.path.basename(self.directory))))
-        print((self.program.event_log))
+        logger.info(("EVENT LOG -- {}".format(os.path.basename(self.directory))))
+        logger.info(self.program.event_log)
 
     def _build_bot_program(self):
         self.init_progress()
         robo.clean("kr30")
 
+        logger.info("Creating BotProgram()".format(self.program_prefix))
         program = BotProgram(self.program_prefix)
-
+        logger.debug("Created BotProgram()")
         if not (program and program.painting and program.painting.clusters):
             raise ValueError("Invalid bot_program. No painting/clusters")
         return program
@@ -105,24 +117,27 @@ class BotPaintingSession(Session):
         progress.update(
             major_max=num_chunks, header="Writing {} main program chunks".format(num_chunks)
         )
-
+        logger.debug("_send_and_publish_bot_program()")
         for i in range(num_chunks):
+            logger.info("robo.clean(kr30)")
             robo.clean("kr30")
             progress.update(
                 major_progress=i, major_line="Writing {:d} of {:d} chunks".format(i + 1, num_chunks)
             )
-
+            logger.info("Sending Chunk {} of {}".format(i, num_chunks))
             subprograms = self.program.send(chunk_id=i, chunk_length=self.cluster_chunk_size)
 
+            logger.debug("Saving program {} to {}".format(self.program.program_name, self.directory))
             src_fn = self.save_program(self.directory, self.program.program_name)
             self.insert_external_dependencies(subprograms, src_fn)
+            logger.debug("Saving station")
             self.save_station(self.directory, self.program.program_name)
 
             self.program_names.append(self.program.program_name)
 
-            progress.update(major_progress=num_chunks, major_line="Done")
-
+            # progress.update(major_progress=num_chunks, major_line="Done")
         if len(self.program_names) > 1:
+            logger.info("Writing orchestrator to {}".format(self.directory))
             self.orchestrate(self.directory, self.program_names)
 
     def _send_and_publish_pick_place_programs(self):
@@ -257,7 +272,7 @@ class BotPaintingSession(Session):
         robo.clean("kr30")
 
         for cluster in self.program.painting.clusters:
-            # print "configure_linkages cluster:", cluster.id
+            logger.info("configure_linkages cluster: {}".format(cluster.id))
 
             cluster_test_program = ClusterTestProgram("cluster_test", cluster, orig_approach_height)
 

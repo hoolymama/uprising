@@ -131,16 +131,16 @@ def prep_for_output():
 
     diptych_orig_val = pm.PyNode(k.DIPTYCH).attr("pinPainting").get()
     rack_zero_val =   pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").get()
-    apply_brush_bias_val  = pm.PyNode("mainPaintingGroup").attr("applyBrushBias").get()
-    brush_lifter_ns_val = pm.PyNode("brushLifter").attr("nodeState").get()
+    apply_brush_bias_val  = pm.PyNode("brushLifter").attr("applyBias").get()
+    apply_brush_lift_val = pm.PyNode("brushLifter").attr("applyLift").get()
     displacer_node_state_val = pm.PyNode("displacer").attr("nodeState").get()
     
 
     pm.PyNode(k.DIPTYCH).attr("pinPainting").set(True)
     pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").set(False)
 
-    pm.PyNode("mainPaintingGroup").attr("applyBrushBias").set(True)
-    pm.PyNode("brushLifter").attr("nodeState").set(0)
+    pm.PyNode("brushLifter").attr("applyBias").set(True)
+    pm.PyNode("brushLifter").attr("applyLift").set(True)
     pm.PyNode("displacer").attr("nodeState").set(0)
     try:
         yield
@@ -149,8 +149,8 @@ def prep_for_output():
         pm.PyNode(k.DIPTYCH).attr("pinPainting").set(diptych_orig_val)
         pm.PyNode("RACK1_CONTEXT").attr("zeroPosition").set(rack_zero_val)
 
-        pm.PyNode("mainPaintingGroup").attr("applyBrushBias").set(apply_brush_bias_val)
-        pm.PyNode("brushLifter").attr("nodeState").set(brush_lifter_ns_val)
+        pm.PyNode("brushLifter").attr("applyBias").set(apply_brush_bias_val)
+        pm.PyNode("brushLifter").attr("applyLift").set(apply_brush_lift_val)
         pm.PyNode("displacer").attr("nodeState").set(displacer_node_state_val)
 
         skels = pm.PyNode(k.PAINTING_NAME).listHistory(type="skeletonStroke")

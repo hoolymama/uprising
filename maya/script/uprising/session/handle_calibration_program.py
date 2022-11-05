@@ -22,7 +22,7 @@ ANGULAR_SPEED = 70  # deg
 ROUNDING_DISTANCE = 10  # mm
 
 
-logger = logging.getLogger("uprising")
+logger = logging.getLogger(__name__)
 
 
 class HandleCalibrationProgram(Program):

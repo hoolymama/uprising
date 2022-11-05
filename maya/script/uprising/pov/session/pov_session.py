@@ -22,7 +22,7 @@ RUNMODE_OFF=1
 RUNMODE_OFFLINE=2
 RUNMODE_ROBOT=3
 
-logger = logging.getLogger("uprising")
+logger = logging.getLogger(__name__)
 
 
 class PovSession(Session):

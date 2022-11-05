@@ -9,7 +9,9 @@ def create():
     menu = pm.menu(label="Chains", tearOff=True)
 
     pm.menuItem(label="Split outputs", command=pm.Callback(on_split_outputs))
-    pm.menuItem(label="Reset", command=pm.Callback(on_reset))
+    pm.menuItem(label="Reset skels in painting history", command=pm.Callback(on_reset))
+    pm.menuItem(label="Reset selected skels", command=pm.Callback(on_reset_selected))
+    
     pm.menuItem(label="Create SK Graph Nodes", command=pm.Callback(create_skgraphs))
 
     pm.menuItem(label="Print connection stats", command=pm.Callback(chains.on_print_stats))
@@ -38,6 +40,10 @@ def on_split_outputs():
 
 def on_reset():
     skels = pm.PyNode(k.PAINTING_NAME).listHistory(type="skeletonStroke")
+    utils.reset_skels(utils.get_chain_skel_pairs(*skels))
+
+def on_reset_selected():
+    skels = pm.ls(sl=True, type="skeletonStroke")
     utils.reset_skels(utils.get_chain_skel_pairs(*skels))
 
 def create_skgraphs():

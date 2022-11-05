@@ -46,6 +46,15 @@ struct coord {
 		return coord( x + other.x,  y + other.y);
 	}
 
+	coord  operator+(const coord &other) const
+	{
+		return coord( x + other.x,  y + other.y);
+	}
+
+	coord  operator-(const coord &other) const
+	{
+		return coord( x - other.x,  y  - other.y);
+	}
 
 	MVector toUV(int w, int h) const
 	{
@@ -80,20 +89,25 @@ public:
 	float radius;
 	bool seen;
 	bool isEnd() const;
-
+ 
 	float facing(const skNode *other1, const skNode *other2) const;
 	// float distanceTo(const skNode *other) const;
 	int  unseenNeighborCount() const;
 
 	int getUnseenNeighbors(std::vector<skNode *> &result) const ;
 
+	int getNeighborsExcluding(const skNode* unwanted, std::vector<skNode *> &result) const ;
 };
 
 
 typedef std::vector < skNode *> TWIG;
 typedef std::vector < TWIG  > TWIG_CLUSTER;
-typedef std::map <   skNode *, TWIG_CLUSTER > CLUSTERS; 
+
 // skNode * is the junction these twigs meet at
+typedef std::map <   skNode *, TWIG_CLUSTER > CLUSTERS; 
+
+// twigs waiting to be joined to leaf skNodes, in order to extend them
+typedef std::map <   skNode *, TWIG > TWIG_MAP; 
 
 
 #endif

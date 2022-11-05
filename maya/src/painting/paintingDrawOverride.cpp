@@ -118,6 +118,7 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	MPlug(paintingObj, painting::aDisplayBrushIds).getValue(data->displayBrushIds);
 	MPlug(paintingObj, painting::aDisplayPaintIds).getValue(data->displayPaintIds);
 	MPlug(paintingObj, painting::aDisplayRepeatIds).getValue(data->displayRepeatIds);
+	MPlug(paintingObj, painting::aDisplayBrushModelIds).getValue(data->displayBrushModelIds);
 	MPlug(paintingObj, painting::aArrowheadSize).getValue(data->arrowheadSize);
 	MPlug(paintingObj, painting::aStackGap).getValue(data->stackGap);
 	MPlug(paintingObj, painting::aDrawParam).getValue(data->drawParam);
@@ -578,6 +579,7 @@ void paintingDrawOverride::drawIds(
 			cdata->displayParentIds ||
 			cdata->displayLayerIds ||
 			cdata->displayBrushIds ||
+			cdata->displayBrushModelIds ||
 			cdata->displayPaintIds ||
 			cdata->displayRepeatIds))
 	{
@@ -624,6 +626,11 @@ void paintingDrawOverride::drawIds(
 			if (cdata->displayRepeatIds)
 			{
 				text = text + "Rep:" + stroke.repeatId() + "\n";
+			}
+			// draw BrushModelIds
+			if (cdata->displayBrushModelIds)
+			{
+				text = text + "Mod:" + stroke.brushModelId() + "\n";
 			}
 
 			MPoint textPos = stroke.getHead(cdata->drawingNormal) + MVector(cdata->idDisplayOffset);

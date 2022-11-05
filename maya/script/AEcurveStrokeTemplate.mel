@@ -20,6 +20,7 @@ global proc AEcurveStrokeTemplate ( string $nodeName )
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Brush attributes";
+	editorTemplate -addControl "width";
 	editorTemplate -addControl "brushId";
  	editorTemplate -endLayout;
 	

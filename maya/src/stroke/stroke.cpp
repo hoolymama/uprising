@@ -23,13 +23,19 @@ Stroke::Stroke()
 	  m_brushId(0),
 	  m_sortColor(),
 	  m_filterColor(),
+	  m_brushModelId(),
 	  m_sortStack(),
 	  m_arrivals(),
 	  m_departure(),
 	  m_linearSpeed(0.0),
 	  m_angularSpeed(0.0),
 	  m_approximationDistance(0.0),
-	  m_coil(0.0f)
+	  m_coil(0.0f),
+	  m_maxRadius(1.0f),
+	  m_brushStrokeSpec(),
+	  m_creatorName(),
+	  m_creatorId(),
+	  m_ditherProbability(1.0)
 {
 }
 
@@ -69,7 +75,7 @@ Stroke::Stroke(
 	const std::vector<MFloatMatrix> &matrices)
 	: Stroke()
 {
-
+	
 	MStatus st;
 	unsigned i = 0;
 	std::vector<MFloatMatrix>::const_iterator current_matrix = matrices.begin();
@@ -81,6 +87,7 @@ Stroke::Stroke(
 
 	m_pivot = Target(m_targets[0]);
 	resetTangents();
+	
 }
 
 Stroke::Stroke(
@@ -370,13 +377,35 @@ Stroke::Stroke(
 		mat[3][0] = points[i].x;
 		mat[3][1] = points[i].y;
 		mat[3][2] = points[i].z;
-		m_targets.push_back(Target(mat, weights[i]));
+		m_targets.push_back(Target(mat, weights[i], colors[i]));
 	}
 	m_pivot = Target(m_targets[0]);
 	resetTangents();
 }
 
+void Stroke::setCreator(const MString &creatorName, int creatorId)
+{
+	m_creatorName = creatorName;
+	m_creatorId = creatorId;
+}
+const MString & Stroke::creatorName() const
+{
+	return m_creatorName;
+}
 
+int Stroke::creatorId() const
+{
+	return m_creatorId;
+}
+
+float Stroke::ditherProbability() const
+{
+	return m_ditherProbability;
+}
+void Stroke::setDitherProbability(float probability)
+{
+	m_ditherProbability = probability;
+}
 
 void Stroke::resetTangents()
 {
@@ -465,6 +494,17 @@ void Stroke::getPointAtParam(float param, MFloatPoint &result) const
 	}
 }
 	
+	void Stroke::setBrushStrokeSpec(const BrushStrokeSpec &rhs)
+	{
+		m_brushStrokeSpec = rhs;
+	}
+	
+	const BrushStrokeSpec &  Stroke::brushStrokeSpec() const
+	{
+		return m_brushStrokeSpec  ;
+	}
+	
+
 
 void Stroke::smoothTargets(int neighbors, bool doPositions, bool doWeights)
 {
@@ -490,10 +530,10 @@ void Stroke::smoothTargets(int neighbors, bool doPositions, bool doWeights)
 			float meanWeight = 0.0;
 			for (int j = i - n; j < i + n + 1; j++)
 			{
-				meanWeight += m_targets[j].weight();
+				meanWeight += m_targets[j].radius();
 			}
 			meanWeight = meanWeight / denom;
-			iter->setWeight(meanWeight);
+			iter->setRadius(meanWeight);
 		}
 
 		if (doPositions)
@@ -629,6 +669,12 @@ int Stroke::parentId() const
 	return m_parentId;
 }
 
+float Stroke::maxRadius() const
+{
+	return m_maxRadius;
+}
+
+
 void Stroke::setParentId(int parentId)
 {
 	m_parentId = parentId;
@@ -638,6 +684,12 @@ void Stroke::setRepeatId(int rhs)
 {
 	m_repeatId = rhs;
 }
+
+void Stroke::setMaxRadius(float rhs)
+{
+	m_maxRadius = rhs;
+}
+
 
 void Stroke::setLayerId(int rhs)
 {
@@ -650,15 +702,6 @@ int Stroke::layerId() const
 int Stroke::customBrushId() const
 {
 	return m_customBrushId;
-}
-
-int Stroke::potId() const
-{
-	return m_potId;
-}
-void Stroke::setPotId(int val)
-{
-	m_potId = val;
 }
 
 int Stroke::brushId() const
@@ -698,6 +741,16 @@ void Stroke::setSortColor(const MFloatVector &color)
 void Stroke::setFilterColor(const MFloatVector &color)
 {
 	m_filterColor = color;
+}
+
+void Stroke::setBrushModelId(int rhs)
+{
+	m_brushModelId = rhs;
+}
+
+int Stroke::brushModelId() const
+{
+	return m_brushModelId;
 }
 
 void Stroke::appendStrokeIdToSortStack(bool ascending)
@@ -749,6 +802,19 @@ void Stroke::appendTargetCountToSortStack(bool ascending)
 	m_sortStack.append(val);
 }
 
+void Stroke::appendBrushModelIdToSortStack(bool ascending)
+{
+	int val = ascending ? m_brushModelId : -m_brushModelId;
+	m_sortStack.append(val);
+}
+
+void Stroke::appendBrushShapeToSortStack(bool ascending)
+{
+	int val = int(m_brushStrokeSpec.shape);
+	val = ascending ? val : -val;
+	m_sortStack.append(val);
+}
+
 void Stroke::appendMapRedIdToSortStack(bool ascending)
 {
 	int val = ascending ? int(m_sortColor.x * 256) : -int(m_sortColor.x * 256);
@@ -795,10 +861,7 @@ bool Stroke::testBrushId(FilterOperator op, int value) const
 	return testAgainstValue(m_brushId, op, value);
 }
 
-// bool Stroke::testCustomBrushId(FilterOperator op, int value) const
-// {
-// 	return testAgainstValue(m_customBrushId, op, value);
-// }
+
 
 bool Stroke::testPaintId(FilterOperator op, int value) const
 {
@@ -815,16 +878,19 @@ bool Stroke::testRepeatId(FilterOperator op, int value) const
 bool Stroke::testTargetCount(FilterOperator op, int value) const
 {
 	return testAgainstValue(m_targets.size(), op, value);
+}	
+
+bool Stroke::testBrushModelId(FilterOperator op, int value) const
+{
+	return testAgainstValue(m_brushModelId, op, value);
 }
 
-// bool Stroke::testCustomBrushId(FilterOperator op, int value) const
-// {
-// 	return  testAgainstValue(int(m_customBrushId), op, value);
-// }
-// bool Stroke::testCustomPaintId(FilterOperator op, int value) const
-// {
-// 	return  testAgainstValue(int(m_customPaintId), op, value);
-// }
+bool Stroke::testBrushShape(FilterOperator op, int value) const
+{
+	return testAgainstValue(int(m_brushStrokeSpec.shape), op, value);
+}
+
+
 bool Stroke::testMapRedId(FilterOperator op, int value) const
 {
 	return testAgainstValue(int(m_filterColor.x * 256), op, value);
@@ -1076,6 +1142,10 @@ void Stroke::positions(
 		result.append(citer->position(space));
 	}
 }
+
+
+
+
 
 void Stroke::rotations(
 	const MFloatMatrix &space,

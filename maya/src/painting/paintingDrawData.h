@@ -27,6 +27,7 @@ public:
 	bool displayBrushIds;
 	bool displayPaintIds;
 	bool displayRepeatIds;
+	bool displayBrushModelIds;
 	bool displayApproachTargets;
 
 	bool displayContactWidth;

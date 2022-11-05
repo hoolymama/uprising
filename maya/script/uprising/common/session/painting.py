@@ -8,6 +8,10 @@ class Painting(object):
     def __init__(self, node):
         self.node = node
         self.brushes = Brush.used_brushes(node)
+
+        
+
+
         self.linear_speed = node.attr("linearSpeed").get() * 10
         self.angular_speed = node.attr("angularSpeed").get()
         self.rounding = node.attr("approximationDistance").get() * 10

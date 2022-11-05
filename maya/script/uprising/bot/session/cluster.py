@@ -42,8 +42,19 @@ class Cluster(object):
 
         program.RunInstruction("Cluster %s" % cluster_name, INSTRUCTION_COMMENT)
 
-        for stroke in self.strokes:
-            stroke.send(cluster_name, program, frame)
+        for i, stroke in enumerate(self.strokes):
+            if stroke.ignore:
+                # the stroke is ignored, so we don't send it.
+                # 
+                # However, if there's a next stroke we need to go to a safe place (canvas approach) since arrival
+                # targets are for the wrong preceding stroke. Then we need to reconfigure the
+                # next stroke.
+                if i < len(self.strokes) - 1:
+                    self.program.addMoveJ(robo.canvas_approach)
+                    next_stroke = self.strokes[i + 1]
+                    next_stroke.arrivals = next_stroke.arrivals[:-1]
+            else:
+                stroke.send(cluster_name, program, frame)
 
     def get_flow_info(self, last_cluster):
         last_paint_id = last_cluster.paint.id if last_cluster else None

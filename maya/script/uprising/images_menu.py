@@ -1,7 +1,8 @@
 import os
 import pymel.core as pm
 from uprising import images
-
+from os import listdir
+from os.path import isfile, join
 
 def create():
     pm.menu(label="Images", tearOff=True)
@@ -10,6 +11,18 @@ def create():
     pm.menuItem(
         label="Show in monitor",
         command=pm.Callback(show_image_in_monitor))
+
+    pm.menuItem(
+        label="Swap out source images",subMenu=True)
+
+    path = '/Volumes/xtr/gd/rn/france/sourceimages/orig'
+    (_, _, filenames) = next(os.walk(path))
+ 
+    for name in [os.path.splitext(f)[0] for f in sorted(filenames) if not f.startswith(('.', "Icon"))]:
+        pm.menuItem( label=name, command=pm.Callback( on_set_source_image, name))
+
+    pm.setParent("..", menu=True)
+
 
 
 def write_png_palette_csv():
@@ -151,3 +164,18 @@ def get_swatches_for_selected():
                         pack["shader"] = _make_and_connect_shader(d)
                     swatches.append(pack)
     return swatches
+
+
+def on_set_source_image(name):
+    main = "sourceimages/m/{}.png".format(name)
+    under = "sourceimages/u/{}.png".format(name)
+    dither = "sourceimages/d/{}.png".format(name)
+    zebra = "sourceimages/z/{}.png".format(name)
+    orig = "sourceimages/orig/{}.jpg".format(name)
+
+    pm.Attribute("cImgFileSplit_m.imageFilename").set(main)
+    pm.Attribute("cImgFileSplit_u.imageFilename").set(under)
+    pm.Attribute("cImgFileSplit_d.imageFilename").set(dither)
+    pm.Attribute("cImgFileCrop_z.imageFilename").set(zebra)
+    pm.Attribute("cImgFileCrop_orig.imageFilename").set(orig)
+    

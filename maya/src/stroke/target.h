@@ -11,6 +11,7 @@
 
 #include <maya/MObject.h>
 #include <mayaMath.h>
+#include "enums.h"
 
 /**
  * @brief A discreet point along a Stroke.
@@ -55,6 +56,12 @@ public:
 	Target(
 		 const MFloatMatrix &mat,
 		 float weight = 1.0);
+	
+	Target(
+		const MFloatMatrix &mat,
+		float weight,
+		const MColor &color);
+
 
 /**
  * @brief Construct a new Target object from a Nurbs curve.
@@ -89,6 +96,8 @@ public:
 	void applyTilt(float angle);
 	void applyBank(float angle);
 	void applyTwist(float angle);
+	void applyTiltBankTwist(float tilt, float bank, float twist, PaintingEnums::BrushRotateOrder order);
+	
 	void applyAxisAngleRotation(
 		 const MFloatVector &axis,
 		 float angle);
@@ -113,6 +122,7 @@ public:
 
 	MFloatPoint position() const;
 
+ 
 	void setPosition(const MFloatPoint &rhs);
 
 	void setMatrix(const MFloatMatrix &rhs);
@@ -137,9 +147,13 @@ public:
 		 bool flatBrush,
 		 bool displayWeightWidth = true) const;
 
-	void setWeight(float wait);
+	void setWeight(float weight);
 	const float &weight() const;
 	
+	void setRadius(float radius);
+	const float &radius() const;
+	
+
 
 	void setWait(float wait);
 	const float &wait() const;
@@ -157,6 +171,9 @@ private:
 	MFloatVector m_drawTangent; // tangent to use for drawing.
 	MFloatMatrix m_matrix;
 	float m_weight;	 // used to indicate fraction of brush tip
+	float m_radius;	 // used to indicate fraction of brush tip
+
+
 	MColor m_color;	 // RGBA
 	float m_wait;
 

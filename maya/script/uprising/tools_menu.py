@@ -32,7 +32,11 @@ def create():
 
     pm.menuItem(label="Print stats", command=pm.Callback(on_print_stats))
     
+    pm.menuItem(
+        label="Test Brush/Stroke Angle",
+        command=pm.Callback(on_test_brush_stroke_angle))
  
+
 
     pm.menuItem(
         label="Print paint and brush csv",
@@ -180,7 +184,7 @@ def on_print_painting_flow_ss():
     num_clusters = pm.paintingQuery(ptg, cc=True)
 
     num_continuous_strokes = -1
-    header = ["","Red","Green","Blue","","Brush id", "Paint id", "Pot id", "Stroke count"]
+    header = ["","Red","Green","Blue","","Brush id","Brush Model", "Paint id", "Pot id", "Stroke count"]
     tab = "\t"
     print((tab.join(header)))
 
@@ -195,16 +199,47 @@ def on_print_painting_flow_ss():
             brush_id = pm.paintingQuery(ptg, ci=ci, clusterBrushId=True)
             paint_id = pm.paintingQuery(ptg, ci=ci, clusterPaintId=True)
             pot_id = pm.paintingQuery(ptg,   ci=ci, clusterPotId=True)
-            
+
+            brush_model = Brush.brush_at_index(ptg, brush_id).model
+
             col = palette[paint_id].color
         
             if num_continuous_strokes > -1:
                 data.append(str(num_continuous_strokes))
                 print((tab.join(data)))
-            data = [str(s) for s in ["",int(col[0]*255),int(col[1]*255),int(col[2]*255),"",brush_id, paint_id, pot_id]]
+            data = [str(s) for s in ["",int(col[0]*255),int(col[1]*255),int(col[2]*255),"",brush_id, brush_model, paint_id, pot_id]]
             num_continuous_strokes = num_strokes
         else:
             num_continuous_strokes += num_strokes
     data.append(str(num_continuous_strokes))
     print(tab.join(data))
             
+
+
+def on_test_brush_stroke_angle():
+    bad_strokes = set()
+    ptg = pm.PyNode(k.PAINTING_NAME)
+    num_clusters = pm.paintingQuery(ptg, cc=True)
+    globalStrokeIndex = 0
+    for ci in range(num_clusters):
+        num_strokes = pm.paintingQuery(ptg, ci=ci, sc=True)
+        for si in range(num_strokes):
+            zAxes = utils.to_vector_array(pm.paintingQuery(ptg,ci=ci, si=si, strokeZAxis=True))
+            positions = utils.to_point_array(pm.paintingQuery(ptg,ci=ci, si=si, strokePositions=True))
+            num_targets = len(positions)
+            for ti in range(num_targets):
+                if ti < num_targets-1:
+                    tan = positions[ti+1]  - positions[ti]
+                else:
+                    tan = positions[ti] - positions[ti-1]
+
+                tan.normalize()
+
+                zAxes[ti].normalize()
+                dot = tan.dot(zAxes[ti])
+                if dot > 0:
+                    print("Bad angle on stroke %d, target %d" % (globalStrokeIndex, ti))
+                    bad_strokes.add(globalStrokeIndex)
+            globalStrokeIndex +=1
+
+    print(sorted(list(bad_strokes)))

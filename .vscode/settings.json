@@ -82,7 +82,8 @@
         "valarray": "cpp",
         "compare": "cpp",
         "concepts": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "memory_resource": "cpp"
     },
     "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7",
     "python.linting.pylintEnabled": false,

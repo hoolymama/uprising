@@ -31,7 +31,7 @@ void *mapStrokes::creator()
 {
   return new mapStrokes();
 }
-
+ 
 /// Post constructor
 void mapStrokes::postConstructor()
 {

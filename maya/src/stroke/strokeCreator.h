@@ -14,7 +14,6 @@
 class strokeCreator : public strokeNodeBase
 {
 public:
-
   strokeCreator();
   virtual ~strokeCreator();
   virtual bool isAbstractClass() const { return true; }
@@ -34,9 +33,14 @@ protected:
   void subsample(const MFloatPointArray &inPoints, float density, MFloatPointArray &outPoints) const;
   void subsample(const MFloatPointArray &inPoints, const MColorArray &inColors, float density, MFloatPointArray &outPoints, MColorArray &outColors) const;
 
-  void applyRotations(MDataBlock &data, std::vector<Stroke> *pOutStrokes) const;
+  // void applyRotations(MDataBlock &data, std::vector<Stroke> *pOutStrokes) const;
   void applyCoats(MDataBlock &data, std::vector<Stroke> *geom) const;
   void applySpeeds(MDataBlock &data, std::vector<Stroke> *geom) const;
+  void applyLayerId(MDataBlock &data, std::vector<Stroke> *geom) const;
+
+  void applyCreator(
+      const MString &name,
+      std::vector<Stroke> *geom) const;
 
   static MObject aCoats;
   static MObject aPointDensity; ///< The minimum number of targets per centimeter.
@@ -52,7 +56,6 @@ protected:
   static MObject aBrushBankEnd;
   static MObject aBrushBank;
   static MObject aBrushRotateOrder;
-
 
   static MObject aLinearSpeed;           // cm/sec
   static MObject aAngularSpeed;          // per sec
