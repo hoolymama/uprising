@@ -316,6 +316,8 @@ MStatus scribbleStrokes::mutate(
   std::vector<Stroke>::iterator siter = sourceStrokes.begin();
   std::vector<Stroke>::iterator senditer = sourceStrokes.end();
 
+  bool  doInterp = (propagation == scribbleStrokes::kInterpolate);
+  // cerr << "interpolate: " << doInterp << endl; 
   int mapIndex = 0;
   for (; siter != senditer; siter++)
   {
@@ -327,20 +329,22 @@ MStatus scribbleStrokes::mutate(
     float distance = 0.0f;
     int len = siter->size();
     MPointArray editPoints(len);
+
     MFloatArray weights(len);
     MColorArray colors(len);
 
-    bool doInterp = (propagation == scribbleStrokes::kInterpolate);
+    
     if (doInterp)
     {
       titer = siter->targets().begin();
       unsigned t = 0;
-      for (titer = siter->targets().begin(); titer != tenditer; titer++, t++)
+      for (; titer != tenditer; titer++, t++)
       {
         weights.set(titer->weight(), t);
         colors.set(titer->color(), t);
       }
     }
+    // cerr << "Set orig colors: " << colors << endl; 
 
     std::vector<MFloatMatrix> scribbleTransforms;
     calculateScribbleTransforms(*siter, mapIndex, tilts, banks, twists, order, scribbleTransforms);
@@ -369,10 +373,11 @@ MStatus scribbleStrokes::mutate(
       }
     }
 
-
     Stroke stroke;
+    // cerr << "Making new stroke" << endl;
     if (doInterp)
     {
+      // cerr << "doInterp true, so colors = " << colors << endl;
       stroke = Stroke(editPoints, weights, colors, pointDensity, minimumPoints, targetRotationMatrix);
     }
     else
