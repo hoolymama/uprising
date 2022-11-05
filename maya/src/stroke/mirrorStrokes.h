@@ -7,7 +7,7 @@
 
 /**
  * @brief Rotate all target matrices so they aim their z (lance) towards a point.
- * 
+ *
  */
 class mirrorStrokes : public strokeMutator
 {
@@ -24,9 +24,10 @@ public:
   static MTypeId id;
 
 private:
+  static MObject aTranslate;
+  static MObject aMirror;
 
-  // static MObject aPoint; ///> The point to aim towards. 
-
+  // static MObject aPoint; ///> The point to aim towards.
 };
 
 #endif
