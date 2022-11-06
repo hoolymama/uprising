@@ -40,7 +40,7 @@ private:
   void relaxDots(MDataBlock &data, std::vector<dotData> &dots);
   void cullDots(MDataBlock &data, std::vector<dotData> &dots);
   void sortDots(MDataBlock &data, std::vector<dotData> &dots, const MMatrix &worldMatrix);
-
+  void makeGradients(MDataBlock &data, std::vector<dotData> &dots);
   CImg<unsigned char> *getImage(MDataBlock &data, MObject &attribute);
 
   static MObject aDensityImage;
@@ -64,12 +64,18 @@ private:
 
   static MObject aSortVector;
 
+  static MObject aGradientImage;
+  static MObject aDoGradient;
+  static MObject aNormalizeGradient;
+
   static MObject aOutU;
   static MObject aOutV;
   static MObject aOutPointsWorld;
+  static MObject aOutGradientsWorld;
 
 public:
   static MObject aOutPoints;
+  static MObject aOutGradients;
 
   static MObject aOutRadius;
   static MObject aLineThickness;
@@ -79,6 +85,10 @@ public:
   static MObject aDisplayPoints;
   static MObject aDisplayCircles;
   static MObject aDisplayOrder;
+
+  static MObject aGradientColor;
+  static MObject aDisplayGradient;
+  static MObject aGradientLineLength;
 };
 
 #endif
