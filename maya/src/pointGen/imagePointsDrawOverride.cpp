@@ -168,13 +168,12 @@ void imagePointsDrawOverride::addUIDrawables(
 	{
 		drawPoints(drawManager, cdata);
 	}
-	// JPMDBG;
+
 	if (cdata->displayGradient)
 	{
-		cerr << "YES displayGradient" << endl;
 		drawGradient(drawManager, cdata);
 	}
-	// JPMDBG;
+
 	{
 		drawPoints(drawManager, cdata);
 	}
@@ -203,7 +202,6 @@ void imagePointsDrawOverride::drawGradient(
 	MHWRender::MUIDrawManager &drawManager,
 	const imagePointsDrawData *cdata)
 {
-	cerr << "IN drawGradient" << endl;
 	drawManager.beginDrawable();
 	drawManager.setColor(cdata->gradientColor);
 	drawManager.lineList(cdata->lineList, false);

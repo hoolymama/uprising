@@ -82,10 +82,11 @@
 #include "rotateTargets.h"
 
 #include "bulgeStrokes.h"
-// #include "mapStrokes.h"
+
 
 #include "particleStrokeNode.h"
 #include "pearlStrokeNode.h"
+#include "hatchStrokeNode.h"
 
 #include "particleTrailsNode.h"
 #include "particleTrailsData.h"
@@ -479,6 +480,12 @@ MStatus initializePlugin(MObject obj)
 							 pearlStrokeNode::initialize);
 	msert;
 
+		st = plugin.registerNode("hatchStroke", hatchStrokeNode::id,
+							 hatchStrokeNode::creator,
+							 hatchStrokeNode::initialize);
+	msert;
+
+
 	st = plugin.registerNode("meshStroke", meshStrokeNode::id,
 							 meshStrokeNode::creator,
 							 meshStrokeNode::initialize);
@@ -725,6 +732,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(meshStrokeNode::id);
+	mser;
+
+	st = plugin.deregisterNode(hatchStrokeNode::id);
 	mser;
 
 	st = plugin.deregisterNode(pearlStrokeNode::id);
