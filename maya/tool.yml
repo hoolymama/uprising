@@ -51,6 +51,7 @@ source_files:
 - src/stroke/*.cpp
 - src/misc/*.cpp
 - src/pointGen/*.cpp
+- src/curveGen/*.cpp
 
 - src/shader/*.cpp
 - src/cimg/*.cpp

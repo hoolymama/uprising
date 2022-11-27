@@ -141,6 +141,8 @@
 #include "pearlNodeDrawOverride.h"
 #include "paletteOrder.h"
 
+#include "funCurve.h"
+
 
 
 static const MString sRegistrantId("cImgPlugin");
@@ -624,6 +626,10 @@ MStatus initializePlugin(MObject obj)
 							 strokeMesh::initialize);
 	msert;
 
+	st = plugin.registerNode("funCurve", funCurve::id, funCurve::creator,
+							 funCurve::initialize);
+	msert;
+
 	return st;
 }
 
@@ -634,6 +640,10 @@ MStatus uninitializePlugin(MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin(obj);
+
+
+	st = plugin.deregisterCommand("funCurve");
+	mser;
 	st = plugin.deregisterCommand("strokeMesh");
 	mser;
 	st = plugin.deregisterCommand("tumbler");
