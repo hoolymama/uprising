@@ -45,6 +45,7 @@
 #include "mapColorStrokes.h"
 #include "decimateStrokes.h"
 #include "scribbleStrokes.h"
+// #include "testMutateStrokes.h"
 #include "strokeMutator.h"
 
 #include "strokeCreator.h"
@@ -86,7 +87,7 @@
 
 #include "particleStrokeNode.h"
 #include "pearlStrokeNode.h"
-#include "hatchStrokeNode.h"
+#include "hatchStrokes.h"
 
 #include "particleTrailsNode.h"
 #include "particleTrailsData.h"
@@ -482,10 +483,6 @@ MStatus initializePlugin(MObject obj)
 							 pearlStrokeNode::initialize);
 	msert;
 
-		st = plugin.registerNode("hatchStroke", hatchStrokeNode::id,
-							 hatchStrokeNode::creator,
-							 hatchStrokeNode::initialize);
-	msert;
 
 
 	st = plugin.registerNode("meshStroke", meshStrokeNode::id,
@@ -521,6 +518,17 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("scribbleStrokes", scribbleStrokes::id, scribbleStrokes::creator,
 							 scribbleStrokes::initialize);
 	mser;
+
+
+	// st = plugin.registerNode("testMutateStrokes", testMutateStrokes::id, testMutateStrokes::creator,
+	// 						 testMutateStrokes::initialize);
+	// mser;
+	
+	st = plugin.registerNode("hatchStrokes", hatchStrokes::id,
+							 hatchStrokes::creator,
+							 hatchStrokes::initialize);
+	msert;
+
 
 	st = plugin.registerNode("aimStrokes", aimStrokes::id, aimStrokes::creator,
 							 aimStrokes::initialize);
@@ -720,6 +728,12 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(aimStrokes::id);
 	mser;
 
+	st = plugin.deregisterNode(hatchStrokes::id);
+	mser;
+
+	// st = plugin.deregisterNode(testMutateStrokes::id);
+	// mser;
+
 	st = plugin.deregisterNode(scribbleStrokes::id);
 	mser;
 
@@ -744,8 +758,6 @@ MStatus uninitializePlugin(MObject obj)
 	st = plugin.deregisterNode(meshStrokeNode::id);
 	mser;
 
-	st = plugin.deregisterNode(hatchStrokeNode::id);
-	mser;
 
 	st = plugin.deregisterNode(pearlStrokeNode::id);
 	mser;
