@@ -43,6 +43,16 @@ protected:
       const std::vector<Stroke> *geom,
       MFloatPointArray &result) const;
 
+void getTargetColors(
+    const std::vector<Stroke> *geom,
+    MColorArray &result) const;
+
+
+void getTangents(
+    const std::vector<Stroke> *geom,
+    MFloatVectorArray &result) const;
+
+
   void getSpanPoints(
       const std::vector<Stroke> *geom,
       MFloatPointArray &result) const;
