@@ -62,8 +62,11 @@ def get_uprising_project_path():
 
 
 def get_clean_file(model):
+    logger.debug("DGetting clean file") 
     project_path = get_uprising_project_path()
-    return os.path.join(project_path, "robodk", "{}_clean.rdk".format(model))
+    clean_path = os.path.join(project_path, "robodk", "{}_clean.rdk".format(model))
+    logger.debug("Clean file path: {}".format(clean_path))
+    return clean_path
 
 
 def get_license_file():
@@ -74,26 +77,33 @@ def get_license_file():
 
 
 def deleteAllStations():
+    global _link
+    logger.debug("Deleting all stations:") 
     try:
-        for station in link().getOpenStations():
+        i=0
+        for station in _link.getOpenStations():
             station.Delete()
+            i+=1
+        logger.debug("Deleted {} stations".format(i))
     except BaseException:
-        print("No stations to empty")
+        logger.debug("No stations to empty (No link)")
 
 
 def close():
     global _link
     global _robot
-    deleteAllStations()
-    try:
-        _link.Disconnect()
-    except BaseException:
-        print("Not connected")
+    if _link:
+        try:
+            _link.CloseRoboDK()
+        except BaseException:
+            print("Can't close because RoboDK is not open")
+
     _link = None
     _robot = None
 
 
-def new():
+def new(close_old=False):
+
     global _link
     global _debug
     _link = Robolink(robodk_path=ROBODK_PATH)
@@ -126,11 +136,14 @@ def clean(model="kr30", infrastructure=True):
     global _model
     global _link
     global _robot
+    
     deleteAllStations()
     cleanfile = get_clean_file(model)
 
+    logger.debug("Adding clean file: {}".format(cleanfile))
     _link.AddFile(cleanfile)
 
+    logger.debug("Setting robot to")
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _model = model
     # _robot.setParam("PostProcessor", "KUKA KRC4")
