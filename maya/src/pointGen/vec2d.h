@@ -12,7 +12,7 @@ public:
     float   x;
     float   y;
 
-    JVector2D() {}
+    JVector2D():x(),y() {}
 
     JVector2D(float r, float s)
     {

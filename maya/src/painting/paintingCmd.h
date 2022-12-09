@@ -81,7 +81,7 @@
 #define kStrokeApproxDistFlag "-sad"
 #define kStrokeApproxDistFlagL "-strokeApoproximationDistance"
 
-#define kStrokeColorsFlag "-tcl"
+#define kStrokeColorsFlag "-scl"
 #define kStrokeColorsFlagL "-strokeColors"
 
 #define kStrokeArrivalPositionsFlag "sap"

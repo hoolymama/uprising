@@ -73,9 +73,6 @@ class PovSession(Session):
             self.write_text(self.directory, "notes", self.notes)
             
 
-        if  self.run_mode != RUNMODE_OFF:
-            robo.new()
-            robo.hide()
         run_on_robot = self.run_mode == RUNMODE_ROBOT
         for frame in self.frame_range:
             pm.currentTime(frame)
@@ -84,8 +81,12 @@ class PovSession(Session):
                 kwargs={}
                 self.write_snapshot(self.directory, "snapshot", **kwargs)
 
+            
             if self.run_mode == RUNMODE_OFF:
                 continue
+            
+            robo.new()
+            robo.hide()
 
             stroke_count = pm.lightPaintingQuery(self.painting_node, sc=True)
             if self.save_rdk or self.save_src:

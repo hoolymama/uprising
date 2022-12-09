@@ -34,8 +34,6 @@ void *lightPainting::creator()
   return new lightPainting();
 }
 
-// MObject lightPainting::aBrush;
-// MObject lightPainting::aBrushes;
 
 MObject lightPainting::aDisplayTargetColors;
 MObject lightPainting::aViewMatrix;
@@ -105,15 +103,6 @@ MStatus lightPainting::initialize()
   st = attributeAffects(aBrushes, aOutput);
   st = attributeAffects(aReassignParentId, aOutput);
 
-  // st = attributeAffects(aViewMatrix, aOutput);
-
-  // st = attributeAffects(aBrush, aOutput);
-  
-
-  // st = attributeAffects(aLinearSpeed, aOutput);
-  // st = attributeAffects(aAngularSpeed, aOutput);
-  // st = attributeAffects(aApproximationDistance, aOutput);
-
   return (MS::kSuccess);
 }
 
@@ -129,28 +118,13 @@ MStatus lightPainting::compute(const MPlug &plug, MDataBlock &data)
 
   MMatrix wm = NodeUtils::firstWorldMatrix(thisMObject());
 
-
-
-
-  // MDataHandle hBrush = data.inputValue(aBrush, &st);
-  // msert;
-  // MObject dBrush = hBrush.data();
-  // MFnPluginData fnBrush(dBrush, &st);
-  // msert;
-
-  // brushData *bData = (brushData *)fnBrush.data();
-  // Brush *outBrush = m_pd->brush();
-  // *outBrush = *(bData->fGeometry);
   m_pd->create();
 
   std::vector<Stroke> *outStrokeGeom = m_pd->strokes();
   addStrokes(data, outStrokeGeom);
 
 
-  // std::map<int, Brush> brushes;
-
   std::map<int, Brush> *outBrushes = m_pd->brushes();
-  // *outBrushes = brushes;
   collectBrushes(data, *outBrushes);
 
 
@@ -184,7 +158,7 @@ MStatus lightPainting::addStrokes(
   MArrayDataHandle hStrokes = data.inputValue(aStrokes, &st);
   msert;
   unsigned nInputs = hStrokes.elementCount();
-  // int gid = 0;
+  
   for (unsigned i = 0; i < nInputs; i++, hStrokes.next())
   {
 
@@ -203,7 +177,6 @@ MStatus lightPainting::addStrokes(
     }
     strokeData *sData = (strokeData *)fnStrokeInput.data();
     const std::vector<Stroke> *strokeGeom = sData->fGeometry;
-
     std::vector<Stroke>::const_iterator citer;
     for (citer = strokeGeom->begin(); citer != strokeGeom->end(); citer++)
     {

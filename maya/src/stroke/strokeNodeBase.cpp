@@ -249,7 +249,7 @@ void strokeNodeBase::getPivotPoints(const std::vector<Stroke> *geom, MFloatPoint
   }
 }
 
-void strokeNodeBase::getStrokeParamPoints( const std::vector<Stroke> *geom, float strokeParam,  MFloatPointArray &result ) const
+void strokeNodeBase::getStrokeParamPoints(const std::vector<Stroke> *geom, float strokeParam, MFloatPointArray &result) const
 {
   result.clear();
   result.setLength(geom->size());
@@ -283,6 +283,30 @@ void strokeNodeBase::getTargetPoints(
       const MFloatMatrix &mat = targetIter->matrix();
       result.append(MFloatPoint(mat[3][0], mat[3][1], mat[3][2]));
     }
+  }
+}
+
+void strokeNodeBase::getTargetColors(
+    const std::vector<Stroke> *geom,
+    MColorArray &result) const
+{
+  for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
+  {
+    const std::vector<Target> targets = iter->targets();
+    for (std::vector<Target>::const_iterator targetIter = targets.begin(); targetIter != targets.end(); targetIter++)
+    {
+      result.append(targetIter->color());
+    }
+  }
+}
+
+void strokeNodeBase::getTangents(
+    const std::vector<Stroke> *geom,
+    MFloatVectorArray &result) const
+{
+  for (std::vector<Stroke>::const_iterator iter = geom->begin(); iter != geom->end(); iter++)
+  {
+    iter->drawTangents(result);
   }
 }
 
@@ -359,7 +383,6 @@ bool strokeNodeBase::setSortMapColor(std::vector<Stroke> *geom) const
   }
   return true;
 }
- 
 
 void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) const
 

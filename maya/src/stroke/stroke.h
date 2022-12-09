@@ -150,6 +150,12 @@ public:
 
 	Stroke(
 		const MPointArray &editPoints,
+		const MColorArray &colors,
+		int numPoints,
+		const MFloatMatrix &rotationMat);
+
+	Stroke(
+		const MPointArray &editPoints,
 		const MFloatArray &originalWeights,
 		const MColorArray &originalColors,
 		float resampleDensity,

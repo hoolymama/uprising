@@ -40,6 +40,7 @@ source_files:
 - src/skeletonStroke/*.cpp
 - src/particleStroke/*.cpp
 - src/pearlStroke/*.cpp
+- src/hatchStroke/*.cpp
 
 - src/lightPainting/*.cpp
 - src/painting/*.cpp
@@ -50,6 +51,7 @@ source_files:
 - src/stroke/*.cpp
 - src/misc/*.cpp
 - src/pointGen/*.cpp
+- src/curveGen/*.cpp
 
 - src/shader/*.cpp
 - src/cimg/*.cpp

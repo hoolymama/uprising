@@ -68,7 +68,10 @@ private:
 	void drawPoints(MHWRender::MUIDrawManager &drawManager,
 					const imagePointsDrawData *cdata);
 
- 
+	void drawGradient(
+		MHWRender::MUIDrawManager &drawManager,
+		const imagePointsDrawData *cdata);
+
 	void drawBorder(MHWRender::MUIDrawManager &drawManager,
 					const imagePointsDrawData *cdata);
 

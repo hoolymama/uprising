@@ -13,6 +13,7 @@
  
 #include <maya/MColor.h>
 #include <maya/MPointArray.h>
+#include <maya/MVectorArray.h>
 #include <maya/MDoubleArray.h>
 
 class imagePointsDrawData : public MUserData 
@@ -25,7 +26,10 @@ public:
 	virtual ~imagePointsDrawData();
 
 	MColor color;
+	MColor gradientColor;
+	
 	MPointArray points;
+	MPointArray lineList;
 	MDoubleArray radii;
 	
 	int pointSize;
@@ -34,6 +38,8 @@ public:
 	bool displayOrder;
 	bool displayCircles;
  	float circleDisplaySize;
+	bool displayGradient;
+	float gradientLineLength;
 };
 
 #endif

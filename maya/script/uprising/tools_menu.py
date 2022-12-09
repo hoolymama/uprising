@@ -13,6 +13,7 @@ from uprising.brush import Brush
 # from uprising.pov.session.pov_session import PovTestSession
 from uprising.paint import Paint 
 from uprising import const as k
+from uprising import robo
 
 
 def create():
@@ -48,6 +49,11 @@ def create():
     pm.menuItem(
         label="Print Painting Flow SS",
         command=pm.Callback(on_print_painting_flow_ss))
+
+    pm.menuItem(
+        label="Show RoboDK",
+        command=pm.Callback(robo.show))
+
 
     return menu
 

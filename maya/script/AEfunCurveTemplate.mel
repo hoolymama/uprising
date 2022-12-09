@@ -1,0 +1,188 @@
+source "AEpaintingUtilFuncs";
+
+
+proc string controlName(string $nodeAttr) {
+	string $buff[];
+	tokenize $nodeAttr "." $buff;
+	string $node = $buff[0];
+	string $attr = $buff[1];
+ 	string $ctl = ("AEfunCurvePython"+"_"+$attr);
+	return $ctl;
+}
+
+global proc AEfunCurveTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+ 
+	editorTemplate -cl 0 -beginLayout "Curve Parameters";
+	editorTemplate -addControl "parameterRange";
+	editorTemplate -addControl "samples";
+	editorTemplate -addControl "subSampleRange";
+	editorTemplate -endLayout;
+
+	editorTemplate -cl 1 -beginLayout "Info";
+	editorTemplate -callCustom "AEfunCurveInfoNew" "AEfunCurveInfoReplace" "info";
+	editorTemplate -endLayout;
+
+	// editorTemplate -addControl "coefficients";
+
+	editorTemplate -cl 0 -beginLayout "Coefficients";
+	editorTemplate -callCustom "AEfunCurveCoefNew" "AEfunCurveCoefReplace" "coefficients";
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Pre Command";
+	editorTemplate -callCustom "AEfunCurvePythonNew" "AEfunCurvePythonReplace" "preCommand";
+ 	editorTemplate -endLayout;
+
+	editorTemplate -cl 0 -beginLayout "Expression";
+	editorTemplate -callCustom "AEfunCurvePythonNew" "AEfunCurvePythonReplace" "expression";
+ 	editorTemplate -endLayout;
+	
+	editorTemplate -cl 0 -beginLayout "Curve Attributes";
+	editorTemplate -addControl "minimumEPDistance";
+ 	editorTemplate -endLayout;
+
+ 	editorTemplate -endLayout;
+ 
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+
+}
+
+global proc AEfunCurvePythonChanged(string $nodeAttr, string $ctl)
+{
+	string $expr = `scrollField -q -text $ctl`;
+	// $expr  = `encodeString $expr`;
+	print($expr + "\n");
+	setAttr -type "string" $nodeAttr $expr;
+}
+// }
+global proc AEfunCurvePythonNew (string $nodeAttr) {
+ 	string $ctl = controlName($nodeAttr);
+	scrollField  -h 200 -wordWrap false  $ctl ;
+ 	AEfunCurvePythonReplace($nodeAttr);
+}
+
+global proc AEfunCurvePythonReplace (string $nodeAttr) {
+ 	setUITemplate -pst attributeEditorTemplate;
+	string $ctl = controlName($nodeAttr);
+	string $cmd = getAttr($nodeAttr);
+	string $text = `getAttr $nodeAttr`;
+	scrollField -e -text $text  -enterCommand ("AEfunCurvePythonChanged(\""+$nodeAttr +"\", \""+$ctl +"\")") $ctl ;
+ 	setUITemplate -ppt;
+}
+
+global proc AEfunCurveInfoNew (string $nodeAttr) {
+ 	string $ctl = controlName($nodeAttr);
+	scrollField -h 140 -wordWrap true -editable false  $ctl ;
+	string $text = "In addition to custom coefficients, you can use the following variables in your expression:\n\n";
+	$text += "VARYING PARAMETERS\n";
+	$text += "t  : parameter value\n";
+	$text += "i  : sample index\n";
+	$text += "tn : normalized parameter value (t / g_pr)\n\n";
+	$text += "GLOBAL PARAMETERS\n";
+	$text += "g_pr  : parameter range\n";
+	$text += "g_s  : total number of samples (not sub-range)\n";
+	$text += "g_p0 : parameter range minimum\n";
+	$text += "g_p1 : parameter range maximum\n";
+	scrollField -e -text $text $ctl ;
+
+}
+
+global proc AEfunCurveInfoReplace (string $nodeAttr) { }
+
+
+global proc AEfunCurveCoefNew(string $nodeAttr)
+{
+	string $ctl = controlName($nodeAttr);
+}
+global proc AEfunCurveCoefReplace(string $nodeAttr)
+{
+	string $ctl = controlName($nodeAttr);
+}
+
+ global proc AEfunCurveCoefNew (string $nodeAttr) {
+ 	setUITemplate -pst attributeEditorTemplate;
+	global int $gTextColumnWidthIndex;
+ 	string $col = "AEaddCoefficientsCol";
+ 	columnLayout -adj 1 $col ;	
+ 	setParent ..;
+ 	rowLayout -nc 3 -columnWidth3 $gTextColumnWidthIndex $gTextColumnWidthIndex $gTextColumnWidthIndex;
+ 	text -label "";
+ 	button -width 210 -l "Add" "AEaddCoefficientBtn";
+ 	text -label "";
+ 	setParent ..;
+ 	setUITemplate -ppt;
+
+
+ 	AEfunCurveCoefReplace($nodeAttr);
+
+ }
+ 
+global proc AEfunCurveCoefReplace (string $nodeAttr) {
+
+ 
+ 	string $col = "AEaddCoefficientsCol";
+
+ 		
+ 	setParent $col;
+
+ 	string $controls[] = `layout -q -ca $col`;
+
+ 	int $numExistingControls = size($controls);
+ 	for ($i = 0;$i<$numExistingControls;$i++) {
+ 		deleteUI $controls[$i];
+ 	}
+
+ 	int $indices[] = `getAttr -mi $nodeAttr`;
+ 	// setParent $col;
+ 	for ($i = 0;$i<size($indices);$i++) {
+ 		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
+		AEfunCurveCoefAddMultiWidget ($plug, $col, $indices[$i]) ;
+ 	}
+ 	setParent ..;
+
+	button -e -c ( "onAddCoefficientEntry(\"" + $nodeAttr +"\")") AEaddCoefficientBtn;
+
+ }
+
+
+ 
+ global proc AEfunCurveCoefAddMultiWidget(
+ 	string $plug, 
+ 	string $columnLayout,  
+ 	int $index) 
+{
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+
+	string $label = ("Index: " + $index);
+	string $row = `rowLayout -h 20 -nc 4 -columnWidth4 $gTextColumnWidthIndex ($gTextColumnWidthIndex-20) ($gTextColumnWidthIndex-20) 40`;
+	text -label $label;
+    // string $namef = `textField -changeCommand="AEfunCurveCoefNameChanged(\""+$plug+"\")"`;
+	// string $valuef = `floatField -changeCommand="AEfunCurveCoefValueChanged(\""+$plug+"\")"`;
+	string $namef = `textField`;
+	string $valuef = `floatField`;
+	
+ 	string $removeCmd = ("deleteUI " + $row+";removeMultiInstance -b 1 "+$plug+";" ) ;
+ 	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
+	setParent ..;
+
+  	connectControl $namef ($plug+".coefficientName");
+	connectControl $valuef ($plug+".coefficientValue");
+
+ 	setParent ..;
+ }
+
+ 
+
+global proc onAddCoefficientEntry(string $nodeAttr)
+{
+	int $nextIndex = findNextNonExistentIndex($nodeAttr);
+	setAttr -type "string" ($nodeAttr+"["+$nextIndex+"].name")  ("g_var_"+$nextIndex);
+	setAttr  ($nodeAttr+"["+$nextIndex+"].value")  1.0;
+}
+
+
+

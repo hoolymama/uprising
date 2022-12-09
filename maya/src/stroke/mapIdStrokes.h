@@ -42,13 +42,20 @@ private:
       const MIntArray &ids) const;
 
   MStatus assignPaintIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
-
+  MStatus assignBrushIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
   MStatus assignBrushModelIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
  
   MStatus getBrushShop(MDataBlock &data, BrushShop &brushShop) const;
   MStatus assignWidthBandLayerIds(MDataBlock &data, std::vector<Stroke> *strokes) const;
 
   static MObject aSampleParam;
+
+  static MObject aDoBrushId;
+  static MObject aBrushIdMap;
+  static MObject aBrushIdMapQuantizeLevel; // 256 is normal
+  static MObject aBrushIdOffset;
+
+
 
   static MObject aDoPaintId;
   static MObject aPaintIdMap;

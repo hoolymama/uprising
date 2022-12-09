@@ -4,6 +4,30 @@
 
 const double rad_to_deg = (180 / 3.1415927);
 
+MFloatVector getSide(const MFloatVector &v1, const MFloatVector &v2)
+{
+	MFloatVector v = v1 ^ v2;
+
+	if (v.isEquivalent(MFloatVector::zero))
+	{
+		if (v1.x > v1.y && v1.x > v1.z) // X biggest
+		{
+			v = v1 ^ MFloatVector::yAxis;
+		}
+		else if (v1.y > v1.x && v1.y > v1.z) // Y biggest
+		{
+			v = v1 ^ MFloatVector::xAxis;
+		}
+		else // Z biggest
+		{
+			v = v1 ^ MFloatVector::xAxis;
+		}
+	}
+	v.normalize();
+	return v;
+}
+
+
 Target::Target() : m_matrix(),
 				   m_drawTangent(),
 				   m_weight(1.0f),
@@ -157,7 +181,8 @@ MFloatMatrix Target::viewMatrix(
 	const MFloatVector &viewNormal) const
 {
 
-	MFloatVector side = (viewNormal ^ m_drawTangent).normal();
+	MFloatVector side = getSide(viewNormal, m_drawTangent);
+
 	MFloatVector tangent = (side ^ viewNormal).normal();
 
 	MFloatMatrix res = m_matrix;
@@ -193,7 +218,7 @@ void Target::getBorderPoints(
 	}
 	MPoint p = position();
 
-	MFloatVector side = (planeNormal ^ m_drawTangent).normal();
+    MFloatVector side = getSide(planeNormal, m_drawTangent); 
 	MVector xOffset = side * width * weight;
 	left = p + xOffset;
 	right = p - xOffset;

@@ -1,0 +1,125 @@
+source "AEpaintingUtilFuncs";
+source "AEstrokeCreatorInclude";
+source "AEsortFilterInclude";
+
+global proc AEhatchStrokesTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+ 
+
+	editorTemplate -cl 0 -beginLayout "General Attributes";
+	editorTemplate -addControl "numPoints";
+	editorTemplate -addControl "seed";
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0 -beginLayout "Multi Hatch Attributes";
+	editorTemplate -callCustom "AEhatchStrokesNew" "AEhatchStrokesReplace" "hatches";
+	editorTemplate -endLayout;
+
+	AEaddRampControl($nodeName+ ".colorRamp");
+	
+
+	editorTemplate -cl 0 -beginLayout "Flow Attributes";
+	editorTemplate -addControl "flowImage";
+	editorTemplate -addControl "flowProjection";
+	editorTemplate -endLayout;
+
+	AEsortFilterInclude($nodeName);
+
+
+	editorTemplate -endLayout;
+
+	editorTemplate -suppress "targetRotationMatrix";
+
+	editorTemplate -addExtraControls;
+
+	editorTemplate -endScrollLayout;
+
+}
+
+
+
+
+
+
+
+ global proc AEhatchStrokesNew (string $nodeAttr) {
+ 	setUITemplate -pst attributeEditorTemplate;
+ 	global int $gTextColumnWidthIndex;
+
+
+ 	string $col = "AEhatchStrokesCol";
+ 	columnLayout -adj 1 $col ;	
+ 	setParent ..;
+ 	rowLayout -nc 3  -columnWidth3 $gTextColumnWidthIndex $gTextColumnWidthIndex $gTextColumnWidthIndex;
+ 	text -label "";
+ 	button -width 210 -l "Add" "AEaddHatchBtn";
+ 	text -label "";
+ 	setParent ..;
+ 	setUITemplate -ppt;
+
+ 	AEhatchStrokesReplace($nodeAttr);
+
+ }
+
+ global proc AEhatchStrokesReplace (string $nodeAttr) {
+
+ 	string $node = nodeFromNodeAttr($nodeAttr);
+ 	string $col = "AEhatchStrokesCol";
+
+ 	setParent ..;
+ 	int $numElements = `getAttr -size $nodeAttr`;
+
+ 	string $controls[] = `layout -q -ca $col`;
+ 	int $numExistingControls = size($controls);
+ 	for ($i = 0;$i<$numExistingControls;$i++) {
+ 		deleteUI $controls[$i];
+ 	}
+ 	int $indices[] = `getAttr -mi $nodeAttr`;
+ 	for ($i = 0;$i<$numElements;$i++) {
+ 		string $plug = ($nodeAttr+"["+ $indices[$i] +"]");
+ 		AEhatchStrokesAddMultiWidget ($plug, $col, $indices[$i]) ;
+ 	}
+ 	setParent ..;
+
+	button -e -c ( "onAddhatchStrokesEntry(\"" + $nodeAttr +"\")") AEaddHatchBtn;
+
+
+ }
+
+
+
+ global proc AEhatchStrokesAddMultiWidget(
+ 	string $plug, 
+ 	string $columnLayout,  
+ 	int $index) 
+{
+
+ 	setParent $columnLayout;
+ 	global int $gTextColumnWidthIndex;
+
+ 	string $node = nodeFromNodeAttr($plug);
+	string $label = ("Hatch: " + $index);
+
+ 	string $layout = `frameLayout -cl 0 -cll 0 -label $label -bv 1`;
+
+ 	attrControlGrp -attribute ($plug +".hatchLength");
+	attrControlGrp -attribute ($plug +".hatchAngle");
+ 	attrControlGrp -attribute ($plug +".tangentBlend");
+	
+
+ 	string $removeCmd = ("deleteUI " + $layout+";removeMultiInstance -b 1 "+$plug+";" ) ;
+ 	symbolButton -image "smallTrash.xpm" -ann "Delete this element"  -c $removeCmd ;
+
+ 	setParent ..;
+ }
+
+global proc onAddhatchStrokesEntry(string $nodeAttr)
+{
+	int $nextIndex = findNextNonExistentIndex($nodeAttr);
+	setAttr  ($nodeAttr+"["+$nextIndex+"].tangentBlend")  0.5;
+}
+
+
+
