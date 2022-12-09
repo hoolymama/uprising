@@ -182,7 +182,7 @@ MStatus cImgFileSplit::initialize()
 	nAttr.setKeyable(false);
 
 	aOutput = cAttr.create("output", "out");
-	cAttr.setKeyable(true);
+	// cAttr.setKeyable(true);
 	cAttr.setReadable(true);
 	cAttr.setStorable(false);
 	cAttr.addChild(aOutputImage);
@@ -335,7 +335,7 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 
 	MString imageFilename = data.inputValue(aImageFilename).asString();
 	CImg<unsigned char> image(imageFilename.asChar());
-
+	
 	int xres = image.width();
 	int yres = image.height();
 	if (!(xres && yres))
@@ -343,15 +343,24 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 		return (MS::kUnknownParameter);
 	}
 
+	int c = image.spectrum();
+	if (c != 3)
+	{
+		image.resize(-100,-100,-100,3);
+	}
+	
+	
+	
 
 	// PALETTE ///////////////////////////////////////////////////////////////
 	MColorArray palette;
 	calculate_pallete(data, image, palette);
 	int paletteLength = palette.length();
+	
 	/////////////////////////////////////////////////////////////////
 
 	int fullSquareRes = std::max(xres, yres);
-
+	
 	MArrayDataHandle hOutputArray = data.outputArrayValue(aOutput, &st);
 	mser;
 	MArrayDataBuilder bOutput = hOutputArray.builder(&st);
@@ -398,7 +407,7 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 
 	CImg<unsigned char> indexSprite(spriteResX, spriteResY, 1, 1, 0);
 	/////////
-
+	
 	for (int i = 0; i < paletteLength; i++)
 	{
 
@@ -479,7 +488,7 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 		outImgPlug.setMDataHandle(hOutputImage);
 		outColPlug.setMDataHandle(hOutputColor);
 	}
-
+	
 	// Index image //////////////////////////////
 	MDataHandle hOutputIndex = data.outputValue(aOutputIndex, &st);mser;
 	MFnPluginData fnOutIndex;
@@ -499,31 +508,31 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 	hOutputIndex.set(newIndexData);
 	hOutputIndex.setClean();
 	////////////////////////////////////////
-
+	
 
 
 
 	MDataHandle hOutputCount = data.outputValue(aOutputCount);
 	hOutputCount.set(paletteLength);
 	hOutputCount.setClean();
-
+	
 	MDataHandle hOutputCropFactor = data.outputValue(aOutputCropFactor);
 	hOutputCropFactor.set(cropFactor);
 	hOutputCropFactor.setClean();
-
+	
 	MDataHandle hOutputOffsetFactorX = data.outputValue(aOutputOffsetFactorX);
 	hOutputOffsetFactorX.set(offsetFactorX);
 	hOutputOffsetFactorX.setClean();
-
+	
 	MDataHandle hOutputOffsetFactorY = data.outputValue(aOutputOffsetFactorY);
 	hOutputOffsetFactorY.set(offsetFactorY);
 	hOutputOffsetFactorY.setClean();
-
+	
 
 	MDataHandle hXResolution = data.outputValue(aXResolution);
 	hXResolution.set(xres); 
 	hXResolution.setClean();
-
+	
 	MDataHandle hYResolution = data.outputValue(aYResolution);
 	hYResolution.set(yres);
 	hYResolution.setClean();
@@ -531,6 +540,7 @@ MStatus cImgFileSplit::compute(const MPlug &plug, MDataBlock &data)
 	hOutputArray.set(bOutput);
 
 	hOutputArray.setAllClean();
+
 
 	return MS::kSuccess;
 }
@@ -564,6 +574,7 @@ void cImgFileSplit::calculate_pallete(
 
 	int lastIndex = -1;
 	bool started = false;
+	
 	cimg_forXY(image, x, y)
 	{
 		MColor color(
@@ -574,6 +585,7 @@ void cImgFileSplit::calculate_pallete(
 
 		if (!started)
 		{
+			
 			colors.push_back(color);
 			// palette.append(color);
 			started = true;
@@ -588,8 +600,9 @@ void cImgFileSplit::calculate_pallete(
 			}
 			else
 			{
+				
 				bool found = false;
-				for (size_t i = 0; i < colors.size(); i++)
+				for (unsigned i = 0; i < colors.size(); i++)
 				{
 					if (color == colors[i])
 					{
@@ -609,7 +622,7 @@ void cImgFileSplit::calculate_pallete(
 			}
 		}
 	}
-
+	
 	cImgFileSplit::Method method = cImgFileSplit::Method(data.inputValue(aSortMethod).asShort());
 	if (method != cImgFileSplit::kNone) {
 		std::sort(colors.begin(), colors.end(), cImgFileSplit::compareHSP);
@@ -617,7 +630,7 @@ void cImgFileSplit::calculate_pallete(
 			std::reverse(colors.begin(), colors.end());
 		}
 	}
-
+	
 	std::vector<MColor>::const_iterator it = colors.begin();
 	for (; it != colors.end(); it++)
 	{
@@ -636,7 +649,7 @@ void cImgFileSplit::calculate_pallete(
 // 	MPlug outArrayPlug = MPlug(thisNode, cImgFileSplit::aOutput);
 // 	// Attribite affects for crop attributes only when
 // 	// applyCrop is on.
-// 	// cerr << "affectorName" << affectorName<< endl;
+// 	// 
 // 	if (affectorName == "ccr0" ||
 // 		affectorName == "ccr1" ||
 // 		affectorName == "ccr" ||
@@ -647,7 +660,7 @@ void cImgFileSplit::calculate_pallete(
 
 // 		if (apply)
 // 		{
-// 			// cerr << "apply: " << apply << "adding plugs" << endl;
+// 			// 
 // 			for (unsigned i = 0; i < outArrayPlug.numElements(); i++)
 // 			{
 // 				MPlug elementPlug = outArrayPlug[i];
