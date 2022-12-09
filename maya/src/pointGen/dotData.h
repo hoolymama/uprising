@@ -17,10 +17,6 @@ typedef mayaMath::axis axis;
 class dotData
 {
 public:
-	// dotData(const JPoint2D &c, float r, int id);
-	// dotData();
-
-	// dotData(const JPoint2D &c, float r, int id);
 
 	dotData(float u, float v, float density,
 			float radius, int id);
@@ -28,17 +24,12 @@ public:
 
 	// sets the UVs based on points in 0->1
 	void setUV();
+	void setGradient(float x, float y);
 
 	~dotData();
 
-	// void setUV(u, v);
-	// void setPosition(const MFloatMatrix &projection);
-	// void setRadius(float r);
-	// void setDensity(float val);
-	// void setAux(float val);
 
 	void setId(int id);
-	// bool isInProjection(const MFloatMatrix &projectionInverse) const;
 
 	const JPoint2D &position() const;
 	const float &position(axis a) const;
@@ -51,6 +42,8 @@ public:
 
 	MVector asVector() const;
 	MVector transformed(const MMatrix &mat) const;
+	MVector gradient() const;
+	MVector gradientTransformed(const MMatrix &mat) const;
 
 	bool contains(const dotData *other) const;
 
@@ -63,6 +56,7 @@ public:
 
 private:
 	JPoint2D m_p;
+	JVector2D m_gradient;
 	JPoint2D m_min;
 	JPoint2D m_max;
 	float m_radius;
@@ -71,9 +65,9 @@ private:
 	float m_v;
 	int m_id;
 	float m_sortParam;
+
 };
 
 typedef std::vector<dotData *> PT_LIST;
-// typedef std::map<const dotData *, const dotData *> PT_MAP;
 
 #endif

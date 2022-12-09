@@ -33,6 +33,13 @@ global proc AEimagePointsTemplate ( string $nodeName )
  	editorTemplate -addControl"sortVector";
 	editorTemplate -endLayout;	
 
+	editorTemplate -cl 0  -beginLayout "Gradient";
+ 	editorTemplate -addControl "gradientImage";
+	editorTemplate -addControl "doGradient";
+	editorTemplate -addControl "normalizeGradient";
+	editorTemplate -endLayout;	
+
+
 
 	editorTemplate -cl 0  -beginLayout "Display";
  	editorTemplate -addControl "lineThickness";
@@ -43,6 +50,13 @@ global proc AEimagePointsTemplate ( string $nodeName )
  	editorTemplate -addControl "displayCircles";
  	editorTemplate -addControl "circleDisplaySize";
 	editorTemplate -addControl "displayOrder";
+
+	editorTemplate -addControl "gradientColor";
+	editorTemplate -addControl "displayGradient";
+	editorTemplate -addControl "gradientLineLength";
+ 
+
+
 	editorTemplate -endLayout;	
  
 

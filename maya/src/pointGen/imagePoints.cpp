@@ -34,6 +34,7 @@
 #include "dotTree.h"
 #include "cImgData.h"
 #include "cImgUtils.h"
+#include "cImgFloatData.h"
 #include "nodeUtils.h"
 
 MObject imagePoints::aDensityImage;
@@ -52,11 +53,18 @@ MObject imagePoints::aIterations;
 MObject imagePoints::aNeighbors;
 MObject imagePoints::aMagnitude;
 MObject imagePoints::aSeed;
+
 MObject imagePoints::aOutPoints;
 MObject imagePoints::aOutPointsWorld;
 MObject imagePoints::aOutRadius;
 MObject imagePoints::aOutU;
 MObject imagePoints::aOutV;
+
+MObject imagePoints::aGradientImage;
+MObject imagePoints::aNormalizeGradient;
+MObject imagePoints::aDoGradient;
+MObject imagePoints::aOutGradients;
+MObject imagePoints::aOutGradientsWorld;
 
 MObject imagePoints::aSortVector;
 
@@ -67,6 +75,10 @@ MObject imagePoints::aDisplayPoints;
 MObject imagePoints::aDisplayCircles;
 MObject imagePoints::aCircleDisplaySize;
 MObject imagePoints::aDisplayOrder;
+
+MObject imagePoints::aGradientColor;
+MObject imagePoints::aDisplayGradient;
+MObject imagePoints::aGradientLineLength;
 
 MTypeId imagePoints::id(k_imagePoints);
 MString imagePoints::drawDbClassification("drawdb/geometry/imagePoints");
@@ -171,6 +183,23 @@ MStatus imagePoints::initialize()
 	nAttr.setKeyable(true);
 	addAttribute(aSortVector);
 
+	aGradientImage = tAttr.create("gradientImage", "gim", cImgFloatData::id);
+	tAttr.setStorable(false);
+	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+	addAttribute(aGradientImage);
+
+	aDoGradient = nAttr.create("doGradient", "dgd", MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	st = addAttribute(aDoGradient);
+
+	aNormalizeGradient = nAttr.create("normalizeGradient", "ngd", MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	st = addAttribute(aNormalizeGradient);
+
 	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
@@ -180,6 +209,16 @@ MStatus imagePoints::initialize()
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	st = addAttribute(aOutPointsWorld);
+
+	aOutGradients = tAttr.create("outGradients", "ogd", MFnData::kVectorArray);
+	tAttr.setStorable(false);
+	tAttr.setReadable(true);
+	st = addAttribute(aOutGradients);
+
+	aOutGradientsWorld = tAttr.create("outGradientsWorld", "ogw", MFnData::kVectorArray);
+	tAttr.setStorable(false);
+	tAttr.setReadable(true);
+	st = addAttribute(aOutGradientsWorld);
 
 	aOutRadius = tAttr.create("outRadius", "orad", MFnData::kDoubleArray);
 	tAttr.setStorable(false);
@@ -206,16 +245,16 @@ MStatus imagePoints::initialize()
 	nAttr.setDefault(2);
 	nAttr.setKeyable(true);
 	st = addAttribute(aPointSize);
-	mser
+	mser;
 
-		aColor = nAttr.createColor("drawColor", "dc");
+	aColor = nAttr.createColor("drawColor", "dc");
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	st = addAttribute(aColor);
-	mser
+	mser;
 
-		aDisplayPoints = nAttr.create("displayPoints", "dpts",
-									  MFnNumericData::kBoolean);
+	aDisplayPoints = nAttr.create("displayPoints", "dpts",
+								  MFnNumericData::kBoolean);
 	nAttr.setHidden(false);
 	nAttr.setStorable(true);
 	nAttr.setReadable(true);
@@ -244,6 +283,26 @@ MStatus imagePoints::initialize()
 	nAttr.setDefault(false);
 	addAttribute(aDisplayOrder);
 
+	aDisplayGradient = nAttr.create("displayGradient", "dgrd",
+									MFnNumericData::kBoolean);
+	nAttr.setHidden(false);
+	nAttr.setStorable(true);
+	nAttr.setReadable(true);
+	nAttr.setDefault(true);
+	addAttribute(aDisplayGradient);
+
+	aGradientLineLength = nAttr.create("gradientLineLength", "gdll", MFnNumericData::kFloat);
+	nAttr.setDefault(2.0f);
+	nAttr.setKeyable(true);
+	st = addAttribute(aGradientLineLength);
+	mser;
+
+	aGradientColor = nAttr.createColor("gradientColor", "gc");
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aGradientColor);
+	mser;
+
 	st = attributeAffects(aDensityImage, aOutPoints);
 	st = attributeAffects(aRadiusImage, aOutPoints);
 	st = attributeAffects(aMask, aOutPoints);
@@ -269,7 +328,6 @@ MStatus imagePoints::initialize()
 	st = attributeAffects(aRadiusRamp, aOutPointsWorld);
 	st = attributeAffects(aRadiusRange, aOutPointsWorld);
 	st = attributeAffects(aSortVector, aOutPointsWorld);
-	;
 
 	st = attributeAffects(aDensityImage, aOutRadius);
 	st = attributeAffects(aRadiusImage, aOutRadius);
@@ -306,6 +364,38 @@ MStatus imagePoints::initialize()
 	st = attributeAffects(aRadiusRamp, aOutV);
 	st = attributeAffects(aRadiusRange, aOutV);
 	st = attributeAffects(aSortVector, aOutV);
+
+	st = attributeAffects(aDensityImage, aOutGradients);
+	st = attributeAffects(aRadiusImage, aOutGradients);
+	st = attributeAffects(aMask, aOutGradients);
+	st = attributeAffects(aSeed, aOutGradients);
+	st = attributeAffects(aIterations, aOutGradients);
+	st = attributeAffects(aNeighbors, aOutGradients);
+	st = attributeAffects(aMagnitude, aOutGradients);
+	st = attributeAffects(aDensityRamp, aOutGradients);
+	st = attributeAffects(aDensityRange, aOutGradients);
+	st = attributeAffects(aRadiusRamp, aOutGradients);
+	st = attributeAffects(aRadiusRange, aOutGradients);
+	st = attributeAffects(aSortVector, aOutGradients);
+	st = attributeAffects(aGradientImage, aOutGradients);
+	st = attributeAffects(aDoGradient, aOutGradients);
+	st = attributeAffects(aNormalizeGradient, aOutGradients);
+
+	st = attributeAffects(aDensityImage, aOutGradientsWorld);
+	st = attributeAffects(aRadiusImage, aOutGradientsWorld);
+	st = attributeAffects(aMask, aOutGradientsWorld);
+	st = attributeAffects(aSeed, aOutGradientsWorld);
+	st = attributeAffects(aIterations, aOutGradientsWorld);
+	st = attributeAffects(aNeighbors, aOutGradientsWorld);
+	st = attributeAffects(aMagnitude, aOutGradientsWorld);
+	st = attributeAffects(aDensityRamp, aOutGradientsWorld);
+	st = attributeAffects(aDensityRange, aOutGradientsWorld);
+	st = attributeAffects(aRadiusRamp, aOutGradientsWorld);
+	st = attributeAffects(aRadiusRange, aOutGradientsWorld);
+	st = attributeAffects(aSortVector, aOutGradientsWorld);
+	st = attributeAffects(aGradientImage, aOutGradientsWorld);
+	st = attributeAffects(aDoGradient, aOutGradientsWorld);
+	st = attributeAffects(aNormalizeGradient, aOutGradientsWorld);
 
 	return (MS::kSuccess);
 }
@@ -552,6 +642,64 @@ void imagePoints::sortDots(
 	std::sort(dots.begin(), dots.end());
 }
 
+void imagePoints::makeGradients(MDataBlock &data, std::vector<dotData> &dots)
+{
+	// JPMDBG;
+	unsigned int numPoints = dots.size();
+	bool doGradients = data.inputValue(aDoGradient).asBool();
+	if (!doGradients)
+	{
+		return;
+	}
+	// JPMDBG;
+	CImg<float> *pImage = cImgUtils::getFloatImage(data, aGradientImage);
+	if (!pImage)
+	{
+		return;
+	}
+	// JPMDBG;
+	int w = pImage->width();
+	int h = pImage->height();
+
+	if (!(w && h))
+	{
+		return;
+	}
+
+	bool doNormalize = data.inputValue(aNormalizeGradient).asBool();
+	std::vector<dotData>::iterator iter = dots.begin();
+	unsigned i = 0;
+
+	const float epsilon = 0.0000001;
+	for (; iter != dots.end(); iter++, i++)
+	{
+		const float &u = iter->u();
+		const float &v = iter->v();
+		float x, y;
+		cImgUtils::toImageCoords(u, v, w, h, x, y);
+
+		float dx = pImage->linear_atXY(x, y, 0, 0);
+		float dy = -(pImage->linear_atXY(x, y, 0, 1));
+
+		float mag = sqrt(dx * dx + dy * dy);
+		if (mag > epsilon)
+		{
+			if (doNormalize)
+			{
+				dx /= mag;
+				dy /= mag;
+			}
+		}
+		else
+		{
+			dx = 0.0;
+			dy = 0.0;
+		}
+
+		iter->setGradient(dx, dy);
+	}
+}
+
 MStatus imagePoints::compute(const MPlug &plug, MDataBlock &data)
 {
 	MStatus st;
@@ -560,7 +708,9 @@ MStatus imagePoints::compute(const MPlug &plug, MDataBlock &data)
 			plug == aOutPoints ||
 			plug == aOutRadius ||
 			plug == aOutU ||
-			plug == aOutV))
+			plug == aOutV ||
+			plug == aOutGradients ||
+			plug == aOutGradientsWorld))
 	{
 		return (MS::kUnknownParameter);
 	}
@@ -572,9 +722,12 @@ MStatus imagePoints::compute(const MPlug &plug, MDataBlock &data)
 	relaxDots(data, dots);
 	cullDots(data, dots);
 	sortDots(data, dots, wm);
+	makeGradients(data, dots);
 
 	MVectorArray resultPoints;
 	MVectorArray resultPointsWorld;
+	MVectorArray resultGradients;
+	MVectorArray resultGradientsWorld;
 	MDoubleArray resultRadii;
 	MDoubleArray resultU;
 	MDoubleArray resultV;
@@ -587,11 +740,17 @@ MStatus imagePoints::compute(const MPlug &plug, MDataBlock &data)
 		resultRadii.append(citer->radius());
 		resultU.append(citer->u());
 		resultV.append(citer->v());
+		resultGradients.append(citer->gradient());
+		resultGradientsWorld.append(citer->gradientTransformed(wm));
 	}
 
 	st = outputData(imagePoints::aOutPoints, data, resultPoints);
 	mser;
 	st = outputData(imagePoints::aOutPointsWorld, data, resultPointsWorld);
+	mser;
+	st = outputData(imagePoints::aOutGradients, data, resultGradients);
+	mser;
+	st = outputData(imagePoints::aOutGradientsWorld, data, resultGradientsWorld);
 	mser;
 	st = outputData(imagePoints::aOutRadius, data, resultRadii);
 	mser;
