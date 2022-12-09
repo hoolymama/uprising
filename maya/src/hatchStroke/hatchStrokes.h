@@ -40,20 +40,22 @@ public:
       MDataBlock &data,
       MFloatVectorArray &flow) const;
 
-void  addHatchSet(
-    MDataHandle &h,
-    float pointDensity,
-    const MFloatMatrix &targetRotationMatrix,
-    const MFloatPointArray &points,
-    const MFloatVectorArray &flow,
-    const MFloatVectorArray &tangents,
-    const MColorArray &colors,
-    std::vector<Stroke> *strokes) const;
+  void addHatchSet(
+      MDataHandle &h,
+      const MVector &planeNormal,
+      int numPoints,
+      const MFloatMatrix &targetRotationMatrix,
+      const MFloatPointArray &points,
+      const MFloatVectorArray &flow,
+      const MFloatVectorArray &tangents,
+      const MColorArray &colors,
+      const MColorArray &rampColors,
+      std::vector<Stroke> *strokes) const;
 
 private:
   static MObject aTargetRotationMatrix;
   static MObject aFlowImage;
-  static MObject aPointDensity;
+  static MObject aNumPoints;
   static MObject aFlowProjection;
 
   static MObject aHatchLengthMax;
@@ -66,6 +68,7 @@ private:
 
   static MObject aTangentBlend;
 
+  static MObject aColorRamp;
 
   static MObject aHatch;
 

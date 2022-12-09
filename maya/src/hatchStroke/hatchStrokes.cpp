@@ -12,6 +12,7 @@
 #include <maya/MFnUnitAttribute.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnMatrixAttribute.h>
+#include <maya/MRampAttribute.h>
 
 #include "cImgUtils.h"
 #include "cImgFloatData.h"
@@ -30,7 +31,8 @@ const float PI = 3.14159265359;
 
 MObject hatchStrokes::aTargetRotationMatrix;
 MObject hatchStrokes::aFlowImage;
-MObject hatchStrokes::aPointDensity;
+// MObject hatchStrokes::aPointDensity;
+MObject hatchStrokes::aNumPoints;
 MObject hatchStrokes::aFlowProjection;
 
 MObject hatchStrokes::aHatchLengthMax;
@@ -45,6 +47,8 @@ MObject hatchStrokes::aTangentBlend;
 MObject hatchStrokes::aHatch;
 
 MObject hatchStrokes::aSeed;
+
+MObject hatchStrokes::aColorRamp;
 
 MTypeId hatchStrokes::id(k_hatchStrokes);
 
@@ -76,19 +80,21 @@ MStatus hatchStrokes::initialize()
   MFnTypedAttribute tAttr;
 	MFnUnitAttribute uAttr;
 	MFnCompoundAttribute cAttr;
+  MRampAttribute rAttr;
 
   aFlowImage = tAttr.create("flowImage", "fim", cImgFloatData::id);
   tAttr.setStorable(false);
   tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   addAttribute(aFlowImage);
 
-  aPointDensity = nAttr.create("pointDensity", "den", MFnNumericData::kFloat);
+  aNumPoints = nAttr.create("numPoints", "den", MFnNumericData::kInt);
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setWritable(true);
-  nAttr.setDefault(1.0f);
-  addAttribute(aPointDensity);
+  nAttr.setDefault(3);
+  nAttr.setMin(2);
+  addAttribute(aNumPoints);
 
   aFlowProjection = mAttr.create("flowProjection", "fprj", MFnMatrixAttribute::kFloat);
   mAttr.setStorable(false);
@@ -129,7 +135,7 @@ MStatus hatchStrokes::initialize()
   nAttr.setWritable(true);
   nAttr.setDefault(0.0f);
 
-  aHatch = cAttr.create("hatch", "ht");
+  aHatch = cAttr.create("hatches", "ht");
   cAttr.setKeyable(true);
   cAttr.setStorable(true);
   cAttr.addChild(aHatchLength);
@@ -147,8 +153,13 @@ MStatus hatchStrokes::initialize()
 	nAttr.setDefault(0);
 	st = addAttribute(aSeed);
 
+  aColorRamp = rAttr.createColorRamp("colorRamp", "crmp");
+	st = addAttribute(aColorRamp);
+	mser;
+
+
   attributeAffects(aTargetRotationMatrix, aOutput);
-  attributeAffects(aPointDensity, aOutput);
+  attributeAffects(aNumPoints, aOutput);
   attributeAffects(aFlowProjection, aOutput);
   attributeAffects(aFlowImage, aOutput);
 
@@ -166,6 +177,8 @@ MStatus hatchStrokes::initialize()
 
   attributeAffects(aSeed, aOutput);
 
+  attributeAffects(aColorRamp, aOutput);
+
 
   return (MS::kSuccess);
 }
@@ -179,7 +192,12 @@ MStatus hatchStrokes::mutate(
 
   MFloatMatrix targetRotationMatrix = data.inputValue(aTargetRotationMatrix).asFloatMatrix();
   targetRotationMatrix = mayaMath::rotationOnly(targetRotationMatrix);
-  float pointDensity = data.inputValue(aPointDensity).asFloat();
+  int numPoints = data.inputValue(aNumPoints).asInt();
+
+
+  MFloatMatrix projection = data.inputValue(aFlowProjection).asFloatMatrix();
+  MVector planeNormal = MVector(MFloatVector::zAxis * projection);
+
 
   int seed = data.inputValue(aSeed).asInt();
 
@@ -193,6 +211,17 @@ MStatus hatchStrokes::mutate(
   getFlow(points, data, flow);
   getTangents(strokes, tangents);
   getTargetColors(strokes, colors);
+
+
+  MObject thisObj = thisMObject();
+  MRampAttribute rampAttr( thisObj, aColorRamp, &st );
+  MFloatArray positions;
+  MColorArray rampColors;
+
+  rampAttr.sampleColorRamp	(numPoints,rampColors,&st);
+  if (st != MS::kSuccess) {
+    rampColors= MColorArray(numPoints, MColor(1.0f, 1.0f, 1.0f, 1.0f));
+  }
 
   // std::vector<Stroke> sourceStrokes(*strokes);
   strokes->clear();
@@ -211,7 +240,7 @@ MStatus hatchStrokes::mutate(
       continue;
     }
     // JPMDBG;
-    addHatchSet(hHatch, pointDensity, targetRotationMatrix, points, flow, tangents, colors, strokes);
+    addHatchSet(hHatch, planeNormal , numPoints, targetRotationMatrix, points, flow, tangents, colors,rampColors, strokes);
   }
 
   // float hatchRadius = data.inputValue(aHatchLength).asFloat() * 0.5f;
@@ -255,12 +284,14 @@ MStatus hatchStrokes::mutate(
 
 void hatchStrokes::addHatchSet(
     MDataHandle &h,
-    float pointDensity,
+    const MVector &planeNormal,
+    int numPoints,
     const MFloatMatrix &targetRotationMatrix,
     const MFloatPointArray &points,
     const MFloatVectorArray &flow,
     const MFloatVectorArray &tangents,
     const MColorArray &colors,
+    const MColorArray &rampColors,
     std::vector<Stroke> *strokes) const
 {
   // MStatus st;
@@ -278,11 +309,12 @@ void hatchStrokes::addHatchSet(
   const unsigned count = points.length();
 
   MPointArray editPoints(2);
-  MFloatArray weights(2, 1.0f);
-  MColorArray hcolors(2);
+ 
   MFloatVector direction;
   float flowMagnitude = 0.0f; // used for mapping
   MFloatVector flowNormalized(MFloatVector::zero);
+
+ 
 
   for (unsigned i = 0; i < count; i++)
   {
@@ -295,6 +327,12 @@ void hatchStrokes::addHatchSet(
     {
       flowMagnitude = flow[i].length();
       flowNormalized = flow[i].normal();
+
+      float hatchAngle = hatchAngleMin + (hatchAngleMax - hatchAngleMin) * drand48();
+      MQuaternion q(double(hatchAngle), planeNormal);
+      flowNormalized = MFloatVector(MVector(flowNormalized).rotateBy(q));
+
+
 
       if (tangentBlend == 0.0f)
       {
@@ -320,7 +358,6 @@ void hatchStrokes::addHatchSet(
     }
 
     float hatchLength = hatchLengthMin + (hatchLengthMax - hatchLengthMin) * drand48();
-    float hatchAngle = hatchAngleMin + (hatchAngleMax - hatchAngleMin) * drand48();
     float hatchRadius = hatchLength * 0.5f;
 
     // cerr << "hatchRadius:" << hatchRadius << endl;
@@ -329,11 +366,14 @@ void hatchStrokes::addHatchSet(
     editPoints[1] = points[i] - (direction * hatchRadius);
     // cerr << "hatch direction:" << direction << endl;
 
+    MColorArray hcolors(numPoints, colors[i] );
+    for (int j = 0; j < numPoints; j++)
+    {
+      hcolors[j] *= rampColors[j];
+    }
 
-    hcolors[0] = colors[i];
-    hcolors[1] = colors[i];
     // JPMDBG
-    Stroke stroke(editPoints, weights, hcolors, pointDensity, 2, targetRotationMatrix);
+    Stroke stroke(editPoints, hcolors, numPoints, targetRotationMatrix);
     // JPMDBG
     if (stroke.valid())
     {
