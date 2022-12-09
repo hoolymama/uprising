@@ -304,6 +304,10 @@ Stroke::Stroke(
 }
 
 
+
+
+
+
 Stroke::Stroke(
 	const MPointArray &editPoints,
 	const MFloatArray &originalWeights,
@@ -382,6 +386,83 @@ Stroke::Stroke(
 	m_pivot = Target(m_targets[0]);
 	resetTangents();
 }
+
+
+
+Stroke::Stroke(
+	const MPointArray &editPoints,
+	const MColorArray &colors,
+	int numPoints,
+	const MFloatMatrix &rotationMat
+	)
+	: Stroke()
+{
+
+	MStatus st;
+	MFnNurbsCurve curveFn;
+	MFnNurbsCurveData dataCreator;
+	MObject curveData = dataCreator.create(&st);
+	mser;
+	if (st.error())
+		return;
+
+	MObject curveObject = curveFn.createWithEditPoints(
+		editPoints, 3, MFnNurbsCurve::kOpen,
+		false,
+		false,
+		false,
+		curveData,
+		&st);
+	mser;
+	if (st.error())
+		return;
+
+	MDoubleArray knotVals;
+	st = curveFn.getKnots(knotVals);
+	int numKnots = knotVals.length();
+	double recip = 1.0 / knotVals[(numKnots - 1)];
+	for (int i = 0; i < numKnots; ++i)
+	{
+		knotVals[i] = knotVals[i] * recip;
+	}
+	curveFn.setKnots(knotVals, 0, (numKnots - 1));
+
+	double curveLength = curveFn.length(epsilon);
+	float gap = curveLength / (numPoints - 1);
+
+	MFloatPointArray points;
+	MFloatArray weights;
+	// MColorArray colors;
+	
+
+	for (unsigned i = 0; i < numPoints; i++)
+	{
+		float curveDist = i * gap;
+
+		double curveParam = curveFn.findParamFromLength(curveDist);
+		MPoint point;
+		st = curveFn.getPointAtParam(curveParam, point, MSpace::kObject);
+		mser;
+		if (st.error())
+			return;
+ 
+		points.append(point);
+		weights.append(1.0f);
+	}
+
+	MFloatMatrix mat = rotationMat;
+	for (size_t i = 0; i < numPoints; i++)
+	{
+		mat[3][0] = points[i].x;
+		mat[3][1] = points[i].y;
+		mat[3][2] = points[i].z;
+		m_targets.push_back(Target(mat, weights[i], colors[i]));
+	}
+	m_pivot = Target(m_targets[0]);
+	resetTangents();
+}
+
+
 
 void Stroke::setCreator(const MString &creatorName, int creatorId)
 {
