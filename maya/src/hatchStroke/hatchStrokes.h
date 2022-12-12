@@ -35,23 +35,6 @@ public:
       MDataBlock &data,
       std::vector<Stroke> *strokes) const;
 
-  // void getFlow(
-  //     const MFloatPointArray &points,
-  //     MDataBlock &data,
-  //     MFloatVectorArray &flow) const;
-
-  // void addHatchSet(
-  //     MDataHandle &h,
-  //     const MVector &planeNormal,
-  //     int numPoints,
-  //     const MFloatMatrix &targetRotationMatrix,
-  //     const MFloatPointArray &points,
-  //     const MFloatVectorArray &flow,
-  //     const MFloatVectorArray &tangents,
-  //     const MColorArray &colors,
-  //     const MColorArray &rampColors,
-  //     std::vector<Stroke> *strokes) const;
-
 void addHatchSet(
     MDataHandle &handle,
     unsigned numPointsSide,
@@ -62,10 +45,8 @@ void addHatchSet(
     // const MFloatVectorArray &flow,
     const MColorArray &colors,
     const MColorArray &rampColors,
-    const MFloatMatrix &projectionWorldToUv,
-    const MFloatMatrix &projectionUvToWorld,
-    const MFloatMatrix &projectionUvToImage,
-    const MFloatMatrix &projectionImageToUv,
+    const MFloatMatrix &projectionWorldToImage,
+    const MFloatMatrix &projectionImageToWorld,
     const CImg<float> *pImage,
     std::vector<Stroke> *strokes) const;
 
@@ -75,13 +56,12 @@ void getFlowPoints(
     unsigned numPointsSide,
     float hatchLength,
     float flowAttraction,
-    const MFloatMatrix &projectionWorldToUv,
-    const MFloatMatrix &projectionUvToWorld,
-    const MFloatMatrix &projectionUvToImage,
-    const MFloatMatrix &projectionImageToUv,
+    const MFloatMatrix &projectionWorldToImage,
+    const MFloatMatrix &projectionImageToWorld,
     const CImg<float> *pImage,
     MFloatPointArray &flowPoints) const;
 
+ 
 
 private:
   static MObject aTargetRotationMatrix;
@@ -101,7 +81,7 @@ private:
   static MObject aTangentBlend;
   static MObject aFlowAttraction;
 
-  
+
   static MObject aColorRamp;
 
   static MObject aHatch;
