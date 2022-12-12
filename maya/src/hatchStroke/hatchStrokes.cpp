@@ -26,13 +26,15 @@
 #include "errorMacros.h"
 #include "texUtils.h"
 #include "enums.h"
+#include "vec2d.h"
 
 const float PI = 3.14159265359;
 
 MObject hatchStrokes::aTargetRotationMatrix;
 MObject hatchStrokes::aFlowImage;
+MObject hatchStrokes::aFlowAttraction;
 // MObject hatchStrokes::aPointDensity;
-MObject hatchStrokes::aNumPoints;
+MObject hatchStrokes::aNumPointsSide;
 MObject hatchStrokes::aFlowProjection;
 
 MObject hatchStrokes::aHatchLengthMax;
@@ -78,23 +80,24 @@ MStatus hatchStrokes::initialize()
   MFnNumericAttribute nAttr;
   MFnMatrixAttribute mAttr;
   MFnTypedAttribute tAttr;
-	MFnUnitAttribute uAttr;
-	MFnCompoundAttribute cAttr;
+  MFnUnitAttribute uAttr;
+  MFnCompoundAttribute cAttr;
   MRampAttribute rAttr;
 
   aFlowImage = tAttr.create("flowImage", "fim", cImgFloatData::id);
   tAttr.setStorable(false);
+  tAttr.setConnectable(true);
   tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   addAttribute(aFlowImage);
 
-  aNumPoints = nAttr.create("numPoints", "den", MFnNumericData::kInt);
+  aNumPointsSide = nAttr.create("numPointsPerSide", "nps", MFnNumericData::kInt);
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
   nAttr.setWritable(true);
-  nAttr.setDefault(3);
-  nAttr.setMin(2);
-  addAttribute(aNumPoints);
+  nAttr.setDefault(2);
+  nAttr.setMin(1);
+  addAttribute(aNumPointsSide);
 
   aFlowProjection = mAttr.create("flowProjection", "fprj", MFnMatrixAttribute::kFloat);
   mAttr.setStorable(false);
@@ -135,31 +138,35 @@ MStatus hatchStrokes::initialize()
   nAttr.setWritable(true);
   nAttr.setDefault(0.0f);
 
+  aFlowAttraction = nAttr.create("flowAttraction", "fatt", MFnNumericData::kFloat);
+  nAttr.setStorable(false);
+  nAttr.setHidden(false);
+  nAttr.setKeyable(true);
+
   aHatch = cAttr.create("hatches", "ht");
   cAttr.setKeyable(true);
   cAttr.setStorable(true);
   cAttr.addChild(aHatchLength);
   cAttr.addChild(aHatchAngle);
   cAttr.addChild(aTangentBlend);
+  cAttr.addChild(aFlowAttraction);
   cAttr.setArray(true);
   addAttribute(aHatch);
 
-
-	aSeed = nAttr.create("seed", "sd", MFnNumericData::kInt);
-	nAttr.setHidden(false);
-	nAttr.setStorable(true);
-	nAttr.setReadable(true);
-	nAttr.setKeyable(true);
-	nAttr.setDefault(0);
-	st = addAttribute(aSeed);
+  aSeed = nAttr.create("seed", "sd", MFnNumericData::kInt);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setKeyable(true);
+  nAttr.setDefault(0);
+  st = addAttribute(aSeed);
 
   aColorRamp = rAttr.createColorRamp("colorRamp", "crmp");
-	st = addAttribute(aColorRamp);
-	mser;
-
+  st = addAttribute(aColorRamp);
+  mser;
 
   attributeAffects(aTargetRotationMatrix, aOutput);
-  attributeAffects(aNumPoints, aOutput);
+  attributeAffects(aNumPointsSide, aOutput);
   attributeAffects(aFlowProjection, aOutput);
   attributeAffects(aFlowImage, aOutput);
 
@@ -173,12 +180,13 @@ MStatus hatchStrokes::initialize()
 
   attributeAffects(aTangentBlend, aOutput);
 
+  attributeAffects(aFlowAttraction, aOutput);
+
   attributeAffects(aHatch, aOutput);
 
   attributeAffects(aSeed, aOutput);
 
   attributeAffects(aColorRamp, aOutput);
-
 
   return (MS::kSuccess);
 }
@@ -190,116 +198,133 @@ MStatus hatchStrokes::mutate(
 {
   MStatus st;
 
+  const CImg<float> *pImage = cImgUtils::getFloatImage(data, aFlowImage);
+  if (!pImage)
+  {
+    // flow = MFloatVectorArray(points.length(), MFloatVector::zero);
+    return MS::kUnknownParameter;
+  }
+
+  int w = pImage->width();
+  int h = pImage->height();
+
+  if (!(w && h))
+  {
+    return MS::kUnknownParameter;
+  }
+  MFloatMatrix projectionUvToImage;
+  cImgUtils::transformUvToImage(w, h, projectionUvToImage);
+  MFloatMatrix projectionImageToUv = projectionUvToImage.inverse();
+
+  MFloatMatrix norm;
+  norm.setToIdentity();
+  norm[0][0] = 0.5;
+  norm[1][1] = 0.5;
+  norm[3][0] = 0.5;
+  norm[3][1] = 0.5;
+  MFloatMatrix projection = data.inputValue(aFlowProjection).asFloatMatrix();
+  MFloatMatrix projectionWorldToUv = projection.inverse() * norm;
+  MFloatMatrix projectionUvToWorld = projectionWorldToUv.inverse();
+
+  MFloatMatrix projectionWorldToImage = projection.inverse() * norm * projectionUvToImage;
+  MFloatMatrix projectionImageToWorld = projectionWorldToImage.inverse() ;
+
+
   MFloatMatrix targetRotationMatrix = data.inputValue(aTargetRotationMatrix).asFloatMatrix();
   targetRotationMatrix = mayaMath::rotationOnly(targetRotationMatrix);
-  int numPoints = data.inputValue(aNumPoints).asInt();
+  unsigned numPointsSide = data.inputValue(aNumPointsSide).asInt();
 
-
-  MFloatMatrix projection = data.inputValue(aFlowProjection).asFloatMatrix();
-  MVector planeNormal = MVector(MFloatVector::zAxis * projection);
-
-
+  int totalNumPoints = numPointsSide*2 + 1;
+ 
   int seed = data.inputValue(aSeed).asInt();
 
   MFloatPointArray points;
   MColorArray colors;
-  MFloatVectorArray flow;
   MFloatVectorArray tangents;
 
   srand48(seed);
+  // Each point, tangent, and color of input strokes
   getTargetPoints(strokes, points);
-  getFlow(points, data, flow);
-  getTangents(strokes, tangents);
+  // getTangents(strokes, tangents);
   getTargetColors(strokes, colors);
 
+  // MFloatVectorArray flow;
+  // getFlow(points, data, flow);
 
+  // Ramp colors are multipliers for the points along the hatch
   MObject thisObj = thisMObject();
-  MRampAttribute rampAttr( thisObj, aColorRamp, &st );
+  MRampAttribute rampAttr(thisObj, aColorRamp, &st);
   MFloatArray positions;
   MColorArray rampColors;
 
-  rampAttr.sampleColorRamp	(numPoints,rampColors,&st);
-  if (st != MS::kSuccess) {
-    rampColors= MColorArray(numPoints, MColor(1.0f, 1.0f, 1.0f, 1.0f));
+  rampAttr.sampleColorRamp(totalNumPoints, rampColors, &st);
+  if (st != MS::kSuccess)
+  {
+    rampColors = MColorArray(totalNumPoints, MColor(1.0f, 1.0f, 1.0f, 1.0f));
   }
 
   // std::vector<Stroke> sourceStrokes(*strokes);
-  strokes->clear();
 
   MArrayDataHandle hHatches = data.inputArrayValue(aHatch);
-
   unsigned nInputs = hHatches.elementCount();
+
+  if (nInputs == 0)
+  {
+    return MS::kUnknownParameter;
+  }
+
+  strokes->clear();
   // cerr << "nInputs" << nInputs << endl;
   for (unsigned i = 0; i < nInputs; i++, hHatches.next())
   {
     int index = hHatches.elementIndex(&st);
     MDataHandle hHatch = hHatches.inputValue(&st);
+
     if (st.error())
     {
-      // cerr << "Error getting input hatch" << endl;
       continue;
     }
-    // JPMDBG;
-    addHatchSet(hHatch, planeNormal , numPoints, targetRotationMatrix, points, flow, tangents, colors,rampColors, strokes);
+    addHatchSet(
+        hHatch,
+        numPointsSide,
+        targetRotationMatrix,
+        points,
+        // tangents,
+        // flow,
+        colors,
+        rampColors,
+        projectionWorldToUv,
+        projectionUvToWorld,
+        projectionUvToImage,
+        projectionImageToUv,
+        pImage,
+        strokes);
   }
-
-  // float hatchRadius = data.inputValue(aHatchLength).asFloat() * 0.5f;
-
-  // const unsigned count = points.length();
-
-  // MPointArray editPoints(2);
-  // MFloatArray weights(2);
-  // MColorArray hcolors(2);
-
-  // for (unsigned i = 0; i < count; i++)
-  // {
-  //   if (!flow[i].isEquivalent(MFloatVector::zero))
-  //   {
-  //     MFloatVector normal = flow[i].normal();
-
-  //     MFloatVector p1 = points[i] + (normal * hatchRadius);
-  //     MFloatVector p2 = points[i] - (normal * hatchRadius);
-
-  //     editPoints[0] = p1;
-  //     editPoints[1] = p2;
-
-  //     weights[0] = 1.0f;
-  //     weights[1] = 1.0f;
-
-  //     hcolors[0] = colors[i];
-  //     hcolors[1] = colors[i];
-  //     // cerr << "--------" << endl;
-  //     // cerr << "Stroke p:" << p1 << " " << p2 << " Colors:" << hcolors[0] << " " << hcolors[1] << endl;
-  //     Stroke stroke(editPoints, weights, hcolors, pointDensity, 2, targetRotationMatrix);
-  //     // cerr << "--------" << endl;
-  //     if (stroke.valid())
-  //     {
-  //       strokes->push_back(stroke);
-  //     }
-  //   }
-  // }
-
   return MS::kSuccess;
 }
 
 void hatchStrokes::addHatchSet(
-    MDataHandle &h,
-    const MVector &planeNormal,
-    int numPoints,
+    MDataHandle &handle,
+    unsigned numPointsSide,
     const MFloatMatrix &targetRotationMatrix,
     const MFloatPointArray &points,
-    const MFloatVectorArray &flow,
-    const MFloatVectorArray &tangents,
     const MColorArray &colors,
     const MColorArray &rampColors,
+    const MFloatMatrix &projectionWorldToUv,
+    const MFloatMatrix &projectionUvToWorld,
+    const MFloatMatrix &projectionUvToImage,
+    const MFloatMatrix &projectionImageToUv,
+    const CImg<float> *pImage,
     std::vector<Stroke> *strokes) const
 {
-  // MStatus st;
 
-  MDataHandle hHatchLength = h.child(aHatchLength);
-  MDataHandle hHatchAngle = h.child(aHatchAngle);
-  float tangentBlend = h.child(aTangentBlend).asFloat();
+
+
+  MDataHandle hHatchLength = handle.child(aHatchLength);
+  MDataHandle hHatchAngle = handle.child(aHatchAngle);
+  float tangentBlend = handle.child(aTangentBlend).asFloat();
   float oneMinusTangentBlend = 1.0f - tangentBlend;
+  float flowAttraction = handle.child(aFlowAttraction).asFloat();
 
   float hatchLengthMin = hHatchLength.child(aHatchLengthMin).asFloat();
   float hatchLengthMax = hHatchLength.child(aHatchLengthMax).asFloat();
@@ -308,158 +333,121 @@ void hatchStrokes::addHatchSet(
 
   const unsigned count = points.length();
 
-  MPointArray editPoints(2);
- 
-  MFloatVector direction;
-  float flowMagnitude = 0.0f; // used for mapping
-  MFloatVector flowNormalized(MFloatVector::zero);
+  
 
- 
-
+  MFloatPointArray flowPoints;
   for (unsigned i = 0; i < count; i++)
   {
-    // cerr << "point iter:" << i << endl;
-    if (flow[i].isEquivalent(MFloatVector::zero))
-    {
-      direction = tangents[i];
-    }
-    else
-    {
-      flowMagnitude = flow[i].length();
-      flowNormalized = flow[i].normal();
-
-      float hatchAngle = hatchAngleMin + (hatchAngleMax - hatchAngleMin) * drand48();
-      MQuaternion q(double(hatchAngle), planeNormal);
-      flowNormalized = MFloatVector(MVector(flowNormalized).rotateBy(q));
-
-
-
-      if (tangentBlend == 0.0f)
-      {
-        direction = flowNormalized;
-      }
-      else if (tangentBlend == 1.0f)
-      {
-        direction = tangents[i];
-      }
-      else
-      {
-        direction = flowNormalized * oneMinusTangentBlend + tangents[i] * tangentBlend;
-        if (!direction.isEquivalent(MFloatVector::zero))
-        {
-          direction.normalize();
-        }
-        else
-        {
-          // They cancel each other out, so just use the flow
-          direction = flowNormalized;
-        }
-      }
-    }
+    flowPoints.clear();
 
     float hatchLength = hatchLengthMin + (hatchLengthMax - hatchLengthMin) * drand48();
-    float hatchRadius = hatchLength * 0.5f;
+    // float hatchAngle = hatchAngleMin + (hatchAngleMax - hatchAngleMin) * drand48();
+    getFlowPoints(
+        points[i],
+        numPointsSide,
+        hatchLength,
+        //  hatchAngle,
+        flowAttraction,
+        projectionWorldToUv,
+        projectionUvToWorld,
+        projectionUvToImage,
+        projectionImageToUv,
+        pImage,
+        flowPoints);
 
-    // cerr << "hatchRadius:" << hatchRadius << endl;
+ 
+    int len = flowPoints.length();
+    if ( len != rampColors.length() )
+    {
+      continue;
+    }
 
-    editPoints[0] = points[i] + (direction * hatchRadius);
-    editPoints[1] = points[i] - (direction * hatchRadius);
-    // cerr << "hatch direction:" << direction << endl;
-
-    MColorArray hcolors(numPoints, colors[i] );
-    for (int j = 0; j < numPoints; j++)
+    MColorArray hcolors(len, colors[i]);
+    for (int j = 0; j < len; j++)
     {
       hcolors[j] *= rampColors[j];
     }
 
-    // JPMDBG
-    Stroke stroke(editPoints, hcolors, numPoints, targetRotationMatrix);
-    // JPMDBG
+ 
+    Stroke stroke(flowPoints, hcolors, targetRotationMatrix);
+ 
     if (stroke.valid())
     {
-      // JPMDBG;
       strokes->push_back(stroke);
     }
   }
 }
 
-void hatchStrokes::getFlow(
-    const MFloatPointArray &points,
-    MDataBlock &data,
-    MFloatVectorArray &flow) const
+void hatchStrokes::getFlowPoints(
+    const MFloatPoint &point,
+    unsigned numPointsSide,
+    float hatchLength,
+    // float hatchAngle,
+    float flowAttraction,
+    const MFloatMatrix &projectionWorldToUv,
+    const MFloatMatrix &projectionUvToWorld,
+    const MFloatMatrix &projectionUvToImage,
+    const MFloatMatrix &projectionImageToUv,
+    const CImg<float> *pImage,
+    MFloatPointArray &flowPoints) const
 {
 
-  CImg<float> *pImage = cImgUtils::getFloatImage(data, aFlowImage);
-  if (!pImage)
-  {
-    flow = MFloatVectorArray(points.length(), MFloatVector::zero);
-    return;
-  }
-  // JPMDBG;
+  unsigned totalNumPoints = (numPointsSide) + 1;
+
   int w = pImage->width();
   int h = pImage->height();
 
-  if (!(w && h))
+  flowPoints.clear();
+  MFloatPointArray flowPointsA;
+  flowPointsA.clear();
+ 
+  float spanCm = hatchLength / (numPointsSide);
+ 
+  float spanPixels = (MFloatVector(spanCm, 0, 0) * projectionWorldToUv).length() * w * 0.5;
+
+  MFloatPoint uv = point * projectionWorldToUv;
+  uv.z=0.0f;
+  float xOrig, yOrig;
+  cImgUtils::toImageCoords(uv.x, uv.y, w, h, xOrig, yOrig);
+
+ 
+  JVector2D p0(xOrig, yOrig);
+ 
+  float dx;
+  float dy;
+  for (int j = 0; j < numPointsSide; j++)
   {
-    flow = MFloatVectorArray(points.length(), MFloatVector::zero);
-    return;
+
+    dx = pImage->linear_atXY(p0.x, p0.y, 0, 0);
+    dy = pImage->linear_atXY(p0.x, p0.y, 0, 1);
+
+    JVector2D dxdy0(dx, dy);
+    if (dxdy0.isZero())
+    {
+      // dont make points
+      return;
+    }
+    JVector2D flowVector = dxdy0.normal();
+    flowVector.rotateBy90(); // flow
+    flowVector *= spanPixels;
+
+    JVector2D p1 = p0 + flowVector; // new sample point
+    dx = pImage->linear_atXY(p1.x, p1.y, 0, 0);
+    dy = pImage->linear_atXY(p1.x, p1.y, 0, 1);
+    JVector2D dxdy1(dx, dy);
+
+    JVector2D p2 = p1 + dxdy1.projection(-flowVector);
+
+    MFloatPoint f = MFloatPoint(p2.x, p2.y, 0.0f) * projectionImageToUv * projectionUvToWorld;
+    flowPointsA.append(f);
+
+    p0 = p2;
   }
 
-  MFloatMatrix norm;
-  norm.setToIdentity();
-  norm[0][0] = 0.5;
-  norm[1][1] = 0.5;
-  norm[3][0] = 0.5;
-  norm[3][1] = 0.5;
-
-  MFloatMatrix flop;
-  flop.setToIdentity();
-  flop[1][1] = -1.0;
-
-  MFloatMatrix projection = data.inputValue(aFlowProjection).asFloatMatrix();
-
-  MFloatMatrix projectionWorldToImage = projection.inverse() * norm;
-  MFloatMatrix projectionImageToWorld = projectionWorldToImage.inverse();
-
-  unsigned count = points.length();
-  for (unsigned i = 0; i < count; i++)
+  // cerr << "flowPointsA.length() " << flowPointsA.length() << endl;
+  flowPoints.append(point);
+  for (int j = 0; j < numPointsSide; j++)
   {
-    MFloatPoint p = points[i] * projectionWorldToImage;
-
-    float u = p.x;
-    float v = p.y;
-
-    MFloatVector f(MFloatVector::zero);
-    if (u >= 0 && u < 1 && v >= 0 && v < 1)
-    {
-
-      float x, y;
-      cImgUtils::toImageCoords(u, v, w, h, x, y);
-
-      float dx = pImage->linear_atXY(x, y, 0, 0);
-      float dy = -(pImage->linear_atXY(x, y, 0, 1));
-
-      f = MFloatVector(dx, dy, 0.0f);
-    }
-    f = f * projectionImageToWorld;
-    flow.append(f);
+    flowPoints.append(flowPointsA[j]);
   }
 }
-
-
-      // if (u < 0.5f && v < 0.5f)
-      // {
-      //   color = MColor(1, 0, 0); // Bottom Left red
-      // }
-      // else if (u > 0.5f && v < 0.5f)
-      // {
-      //   color = MColor(0, 1, 0); // Bottom  Right green
-      // }
-      // else if (u > 0.5f && v > 0.5f)
-      // {
-      //   color = MColor(0, 0, 1); // Top  Right blue
-      // }
-      // else if (u < 0.5f && v > 0.5f)
-      // {
-      //   color = MColor(1, 1, 1); // Top  Left white
-      // }
