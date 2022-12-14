@@ -151,12 +151,23 @@ public:
         y = -x;
         x = tmp;
     }
+
+    void rotateByNeg90(void)
+    {
+        float  tmp = x ;
+        x = -y;
+        y = tmp;
+    }
     
     JVector2D getRotateBy90(void) const
     {
         return JVector2D(y,-x);
     }
 
+    JVector2D getRotateByNeg90(void) const
+    {
+        return JVector2D(-y, x);
+    }
 
     float length(void) const
     {

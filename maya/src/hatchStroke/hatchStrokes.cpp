@@ -224,18 +224,18 @@ MStatus hatchStrokes::mutate(
   norm[3][1] = 0.5;
   MFloatMatrix projection = data.inputValue(aFlowProjection).asFloatMatrix();
   MFloatMatrix projectionWorldToUv = projection.inverse() * norm;
+  projectionWorldToUv[3][2] = 0.0;
   MFloatMatrix projectionUvToWorld = projectionWorldToUv.inverse();
 
-  MFloatMatrix projectionWorldToImage = projection.inverse() * norm * projectionUvToImage;
-  MFloatMatrix projectionImageToWorld = projectionWorldToImage.inverse() ;
-
+  MFloatMatrix projectionWorldToImage =( projection.inverse() * norm ) * projectionUvToImage;
+  MFloatMatrix projectionImageToWorld = projectionWorldToImage.inverse();
 
   MFloatMatrix targetRotationMatrix = data.inputValue(aTargetRotationMatrix).asFloatMatrix();
   targetRotationMatrix = mayaMath::rotationOnly(targetRotationMatrix);
   unsigned numPointsSide = data.inputValue(aNumPointsSide).asInt();
 
-  int totalNumPoints = numPointsSide*2 + 1;
- 
+  int totalNumPoints = numPointsSide*2+ 1;
+
   int seed = data.inputValue(aSeed).asInt();
 
   MFloatPointArray points;
@@ -297,6 +297,8 @@ MStatus hatchStrokes::mutate(
         projectionUvToWorld,
         projectionUvToImage,
         projectionImageToUv,
+        projectionWorldToImage,
+        projectionImageToWorld,
         pImage,
         strokes);
   }
@@ -314,11 +316,12 @@ void hatchStrokes::addHatchSet(
     const MFloatMatrix &projectionUvToWorld,
     const MFloatMatrix &projectionUvToImage,
     const MFloatMatrix &projectionImageToUv,
+    const MFloatMatrix &projectionWorldToImage,
+    const MFloatMatrix &projectionImageToWorld,
+
     const CImg<float> *pImage,
     std::vector<Stroke> *strokes) const
 {
-
-
 
   MDataHandle hHatchLength = handle.child(aHatchLength);
   MDataHandle hHatchAngle = handle.child(aHatchAngle);
@@ -332,8 +335,6 @@ void hatchStrokes::addHatchSet(
   float hatchAngleMax = hHatchAngle.child(aHatchAngleMax).asAngle().asRadians();
 
   const unsigned count = points.length();
-
-  
 
   MFloatPointArray flowPoints;
   for (unsigned i = 0; i < count; i++)
@@ -352,12 +353,13 @@ void hatchStrokes::addHatchSet(
         projectionUvToWorld,
         projectionUvToImage,
         projectionImageToUv,
+        projectionWorldToImage,
+        projectionImageToWorld,
         pImage,
         flowPoints);
 
- 
     int len = flowPoints.length();
-    if ( len != rampColors.length() )
+    if (len != rampColors.length())
     {
       continue;
     }
@@ -368,9 +370,8 @@ void hatchStrokes::addHatchSet(
       hcolors[j] *= rampColors[j];
     }
 
- 
     Stroke stroke(flowPoints, hcolors, targetRotationMatrix);
- 
+
     if (stroke.valid())
     {
       strokes->push_back(stroke);
@@ -388,31 +389,34 @@ void hatchStrokes::getFlowPoints(
     const MFloatMatrix &projectionUvToWorld,
     const MFloatMatrix &projectionUvToImage,
     const MFloatMatrix &projectionImageToUv,
+    const MFloatMatrix &projectionWorldToImage,
+    const MFloatMatrix &projectionImageToWorld,
     const CImg<float> *pImage,
     MFloatPointArray &flowPoints) const
 {
 
-  unsigned totalNumPoints = (numPointsSide) + 1;
+  // unsigned totalNumPoints = (numPointsSide) + 1;
 
   int w = pImage->width();
   int h = pImage->height();
 
   flowPoints.clear();
-  MFloatPointArray flowPointsA;
+  MFloatPointArray flowPointsA,flowPointsB;
   flowPointsA.clear();
- 
-  float spanCm = hatchLength / (numPointsSide);
- 
-  float spanPixels = (MFloatVector(spanCm, 0, 0) * projectionWorldToUv).length() * w * 0.5;
+  flowPointsB.clear();
+
+  float spanCm = hatchLength / (numPointsSide*2);
+
+  float spanPixels = (MFloatVector(spanCm ,0,0) * projectionWorldToUv).length() * w * 0.5;
+  // float spanPixels = (MFloatVector(spanCm, 0, 0) * projectionWorldToImage).length() * 0.5;
 
   MFloatPoint uv = point * projectionWorldToUv;
-  uv.z=0.0f;
+  uv.z = 0.0f;
   float xOrig, yOrig;
   cImgUtils::toImageCoords(uv.x, uv.y, w, h, xOrig, yOrig);
 
- 
   JVector2D p0(xOrig, yOrig);
- 
+
   float dx;
   float dy;
   for (int j = 0; j < numPointsSide; j++)
@@ -432,18 +436,73 @@ void hatchStrokes::getFlowPoints(
     flowVector *= spanPixels;
 
     JVector2D p1 = p0 + flowVector; // new sample point
+    if (p1.x < 0 || p1.x >= w || p1.y < 0 || p1.y >= h)
+    {
+      // dont make points
+      return;
+    }
+
+
     dx = pImage->linear_atXY(p1.x, p1.y, 0, 0);
     dy = pImage->linear_atXY(p1.x, p1.y, 0, 1);
     JVector2D dxdy1(dx, dy);
 
     JVector2D p2 = p1 + dxdy1.projection(-flowVector);
 
-    MFloatPoint f = MFloatPoint(p2.x, p2.y, 0.0f) * projectionImageToUv * projectionUvToWorld;
+    MFloatPoint f = MFloatPoint(p2.x, p2.y, 0.0f) * projectionImageToWorld;
     flowPointsA.append(f);
 
     p0 = p2;
   }
 
+
+  p0 = JVector2D(xOrig, yOrig);
+
+ for (int j = 0; j < numPointsSide; j++)
+  {
+
+    dx = pImage->linear_atXY(p0.x, p0.y, 0, 0);
+    dy = pImage->linear_atXY(p0.x, p0.y, 0, 1);
+
+    JVector2D dxdy0(dx, dy);
+    if (dxdy0.isZero())
+    {
+      // dont make points
+      return;
+    }
+    JVector2D flowVector = dxdy0.normal();
+    flowVector.rotateByNeg90(); // flow
+    flowVector *= spanPixels;
+
+    JVector2D p1 = p0 + flowVector; // new sample point
+    if (p1.x < 0 || p1.x >= w || p1.y < 0 || p1.y >= h)
+    {
+      // dont make points
+      return;
+    }
+
+
+    dx = pImage->linear_atXY(p1.x, p1.y, 0, 0);
+    dy = pImage->linear_atXY(p1.x, p1.y, 0, 1);
+    JVector2D dxdy1(dx, dy);
+
+    JVector2D p2 = p1 + dxdy1.projection(-flowVector);
+
+    MFloatPoint f = MFloatPoint(p2.x, p2.y, 0.0f) * projectionImageToWorld;
+    flowPointsB.append(f);
+
+    p0 = p2;
+  }
+
+
+
+
+
+  for (int j = 0; j < numPointsSide; j++)
+  {
+    int index = numPointsSide-1-j;
+    flowPoints.append(flowPointsB[index]);
+  }
   // cerr << "flowPointsA.length() " << flowPointsA.length() << endl;
   flowPoints.append(point);
   for (int j = 0; j < numPointsSide; j++)
