@@ -113,6 +113,7 @@ MUserData *paintingDrawOverride::prepareForDraw(
 	MPlug(paintingObj, painting::aDisplayPivots).getValue(data->displayPivots);
 	MPlug(paintingObj, painting::aDisplayContactWidth).getValue(data->displayContactWidth);
 	MPlug(paintingObj, painting::aDisplayIds).getValue(data->displayIds);
+	MPlug(paintingObj, painting::aDisplaySegmentIds).getValue(data->displaySegmentIds);
 	MPlug(paintingObj, painting::aDisplayParentIds).getValue(data->displayParentIds);
 	MPlug(paintingObj, painting::aDisplayLayerIds).getValue(data->displayLayerIds);
 	MPlug(paintingObj, painting::aDisplayBrushIds).getValue(data->displayBrushIds);
@@ -576,6 +577,7 @@ void paintingDrawOverride::drawIds(
 
 	if (!(
 			cdata->displayIds ||
+			cdata->displaySegmentIds ||
 			cdata->displayParentIds ||
 			cdata->displayLayerIds ||
 			cdata->displayBrushIds ||
@@ -606,6 +608,10 @@ void paintingDrawOverride::drawIds(
 			if (cdata->displayIds)
 			{
 				text = text + "Stk:" + stroke.strokeId() + "\n";
+			}
+			if (cdata->displaySegmentIds)
+			{
+				text = text + "Seg:" + stroke.segmentId() + "\n";
 			}
 			if (cdata->displayParentIds)
 			{
