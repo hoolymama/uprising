@@ -44,6 +44,7 @@ MObject paintingBase::aDisplayTargets;
 MObject paintingBase::aWireColor;
 
 MObject paintingBase::aDisplayIds;
+MObject paintingBase::aDisplaySegmentIds;
 MObject paintingBase::aDisplayParentIds;
 MObject paintingBase::aDisplayBrushIds;
 MObject paintingBase::aDisplayLayerIds;
@@ -186,6 +187,15 @@ MStatus paintingBase::initialize()
   nAttr.setKeyable(true);
   addAttribute(aDisplayIds);
 
+  aDisplaySegmentIds = nAttr.create("displaySegmentIds", "dsid",
+                                    MFnNumericData::kBoolean);
+  nAttr.setHidden(false);
+  nAttr.setStorable(true);
+  nAttr.setReadable(true);
+  nAttr.setDefault(true);
+  nAttr.setKeyable(true);
+  addAttribute(aDisplaySegmentIds);
+  
   aDisplayParentIds = nAttr.create("displayParentIds", "dprid",
                                    MFnNumericData::kBoolean);
   nAttr.setHidden(false);

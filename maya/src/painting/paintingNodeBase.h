@@ -44,6 +44,8 @@ public:
   static MObject aDisplayTargets;
 
   static MObject aDisplayIds;
+  static MObject aDisplaySegmentIds;
+  
   static MObject aDisplayParentIds;
   static MObject aDisplayBrushIds;
   static MObject aDisplayLayerIds;

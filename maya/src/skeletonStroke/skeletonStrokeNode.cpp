@@ -466,6 +466,7 @@ unsigned skeletonStrokeNode::createStrokesForChain(
         {
             stroke.setParentId(parentId);
             stroke.setCoil(coil);
+            stroke.setSegmentId(i);
             pOutStrokes->push_back(stroke);
             counter++;
         }
