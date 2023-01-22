@@ -120,6 +120,8 @@ class BotPaintingSession(Session):
         logger.debug("_send_and_publish_bot_program()")
         for i in range(num_chunks):
             logger.info("robo.clean(kr30)")
+            robo.new()
+            robo.hide()
             robo.clean("kr30")
             progress.update(
                 major_progress=i, major_line="Writing {:d} of {:d} chunks".format(i + 1, num_chunks)

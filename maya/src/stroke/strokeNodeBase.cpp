@@ -75,6 +75,7 @@ MStatus strokeNodeBase::initialize()
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
+  eAttr.addField("Segment Id", Stroke::kSegmentId);
 
   aStrokeSortDirection = eAttr.create("strokeSortDirection", "stsd",
                                       Stroke::kSortAscending);
@@ -116,6 +117,7 @@ MStatus strokeNodeBase::initialize()
   eAttr.addField("Map Red", Stroke::kMapRed);
   eAttr.addField("Map Green", Stroke::kMapGreen);
   eAttr.addField("Map Blue", Stroke::kMapBlue);
+  eAttr.addField("Segment Id", Stroke::kSegmentId);
 
   eAttr.setHidden(false);
   eAttr.setKeyable(true);
@@ -442,6 +444,12 @@ void strokeNodeBase::filterStrokes(MDataBlock &data, std::vector<Stroke> *geom) 
                                [op, value](const Stroke &stroke)
                                { return stroke.testStrokeId(op, value) == false; });
       break;
+    case Stroke::kSegmentId:
+      new_end = std::remove_if(geom->begin(), geom->end(),
+                               [op, value](const Stroke &stroke)
+                               { return stroke.testSegmentId(op, value) == false; });
+      break;
+
     case Stroke::kBrushId:
       new_end = std::remove_if(geom->begin(), geom->end(),
                                [op, value](const Stroke &stroke)
@@ -597,6 +605,12 @@ void strokeNodeBase::sortStrokes(MDataBlock &data, std::vector<Stroke> *geom) co
       for (iter = geom->begin(); iter != geom->end(); iter++)
       {
         iter->appendStrokeIdToSortStack(ascending);
+      }
+      break;
+    case Stroke::kSegmentId:
+      for (iter = geom->begin(); iter != geom->end(); iter++)
+      {
+        iter->appendSegmentIdToSortStack(ascending);
       }
       break;
 

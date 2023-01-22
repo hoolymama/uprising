@@ -301,7 +301,8 @@ unsigned int paintStrokeCreator::getStrokeBoundaries(
         result.append(boundary);
         lastEndDist = boundary[1];
 
-        curveLength -= lastEndDist;
+        // curveLength -= lastEndDist;
+        
     } while (true);
 
     return result.length();
@@ -322,7 +323,7 @@ bool paintStrokeCreator::getBoundary(
     MFloatVector &result)
 {
 
-    const float epsilon = 0.001f;
+    const float epsilon = 0.0001f;
 
     if (lastEndDist + epsilon >= curveLength)
     {
@@ -332,7 +333,7 @@ bool paintStrokeCreator::getBoundary(
     float startDist = lastEndDist - (extendExit + extendEntry + overlap);
     startDist = fmax(startDist, 0.0f);
 
-    if (startDist >= curveLength)
+    if (startDist > curveLength)
     {
         return true;
     }

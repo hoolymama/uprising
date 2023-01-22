@@ -8,7 +8,7 @@ global proc AEhatchStrokesTemplate ( string $nodeName )
  
 
 	editorTemplate -cl 0 -beginLayout "General Attributes";
-	editorTemplate -addControl "numPoints";
+	editorTemplate -addControl "numPointsPerSide";
 	editorTemplate -addControl "seed";
 	editorTemplate -endLayout;
 
@@ -106,7 +106,9 @@ global proc AEhatchStrokesTemplate ( string $nodeName )
 
  	attrControlGrp -attribute ($plug +".hatchLength");
 	attrControlGrp -attribute ($plug +".hatchAngle");
- 	attrControlGrp -attribute ($plug +".tangentBlend");
+ 	// attrControlGrp -attribute ($plug +".tangentBlend");
+	attrControlGrp -attribute ($plug +".flowAttraction");
+
 	
 
  	string $removeCmd = ("deleteUI " + $layout+";removeMultiInstance -b 1 "+$plug+";" ) ;

@@ -17,6 +17,7 @@ const double epsilon = 0.0001;
 Stroke::Stroke()
 	: m_targets(),
 	  m_pivot(),
+	  m_segmentId(0),
 	  m_parentId(0),
 	  m_repeatId(0),
 	  m_layerId(0),
@@ -745,6 +746,11 @@ int Stroke::strokeId() const
 {
 	return m_strokeId;
 }
+
+int Stroke::segmentId() const
+{
+	return m_segmentId;
+}
 int Stroke::parentId() const
 {
 	return m_parentId;
@@ -760,6 +766,12 @@ void Stroke::setParentId(int parentId)
 {
 	m_parentId = parentId;
 }
+
+void Stroke::setSegmentId(int segmentId)
+{
+	m_segmentId = segmentId;
+}
+
 
 void Stroke::setRepeatId(int rhs)
 {
@@ -837,6 +849,12 @@ int Stroke::brushModelId() const
 void Stroke::appendStrokeIdToSortStack(bool ascending)
 {
 	int val = ascending ? m_strokeId : -m_strokeId;
+	m_sortStack.append(val);
+}
+
+void Stroke::appendSegmentIdToSortStack(bool ascending)
+{
+	int val = ascending ? m_segmentId : -m_segmentId;
 	m_sortStack.append(val);
 }
 
@@ -933,6 +951,11 @@ bool Stroke::testStrokeId(FilterOperator op, int value) const
 {
 	return testAgainstValue(m_strokeId, op, value);
 }
+bool Stroke::testSegmentId(FilterOperator op, int value) const
+{
+	return testAgainstValue(m_segmentId, op, value);
+}
+
 bool Stroke::testParentId(FilterOperator op, int value) const
 {
 	return testAgainstValue(m_parentId, op, value);
