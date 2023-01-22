@@ -20,6 +20,7 @@ public:
         y = s;
     }
 
+
     JVector2D &set(float r, float s)
     {
         x = r;
@@ -105,10 +106,18 @@ public:
         return (x * v.x + y * v.y);
     }
 
-    JVector2D operator &(const JVector2D &v) const
+    // The vector where v intersects this at 90 degrees
+    JVector2D projection(const JVector2D &v)
     {
-        return (JVector2D(x * v.x, y * v.y));
+        JVector2D n = this->normal();
+        return n * (v * n);
     }
+
+
+    // JVector2D operator &(const JVector2D &v) const
+    // {
+    //     return (JVector2D(x * v.x, y * v.y));
+    // }
 
     bool operator ==(const JVector2D &v) const
     {
@@ -120,20 +129,61 @@ public:
         return ((x != v.x) || (y != v.y));
     }
 
-    JVector2D &normalize(void)
+    JVector2D normal() const
     {
-        return (*this /= sqrtf(x * x + y * y));
+        return ((*this) / sqrtf(x * x + y * y));
+    }
+    void normalize()
+    {   
+        float len = sqrtf(x * x + y * y);
+        if (len > 0.0f)
+        {
+            float f = 1.0F / len;
+            x *= f;
+            y *= f;
+        }
     }
 
-    float length(void)
+    
+    void rotateBy90(void)
+    {
+        float  tmp = y ;
+        y = -x;
+        x = tmp;
+    }
+
+    void rotateByNeg90(void)
+    {
+        float  tmp = x ;
+        x = -y;
+        y = tmp;
+    }
+    
+    JVector2D getRotateBy90(void) const
+    {
+        return JVector2D(y,-x);
+    }
+
+    JVector2D getRotateByNeg90(void) const
+    {
+        return JVector2D(-y, x);
+    }
+
+    float length(void) const
     {
         return (sqrtf(x * x + y * y));
     }
 
-    float sqlength(void)
+    float sqlength(void) const
     {
         return (x * x + y * y);
     }
+
+    float isZero(const float epsilon=0.00001f) const
+    {
+        return (fabsf(x) < epsilon && fabsf(y) < epsilon);
+    }
+
 };
 
 
@@ -144,6 +194,7 @@ public:
     JPoint2D() {}
 
     JPoint2D(float r, float s) : JVector2D(r, s) {}
+
 
     JPoint2D &operator =(const JVector2D &v)
     {

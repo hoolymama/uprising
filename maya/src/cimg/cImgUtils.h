@@ -60,6 +60,8 @@ public:
 
 	static void toImageCoords(float u, float v, int w, int h, float &x, float &y);
 
+	static void transformUvToImage(float w, float h, MFloatMatrix &result);
+
 	static void invert(CImg<unsigned char> &image);
 
 	static void get_invert(const CImg<unsigned char> &image, CImg<unsigned char> &result);

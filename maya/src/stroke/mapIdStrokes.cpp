@@ -229,7 +229,7 @@ MStatus mapIdStrokes::mutate(
   }
   if (doBrushModelId)
   {
-    st = assignBrushModelIds(data, strokes);mser;
+    st = assignBrushModelIds(data, strokes);
   }
   if (doBrushId)
   {
@@ -363,7 +363,11 @@ MStatus mapIdStrokes::assignBrushModelIds(MDataBlock &data,
 {
   MStatus st;
   BrushShop brushShop;
-  st = getBrushShop(data, brushShop); msert;
+  st = getBrushShop(data, brushShop); 
+  if (st.error())
+  {
+    return st;
+  }
   std::vector<Stroke>::iterator stroke = strokes->begin();
   for (; stroke != strokes->end(); stroke++)
   {

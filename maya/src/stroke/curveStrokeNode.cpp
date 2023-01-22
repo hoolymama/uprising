@@ -216,6 +216,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             {
                 stroke.setParentId(0);
                 stroke.setCoil(coil);
+                stroke.setSegmentId(i);
                 if (pivot == curveStrokeNode::kCurveStart)
                 {
                     stroke.setPivotPosition(fCurveStart);

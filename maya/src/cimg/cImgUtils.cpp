@@ -241,6 +241,23 @@ void cImgUtils::toImageCoords(float u, float v, int w, int h, float &x, float &y
 	y = (1.0 - v) * h;
 }
 
+
+
+void cImgUtils::transformUvToImage(float w, float h, MFloatMatrix &result)
+{
+	result.setToIdentity();
+	if (w < 0.0f || h < 0.0f)
+	{
+		return;
+	}
+	result[0][0] = w;
+	result[1][1] = -h;
+	result[3][1] = h;
+}
+ 
+
+
+
 void cImgUtils::invert(CImg<unsigned char> &image)
 {
 	int w = image.width();

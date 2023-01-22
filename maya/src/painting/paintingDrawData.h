@@ -22,6 +22,7 @@ public:
 	bool displayClusterPath;
 	bool displayPivots;
 	bool displayIds;
+	bool displaySegmentIds;
 	bool displayParentIds;
 	bool displayLayerIds;
 	bool displayBrushIds;

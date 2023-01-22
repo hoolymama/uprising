@@ -77,7 +77,8 @@ public:
 		kMapGreen,
 		kMapBlue,
 		kBrushModelId,
-		kBrushShape
+		kBrushShape,
+		kSegmentId
 		
 	};
 
@@ -214,11 +215,14 @@ public:
 	void setPivotMatrix(const MFloatMatrix &rhs);
 
 	int strokeId() const;
+	int segmentId() const;
 	int parentId() const;
 	int repeatId() const;
 	float maxRadius() const;
 
 	void setParentId(int parentId);
+	void setSegmentId(int segmentId);
+
 	void setRepeatId(int rhs);
 
 	void setMaxRadius(float rhs);
@@ -246,6 +250,7 @@ public:
 	void setFilterColor(const MFloatVector &color);
 
 	void appendStrokeIdToSortStack(bool ascending);
+	void appendSegmentIdToSortStack(bool ascending);
 	void appendParentIdToSortStack(bool ascending);
 	void appendBrushIdToSortStack(bool ascending);
 	void appendPaintIdToSortStack(bool ascending);
@@ -265,6 +270,7 @@ public:
 	bool testAgainstValue(int lhs, FilterOperator op, int rhs) const;
 
 	bool testStrokeId(FilterOperator op, int value) const;
+	bool testSegmentId(FilterOperator op, int value) const;
 	bool testParentId(FilterOperator op, int value) const;
 	bool testBrushId(FilterOperator op, int value) const;
 	bool testPaintId(FilterOperator op, int value) const;
@@ -406,6 +412,7 @@ private:
 	Target m_departure;
 
 	int m_strokeId;
+	int m_segmentId;
 	int m_brushId;
 	int m_paintId;
 	int m_layerId;
