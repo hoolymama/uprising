@@ -4,7 +4,7 @@
 
 #include <maya/MObject.h>
 #include <maya/MVectorArray.h>
-#include <paintStrokeCreator.h>
+#include <strokeCreator.h>
 #include "stroke.h"
 
 #include "pearlChain.h"
