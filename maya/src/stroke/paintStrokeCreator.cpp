@@ -176,19 +176,6 @@ MStatus paintStrokeCreator::initialize()
     eAttr.setKeyable(true);
     st = addAttribute(aBrushShape);
 
-    // aExtendEntry = nAttr.create("extendEntry", "een", MFnNumericData::kFloat);
-    // nAttr.setHidden(false);
-    // nAttr.setKeyable(true);
-    // nAttr.setDefault(0.0f);
-    // st = addAttribute(aExtendEntry);
-    // mser;
-
-    // aExtendExit = nAttr.create("extendExit", "eex", MFnNumericData::kFloat);
-    // nAttr.setHidden(false);
-    // nAttr.setKeyable(true);
-    // nAttr.setDefault(0.0f);
-    // st = addAttribute(aExtendExit);
-    // mser;
 
     aDitherProbability = nAttr.create("ditherProbability", "dprb", MFnNumericData::kFloat);
     nAttr.setHidden(false);
@@ -209,8 +196,7 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aSplitTestInterval, aOutput);
     attributeAffects(aEntryTransitionLength, aOutput);
     attributeAffects(aExitTransitionLength, aOutput);
-    // attributeAffects(aExtendEntry, aOutput);
-    // attributeAffects(aExtendExit, aOutput);
+
     attributeAffects(aCanvasMatrix, aOutput);
     attributeAffects(aMinimumPoints, aOutput);
 
