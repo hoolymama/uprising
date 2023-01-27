@@ -9,10 +9,12 @@ global proc AEpaintStrokeCreatorInclude (string $nodeName)
 	editorTemplate -addControl "minimumPoints";
 	editorTemplate -addControl "entryTransitionLength";
 	editorTemplate -addControl "exitTransitionLength";
-	editorTemplate -addControl "extendEntry";
-	editorTemplate -addControl "extendExit";
 	editorTemplate -endLayout;
 
+	editorTemplate -cl 0 -beginLayout "Coil attributes";
+	editorTemplate -addControl "splitAngle";
+	editorTemplate -addControl "splitTestInterval";
+	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Id attributes";
 	editorTemplate -addControl "brushId";

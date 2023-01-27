@@ -21,7 +21,7 @@
 
 #include "cImgFloatData.h"
 #include "cImgData.h"
-
+#include "curveBoundaries.h"
 #include "brushData.h"
 #include "cImgUtils.h"
 
@@ -31,6 +31,9 @@
 #include "skChainData.h"
 
 const double rad_to_deg = (180 / 3.1415927);
+
+MObject skeletonStrokeNode::aExtendEntry;
+MObject skeletonStrokeNode::aExtendExit;
 
 MObject skeletonStrokeNode::aSplitAngle;
 MObject skeletonStrokeNode::aActive;
@@ -72,6 +75,20 @@ MStatus skeletonStrokeNode::initialize()
     /// skeleton generation
     //////////////////
     MAngle fullCircle(360.0, MAngle::kDegrees);
+
+    aExtendEntry = nAttr.create("extendChainEntry", "een", MFnNumericData::kFloat);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setDefault(0.0f);
+    st = addAttribute(aExtendEntry);
+    mser;
+
+    aExtendExit = nAttr.create("extendChainExit", "eex", MFnNumericData::kFloat);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setDefault(0.0f);
+    st = addAttribute(aExtendExit);
+    mser;
 
     aSplitAngle = uAttr.create("splitAngle", "span", MFnUnitAttribute::kAngle);
     uAttr.setHidden(false);
@@ -151,6 +168,9 @@ MStatus skeletonStrokeNode::initialize()
     nAttr.setStorable(true);
     nAttr.setDefault(false);
     st = addAttribute(aSmoothWeights);
+
+    attributeAffects(aExtendEntry, aOutput);
+    attributeAffects(aExtendExit, aOutput);
 
     attributeAffects(aActive, aOutput);
     attributeAffects(aSplitAngle, aOutput);
@@ -391,19 +411,19 @@ unsigned skeletonStrokeNode::createStrokesForChain(
 
     ////////////////////////////
 
-    MFloatVectorArray boundaries;
-    unsigned num = getStrokeBoundaries(
-        dChainCurve,
-        canvasNormal,
+    std::vector<Boundary> boundaries;
+    boundaries.clear();
+    CurveBoundaries cb = CurveBoundaries(dChainCurve);
+    cb.boundaries(
         strokeLength,
         minimumStrokeAdvance,
         overlap,
-        extendEntry,
-        extendExit,
         splitAngle,
         splitTestInterval,
+        canvasNormal,
         boundaries);
-    ;
+    int num = boundaries.size();
+
     if (!num)
     {
         return 0;
@@ -413,9 +433,9 @@ unsigned skeletonStrokeNode::createStrokesForChain(
     for (int i = 0; i < num; ++i)
     {
 
-        const float &startDist = boundaries[i].x;
-        const float &endDist = boundaries[i].y;
-        const float &coil = boundaries[i].z;
+        const float &startDist = boundaries[i].start;
+        const float &endDist = boundaries[i].end;
+        const float &coil = boundaries[i].maxCoil;
 
         MFloatArray strokeRadii;
         MDoubleArray curveParams;

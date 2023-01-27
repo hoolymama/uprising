@@ -35,60 +35,6 @@ void applyBrushStrokeSpec(
 protected:
 
 
-    
-    float findEndDist(
-        const MObject &dCurve,
-        const MFloatVector &canvasNormal,
-        float startDist,
-        float endDist,
-        float splitAngle,
-        float splitTestInterval,
-        float &outMaxCoil);
-
-/**
- * @brief 
- * 
- * @param dCurve 
- * @param canvasNormal 
- * @param strokeLength 
- * @param overlap 
- * @param extendEntry 
- * @param extendExit 
- * @param splitAngle 
- * @param splitTestInterval 
- * @param result [(startDist, endDist, maxCoil), ..]
- * @return unsigned int 
- */
-    unsigned int getStrokeBoundaries(
-        const MObject &dCurve,
-        const MFloatVector &canvasNormal,
-        float strokeLength,
-        float minimumStrokeAdvance,
-        float overlap,
-        float extendEntry,
-        float extendExit,
-        float splitAngle,
-        float splitTestInterval,
-        MFloatVectorArray &result);
-
-    bool getBoundary(
-        const MObject &dCurve,
-        double curveLength,
-        const MFloatVector &canvasNormal,
-        float lastEndDist,
-        float strokeLength,
-        float minimumStrokeAdvance,
-        float overlap,
-        float extendEntry,
-        float extendExit,
-        float splitAngle,
-        float splitTestInterval,
-        MFloatVector &result);
-
-
-
-    // std::vector<std::pair<int, float> > getBrushRadii(
-    //     MDataBlock &data) const;
 
     static float calculateTargetWeight(
         const double &distanceOnCurve,
@@ -126,8 +72,6 @@ protected:
     static MObject aSplitTestInterval;
     static MObject aEntryTransitionLength;
     static MObject aExitTransitionLength;
-    static MObject aExtendEntry;
-    static MObject aExtendExit;
     static MObject aMinimumPoints;
     static MObject aApplyBrushBias;
     static MObject aBrushShape;

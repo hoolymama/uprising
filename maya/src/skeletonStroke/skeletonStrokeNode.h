@@ -87,6 +87,9 @@ private:
     static MObject aChains;
     static MObject aActive;
 
+    static MObject aExtendEntry;
+    static MObject aExtendExit;
+
     static MObject aInputData;
     static MObject aSplitAngle;
     static MObject aSelector;

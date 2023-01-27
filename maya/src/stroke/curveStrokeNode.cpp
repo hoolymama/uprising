@@ -13,6 +13,8 @@
 #include <maya/MFnNurbsCurveData.h>
 
 #include "curveStrokeNode.h"
+
+#include "curveBoundaries.h"
 #include "stroke.h"
 
 #include "brushData.h"
@@ -109,15 +111,13 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     int minimumPoints = data.inputValue(aMinimumPoints).asInt();
     float entryTransitionLength = data.inputValue(aEntryTransitionLength).asFloat();
     float exitTransitionLength = data.inputValue(aExitTransitionLength).asFloat();
-    float extendEntry = data.inputValue(aExtendEntry).asFloat();
-    float extendExit = data.inputValue(aExtendExit).asFloat();
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
     float radius = data.inputValue(aWidth).asFloat() * 0.5;
 
     // int layerId = data.inputValue(aLayerId).asInt();
     // int brushId = data.inputValue(aBrushId).asInt();
     // int paintId = data.inputValue(aPaintId).asInt();
-    
+
     float splitAngle = float(data.inputValue(aSplitAngle).asAngle().asRadians());
     float splitTestInterval = data.inputValue(aSplitTestInterval).asFloat();
     float strokeLength = data.inputValue(aStrokeLength).asFloat();
@@ -130,7 +130,6 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     MFloatMatrix canvasMatrix = data.inputValue(aCanvasMatrix).asFloatMatrix();
 
     //////////////////////////////////////////////////////////////
-
 
     MFloatVector canvasNormal((MFloatVector::zAxis * canvasMatrix).normal());
     MArrayDataHandle hCurves = data.inputArrayValue(aCurves, &st);
@@ -167,18 +166,18 @@ MStatus curveStrokeNode::generateStrokeGeometry(
         }
         curveFn.setKnots(knotVals, 0, (numKnots - 1));
 
-        MFloatVectorArray boundaries;
-        unsigned num = getStrokeBoundaries(
-            dCurve,
-            canvasNormal,
+        std::vector<Boundary> boundaries;
+        boundaries.clear();
+        CurveBoundaries cb = CurveBoundaries(dCurve);
+        cb.boundaries(
             strokeLength,
             minimumStrokeAdvance,
             overlap,
-            extendEntry,
-            extendExit,
             splitAngle,
             splitTestInterval,
+            canvasNormal,
             boundaries);
+        int num = boundaries.size();
 
         if (!num)
         {
@@ -193,9 +192,9 @@ MStatus curveStrokeNode::generateStrokeGeometry(
 
         for (int i = 0; i < num; ++i)
         {
-            const float &startDist = boundaries[i].x;
-            const float &endDist = boundaries[i].y;
-            const float &coil = boundaries[i].z;
+            const float &startDist = boundaries[i].start;
+            const float &endDist = boundaries[i].end;
+            const float &coil = boundaries[i].maxCoil;
 
             MDoubleArray curveParams;
 
@@ -233,7 +232,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     //     curr_stroke->setLayerId(layerId);
     //     curr_stroke->setBrushId(brushId);
     //     curr_stroke->setPaintId(paintId);
-        
+
     // }
 
     paintStrokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);
