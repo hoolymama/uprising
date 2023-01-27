@@ -38,24 +38,38 @@ public:
 
     ~CurveBoundaries();
 
-    MStatus getNextBoundary(
-        double strokeLength,
-        double minimumAdvance,
-        double overlap,
-        Boundary &resultBoundary);
+
 
     void boundaries(
-        double strokeLength,
-        double minimumAdvance,
-        double overlap,
-        float extendEntry,
-        float extendExit,
+        float strokeLength,
+        float minimumAdvance,
+        float overlap,
         std::vector<Boundary> &boundaries);
 
+    void boundaries(
+        float strokeLength,
+        float minimumAdvance,
+        float overlap,
+        float splitAngle,
+        float splitTestInterval,
+        const MFloatVector &canvasNormal,
+        std::vector<Boundary> &boundaries);
+        
+    MStatus getNextBoundary(
+        float strokeLength,
+        float minimumAdvance,
+        float overlap,
+        Boundary &resultBoundary);
+
+    MStatus splitBoundary(
+        float splitAngle,
+        float splitTestInterval,
+        const MFloatVector &canvasNormal,
+        Boundary &boundary);
 private:
     MObject m_dCurve;
-    double m_length;
+    double m_curveLength;
     Boundary m_lastBoundary;
-    bool m_started;
+    bool m_hasStarted;
 };
 #endif

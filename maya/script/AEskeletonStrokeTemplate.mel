@@ -19,9 +19,9 @@ global proc AEskeletonStrokeTemplate ( string $nodeName )
 	editorTemplate -endLayout;
 
 
-
-	editorTemplate -cl 0 -beginLayout "Coil attributes";
-	editorTemplate -addControl "splitTestInterval";
+	editorTemplate -cl 0 -beginLayout "Chain extension attributes";
+	editorTemplate -addControl "extendEntry";
+	editorTemplate -addControl "extendExit";
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Weight smoothing attributes";
@@ -32,12 +32,6 @@ global proc AEskeletonStrokeTemplate ( string $nodeName )
 
 	editorTemplate -endLayout;
 
-
-
-
-	// editorTemplate -cl 0 -beginLayout "Brushes";
- 	// editorTemplate -callCustom "AEpaintingBrushesNew" "AEpaintingBrushesReplace" "brushes";
- 	// editorTemplate -endLayout;
 
  	AEsortFilterInclude($nodeName);
  

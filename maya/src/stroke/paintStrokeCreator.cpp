@@ -42,10 +42,9 @@ MObject paintStrokeCreator::aBrushFollowStroke;
 MObject paintStrokeCreator::aSplitTestInterval;
 MObject paintStrokeCreator::aEntryTransitionLength;
 MObject paintStrokeCreator::aExitTransitionLength;
-MObject paintStrokeCreator::aExtendEntry;
-MObject paintStrokeCreator::aExtendExit;
+
 MObject paintStrokeCreator::aMinimumPoints;
-// MObject paintStrokeCreator::aApplyBrushBias;
+
 MObject paintStrokeCreator::aBrushShape;
 
 MObject paintStrokeCreator::aDitherProbability;
@@ -177,19 +176,19 @@ MStatus paintStrokeCreator::initialize()
     eAttr.setKeyable(true);
     st = addAttribute(aBrushShape);
 
-    aExtendEntry = nAttr.create("extendEntry", "een", MFnNumericData::kFloat);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(0.0f);
-    st = addAttribute(aExtendEntry);
-    mser;
+    // aExtendEntry = nAttr.create("extendEntry", "een", MFnNumericData::kFloat);
+    // nAttr.setHidden(false);
+    // nAttr.setKeyable(true);
+    // nAttr.setDefault(0.0f);
+    // st = addAttribute(aExtendEntry);
+    // mser;
 
-    aExtendExit = nAttr.create("extendExit", "eex", MFnNumericData::kFloat);
-    nAttr.setHidden(false);
-    nAttr.setKeyable(true);
-    nAttr.setDefault(0.0f);
-    st = addAttribute(aExtendExit);
-    mser;
+    // aExtendExit = nAttr.create("extendExit", "eex", MFnNumericData::kFloat);
+    // nAttr.setHidden(false);
+    // nAttr.setKeyable(true);
+    // nAttr.setDefault(0.0f);
+    // st = addAttribute(aExtendExit);
+    // mser;
 
     aDitherProbability = nAttr.create("ditherProbability", "dprb", MFnNumericData::kFloat);
     nAttr.setHidden(false);
@@ -210,8 +209,8 @@ MStatus paintStrokeCreator::initialize()
     attributeAffects(aSplitTestInterval, aOutput);
     attributeAffects(aEntryTransitionLength, aOutput);
     attributeAffects(aExitTransitionLength, aOutput);
-    attributeAffects(aExtendEntry, aOutput);
-    attributeAffects(aExtendExit, aOutput);
+    // attributeAffects(aExtendEntry, aOutput);
+    // attributeAffects(aExtendExit, aOutput);
     attributeAffects(aCanvasMatrix, aOutput);
     attributeAffects(aMinimumPoints, aOutput);
 
@@ -242,197 +241,6 @@ MStatus paintStrokeCreator::generateStrokeGeometry(
 
     strokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);
     return MS::kSuccess;
-}
-
-unsigned int paintStrokeCreator::getStrokeBoundaries(
-    const MObject &dCurve,
-    const MFloatVector &canvasNormal,
-    float strokeLength,
-    float minimumStrokeAdvance,
-    float overlap,
-    float extendEntry,
-    float extendExit,
-    float splitAngle,
-    float splitTestInterval,
-    MFloatVectorArray &result)
-{
-
-    const double epsilon = 0.0001;
-
-    MStatus st = MS::kSuccess;
-
-    MFnNurbsCurve curveFn(dCurve, &st);
-    mser;
-    if (st.error())
-    {
-        return 0;
-    }
-
-    double curveLength = curveFn.length(epsilon);
-    float lastEndDist = 0;
-    strokeLength = std::max(strokeLength, 0.1f);
-    if (overlap >= strokeLength)
-    {
-        overlap = 0.0f;
-    }
-
-    do
-    {
-
-        MFloatVector boundary;
-        bool done = getBoundary(
-            dCurve,
-            curveLength,
-            canvasNormal,
-            lastEndDist,
-            strokeLength,
-            minimumStrokeAdvance,
-            overlap,
-            extendEntry,
-            extendExit,
-            splitAngle,
-            splitTestInterval,
-            boundary);
-
-        if (done)
-        {
-            break;
-        }
-        result.append(boundary);
-        lastEndDist = boundary[1];
-
-        // curveLength -= lastEndDist;
-        
-    } while (true);
-
-    return result.length();
-}
-
-bool paintStrokeCreator::getBoundary(
-    const MObject &dCurve,
-    double curveLength,
-    const MFloatVector &canvasNormal,
-    float lastEndDist,
-    float strokeLength,
-    float minimumStrokeAdvance,
-    float overlap,
-    float extendEntry,
-    float extendExit,
-    float splitAngle,
-    float splitTestInterval,
-    MFloatVector &result)
-{
-
-    const float epsilon = 0.0001f;
-
-    if (lastEndDist + epsilon >= curveLength)
-    {
-        return true;
-    }
-
-    float startDist = lastEndDist - (extendExit + extendEntry + overlap);
-    startDist = fmax(startDist, 0.0f);
-
-    if (startDist > curveLength)
-    {
-        return true;
-    }
-
-    float endDist = startDist + extendEntry + strokeLength + extendExit;
-
-    bool doSplitTest = (splitAngle > epsilon && splitTestInterval > 0.01);
-    float outMaxCoil = 0.0f;
-    if (doSplitTest)
-    {
-        endDist = findEndDist(
-            dCurve,
-            canvasNormal,
-            startDist,
-            endDist,
-            splitAngle,
-            splitTestInterval,
-            outMaxCoil);
-    }
-
-    if (endDist <= lastEndDist + minimumStrokeAdvance)
-    {
-        endDist = lastEndDist + minimumStrokeAdvance;
-    }
-
-    if (endDist >= curveLength)
-    {
-        endDist = curveLength;
-    }
-
-    result = MFloatVector(startDist, endDist, outMaxCoil);
-    return false;
-}
-
-float paintStrokeCreator::findEndDist(
-    const MObject &dCurve,
-    const MFloatVector &canvasNormal,
-    float startDist,
-    float endDist,
-    float splitAngle,
-    float splitTestInterval,
-    float &outMaxCoil)
-{
-
-    float leftExtent = 0;
-    float rightExtent = 0;
-    float accumAngle = 0;
-    float currDist = startDist;
-    MFnNurbsCurve curveFn(dCurve);
-    double param = curveFn.findParamFromLength(startDist);
-    MVector lastTangent = curveFn.tangent(param);
-
-    double angle;
-    MVector axis;
-    bool foundEnd = false;
-
-    do
-    {
-
-        currDist += splitTestInterval;
-
-        if (currDist >= endDist)
-        {
-            return endDist;
-        }
-        param = curveFn.findParamFromLength(currDist);
-        MVector tangent = curveFn.tangent(param);
-
-        MQuaternion q(lastTangent, tangent);
-        lastTangent = tangent;
-
-        bool rotated = q.getAxisAngle(axis, angle);
-
-        if (!rotated)
-        {
-            continue;
-        }
-
-        float direction = (MFloatVector(axis) * canvasNormal < 0) ? -1.0f : 1.0f;
-        accumAngle += (direction * angle);
-        if (accumAngle < leftExtent)
-        {
-            leftExtent = accumAngle;
-        }
-        if (accumAngle > rightExtent)
-        {
-            rightExtent = accumAngle;
-        }
-        float coil = rightExtent - leftExtent;
-        foundEnd = (coil > splitAngle);
-
-        if (coil > outMaxCoil)
-        {
-            outMaxCoil = coil;
-        }
-
-    } while (!foundEnd);
-
-    return currDist;
 }
 
 void paintStrokeCreator::postConstructor()

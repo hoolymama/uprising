@@ -111,8 +111,6 @@ MStatus curveStrokeNode::generateStrokeGeometry(
     int minimumPoints = data.inputValue(aMinimumPoints).asInt();
     float entryTransitionLength = data.inputValue(aEntryTransitionLength).asFloat();
     float exitTransitionLength = data.inputValue(aExitTransitionLength).asFloat();
-    float extendEntry = data.inputValue(aExtendEntry).asFloat();
-    float extendExit = data.inputValue(aExtendExit).asFloat();
     bool followStroke = data.inputValue(aBrushFollowStroke).asBool();
     float radius = data.inputValue(aWidth).asFloat() * 0.5;
 
@@ -175,26 +173,11 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             strokeLength,
             minimumStrokeAdvance,
             overlap,
-            extendEntry,
-            extendExit,
-            boundaries
-        );
+            splitAngle,
+            splitTestInterval,
+            canvasNormal,
+            boundaries);
         int num = boundaries.size();
-
- 
-
-        // MFloatVectorArray boundaries;
-        // unsigned num = getStrokeBoundaries(
-        //     dCurve,
-        //     canvasNormal,
-        //     strokeLength,
-        //     minimumStrokeAdvance,
-        //     overlap,
-        //     extendEntry,
-        //     extendExit,
-        //     splitAngle,
-        //     splitTestInterval,
-        //     boundaries);
 
         if (!num)
         {
