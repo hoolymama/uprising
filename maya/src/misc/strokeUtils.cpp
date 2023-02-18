@@ -35,3 +35,48 @@ MStatus StrokeUtils::createCurve(const Stroke *stroke, MObject &curveData)
   curveFn.setKnots(knotVals, 0, (numKnots - 1));
   return MS::kSuccess;
 }
+
+float StrokeUtils::interpFloat(const MFloatArray &values, float param)
+{
+	int len = values.length();
+	if (len < 2)
+	{
+		return 1.0;
+	}
+	int last = (len - 1);
+	if (param >= 1.0f)
+	{
+		return values[last];
+	}
+	else if (param <= 0.0f)
+	{
+		return values[0];
+	}
+	float t = param * last;
+	float r = t - floor(t);
+	int lindex = int(t);
+	return (values[lindex] * (1 - r)) + (values[(lindex + 1)] * (r));
+}
+
+MColor StrokeUtils::interpColor(const MColorArray &colors, float param)
+{
+	int len = colors.length();
+	if (len < 2)
+	{
+		return MColor(1.0f, 1.0f, 1.0f, 1.0f);
+	}
+	int last = (len - 1);
+	if (param >= 1.0f)
+	{
+		return colors[last];
+	}
+	else if (param <= 0.0f)
+	{
+		return colors[0];
+	}
+	float t = param * last;
+	float r = t - floor(t);
+	int lindex = int(t);
+	return (colors[lindex] * (1 - r)) + (colors[(lindex + 1)] * (r));
+}
+

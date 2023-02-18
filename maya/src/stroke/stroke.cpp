@@ -6,11 +6,12 @@
 #include <maya/MQuaternion.h>
 #include <algorithm>
 #include <vector>
-const double rad_to_deg = (180 / 3.1415927);
 #include "errorMacros.h"
 #include "mayaMath.h"
 #include <stroke.h>
 #include <enums.h>
+#include "strokeUtils.h"
+const double rad_to_deg = (180 / 3.1415927);
 
 const double epsilon = 0.0001;
 
@@ -286,7 +287,7 @@ Stroke::Stroke(
 		if (st.error())
 			return;
 
-		float weight = Stroke::interpFloat(radii, curveParam);
+		float weight = StrokeUtils::interpFloat(radii, curveParam);
 
 		points.append(point);
 		weights.append(weight);
@@ -369,8 +370,8 @@ Stroke::Stroke(
 		if (st.error())
 			return;
 
-		float weight = Stroke::interpFloat(originalWeights, curveParam);
-		MColor color = Stroke::interpColor(originalColors, curveParam);
+		float weight = StrokeUtils::interpFloat(originalWeights, curveParam);
+		MColor color = StrokeUtils::interpColor(originalColors, curveParam);
 		points.append(point);
 		weights.append(weight);
 		colors.append(color);
@@ -663,10 +664,6 @@ void Stroke::setPivotMatrix(const MFloatMatrix &rhs)
 
 Stroke::~Stroke() {}
 
-// bool Stroke::backstroke() const
-// {
-// 	return m_backstroke;
-// }
 
 bool operator<(const Stroke &a, const Stroke &b)
 {
@@ -709,15 +706,6 @@ bool operator<(const Stroke &a, const Stroke &b)
 	}
 	return false;
 }
-
-// void Stroke::appendTangents(MVectorArray &result) const
-// {
-// 	std::vector<Target>::const_iterator citer;
-// 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
-// 	{
-// 		result.append(citer->tangent());
-// 	}
-// }
 
 const std::vector<Target> &Stroke::targets() const
 {
@@ -814,8 +802,6 @@ void Stroke::setPaintId(int val)
 {
 	m_paintId = val;
 }
-
-/////////////////////// SORT AND FILTER ///////////////////////
 
 const MIntArray &Stroke::sortStack() const
 {
@@ -965,8 +951,6 @@ bool Stroke::testBrushId(FilterOperator op, int value) const
 	return testAgainstValue(m_brushId, op, value);
 }
 
-
-
 bool Stroke::testPaintId(FilterOperator op, int value) const
 {
 	return testAgainstValue(m_paintId, op, value);
@@ -993,7 +977,6 @@ bool Stroke::testBrushShape(FilterOperator op, int value) const
 {
 	return testAgainstValue(int(m_brushStrokeSpec.shape), op, value);
 }
-
 
 bool Stroke::testMapRedId(FilterOperator op, int value) const
 {

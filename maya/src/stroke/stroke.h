@@ -25,6 +25,8 @@
 class Stroke
 {
 public:
+
+	/// @brief Iterator types for the targets
 	using target_iterator = typename std::vector<Target>::iterator;
 	using const_target_iterator = typename std::vector<Target>::const_iterator;
 
@@ -37,13 +39,6 @@ public:
 	target_iterator arrivals_end() { return m_arrivals.end(); }
 	const_target_iterator arrivals_begin() const { return m_arrivals.begin(); }
 	const_target_iterator arrivals_end() const { return m_arrivals.end(); }
-
-	enum TranslationDirection
-	{
-		kConstant,
-		kAlternateRepeat,
-		kAlternateAll
-	};
 
 	enum DirectionMethod
 	{
@@ -88,13 +83,13 @@ public:
 		kSortDescending
 	};
 
-	static float interpFloat(const MFloatArray &values, float param);
-	static MColor interpColor(const MColorArray &colors, float param);
+	// static float interpFloat(const MFloatArray &values, float param);
+	// static MColor interpColor(const MColorArray &colors, float param);
 
 	Stroke();
 
 	/**
- * @brief Construct a new Stroke object with an artray of points and an initial
+ * @brief Construct a new Stroke object with an array of points and an initial
  * rotation matrix.
 
  All targets will have this matrix initially.
@@ -166,14 +161,15 @@ public:
 	~Stroke();
 
 	void setCreator(const MString &creatorName, int creatorId);
+
 	const MString & creatorName() const;
+	
 	int creatorId() const;
 
 
 	float ditherProbability() const;
+	
 	void setDitherProbability(float probability);
-
-
 
 	void setStrokeId(unsigned rhs);
 
@@ -194,10 +190,6 @@ public:
 	unsigned valid() const;
 
 	unsigned size(bool withTraversal = false) const;
-
-	// void appendTangents(MVectorArray &result) const;
-
-	// void getParams(MFloatArray &result) const;
 
 	const std::vector<Target> &targets() const;
 
@@ -239,7 +231,7 @@ public:
 	int paintId() const;
 
 	void setBrushId(int val);
-	// void setCustomBrushId(int val);
+
 	void setBrushModelId(int rhs);
  	int brushModelId() const;
 	
@@ -260,9 +252,6 @@ public:
 	void appendBrushModelIdToSortStack(bool ascending);
 	void appendBrushShapeToSortStack(bool ascending);
 	
-
-	// void appendCustomBrushIdToSortStack(bool ascending);
-
 	void appendMapRedIdToSortStack(bool ascending);
 	void appendMapGreenIdToSortStack(bool ascending);
 	void appendMapBlueIdToSortStack(bool ascending);
@@ -280,9 +269,6 @@ public:
 	bool testBrushModelId(FilterOperator op, int value) const;
 	bool testBrushShape(FilterOperator op, int value) const;
 	
-
-	
-
 	bool testMapRedId(FilterOperator op, int value) const;
 	bool testMapGreenId(FilterOperator op, int value) const;
 	bool testMapBlueId(FilterOperator op, int value) const;
@@ -390,8 +376,7 @@ public:
 
 	void smoothTargets(int neighbors, bool doPositions, bool doWeights);
 
-	// void calculateTubeMatrices(const MMatrix&initialMatrix ,const  MVector & initialTangent, MMatrixArray & tubeMatrices) const ;
-
+ 
 	friend bool operator<(const Stroke &a, const Stroke &b);
 	friend ostream &operator<<(ostream &os, const Stroke &s);
 
@@ -438,49 +423,5 @@ private:
 
 	BrushStrokeSpec m_brushStrokeSpec;
 };
-
-inline float Stroke::interpFloat(const MFloatArray &values, float param)
-{
-	int len = values.length();
-	if (len < 2)
-	{
-		return 1.0;
-	}
-	int last = (len - 1);
-	if (param >= 1.0f)
-	{
-		return values[last];
-	}
-	else if (param <= 0.0f)
-	{
-		return values[0];
-	}
-	float t = param * last;
-	float r = t - floor(t);
-	int lindex = int(t);
-	return (values[lindex] * (1 - r)) + (values[(lindex + 1)] * (r));
-}
-
-inline MColor Stroke::interpColor(const MColorArray &colors, float param)
-{
-	int len = colors.length();
-	if (len < 2)
-	{
-		return MColor(1.0f, 1.0f, 1.0f, 1.0f);
-	}
-	int last = (len - 1);
-	if (param >= 1.0f)
-	{
-		return colors[last];
-	}
-	else if (param <= 0.0f)
-	{
-		return colors[0];
-	}
-	float t = param * last;
-	float r = t - floor(t);
-	int lindex = int(t);
-	return (colors[lindex] * (1 - r)) + (colors[(lindex + 1)] * (r));
-}
 
 #endif
