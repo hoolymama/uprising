@@ -106,11 +106,6 @@ public:
 		const std::vector<MFloatMatrix> &matrices);
 
 	Stroke(
-		const MFloatPointArray &points,
-		const MFloatArray &weights,
-		const MFloatMatrix &rotationMat);
-
-	Stroke(
 		const std::vector<MFloatMatrix> &matrices,
 		const MFloatArray &weights);
 

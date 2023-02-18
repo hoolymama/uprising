@@ -41,6 +41,7 @@ Stroke::Stroke()
 {
 }
 
+
 Stroke::Stroke(
 	const MFloatPointArray &points,
 	const MFloatMatrix &rotationMat)
@@ -78,30 +79,6 @@ Stroke::Stroke(
 	m_pivot = Target(m_targets[0]);
 	resetTangents();
 	
-}
-
-Stroke::Stroke(
-	const MFloatPointArray &points,
-	const MFloatArray &weights,
-	const MFloatMatrix &rotationMat)
-	: Stroke()
-{
-
-	MStatus st;
-	int len = points.length();
-
-	MFloatMatrix mat = rotationMat;
-	for (size_t i = 0; i < len; i++)
-	{
-		mat[3][0] = points[i].x;
-		mat[3][1] = points[i].y;
-		mat[3][2] = points[i].z;
-
-		m_targets.push_back(Target(mat, weights[i]));
-	}
-
-	m_pivot = Target(m_targets[0]);
-	resetTangents();
 }
 
 Stroke::Stroke(
