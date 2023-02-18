@@ -22,7 +22,6 @@
 
 const double rad_to_deg = (180 / 3.1415927);
 
-// MObject particleStrokeNode::aViewpoint;
 MObject particleStrokeNode::aTargetRotationMatrix; 
 MObject particleStrokeNode::aTrails;
 
@@ -48,15 +47,7 @@ MStatus particleStrokeNode::initialize()
   
     MFnMatrixAttribute mAttr;
  
-
-
     inheritAttributesFrom("strokeCreator");
-
-    // aViewpoint = nAttr.createPoint("viewpoint", "vpt");
-    // nAttr.setStorable(true);
-    // nAttr.setReadable(true);
-    // nAttr.setKeyable(true);
-    // addAttribute(aViewpoint);
 
     aTargetRotationMatrix= mAttr.create("targetRotationMatrix", "tmat", MFnMatrixAttribute::kFloat);
     mAttr.setStorable(false);
@@ -72,7 +63,6 @@ MStatus particleStrokeNode::initialize()
     mser;
 
     st = attributeAffects(aTrails, aOutput);
-    // st = attributeAffects(aViewpoint, aOutput);
     st = attributeAffects(aTargetRotationMatrix, aOutput);
     return MS::kSuccess;
 }
@@ -99,9 +89,6 @@ MStatus particleStrokeNode::generateStrokeGeometry(
 
     
     float pointDensity = data.inputValue(aPointDensity).asFloat();
-
-    // float3 &fpoint = data.inputValue(aViewpoint).asFloat3();
-    // MPoint viewPoint(fpoint[0], fpoint[1], fpoint[2]);
 
     std::vector<particleTrail>::const_iterator pTrail;
     for (pTrail = geom->begin(); pTrail != geom->end(); pTrail++)

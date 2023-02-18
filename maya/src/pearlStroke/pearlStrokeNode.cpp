@@ -180,11 +180,8 @@ MStatus pearlStrokeNode::generateStrokeGeometry(
     MPointArray editPoints;
     MFloatArray radii;
 
-
     MFloatPointArray points;
  
-
-
     for (unsigned i = 0; i < nPearlChains; i++, hChainsArray.next())
     {
 

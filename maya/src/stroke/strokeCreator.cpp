@@ -16,9 +16,7 @@
 #include <jMayaIds.h>
 #include "errorMacros.h"
 
-
 MObject strokeCreator::aCoats;
-
 
 MObject strokeCreator::aLayerId;
 MObject strokeCreator::aPointDensity;
@@ -67,24 +65,17 @@ MStatus strokeCreator::initialize()
   MFnUnitAttribute uAttr;
   MFnEnumAttribute eAttr;
 
-
   aLinearSpeed = nAttr.create("linearSpeed", "lnsp", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
-  // nAttr.setMin(0.00f);
   nAttr.setSoftMax(200.0f);
-  // nAttr.setDefault(100.00f);
   nAttr.setKeyable(true);
   addAttribute(aLinearSpeed);
 
-  // const double minAngSpeed = mayaMath::single_pi / 900.00;
-  // const double defaultAngSpeed = mayaMath::single_pi / 9.00;
   aAngularSpeed = uAttr.create("angularSpeed", "agsp", MFnUnitAttribute::kAngle);
   uAttr.setStorable(true);
   uAttr.setReadable(true);
-  // uAttr.setMin(minAngSpeed);
   uAttr.setKeyable(true);
-  // uAttr.setMax((mayaMath::single_pi));
   addAttribute(aAngularSpeed);
 
   aApproximationDistance = nAttr.create("approximationDistance", "apxd",
@@ -97,18 +88,15 @@ MStatus strokeCreator::initialize()
   nAttr.setKeyable(true);
   addAttribute(aApproximationDistance);
 
-
   aCoats = nAttr.create("coats", "cts", MFnNumericData::kInt);
   mser;
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
-  nAttr.setWritable(true);    
+  nAttr.setWritable(true);
   nAttr.setDefault(1);
   st = addAttribute(aCoats);
   mser;
-
-
 
   aLayerId = nAttr.create("layerId", "lid", MFnNumericData::kInt);
   mser;
@@ -118,8 +106,6 @@ MStatus strokeCreator::initialize()
   nAttr.setWritable(true);
   st = addAttribute(aLayerId);
   mser;
-
-
 
   aPointDensity = nAttr.create("pointDensity", "pd", MFnNumericData::kFloat);
   nAttr.setHidden(false);
@@ -174,14 +160,12 @@ MStatus strokeCreator::initialize()
   eAttr.addField("bankTiltTwist", PaintingEnums::kBankTiltTwist);
   eAttr.setHidden(false);
   eAttr.setKeyable(true);
+
   st = addAttribute(aBrushRotateOrder);
-
   st = attributeAffects(aCoats, aOutput);
-
   st = attributeAffects(aLayerId, aOutput);
   st = attributeAffects(aPointDensity, aOutput);
   st = attributeAffects(aBrushRotateOrder, aOutput);
-
   st = attributeAffects(aBrushTiltStart, aOutput);
   st = attributeAffects(aBrushTiltEnd, aOutput);
   st = attributeAffects(aBrushTilt, aOutput);
@@ -191,7 +175,6 @@ MStatus strokeCreator::initialize()
   st = attributeAffects(aBrushBankStart, aOutput);
   st = attributeAffects(aBrushBankEnd, aOutput);
   st = attributeAffects(aBrushBank, aOutput);
-
   st = attributeAffects(aLinearSpeed, aOutput);
   st = attributeAffects(aAngularSpeed, aOutput);
   st = attributeAffects(aApproximationDistance, aOutput);
@@ -200,35 +183,32 @@ MStatus strokeCreator::initialize()
 }
 
 MStatus strokeCreator::generateStrokeGeometry(
-  const MPlug &plug,
+    const MPlug &plug,
     MDataBlock &data,
     std::vector<Stroke> *pOutStrokes)
 {
   MFnDependencyNode depFn(this->thisMObject());
   MString name(depFn.name());
+
   applyCoats(data, pOutStrokes);
   applySpeeds(data, pOutStrokes);
   applyLayerId(data, pOutStrokes);
-  
   applyCreator(name, pOutStrokes);
- 
 
-
-
-  strokeNodeBase::generateStrokeGeometry(plug,data,pOutStrokes);
+  strokeNodeBase::generateStrokeGeometry(plug, data, pOutStrokes);
 
   return MS::kSuccess;
 }
 
 void strokeCreator::applySpeeds(
-  MDataBlock &data,
-  std::vector<Stroke> *geom) const
+    MDataBlock &data,
+    std::vector<Stroke> *geom) const
 {
-  float linSpeed =  data.inputValue(aLinearSpeed).asFloat();
-  float approxDist =  data.inputValue(aApproximationDistance).asFloat();
-  float angSpeed =  float(data.inputValue(aAngularSpeed).asAngle().asRadians());
+  float linSpeed = data.inputValue(aLinearSpeed).asFloat();
+  float approxDist = data.inputValue(aApproximationDistance).asFloat();
+  float angSpeed = float(data.inputValue(aAngularSpeed).asAngle().asRadians());
   std::vector<Stroke>::iterator iter = geom->begin();
-  for (;iter != geom->end() ; iter++)
+  for (; iter != geom->end(); iter++)
   {
     iter->setLinearSpeed(linSpeed);
     iter->setAngularSpeed(angSpeed);
@@ -237,39 +217,37 @@ void strokeCreator::applySpeeds(
 }
 
 void strokeCreator::applyLayerId(
-  MDataBlock &data,
-  std::vector<Stroke> *geom) const
+    MDataBlock &data,
+    std::vector<Stroke> *geom) const
 {
   int layerId = data.inputValue(aLayerId).asInt();
   std::vector<Stroke>::iterator iter = geom->begin();
-  for (;iter != geom->end() ; iter++ )
+  for (; iter != geom->end(); iter++)
   {
     iter->setLayerId(layerId);
   }
 }
 
-
 void strokeCreator::applyCreator(
-  const MString &name,
-  std::vector<Stroke> *geom) const
+    const MString &name,
+    std::vector<Stroke> *geom) const
 {
   std::vector<Stroke>::iterator iter = geom->begin();
-  int cid=0;
-  for (;iter != geom->end() ; iter++, cid++)
+  int cid = 0;
+  for (; iter != geom->end(); iter++, cid++)
   {
     iter->setCreator(name, cid);
   }
 }
 
-
-
 void strokeCreator::applyCoats(
-  MDataBlock &data,
-  std::vector<Stroke> *geom) const
+    MDataBlock &data,
+    std::vector<Stroke> *geom) const
 {
-  int coats =  data.inputValue(aCoats).asInt();
+  int coats = data.inputValue(aCoats).asInt();
 
-  if (coats < 2) {
+  if (coats < 2)
+  {
     return;
   }
 
@@ -278,7 +256,7 @@ void strokeCreator::applyCoats(
   for (unsigned repeatId = 1; repeatId < coats; repeatId++)
   {
     std::vector<Stroke>::iterator iter = sourceStrokes.begin();
-    for (;iter != sourceStrokes.end() ; iter++)
+    for (; iter != sourceStrokes.end(); iter++)
     {
       iter->setRepeatId(repeatId);
       geom->push_back(*iter);
@@ -286,231 +264,79 @@ void strokeCreator::applyCoats(
   }
 }
 
-
-
 void strokeCreator::subsample(
-    const MFloatPointArray & inPoints,
+    const MFloatPointArray &inPoints,
     float density,
-    MFloatPointArray & outPoints) const
+    MFloatPointArray &outPoints) const
 {
-    int lastIndex = inPoints.length() -1;
-    if (density < 0.00001 || lastIndex < 1) {
-        outPoints = inPoints;
-        return;
-    }
+  int lastIndex = inPoints.length() - 1;
+  if (density < 0.00001 || lastIndex < 1)
+  {
+    outPoints = inPoints;
+    return;
+  }
 
-    float gap = 1.0 / density;
+  float gap = 1.0 / density;
 
-    for (size_t i = 0; i < lastIndex; i++)
+  for (size_t i = 0; i < lastIndex; i++)
+  {
+    const MFloatPoint &start = inPoints[i];
+    const MFloatPoint &end = inPoints[i + 1];
+
+    float dist = start.distanceTo(end);
+    int numGaps = int(ceilf(dist / gap));
+
+    for (size_t i = 0; i < numGaps; i++)
     {
-        const MFloatPoint & start =  inPoints[i];
-        const MFloatPoint & end =  inPoints[i+1];
 
-        float dist = start.distanceTo(end);
-        int numGaps = int(ceilf(dist / gap));
-        // float fgap = dist / numGaps;
-
-        for (size_t i = 0; i < numGaps; i++)
-        {
-
-          float param =  i / float(numGaps);
-          outPoints.append((start * (1.0-param)) + (end*param));
-        }
+      float param = i / float(numGaps);
+      outPoints.append((start * (1.0 - param)) + (end * param));
     }
-    outPoints.append(inPoints[lastIndex]);
+  }
+  outPoints.append(inPoints[lastIndex]);
 }
 
-
+/// @brief Given a set of points and colors, insert new points in between successive each pair of points
+/// @param inPoints The input points
+/// @param inColors The input colors
+/// @param density How many points per centimeter
+/// @param outPoints Reference to the output points
+/// @param outColors Reference to the output colors
 void strokeCreator::subsample(
-    const MFloatPointArray & inPoints,
-    const MColorArray & inColors, 
+    const MFloatPointArray &inPoints,
+    const MColorArray &inColors,
     float density,
-    MFloatPointArray & outPoints,
-    MColorArray & outColors ) const 
+    MFloatPointArray &outPoints,
+    MColorArray &outColors) const
 {
-    int lastIndex = inPoints.length() -1;
-    if (density < 0.00001 || lastIndex < 1) {
-        outPoints = inPoints;
-        outColors = inColors;
-        return;
-    }
- 
-    float gap = 1.0 / density;
+  int lastIndex = inPoints.length() - 1;
+  if (density < 0.00001 || lastIndex < 1)
+  {
+    outPoints = inPoints;
+    outColors = inColors;
+    return;
+  }
 
-    for (size_t i = 0; i < lastIndex; i++)
+  float gap = 1.0 / density;
+
+  for (size_t i = 0; i < lastIndex; i++)
+  {
+    const MFloatPoint &start = inPoints[i];
+    const MFloatPoint &end = inPoints[i + 1];
+
+    const MColor &startColor = inColors[i];
+    const MColor &endColor = inColors[i + 1];
+
+    float dist = start.distanceTo(end);
+    int numGaps = int(ceilf(dist / gap));
+
+    for (size_t i = 0; i < numGaps; i++)
     {
-        const MFloatPoint & start =  inPoints[i];
-        const MFloatPoint & end =  inPoints[i+1];
-
-        const MColor & startColor =  inColors[i];
-        const MColor & endColor =  inColors[i+1];
-
-
-        float dist = start.distanceTo(end);
-        int numGaps = int(ceilf(dist / gap));
-        // float fgap = dist / numGaps;
-    
-        for (size_t i = 0; i < numGaps; i++)
-        {
-          float param =  i / float(numGaps);
-          outPoints.append((start * (1.0-param)) + (end*param));
-          outColors.append((startColor * (1.0-param)) + (endColor*param));
-        }
+      float param = i / float(numGaps);
+      outPoints.append((start * (1.0 - param)) + (end * param));
+      outColors.append((startColor * (1.0 - param)) + (endColor * param));
     }
-    outPoints.append(inPoints[lastIndex]);
-    outColors.append(inColors[lastIndex]);
-    
+  }
+  outPoints.append(inPoints[lastIndex]);
+  outColors.append(inColors[lastIndex]);
 }
-
-
-// void strokeCreator::applyRotations(
-//     MDataBlock &data,
-//     std::vector<Stroke> *pOutStrokes) const
-// {
-  
-
-//   MDataHandle hTilt = data.inputValue(aBrushTilt);
-//   float tiltStart = float(hTilt.child(aBrushTiltStart).asAngle().asRadians());
-//   float tiltEnd = float(hTilt.child(aBrushTiltEnd).asAngle().asRadians());
-  
-//   MDataHandle hBank = data.inputValue(aBrushBank);
-//   float bankStart = float(hBank.child(aBrushBankStart).asAngle().asRadians());
-//   float bankEnd = float(hBank.child(aBrushBankEnd).asAngle().asRadians());
-  
-//   MDataHandle hTwist = data.inputValue(aBrushTwist);
-//   float twistStart = float(hTwist.child(aBrushTwistStart).asAngle().asRadians());
-//   float twistEnd = float(hTwist.child(aBrushTwistEnd).asAngle().asRadians());
-  
-//   PaintingEnums::BrushRotateOrder order =   PaintingEnums::BrushRotateOrder(data.inputValue(aBrushRotateOrder).asShort());
-  
-
-//   switch (order)
-//   {
-//   case PaintingEnums::kTwistTiltBank:
-//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-//     {
-//       MFloatArray params;
-//       curr_stroke->calculateParams(params);
-//       unsigned i = 0;
-//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-//       {
-//         const float &param = params[i];
-//         float rparam = 1.0 - param;
-//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
-//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
-
-//         curr_target->applyTwist(twistAngle);
-//         curr_target->applyTilt(tiltAngle);
-//         curr_target->applyBank(bankAngle);
-//       }
-//     }
-//     break;
-//   case PaintingEnums::kTiltBankTwist:
-//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-//     {
-//       MFloatArray params;
-//       curr_stroke->calculateParams(params);
-//       unsigned i = 0;
-//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-//       {
-//         const float &param = params[i];
-//         float rparam = 1.0 - param;
-//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
-//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
-
-//         curr_target->applyTilt(tiltAngle);
-//         curr_target->applyBank(bankAngle);
-//         curr_target->applyTwist(twistAngle);
-//       }
-//     }
-//     break;
-//   case PaintingEnums::kBankTwistTilt:
-//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-//     {
-//       MFloatArray params;
-//       curr_stroke->calculateParams(params);
-//       unsigned i = 0;
-//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-//       {
-//         const float &param = params[i];
-//         float rparam = 1.0 - param;
-//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
-//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
-
-//         curr_target->applyBank(bankAngle);
-//         curr_target->applyTwist(twistAngle);
-//         curr_target->applyTilt(tiltAngle);
-//       }
-//     }
-//     break;
-//   case PaintingEnums::kTiltTwistBank:
-//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-//     {
-//       MFloatArray params;
-//       curr_stroke->calculateParams(params);
-//       unsigned i = 0;
-//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-//       {
-//         const float &param = params[i];
-//         float rparam = 1.0 - param;
-//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
-//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
-
-//         curr_target->applyTilt(tiltAngle);
-//         curr_target->applyTwist(twistAngle);
-//         curr_target->applyBank(bankAngle);
-//       }
-//     }
-//     break;
-//   case PaintingEnums::kTwistBankTilt:
-//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-//     {
-//       MFloatArray params;
-//       curr_stroke->calculateParams(params);
-//       unsigned i = 0;
-//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-//       {
-//         const float &param = params[i];
-//         float rparam = 1.0 - param;
-//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
-//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
-
-//         curr_target->applyTwist(twistAngle);
-//         curr_target->applyBank(bankAngle);
-//         curr_target->applyTilt(tiltAngle);
-//       }
-//     }
-//     break;
-//   default: // case strokeCreator::kBankTiltTwist:
-//     for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-//     {
-//       MFloatArray params;
-//       curr_stroke->calculateParams(params);
-//       unsigned i = 0;
-//       Stroke::target_iterator curr_target = curr_stroke->targets_begin();
-//       for (; curr_target != curr_stroke->targets_end(); curr_target++, i++)
-//       {
-//         const float &param = params[i];
-//         float rparam = 1.0 - param;
-//         float twistAngle = (twistStart * rparam) + (twistEnd * param);
-//         float tiltAngle = (tiltStart * rparam) + (tiltEnd * param);
-//         float bankAngle = (bankStart * rparam) + (bankEnd * param);
-
-//         curr_target->applyBank(bankAngle);
-//         curr_target->applyTilt(tiltAngle);
-//         curr_target->applyTwist(twistAngle);
-//       }
-//     }
-//     break;
-//   }
-// }

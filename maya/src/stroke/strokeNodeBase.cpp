@@ -14,11 +14,7 @@
 
 #include <jMayaIds.h>
 #include "texUtils.h"
-#include "brushShopData.h"
-
-const double rad_to_deg = (180 / 3.1415927);
-const double deg_to_rad = (3.1415927 / 180);
-
+ 
 MObject strokeNodeBase::aStrokeSortKey;
 MObject strokeNodeBase::aStrokeSortDirection;
 MObject strokeNodeBase::aStrokeSortList;
