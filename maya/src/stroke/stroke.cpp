@@ -82,25 +82,6 @@ Stroke::Stroke(
 }
 
 Stroke::Stroke(
-	const std::vector<MFloatMatrix> &matrices,
-	const MFloatArray &weights)
-	: Stroke()
-{
-	MStatus st;
-
-	unsigned i = 0;
-	std::vector<MFloatMatrix>::const_iterator current_matrix = matrices.begin();
-	for (; current_matrix != matrices.end(); current_matrix++, i++)
-	{
-		m_targets.push_back(
-			Target(*current_matrix, weights[i]));
-	}
-
-	m_pivot = Target(m_targets[0]);
-	resetTangents();
-}
-
-Stroke::Stroke(
 	const Stroke &instroke,
 	unsigned start,
 	unsigned count)

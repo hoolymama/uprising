@@ -105,10 +105,6 @@ public:
 	Stroke(
 		const std::vector<MFloatMatrix> &matrices);
 
-	Stroke(
-		const std::vector<MFloatMatrix> &matrices,
-		const MFloatArray &weights);
-
 	/**
 	 * @brief Construct a new Stroke from a subsection of the input stroke.
 	 *
