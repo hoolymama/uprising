@@ -111,11 +111,6 @@ public:
 		const MFloatMatrix &rotationMat);
 
 	Stroke(
-		const MFloatPointArray &points,
-		const MColorArray &colors,
-		const MFloatMatrix &rotationMat);
-
-	Stroke(
 		const std::vector<MFloatMatrix> &matrices,
 		const MFloatArray &weights);
 
@@ -225,7 +220,6 @@ public:
 
 	void setLayerId(int rhs);
 	int layerId() const;
-	int customBrushId() const;
 
 	int brushId() const;
 	int paintId() const;
@@ -391,10 +385,14 @@ private:
 
 	void setTransitionContact();
 
-	std::vector<Target> m_targets; // flat targets with 3d rotations
-	Target m_pivot;
-	std::vector<Target> m_arrivals;
-	Target m_departure;
+
+	std::vector<Target> m_targets; // The list of targets
+
+	// [[deprecated("Pivots for rotations and so on should be generated dynamically.")]]
+	Target m_pivot;  // The pivot. 
+
+	std::vector<Target> m_arrivals; // A list of targets that describe the path to the start of the stroke.
+	Target m_departure; // A target after the last stroke target.
 
 	int m_strokeId;
 	int m_segmentId;
@@ -402,13 +400,16 @@ private:
 	int m_paintId;
 	int m_layerId;
 	int m_parentId;
-	int m_customBrushId;
 	int m_repeatId;
 	int m_brushModelId;
+
 	float m_maxRadius;
+
 	MFloatVector m_sortColor;
 	MFloatVector m_filterColor;
 	MIntArray m_sortStack;
+
+
 	float m_linearSpeed;
 	float m_angularSpeed;
 	float m_approximationDistance;
@@ -417,9 +418,9 @@ private:
 
 	MString m_creatorName;
 	int m_creatorId;
-	float m_ditherProbability;
 
-	
+
+	float m_ditherProbability;
 
 	BrushStrokeSpec m_brushStrokeSpec;
 };

@@ -107,11 +107,14 @@ MStatus particleStrokeNode::generateStrokeGeometry(
                     pts,
                     colors);
         
-        pStrokes->push_back(Stroke(
-            pts, 
-            colors,
-            targetRotationMatrix
-            ));
+
+        Stroke stroke(pts, targetRotationMatrix);
+        Stroke::target_iterator target = stroke.targets_begin();
+        for (int i=0; target != stroke.targets_end(); target++, i++)
+        {
+            target->setColor(colors[i]);
+        }
+        pStrokes->push_back(stroke);
     }
 
     strokeCreator::generateStrokeGeometry(plug,data,pStrokes);

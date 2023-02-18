@@ -60,18 +60,6 @@ Stroke::Stroke(
 	resetTangents();
 }
 
-Stroke::Stroke(
-	const MFloatPointArray &points,
-	const MColorArray &colors,
-	const MFloatMatrix &rotationMat)
-	: Stroke(points, rotationMat)
-{
-	std::vector<Target>::iterator iter = m_targets.begin();
-	for (int i = 0; iter != m_targets.end(); iter++, i++)
-	{
-		iter->setColor(colors[i]);
-	}
-}
 
 Stroke::Stroke(
 	const std::vector<MFloatMatrix> &matrices)
@@ -780,10 +768,6 @@ int Stroke::layerId() const
 {
 	return m_layerId;
 }
-int Stroke::customBrushId() const
-{
-	return m_customBrushId;
-}
 
 int Stroke::brushId() const
 {
@@ -856,11 +840,6 @@ void Stroke::appendBrushIdToSortStack(bool ascending)
 	m_sortStack.append(val);
 }
 
-// void Stroke::appendCustomBrushIdToSortStack(bool ascending)
-// {
-// 	int val = ascending ? int(m_customBrushId) : -int(m_customBrushId);
-// 	m_sortStack.append(val);
-// }
 
 void Stroke::appendPaintIdToSortStack(bool ascending)
 {
