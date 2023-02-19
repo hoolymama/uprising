@@ -29,6 +29,8 @@
 #include "mayaMath.h"
 #include "pearlChainData.h"
 #include "texUtils.h"
+#include "strokeUtils.h"
+
 const double rad_to_deg = (180 / 3.1415927);
 
 MObject pearlStrokeNode::aTargetRotationMatrix;
@@ -214,26 +216,39 @@ MStatus pearlStrokeNode::generateStrokeGeometry(
             current_chain->appendPointsTo(editPoints, wm);
             current_chain->appendRadiiTo(radii, float(scale));
 
-            Stroke stroke(editPoints, radii, pointDensity, minimumPoints, targetRotationMatrix);
-         
+
+            MFloatPointArray resultPoints;
+            MFloatVectorArray resultTangents;
+            MFloatArray resultParams;
+            st = StrokeUtils::resampleCurve(
+                editPoints,
+                pointDensity,
+                minimumPoints,
+                resultPoints,
+                resultTangents,
+                resultParams);
+
+            if (!st)
+            {
+            continue;
+            }
+            Stroke stroke(resultPoints, targetRotationMatrix);
+
             if (stroke.valid())
             {
-                Stroke::target_iterator titer = stroke.targets_begin();
-                for (; titer != stroke.targets_end(); titer++)
+                Stroke::target_iterator target = stroke.targets_begin();
+                for (; target != stroke.targets_end(); target++)
                 {
-                    float w = titer->weight();
-                    titer->setColor(MColor(w,w,w,w));
+                    float w = StrokeUtils::interpFloat(radii, resultParams[i]);
+                    target->setWeight(w);
+                    target->setColor(MColor(w,w,w,w));
                 }
                 stroke.setParentId(elIndex);
+                stroke.setLayerId(layerId);
                 pOutStrokes->push_back(stroke);
+
             }
         }
-
-    }
-
-    for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-    {
-        curr_stroke->setLayerId(layerId);
     }
 
     if ((smoothPositions || smoothWeights) && smoothNeighbors > 0)
@@ -243,8 +258,6 @@ MStatus pearlStrokeNode::generateStrokeGeometry(
             curr_stroke->smoothTargets(smoothNeighbors, smoothPositions, smoothWeights);
         }
     }
-
-
 
     strokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);
 

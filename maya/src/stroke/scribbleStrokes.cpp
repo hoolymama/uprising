@@ -28,8 +28,8 @@
 
 #include "errorMacros.h"
 #include "texUtils.h"
+#include "strokeUtils.h"
 #include "enums.h"
-
 
 const float PI = 3.14159265359;
 
@@ -187,7 +187,7 @@ MStatus scribbleStrokes::initialize()
   eAttr.setKeyable(true);
   st = addAttribute(aRotateOrder);
 
-  aProjectToPlane = nAttr.create("projectToPlane", "ptp",  MFnNumericData::kBoolean);
+  aProjectToPlane = nAttr.create("projectToPlane", "ptp", MFnNumericData::kBoolean);
   nAttr.setHidden(false);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
@@ -200,7 +200,6 @@ MStatus scribbleStrokes::initialize()
   mAttr.setHidden(false);
   mAttr.setKeyable(true);
   addAttribute(aProjectionPlaneMatrix);
-
 
   aColorPropagation = eAttr.create("ColorPropagation", "cpr", scribbleStrokes::kOverride);
   eAttr.addField("interpolate", scribbleStrokes::kInterpolate);
@@ -278,13 +277,11 @@ MStatus scribbleStrokes::mutate(
   MMatrix projectionMatrix = data.inputValue(aProjectionPlaneMatrix).asMatrix();
   MMatrix projectionMatrixInverse = projectionMatrix.inverse();
 
-  float dummy1 =  data.inputValue(aRadiusOffset).asFloat();
-  float dummy2 =  data.inputValue(aRadiusGain).asFloat();
-  float dummy3 =  data.inputValue(aTiltMap).asFloat();
-  float dummy4 =  data.inputValue(aBankMap).asFloat();
-  float dummy5 =  data.inputValue(aTwistMap).asFloat();
-
-
+  float dummy1 = data.inputValue(aRadiusOffset).asFloat();
+  float dummy2 = data.inputValue(aRadiusGain).asFloat();
+  float dummy3 = data.inputValue(aTiltMap).asFloat();
+  float dummy4 = data.inputValue(aBankMap).asFloat();
+  float dummy5 = data.inputValue(aTwistMap).asFloat();
 
   float tilt = float(data.inputValue(aTilt).asAngle().asRadians());
   float bank = float(data.inputValue(aBank).asAngle().asRadians());
@@ -302,7 +299,7 @@ MStatus scribbleStrokes::mutate(
 
   float angleCm = float(data.inputValue(aAngle).asAngle().asRadians());
 
-  PaintingEnums::BrushRotateOrder order =  PaintingEnums::BrushRotateOrder(data.inputValue(aRotateOrder).asShort());
+  PaintingEnums::BrushRotateOrder order = PaintingEnums::BrushRotateOrder(data.inputValue(aRotateOrder).asShort());
   scribbleStrokes::ColorPropagation propagation = scribbleStrokes::ColorPropagation(data.inputValue(aColorPropagation).asShort());
 
   MFloatVector rgbOverride = data.inputValue(aColorOverride).asFloatVector();
@@ -316,8 +313,8 @@ MStatus scribbleStrokes::mutate(
   std::vector<Stroke>::iterator siter = sourceStrokes.begin();
   std::vector<Stroke>::iterator senditer = sourceStrokes.end();
 
-  bool  doInterp = (propagation == scribbleStrokes::kInterpolate);
-  // cerr << "interpolate: " << doInterp << endl; 
+  bool doInterp = (propagation == scribbleStrokes::kInterpolate);
+  // cerr << "interpolate: " << doInterp << endl;
   int mapIndex = 0;
   for (; siter != senditer; siter++)
   {
@@ -333,7 +330,6 @@ MStatus scribbleStrokes::mutate(
     MFloatArray weights(len);
     MColorArray colors(len);
 
-    
     if (doInterp)
     {
       titer = siter->targets().begin();
@@ -344,11 +340,11 @@ MStatus scribbleStrokes::mutate(
         colors.set(titer->color(), t);
       }
     }
-    // cerr << "Set orig colors: " << colors << endl; 
+    // cerr << "Set orig colors: " << colors << endl;
 
     std::vector<MFloatMatrix> scribbleTransforms;
     calculateScribbleTransforms(*siter, mapIndex, tilts, banks, twists, order, scribbleTransforms);
-    unsigned t = 0; 
+    unsigned t = 0;
     for (titer = siter->targets().begin(); titer != tenditer; titer++, t++, mapIndex++)
     {
       if (titer != siter->targets().begin())
@@ -363,31 +359,54 @@ MStatus scribbleStrokes::mutate(
       editPoints.set((titer->position() + (tangent * radius).rotateBy(q)), t);
     }
 
-    if (projectToPlane) {
+    if (projectToPlane)
+    {
       for (int k = 0; k < editPoints.length(); k++)
       {
-        const MPoint & ep = editPoints[k];
+        const MPoint &ep = editPoints[k];
         MPoint epLocal = ep * projectionMatrixInverse;
         epLocal.z = 0;
         editPoints[k] = epLocal * projectionMatrix;
       }
     }
 
-    Stroke stroke;
-    // cerr << "Making new stroke" << endl;
-    if (doInterp)
-    {
-      // cerr << "doInterp true, so colors = " << colors << endl;
-      stroke = Stroke(editPoints, weights, colors, pointDensity, minimumPoints, targetRotationMatrix);
-    }
-    else
-    {
-      stroke = Stroke(editPoints, pointDensity, minimumPoints, targetRotationMatrix);
 
-      for ( Stroke::target_iterator ttiter = stroke.targets_begin(); ttiter !=  stroke.targets_end(); ttiter++)
+    // cerr << "Making new stroke" << endl;
+
+    MFloatPointArray resultPoints;
+    MFloatVectorArray resultTangents;
+    MFloatArray resultParams;
+    st = StrokeUtils::resampleCurve(
+        editPoints,
+        pointDensity,
+        minimumPoints,
+        resultPoints,
+        resultTangents,
+        resultParams);
+
+    if (!st)
+    {
+      continue;
+    }
+
+
+    Stroke stroke(resultPoints, targetRotationMatrix);
+
+    Stroke::target_iterator target = stroke.targets_begin();
+    for (int i = 0; target != stroke.targets_end(); target++, i++)
+    {
+      if (doInterp)
       {
-        ttiter->setWeight(weightOverride);
-        ttiter->setColor(colorOverride);
+
+        float w = StrokeUtils::interpFloat(weights, resultParams[i]);
+        MColor c = StrokeUtils::interpColor(colors, resultParams[i]);
+        target->setWeight(w);
+        target->setColor(c);
+      }
+      else
+      {
+        target->setWeight(weightOverride);
+        target->setColor(colorOverride);
       }
     }
 
