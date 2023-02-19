@@ -26,7 +26,6 @@ private:
       MDataBlock &data,
       std::vector<Stroke> *pStrokes);
 
-  // static MObject aViewpoint;
   static MObject aTargetRotationMatrix;
   static MObject aTrails;
 };

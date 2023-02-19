@@ -370,7 +370,12 @@ void hatchStrokes::addHatchSet(
       hcolors[j] *= rampColors[j];
     }
 
-    Stroke stroke(flowPoints, hcolors, targetRotationMatrix);
+    Stroke stroke(flowPoints, targetRotationMatrix);
+    Stroke::target_iterator target = stroke.targets_begin();
+    for (int i=0; target != stroke.targets_end(); target++, i++)
+    {
+        target->setColor(hcolors[i]);
+    }
 
     if (stroke.valid())
     {

@@ -25,6 +25,7 @@
 class Stroke
 {
 public:
+	/// @brief Iterator types for targets. This facilitates looping over targets.
 	using target_iterator = typename std::vector<Target>::iterator;
 	using const_target_iterator = typename std::vector<Target>::const_iterator;
 
@@ -37,13 +38,6 @@ public:
 	target_iterator arrivals_end() { return m_arrivals.end(); }
 	const_target_iterator arrivals_begin() const { return m_arrivals.begin(); }
 	const_target_iterator arrivals_end() const { return m_arrivals.end(); }
-
-	enum TranslationDirection
-	{
-		kConstant,
-		kAlternateRepeat,
-		kAlternateAll
-	};
 
 	enum DirectionMethod
 	{
@@ -79,7 +73,7 @@ public:
 		kBrushModelId,
 		kBrushShape,
 		kSegmentId
-		
+
 	};
 
 	enum SortDirection
@@ -88,41 +82,30 @@ public:
 		kSortDescending
 	};
 
-	static float interpFloat(const MFloatArray &values, float param);
-	static MColor interpColor(const MColorArray &colors, float param);
-
+	/**
+	 * @brief Construct a new Stroke object
+	 *
+	 */
 	Stroke();
 
 	/**
- * @brief Construct a new Stroke object with an artray of points and an initial
- * rotation matrix.
+	 * @brief Construct a new Stroke object with an array of points and an initial
+	 * rotation matrix.
 
- All targets will have this matrix initially.
- View tangents will be calculated from points.
- *
- * @param points An array of points.
- * @param rotationMat A matrix, which is expected to be unit scale.
- */
-	Stroke(
-		const MFloatPointArray &points,
-		const MFloatMatrix &rotationMat);
+	All targets will have this matrix initially.
+	View tangents will be calculated from points.
+	*
+	* @param points An array of points.
+	* @param rotationMat A matrix, which is expected to be unit scale.
+	*/
+	Stroke(const MFloatPointArray &points,
+		   const MFloatMatrix &rotationMat);
 
-	Stroke(
-		const std::vector<MFloatMatrix> &matrices);
-
-	Stroke(
-		const MFloatPointArray &points,
-		const MFloatArray &weights,
-		const MFloatMatrix &rotationMat);
-
-	Stroke(
-		const MFloatPointArray &points,
-		const MColorArray &colors,
-		const MFloatMatrix &rotationMat);
-
-	Stroke(
-		const std::vector<MFloatMatrix> &matrices,
-		const MFloatArray &weights);
+	/**
+	 * @brief Construct a new Stroke object with an array of matrices.
+	 *
+	 */
+	Stroke(const std::vector<MFloatMatrix> &matrices);
 
 	/**
 	 * @brief Construct a new Stroke from a subsection of the input stroke.
@@ -131,49 +114,25 @@ public:
 	 * @param start The target index to start at
 	 * @param count The number of targets.
 	 */
-	Stroke(
-		const Stroke &instroke,
-		unsigned start,
-		unsigned count);
+	Stroke(const Stroke &instroke,
+		   unsigned start,
+		   unsigned count);
 
-	Stroke(
-		const MPointArray &editPoints,
-		MFloatArray radii,
-		float resampleDensity,
-		int minimumPoints,
-		const MFloatMatrix &rotationMat);
-
-	Stroke(
-		const MPointArray &editPoints,
-		float resampleDensity,
-		int minimumPoints,
-		const MFloatMatrix &rotationMat);
-
-	Stroke(
-		const MPointArray &editPoints,
-		const MColorArray &colors,
-		int numPoints,
-		const MFloatMatrix &rotationMat);
-
-	Stroke(
-		const MPointArray &editPoints,
-		const MFloatArray &originalWeights,
-		const MColorArray &originalColors,
-		float resampleDensity,
-		int minimumPoints,
-		const MFloatMatrix &rotationMat);
-
+	/**
+	 * @brief Destroy the Stroke object
+	 * 
+	 */
 	~Stroke();
 
 	void setCreator(const MString &creatorName, int creatorId);
-	const MString & creatorName() const;
+
+	const MString &creatorName() const;
+
 	int creatorId() const;
 
-
 	float ditherProbability() const;
+
 	void setDitherProbability(float probability);
-
-
 
 	void setStrokeId(unsigned rhs);
 
@@ -195,10 +154,6 @@ public:
 
 	unsigned size(bool withTraversal = false) const;
 
-	// void appendTangents(MVectorArray &result) const;
-
-	// void getParams(MFloatArray &result) const;
-
 	const std::vector<Target> &targets() const;
 
 	float calculateArcLength() const;
@@ -207,7 +162,7 @@ public:
 
 	void getPointAtParam(float param, MFloatPoint &result) const;
 	void setBrushStrokeSpec(const BrushStrokeSpec &rhs);
-	const BrushStrokeSpec & brushStrokeSpec() const;
+	const BrushStrokeSpec &brushStrokeSpec() const;
 	const float &paintFlow() const;
 
 	const Target &pivot() const;
@@ -233,18 +188,16 @@ public:
 
 	void setLayerId(int rhs);
 	int layerId() const;
-	int customBrushId() const;
 
 	int brushId() const;
 	int paintId() const;
 
 	void setBrushId(int val);
-	// void setCustomBrushId(int val);
+
 	void setBrushModelId(int rhs);
- 	int brushModelId() const;
-	
+	int brushModelId() const;
+
 	void setPaintId(int val);
- 
 
 	void setSortColor(const MFloatVector &color);
 	void setFilterColor(const MFloatVector &color);
@@ -259,9 +212,6 @@ public:
 	void appendTargetCountToSortStack(bool ascending);
 	void appendBrushModelIdToSortStack(bool ascending);
 	void appendBrushShapeToSortStack(bool ascending);
-	
-
-	// void appendCustomBrushIdToSortStack(bool ascending);
 
 	void appendMapRedIdToSortStack(bool ascending);
 	void appendMapGreenIdToSortStack(bool ascending);
@@ -279,9 +229,6 @@ public:
 	bool testTargetCount(FilterOperator op, int value) const;
 	bool testBrushModelId(FilterOperator op, int value) const;
 	bool testBrushShape(FilterOperator op, int value) const;
-	
-
-	
 
 	bool testMapRedId(FilterOperator op, int value) const;
 	bool testMapGreenId(FilterOperator op, int value) const;
@@ -330,7 +277,6 @@ public:
 	void positions(
 		const MFloatMatrix &space,
 		MFloatPointArray &result) const;
-
 
 	void rotations(
 		const MFloatMatrix &space,
@@ -390,8 +336,6 @@ public:
 
 	void smoothTargets(int neighbors, bool doPositions, bool doWeights);
 
-	// void calculateTubeMatrices(const MMatrix&initialMatrix ,const  MVector & initialTangent, MMatrixArray & tubeMatrices) const ;
-
 	friend bool operator<(const Stroke &a, const Stroke &b);
 	friend ostream &operator<<(ostream &os, const Stroke &s);
 
@@ -406,10 +350,13 @@ private:
 
 	void setTransitionContact();
 
-	std::vector<Target> m_targets; // flat targets with 3d rotations
-	Target m_pivot;
-	std::vector<Target> m_arrivals;
-	Target m_departure;
+	std::vector<Target> m_targets; // The list of targets
+
+	// [[deprecated("Pivots for rotations and so on should be generated dynamically.")]]
+	Target m_pivot; // The pivot.
+
+	std::vector<Target> m_arrivals; // A list of targets that describe the path to the start of the stroke.
+	Target m_departure;				// A target after the last stroke target.
 
 	int m_strokeId;
 	int m_segmentId;
@@ -417,13 +364,15 @@ private:
 	int m_paintId;
 	int m_layerId;
 	int m_parentId;
-	int m_customBrushId;
 	int m_repeatId;
 	int m_brushModelId;
+
 	float m_maxRadius;
+
 	MFloatVector m_sortColor;
 	MFloatVector m_filterColor;
 	MIntArray m_sortStack;
+
 	float m_linearSpeed;
 	float m_angularSpeed;
 	float m_approximationDistance;
@@ -432,55 +381,10 @@ private:
 
 	MString m_creatorName;
 	int m_creatorId;
-	float m_ditherProbability;
 
-	
+	float m_ditherProbability;
 
 	BrushStrokeSpec m_brushStrokeSpec;
 };
-
-inline float Stroke::interpFloat(const MFloatArray &values, float param)
-{
-	int len = values.length();
-	if (len < 2)
-	{
-		return 1.0;
-	}
-	int last = (len - 1);
-	if (param >= 1.0f)
-	{
-		return values[last];
-	}
-	else if (param <= 0.0f)
-	{
-		return values[0];
-	}
-	float t = param * last;
-	float r = t - floor(t);
-	int lindex = int(t);
-	return (values[lindex] * (1 - r)) + (values[(lindex + 1)] * (r));
-}
-
-inline MColor Stroke::interpColor(const MColorArray &colors, float param)
-{
-	int len = colors.length();
-	if (len < 2)
-	{
-		return MColor(1.0f, 1.0f, 1.0f, 1.0f);
-	}
-	int last = (len - 1);
-	if (param >= 1.0f)
-	{
-		return colors[last];
-	}
-	else if (param <= 0.0f)
-	{
-		return colors[0];
-	}
-	float t = param * last;
-	float r = t - floor(t);
-	int lindex = int(t);
-	return (colors[lindex] * (1 - r)) + (colors[(lindex + 1)] * (r));
-}
 
 #endif

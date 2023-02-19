@@ -30,6 +30,8 @@
 #include "mayaMath.h"
 #include "skChainData.h"
 
+#include "strokeUtils.h"
+
 const double rad_to_deg = (180 / 3.1415927);
 
 MObject skeletonStrokeNode::aExtendEntry;
@@ -549,7 +551,7 @@ unsigned skeletonStrokeNode::createStrokeData(
         float curveDist = startDist + (i * gap);
         double uniformParam = curveFn.findParamFromLength(curveDist);
         curveParams.append(uniformParam);
-        float radius = Stroke::interpFloat(radii, uniformParam);
+        float radius = StrokeUtils::interpFloat(radii, uniformParam);
         strokeRadii.append(radius);
         // maxRadius = fmax(maxRadius, radius);
     }

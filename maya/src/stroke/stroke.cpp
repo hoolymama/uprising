@@ -6,11 +6,12 @@
 #include <maya/MQuaternion.h>
 #include <algorithm>
 #include <vector>
-const double rad_to_deg = (180 / 3.1415927);
 #include "errorMacros.h"
 #include "mayaMath.h"
 #include <stroke.h>
 #include <enums.h>
+#include "strokeUtils.h"
+const double rad_to_deg = (180 / 3.1415927);
 
 const double epsilon = 0.0001;
 
@@ -40,6 +41,7 @@ Stroke::Stroke()
 {
 }
 
+
 Stroke::Stroke(
 	const MFloatPointArray &points,
 	const MFloatMatrix &rotationMat)
@@ -60,19 +62,6 @@ Stroke::Stroke(
 }
 
 Stroke::Stroke(
-	const MFloatPointArray &points,
-	const MColorArray &colors,
-	const MFloatMatrix &rotationMat)
-	: Stroke(points, rotationMat)
-{
-	std::vector<Target>::iterator iter = m_targets.begin();
-	for (int i = 0; iter != m_targets.end(); iter++, i++)
-	{
-		iter->setColor(colors[i]);
-	}
-}
-
-Stroke::Stroke(
 	const std::vector<MFloatMatrix> &matrices)
 	: Stroke()
 {
@@ -89,49 +78,6 @@ Stroke::Stroke(
 	m_pivot = Target(m_targets[0]);
 	resetTangents();
 	
-}
-
-Stroke::Stroke(
-	const MFloatPointArray &points,
-	const MFloatArray &weights,
-	const MFloatMatrix &rotationMat)
-	: Stroke()
-{
-
-	MStatus st;
-	int len = points.length();
-
-	MFloatMatrix mat = rotationMat;
-	for (size_t i = 0; i < len; i++)
-	{
-		mat[3][0] = points[i].x;
-		mat[3][1] = points[i].y;
-		mat[3][2] = points[i].z;
-
-		m_targets.push_back(Target(mat, weights[i]));
-	}
-
-	m_pivot = Target(m_targets[0]);
-	resetTangents();
-}
-
-Stroke::Stroke(
-	const std::vector<MFloatMatrix> &matrices,
-	const MFloatArray &weights)
-	: Stroke()
-{
-	MStatus st;
-
-	unsigned i = 0;
-	std::vector<MFloatMatrix>::const_iterator current_matrix = matrices.begin();
-	for (; current_matrix != matrices.end(); current_matrix++, i++)
-	{
-		m_targets.push_back(
-			Target(*current_matrix, weights[i]));
-	}
-
-	m_pivot = Target(m_targets[0]);
-	resetTangents();
 }
 
 Stroke::Stroke(
@@ -157,313 +103,6 @@ Stroke::Stroke(
 	m_pivot = instroke.pivot();
 	resetTangents(); // because the end tangents will change.
 }
-
-Stroke::Stroke(
-	const MPointArray &editPoints,
-	float resampleDensity,
-	int minimumPoints,
-	const MFloatMatrix &rotationMat)
-	: Stroke()
-{
-
-	MStatus st;
-	MFnNurbsCurve curveFn;
-	MFnNurbsCurveData dataCreator;
-	MObject curveData = dataCreator.create(&st);
-	mser;
-	if (st.error())
-		return;
-
-	MObject curveObject = curveFn.createWithEditPoints(
-		editPoints, 3, MFnNurbsCurve::kOpen,
-		false,
-		false,
-		false,
-		curveData,
-		&st);
-	mser;
-	if (st.error())
-		return;
-
-	MDoubleArray knotVals;
-	st = curveFn.getKnots(knotVals);
-	int numKnots = knotVals.length();
-	double recip = 1.0 / knotVals[(numKnots - 1)];
-	for (int i = 0; i < numKnots; ++i)
-	{
-		knotVals[i] = knotVals[i] * recip;
-	}
-	curveFn.setKnots(knotVals, 0, (numKnots - 1));
-
-	double curveLength = curveFn.length(epsilon);
-	int numPoints = int(resampleDensity * fabs(curveLength));
-	numPoints = std::max(numPoints, minimumPoints);
-	float gap = curveLength / (numPoints - 1);
-
-	MFloatPointArray points;
-
-	for (unsigned i = 0; i < numPoints; i++)
-	{
-		float curveDist = i * gap;
-
-		double curveParam = curveFn.findParamFromLength(curveDist);
-		MPoint point;
-		st = curveFn.getPointAtParam(curveParam, point, MSpace::kObject);
-		mser;
-		if (st.error())
-			return;
-
-		points.append(point);
-
-	}
-
-	MFloatMatrix mat = rotationMat;
-	for (size_t i = 0; i < numPoints; i++)
-	{
-		mat[3][0] = points[i].x;
-		mat[3][1] = points[i].y;
-		mat[3][2] = points[i].z;
-		m_targets.push_back(Target(mat));
-	}
-	m_pivot = Target(m_targets[0]);
-	resetTangents();
-}
-
-Stroke::Stroke(
-	const MPointArray &editPoints,
-	MFloatArray radii,
-	float resampleDensity,
-	int minimumPoints,
-	const MFloatMatrix &rotationMat)
-	: Stroke()
-{
-
-	MStatus st;
-	MFnNurbsCurve curveFn;
-	MFnNurbsCurveData dataCreator;
-	MObject curveData = dataCreator.create(&st);
-	mser;
-	if (st.error())
-		return;
-
-	MObject curveObject = curveFn.createWithEditPoints(
-		editPoints, 3, MFnNurbsCurve::kOpen,
-		false,
-		false,
-		false,
-		curveData,
-		&st);
-	mser;
-	if (st.error())
-		return;
-
-	MDoubleArray knotVals;
-	st = curveFn.getKnots(knotVals);
-	int numKnots = knotVals.length();
-	double recip = 1.0 / knotVals[(numKnots - 1)];
-	for (int i = 0; i < numKnots; ++i)
-	{
-		knotVals[i] = knotVals[i] * recip;
-	}
-	curveFn.setKnots(knotVals, 0, (numKnots - 1));
-
-	double curveLength = curveFn.length(epsilon);
-	int numPoints = int(resampleDensity * fabs(curveLength));
-	numPoints = std::max(numPoints, minimumPoints);
-	float gap = curveLength / (numPoints - 1);
-
-	MFloatPointArray points;
-	MFloatArray weights;
-
-	for (unsigned i = 0; i < numPoints; i++)
-	{
-		float curveDist = i * gap;
-
-		double curveParam = curveFn.findParamFromLength(curveDist);
-		MPoint point;
-		st = curveFn.getPointAtParam(curveParam, point, MSpace::kObject);
-		mser;
-		if (st.error())
-			return;
-
-		float weight = Stroke::interpFloat(radii, curveParam);
-
-		points.append(point);
-		weights.append(weight);
-	}
-
-	MFloatMatrix mat = rotationMat;
-	for (size_t i = 0; i < numPoints; i++)
-	{
-		mat[3][0] = points[i].x;
-		mat[3][1] = points[i].y;
-		mat[3][2] = points[i].z;
-		m_targets.push_back(Target(mat, weights[i]));
-	}
-	m_pivot = Target(m_targets[0]);
-	resetTangents();
-}
-
-
-
-
-
-
-Stroke::Stroke(
-	const MPointArray &editPoints,
-	const MFloatArray &originalWeights,
-	const MColorArray &originalColors,
-	float resampleDensity,
-	int minimumPoints,
-	const MFloatMatrix &rotationMat)
-	: Stroke()
-{
-
-	MStatus st;
-	MFnNurbsCurve curveFn;
-	MFnNurbsCurveData dataCreator;
-	MObject curveData = dataCreator.create(&st);
-	mser;
-	if (st.error())
-		return;
-
-	MObject curveObject = curveFn.createWithEditPoints(
-		editPoints, 3, MFnNurbsCurve::kOpen,
-		false,
-		false,
-		false,
-		curveData,
-		&st);
-	mser;
-	if (st.error())
-		return;
-
-	MDoubleArray knotVals;
-	st = curveFn.getKnots(knotVals);
-	int numKnots = knotVals.length();
-	double recip = 1.0 / knotVals[(numKnots - 1)];
-	for (int i = 0; i < numKnots; ++i)
-	{
-		knotVals[i] = knotVals[i] * recip;
-	}
-	curveFn.setKnots(knotVals, 0, (numKnots - 1));
-
-	double curveLength = curveFn.length(epsilon);
-	int numPoints = int(resampleDensity * fabs(curveLength));
-	numPoints = std::max(numPoints, minimumPoints);
-	float gap = curveLength / (numPoints - 1);
-
-	MFloatPointArray points;
-	MFloatArray weights;
-	MColorArray colors;
-	
-
-	for (unsigned i = 0; i < numPoints; i++)
-	{
-		float curveDist = i * gap;
-
-		double curveParam = curveFn.findParamFromLength(curveDist);
-		MPoint point;
-		st = curveFn.getPointAtParam(curveParam, point, MSpace::kObject);
-		mser;
-		if (st.error())
-			return;
-
-		float weight = Stroke::interpFloat(originalWeights, curveParam);
-		MColor color = Stroke::interpColor(originalColors, curveParam);
-		points.append(point);
-		weights.append(weight);
-		colors.append(color);
-	}
-
-	MFloatMatrix mat = rotationMat;
-	for (size_t i = 0; i < numPoints; i++)
-	{
-		mat[3][0] = points[i].x;
-		mat[3][1] = points[i].y;
-		mat[3][2] = points[i].z;
-		m_targets.push_back(Target(mat, weights[i], colors[i]));
-	}
-	m_pivot = Target(m_targets[0]);
-	resetTangents();
-}
-
-
-
-Stroke::Stroke(
-	const MPointArray &editPoints,
-	const MColorArray &colors,
-	int numPoints,
-	const MFloatMatrix &rotationMat
-	)
-	: Stroke()
-{
-
-	MStatus st;
-	MFnNurbsCurve curveFn;
-	MFnNurbsCurveData dataCreator;
-	MObject curveData = dataCreator.create(&st);
-	mser;
-	if (st.error())
-		return;
-
-	MObject curveObject = curveFn.createWithEditPoints(
-		editPoints, 3, MFnNurbsCurve::kOpen,
-		false,
-		false,
-		false,
-		curveData,
-		&st);
-	mser;
-	if (st.error())
-		return;
-
-	MDoubleArray knotVals;
-	st = curveFn.getKnots(knotVals);
-	int numKnots = knotVals.length();
-	double recip = 1.0 / knotVals[(numKnots - 1)];
-	for (int i = 0; i < numKnots; ++i)
-	{
-		knotVals[i] = knotVals[i] * recip;
-	}
-	curveFn.setKnots(knotVals, 0, (numKnots - 1));
-
-	double curveLength = curveFn.length(epsilon);
-	float gap = curveLength / (numPoints - 1);
-
-	MFloatPointArray points;
-	MFloatArray weights;
-	// MColorArray colors;
-	
-
-	for (unsigned i = 0; i < numPoints; i++)
-	{
-		float curveDist = i * gap;
-
-		double curveParam = curveFn.findParamFromLength(curveDist);
-		MPoint point;
-		st = curveFn.getPointAtParam(curveParam, point, MSpace::kObject);
-		mser;
-		if (st.error())
-			return;
- 
-		points.append(point);
-		weights.append(1.0f);
-	}
-
-	MFloatMatrix mat = rotationMat;
-	for (size_t i = 0; i < numPoints; i++)
-	{
-		mat[3][0] = points[i].x;
-		mat[3][1] = points[i].y;
-		mat[3][2] = points[i].z;
-		m_targets.push_back(Target(mat, weights[i], colors[i]));
-	}
-	m_pivot = Target(m_targets[0]);
-	resetTangents();
-}
-
-
 
 void Stroke::setCreator(const MString &creatorName, int creatorId)
 {
@@ -663,10 +302,6 @@ void Stroke::setPivotMatrix(const MFloatMatrix &rhs)
 
 Stroke::~Stroke() {}
 
-// bool Stroke::backstroke() const
-// {
-// 	return m_backstroke;
-// }
 
 bool operator<(const Stroke &a, const Stroke &b)
 {
@@ -709,15 +344,6 @@ bool operator<(const Stroke &a, const Stroke &b)
 	}
 	return false;
 }
-
-// void Stroke::appendTangents(MVectorArray &result) const
-// {
-// 	std::vector<Target>::const_iterator citer;
-// 	for (citer = m_targets.begin(); citer != m_targets.end(); citer++)
-// 	{
-// 		result.append(citer->tangent());
-// 	}
-// }
 
 const std::vector<Target> &Stroke::targets() const
 {
@@ -792,10 +418,6 @@ int Stroke::layerId() const
 {
 	return m_layerId;
 }
-int Stroke::customBrushId() const
-{
-	return m_customBrushId;
-}
 
 int Stroke::brushId() const
 {
@@ -814,8 +436,6 @@ void Stroke::setPaintId(int val)
 {
 	m_paintId = val;
 }
-
-/////////////////////// SORT AND FILTER ///////////////////////
 
 const MIntArray &Stroke::sortStack() const
 {
@@ -870,11 +490,6 @@ void Stroke::appendBrushIdToSortStack(bool ascending)
 	m_sortStack.append(val);
 }
 
-// void Stroke::appendCustomBrushIdToSortStack(bool ascending)
-// {
-// 	int val = ascending ? int(m_customBrushId) : -int(m_customBrushId);
-// 	m_sortStack.append(val);
-// }
 
 void Stroke::appendPaintIdToSortStack(bool ascending)
 {
@@ -965,8 +580,6 @@ bool Stroke::testBrushId(FilterOperator op, int value) const
 	return testAgainstValue(m_brushId, op, value);
 }
 
-
-
 bool Stroke::testPaintId(FilterOperator op, int value) const
 {
 	return testAgainstValue(m_paintId, op, value);
@@ -993,7 +606,6 @@ bool Stroke::testBrushShape(FilterOperator op, int value) const
 {
 	return testAgainstValue(int(m_brushStrokeSpec.shape), op, value);
 }
-
 
 bool Stroke::testMapRedId(FilterOperator op, int value) const
 {

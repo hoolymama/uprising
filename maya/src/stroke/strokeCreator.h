@@ -7,7 +7,7 @@
 #include "stroke.h"
 
 /**
- * @brief A node with attributes common to al nodes that generate strokes.
+ * @brief A node with attributes common to all nodes that generate new strokes.
  *
  * It inherits from strokeNodeBase and adds point density and initial rot matrix.
  */
@@ -30,10 +30,16 @@ public:
   static MTypeId id;
 
 protected:
-  void subsample(const MFloatPointArray &inPoints, float density, MFloatPointArray &outPoints) const;
-  void subsample(const MFloatPointArray &inPoints, const MColorArray &inColors, float density, MFloatPointArray &outPoints, MColorArray &outColors) const;
+  void subsample(const MFloatPointArray &inPoints,
+                 float density,
+                 MFloatPointArray &outPoints) const;
 
-  // void applyRotations(MDataBlock &data, std::vector<Stroke> *pOutStrokes) const;
+  void subsample(const MFloatPointArray &inPoints,
+                 const MColorArray &inColors,
+                 float density,
+                 MFloatPointArray &outPoints,
+                 MColorArray &outColors) const;
+
   void applyCoats(MDataBlock &data, std::vector<Stroke> *geom) const;
   void applySpeeds(MDataBlock &data, std::vector<Stroke> *geom) const;
   void applyLayerId(MDataBlock &data, std::vector<Stroke> *geom) const;
@@ -45,7 +51,6 @@ protected:
   static MObject aCoats;
   static MObject aPointDensity; ///< The minimum number of targets per centimeter.
   static MObject aLayerId;
-
   static MObject aBrushTiltStart;
   static MObject aBrushTiltEnd;
   static MObject aBrushTilt;
@@ -56,7 +61,6 @@ protected:
   static MObject aBrushBankEnd;
   static MObject aBrushBank;
   static MObject aBrushRotateOrder;
-
   static MObject aLinearSpeed;           // cm/sec
   static MObject aAngularSpeed;          // per sec
   static MObject aApproximationDistance; // cm
