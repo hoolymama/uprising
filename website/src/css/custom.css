@@ -29,6 +29,12 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+.hero {
+  background-image: url("/static/img/hero.png");
+  background-size: cover;
+}
+
+/* NODE ATTRIBUTES */ 
 .attribs 
 {
   display:block;
@@ -84,12 +90,81 @@
   font-size: 0.9em;
   /* line-height: 1.2em; */
 }
-.hero {
-  background-image: url("/static/img/hero.png");
-  background-size: cover;
 
+
+
+/* COMMAND OPTIONS */ 
+.opts 
+{
+  display:block;
+  width: 100%;
+}
+.opts-header {
+  font-weight: bold;
+  background-color: rgba(128,128,128, 0.3);
 }
 
-/* .hero__title {
-  color:"#fff";
-} */
+.opts-block {
+  display:flex;
+  flex-direction:column;
+  width: 100%;
+  margin-top: 6px;
+  border-style: solid;
+  border-color: rgb(128,128,128,0.4);
+  border-width: 1px;
+
+}
+.opts-body {
+  background-color: rgba(128,128,128, 0.1);
+}
+
+.opts-row {
+  display:flex;
+  flex-direction:row;
+}
+
+.opts-row > .opts-name {flex-basis: 50%;}
+.opts-row > .opts-type {flex-basis: 35%;}
+.opts-row > .opts-properties {flex-basis: 15%;}
+
+
+
+.opts-cell {
+  border-style: solid;
+  border-color: rgb(128,128,128,0.4);
+  border-width: 1px;
+  padding-left: 4px;
+}
+
+.opts-flags {
+  display:flex;
+  flex-direction:row;
+  justify-content: space-around;
+  letter-spacing: 0.1em;
+  font-weight:bold;
+}
+.opts-desc {
+  display:block;
+  padding-left: 4px;
+  font-size: 0.9em;
+  /* line-height: 1.2em; */
+}
+
+.opts-properties > span 
+{
+  margin-right:8px;
+}
+
+.opts-prop-create {
+  color: #36be00
+}
+.opts-prop-query {
+  color: #af00db
+}
+.opts-prop-edit {
+  color: #007dd1
+}
+.opts-prop-multiuse {
+  color: #d45800
+}
+

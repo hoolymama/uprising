@@ -1,6 +1,6 @@
 //Maya ASCII 2022 scene
 //Name: doc.ma
-//Last modified: Sun, Feb 19, 2023 08:58:22 PM
+//Last modified: Mon, Feb 20, 2023 02:43:18 AM
 //Codeset: UTF-8
 requires maya "2022";
 requires -nodeType "cImgDilate" -nodeType "curveStroke" -dataType "cImgData" -dataType "cImgFloatData"
@@ -17,7 +17,7 @@ fileInfo "product" "Maya 2022";
 fileInfo "version" "2022";
 fileInfo "cutIdentifier" "202110272215-ad32f8f1e6";
 fileInfo "osv" "Mac OS X 10.16";
-fileInfo "UUID" "07D3F1C8-204C-F753-240C-A2A9CD265D7D";
+fileInfo "UUID" "13911401-1B4D-EA39-1E97-D5BA7D31EDBB";
 createNode transform -s -n "persp";
 	rename -uid "8B163665-2642-1F91-33B6-1EAE1ACEC02C";
 	setAttr ".v" no;
@@ -82,6 +82,190 @@ createNode camera -s -n "sideShape" -p "side";
 	setAttr ".hc" -type "string" "viewSet -s %camera";
 	setAttr ".o" yes;
 	setAttr ".ai_translator" -type "string" "orthographic";
+createNode transform -n "painting_query";
+	rename -uid "1D329369-3E4C-DB91-490C-3D8459920774";
+	addAttr -ci true -sn "docCommandName" -ln "docCommandName" -dt "string";
+	addAttr -ci true -sn "docMeta_Author" -ln "docMeta_Author" -dt "string";
+	addAttr -ci true -sn "docMeta_Email" -ln "docMeta_Email" -dt "string";
+	addAttr -ci true -sn "docMeta_Description" -ln "docMeta_Description" -dt "string";
+	addAttr -ci true -sn "docBlock_Synopsis" -ln "docBlock_Synopsis" -dt "string";
+	addAttr -ci true -sn "docBlock_ReturnValue" -ln "docBlock_ReturnValue" -dt "string";
+	addAttr -ci true -sn "docBlock_MelExamples" -ln "docBlock_MelExamples" -dt "string";
+	addAttr -ci true -sn "docFlag_ClusterBrushId" -ln "docFlag_ClusterBrushId" -dt "string";
+	addAttr -ci true -sn "docFlagContext_ClusterBrushId" -ln "docFlagContext_ClusterBrushId" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_ClusterCount" -ln "docFlag_ClusterCount" -dt "string";
+	addAttr -ci true -sn "docFlagContext_ClusterCount" -ln "docFlagContext_ClusterCount" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_ClusterIndex" -ln "docFlag_ClusterIndex" -dt "string";
+	addAttr -ci true -sn "docFlagContext_ClusterIndex" -ln "docFlagContext_ClusterIndex" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_ClusterPaintId" -ln "docFlag_ClusterPaintId" -dt "string";
+	addAttr -ci true -sn "docFlagContext_ClusterPaintId" -ln "docFlagContext_ClusterPaintId" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_ClusterReason" -ln "docFlag_ClusterReason" -dt "string";
+	addAttr -ci true -sn "docFlagContext_ClusterReason" -ln "docFlagContext_ClusterReason" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_ClusterTravel" -ln "docFlag_ClusterTravel" -dt "string";
+	addAttr -ci true -sn "docFlagContext_ClusterTravel" -ln "docFlagContext_ClusterTravel" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_ClusterTravelCutoff" -ln "docFlag_ClusterTravelCutoff" 
+		-dt "string";
+	addAttr -ci true -sn "docFlagContext_ClusterTravelCutoff" -ln "docFlagContext_ClusterTravelCutoff" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_ClusterPotId" -ln "docFlag_ClusterPotId" -dt "string";
+	addAttr -ci true -sn "docFlagContext_ClusterPotId" -ln "docFlagContext_ClusterPotId" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_GlobalStrokeId" -ln "docFlag_GlobalStrokeId" -dt "string";
+	addAttr -ci true -sn "docFlagContext_GlobalStrokeId" -ln "docFlagContext_GlobalStrokeId" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_Json" -ln "docFlag_Json" -dt "string";
+	addAttr -ci true -sn "docFlagContext_Json" -ln "docFlagContext_Json" -dt "string";
+	addAttr -ci true -sn "docFlag_StrokeLayerId" -ln "docFlag_StrokeLayerId" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeLayerId" -ln "docFlagContext_StrokeLayerId" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_RotateOrder" -ln "docFlag_RotateOrder" -dt "string";
+	addAttr -ci true -sn "docFlagContext_RotateOrder" -ln "docFlagContext_RotateOrder" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_RotateUnit" -ln "docFlag_RotateUnit" -dt "string";
+	addAttr -ci true -sn "docFlagContext_RotateUnit" -ln "docFlagContext_RotateUnit" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeApoproximationDistance" -ln "docFlag_StrokeApoproximationDistance" 
+		-dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeApoproximationDistance" -ln "docFlagContext_StrokeApoproximationDistance" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeArcLength" -ln "docFlag_StrokeArcLength" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeArcLength" -ln "docFlagContext_StrokeArcLength" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeArrivalPositions" -ln "docFlag_StrokeArrivalPositions" 
+		-dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeArrivalPositions" -ln "docFlagContext_StrokeArrivalPositions" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeArrivalRotations" -ln "docFlag_StrokeArrivalRotations" 
+		-dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeArrivalRotations" -ln "docFlagContext_StrokeArrivalRotations" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeCount" -ln "docFlag_StrokeCount" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeCount" -ln "docFlagContext_StrokeCount" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeColors" -ln "docFlag_StrokeColors" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeColors" -ln "docFlagContext_StrokeColors" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeCreator" -ln "docFlag_StrokeCreator" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeCreator" -ln "docFlagContext_StrokeCreator" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeDeparturePosition" -ln "docFlag_StrokeDeparturePosition" 
+		-dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeDeparturePosition" -ln "docFlagContext_StrokeDeparturePosition" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeDepartureRotation" -ln "docFlag_StrokeDepartureRotation" 
+		-dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeDepartureRotation" -ln "docFlagContext_StrokeDepartureRotation" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeIndex" -ln "docFlag_StrokeIndex" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeIndex" -ln "docFlagContext_StrokeIndex" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokePositions" -ln "docFlag_StrokePositions" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokePositions" -ln "docFlagContext_StrokePositions" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeParentIndex" -ln "docFlag_StrokeParentIndex" 
+		-dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeParentIndex" -ln "docFlagContext_StrokeParentIndex" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeRotations" -ln "docFlag_StrokeRotations" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeRotations" -ln "docFlagContext_StrokeRotations" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeSpeedAngular" -ln "docFlag_StrokeSpeedAngular" 
+		-dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeSpeedAngular" -ln "docFlagContext_StrokeSpeedAngular" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeSpeedLinear" -ln "docFlag_StrokeSpeedLinear" 
+		-dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeSpeedLinear" -ln "docFlagContext_StrokeSpeedLinear" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeXaxis" -ln "docFlag_StrokeXaxis" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeXaxis" -ln "docFlagContext_StrokeXaxis" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeYaxis" -ln "docFlag_StrokeYaxis" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeYaxis" -ln "docFlagContext_StrokeYaxis" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_StrokeZaxis" -ln "docFlag_StrokeZaxis" -dt "string";
+	addAttr -ci true -sn "docFlagContext_StrokeZaxis" -ln "docFlagContext_StrokeZaxis" 
+		-dt "string";
+	addAttr -ci true -sn "docFlag_ToolCombinations" -ln "docFlag_ToolCombinations" -dt "string";
+	addAttr -ci true -sn "docFlagContext_ToolCombinations" -ln "docFlagContext_ToolCombinations" 
+		-dt "string";
+	setAttr ".docCommandName" -type "string" "paintingQuery";
+	setAttr ".docMeta_Author" -type "string" "Julian Mann";
+	setAttr ".docMeta_Email" -type "string" "julian.mann@gmail.com";
+	setAttr ".docMeta_Description" -type "string" "paintingQuery brief description";
+	setAttr ".docBlock_Synopsis" -type "string" "How to use paintingQuery";
+	setAttr ".docBlock_ReturnValue" -type "string" "Describe paintingQuery return value";
+	setAttr ".docBlock_MelExamples" -type "string" "```// Enter Valid MEL here```";
+	setAttr ".docFlag_ClusterBrushId" -type "string" "Return the brushId for the cluster with the given given index. You must provide the clusterIndex.";
+	setAttr ".docFlagContext_ClusterBrushId" -type "string" "Q";
+	setAttr ".docFlag_ClusterCount" -type "string" "Return the number of clusters in the painting.";
+	setAttr ".docFlagContext_ClusterCount" -type "string" "Q";
+	setAttr ".docFlag_ClusterIndex" -type "string" "Specifies the cluster index for several other queries.";
+	setAttr ".docFlagContext_ClusterIndex" -type "string" "C";
+	setAttr ".docFlag_ClusterPaintId" -type "string" "Return the paintId for the cluster with the given given index. You must provide the clusterIndex.";
+	setAttr ".docFlagContext_ClusterPaintId" -type "string" "Q";
+	setAttr ".docFlag_ClusterReason" -type "string" "Return the reason for the change to the cluster with the given index. You must provide the clusterIndex. Possible results are:\n<ul>\n<li>tool: The brush was changed.</li> \n<li>dip: The brush was dipped in paint.</li> \n<li>tcp: The brush changed its tool control point parameter.</li>\n</ul>";
+	setAttr ".docFlagContext_ClusterReason" -type "string" "Q";
+	setAttr ".docFlag_ClusterTravel" -type "string" "The distance that the cluster with the given index travels. You must provide the clusterIndex.";
+	setAttr ".docFlagContext_ClusterTravel" -type "string" "Q";
+	setAttr ".docFlag_ClusterTravelCutoff" -type "string" "The distance threshold at which the system stops adding strokes to a cluster. The last stroke of the cluster usually extends further than the cutoff. You must provide the clusterIndex.";
+	setAttr ".docFlagContext_ClusterTravelCutoff" -type "string" "Q";
+	setAttr ".docFlag_ClusterPotId" -type "string" "The pot in which the cluster with the given index dips. You must provide the clusterIndex.";
+	setAttr ".docFlagContext_ClusterPotId" -type "string" "Q";
+	setAttr ".docFlag_GlobalStrokeId" -type "string" "Given a cluster index and a stroke index within the cluster, return the stroke index with respect to the entire painting. You must provide the clusterIndex and the strokeIndex.";
+	setAttr ".docFlagContext_GlobalStrokeId" -type "string" "Q";
+	setAttr ".docFlag_Json" -type "string" "Return a JSON array containing object with the following fields for each stroke:\nbrushId, paintId, layerId, parentId";
+	setAttr ".docFlagContext_Json" -type "string" "Q";
+	setAttr ".docFlag_StrokeLayerId" -type "string" "Return the layerId for the given stroke. You must provide the clusterIndex and the strokeIndex.";
+	setAttr ".docFlagContext_StrokeLayerId" -type "string" "Q";
+	setAttr ".docFlag_RotateOrder" -type "string" "Some commands require the rotateOrder to be provided. For example, the getRotations option needs to know how to deconstruct target matrices.";
+	setAttr ".docFlagContext_RotateOrder" -type "string" "C";
+	setAttr ".docFlag_RotateUnit" -type "string" "Describe -rotateUnit";
+	setAttr ".docFlagContext_RotateUnit" -type "string" "C";
+	setAttr ".docFlag_StrokeApoproximationDistance" -type "string" "Describe -strokeApoproximationDistance";
+	setAttr ".docFlagContext_StrokeApoproximationDistance" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeArcLength" -type "string" "Describe -strokeArcLength";
+	setAttr ".docFlagContext_StrokeArcLength" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeArrivalPositions" -type "string" "Describe -strokeArrivalPositions";
+	setAttr ".docFlagContext_StrokeArrivalPositions" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeArrivalRotations" -type "string" "Describe -strokeArrivalRotations";
+	setAttr ".docFlagContext_StrokeArrivalRotations" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeCount" -type "string" "Describe -strokeCount";
+	setAttr ".docFlagContext_StrokeCount" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeColors" -type "string" "Describe -strokeColors";
+	setAttr ".docFlagContext_StrokeColors" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeCreator" -type "string" "Describe -strokeCreator";
+	setAttr ".docFlagContext_StrokeCreator" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeDeparturePosition" -type "string" "Describe -strokeDeparturePosition";
+	setAttr ".docFlagContext_StrokeDeparturePosition" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeDepartureRotation" -type "string" "Describe -strokeDepartureRotation";
+	setAttr ".docFlagContext_StrokeDepartureRotation" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeIndex" -type "string" "Describe -strokeIndex";
+	setAttr ".docFlagContext_StrokeIndex" -type "string" "CEQM";
+	setAttr ".docFlag_StrokePositions" -type "string" "Describe -strokePositions";
+	setAttr ".docFlagContext_StrokePositions" -type "string" "C";
+	setAttr ".docFlag_StrokeParentIndex" -type "string" "Describe -strokeParentIndex";
+	setAttr ".docFlagContext_StrokeParentIndex" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeRotations" -type "string" "Describe -strokeRotations";
+	setAttr ".docFlagContext_StrokeRotations" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeSpeedAngular" -type "string" "Describe -strokeSpeedAngular";
+	setAttr ".docFlagContext_StrokeSpeedAngular" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeSpeedLinear" -type "string" "Describe -strokeSpeedLinear";
+	setAttr ".docFlagContext_StrokeSpeedLinear" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeXaxis" -type "string" "Describe -strokeXAxis";
+	setAttr ".docFlagContext_StrokeXaxis" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeYaxis" -type "string" "Describe -strokeYAxis";
+	setAttr ".docFlagContext_StrokeYaxis" -type "string" "CEQM";
+	setAttr ".docFlag_StrokeZaxis" -type "string" "Describe -strokeZAxis";
+	setAttr ".docFlagContext_StrokeZaxis" -type "string" "CEQM";
+	setAttr ".docFlag_ToolCombinations" -type "string" "Describe -toolCombinations";
+	setAttr ".docFlagContext_ToolCombinations" -type "string" "CEQM";
 createNode lightLinker -s -n "lightLinker1";
 	rename -uid "74284C3D-2B4D-F2D5-2ED3-5D80887F7F5F";
 	setAttr -s 2 ".lnk";
@@ -112,7 +296,7 @@ createNode script -n "uiConfigurationScriptNode";
 		+ "\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"modelPanel\" (localizedPanelLabel(\"Front View\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\tmodelPanel -edit -l (localizedPanelLabel(\"Front View\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        modelEditor -e \n            -camera \"|front\" \n            -useInteractiveMode 0\n            -displayLights \"default\" \n            -displayAppearance \"smoothShaded\" \n            -activeOnly 0\n            -ignorePanZoom 0\n            -wireframeOnShaded 0\n            -headsUpDisplay 1\n            -holdOuts 1\n            -selectionHiliteDisplay 1\n            -useDefaultMaterial 0\n            -bufferMode \"double\" \n            -twoSidedLighting 0\n            -backfaceCulling 0\n            -xray 0\n            -jointXray 0\n            -activeComponentsXray 0\n            -displayTextures 0\n            -smoothWireframe 0\n            -lineWidth 1\n            -textureAnisotropic 0\n"
 		+ "            -textureHilight 1\n            -textureSampling 2\n            -textureDisplay \"modulate\" \n            -textureMaxSize 16384\n            -fogging 0\n            -fogSource \"fragment\" \n            -fogMode \"linear\" \n            -fogStart 0\n            -fogEnd 100\n            -fogDensity 0.1\n            -fogColor 0.5 0.5 0.5 1 \n            -depthOfFieldPreview 1\n            -maxConstantTransparency 1\n            -rendererName \"vp2Renderer\" \n            -objectFilterShowInHUD 1\n            -isFiltered 0\n            -colorResolution 256 256 \n            -bumpResolution 512 512 \n            -textureCompression 0\n            -transparencyAlgorithm \"frontAndBackCull\" \n            -transpInShadows 0\n            -cullingOverride \"none\" \n            -lowQualityLighting 0\n            -maximumNumHardwareLights 1\n            -occlusionCulling 0\n            -shadingModel 0\n            -useBaseRenderer 0\n            -useReducedRenderer 0\n            -smallObjectCulling 0\n            -smallObjectThreshold -1 \n            -interactiveDisableShadows 0\n"
 		+ "            -interactiveBackFaceCull 0\n            -sortTransparent 1\n            -controllers 1\n            -nurbsCurves 1\n            -nurbsSurfaces 1\n            -polymeshes 1\n            -subdivSurfaces 1\n            -planes 1\n            -lights 1\n            -cameras 1\n            -controlVertices 1\n            -hulls 1\n            -grid 1\n            -imagePlane 1\n            -joints 1\n            -ikHandles 1\n            -deformers 1\n            -dynamics 1\n            -particleInstancers 1\n            -fluids 1\n            -hairSystems 1\n            -follicles 1\n            -nCloths 1\n            -nParticles 1\n            -nRigids 1\n            -dynamicConstraints 1\n            -locators 1\n            -manipulators 1\n            -pluginShapes 1\n            -dimensions 1\n            -handles 1\n            -pivots 1\n            -textures 1\n            -strokes 1\n            -motionTrails 1\n            -clipGhosts 1\n            -greasePencils 1\n            -shadows 0\n            -captureSequenceNumber -1\n"
-		+ "            -width 1\n            -height 1\n            -sceneRenderFilter 0\n            $editorName;\n        modelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"modelPanel\" (localizedPanelLabel(\"Persp View\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\tmodelPanel -edit -l (localizedPanelLabel(\"Persp View\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        modelEditor -e \n            -camera \"|persp\" \n            -useInteractiveMode 0\n            -displayLights \"default\" \n            -displayAppearance \"smoothShaded\" \n            -activeOnly 0\n            -ignorePanZoom 0\n            -wireframeOnShaded 0\n            -headsUpDisplay 1\n            -holdOuts 1\n            -selectionHiliteDisplay 1\n            -useDefaultMaterial 0\n            -bufferMode \"double\" \n            -twoSidedLighting 0\n            -backfaceCulling 0\n            -xray 0\n            -jointXray 0\n"
+		+ "            -width 794\n            -height 1014\n            -sceneRenderFilter 0\n            $editorName;\n        modelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"modelPanel\" (localizedPanelLabel(\"Persp View\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\tmodelPanel -edit -l (localizedPanelLabel(\"Persp View\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        modelEditor -e \n            -camera \"|persp\" \n            -useInteractiveMode 0\n            -displayLights \"default\" \n            -displayAppearance \"smoothShaded\" \n            -activeOnly 0\n            -ignorePanZoom 0\n            -wireframeOnShaded 0\n            -headsUpDisplay 1\n            -holdOuts 1\n            -selectionHiliteDisplay 1\n            -useDefaultMaterial 0\n            -bufferMode \"double\" \n            -twoSidedLighting 0\n            -backfaceCulling 0\n            -xray 0\n            -jointXray 0\n"
 		+ "            -activeComponentsXray 0\n            -displayTextures 0\n            -smoothWireframe 0\n            -lineWidth 1\n            -textureAnisotropic 0\n            -textureHilight 1\n            -textureSampling 2\n            -textureDisplay \"modulate\" \n            -textureMaxSize 16384\n            -fogging 0\n            -fogSource \"fragment\" \n            -fogMode \"linear\" \n            -fogStart 0\n            -fogEnd 100\n            -fogDensity 0.1\n            -fogColor 0.5 0.5 0.5 1 \n            -depthOfFieldPreview 1\n            -maxConstantTransparency 1\n            -rendererName \"vp2Renderer\" \n            -objectFilterShowInHUD 1\n            -isFiltered 0\n            -colorResolution 256 256 \n            -bumpResolution 512 512 \n            -textureCompression 0\n            -transparencyAlgorithm \"frontAndBackCull\" \n            -transpInShadows 0\n            -cullingOverride \"none\" \n            -lowQualityLighting 0\n            -maximumNumHardwareLights 1\n            -occlusionCulling 0\n            -shadingModel 0\n"
 		+ "            -useBaseRenderer 0\n            -useReducedRenderer 0\n            -smallObjectCulling 0\n            -smallObjectThreshold -1 \n            -interactiveDisableShadows 0\n            -interactiveBackFaceCull 0\n            -sortTransparent 1\n            -controllers 1\n            -nurbsCurves 1\n            -nurbsSurfaces 1\n            -polymeshes 1\n            -subdivSurfaces 1\n            -planes 1\n            -lights 1\n            -cameras 1\n            -controlVertices 1\n            -hulls 1\n            -grid 1\n            -imagePlane 1\n            -joints 1\n            -ikHandles 1\n            -deformers 1\n            -dynamics 1\n            -particleInstancers 1\n            -fluids 1\n            -hairSystems 1\n            -follicles 1\n            -nCloths 1\n            -nParticles 1\n            -nRigids 1\n            -dynamicConstraints 1\n            -locators 1\n            -manipulators 1\n            -pluginShapes 1\n            -dimensions 1\n            -handles 1\n            -pivots 1\n            -textures 1\n"
 		+ "            -strokes 1\n            -motionTrails 1\n            -clipGhosts 1\n            -greasePencils 1\n            -shadows 0\n            -captureSequenceNumber -1\n            -width 794\n            -height 1014\n            -sceneRenderFilter 0\n            $editorName;\n        modelEditor -e -viewSelected 0 $editorName;\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\t$panelName = `sceneUIReplacement -getNextPanel \"outlinerPanel\" (localizedPanelLabel(\"ToggledOutliner\")) `;\n\tif (\"\" != $panelName) {\n\t\t$label = `panel -q -label $panelName`;\n\t\toutlinerPanel -edit -l (localizedPanelLabel(\"ToggledOutliner\")) -mbv $menusOkayInPanels  $panelName;\n\t\t$editorName = $panelName;\n        outlinerEditor -e \n            -docTag \"isolOutln_fromSeln\" \n            -showShapes 1\n            -showAssignedMaterials 0\n            -showTimeEditor 1\n            -showReferenceNodes 1\n            -showReferenceMembers 1\n            -showAttributes 0\n            -showConnected 0\n            -showAnimCurvesOnly 0\n            -showMuteInfo 0\n"
@@ -141,8 +325,9 @@ createNode script -n "uiConfigurationScriptNode";
 		+ "                -smoothWireframe 0\n                -lineWidth 1\n                -textureAnisotropic 0\n                -textureHilight 1\n                -textureSampling 2\n                -textureDisplay \"modulate\" \n                -textureMaxSize 16384\n                -fogging 0\n                -fogSource \"fragment\" \n                -fogMode \"linear\" \n                -fogStart 0\n                -fogEnd 100\n                -fogDensity 0.1\n                -fogColor 0.5 0.5 0.5 1 \n                -depthOfFieldPreview 1\n                -maxConstantTransparency 1\n                -objectFilterShowInHUD 1\n                -isFiltered 0\n                -colorResolution 4 4 \n                -bumpResolution 4 4 \n                -textureCompression 0\n                -transparencyAlgorithm \"frontAndBackCull\" \n                -transpInShadows 0\n                -cullingOverride \"none\" \n                -lowQualityLighting 0\n                -maximumNumHardwareLights 0\n                -occlusionCulling 0\n                -shadingModel 0\n"
 		+ "                -useBaseRenderer 0\n                -useReducedRenderer 0\n                -smallObjectCulling 0\n                -smallObjectThreshold -1 \n                -interactiveDisableShadows 0\n                -interactiveBackFaceCull 0\n                -sortTransparent 1\n                -controllers 1\n                -nurbsCurves 1\n                -nurbsSurfaces 1\n                -polymeshes 1\n                -subdivSurfaces 1\n                -planes 1\n                -lights 1\n                -cameras 1\n                -controlVertices 1\n                -hulls 1\n                -grid 1\n                -imagePlane 1\n                -joints 1\n                -ikHandles 1\n                -deformers 1\n                -dynamics 1\n                -particleInstancers 1\n                -fluids 1\n                -hairSystems 1\n                -follicles 1\n                -nCloths 1\n                -nParticles 1\n                -nRigids 1\n                -dynamicConstraints 1\n                -locators 1\n                -manipulators 1\n"
 		+ "                -pluginShapes 1\n                -dimensions 1\n                -handles 1\n                -pivots 1\n                -textures 1\n                -strokes 1\n                -motionTrails 1\n                -clipGhosts 1\n                -greasePencils 1\n                -shadows 0\n                -captureSequenceNumber -1\n                -width 0\n                -height 0\n                -sceneRenderFilter 0\n                -displayMode \"centerEye\" \n                -viewColor 0 0 0 1 \n                -useCustomBackground 1\n                $editorName;\n            stereoCameraView -e -viewSelected 0 $editorName; };\n\t\tif (!$useSceneConfig) {\n\t\t\tpanel -e -l $label $panelName;\n\t\t}\n\t}\n\n\n\tif ($useSceneConfig) {\n        string $configName = `getPanel -cwl (localizedPanelLabel(\"Current Layout\"))`;\n        if (\"\" != $configName) {\n\t\t\tpanelConfiguration -edit -label (localizedPanelLabel(\"Current Layout\")) \n\t\t\t\t-userCreated false\n\t\t\t\t-defaultImage \"\"\n\t\t\t\t-image \"\"\n\t\t\t\t-sc false\n\t\t\t\t-configString \"global string $gMainPane; paneLayout -e -cn \\\"vertical2\\\" -ps 1 50 100 -ps 2 50 100 $gMainPane;\"\n"
-		+ "\t\t\t\t-removeAllPanels\n\t\t\t\t-ap false\n\t\t\t\t\t(localizedPanelLabel(\"Node Editor\")) \n\t\t\t\t\t\"scriptedPanel\"\n\t\t\t\t\t\"$panelName = `scriptedPanel -unParent  -type \\\"nodeEditorPanel\\\" -l (localizedPanelLabel(\\\"Node Editor\\\")) -mbv $menusOkayInPanels `;\\n\\n\\t\\t\\t$editorName = ($panelName+\\\"NodeEditorEd\\\");\\n            nodeEditor -e \\n                -allAttributes 0\\n                -allNodes 0\\n                -autoSizeNodes 0\\n                -consistentNameSize 1\\n                -createNodeCommand \\\"nodeEdCreateNodeCommand\\\" \\n                -connectNodeOnCreation 0\\n                -connectOnDrop 0\\n                -copyConnectionsOnPaste 0\\n                -connectionStyle \\\"bezier\\\" \\n                -connectionMinSegment 0.03\\n                -connectionOffset 0.03\\n                -connectionRoundness 0.8\\n                -connectionTension -100\\n                -defaultPinnedState 0\\n                -additiveGraphingMode 0\\n                -settingsChangedCallback \\\"nodeEdSyncControls\\\" \\n                -traversalDepthLimit -1\\n                -keyPressCommand \\\"nodeEdKeyPressCommand\\\" \\n                -nodeTitleMode \\\"name\\\" \\n                -gridSnap 0\\n                -gridVisibility 1\\n                -crosshairOnEdgeDragging 0\\n                -popupMenuScript \\\"nodeEdBuildPanelMenus\\\" \\n                -showNamespace 1\\n                -showShapes 1\\n                -showSGShapes 0\\n                -showTransforms 1\\n                -useAssets 1\\n                -syncedSelection 1\\n                -extendToShapes 1\\n                -editorMode \\\"default\\\" \\n                -hasWatchpoint 0\\n                $editorName\"\n"
-		+ "\t\t\t\t\t\"scriptedPanel -edit -l (localizedPanelLabel(\\\"Node Editor\\\")) -mbv $menusOkayInPanels  $panelName;\\n\\n\\t\\t\\t$editorName = ($panelName+\\\"NodeEditorEd\\\");\\n            nodeEditor -e \\n                -allAttributes 0\\n                -allNodes 0\\n                -autoSizeNodes 0\\n                -consistentNameSize 1\\n                -createNodeCommand \\\"nodeEdCreateNodeCommand\\\" \\n                -connectNodeOnCreation 0\\n                -connectOnDrop 0\\n                -copyConnectionsOnPaste 0\\n                -connectionStyle \\\"bezier\\\" \\n                -connectionMinSegment 0.03\\n                -connectionOffset 0.03\\n                -connectionRoundness 0.8\\n                -connectionTension -100\\n                -defaultPinnedState 0\\n                -additiveGraphingMode 0\\n                -settingsChangedCallback \\\"nodeEdSyncControls\\\" \\n                -traversalDepthLimit -1\\n                -keyPressCommand \\\"nodeEdKeyPressCommand\\\" \\n                -nodeTitleMode \\\"name\\\" \\n                -gridSnap 0\\n                -gridVisibility 1\\n                -crosshairOnEdgeDragging 0\\n                -popupMenuScript \\\"nodeEdBuildPanelMenus\\\" \\n                -showNamespace 1\\n                -showShapes 1\\n                -showSGShapes 0\\n                -showTransforms 1\\n                -useAssets 1\\n                -syncedSelection 1\\n                -extendToShapes 1\\n                -editorMode \\\"default\\\" \\n                -hasWatchpoint 0\\n                $editorName\"\n"
+		+ "\t\t\t\t-removeAllPanels\n\t\t\t\t-ap false\n\t\t\t\t\t(localizedPanelLabel(\"Front View\")) \n\t\t\t\t\t\"modelPanel\"\n"
+		+ "\t\t\t\t\t\"$panelName = `modelPanel -unParent -l (localizedPanelLabel(\\\"Front View\\\")) -mbv $menusOkayInPanels `;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -cam `findStartUpCamera front` \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"vp2Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -controllers 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 1\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 1\\n    -cameras 1\\n    -controlVertices 1\\n    -hulls 1\\n    -grid 1\\n    -imagePlane 1\\n    -joints 1\\n    -ikHandles 1\\n    -deformers 1\\n    -dynamics 1\\n    -particleInstancers 1\\n    -fluids 1\\n    -hairSystems 1\\n    -follicles 1\\n    -nCloths 1\\n    -nParticles 1\\n    -nRigids 1\\n    -dynamicConstraints 1\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 1\\n    -dimensions 1\\n    -handles 1\\n    -pivots 1\\n    -textures 1\\n    -strokes 1\\n    -motionTrails 1\\n    -clipGhosts 1\\n    -greasePencils 1\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 794\\n    -height 1014\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
+		+ "\t\t\t\t\t\"modelPanel -edit -l (localizedPanelLabel(\\\"Front View\\\")) -mbv $menusOkayInPanels  $panelName;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -cam `findStartUpCamera front` \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"vp2Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -controllers 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 1\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 1\\n    -cameras 1\\n    -controlVertices 1\\n    -hulls 1\\n    -grid 1\\n    -imagePlane 1\\n    -joints 1\\n    -ikHandles 1\\n    -deformers 1\\n    -dynamics 1\\n    -particleInstancers 1\\n    -fluids 1\\n    -hairSystems 1\\n    -follicles 1\\n    -nCloths 1\\n    -nParticles 1\\n    -nRigids 1\\n    -dynamicConstraints 1\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 1\\n    -dimensions 1\\n    -handles 1\\n    -pivots 1\\n    -textures 1\\n    -strokes 1\\n    -motionTrails 1\\n    -clipGhosts 1\\n    -greasePencils 1\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 794\\n    -height 1014\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
 		+ "\t\t\t\t-ap false\n\t\t\t\t\t(localizedPanelLabel(\"Persp View\")) \n\t\t\t\t\t\"modelPanel\"\n"
 		+ "\t\t\t\t\t\"$panelName = `modelPanel -unParent -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels `;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -cam `findStartUpCamera persp` \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"vp2Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -controllers 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 1\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 1\\n    -cameras 1\\n    -controlVertices 1\\n    -hulls 1\\n    -grid 1\\n    -imagePlane 1\\n    -joints 1\\n    -ikHandles 1\\n    -deformers 1\\n    -dynamics 1\\n    -particleInstancers 1\\n    -fluids 1\\n    -hairSystems 1\\n    -follicles 1\\n    -nCloths 1\\n    -nParticles 1\\n    -nRigids 1\\n    -dynamicConstraints 1\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 1\\n    -dimensions 1\\n    -handles 1\\n    -pivots 1\\n    -textures 1\\n    -strokes 1\\n    -motionTrails 1\\n    -clipGhosts 1\\n    -greasePencils 1\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 794\\n    -height 1014\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
 		+ "\t\t\t\t\t\"modelPanel -edit -l (localizedPanelLabel(\\\"Persp View\\\")) -mbv $menusOkayInPanels  $panelName;\\n$editorName = $panelName;\\nmodelEditor -e \\n    -cam `findStartUpCamera persp` \\n    -useInteractiveMode 0\\n    -displayLights \\\"default\\\" \\n    -displayAppearance \\\"smoothShaded\\\" \\n    -activeOnly 0\\n    -ignorePanZoom 0\\n    -wireframeOnShaded 0\\n    -headsUpDisplay 1\\n    -holdOuts 1\\n    -selectionHiliteDisplay 1\\n    -useDefaultMaterial 0\\n    -bufferMode \\\"double\\\" \\n    -twoSidedLighting 0\\n    -backfaceCulling 0\\n    -xray 0\\n    -jointXray 0\\n    -activeComponentsXray 0\\n    -displayTextures 0\\n    -smoothWireframe 0\\n    -lineWidth 1\\n    -textureAnisotropic 0\\n    -textureHilight 1\\n    -textureSampling 2\\n    -textureDisplay \\\"modulate\\\" \\n    -textureMaxSize 16384\\n    -fogging 0\\n    -fogSource \\\"fragment\\\" \\n    -fogMode \\\"linear\\\" \\n    -fogStart 0\\n    -fogEnd 100\\n    -fogDensity 0.1\\n    -fogColor 0.5 0.5 0.5 1 \\n    -depthOfFieldPreview 1\\n    -maxConstantTransparency 1\\n    -rendererName \\\"vp2Renderer\\\" \\n    -objectFilterShowInHUD 1\\n    -isFiltered 0\\n    -colorResolution 256 256 \\n    -bumpResolution 512 512 \\n    -textureCompression 0\\n    -transparencyAlgorithm \\\"frontAndBackCull\\\" \\n    -transpInShadows 0\\n    -cullingOverride \\\"none\\\" \\n    -lowQualityLighting 0\\n    -maximumNumHardwareLights 1\\n    -occlusionCulling 0\\n    -shadingModel 0\\n    -useBaseRenderer 0\\n    -useReducedRenderer 0\\n    -smallObjectCulling 0\\n    -smallObjectThreshold -1 \\n    -interactiveDisableShadows 0\\n    -interactiveBackFaceCull 0\\n    -sortTransparent 1\\n    -controllers 1\\n    -nurbsCurves 1\\n    -nurbsSurfaces 1\\n    -polymeshes 1\\n    -subdivSurfaces 1\\n    -planes 1\\n    -lights 1\\n    -cameras 1\\n    -controlVertices 1\\n    -hulls 1\\n    -grid 1\\n    -imagePlane 1\\n    -joints 1\\n    -ikHandles 1\\n    -deformers 1\\n    -dynamics 1\\n    -particleInstancers 1\\n    -fluids 1\\n    -hairSystems 1\\n    -follicles 1\\n    -nCloths 1\\n    -nParticles 1\\n    -nRigids 1\\n    -dynamicConstraints 1\\n    -locators 1\\n    -manipulators 1\\n    -pluginShapes 1\\n    -dimensions 1\\n    -handles 1\\n    -pivots 1\\n    -textures 1\\n    -strokes 1\\n    -motionTrails 1\\n    -clipGhosts 1\\n    -greasePencils 1\\n    -shadows 0\\n    -captureSequenceNumber -1\\n    -width 794\\n    -height 1014\\n    -sceneRenderFilter 0\\n    $editorName;\\nmodelEditor -e -viewSelected 0 $editorName\"\n"
@@ -260,11 +445,10 @@ createNode cImgDilate -n "cImgDilate1";
 	setAttr ".docAttr_Median" -type "string" "Perform a median filter to fill small holes.";
 	setAttr ".docAttr_Bitwise" -type "string" "Since the dilation operation can expand or shrink the original, the bitwise ops make it possible to, for example isolate only the area that is different, thereby resulting in a border mask.  \nAvailable operations are: \"None\", \"OR\", \"AND\", \"XOR\"";
 createNode nodeGraphEditorInfo -n "MayaNodeEditorSavedTabsInfo";
-	rename -uid "13830A07-9347-D4E9-6A6C-13AE1FDF00C5";
-	setAttr ".pee" yes;
+	rename -uid "7F447338-2445-1FCC-1D42-FB8DD06722E2";
 	setAttr ".tgi[0].tn" -type "string" "Untitled_1";
-	setAttr ".tgi[0].vl" -type "double2" -458.92855319238919 -583.9285482253357 ;
-	setAttr ".tgi[0].vh" -type "double2" 474.40474305361107 572.02378679362653 ;
+	setAttr ".tgi[0].vl" -type "double2" -458.92855319238919 -89.880948809404401 ;
+	setAttr ".tgi[0].vh" -type "double2" 495.83331363068771 572.02378679362653 ;
 	setAttr -s 2 ".tgi[0].ni";
 	setAttr ".tgi[0].ni[0].x" 19.642856597900391;
 	setAttr ".tgi[0].ni[0].y" 131.547607421875;
