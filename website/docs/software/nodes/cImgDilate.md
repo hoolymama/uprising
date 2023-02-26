@@ -3,8 +3,8 @@ title: cImgDilate
 author: Julian Mann
 email: julian.mann@gmail.com
 last_update: 
-  date: 2023/02/19
-description: Dilate or erode a cImg
+  date: 2023/02/26
+description: cImgDilate brief description
 plugin: Uprising
 type: Maya Node
 ---
@@ -84,7 +84,7 @@ cImgDilate is an image transformation that can be used to grow or shrink the whi
             <div class="attribs-flags attribs-cell">IOCKS            </div>
         </div>
         <div class="attribs-desc">
-            <p>Set a threshold value on the image. thi is useful for ensuring that the dilation is performed in an image of black and white only.</p>
+            <p>Set a threshold value on the image. This is useful for ensuring that the dilation is performed in an image of black and white only.</p>
         </div>
     </div>
     <div class="attribs-block attribs-d-1">
