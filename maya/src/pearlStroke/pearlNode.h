@@ -59,11 +59,6 @@ private:
     std::vector<pearlChain> *geom, 
     CImg<unsigned char> *pInkImage) const;
 
-  // MStatus generateFillerChains(
-  //   MDataBlock &data, 
-  //   std::vector<pearlChain> *geom, 
-  //   CImg<unsigned char> *pInkImage) const;
-
   MFloatMatrix  imageTransform(int w, int h) const;
 
   static MObject aImage;
@@ -76,6 +71,7 @@ private:
   static MObject aMaxStampWidth;
 
   static MObject aMinBranchTwigLength;
+
   static MObject aMinLooseTwigLength;
 
   static MObject aLongestChain;

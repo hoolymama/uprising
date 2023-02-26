@@ -25,7 +25,7 @@ class skGraph
 {
 public:
     skGraph();
-    // skGraph(const CImg<float>   &inImage, int x, int y, int resx , int res);
+
     skGraph(const CImg<float> &inImage);
 
     ~skGraph();
@@ -58,6 +58,7 @@ public:
     void adjustRadius(float offset, float maxRadius, float minRadius=0.0f);
 
     void prune(int minBranchLength);
+    
     void detachBranches();
 
     void  trimToLongestChain();
