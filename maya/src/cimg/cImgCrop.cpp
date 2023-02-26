@@ -16,7 +16,7 @@
 #include "jMayaIds.h"
 
 MTypeId cImgCrop::id(k_cImgCrop);
- 
+
 MObject cImgCrop::aInput;
 MObject cImgCrop::aResize;
 MObject cImgCrop::aResizeResolution;
@@ -24,12 +24,12 @@ MObject cImgCrop::aBoundary;
 MObject cImgCrop::aApplyCrop;
 MObject cImgCrop::aCropCorner;
 MObject cImgCrop::aCropResolution;
+MObject cImgCrop::aLetterbox;
 
 MObject cImgCrop::aOutput;
 MObject cImgCrop::aOutputCropFactor;
 MObject cImgCrop::aOutputOffsetFactorX;
 MObject cImgCrop::aOutputOffsetFactorY;
-
 
 cImgCrop::cImgCrop() {}
 
@@ -48,11 +48,12 @@ MStatus cImgCrop::initialize()
 	MFnTypedAttribute tAttr;
 	MFnCompoundAttribute cAttr;
 	MFnEnumAttribute eAttr;
-	
-	aInput = tAttr.create("input", "in", cImgData::id ) ;
+
+	aInput = tAttr.create("input", "in", cImgData::id);
 	tAttr.setReadable(false);
 	tAttr.setKeyable(true);
-	st = addAttribute( aInput ); mser;
+	st = addAttribute(aInput);
+	mser;
 
 	aBoundary = eAttr.create("boundary", "bnd", cImgCrop::kBoundaryDirichlet);
 	eAttr.addField("dirichlet", cImgCrop::kBoundaryDirichlet);
@@ -60,7 +61,17 @@ MStatus cImgCrop::initialize()
 	eAttr.setHidden(false);
 	eAttr.setStorable(true);
 	st = addAttribute(aBoundary);
-	
+
+	aLetterbox = eAttr.create("letterbox", "lbx", cImgCrop::kBlack);
+	eAttr.addField("black", cImgCrop::kBlack);
+	eAttr.addField("white", cImgCrop::kWhite);
+	eAttr.addField("repeat", cImgCrop::kRepeat);
+	eAttr.setHidden(false);
+	eAttr.setStorable(true);
+	eAttr.setKeyable(true);
+
+	st = addAttribute(aLetterbox);
+
 	aResize = nAttr.create("resize", "rsz", MFnNumericData::kBoolean);
 	nAttr.setHidden(false);
 	nAttr.setStorable(true);
@@ -100,7 +111,6 @@ MStatus cImgCrop::initialize()
 	tAttr.setKeyable(false);
 	addAttribute(aOutput);
 
-
 	aOutputCropFactor = nAttr.create("outputCropFactor", "ocf", MFnNumericData::kFloat);
 	nAttr.setHidden(false);
 	nAttr.setStorable(false);
@@ -117,7 +127,7 @@ MStatus cImgCrop::initialize()
 	nAttr.setKeyable(false);
 	st = addAttribute(aOutputOffsetFactorX);
 
-	aOutputOffsetFactorY= nAttr.create("outputOffsetFactorY", "oofy", MFnNumericData::kFloat);
+	aOutputOffsetFactorY = nAttr.create("outputOffsetFactorY", "oofy", MFnNumericData::kFloat);
 	nAttr.setHidden(false);
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
@@ -125,13 +135,12 @@ MStatus cImgCrop::initialize()
 	nAttr.setKeyable(false);
 	st = addAttribute(aOutputOffsetFactorY);
 
-
-
 	attributeAffects(aBoundary, aOutput);
 	attributeAffects(aInput, aOutput);
 	attributeAffects(aResize, aOutput);
 	attributeAffects(aResizeResolution, aOutput);
 	attributeAffects(aApplyCrop, aOutput);
+	attributeAffects(aLetterbox, aOutput);
 
 	attributeAffects(aInput, aOutputCropFactor);
 	attributeAffects(aResize, aOutputCropFactor);
@@ -157,11 +166,7 @@ MStatus cImgCrop::compute(const MPlug &plug, MDataBlock &data)
 	MObject thisObj = thisMObject();
 
 	if (!(
-			(plug == aOutput) 
-			|| (plug == aOutputCropFactor)
-			|| (plug == aOutputOffsetFactorX)
-			|| (plug == aOutputOffsetFactorY)
-			))
+			(plug == aOutput) || (plug == aOutputCropFactor) || (plug == aOutputOffsetFactorX) || (plug == aOutputOffsetFactorY)))
 	{
 		return (MS::kUnknownParameter);
 	}
@@ -173,22 +178,23 @@ MStatus cImgCrop::compute(const MPlug &plug, MDataBlock &data)
 	bool applyCrop = data.inputValue(aApplyCrop).asBool();
 	short boundary = data.inputValue(aBoundary).asShort();
 
+	cImgCrop::Letterbox letterbox = (cImgCrop::Letterbox)data.inputValue(aLetterbox).asShort();
+
 	float cropFactor = 1.0f;
 	float offsetFactorX = 0.0f;
 	float offsetFactorY = 0.0f;
-	
 
-	MDataHandle hImageData = data.inputValue(aInput, &st); msert;
+	MDataHandle hImageData = data.inputValue(aInput, &st);
+	msert;
 	MObject dImageData = hImageData.data();
-	MFnPluginData fnImageData( dImageData , &st);
-	if (st.error()) {
+	MFnPluginData fnImageData(dImageData, &st);
+	if (st.error())
+	{
 		return MS::kUnknownParameter;
 	}
 	cImgData *imageData = (cImgData *)fnImageData.data();
-	// CImg<unsigned char> *inImage = imageData->fImg;
 	CImg<unsigned char> image(*(imageData->fImg));
 
- 
 	int xres = image.width();
 	int yres = image.height();
 	int spectrum = image.spectrum();
@@ -207,13 +213,14 @@ MStatus cImgCrop::compute(const MPlug &plug, MDataBlock &data)
 		{
 			yres = int((yres * resolution) / float(xres));
 			xres = resolution;
-		} else  {
+		}
+		else
+		{
 			xres = int((xres * resolution) / float(yres));
 			yres = resolution;
 		}
 		image.resize(xres, yres, -100, -100, 1);
 	}
-
 
 	MDataHandle hOutput = data.outputValue(aOutput);
 	MFnPluginData fnOut;
@@ -227,7 +234,6 @@ MStatus cImgCrop::compute(const MPlug &plug, MDataBlock &data)
 	int xOffset = (squareRes - xres) / 2;
 	int yOffset = (squareRes - yres) / 2;
 
-
 	if (applyCrop)
 	{
 		const int2 &cropCorner = data.inputValue(aCropCorner).asInt2();
@@ -240,28 +246,36 @@ MStatus cImgCrop::compute(const MPlug &plug, MDataBlock &data)
 		int cropRes = fmin(cropResX, cropResY);
 
 		;
-		outimage->assign(image.crop(cropX, cropY,cropX+cropRes-1,cropY+cropRes-1, boundary ));
-
+		outimage->assign(image.crop(cropX, cropY, cropX + cropRes - 1, cropY + cropRes - 1, boundary));
 
 		float fSquareRes = float(squareRes);
 		cropFactor = cropResX / fSquareRes;
-		offsetFactorX = (cropX+xOffset) / fSquareRes;
-		offsetFactorY = (cropY+yOffset) / fSquareRes;
+		offsetFactorX = (cropX + xOffset) / fSquareRes;
+		offsetFactorY = (cropY + yOffset) / fSquareRes;
+	}
+	else
+	{
+		const unsigned char  bg = (letterbox == Letterbox::kWhite) ? 255 : 0;
 
+			outimage->assign(squareRes, squareRes, 1, spectrum, bg);
 
-	} else {
-		outimage->assign(squareRes, squareRes, 1, 1, 0);
-		// if (xOffset > 0) {
-		// 	CImg<unsigned char> leftImg = image.get_crop(0,0,0,yres).resize(xOffset, yres, -100, -100, 1);
-		// 	CImg<unsigned char> rightImg = image.get_crop(xres-1,0, xres-1,yres).resize(xOffset, yres, -100, -100, 1);
-		// 	outimage->draw_image(0, 0, 0, 0, leftImg);
-		// 	outimage->draw_image(xOffset+xres, 0, 0, 0, rightImg);
-		// } else if (yOffset > 0) {
-		// 	CImg<unsigned char> topImg = image.get_crop(0,0,xres,0).resize(xres, yOffset, -100, -100, 1);
-		// 	CImg<unsigned char> bottomImg = image.get_crop(0,yres-1, xres,yres-1).resize(xres, yOffset, -100, -100, 1);
-		// 	outimage->draw_image(0, 0, 0, 0, topImg);
-		// 	outimage->draw_image(0, yOffset+yres, 0, 0, bottomImg);
-		// }
+		if (letterbox == Letterbox::kRepeat)
+		{
+			if (xOffset > 0)
+			{
+				CImg<unsigned char> leftImg = image.get_crop(0, 0, 0, yres).resize(xOffset, yres, -100, -100, 1);
+				CImg<unsigned char> rightImg = image.get_crop(xres - 1, 0, xres - 1, yres).resize(xOffset, yres, -100, -100, 1);
+				outimage->draw_image(0, 0, 0, 0, leftImg);
+				outimage->draw_image(xOffset + xres, 0, 0, 0, rightImg);
+			}
+			else if (yOffset > 0)
+			{
+				CImg<unsigned char> topImg = image.get_crop(0, 0, xres, 0).resize(xres, yOffset, -100, -100, 1);
+				CImg<unsigned char> bottomImg = image.get_crop(0, yres - 1, xres, yres - 1).resize(xres, yOffset, -100, -100, 1);
+				outimage->draw_image(0, 0, 0, 0, topImg);
+				outimage->draw_image(0, yOffset + yres, 0, 0, bottomImg);
+			}
+		}
 		outimage->draw_image(xOffset, yOffset, 0, 0, image);
 	}
 
@@ -277,12 +291,10 @@ MStatus cImgCrop::compute(const MPlug &plug, MDataBlock &data)
 	hOutputOffsetFactorY.set(offsetFactorY);
 	hOutputOffsetFactorY.setClean();
 
-
 	hOutput.set(newData);
 	data.setClean(plug);
 	return MS::kSuccess;
 }
-
 
 MStatus cImgCrop::setDependentsDirty(
 	const MPlug &plugBeingDirtied,
@@ -307,7 +319,6 @@ MStatus cImgCrop::setDependentsDirty(
 				MPlug(thisNode, cImgCrop::aOutputOffsetFactorX));
 			affectedPlugs.append(
 				MPlug(thisNode, cImgCrop::aOutputOffsetFactorY));
-
 		}
 	}
 	return MS::kSuccess;
