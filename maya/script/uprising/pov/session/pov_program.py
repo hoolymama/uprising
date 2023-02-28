@@ -46,19 +46,15 @@ class PovProgram(Program):
         end = min((start + chunk_length), num_strokes)
         is_last_chunk = end >= num_strokes
 
-        # progress.update(
-        #     minor_line="Writing {} strokes from {} to {}".format(
-        #         self.program_name, start, end)
-        # )
+        self.painting.send_brushes(with_brush_geo)
 
         if chunk_id == 0:
-            for brush in self.painting.brushes:
-                dmx_id =  self.painting.brushes[brush].dmx_id
-                
-                pov_lights.send_lights_off(self.program, dmx_id, self.run_on_robot)
-            pov_lights.send_shutter(self.program, self.run_on_robot)
+            self._send_init()
 
-        self.painting.send_brushes(with_brush_geo)
+        self.painting.send_brushes(with_brush_geo)        
+
+
+
 
         if self.run_on_robot:
             robo.link().setRunMode(RUNMODE_RUN_ROBOT) 
@@ -88,3 +84,16 @@ class PovProgram(Program):
             # starting another painting. -1 means indefinite pause.
             if self.pause_at_end != 0:
                 self.program.Pause(self.pause_at_end)
+
+    def _send_init(self):
+        for brush in self.painting.brushes:
+            dmx_id =  self.painting.brushes[brush].dmx_id
+            pov_lights.send_lights_off(self.program, dmx_id, self.run_on_robot)
+
+        # move to beginning of first stroke before opening shutter so that there's no mo-blur
+        # during approach when lights off.
+        first_stroke = self.painting.strokes[0]
+        brush_id = first_stroke.brush_id
+        dmx_id = self.painting.brushes[brush_id].dmx_id
+        first_stroke.targets[0].send("init", self.program, self.frame, dmx_id, None, self.run_on_robot)
+        pov_lights.send_shutter(self.program, self.run_on_robot)
