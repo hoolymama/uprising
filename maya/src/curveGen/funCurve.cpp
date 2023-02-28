@@ -209,16 +209,7 @@ MStatus funCurve::createCurve(const MPointArray &points, MObject &curveData, dou
 
 	curveFn.createWithEditPoints(curvePoints, 3, MFnNurbsCurve::kOpen, false, false, false, curveData, &st);
 	msert;
-	cerr << "Created curve with " << curvePoints.length() << " points" << endl;
-	// MDoubleArray knotVals;
-	// st = curveFn.getKnots(knotVals);
-	// int numKnots = knotVals.length();
-	// double recip = 1.0 / knotVals[(numKnots - 1)];
-	// for (int i = 0; i < numKnots; ++i)
-	// {
-	// 	knotVals[i] = knotVals[i] * recip;
-	// }
-	// curveFn.setKnots(knotVals, 0, (numKnots - 1));
+
 	return MS::kSuccess;
 }
 
@@ -283,18 +274,18 @@ MStatus funCurve::compute(const MPlug &plug, MDataBlock &data)
 	}
 	if (globalContext.length() > 2)
 	{
-		cerr << "Exec global context" << endl;
-		cerr << globalContext << endl;
+		// cerr << "Exec global context" << endl;
+		// cerr << globalContext << endl;
 		MGlobal::executePythonCommand(globalContext);
-		cerr << "-----------------------" << endl;
+		// cerr << "-----------------------" << endl;
 	}
 	// RUN PRE COMMANDS
 	// Global variables above may be used in the pre command.
 	MString preCommand = data.inputValue(aPreCommand).asString();
 	MGlobal::executePythonCommand(preCommand);
-	cerr << "preCommand:" << endl;
-	cerr << preCommand << endl;
-	cerr << "-----------------------" << endl;
+	// cerr << "preCommand:" << endl;
+	// cerr << preCommand << endl;
+	// cerr << "-----------------------" << endl;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -304,33 +295,33 @@ MStatus funCurve::compute(const MPlug &plug, MDataBlock &data)
 	cerr << "fun: " << fun << endl << endl;
 	// Register the function
 	MGlobal::executePythonCommand(fun);
-	cerr << "-----------------------" << endl;
+	// cerr << "-----------------------" << endl;
 
 	MPointArray points;
 	points.clear();
-	cerr << "subSampleRangeBegin: " << subSampleRangeBegin << endl;
-	cerr << "subSampleRangeEnd: " << subSampleRangeEnd << endl;
+	// cerr << "subSampleRangeBegin: " << subSampleRangeBegin << endl;
+	// cerr << "subSampleRangeEnd: " << subSampleRangeEnd << endl;
 	for (unsigned i=subSampleRangeBegin ; i<subSampleRangeEnd; i++)
 	{
 		MString cmd ;
 		double parameter = g_p0 + g_pr * i / double(samples-1);
-		cerr << "sample: " << i << " -- parameter" << parameter << endl;
+		// cerr << "sample: " << i << " -- parameter" << parameter << endl;
 		MDoubleArray xyz(3);
 		cmd = "funCurveExpr("; cmd += parameter; cmd+=",";cmd+=i, cmd += ")";
 		MGlobal::executePythonCommand(cmd, xyz);
 
 		points.append(MPoint(xyz[0], xyz[1], xyz[2]));
 	}
-	cerr << "create curve: " << endl;
+	// cerr << "create curve: " << endl;
 	MObject curveObject;
 	double minimumEPDistance = data.inputValue(aMinimumEPDistance).asDouble();
 	funCurve::createCurve(points, curveObject, minimumEPDistance);
-	JPMDBG
+	// JPMDBG
 	// // output
 	// ////////////////////////////////////////////////////
 	MDataHandle hOut = data.outputValue(aOutput);
 	hOut.set(curveObject);
-	JPMDBG
+	// JPMDBG
 	st = data.setClean(plug);
 
 	////////////////////////////////////////////////////
