@@ -34,16 +34,15 @@ def send_lights(program, dmx, run_on_robot, color, last_color=None):
 
 def _send_light(program, dmx, channel, value, run_on_robot, trigger=True):
     # NOTE: NEED TO REWRITE FOR RUN ON ROBOT!!!
+    
+    
     if run_on_robot:
-        if trigger:
-            channel = channel + 10
-        else:
-            channel = channel + 5
+        trigger_offset = 24 if trigger else 0
+        channel = channel + trigger_offset + (dmx * 4)
         program.setDO(channel, value)
         return
-
-    channel = channel + (dmx * 4)
-
+    
+    # Not running on robot
     if trigger:
         program.RunInstruction(
             "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[{:d}]={:.3f}".format(channel, value),
@@ -62,9 +61,9 @@ def send_shutter(program, run_on_robot):
     Shutter behaves like a toggle. If it's open, it closes, and vice versa.
     """
     if run_on_robot:
-        program.setDO(1, 1.0)
+        program.setDO(49, 1.0)
         program.Pause(1000)
-        program.setDO(1, 0.0)
+        program.setDO(49, 0.0)
         return
 
     program.setDO(1, "TRUE")
