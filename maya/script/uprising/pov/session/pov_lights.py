@@ -35,15 +35,16 @@ def send_lights(program, dmx, run_on_robot, color, last_color=None):
 def _send_light(program, dmx, channel, value, run_on_robot, trigger=True):
     # NOTE: NEED TO REWRITE FOR RUN ON ROBOT!!!
     
-    
+    channel = channel + (dmx * 4)
     if run_on_robot:
         trigger_offset = 24 if trigger else 0
-        channel = channel + trigger_offset + (dmx * 4)
+        channel = channel + trigger_offset
         program.setDO(channel, value)
         return
     
     # Not running on robot
     if trigger:
+
         program.RunInstruction(
             "TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[{:d}]={:.3f}".format(channel, value),
             INSTRUCTION_INSERT_CODE,
