@@ -1,4 +1,0 @@
-# Hardware
-
-
-This is hard
