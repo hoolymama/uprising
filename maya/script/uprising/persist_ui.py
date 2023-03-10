@@ -9,11 +9,15 @@ class PersistentWidget(object):
         self.var_name = var_name
         self.default_value = default_value
 
-        def populate(self):
-            return NotImplementedError
+    def populate(self):
+        return NotImplementedError
 
-        def save(self):
-            return NotImplementedError
+    def save(self):
+        return NotImplementedError
+
+    def reset(self):
+        pm.optionVar[self.var_name] = self.default_value
+        self.populate()
 
 class PersistentCheckBox(PersistentWidget):
 
@@ -22,9 +26,9 @@ class PersistentCheckBox(PersistentWidget):
         
     def populate(self):
         val=pm.optionVar.get(self.var_name, self.default_value)
-
         pm.checkBox(self.control, e=True,value=val)
 
+ 
 
 class PersistentCheckBoxGrp(PersistentWidget):
 
@@ -38,6 +42,7 @@ class PersistentCheckBoxGrp(PersistentWidget):
             val = [val]
         val = (list(val)+[False,False,False,False])[0:4]
         pm.checkBoxGrp(self.control, e=True,valueArray4=val)
+
 
 class PersistentRadioButtonGrp(PersistentWidget):
 
@@ -104,6 +109,17 @@ class PersistentTextFieldGrp(PersistentWidget):
         val=pm.optionVar.get(self.var_name, self.default_value)
         pm.textFieldGrp(self.control, e=True, text=val)
 
+
+class PersistentTextFieldButtonGrp(PersistentWidget):
+
+    def save(self):
+        pm.optionVar[self.var_name] = pm.textFieldButtonGrp(self.control, q=True, text=True)
+        
+    def populate(self):
+        val=pm.optionVar.get(self.var_name, self.default_value)
+        pm.textFieldButtonGrp(self.control, e=True, text=val)
+
+
 class PersistentScrollField(PersistentWidget):
 
     def save(self):
@@ -129,6 +145,8 @@ def factory( owner, control_name, ov_prefix, default_value=None):
         return PersistentIntFieldGrp(control,var_name, default_value=default_value)
     elif widget_type == 'TextFieldGrp':
         return PersistentTextFieldGrp(control,var_name, default_value=default_value)
+    elif widget_type == 'TextFieldButtonGrp':
+        return PersistentTextFieldButtonGrp(control,var_name, default_value=default_value)
     elif widget_type == 'ScrollField':
         return PersistentScrollField(control,var_name, default_value=default_value)
     elif widget_type == 'FloatFieldGrp':

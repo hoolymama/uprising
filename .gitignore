@@ -17,6 +17,6 @@ example/export/
 __pycache__
 *.mabak
 *.mayaSwatches
-venv
+*.venv
 
 

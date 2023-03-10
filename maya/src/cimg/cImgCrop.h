@@ -34,6 +34,7 @@ public:
 	static MObject aApplyCrop;
 	static MObject aCropCorner;
 	static MObject aCropResolution;
+	static MObject aLetterbox;
 	static MObject aOutput;
 	static MObject aOutputCropFactor;
 	static MObject aOutputOffsetFactorX;
@@ -45,6 +46,7 @@ public:
 private:
 
 	enum Boundary { kBoundaryDirichlet, kBoundaryNeumann};
+	enum Letterbox { kBlack, kWhite, kRepeat };
 
 
 };

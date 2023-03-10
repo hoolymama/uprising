@@ -1,17 +1,14 @@
 &ACCESS RVP
-DEF RoboDKsync35()
+DEF RoboDKsyncLPB()
 
 INT io_id
 INT my_id
 INT j_id
 INT program_id
-REAL my_com_value_R
-REAL my_com_value_G
-REAL my_com_value_B
-REAL my_com_value_W
+INT chan
+REAL val
 
 BAS(#INITMOV,0)
-
 PTP $AXIS_ACT
 
 $ORI_TYPE  = #VAR
@@ -36,196 +33,198 @@ $APO.CDIS = 0
 
 WHILE COM_ACTION >= 0
 
-SWITCH COM_ACTION
-CASE 1
-; do nothing
-COM_ACTCNT = COM_ACTCNT + 1
-COM_ACTION = 0
+    SWITCH COM_ACTION
+    CASE 1
+        ; do nothing
+        COM_ACTCNT = COM_ACTCNT + 1
+        COM_ACTION = 0
 
-CASE 2 
-IF COM_ROUNDM >= 0 THEN
-    PTP COM_E6AXIS C_PTP
-ELSE
-    PTP COM_E6AXIS
-ENDIF
-COM_ACTION = 0
-
-CASE 3
-IF COM_ROUNDM >= 0 THEN
-    LIN COM_FRAME C_DIS
-ELSE
-    LIN COM_FRAME
-ENDIF
-COM_ACTION = 0
-
-CASE 4
-IF COM_ROUNDM >= 0 THEN
-    CIRC COM_POS,COM_FRAME C_DIS
-ELSE
-    CIRC COM_POS,COM_FRAME
-ENDIF
-COM_ACTION = 0
-
-
-CASE 5
-COM_ACTCNT = COM_ACTCNT + 1
-$TOOL = COM_FRAME
-COM_ACTION = 0
-
-CASE 6
-COM_ACTCNT = COM_ACTCNT + 1
-$VEL.CP = COM_VALUE1
-COM_ACTION = 0
-
-CASE 7
-COM_ACTCNT = COM_ACTCNT + 1
-IF COM_VALUE1 > 0 THEN
-    $VEL.CP = COM_VALUE1
-ENDIF
-IF COM_VALUE2 > 0 THEN
-    ;$VEL.ORI1 = COM_VALUE2
-    ;$VEL.ORI2 = COM_VALUE2
-    FOR j_id=1 TO 6
-        IF COM_VALUE2 > 100 THEN
-            $VEL_AXIS[j_id] = 100
+    CASE 2 
+        IF COM_ROUNDM >= 0 THEN
+            PTP COM_E6AXIS C_PTP
         ELSE
-            $VEL_AXIS[j_id] = COM_VALUE2
+            PTP COM_E6AXIS
         ENDIF
-    ENDFOR
-ENDIF
-IF COM_VALUE3 > 0 THEN
-    $ACC.CP = COM_VALUE3
-ENDIF
-IF COM_VALUE4 > 0 THEN
-    ;$ACC.ORI1 = COM_VALUE4
-    ;$ACC.ORI2 = COM_VALUE4
-    FOR j_id=1 TO 6    
-        IF COM_VALUE4 > 100 THEN
-            $ACC_AXIS[j_id] = 100
+        COM_ACTION = 0
+
+    CASE 3
+        IF COM_ROUNDM >= 0 THEN
+            LIN COM_FRAME C_DIS
         ELSE
-            $ACC_AXIS[j_id] = COM_VALUE4
+            LIN COM_FRAME
         ENDIF
-    ENDFOR
-ENDIF
-COM_ACTION = 0
+        COM_ACTION = 0
 
-CASE 8
-COM_ACTCNT = COM_ACTCNT + 1
-IF COM_ROUNDM >= 0 THEN
-    IF COM_ROUNDM > 100 THEN
-        $APO.CPTP = 100
-    ELSE
-        $APO.CPTP = COM_ROUNDM
-    ENDIF
-    $APO.CDIS = COM_ROUNDM
-    $ADVANCE = 1
-ELSE
-    $APO.CPTP = 0
-    $APO.CDIS = 0
-    $ADVANCE = 0
-ENDIF
-COM_ACTION = 0
-
-CASE 9
-COM_ACTCNT = COM_ACTCNT + 1
-WAIT SEC COM_VALUE1
-COM_ACTION = 0
+    CASE 4
+        IF COM_ROUNDM >= 0 THEN
+            CIRC COM_POS,COM_FRAME C_DIS
+        ELSE
+            CIRC COM_POS,COM_FRAME
+        ENDIF
+        COM_ACTION = 0
 
 
-; XXXXXXXXXXXXXXXXXXXXXXXX
-CASE 10
-COM_ACTCNT = COM_ACTCNT + 1
-io_id = COM_VALUE1
-IF io_id > 10 THEN
-   ; Assume it is trigger Color directive
-   my_id = io_id - 10
-   IF my_id == 1 THEN
-        my_com_value_R = COM_VALUE2
-        TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[1] = my_com_value_R
-    ENDIF
-    IF my_id == 2 THEN
-        my_com_value_G = COM_VALUE2
-        TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[2] = my_com_value_G
-    ENDIF
-    IF my_id == 3 THEN
-        my_com_value_B = COM_VALUE2
-        TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[3] = my_com_value_B
-    ENDIF
-    IF my_id == 4 THEN
-        my_com_value_W = COM_VALUE2
-        TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[4] = my_com_value_W
-    ENDIF
+    CASE 5
+        COM_ACTCNT = COM_ACTCNT + 1
+        $TOOL = COM_FRAME
+        COM_ACTION = 0
 
-ENDIF
+    CASE 6
+        COM_ACTCNT = COM_ACTCNT + 1
+        $VEL.CP = COM_VALUE1
+        COM_ACTION = 0
 
-IF (io_id > 5) AND (io_id < 10)  THEN
-   ; Assume it is non-trigger Color directive
-   my_id = io_id - 5
-   $ANOUT[my_id] = COM_VALUE2
-ENDIF
+    CASE 7
+        COM_ACTCNT = COM_ACTCNT + 1
+        IF COM_VALUE1 > 0 THEN
+            $VEL.CP = COM_VALUE1
+        ENDIF
+        IF COM_VALUE2 > 0 THEN
+            ;$VEL.ORI1 = COM_VALUE2
+            ;$VEL.ORI2 = COM_VALUE2
+            FOR j_id=1 TO 6
+                IF COM_VALUE2 > 100 THEN
+                    $VEL_AXIS[j_id] = 100
+                ELSE
+                    $VEL_AXIS[j_id] = COM_VALUE2
+                ENDIF
+            ENDFOR
+        ENDIF
+        IF COM_VALUE3 > 0 THEN
+            $ACC.CP = COM_VALUE3
+        ENDIF
+        IF COM_VALUE4 > 0 THEN
+            ;$ACC.ORI1 = COM_VALUE4
+            ;$ACC.ORI2 = COM_VALUE4
+            FOR j_id=1 TO 6    
+                IF COM_VALUE4 > 100 THEN
+                    $ACC_AXIS[j_id] = 100
+                ELSE
+                    $ACC_AXIS[j_id] = COM_VALUE4
+                ENDIF
+            ENDFOR
+        ENDIF
+        COM_ACTION = 0
 
-IF io_id < 5  THEN
-   ; Default behavior (Digital Output)
-   IF COM_VALUE2 > 0.5 THEN
-       $OUT[io_id] = TRUE
-   ELSE
-       $OUT[io_id] = FALSE
-   ENDIF
-ENDIF
-COM_ACTION = 0
-; XXXXXXXXXXXXXXXXXXXXXXXX
+    CASE 8
+        COM_ACTCNT = COM_ACTCNT + 1
+        IF COM_ROUNDM >= 0 THEN
+            IF COM_ROUNDM > 100 THEN
+                $APO.CPTP = 100
+            ELSE
+                $APO.CPTP = COM_ROUNDM
+            ENDIF
+            $APO.CDIS = COM_ROUNDM
+            $ADVANCE = 1
+        ELSE
+            $APO.CPTP = 0
+            $APO.CDIS = 0
+            $ADVANCE = 0
+        ENDIF
+        COM_ACTION = 0
+
+    CASE 9
+        COM_ACTCNT = COM_ACTCNT + 1
+        WAIT SEC COM_VALUE1
+        COM_ACTION = 0
+
+    CASE 10
+        COM_ACTCNT = COM_ACTCNT + 1
+
+        ; shutter instructions come in on channel 49
+        ; dmx instructions come in on channels 1-48
+        ; direct dmx instructions come in on channels 1-24
+        ; trigger (async) instructions come in on channels 25-48
+        chan = COM_VALUE1
+        val = COM_VALUE2
+        IF chan == 49 THEN
+            $OUT[1] = val > 0.5
+        ELSE
+            IF chan > 24 THEN
+                chan = chan - 24
+                TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[chan] = val
+            ELSE
+                $ANOUT[chan] = val      
+            ENDIF
+        ENDIF
+
+        ; ProcessDigitalOutChannel(COM_VALUE1, COM_VALUE2)
+        COM_ACTION = 0
+    
+
+    CASE 11
+        PTP COM_E6AXIS
+        LIN COM_FRAME
+        WAIT SEC 0
+        COM_ACTION = 0
+
+    ;----- DIGITAL IN ---------
+    CASE 12
+        COM_ACTCNT = COM_ACTCNT + 1
+        io_id = COM_VALUE1
+        IF COM_VALUE2 > 0.5 THEN
+            WAIT FOR $IN[io_id]==TRUE
+        ELSE
+            WAIT FOR $IN[io_id]==FALSE
+        ENDIF
+        COM_ACTION = 0
+    ;---------------------------
+
+    CASE 13
+        ;----- Run program COM_VALUE1 ---------
+        ; (to trigger from RoboDK: use robot.RunCodeCustom("program id", INSTRUCTION_CALL_PROGRAM)
+        program_id = COM_VALUE1
+        SWITCH program_id
+        CASE 1
+        ; -- run program 1 --
+        ; Drill()
+        ; -------------------
+        CASE 2
+        ; -- run program 2 --
+        ; Cut()
+        ; -------------------
+        ENDSWITCH
+
+        ;--------------------------------------------
+        COM_VALUE1 = 0
+        COM_ACTION = 0
 
 
 
+    ; DEFAULT
+    ; COM_ACTION = 0
 
-
-
-
-CASE 11
-PTP COM_E6AXIS
-LIN COM_FRAME
-WAIT SEC 0
-COM_ACTION = 0
-
-;----- DIGITAL IN ---------
-CASE 12
-COM_ACTCNT = COM_ACTCNT + 1
-io_id = COM_VALUE1
-IF COM_VALUE2 > 0.5 THEN
-    WAIT FOR $IN[io_id]==TRUE
-ELSE
-    WAIT FOR $IN[io_id]==FALSE
-ENDIF
-COM_ACTION = 0
-;---------------------------
-
-CASE 13
-;----- Run program COM_VALUE1 ---------
-; (to trigger from RoboDK: use robot.RunCodeCustom("program id", INSTRUCTION_CALL_PROGRAM)
-program_id = COM_VALUE1
-SWITCH program_id
-CASE 1
-; -- run program 1 --
-; Drill()
-; -------------------
-CASE 2
-; -- run program 2 --
-; Cut()
-; -------------------
-ENDSWITCH
-
-;--------------------------------------------
-COM_VALUE1 = 0
-COM_ACTION = 0
-
-
-
-; DEFAULT
-; COM_ACTION = 0
-
-ENDSWITCH
+    ENDSWITCH
 
 
 ENDWHILE
 
 END
+
+; DEF ProcessDigitalOutChannel(chan:IN, val:IN)
+;     INT chan
+;     REAL val
+
+;     ; working variables
+;     INT dmx_color_id 
+;     INT dmx_id 
+;     INT color_id
+
+;     ; shutter instructions come in on channel 49
+;     IF chan == 49 THEN
+;         $OUT[1] = val > 0.5
+;         RETURN
+;     ENDIF
+
+;     ; dmx instructions come in on channels 1-48
+;     ; direct dmx instructions come in on channels 1-24
+;     ; trigger (async) instructions come in on channels 25-48
+;     IF chan > 24 THEN
+;         chan = chan - 24
+;         TRIGGER WHEN DISTANCE=0 DELAY=0 DO $ANOUT[chan] = val
+;         RETURN
+;     ENDIF
+
+;     $ANOUT[chan] = val
+
+; END

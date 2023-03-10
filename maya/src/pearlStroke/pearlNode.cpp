@@ -278,6 +278,7 @@ MStatus pearlNode::initialize()
   MFnMessageAttribute msgAttr;
   MFnUnitAttribute uAttr;
 
+  // Image to make pearls in
   aImage = tAttr.create("image", "img", cImgData::id);
   tAttr.setStorable(false);
   tAttr.setKeyable(true);
@@ -286,6 +287,7 @@ MStatus pearlNode::initialize()
   st = addAttribute(aImage);
   mser;
 
+  // Number of iterations
   aMaxIterations = nAttr.create("maxIterations", "mxi", MFnNumericData::kInt);
   nAttr.setHidden(false);
   nAttr.setStorable(true);
@@ -295,6 +297,7 @@ MStatus pearlNode::initialize()
   st = addAttribute(aMaxIterations);
   mser;
 
+  // 
   aMinBranchTwigLength = nAttr.create("minBranchTwigLength", "mbtl", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
@@ -312,7 +315,7 @@ MStatus pearlNode::initialize()
   st = addAttribute(aMinLooseTwigLength);
   mser;
 
-  aSpan = nAttr.create("span", "spn", MFnNumericData::kFloat);
+  aSpan = nAttr.create("spanLength", "spn", MFnNumericData::kFloat);
   nAttr.setStorable(true);
   nAttr.setReadable(true);
   nAttr.setKeyable(true);

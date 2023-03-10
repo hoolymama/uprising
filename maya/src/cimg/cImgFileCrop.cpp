@@ -247,7 +247,7 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	}
 	else
 	{
-		int bg =  (letterbox == Letterbox::kWhite) ? 255 : 0;
+		int bg = (letterbox == Letterbox::kWhite) ? 255 : 0;
 		// if (letterbox == Letterbox::kWhite)
 		// {
 		// 	bg = 255;
@@ -291,7 +291,7 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	data.setClean(plug);
 	return MS::kSuccess;
 }
- 
+
 MStatus cImgFileCrop::setDependentsDirty(
 	const MPlug &plugBeingDirtied,
 	MPlugArray &affectedPlugs)
