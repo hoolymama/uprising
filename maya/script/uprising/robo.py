@@ -136,21 +136,22 @@ def clean(model="kr30", infrastructure=True):
     global _model
     global _link
     global _robot
-    
+    logger.debug("Clean: {}".format(model))
     deleteAllStations()
+    logger.debug("Deleted all Stations:")
     cleanfile = get_clean_file(model)
-
+    
     logger.debug("Adding clean file: {}".format(cleanfile))
     _link.AddFile(cleanfile)
 
-    logger.debug("Setting robot to")
+    logger.debug("Setting robot")
     _robot = _link.Item("", ITEM_TYPE_ROBOT)
     _model = model
     # _robot.setParam("PostProcessor", "KUKA KRC4")
-
+    logger.debug("Doing Infrastructure")
     if infrastructure:
         _create_infrastructure()
-
+    logger.debug("Done Infrastructure")
 
 def create_program(name):
     global _link

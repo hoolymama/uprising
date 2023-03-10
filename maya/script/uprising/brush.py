@@ -1,6 +1,6 @@
 import pymel.core as pm
 import re
-
+import logging
 from uprising import utils as utils
 import robodk as rdk
 from uprising import robo
@@ -8,6 +8,7 @@ from robolink import ITEM_TYPE_ROBOT
 from uprising import const as k
 
 
+logger = logging.getLogger(__name__)
 class Brush(object):
     def __init__(self, index, plug):
         self.id = index
@@ -54,9 +55,11 @@ class Brush(object):
         return self.shape == 0
 
     def send(self, with_geo=False, force=False):
+        logger.debug("Sending brush: {}".format(self.name))
         link = robo.link()
         robot = robo.robot()
         if not robot:
+            logger.warning("No robot.")
             robot = link.Item("", ITEM_TYPE_ROBOT)
 
         old_brush = link.Item(self.name)
