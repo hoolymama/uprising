@@ -57,7 +57,7 @@ class PovProgram(Program):
 
 
         if self.run_on_robot:
-            robo.link().setRunMode(RUNMODE_RUN_ROBOT) 
+            # robo.link().setRunMode(RUNMODE_RUN_ROBOT) 
             self.program.setRunType(PROGRAM_RUN_ON_ROBOT)
 
         self.program.setRounding(self.painting.rounding)
