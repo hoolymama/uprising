@@ -75,6 +75,15 @@ class PersistentIntSliderGrp(PersistentWidget):
         val=pm.optionVar.get(self.var_name, self.default_value)
         pm.intSliderGrp(self.control, e=True,value=val)
 
+class PersistentIntField(PersistentWidget):
+
+    def save(self):
+        pm.optionVar[self.var_name] = pm.intField(self.control, q=True, value=True)
+        
+    def populate(self):
+        val=pm.optionVar.get(self.var_name, self.default_value)
+        pm.intField(self.control, e=True,value=val)
+
 
 class PersistentFloatFieldGrp(PersistentWidget):
 
@@ -143,6 +152,8 @@ def factory( owner, control_name, ov_prefix, default_value=None):
         return PersistentRadioButtonGrp(control,var_name, default_value=default_value)
     elif widget_type == 'IntFieldGrp':
         return PersistentIntFieldGrp(control,var_name, default_value=default_value)
+    elif widget_type == 'IntField':
+        return PersistentIntField(control,var_name, default_value=default_value)
     elif widget_type == 'TextFieldGrp':
         return PersistentTextFieldGrp(control,var_name, default_value=default_value)
     elif widget_type == 'TextFieldButtonGrp':

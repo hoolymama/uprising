@@ -42,6 +42,7 @@ class PovSession(Session):
         pause,
         directory,
         post_cmd,
+        remote_cmd,
         program_prefix="pv",
     ):
         self.frame_range = list(range(start_frame, end_frame + 1))
@@ -57,6 +58,7 @@ class PovSession(Session):
         self.notes = notes
         self.directory = directory
         self.post_cmd = post_cmd
+        self.remote_cmd = remote_cmd
 
         self.painting_node = pm.PyNode("lightPaintingShape")
 
@@ -70,6 +72,9 @@ class PovSession(Session):
                 self.write_maya_scene(self.directory, "scene")
             if self.notes:
                 self.write_text(self.directory, "notes", self.notes)
+            if self.remote_cmd:
+                self.write_sh(self.directory, "run_robo_batch", self.remote_cmd)
+                
 
         robo.new()
         robo.hide()
@@ -83,7 +88,7 @@ class PovSession(Session):
 
             if self.run_mode == RUNMODE_OFF:
                 continue
-            # robo.new()
+            robo.new()
             robo.clean("kr8")
             logger.debug("Clean scene")
             # robo.hide()
@@ -91,11 +96,12 @@ class PovSession(Session):
 
             #  Don't chunk if we are running on robot. We need all the instructions in one RDK file.
             stroke_count = pm.lightPaintingQuery(self.painting_node, sc=True)
-            if self.run_mode == RUNMODE_OFFLINE and (self.save_rdk or self.save_src):
-                stroke_chunk_size = self.stroke_chunk_size or stroke_count
-            else:
-                stroke_chunk_size = stroke_count
-
+            # if self.run_mode == RUNMODE_OFFLINE and (self.save_rdk or self.save_src):
+            #     stroke_chunk_size = self.stroke_chunk_size or stroke_count
+            # else:
+            #     stroke_chunk_size = stroke_count
+            stroke_chunk_size = self.stroke_chunk_size or stroke_count
+            
             logger.debug("Stroke count: {}".format(stroke_count))
 
             program = PovProgram(program_prefix, run_on_robot, self.pause)

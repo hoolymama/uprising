@@ -6,9 +6,6 @@ from uprising.pov.session import pov_configurator, pov_lights
 from robolink import PROGRAM_RUN_ON_ROBOT, RUNMODE_RUN_ROBOT
  
 
-
-
-
 class PovProgram(Program):
     def __init__(self, name, run_on_robot, pause_at_end):
         super(PovProgram, self).__init__(name)

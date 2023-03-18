@@ -15,14 +15,27 @@ from uprising.pov.session.pov_session import (
 )
 
 logger = logging.getLogger(__name__)
- 
- 
-DIRECTORY_PREFIX_TEMPLATE = "{project}/export/bars"
+
+
+DEFAULT_IDENTIFIER = "test"
 DESCRIPTION_TEMPLATE = """export
 {description}
 """
-POST_TEMPLATE = 'rclone sync --fast-list --update --use-server-modtime {directory} s3uprising:uprisingdata/{directory} --exclude "._*" --exclude ".*" --exclude "*Icon*"'
+POST_TEMPLATE = 'rclone sync --fast-list --update --use-server-modtime {s3_src_path} s3uprising:uprisingdata/{s3_dest_path} --exclude "._*" --exclude ".*" --exclude "*.ma" --exclude "*.mb" --exclude "*Icon*"'
 
+REMOTE_CMD_TEMPLATE = """
+
+source $HOME/dev/robo-utils/robo.venv/bin/activate
+
+echo "$(tput setaf 2)Set up a new catalog in lightroom with the label: {project_name}-{identifier}-{timestamp}-{program_prefix} $(tput sgr 0)"
+
+read -p "Press Enter to continue" </dev/tty
+
+robo batch "{remote_mac_path}"/*.rdk
+
+echo DONE
+
+"""
 
 class PovPublishTab(gui.FormLayout):
     def __init__(self):
@@ -46,6 +59,7 @@ class PovPublishTab(gui.FormLayout):
             persist_ui.factory(self, "anim_cb", prefix, default_value=[False]),
             persist_ui.factory(self, "frame_range_if", prefix, default_value=[1, 1]),
             persist_ui.factory(self, "pause_options_rb", prefix, default_value=2),
+            persist_ui.factory(self, "pause_if", prefix, default_value=10),
             persist_ui.factory(
                 self, "sim_options_rb", prefix, default_value=RUNMODE_OFFLINE
             ),
@@ -57,7 +71,7 @@ class PovPublishTab(gui.FormLayout):
             ),
             persist_ui.factory(self, "description_tf", prefix, default_value=""),
             persist_ui.factory(
-                self, "directory_tf", prefix, default_value=DIRECTORY_PREFIX_TEMPLATE
+                self, "identifier_tf", prefix, default_value=DEFAULT_IDENTIFIER
             ),
             persist_ui.factory(
                 self, "post_cmd_tf", prefix, default_value=POST_TEMPLATE
@@ -97,13 +111,19 @@ class PovPublishTab(gui.FormLayout):
         self.frame_range_if = pm.intFieldGrp(label="Frame range", numberOfFields=2)
         pm.setParent("..")
 
+        pm.rowLayout(numberOfColumns=2)
         self.pause_options_rb = pm.radioButtonGrp(
             label="Pause after frame",
+            annotation="Pause after each frame to give the camera a chance to save the image",
             sl=2,
-            labelArray3=["Off", "30 seconds", "Indefinite"],
+            labelArray3=["Off", "Indefinite", "Seconds"],
             numberOfRadioButtons=3,
             changeCommand=pm.Callback(self.on_ops_change),
         )
+        self.pause_if = pm.intField(
+            annotation="Seconds to pause",
+        )
+        pm.setParent("..")
 
         pm.separator()
 
@@ -123,11 +143,9 @@ class PovPublishTab(gui.FormLayout):
             changeCommand=pm.Callback(self.on_ops_change),
         )
 
-        self.directory_tf = pm.textFieldButtonGrp(
-            adjustableColumn=2,
-            label="Directory",
-            buttonLabel="Browse",
-            buttonCommand=pm.Callback(self.on_directory_button),
+        self.identifier_tf = pm.textFieldGrp(
+            # adjustableColumn=2,
+            label="Identifier"
         )
 
         pm.rowLayout(nc=2, adj=1)
@@ -141,11 +159,6 @@ class PovPublishTab(gui.FormLayout):
 
         pm.setParent("..")
         return frame
-
-    def on_directory_button(self):
-        directory = pm.fileDialog2(fm=3, dir=pm.workspace(q=True, rd=True))
-        if directory:
-            pm.textFieldButtonGrp(self.directory_tf, e=True, text=directory[0])
 
     def create_progress_frame(self):
         frame = pm.frameLayout(
@@ -201,9 +214,13 @@ class PovPublishTab(gui.FormLayout):
 
         pm.intFieldGrp(self.frame_range_if, e=True, en=do_anim)
         # 1=0ff, 2=offline, 3=robot
+
+        pause_mode = pm.radioButtonGrp(self.pause_options_rb, q=True, sl=True)
         pm.radioButtonGrp(
             self.pause_options_rb, e=True, en=(do_anim and (run_mode != RUNMODE_OFF))
         )
+
+        pm.intField(self.pause_if, e=True, en=(pause_mode == 3))
 
         pm.checkBoxGrp(self.robot_file_options_cb, e=True, en=run_mode != RUNMODE_OFF)
         pm.checkBoxGrp(
@@ -218,11 +235,10 @@ class PovPublishTab(gui.FormLayout):
             if not do_src:
                 pm.checkBoxGrp(self.robot_file_options_cb, e=True, value1=True)
 
-        pm.intFieldGrp(self.stroke_chunk_if, e=True, en=(run_mode == RUNMODE_OFFLINE))
 
         saves = self.saves_something()
 
-        pm.textFieldButtonGrp(self.directory_tf, e=True, en=saves)
+        pm.textFieldGrp(self.identifier_tf, e=True, en=saves)
 
         pm.textFieldGrp(self.post_cmd_tf, e=True, en=(saves and do_post))
 
@@ -241,7 +257,7 @@ class PovPublishTab(gui.FormLayout):
         if do_anim:
             start_frame = pm.intFieldGrp(self.frame_range_if, q=True, value1=True)
             end_frame = pm.intFieldGrp(self.frame_range_if, q=True, value2=True)
-            logger.debug("Frame range: {} - {}".format(start_frame, end_frame)) 
+            logger.debug("Frame range: {} - {}".format(start_frame, end_frame))
         else:
             start_frame = int(pm.currentTime(q=True))
             end_frame = start_frame
@@ -255,49 +271,60 @@ class PovPublishTab(gui.FormLayout):
         pause_index = 0
         if do_anim:
             pause_index = pm.radioButtonGrp(self.pause_options_rb, q=True, sl=True) - 1
-        pause = [0, 30000, -1][pause_index]
+        pause_ms = pm.intField(self.pause_if, q=True, value=True) * 1000
+        pause = [0, -1, pause_ms][pause_index]
 
         save_rdk = pm.checkBoxGrp(self.robot_file_options_cb, q=True, value1=True)
         save_src = pm.checkBoxGrp(self.robot_file_options_cb, q=True, value2=True)
         save_maya_scene = pm.checkBoxGrp(self.maya_file_options_cb, q=True, value1=True)
         save_snapshots = pm.checkBoxGrp(self.maya_file_options_cb, q=True, value2=True)
+        notes = pm.scrollField(self.description_tf, query=True, text=True) or "No notes"
 
         saves = self.saves_something()
         directory = None
         post_cmd = None
+        remote_cmd = None
+        
+        program_prefix = "ofs" if run_mode == RUNMODE_OFFLINE else "ror"
         if saves:
             timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M")
             project = pm.workspace.getPath()
-            directory = pm.textFieldButtonGrp(self.directory_tf, query=True, text=True)
-            directory = directory.format(project=project)
-            if not directory:
-                export_dir = os.path.join(project, "export")
-                entries = pm.fileDialog2(
-                    caption="Choose directory",
-                    okCaption="Save",
-                    dialogStyle=2,
-                    fileMode=3,
-                    dir=export_dir,
-                )
-                if not (entries and entries[0]):
-                    pm.displayWarning("No directory Selected")
-                    return
-                directory = entries[0]
+            project_name = os.path.basename(project)
 
-            directory = "{}/{}".format(directory, timestamp)
+            identifier = pm.textFieldGrp(self.identifier_tf, query=True, text=True)
+
+            directory = os.path.join(project, "export", identifier, timestamp)
+
+            s3_src_path = os.path.join(project, "export", identifier, timestamp)
+            s3_dest_path = os.path.join(project_name, identifier, timestamp)
+            remote_mac_path = os.path.join(
+                "/Volumes", "s3", "uprisingdata", s3_dest_path, "rdk"
+            )
 
             post_cmd = pm.textFieldGrp(
                 self.post_cmd_tf, query=True, en=True
             ) and pm.textFieldGrp(self.post_cmd_tf, query=True, text=True)
+            
+            context = {
+                "program_prefix": program_prefix,
+                "s3_src_path": s3_src_path,
+                "s3_dest_path": s3_dest_path,
+                "project_name": project_name,
+                "project": project,
+                "identifier": identifier,
+                "timestamp": timestamp,
+                "remote_mac_path": remote_mac_path,
+            }
+            
             if post_cmd:
-                post_cmd = post_cmd.format(directory=directory)
-
-        notes = pm.scrollField(self.description_tf, query=True, text=True) or "No notes"
-
+                post_cmd = post_cmd.format(**context)
+                
+            remote_cmd = REMOTE_CMD_TEMPLATE.format(**context)
+ 
         print("directory: {}".format(directory))
         print("post_cmd: {}".format(post_cmd))
 
-        program_prefix = "pv" if run_mode == RUNMODE_OFFLINE else "ror"
+        
         try:
             pov_session = PovSession(
                 stroke_chunk_size,
@@ -312,6 +339,7 @@ class PovPublishTab(gui.FormLayout):
                 pause,
                 directory,
                 post_cmd,
+                remote_cmd,
                 program_prefix=program_prefix,
             )
             pov_session.run()
