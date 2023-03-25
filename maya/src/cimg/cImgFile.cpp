@@ -134,13 +134,13 @@ MStatus cImgFile::compute(const MPlug &plug, MDataBlock &data)
 
 		int xres = resolution[0];
 		int yres = resolution[1];
-		if (xres > 4096)
+		if (xres > 8192)
 		{
-			xres = 4096;
+			xres = 8192;
 		}
-		if (yres > 4096)
+		if (yres > 8192)
 		{
-			yres = 4096;
+			yres = 8192;
 		}
 		image->resize(xres, yres, -100, -100, interp);
 	}
