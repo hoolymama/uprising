@@ -344,3 +344,12 @@ def get_chain_skel_pairs(*skels):
         result.append((chain, skel))
     return result
 
+
+def ensure_directory(directory):
+    try:
+        os.makedirs(directory)
+    except OSError as ex:
+        if ex.errno == errno.EEXIST and os.path.isdir(directory):
+            pass
+        else:
+            raise

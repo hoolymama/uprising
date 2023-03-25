@@ -1,6 +1,6 @@
 import fileinput
 import os
-
+import stat
 from uprising import props
 from uprising import robo
 import datetime
@@ -130,6 +130,7 @@ class Session(object):
     def write_maya_scene(directory, name):
         new_name = os.path.join(directory, "{}.ma".format(name))
         orig_sn = pm.sceneName()
+        utils.ensure_directory(directory)
         pm.saveAs(new_name)
         pm.renameFile(orig_sn)
 
@@ -139,6 +140,16 @@ class Session(object):
         text_file = os.path.join(directory, name)
         with open(text_file, "w") as outfile:
             outfile.write(data)
+
+    @staticmethod
+    def write_sh(directory, name, content):
+        utils.mkdir_p(directory)
+        f = os.path.join(directory, "{}.sh".format(name))
+        with open(f, "w") as outfile:
+            outfile.write(content)
+
+        os.chmod(f, os.stat(f).st_mode | stat.S_IEXEC) #chmod +x
+
 
     @staticmethod
     def write_snapshot(directory, name):
@@ -165,4 +176,5 @@ class Session(object):
                 compression="png",
                 quality=100,
                 widthHeight=(1024, 1024))
+
 
