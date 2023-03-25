@@ -299,3 +299,42 @@ void cImgUtils::img_stats(const MString&name, const CImg<float>*img)
 	cerr << "s: " <<  img->spectrum() << endl;
 	cerr << "d: " <<  img->depth() << endl;
 }
+
+
+// unsigned char quantize(unsigned char val) {
+// 	return round(val / 255.0)*255;
+// }
+
+
+
+void cImgUtils::floydSteinberg(CImg<unsigned char> & image) {
+    for (int j = 1; j < image.height()-1; j++) {
+        for (int i = 1; i < image.width()-1; i++) {
+            // create unsigned char arrays as large as the images color depth
+            // for old and new pixel values as well as error value
+            unsigned char oldPixel[image.spectrum()];
+            unsigned char newPixel[image.spectrum()];
+            unsigned char quantError[image.spectrum()];
+            // for each color channel of current pixel, quantize pixel
+            // and propage error in old pixel value and quantized value
+            // further ahead in image
+            for (int k = 0; k < image.spectrum(); k++) {
+                oldPixel[k] = image(i, j, 0, k);
+                // quantize and assign pixel value
+                // newPixel[k] = quantize(oldPixel[k]);
+			 
+				newPixel[k] =  std::max(std::min(round(oldPixel[k] / 255.0)*255 , 255.0), 0.0);
+				
+                image(i, j, 0, k) = 255-newPixel[k];
+                // calculate error between current new and old pixel values
+                quantError[k] = oldPixel[k] - newPixel[k];
+                // propogate error in dithered pixel to pixels ahead of
+                // current pixel
+                image(i + 1, j    , 0, k) = image(i + 1, j    , 0, k) + quantError[k] * 7.0 / 16.0;
+                image(i - 1, j + 1, 0, k) = image(i - 1, j + 1, 0, k) + quantError[k] * 3.0 / 16.0;
+                image(i    , j + 1, 0, k) = image(i    , j + 1, 0, k) + quantError[k] * 5.0 / 16.0;
+                image(i + 1, j + 1, 0, k) = image(i + 1, j + 1, 0, k) + quantError[k] * 1.0 / 16.0;
+            }
+        }
+    }
+}
