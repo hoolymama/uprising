@@ -77,6 +77,12 @@ MStatus meshStrokeNode::generateStrokeGeometry(
 
     MStatus st;
 
+    short int nodeState = data.inputValue(state).asShort();
+    if (nodeState != 0)
+    {
+        return MS::kUnknownParameter;
+    }
+
     MFloatMatrix targetRotationMatrix = data.inputValue(aTargetRotationMatrix).asFloatMatrix();
     targetRotationMatrix = mayaMath::rotationOnly(targetRotationMatrix);
 
