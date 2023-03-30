@@ -555,7 +555,7 @@ void mapColorStrokes::removeBlackSpans(
 
     // loop through the bright IDs and calculate a begin and end for each
     // contiguous chain of targets. A contiguous chain is defined as targets
-    // above a bightness threshold with no more than 3 non-bright targets
+    // above a brightness threshold with no more than 3 non-bright targets
     // separating them from another chain.
     for (unsigned i = 0; i < leng; i++)
     {
@@ -580,7 +580,9 @@ void mapColorStrokes::removeBlackSpans(
           endPeg += 1;
         }
         unsigned count = endPeg - startPeg;
-        strokes->push_back(Stroke(*iter, startPeg, count));
+        if (count > 1) {
+          strokes->push_back(Stroke(*iter, startPeg, count));
+        }
       }
     }
   }
