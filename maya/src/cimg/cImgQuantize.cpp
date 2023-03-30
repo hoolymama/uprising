@@ -18,15 +18,15 @@
 #include "cImgData.h"
 #include "cImgQuantize.h"
 #include "jMayaIds.h"
-
-
-
+#include "kmeans.h"
 
 MTypeId cImgQuantize::id(k_cImgQuantize);
 
 MObject cImgQuantize::aLevels;
 
 MObject cImgQuantize::aDither;
+MObject cImgQuantize::aQuantize;
+
 MObject cImgQuantize::aGreyscale;
 MObject cImgQuantize::aInput;
 MObject cImgQuantize::aOutput;
@@ -66,14 +66,20 @@ MStatus cImgQuantize::initialize()
 	nAttr.setMax(256);
 	st = addAttribute(aLevels);
 
-
 	aDither = eAttr.create("dither", "dth", cImgQuantize::kNone);
 	eAttr.addField("None", cImgQuantize::kNone);
-	eAttr.addField("Floyd Steinberg", cImgQuantize::kFloydSteinberg); 
+	eAttr.addField("Floyd Steinberg", cImgQuantize::kFloydSteinberg);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	st = addAttribute(aDither);
 
+	aQuantize = eAttr.create("quantize", "qnt", cImgQuantize::kUniform);
+	eAttr.addField("Uniform", cImgQuantize::kUniform);
+	eAttr.addField("Median Cut", cImgQuantize::kMedianCut);
+	eAttr.addField("K-Means", cImgQuantize::kKMeans);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aQuantize);
 
 	aGreyscale = nAttr.create("greyscale", "gry", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
@@ -86,6 +92,7 @@ MStatus cImgQuantize::initialize()
 	attributeAffects(aLevels, aOutput);
 	attributeAffects(aGreyscale, aOutput);
 	attributeAffects(aDither, aOutput);
+	attributeAffects(aQuantize, aOutput);
 
 	return MS::kSuccess;
 }
@@ -102,12 +109,13 @@ MStatus cImgQuantize::compute(const MPlug &plug, MDataBlock &data)
 
 	MStatus st = MS::kSuccess;
 
-
 	// INPUT IMAGE ///////////////////////////////////////////////////////////
-	MDataHandle hImageData = data.inputValue(aInput, &st); msert;
+	MDataHandle hImageData = data.inputValue(aInput, &st);
+	msert;
 	MObject dImageData = hImageData.data();
-	MFnPluginData fnImageData( dImageData , &st);
-	if (st.error()) {
+	MFnPluginData fnImageData(dImageData, &st);
+	if (st.error())
+	{
 		return MS::kUnknownParameter;
 	}
 
@@ -119,60 +127,81 @@ MStatus cImgQuantize::compute(const MPlug &plug, MDataBlock &data)
 	MDataHandle hOutput = data.outputValue(aOutput);
 	MFnPluginData fnOut;
 	MTypeId kdid(cImgData::id);
-	MObject dOut = fnOut.create(kdid , &st ); mser;
+	MObject dOut = fnOut.create(kdid, &st);
+	mser;
 
-	cImgData *newData = (cImgData *)fnOut.data(&st); mser;
+	cImgData *newData = (cImgData *)fnOut.data(&st);
+	mser;
 
 	CImg<unsigned char> *outImage = newData->fImg;
 
-	if (! data.inputValue(state).asShort()) {
+	if (!data.inputValue(state).asShort())
+	{
 		process(data, *inImage, *outImage);
 	}
-	else {
+	else
+	{
 		outImage->assign(*inImage);
 	}
 	/////////////////////////////////////////////////////////////////
 
 	hOutput.set(newData);
-	data.setClean( plug );
+	data.setClean(plug);
 	return MS::kSuccess;
 }
 
-
-int quantize(int value, int levels)
+int quantizeValue(int value, int levels)
 {
-	float range = (levels-1) / 255.0f;
-	float recip = 255.0f / (levels-1);
+	float range = (levels - 1) / 255.0f;
+	float recip = 255.0f / (levels - 1);
 	int q = (int)(value * range + 0.5f);
 	return (int)(q * recip + 0.5f);
 }
 
-
 MStatus cImgQuantize::process(MDataBlock &data, const CImg<unsigned char> &image,
-                             CImg<unsigned char> &result)
+							  CImg<unsigned char> &result)
 {
-	bool greyscale = data.inputValue(aGreyscale).asBool();
-	int levels = data.inputValue(aLevels).asInt();
-	cImgQuantize::Dither dither = (cImgQuantize::Dither)data.inputValue(aDither).asShort();
 
-	if (levels < 2) {
-		levels = 2;
+	cImgQuantize::Quantize quantize = (cImgQuantize::Quantize)data.inputValue(aQuantize).asShort();
+
+	if (quantize == cImgQuantize::kUniform)
+	{
+		return quantizeUniform(data, image, result);
+		// } else if (quantize == cImgQuantize::kMedianCut) {
+		// 	quantizeMedianCut(data, image, result);
+		// } else if (quantize == cImgQuantize::kKMeans) {
+	}
+	else
+	{
+		return quantizeKMeans(data, image, result);
 	}
 
-	// BW image
+	return MS::kSuccess;
+}
+
+MStatus cImgQuantize::quantizeUniform(MDataBlock &data, const CImg<unsigned char> &image,
+									  CImg<unsigned char> &result)
+{
+	cImgQuantize::Dither dither = (cImgQuantize::Dither)data.inputValue(aDither).asShort();
+	bool greyscale = data.inputValue(aGreyscale).asBool();
+	int levels = data.inputValue(aLevels).asInt();
+	levels = std::min(std::max(levels, 2), 256);
 
 	int w = image.width();
 	int h = image.height();
 
 	CImg<int> dest;
-	if (greyscale) {
+	if (greyscale)
+	{
 		dest.assign(w, h, 1, 1);
 		cimg_forXY(image, x, y)
 		{
 			int g = image(x, y, 0) * 0.2162 + image(x, y, 1) * 0.7152 + image(x, y, 2) * 0.0722;
-			dest(x, y, 0) = g; 
+			dest(x, y, 0) = g;
 		}
-	} else {
+	}
+	else
+	{
 		dest.assign(image);
 	}
 
@@ -186,26 +215,30 @@ MStatus cImgQuantize::process(MDataBlock &data, const CImg<unsigned char> &image
 		cimg_forXYC(dest, x, y, c)
 		{
 			int oldpixel = dest(x, y, c);
-			int newpixel = quantize(oldpixel, levels);
+			int newpixel = quantizeValue(oldpixel, levels);
 			int quant_error = oldpixel - newpixel;
 			dest(x, y, c) = newpixel;
 
-			if (x < w-1) {
-				dest(x+1, y, c) = dest(x+1, y, c) + quant_error * 7 / 16;
+			if (x < w - 1)
+			{
+				dest(x + 1, y, c) = dest(x + 1, y, c) + quant_error * 7 / 16;
 			}
-			if (x > 0 && y < h-1) {
-				dest(x-1, y+1, c) = dest(x-1, y+1, c) + quant_error * 3 / 16;
+			if (x > 0 && y < h - 1)
+			{
+				dest(x - 1, y + 1, c) = dest(x - 1, y + 1, c) + quant_error * 3 / 16;
 			}
-			if (y < h-1) {
-				dest(x, y+1, c) = dest(x, y+1, c) + quant_error * 5 / 16;
+			if (y < h - 1)
+			{
+				dest(x, y + 1, c) = dest(x, y + 1, c) + quant_error * 5 / 16;
 			}
-			if (x < w-1 && y < h-1) {
-				dest(x+1, y+1, c) = dest(x+1, y+1, c) + quant_error * 1 / 16;
+			if (x < w - 1 && y < h - 1)
+			{
+				dest(x + 1, y + 1, c) = dest(x + 1, y + 1, c) + quant_error * 1 / 16;
 			}
 		}
 		cimg_forXYC(dest, x, y, c)
 		{
-			result(x,y,c) =  std::min(std::max(dest(x,y,c), 0), 255);
+			result(x, y, c) = std::min(std::max(dest(x, y, c), 0), 255);
 		}
 	}
 	else
@@ -214,10 +247,34 @@ MStatus cImgQuantize::process(MDataBlock &data, const CImg<unsigned char> &image
 		cimg_forXYC(dest, x, y, c)
 		{
 			int oldpixel = dest(x, y, c);
-			int newpixel = quantize(oldpixel, levels);
+			int newpixel = quantizeValue(oldpixel, levels);
 			result(x, y, c) = newpixel;
 		}
 	}
 
 	return MS::kSuccess;
 }
+
+MStatus cImgQuantize::quantizeKMeans(
+	MDataBlock &data,
+	const CImg<unsigned char> &image,
+	CImg<unsigned char> &result)
+{
+	cImgQuantize::Dither dither = (cImgQuantize::Dither)data.inputValue(aDither).asShort();
+	int levels = data.inputValue(aLevels).asInt();
+	levels = std::min(std::max(levels, 2), 256);
+
+	KMeans quantizer(image, levels);
+	quantizer.train(10);
+	quantizer.assign(result);
+
+
+
+
+	return MS::kSuccess;
+
+}
+
+
+
+
