@@ -46,6 +46,9 @@
 #define kStrokeWaitsFlag "-wat"
 #define kStrokeWaitsFlagL "-strokeWaits"
 
+#define kStrokeTargetCountFlag  "-tc"
+#define kStrokeTargetCountFlagL "-targetCount"
+
 #define kStrokeArcLengthFlag "-sal"
 #define kStrokeArcLengthFlagL "-strokeArcLength"
 
@@ -96,6 +99,8 @@ private:
 		const std::vector<Stroke> &strokes,
 		MArgDatabase &argData,
 		float waitGain);
+
+	MStatus handleStrokeTargetCountFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
 
 	MStatus handleStrokeBackstrokeFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData);
 
