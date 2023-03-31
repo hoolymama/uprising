@@ -76,10 +76,10 @@ def light_painting_stats(node):
     target_count = 0
     for i in  range(stroke_count):
         arclen += pm.lightPaintingQuery(node, si=i, strokeArcLength=True)
-        target_count += len(pm.lightPaintingQuery(node, si=i, wat=True))
-
-    avg_arclen = arclen / float(stroke_count) 
-    avg_target_count =  target_count / float(stroke_count) 
+        target_count += pm.lightPaintingQuery(node, si=i, tc=True)
+    
+    avg_arclen =  arclen / float(stroke_count)  if stroke_count else 0
+    avg_target_count =  target_count / float(stroke_count)   if stroke_count else 0
     result = {
         "stroke_count": stroke_count,
         "total_arc_length": arclen,

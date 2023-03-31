@@ -49,6 +49,8 @@ MSyntax lightPaintingCmd::newSyntax()
 	syn.addFlag(kStrokeColorsFlag, kStrokeColorsFlagL);
 
 	syn.addFlag(kStrokeWaitsFlag, kStrokeWaitsFlagL);
+
+	syn.addFlag(kStrokeTargetCountFlag, kStrokeTargetCountFlagL);
  
 	syn.addFlag(kStrokeArcLengthFlag, kStrokeArcLengthFlagL);
 
@@ -167,6 +169,12 @@ MStatus lightPaintingCmd::doIt(const MArgList &args)
 		float waitGain;
 		waitGainPlug.getValue(waitGain);
 		return handleStrokeWaitsFlag(*pStrokes, argData, waitGain);
+	}
+
+	if (argData.isFlagSet(kStrokeTargetCountFlag))
+	{
+		
+		return handleStrokeTargetCountFlag(*pStrokes, argData);
 	}
 
 	if (argData.isFlagSet(kStrokeArcLengthFlag))
@@ -452,6 +460,22 @@ MStatus lightPaintingCmd::handleStrokeWaitsFlag(const std::vector<Stroke> &strok
 	setResult(result);
 	return MS::kSuccess;
 }
+
+MStatus lightPaintingCmd::handleStrokeTargetCountFlag(const std::vector<Stroke> &strokes, MArgDatabase &argData)
+{
+	MStatus st;
+	int strokeId = getStrokeId(strokes, argData, &st);
+	if (st.error())
+	{
+		return MS::kUnknownParameter;
+	}
+ 	
+	int count =  strokes[strokeId].size();
+
+	setResult(count);
+	return MS::kSuccess;
+}
+
 
 MStatus lightPaintingCmd::handleStrokeArcLengthFlag(const std::vector<Stroke> &strokes,
 													MArgDatabase &argData)

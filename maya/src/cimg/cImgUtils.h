@@ -70,6 +70,8 @@ public:
 	static void img_stats(const MString&name, const CImg<unsigned char>*img);
 	static void img_stats(const MString&name, const CImg<float>*img);
 
+	static void floydSteinberg(CImg<unsigned char> & image);
+
 };
 
 #endif

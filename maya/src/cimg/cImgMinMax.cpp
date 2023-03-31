@@ -28,7 +28,7 @@ MStatus cImgMinMax::initialize()
 	inheritAttributesFrom("cImgMerge");
 
 	aOperation = eAttr.create("operation", "op", cImgMinMax::kMinimum);
-	eAttr.addField( "minnimum",   cImgMinMax::kMinimum);
+	eAttr.addField( "minimum",   cImgMinMax::kMinimum);
 	eAttr.addField( "maximum",   cImgMinMax::kMaximum);
 	eAttr.setHidden(false);
 	eAttr.setStorable(true);

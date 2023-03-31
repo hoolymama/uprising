@@ -109,6 +109,8 @@
 #include "cImgDilate.h"
 #include "axisImg.h"
 #include "cImgSmear.h"
+#include "cImgQuantize.h"
+
 #include "cImgPngFile.h"
 #include "pngInfo.h"
 #include "cImgOverride.h"
@@ -212,6 +214,14 @@ MStatus initializePlugin(MObject obj)
 	st = plugin.registerNode("cImgSmear", cImgSmear::id, cImgSmear::creator,
 							 cImgSmear::initialize);
 	msert;
+
+
+	st = plugin.registerNode("cImgQuantize", cImgQuantize::id, cImgQuantize::creator,
+							 cImgQuantize::initialize);
+	msert;
+
+
+	
 
 	st = plugin.registerNode("cImgDetail", cImgDetail::id, cImgDetail::creator,
 							 cImgDetail::initialize);
@@ -935,6 +945,9 @@ MStatus uninitializePlugin(MObject obj)
 	mser;
 
 	st = plugin.deregisterNode(cImgDetail::id);
+	mser;
+
+	st = plugin.deregisterNode(cImgQuantize::id);
 	mser;
 
 	st = plugin.deregisterNode(cImgSmear::id);
