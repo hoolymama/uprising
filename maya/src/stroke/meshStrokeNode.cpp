@@ -95,6 +95,7 @@ MStatus meshStrokeNode::generateStrokeGeometry(
     float3 &fpoint = data.inputValue(aViewpoint).asFloat3();
     MPoint viewPoint(fpoint[0], fpoint[1], fpoint[2]);
 
+
     tGraph *pGraph = new tGraph();
     st = buildGraph(
         dInMesh,
@@ -122,7 +123,7 @@ MStatus meshStrokeNode::buildGraph(
     const MPoint &viewPoint,
     tGraph *pGraph) const
 {
-
+    // Build the network of connected "toon" edges.
     MStatus st;
     MItMeshEdge edgeIter(dInMesh, &st);
     msert;
@@ -140,12 +141,15 @@ MStatus meshStrokeNode::buildGraph(
     {
         int numFaces;
         edgeIter.numConnectedFaces(numFaces);
+
+        // Only border edges or edges with 2 faces are toon edges.
         if (numFaces < 1 || numFaces > 2)
         {
             continue;
         }
         MFloatPointArray pts;
 
+        // Get the positions of the connected verts
         int vertexIndex0 = edgeIter.index(0);
         int vertexIndex1 = edgeIter.index(1);
         vertexIter.setIndex(vertexIndex0, prevIndex);
@@ -155,6 +159,7 @@ MStatus meshStrokeNode::buildGraph(
 
         if (edgeIter.onBoundary())
         {
+            // Add border edge.
             pGraph->addEdge(tcoord(vertexIndex0), tcoord(vertexIndex1), pts[0], pts[1]);
         }
         else
@@ -176,7 +181,15 @@ MStatus meshStrokeNode::buildGraph(
             faceIter.setIndex(faceIds[1], prevIndex);
             st = faceIter.getNormal(normal1, MSpace::kWorld);
             mser;
+    
             center1 = faceIter.center(MSpace::kWorld);
+
+            MVector toCenter1 = center1 - center0;
+            if (((center1 - center0) * normal1) < 0.0)
+            {
+                // It's not convex - it's a crease.
+                continue;
+            }
 
             MVector view = (edgeIter.center(MSpace::kWorld) - viewPoint).normal();
             double d0 = view * normal0;
