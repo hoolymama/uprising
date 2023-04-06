@@ -152,12 +152,9 @@ public:
 	
 	void setRadius(float radius);
 	const float &radius() const;
-	
-
 
 	void setWait(float wait);
 	const float &wait() const;
- 
 
 	void setColor(const MColor &rgba);
 
@@ -165,15 +162,12 @@ public:
 
  	float luminance() const;
 
-
 private:
 
 	MFloatVector m_drawTangent; // tangent to use for drawing.
 	MFloatMatrix m_matrix;
 	float m_weight;	 // used to indicate fraction of brush tip
-	float m_radius;	 // used to indicate fraction of brush tip
-
-
+	float m_radius;	 // for paint brushes
 	MColor m_color;	 // RGBA
 	float m_wait;
 
