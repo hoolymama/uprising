@@ -37,6 +37,7 @@ echo DONE
 
 """
 
+
 class PovPublishTab(gui.FormLayout):
     def __init__(self):
         self.setNumberOfDivisions(100)
@@ -235,7 +236,6 @@ class PovPublishTab(gui.FormLayout):
             if not do_src:
                 pm.checkBoxGrp(self.robot_file_options_cb, e=True, value1=True)
 
-
         saves = self.saves_something()
 
         pm.textFieldGrp(self.identifier_tf, e=True, en=saves)
@@ -284,7 +284,7 @@ class PovPublishTab(gui.FormLayout):
         directory = None
         post_cmd = None
         remote_cmd = None
-        
+
         program_prefix = "ofs" if run_mode == RUNMODE_OFFLINE else "ror"
         if saves:
             timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M")
@@ -304,7 +304,7 @@ class PovPublishTab(gui.FormLayout):
             post_cmd = pm.textFieldGrp(
                 self.post_cmd_tf, query=True, en=True
             ) and pm.textFieldGrp(self.post_cmd_tf, query=True, text=True)
-            
+
             context = {
                 "program_prefix": program_prefix,
                 "s3_src_path": s3_src_path,
@@ -315,16 +315,15 @@ class PovPublishTab(gui.FormLayout):
                 "timestamp": timestamp,
                 "remote_mac_path": remote_mac_path,
             }
-            
+
             if post_cmd:
                 post_cmd = post_cmd.format(**context)
-                
+
             remote_cmd = REMOTE_CMD_TEMPLATE.format(**context)
- 
+
         print("directory: {}".format(directory))
         print("post_cmd: {}".format(post_cmd))
 
-        
         try:
             pov_session = PovSession(
                 stroke_chunk_size,
@@ -346,6 +345,18 @@ class PovPublishTab(gui.FormLayout):
         except ValueError:
             print("PovSession aborted")
             raise
+
+        cmd_info = "Command info:\n\n"
+        if post_cmd:
+            cmd_info += "Post command:\n {}\n\n".format(post_cmd)
+        else:
+            cmd_info += "No post command\n\n"
+        if remote_cmd:
+            cmd_info += "Remote commands:\n {}\n\n".format(remote_cmd)
+        else:
+            cmd_info += "No remote command\n\n"
+
+        utils.show_in_window(cmd_info, "Command info")
 
     def populate(self):
         for persister in self.persistentWidgets:
