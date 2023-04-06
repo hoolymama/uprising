@@ -1,0 +1,19 @@
+source "AEsortFilterInclude";
+
+global proc AEprojectStrokesTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	editorTemplate -cl 0  -beginLayout "Projection attributes";		
+	editorTemplate -addControl "minimumTargetDistance" ;
+	editorTemplate -addControl "projectionPlaneDistance";
+	// editorTemplate -addControl "projectionMatrix";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "pointDensity";
+	editorTemplate -addControl "minimumPoints";
+	editorTemplate -endLayout;
+
+	AEsortFilterInclude($nodeName);
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}
