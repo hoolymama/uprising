@@ -66,6 +66,17 @@ class PovStroke(Stroke):
             program.setRounding(self.approximation_distance)
 
         print(("Sending stroke {}".format(stroke_name)))
+        # Make sure lights are off and go to start of stroke with black target. We are trying to avoid having the lights ramp in as the robot approaches. 
+        ############
+        pov_lights.send_lights_off(program, dmx_id, run_on_robot)
+        black = pm.dt.Color(0.0, 0.0, 0.0, 0.0)
+        black_target = self.targets[0].copy()
+        black_target.color = black
+        black_target.id = -1
+        black_target.send(stroke_name, program, frame, dmx_id, last_color, run_on_robot)
+        last_color = black_target.color
+        
+        ############
         for i, t in enumerate(self.targets):
             t.send(stroke_name, program, frame, dmx_id, last_color, run_on_robot)
             last_color = t.color

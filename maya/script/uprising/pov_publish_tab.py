@@ -356,7 +356,7 @@ class PovPublishTab(gui.FormLayout):
         else:
             cmd_info += "No remote command\n\n"
 
-        utils.show_in_window(cmd_info, "Command info")
+        utils.show_text_in_window(cmd_info, title="Command info")
 
     def populate(self):
         for persister in self.persistentWidgets:

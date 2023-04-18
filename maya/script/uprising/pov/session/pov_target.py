@@ -6,6 +6,14 @@ from uprising import robo
 EPSILON = 0.00001
 
 class PovTarget(Target):
+
+    def copy(self):
+        result =  PovTarget(self.id, (0,0,0), (0,0,0), self.color, self.wait)
+        result.tool_pose = self.tool_pose 
+        result.joint_pose = self.joint_pose
+        result.linear = self.linear
+        return result
+    
     def __init__(self, target_id, position, rotation, color, wait):
         super(PovTarget, self).__init__(target_id, position, rotation)
         self.color = color
