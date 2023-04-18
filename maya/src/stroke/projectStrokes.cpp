@@ -34,7 +34,6 @@
 const float PI = 3.14159265359;
 MObject projectStrokes::aTargetRotationMatrix;
 MObject projectStrokes::aProjectionMatrix;
-// MObject projectStrokes::aProjectionType;
 MObject projectStrokes::aProjectionPlaneDistance;
 MObject projectStrokes::aMinimumTargetDistance;
 MObject projectStrokes::aPointDensity;
