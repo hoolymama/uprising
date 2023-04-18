@@ -83,7 +83,8 @@
         "compare": "cpp",
         "concepts": "cpp",
         "variant": "cpp",
-        "memory_resource": "cpp"
+        "memory_resource": "cpp",
+        "regex": "cpp"
     },
     "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7",
     "python.linting.pylintEnabled": false,

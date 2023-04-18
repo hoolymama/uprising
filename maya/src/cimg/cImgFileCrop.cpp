@@ -1,13 +1,11 @@
+
+#include <string>
+#include <regex>
+
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
-#include <maya/MFnCompoundAttribute.h>
-
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MFnPluginData.h>
-#include <maya/MFloatVectorArray.h>
-#include <maya/MArrayDataBuilder.h>
-#include <maya/MFnDependencyNode.h>
-#include <maya/MColorArray.h>
 #include <maya/MPlugArray.h>
 
 #include "errorMacros.h"
@@ -18,6 +16,10 @@
 MTypeId cImgFileCrop::id(k_cImgFileCrop);
 
 MObject cImgFileCrop::aImageFilename;
+MObject cImgFileCrop::aImageFrameNumber;
+MObject cImgFileCrop::aUseImageSequence;
+MObject cImgFileCrop::aComputedImageFilename;
+
 MObject cImgFileCrop::aResize;
 MObject cImgFileCrop::aResizeResolution;
 MObject cImgFileCrop::aBoundary;
@@ -46,13 +48,32 @@ MStatus cImgFileCrop::initialize()
 
 	MFnNumericAttribute nAttr;
 	MFnTypedAttribute tAttr;
-	MFnCompoundAttribute cAttr;
 	MFnEnumAttribute eAttr;
 
 	aImageFilename = tAttr.create("imageFilename", "im", MFnData::kString);
 	tAttr.setStorable(true);
-	tAttr.setUsedAsFilename(true);
+	tAttr.setHidden(false);
 	addAttribute(aImageFilename);
+
+	aImageFrameNumber = nAttr.create("imageFrameNumber", "ifn", MFnNumericData::kInt);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setHidden(false);
+	nAttr.setDefault(1);
+	addAttribute(aImageFrameNumber);
+
+	aUseImageSequence = nAttr.create("useImageSequence", "uis", MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setHidden(false);
+	nAttr.setDefault(false);
+	addAttribute(aUseImageSequence);
+
+	aComputedImageFilename = tAttr.create("computedImageFilename", "cim", MFnData::kString);
+	tAttr.setStorable(false);
+	tAttr.setHidden(false);
+	tAttr.setWritable(true);
+	addAttribute(aComputedImageFilename);
 
 	aBoundary = eAttr.create("boundary", "bnd", cImgFileCrop::kBoundaryDirichlet);
 	eAttr.addField("dirichlet", cImgFileCrop::kBoundaryDirichlet);
@@ -141,21 +162,31 @@ MStatus cImgFileCrop::initialize()
 	attributeAffects(aResizeResolution, aOutput);
 	attributeAffects(aApplyCrop, aOutput);
 	attributeAffects(aLetterbox, aOutput);
+	attributeAffects(aImageFrameNumber, aOutput);
 
 	attributeAffects(aImageFilename, aOutputCropFactor);
 	attributeAffects(aResize, aOutputCropFactor);
 	attributeAffects(aResizeResolution, aOutputCropFactor);
 	attributeAffects(aApplyCrop, aOutputCropFactor);
+	attributeAffects(aImageFrameNumber, aOutputCropFactor);
 
 	attributeAffects(aImageFilename, aOutputOffsetFactorX);
 	attributeAffects(aResize, aOutputOffsetFactorX);
 	attributeAffects(aResizeResolution, aOutputOffsetFactorX);
 	attributeAffects(aApplyCrop, aOutputOffsetFactorX);
+	attributeAffects(aImageFrameNumber, aOutputOffsetFactorX);
 
 	attributeAffects(aImageFilename, aOutputOffsetFactorY);
 	attributeAffects(aResize, aOutputOffsetFactorY);
 	attributeAffects(aResizeResolution, aOutputOffsetFactorY);
 	attributeAffects(aApplyCrop, aOutputOffsetFactorY);
+	attributeAffects(aImageFrameNumber, aOutputOffsetFactorY);
+
+	attributeAffects(aImageFilename, aComputedImageFilename);
+	attributeAffects(aImageFrameNumber, aComputedImageFilename);
+	attributeAffects(aResize, aComputedImageFilename);
+	attributeAffects(aResizeResolution, aComputedImageFilename);
+	attributeAffects(aApplyCrop, aComputedImageFilename);
 
 	return MS::kSuccess;
 }
@@ -166,7 +197,11 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	MObject thisObj = thisMObject();
 
 	if (!(
-			(plug == aOutput) || (plug == aOutputCropFactor) || (plug == aOutputOffsetFactorX) || (plug == aOutputOffsetFactorY)))
+			(plug == aOutput) ||
+			(plug == aOutputCropFactor) ||
+			(plug == aOutputOffsetFactorX) ||
+			(plug == aOutputOffsetFactorY) ||
+			(plug == aComputedImageFilename)))
 	{
 		return (MS::kUnknownParameter);
 	}
@@ -177,6 +212,7 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	bool resize = data.inputValue(aResize).asBool();
 	bool applyCrop = data.inputValue(aApplyCrop).asBool();
 	short boundary = data.inputValue(aBoundary).asShort();
+	int frameNumber = data.inputValue(aImageFrameNumber).asInt();
 
 	cImgFileCrop::Letterbox letterbox = (cImgFileCrop::Letterbox)data.inputValue(aLetterbox).asShort();
 
@@ -184,8 +220,34 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	float offsetFactorX = 0.0f;
 	float offsetFactorY = 0.0f;
 
-	MString imageFilename = data.inputValue(aImageFilename).asString();
-	CImg<unsigned char> image(imageFilename.asChar());
+	// Find hashes for frame number
+	const std::string imageFilename = std::string(data.inputValue(aImageFilename).asString().asChar());
+	const std::regex base_regex("[^#]+(#+).*");
+	const std::regex frame_regex("#+");
+	std::smatch base_match;
+	MString filename;
+
+	if (std::regex_match(imageFilename, base_match, base_regex))
+	{
+		int padding = base_match[1].length();
+		int frameNumber = data.inputValue(aImageFrameNumber).asInt();
+		std::string frameNumberString = std::to_string(frameNumber);
+		std::string paddingString = std::string(padding - frameNumberString.length(), '0');
+		std::string paddedFrameNumberString = paddingString + frameNumberString;
+		std::string paddedFrameNumberFilename = std::regex_replace(imageFilename, frame_regex, paddedFrameNumberString);
+		filename = MString(paddedFrameNumberFilename.c_str());
+	}
+	else
+	{
+		filename = MString(imageFilename.c_str());
+	}
+
+	if (filename.length() == 0)
+	{
+		return (MS::kUnknownParameter);
+	}
+
+	CImg<unsigned char> image(filename.asChar());
 
 	int xres = image.width();
 	int yres = image.height();
@@ -248,10 +310,6 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	else
 	{
 		int bg = (letterbox == Letterbox::kWhite) ? 255 : 0;
-		// if (letterbox == Letterbox::kWhite)
-		// {
-		// 	bg = 255;
-		// }
 		outimage->assign(squareRes, squareRes, 1, 1, bg);
 
 		if (letterbox == Letterbox::kRepeat)
@@ -286,6 +344,10 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	MDataHandle hOutputOffsetFactorY = data.outputValue(aOutputOffsetFactorY);
 	hOutputOffsetFactorY.set(offsetFactorY);
 	hOutputOffsetFactorY.setClean();
+
+	MDataHandle hComputedImageFilename = data.outputValue(aComputedImageFilename);
+	hComputedImageFilename.set(filename);
+	hComputedImageFilename.setClean();
 
 	hOutput.set(newData);
 	data.setClean(plug);

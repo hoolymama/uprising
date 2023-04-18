@@ -4,7 +4,6 @@
 
 #include <maya/MPxNode.h>
 #include <maya/MTypeId.h>
-#include <maya/MTime.h>
 
 
 #include "cImgData.h"
@@ -34,6 +33,10 @@ public:
 	static MStatus initialize();
 
 	static MObject aImageFilename;
+	static MObject aImageFrameNumber;
+	static MObject aUseImageSequence;
+	static MObject aComputedImageFilename;
+	
 	static MObject aResize;
 	static MObject aResizeResolution;
 	static MObject aBoundary;

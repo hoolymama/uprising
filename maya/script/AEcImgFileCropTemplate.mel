@@ -7,6 +7,11 @@ global proc AEcImgFileCropTemplate ( string $nodeName )
 
 	editorTemplate -cl 0  -beginLayout "Image attributes";
  	editorTemplate -addControl "imageFilename";
+	editorTemplate -addControl "imageFrameNumber";
+
+	editorTemplate -addControl "useImageSequence" "AEcImgFileCropTemplateOnUseImgSeqChange";
+
+
 	editorTemplate -addControl "boundary";
 	editorTemplate -addControl "letterbox";
 	editorTemplate -addControl "resize";
@@ -24,6 +29,7 @@ global proc AEcImgFileCropTemplate ( string $nodeName )
  	editorTemplate -addControl "outputCropFactor";
 	editorTemplate -addControl "outputOffsetFactorX";
 	editorTemplate -addControl "outputOffsetFactorY";
+	editorTemplate -addControl "computedImageFilename";
 	editorTemplate -endLayout;	
 
 
@@ -35,3 +41,51 @@ global proc AEcImgFileCropTemplate ( string $nodeName )
 	
 }
 
+proc string _padNumber(int $num, int $pad)
+{
+
+	int $prefix = pow(10,$pad);
+	if ($num < $prefix) {
+		string $result = substring(string($prefix + $num) ,2, ($pad+1));
+		return $result;
+	} 
+	return string($num);
+}
+
+// Function to update the image filename when the useImageSequence checkbox is toggled
+global proc AEcImgFileCropTemplateOnUseImgSeqChange( string $nodeName )
+{
+
+    string $template = `getAttr ($nodeName+".imageFilename")`;
+	int $useImgSeq = `getAttr ($nodeName+".useImageSequence")`;
+	int $imageFrameNumber = `getAttr ($nodeName+".imageFrameNumber")`;
+	editorTemplate -dimControl $nodeName "imageFrameNumber" (!$useImgSeq); 
+
+	if ($useImgSeq) {
+		string $buff[];
+		int $numToks = `tokenize $template "." $buff`;
+		if ($numToks > 2) {
+			string $hashFn = $buff[0];
+			string $ext = $buff[$numToks-1];
+			string $numeric = $buff[$numToks-2];
+			for ($i=1; $i<($numToks-2); $i++) {
+				$hashFn = $hashFn + "." + $buff[$i];
+			}
+			$hashFn = $hashFn + "." + "###" + "." + $ext;
+			setAttr -type "string" ($nodeName+".imageFilename") $hashFn;
+		} 
+	} else {
+		string $buff[];
+		int $numToks = `tokenize $template "." $buff`;
+		if ($numToks > 2) {
+			string $hashFn = $buff[0];
+			string $ext = $buff[$numToks-1];
+			string $padding = size($buff[$numToks-2]);
+			for ($i=1; $i<($numToks-2); $i++) {
+				$hashFn = $hashFn + "." + $buff[$i];
+			}
+			$hashFn = $hashFn + "." + _padNumber($imageFrameNumber,  $padding) + "." + $ext;
+			setAttr -type "string"  ($nodeName+".imageFilename") $hashFn;
+		} 
+	}
+}
