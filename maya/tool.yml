@@ -20,7 +20,7 @@ maya_modules_erb_files:
 include_paths:
 - ../../kettle/src
 - ../../kettle/src/maya
-- ../../../CImg-2.9.8_pre051821
+- ../../../CImg-3.2.3
 libs:
 - OpenMayaUI
 - OpenMayaRender
