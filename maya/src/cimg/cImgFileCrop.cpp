@@ -182,11 +182,11 @@ MStatus cImgFileCrop::initialize()
 	attributeAffects(aApplyCrop, aOutputOffsetFactorY);
 	attributeAffects(aImageFrameNumber, aOutputOffsetFactorY);
 
-	attributeAffects(aImageFilename, aComputedImageFilename);
-	attributeAffects(aImageFrameNumber, aComputedImageFilename);
-	attributeAffects(aResize, aComputedImageFilename);
-	attributeAffects(aResizeResolution, aComputedImageFilename);
-	attributeAffects(aApplyCrop, aComputedImageFilename);
+	// attributeAffects(aImageFilename, aComputedImageFilename);
+	// attributeAffects(aImageFrameNumber, aComputedImageFilename);
+	// attributeAffects(aResize, aComputedImageFilename);
+	// attributeAffects(aResizeResolution, aComputedImageFilename);
+	// attributeAffects(aApplyCrop, aComputedImageFilename);
 
 	return MS::kSuccess;
 }
