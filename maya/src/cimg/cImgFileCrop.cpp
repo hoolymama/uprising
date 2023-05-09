@@ -18,6 +18,8 @@ MTypeId cImgFileCrop::id(k_cImgFileCrop);
 MObject cImgFileCrop::aImageFilename;
 MObject cImgFileCrop::aImageFrameNumber;
 MObject cImgFileCrop::aUseImageSequence;
+MObject cImgFileCrop::aPadding;
+
 MObject cImgFileCrop::aComputedImageFilename;
 
 MObject cImgFileCrop::aResize;
@@ -53,6 +55,7 @@ MStatus cImgFileCrop::initialize()
 	aImageFilename = tAttr.create("imageFilename", "im", MFnData::kString);
 	tAttr.setStorable(true);
 	tAttr.setHidden(false);
+	tAttr.setUsedAsFilename(true);
 	addAttribute(aImageFilename);
 
 	aImageFrameNumber = nAttr.create("imageFrameNumber", "ifn", MFnNumericData::kInt);
@@ -61,6 +64,16 @@ MStatus cImgFileCrop::initialize()
 	nAttr.setHidden(false);
 	nAttr.setDefault(1);
 	addAttribute(aImageFrameNumber);
+
+	aPadding = nAttr.create("padding", "pad", MFnNumericData::kInt);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setHidden(false);
+	nAttr.setDefault(3);
+	nAttr.setMax(7);
+	nAttr.setMin(1);
+
+	addAttribute(aPadding);
 
 	aUseImageSequence = nAttr.create("useImageSequence", "uis", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
@@ -156,34 +169,51 @@ MStatus cImgFileCrop::initialize()
 	nAttr.setKeyable(false);
 	st = addAttribute(aOutputOffsetFactorY);
 
-	attributeAffects(aBoundary, aOutput);
 	attributeAffects(aImageFilename, aOutput);
+	attributeAffects(aUseImageSequence, aOutput);
+	attributeAffects(aImageFrameNumber, aOutput);
+	attributeAffects(aPadding, aOutput);
+	attributeAffects(aBoundary, aOutput);
 	attributeAffects(aResize, aOutput);
 	attributeAffects(aResizeResolution, aOutput);
 	attributeAffects(aApplyCrop, aOutput);
 	attributeAffects(aLetterbox, aOutput);
-	attributeAffects(aImageFrameNumber, aOutput);
 
 	attributeAffects(aImageFilename, aOutputCropFactor);
+	attributeAffects(aUseImageSequence, aOutputCropFactor);
+	attributeAffects(aImageFrameNumber, aOutputCropFactor);
+	attributeAffects(aPadding, aOutputCropFactor);
 	attributeAffects(aResize, aOutputCropFactor);
 	attributeAffects(aResizeResolution, aOutputCropFactor);
 	attributeAffects(aApplyCrop, aOutputCropFactor);
 	attributeAffects(aImageFrameNumber, aOutputCropFactor);
+	attributeAffects(aPadding, aOutputCropFactor);
 
 	attributeAffects(aImageFilename, aOutputOffsetFactorX);
+	attributeAffects(aUseImageSequence, aOutputOffsetFactorX);
+	attributeAffects(aImageFrameNumber, aOutputOffsetFactorX);
+	attributeAffects(aPadding, aOutputOffsetFactorX);
 	attributeAffects(aResize, aOutputOffsetFactorX);
 	attributeAffects(aResizeResolution, aOutputOffsetFactorX);
 	attributeAffects(aApplyCrop, aOutputOffsetFactorX);
 	attributeAffects(aImageFrameNumber, aOutputOffsetFactorX);
+	attributeAffects(aPadding, aOutputOffsetFactorX);
 
 	attributeAffects(aImageFilename, aOutputOffsetFactorY);
+	attributeAffects(aUseImageSequence, aOutputOffsetFactorY);
+	attributeAffects(aImageFrameNumber, aOutputOffsetFactorY);
+	attributeAffects(aPadding, aOutputOffsetFactorY);
 	attributeAffects(aResize, aOutputOffsetFactorY);
 	attributeAffects(aResizeResolution, aOutputOffsetFactorY);
 	attributeAffects(aApplyCrop, aOutputOffsetFactorY);
 	attributeAffects(aImageFrameNumber, aOutputOffsetFactorY);
+	attributeAffects(aPadding, aOutputOffsetFactorY);
 
-	// attributeAffects(aImageFilename, aComputedImageFilename);
-	// attributeAffects(aImageFrameNumber, aComputedImageFilename);
+	attributeAffects(aImageFilename, aComputedImageFilename);
+	attributeAffects(aUseImageSequence, aComputedImageFilename);
+	attributeAffects(aImageFrameNumber, aComputedImageFilename);
+	attributeAffects(aPadding, aComputedImageFilename);
+
 	// attributeAffects(aResize, aComputedImageFilename);
 	// attributeAffects(aResizeResolution, aComputedImageFilename);
 	// attributeAffects(aApplyCrop, aComputedImageFilename);
@@ -209,32 +239,24 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	MPlug outputPlug(thisObj, aOutput);
 
 	MStatus st = MS::kSuccess;
-	bool resize = data.inputValue(aResize).asBool();
-	bool applyCrop = data.inputValue(aApplyCrop).asBool();
-	short boundary = data.inputValue(aBoundary).asShort();
 	int frameNumber = data.inputValue(aImageFrameNumber).asInt();
-
-	cImgFileCrop::Letterbox letterbox = (cImgFileCrop::Letterbox)data.inputValue(aLetterbox).asShort();
-
-	float cropFactor = 1.0f;
-	float offsetFactorX = 0.0f;
-	float offsetFactorY = 0.0f;
+	int padding = data.inputValue(aPadding).asInt();
 
 	// Find hashes for frame number
 	const std::string imageFilename = std::string(data.inputValue(aImageFilename).asString().asChar());
-	const std::regex base_regex("[^#]+(#+).*");
-	const std::regex frame_regex("#+");
+	const std::regex base_regex("^(.*)\\.(\\d+)\\.([^\\.]+)$");
 	std::smatch base_match;
 	MString filename;
 
-	if (std::regex_match(imageFilename, base_match, base_regex))
+	if (std::regex_match(imageFilename, base_match, base_regex) && data.inputValue(aUseImageSequence).asBool())
 	{
-		int padding = base_match[1].length();
 		int frameNumber = data.inputValue(aImageFrameNumber).asInt();
 		std::string frameNumberString = std::to_string(frameNumber);
 		std::string paddingString = std::string(padding - frameNumberString.length(), '0');
 		std::string paddedFrameNumberString = paddingString + frameNumberString;
-		std::string paddedFrameNumberFilename = std::regex_replace(imageFilename, frame_regex, paddedFrameNumberString);
+
+		std::string paddedFrameNumberFilename = base_match[1].str() + "." + paddedFrameNumberString + "." + base_match[3].str();
+
 		filename = MString(paddedFrameNumberFilename.c_str());
 	}
 	else
@@ -247,11 +269,30 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 		return (MS::kUnknownParameter);
 	}
 
+	MDataHandle hComputedImageFilename = data.outputValue(aComputedImageFilename);
+	hComputedImageFilename.set(filename);
+	hComputedImageFilename.setClean();
+
+	if (plug == aComputedImageFilename)
+	{
+		// bail out early so we don't incur massive cost when we only want to see the filename sequence result
+		return MS::kSuccess;
+	}
+
 	CImg<unsigned char> image(filename.asChar());
 
 	int xres = image.width();
 	int yres = image.height();
 	int spectrum = image.spectrum();
+
+	bool resize = data.inputValue(aResize).asBool();
+	bool applyCrop = data.inputValue(aApplyCrop).asBool();
+	short boundary = data.inputValue(aBoundary).asShort();
+	cImgFileCrop::Letterbox letterbox = (cImgFileCrop::Letterbox)data.inputValue(aLetterbox).asShort();
+
+	float cropFactor = 1.0f;
+	float offsetFactorX = 0.0f;
+	float offsetFactorY = 0.0f;
 
 	if (!(xres && yres))
 	{
@@ -344,10 +385,6 @@ MStatus cImgFileCrop::compute(const MPlug &plug, MDataBlock &data)
 	MDataHandle hOutputOffsetFactorY = data.outputValue(aOutputOffsetFactorY);
 	hOutputOffsetFactorY.set(offsetFactorY);
 	hOutputOffsetFactorY.setClean();
-
-	MDataHandle hComputedImageFilename = data.outputValue(aComputedImageFilename);
-	hComputedImageFilename.set(filename);
-	hComputedImageFilename.setClean();
 
 	hOutput.set(newData);
 	data.setClean(plug);

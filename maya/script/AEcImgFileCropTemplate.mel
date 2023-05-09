@@ -6,10 +6,16 @@ global proc AEcImgFileCropTemplate ( string $nodeName )
  
 
 	editorTemplate -cl 0  -beginLayout "Image attributes";
+
  	editorTemplate -addControl "imageFilename";
 	editorTemplate -addControl "imageFrameNumber";
+	editorTemplate -addControl "padding";
+	editorTemplate -addControl "useImageSequence";
+	editorTemplate -addControl "computedImageFilename";
+	
 
-	editorTemplate -addControl "useImageSequence" "AEcImgFileCropTemplateOnUseImgSeqChange";
+	// editorTemplate -addControl "useImageSequence" "AEcImgFileCropTemplateOnUseImgSeqChange";
+	
 
 
 	editorTemplate -addControl "boundary";
@@ -29,7 +35,6 @@ global proc AEcImgFileCropTemplate ( string $nodeName )
  	editorTemplate -addControl "outputCropFactor";
 	editorTemplate -addControl "outputOffsetFactorX";
 	editorTemplate -addControl "outputOffsetFactorY";
-	editorTemplate -addControl "computedImageFilename";
 	editorTemplate -endLayout;	
 
 

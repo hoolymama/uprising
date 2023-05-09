@@ -35,6 +35,7 @@ public:
 	static MObject aImageFilename;
 	static MObject aImageFrameNumber;
 	static MObject aUseImageSequence;
+	static MObject aPadding;
 	static MObject aComputedImageFilename;
 	
 	static MObject aResize;

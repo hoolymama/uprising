@@ -18,19 +18,18 @@ MAYA_MODULES_DIR = os.path.expanduser("~/Library/Preferences/Autodesk/maya/modul
 
 def main():
     ensure_directory(MAYA_MODULES_DIR)
-
+    
     robodk_python_dir = os.path.expanduser("~/RoboDK/RoboDK.app/Contents/Python")
-
-
+    
     fname = os.path.join(MAYA_MODULES_DIR, "{}.mod".format(MODULE_NAME))
+    
     with open(fname, "w") as f:
         for maya_version in SUPPORTED_MAYA_VERSIONS:
             f.write("+ MAYAVERSION:{} {} {} {}\n".format(maya_version, MODULE_NAME, VERSION, MODULE_DIR))
             f.write("PYTHONPATH+={}\n\n".format(robodk_python_dir))
 
     sys.stdout.write("Completed Maya Module setup! '{}'\n".format(fname))
-
-
+    
 def ensure_directory(directory):
     try:
         os.makedirs(directory)
@@ -39,7 +38,6 @@ def ensure_directory(directory):
             pass
         else:
             raise
-
 
 if __name__ == "__main__":
     main()
