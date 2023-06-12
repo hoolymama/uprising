@@ -23,18 +23,35 @@ DESCRIPTION_TEMPLATE = """export
 """
 POST_TEMPLATE = 'rclone sync --fast-list --update --use-server-modtime {s3_src_path} s3uprising:uprisingdata/{s3_dest_path} --exclude "._*" --exclude ".*" --exclude "*.ma" --exclude "*.mb" --exclude "*Icon*"'
 
+
+
 REMOTE_CMD_TEMPLATE = """
+# We use robo batch to run all the robot programs. # Since the sub-programs all
+# have padded(##) part numbers, and each whole frame is denoted by the
+# padded(###) frame number, they will all be in the correct alphabetical order.
+# This means we can just use a wildcard to run them.
 
-source $HOME/dev/robo-utils/robo.venv/bin/activate
+# Caution - If there are more than 1000 frames, or a frame has more than 100
+# parts, this will not work. padding will have to be increased. 
 
-echo "$(tput setaf 2)Set up a new catalog in lightroom with the label: {project_name}-{identifier}-{timestamp}-{program_prefix} $(tput sgr 0)"
+# Example: 
+# ror_f031_00.rdk
+# ror_f031_01.rdk
+# ror_f031_02.rdk
+# ror_f032_00.rdk
+# ror_f032_01.rdk
+# ror_f032_02.rdk
 
-read -p "Press Enter to continue" </dev/tty
+# To run just one frame, use a more restrictive wildcard pattern, like this:
+# robo batch "{remote_mac_path}/ror_f031_*.rdk"
 
+# PROGRAM STARTS HERE
+# You can simply source this file, or paste the two lines below into the
+# terminal. If the robo.venv virtual environment is already active, you can
+# skip the first line.
+
+source $HOME/dev/robo-utils/robo.venv/bin/activate 
 robo batch "{remote_mac_path}"/*.rdk
-
-echo DONE
-
 """
 
 
