@@ -42,6 +42,7 @@ class PovSession(Session):
         pause,
         directory,
         post_cmd,
+        do_post_cmd,
         remote_cmd,
         program_prefix="pv",
     ):
@@ -58,6 +59,7 @@ class PovSession(Session):
         self.notes = notes
         self.directory = directory
         self.post_cmd = post_cmd
+        self.do_post_cmd = do_post_cmd
         self.remote_cmd = remote_cmd
 
         self.painting_node = pm.PyNode("lightPaintingShape")
@@ -73,7 +75,8 @@ class PovSession(Session):
             if self.notes:
                 self.write_text(self.directory, "notes", self.notes)
             if self.remote_cmd:
-                self.write_sh(self.directory, "run_robo_batch", self.remote_cmd)
+                remote_text =f"# POST_CMD IS:\n# {self.post_cmd}\n\n{self.remote_cmd}"
+                self.write_sh(self.directory, "run_robo_batch", remote_text)
                 
 
         robo.new()
@@ -120,7 +123,7 @@ class PovSession(Session):
         if len(all_program_names) > 1  and self.save_src:
             self.orchestrate(self.directory, all_program_names)
 
-        if self.post_cmd:
+        if self.do_post_cmd:
             logger.info("Running post command: '{}'".format(self.post_cmd))
             args = shlex.split(self.post_cmd)
             completed = subprocess.run(args, check=True)

@@ -21,7 +21,7 @@ DEFAULT_IDENTIFIER = "test"
 DESCRIPTION_TEMPLATE = """export
 {description}
 """
-POST_TEMPLATE = 'rclone sync --fast-list --update --use-server-modtime {s3_src_path} s3uprising:uprisingdata/{s3_dest_path} --exclude "._*" --exclude ".*" --exclude "*.ma" --exclude "*.mb" --exclude "*Icon*"'
+POST_TEMPLATE = 'rclone copy --fast-list --update --use-server-modtime {s3_src_path} s3uprising:uprisingdata/{s3_dest_path} --exclude "._*" --exclude ".*" --exclude "*.ma" --exclude "*.mb" --exclude "*Icon*"'
 
 
 
@@ -318,9 +318,8 @@ class PovPublishTab(gui.FormLayout):
                 "/Volumes", "s3", "uprisingdata", s3_dest_path, "rdk"
             )
 
-            post_cmd = pm.textFieldGrp(
-                self.post_cmd_tf, query=True, en=True
-            ) and pm.textFieldGrp(self.post_cmd_tf, query=True, text=True)
+            do_post_cmd = pm.checkBox(self.do_post_cb, q=True, en=True)
+            post_cmd = pm.textFieldGrp(self.post_cmd_tf, query=True, text=True)
 
             context = {
                 "program_prefix": program_prefix,
@@ -355,6 +354,7 @@ class PovPublishTab(gui.FormLayout):
                 pause,
                 directory,
                 post_cmd,
+                do_post_cmd,
                 remote_cmd,
                 program_prefix=program_prefix,
             )
