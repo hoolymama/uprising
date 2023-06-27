@@ -26,6 +26,9 @@ private:
 	static MObject aRamp;
 	static MObject aOutput;
 
+	static MObject aRandomOffset;
+	static MObject aRandomSeed;
+
 };
 
 #endif

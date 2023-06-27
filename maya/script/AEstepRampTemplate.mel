@@ -8,6 +8,8 @@ global proc AEstepRampTemplate ( string $nodeName )
 	editorTemplate -addControl "numSteps" ;
 	editorTemplate -addControl "range" ;
 	AEaddRampControl("ramp");
+	editorTemplate -addControl "randomSeed" ;
+	editorTemplate -addControl "randomOffset" ;
 	editorTemplate -endLayout;
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;

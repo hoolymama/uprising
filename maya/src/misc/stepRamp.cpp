@@ -22,6 +22,11 @@ MTypeId stepRamp::id(k_stepRamp);
 MObject stepRamp::aNumSteps;
 MObject stepRamp::aRange;
 MObject stepRamp::aRamp;
+
+
+MObject stepRamp::aRandomOffset;
+MObject stepRamp::aRandomSeed;
+
 MObject stepRamp::aOutput;
 
 stepRamp::stepRamp() {}
@@ -63,6 +68,20 @@ MStatus stepRamp::initialize()
 	st = addAttribute(aRamp);
 	mser;
 
+
+	aRandomOffset = nAttr.create("randomOffset", "ro", MFnNumericData::k2Float);
+	nAttr.setKeyable(true);
+	nAttr.setStorable(true);
+	nAttr.setDefault(0.0);
+	st = addAttribute(aRandomOffset);
+
+	aRandomSeed = nAttr.create("randomSeed", "rs", MFnNumericData::kInt);
+	nAttr.setKeyable(true);
+	nAttr.setStorable(true);
+	nAttr.setDefault(0);
+	st = addAttribute(aRandomSeed);
+
+
 	aOutput = nAttr.create("output", "out", MFnNumericData::kFloat);
 	nAttr.setReadable(true);
 	nAttr.setStorable(false);
@@ -74,6 +93,8 @@ MStatus stepRamp::initialize()
 	attributeAffects(aNumSteps, aOutput);
 	attributeAffects(aRange, aOutput);
 	attributeAffects(aRamp, aOutput);
+	attributeAffects(aRandomOffset, aOutput);
+	attributeAffects(aRandomSeed, aOutput);
 
 	return MS::kSuccess;
 }
@@ -90,6 +111,12 @@ MStatus stepRamp::compute(const MPlug &plug, MDataBlock &data)
 	float rangeMin = range[0];
 	float rangeMax = range[1];
 	int num = std::max(data.inputValue(aNumSteps).asInt(), 2);
+
+	float2 &randomOffset = data.inputValue(aRandomOffset).asFloat2();
+	float randomOffsetMin = randomOffset[0];
+	float randomOffsetMax = randomOffset[1];
+	int randomSeed = data.inputValue(aRandomSeed).asInt();
+	srand48(randomSeed);
 
 	MFloatArray sampleVals;
 	float gap = 1.0 / (num - 1);
@@ -108,6 +135,12 @@ MStatus stepRamp::compute(const MPlug &plug, MDataBlock &data)
 		1.0,
 		rangeMin,
 		rangeMax);
+
+	for (unsigned i = 0; i < num; i++)
+	{
+		out[i] += (randomOffsetMin + (randomOffsetMax - randomOffsetMin) * drand48());
+	}
+	
 
 	MArrayDataHandle hOutput = data.outputArrayValue(aOutput, &st);
 	mser;
