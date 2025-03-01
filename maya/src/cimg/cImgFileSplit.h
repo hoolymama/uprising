@@ -1,3 +1,13 @@
+/**
+ * @file cImgFileSplit.h
+ * @brief Maya node for splitting images based on color analysis.
+ *
+ * This file implements a Maya node for image splitting operations:
+ * - Splits images based on color analysis and sorting
+ * - Supports multiple color sorting methods
+ * - Handles palette-based image processing
+ * - Provides color transformation options
+ */
 
 #ifndef _cImgFileSplit
 #define _cImgFileSplit
@@ -10,10 +20,22 @@
 
 #include "cImgData.h"
 
+/**
+ * @class cImgFileSplit
+ * @brief Maya node for color-based image splitting.
+ *
+ * cImgFileSplit provides image splitting functionality:
+ * - Color analysis and sorting
+ * - Palette-based processing
+ * - Multiple output generation
+ * - Color space transformations
+ */
 class cImgFileSplit : public MPxNode
 {
 public:
-
+	/**
+	 * @brief Method enumeration for color sorting.
+	 */
 	enum Method
 	{
 		kNone,
@@ -21,12 +43,30 @@ public:
 		kHSPDescending
 	};
 
+	/**
+	 * @brief Default constructor.
+	 */
 	cImgFileSplit();
 
+	/**
+	 * @brief Virtual destructor.
+	 */
 	virtual ~cImgFileSplit();
 
+	/**
+	 * @brief Computes the split image outputs.
+	 * @param plug The plug to compute
+	 * @param data The data block containing the node's data
+	 * @return MStatus Success or failure status
+	 */
 	virtual MStatus		compute( const MPlug &plug, MDataBlock &data );
 
+	/**
+	 * @brief Calculates color palette from input image.
+	 * @param data Maya data block
+	 * @param image Source image
+	 * @param palette Output color palette
+	 */
 	void calculate_pallete(	
 		MDataBlock&data,
 		const CImg<unsigned char> &image,
@@ -38,8 +78,16 @@ public:
     //     MPlugArray &affectedPlugs );
 
 
+	/**
+	 * @brief Creates a new instance of the node.
+	 * @return Pointer to new cImgFileSplit instance
+	 */
 	static  void		*creator();
 
+	/**
+	 * @brief Initializes the node attributes.
+	 * @return MStatus Success or failure status
+	 */
 	static MStatus initialize();
 	static MObject aImageFilename;
 	// static MObject aResize;
@@ -74,9 +122,20 @@ public:
 	
 	static MTypeId	id;
 
+	/**
+	 * @brief Compares two colors based on HSP value.
+	 * @param c1 First color
+	 * @param c2 Second color
+	 * @return true if c1's HSP value is less than c2's
+	 */
 	static bool compareHSP(const MColor &c1, const MColor &c2);
 
-    static float calculateHSP(const MColor &color);
+	/**
+	 * @brief Calculates HSP (Highly Saturated Pixels) value for a color.
+	 * @param color Input color
+	 * @return HSP value
+	 */
+	static float calculateHSP(const MColor &color);
 
 private:
 
