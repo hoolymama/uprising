@@ -18,5 +18,4 @@ __pycache__
 *.mabak
 *.mayaSwatches
 *.venv
-*.rdlic
-
+*.rdklic
