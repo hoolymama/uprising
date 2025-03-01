@@ -296,6 +296,22 @@ void strokeCreator::subsample(
   outPoints.append(inPoints[lastIndex]);
 }
 
+
+
+void strokeCreator::subsample(
+    const MPointArray &inPoints,
+    float density,
+    MFloatPointArray &outPoints) const
+{
+  MFloatPointArray floatPoints;
+  floatPoints.setLength(inPoints.length());
+  for (unsigned i = 0; i < inPoints.length(); i++)
+  {
+    floatPoints[i] = inPoints[i];
+  }
+  subsample(floatPoints, density, outPoints);
+}
+
 /// @brief Given a set of points and colors, insert new points in between successive each pair of points
 /// @param inPoints The input points
 /// @param inColors The input colors

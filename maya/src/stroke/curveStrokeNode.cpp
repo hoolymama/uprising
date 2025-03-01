@@ -27,6 +27,7 @@ MObject curveStrokeNode::aCurves;
 MObject curveStrokeNode::aWidth;
 MObject curveStrokeNode::aSplitAngle;
 MObject curveStrokeNode::aPivot;
+MObject curveStrokeNode::aLinearCurve;
 
 MTypeId curveStrokeNode::id(k_curveStrokeNode);
 
@@ -48,6 +49,13 @@ MStatus curveStrokeNode::initialize()
     MFnUnitAttribute uAttr;
     MFnEnumAttribute eAttr;
     inheritAttributesFrom("paintStrokeCreator");
+
+    aLinearCurve = nAttr.create("linearCurve", "lcrv", MFnNumericData::kBoolean);
+    nAttr.setHidden(false);
+    nAttr.setKeyable(true);
+    nAttr.setStorable(true);
+    nAttr.setDefault(false);
+    st = addAttribute(aLinearCurve);
 
     aCurves = tAttr.create("curves", "crvs", MFnNurbsCurveData::kNurbsCurve);
     tAttr.setReadable(false);
@@ -84,6 +92,7 @@ MStatus curveStrokeNode::initialize()
     attributeAffects(aCurves, aOutput);
     attributeAffects(aWidth, aOutput);
     attributeAffects(aPivot, aOutput);
+    attributeAffects(aLinearCurve, aOutput);
 
     return (MS::kSuccess);
 }
@@ -107,6 +116,7 @@ MStatus curveStrokeNode::generateStrokeGeometry(
 
     //////////////////////////////////////////////////////////////
     float pointDensity = data.inputValue(aPointDensity).asFloat();
+    bool linearCurve = data.inputValue(aLinearCurve).asBool();
     pointDensity = fmax(pointDensity, 0.001);
     int minimumPoints = data.inputValue(aMinimumPoints).asInt();
     float entryTransitionLength = data.inputValue(aEntryTransitionLength).asFloat();
@@ -156,84 +166,98 @@ MStatus curveStrokeNode::generateStrokeGeometry(
             continue;
         }
 
-        MDoubleArray knotVals;
-        st = curveFn.getKnots(knotVals);
-        int numKnots = knotVals.length();
-        double recip = 1.0 / knotVals[(numKnots - 1)];
-        for (int i = 0; i < numKnots; ++i)
+        if (linearCurve)
         {
-            knotVals[i] = knotVals[i] * recip;
-        }
-        curveFn.setKnots(knotVals, 0, (numKnots - 1));
+            MPointArray points;
+            curveFn.getCVs(points, MSpace::kObject);
 
-        std::vector<Boundary> boundaries;
-        boundaries.clear();
-        CurveBoundaries cb = CurveBoundaries(dCurve);
-        cb.boundaries(
-            strokeLength,
-            minimumStrokeAdvance,
-            overlap,
-            splitAngle,
-            splitTestInterval,
-            canvasNormal,
-            boundaries);
-        int num = boundaries.size();
+            MFloatPointArray sampledPts;
+            strokeCreator::subsample(points, pointDensity, sampledPts);
 
-        if (!num)
-        {
-            return MS::kUnknownParameter;
-        }
-
-        MPoint curveStart;
-
-        st = curveFn.getPointAtParam(0.0, curveStart);
-        mser;
-        MFloatPoint fCurveStart(curveStart);
-
-        for (int i = 0; i < num; ++i)
-        {
-            const float &startDist = boundaries[i].start;
-            const float &endDist = boundaries[i].end;
-            const float &coil = boundaries[i].maxCoil;
-
-            MDoubleArray curveParams;
-
-            unsigned numPoints = createStrokeData(
-                dCurve,
-                startDist,
-                endDist,
-                pointDensity,
-                minimumPoints,
-                curveParams);
-
-            Stroke stroke = createStroke(
-                dCurve,
-                curveParams,
-                radius);
-
-            if (stroke.valid())
+            MFloatMatrix targetRotationMatrix = mayaMath::rotationOnly(canvasMatrix);
+            Stroke stroke = Stroke(sampledPts, targetRotationMatrix);
+            stroke.setParentId(i);
+            if (pivot == curveStrokeNode::kCurveStart)
             {
-                stroke.setParentId(0);
-                stroke.setCoil(coil);
-                stroke.setSegmentId(i);
-                if (pivot == curveStrokeNode::kCurveStart)
+                MPoint curveStart;
+                st = curveFn.getPointAtParam(0.0, curveStart);
+                MFloatPoint fCurveStart(curveStart);
+                stroke.setPivotPosition(fCurveStart);
+            }
+            pOutStrokes->push_back(stroke);
+        }
+        else
+        {
+
+            MDoubleArray knotVals;
+            st = curveFn.getKnots(knotVals);
+            int numKnots = knotVals.length();
+            double recip = 1.0 / knotVals[(numKnots - 1)];
+            for (int i = 0; i < numKnots; ++i)
+            {
+                knotVals[i] = knotVals[i] * recip;
+            }
+            curveFn.setKnots(knotVals, 0, (numKnots - 1));
+
+            std::vector<Boundary> boundaries;
+            boundaries.clear();
+            CurveBoundaries cb = CurveBoundaries(dCurve);
+            cb.boundaries(
+                strokeLength,
+                minimumStrokeAdvance,
+                overlap,
+                splitAngle,
+                splitTestInterval,
+                canvasNormal,
+                boundaries);
+            int num = boundaries.size();
+
+            if (!num)
+            {
+                return MS::kUnknownParameter;
+            }
+
+            MPoint curveStart;
+
+            st = curveFn.getPointAtParam(0.0, curveStart);
+            mser;
+            MFloatPoint fCurveStart(curveStart);
+
+            for (int j = 0; j < num; ++j)
+            {
+                const float &startDist = boundaries[j].start;
+                const float &endDist = boundaries[j].end;
+                const float &coil = boundaries[j].maxCoil;
+
+                MDoubleArray curveParams;
+
+                unsigned numPoints = createStrokeData(
+                    dCurve,
+                    startDist,
+                    endDist,
+                    pointDensity,
+                    minimumPoints,
+                    curveParams);
+
+                Stroke stroke = createStroke(
+                    dCurve,
+                    curveParams,
+                    radius);
+
+                if (stroke.valid())
                 {
-                    stroke.setPivotPosition(fCurveStart);
+                    stroke.setParentId(i);
+                    stroke.setCoil(coil);
+                    stroke.setSegmentId(j);
+                    if (pivot == curveStrokeNode::kCurveStart)
+                    {
+                        stroke.setPivotPosition(fCurveStart);
+                    }
+                    pOutStrokes->push_back(stroke);
                 }
-                pOutStrokes->push_back(stroke);
             }
         }
     }
-    // paintStrokeCreator::applyBrushStrokeSpec(data, pOutStrokes);
-
-    // for (std::vector<Stroke>::iterator curr_stroke = pOutStrokes->begin(); curr_stroke != pOutStrokes->end(); curr_stroke++)
-    // {
-
-    //     curr_stroke->setLayerId(layerId);
-    //     curr_stroke->setBrushId(brushId);
-    //     curr_stroke->setPaintId(paintId);
-
-    // }
 
     paintStrokeCreator::generateStrokeGeometry(plug, data, pOutStrokes);
 

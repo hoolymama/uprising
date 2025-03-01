@@ -13,7 +13,7 @@ PKG_DIR =  os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODULE_NAME = os.path.basename(os.path.dirname(PKG_DIR))
 MODULE_DIR = os.path.join(PKG_DIR, "maya")
 VERSION = os.path.basename(PKG_DIR)  # 5.1.0
-SUPPORTED_MAYA_VERSIONS = [2023]
+SUPPORTED_MAYA_VERSIONS = [2024]
 MAYA_MODULES_DIR = os.path.expanduser("~/Library/Preferences/Autodesk/maya/modules")
 
 def main():

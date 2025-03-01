@@ -25,6 +25,7 @@ private:
   static MObject aCurves;
   static MObject aWidth;
   static MObject aSplitAngle;
+  static MObject aLinearCurve;
   static MObject aPivot;
 
   enum Pivot

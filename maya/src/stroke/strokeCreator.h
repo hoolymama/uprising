@@ -34,6 +34,13 @@ protected:
                  float density,
                  MFloatPointArray &outPoints) const;
 
+void subsample(
+    const MPointArray &inPoints,
+    float density,
+    MFloatPointArray &outPoints) const;
+
+
+
   void subsample(const MFloatPointArray &inPoints,
                  const MColorArray &inColors,
                  float density,

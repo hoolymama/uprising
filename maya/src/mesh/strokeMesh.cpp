@@ -88,7 +88,7 @@ MStatus strokeMesh::initialize()
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(6);
-	nAttr.setMin(3);
+	nAttr.setMin(2);
 
 	addAttribute(aNumProfilePoints);
 
@@ -162,6 +162,12 @@ void strokeMesh::calcDefaultProfile(
 	double profileScale,
 	MPointArray &profileVertices) const
 {
+	if (numProfilePoints == 2) {
+		profileVertices.append(MPoint(0, 0, -profileScale * 0.5));
+		profileVertices.append(MPoint(0, 0, profileScale * 0.5));
+		return;
+	}
+		
 	for (unsigned i = 0; i < numProfilePoints; i++)
 	{
 		double gap = ((i * PI_X2) + PI) / double(numProfilePoints);
@@ -207,14 +213,20 @@ MStatus strokeMesh::compute(const MPlug &plug, MDataBlock &data)
 	}
 
 	int numProfilePoints = data.inputValue(aNumProfilePoints).asShort();
-	if (numProfilePoints < 3)
-		numProfilePoints = 3;
+	if (numProfilePoints < 2)
+		numProfilePoints = 2;
+
 	double profileScale = data.inputValue(aProfileScale).asDouble();
+
+ 
 
 	MPointArray profileVertices;
 	calcDefaultProfile(numProfilePoints, profileScale, profileVertices);
 
 	extrude(pStrokes, profileVertices, outGeom);
+
+
+	// extrude(pStrokes, profileVertices, outGeom);
 
 	MDataHandle hMesh = data.outputValue(aOutMesh, &st);
 	hMesh.set(outGeom);
@@ -272,7 +284,11 @@ void strokeMesh::extrude(const std::vector<Stroke> *pStrokes, const MPointArray 
 			}
 			lastTangent = tangent;
 		}
-		vertexIndex = createTube(siter->size(), nProfileVertices, vertexIndex, faceCounts, connectivity);
+		if (nProfileVertices > 2) {
+			vertexIndex = createTube(siter->size(), nProfileVertices, vertexIndex, faceCounts, connectivity);
+		} else {
+			vertexIndex = createRibbon(siter->size(), vertexIndex, faceCounts, connectivity);
+		}
 	}
 
 	MFnMesh fnMesh;
@@ -288,6 +304,10 @@ void strokeMesh::extrude(const std::vector<Stroke> *pStrokes, const MPointArray 
 	fnMesh.setVertexColors(colorList,vertList);
 
 }
+
+
+
+
 
 int strokeMesh::createTube(
 	int numTargets,
@@ -340,6 +360,24 @@ int strokeMesh::createTube(
 	return vertexIndex;
 }
 
+int strokeMesh::createRibbon(
+	int numTargets,
+	int vertexIndex,
+	MIntArray &faceCounts,
+	MIntArray &connectivity)  
+	{
+    for (unsigned j = 0;j<(numTargets-1);j++) {
+        faceCounts.append(4);
+        connectivity.append(vertexIndex);
+        connectivity.append(vertexIndex+1);
+        connectivity.append(vertexIndex+3);
+        connectivity.append(vertexIndex+2);
+
+        vertexIndex +=2;
+    }
+    vertexIndex +=2;
+	return vertexIndex;
+}
 // unsigned nVerts = outVertices.length();
 
 // fnM.create( nVerts, outFaceCounts.length(),

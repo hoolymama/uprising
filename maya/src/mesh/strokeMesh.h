@@ -32,6 +32,12 @@ public:
 		MIntArray &faceCounts,
 		MIntArray &connectivity);
 
+	int createRibbon(
+	int numTargets,
+	int vertexIndex,
+	MIntArray &faceCounts,
+	MIntArray &connectivity);
+
 private:
 	static MObject aStrokes; // array of chain points
 	static MObject aNumProfilePoints;
