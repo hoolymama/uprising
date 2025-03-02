@@ -1,3 +1,11 @@
+/**
+ * @file paintingDrawOverride.h
+ * @brief Defines the paintingDrawOverride class for custom viewport rendering of painting nodes.
+ * 
+ * This file contains the paintingDrawOverride class which provides custom viewport 2.0 
+ * rendering for painting nodes. It handles the preparation of draw data, bounding box 
+ * calculations, and UI drawing operations for visualizing painting elements in Maya's viewport.
+ */
 #ifndef paintingDrawOverride_H
 #define paintingDrawOverride_H
 
@@ -26,7 +34,17 @@
 
 #include "paintingDrawData.h"
 
-
+/**
+ * @class paintingDrawOverride
+ * @brief Custom draw override for painting nodes in Viewport 2.0.
+ * 
+ * The paintingDrawOverride class extends MPxDrawOverride to provide custom
+ * viewport 2.0 rendering for painting nodes. It handles:
+ * - Preparation of draw data for rendering
+ * - Bounding box calculations
+ * - UI drawing operations for visualizing painting elements
+ * - Different drawing modes (wireframe, shaded, etc.)
+ */
 class paintingDrawOverride : public MHWRender::MPxDrawOverride {
 public:
 

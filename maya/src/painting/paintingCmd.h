@@ -1,3 +1,11 @@
+/**
+ * @file paintingCmd.h
+ * @brief Defines the paintingCmd class for interacting with painting nodes.
+ * 
+ * This file contains the paintingCmd class which provides command functionality
+ * for interacting with painting nodes in Maya. It supports querying and modifying
+ * various aspects of painting data, including clusters, strokes, and their properties.
+ */
 #ifndef __paintingCmd_H__
 #define __paintingCmd_H__
 
